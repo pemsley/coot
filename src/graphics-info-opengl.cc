@@ -24,6 +24,7 @@
  *
  */
 
+#include "stereo-eye.hh"
 #ifdef USE_PYTHON
 #include <Python.h>
 #endif
@@ -40,56 +41,63 @@
 
 std::vector<std::reference_wrapper<Shader> > get_shader_refs() {
 
-   return std::vector<std::reference_wrapper<Shader> > { graphics_info_t::shader_for_maps,
-                                                        graphics_info_t::shader_for_map_caps,
-                                                        graphics_info_t::shader_for_models,
-                                                        graphics_info_t::shader_for_outline_of_active_residue,
-                                                        graphics_info_t::shader_for_model_as_meshes,
-                                                        graphics_info_t::shader_for_symmetry_atoms_bond_lines,
-                                                        graphics_info_t::shader_for_central_cube,
-                                                        graphics_info_t::shader_for_origin_cube,
-                                                        graphics_info_t::shader_for_hud_text,
-                                                        graphics_info_t::shader_for_hud_geometry_bars,
-                                                        graphics_info_t::shader_for_hud_geometry_labels,
-                                                        graphics_info_t::shader_for_hud_geometry_tooltip_text,
-                                                        graphics_info_t::shader_for_hud_buttons,
-                                                        graphics_info_t::shader_for_hud_image_texture,
-                                                        graphics_info_t::shader_for_atom_labels,
-                                                        graphics_info_t::shader_for_moleculestotriangles,
-                                                        graphics_info_t::shader_for_hud_lines,
-                                                        graphics_info_t::shader_for_lines,
-                                                        graphics_info_t::shader_for_lines_pulse,
-                                                        graphics_info_t::shader_for_rama_balls,
-                                                        graphics_info_t::shader_for_particles,
-                                                        graphics_info_t::shader_for_instanced_objects,
-                                                        graphics_info_t::shader_for_extra_distance_restraints,
-                                                        graphics_info_t::shader_for_happy_face_residue_markers,
-                                                        graphics_info_t::shader_for_happy_face_residue_markers_for_ssao,
-                                                        graphics_info_t::shader_for_rama_plot_phi_phis_markers,
-                                                        graphics_info_t::shader_for_rama_plot_axes_and_ticks,
-                                                        graphics_info_t::shader_for_ligand_view,
-                                                        graphics_info_t::shader_for_x_blur,
-                                                        graphics_info_t::shader_for_y_blur,
-                                                        graphics_info_t::shader_for_dof_blur_by_texture_combination,
-                                                        graphics_info_t::shader_for_texture_meshes,
-                                                        graphics_info_t::shader_for_meshes,
-                                                        graphics_info_t::shader_for_background_image,
-                                                        graphics_info_t::shader_for_meshes_with_shadows,
-                                                        graphics_info_t::shader_for_meshes_shadow_map,
-                                                        graphics_info_t::shader_for_instanced_meshes_shadow_map,
-                                                        graphics_info_t::shader_for_meshes_for_ssao,
-                                                        graphics_info_t::shader_for_instanced_meshes_with_shadows,
-                                                        graphics_info_t::shader_for_tmeshes_for_ssao,
-                                                        graphics_info_t::shader_for_tmeshes_with_shadows,
-                                                        graphics_info_t::shader_for_texture_meshes_shadow_map,
-                                                        graphics_info_t::shader_for_rotation_centre_cross_hairs_for_ssao,
-                                                        graphics_info_t::shader_for_tmeshes,
-                                                        graphics_info_t::shader_for_tmeshes_for_ssao,
-                                                        graphics_info_t::shader_for_shadow_map_image_texture_mesh,
-                                                        graphics_info_t::shader_for_effects,
-                                                        graphics_info_t::shaderGeometryPass,
-                                                        graphics_info_t::shaderSSAO,
-                                                        graphics_info_t::shaderSSAOBlur};
+   std::vector<std::reference_wrapper<Shader> > rs = { graphics_info_t::shader_for_maps,
+                                                       graphics_info_t::shader_for_map_caps,
+                                                       graphics_info_t::shader_for_models,
+                                                       graphics_info_t::shader_for_outline_of_active_residue,
+                                                       graphics_info_t::shader_for_model_as_meshes,
+                                                       graphics_info_t::shader_for_symmetry_atoms_bond_lines,
+                                                       graphics_info_t::shader_for_central_cube,
+                                                       graphics_info_t::shader_for_origin_cube,
+                                                       graphics_info_t::shader_for_hud_text,
+                                                       graphics_info_t::shader_for_hud_geometry_bars,
+                                                       graphics_info_t::shader_for_hud_geometry_labels,
+                                                       graphics_info_t::shader_for_hud_geometry_tooltip_text,
+                                                       graphics_info_t::shader_for_hud_buttons,
+                                                       graphics_info_t::shader_for_hud_image_texture,
+                                                       graphics_info_t::shader_for_atom_labels,
+                                                       graphics_info_t::shader_for_moleculestotriangles,
+                                                       graphics_info_t::shader_for_hud_lines,
+                                                       graphics_info_t::shader_for_lines,
+                                                       graphics_info_t::shader_for_lines_pulse,
+                                                       graphics_info_t::shader_for_rama_balls,
+                                                       graphics_info_t::shader_for_particles,
+                                                       graphics_info_t::shader_for_instanced_objects,
+                                                       graphics_info_t::shader_for_extra_distance_restraints,
+                                                       graphics_info_t::shader_for_happy_face_residue_markers,
+                                                       graphics_info_t::shader_for_rama_plot_phi_phis_markers,
+                                                       graphics_info_t::shader_for_rama_plot_axes_and_ticks,
+                                                       graphics_info_t::shader_for_ligand_view,
+                                                       graphics_info_t::shader_for_texture_meshes,
+                                                       graphics_info_t::shader_for_meshes,
+                                                       graphics_info_t::shader_for_background_image,
+                                                       graphics_info_t::shader_for_tmeshes};
+
+   if (! graphics_info_t::graphics_is_gl_es) {
+      rs.push_back(graphics_info_t::shader_for_effects);
+      rs.push_back(graphics_info_t::shader_for_dof_blur_by_texture_combination);
+      rs.push_back(graphics_info_t::shader_for_meshes_with_shadows);
+      rs.push_back(graphics_info_t::shader_for_meshes_shadow_map);
+      rs.push_back(graphics_info_t::shader_for_instanced_meshes_shadow_map);
+      rs.push_back(graphics_info_t::shader_for_meshes_for_ssao);
+      rs.push_back(graphics_info_t::shader_for_instanced_meshes_for_ssao);
+      rs.push_back(graphics_info_t::shader_for_instanced_meshes_with_shadows);
+      rs.push_back(graphics_info_t::shader_for_tmeshes_for_ssao);
+      rs.push_back(graphics_info_t::shader_for_tmeshes_with_shadows);
+      rs.push_back(graphics_info_t::shader_for_texture_meshes_shadow_map);
+      rs.push_back(graphics_info_t::shader_for_rotation_centre_cross_hairs_for_ssao);
+      rs.push_back(graphics_info_t::shader_for_tmeshes_for_ssao);
+      rs.push_back(graphics_info_t::shader_for_shadow_map_image_texture_mesh);
+      rs.push_back(graphics_info_t::shaderGeometryPass);
+      rs.push_back(graphics_info_t::shader_for_happy_face_residue_markers_for_ssao);
+      rs.push_back(graphics_info_t::shader_for_moleculestotriangles_with_shadows);
+      rs.push_back(graphics_info_t::shader_for_x_blur);
+      rs.push_back(graphics_info_t::shader_for_y_blur);
+      rs.push_back(graphics_info_t::shaderSSAO);
+      rs.push_back(graphics_info_t::shaderSSAOBlur);
+   }
+
+   return rs;
 }
 
 
@@ -116,61 +124,7 @@ graphics_info_t::init_shader(const std::string &shader_file_name) {
 bool
 graphics_info_t::init_shaders() {
 
-   std::vector<std::reference_wrapper<Shader> > shaders = {shader_for_maps,
-                                                           shader_for_map_caps,
-                                                           shader_for_models,
-                                                           shader_for_outline_of_active_residue,
-                                                           shader_for_model_as_meshes,
-                                                           shader_for_symmetry_atoms_bond_lines,
-                                                           shader_for_central_cube,
-                                                           shader_for_origin_cube,
-                                                           shader_for_hud_text,
-                                                           shader_for_hud_geometry_bars,
-                                                           shader_for_hud_geometry_labels,
-                                                           shader_for_hud_geometry_tooltip_text,
-                                                           shader_for_hud_buttons,
-                                                           shader_for_hud_image_texture,
-                                                           shader_for_atom_labels,
-                                                           shader_for_moleculestotriangles,
-                                                           shader_for_hud_lines,
-                                                           shader_for_lines,
-                                                           shader_for_lines_pulse,
-                                                           shader_for_rama_balls,
-                                                           shader_for_particles,
-                                                           shader_for_instanced_objects,
-                                                           shader_for_extra_distance_restraints,
-                                                           shader_for_happy_face_residue_markers,
-                                                           shader_for_happy_face_residue_markers_for_ssao,
-                                                           shader_for_rama_plot_phi_phis_markers,
-                                                           shader_for_rama_plot_axes_and_ticks,
-                                                           shader_for_ligand_view,
-                                                           shader_for_x_blur,
-                                                           shader_for_y_blur,
-                                                           shader_for_dof_blur_by_texture_combination,
-                                                           shader_for_texture_meshes,
-                                                           shader_for_meshes,
-                                                           shader_for_background_image,
-                                                           // camera_facing_quad_shader,
-
-                                                           // from crows
-                                                           shader_for_meshes_with_shadows,
-                                                           shader_for_meshes_shadow_map,
-                                                           shader_for_instanced_meshes_shadow_map,
-                                                           shader_for_meshes_for_ssao,
-                                                           shader_for_instanced_meshes_for_ssao,
-                                                           shader_for_instanced_meshes_with_shadows,
-                                                           shader_for_tmeshes_for_ssao,
-                                                           shader_for_tmeshes_with_shadows,
-                                                           shader_for_texture_meshes_shadow_map,
-                                                           shader_for_rotation_centre_cross_hairs_for_ssao,
-                                                           shader_for_tmeshes,
-                                                           shader_for_tmeshes_for_ssao,
-                                                           shader_for_shadow_map_image_texture_mesh,
-                                                           shader_for_effects,
-                                                           shaderGeometryPass,
-                                                           shaderSSAO,
-                                                           shaderSSAOBlur
-   };
+   std::vector<std::reference_wrapper<Shader> > shaders = get_shader_refs();
 
    bool status = true;  // success
 
@@ -182,22 +136,7 @@ graphics_info_t::init_shaders() {
    for (it=shaders.begin(); it!=shaders.end(); ++it)
       it->get().set_default_directory(d);
 
-   // crows
-   shader_for_meshes_with_shadows.init("meshes-with-shadows.shader",                Shader::Entity_t::MAP);
-   shader_for_meshes_shadow_map.init("meshes-for-shadow-map.shader",                Shader::Entity_t::MAP);
-   shader_for_instanced_meshes_shadow_map.init("instanced-meshes-for-shadow-map.shader", Shader::Entity_t::MAP);
-   shader_for_meshes_for_ssao.init("meshes-for-ssao.shader",                        Shader::Entity_t::MAP);
-   shader_for_instanced_meshes_for_ssao.init("instanced-meshes-for-ssao.shader",    Shader::Entity_t::MAP);
-   shader_for_tmeshes_for_ssao.init("texture-meshes-for-ssao.shader",               Shader::Entity_t::MAP);
-   shader_for_tmeshes_with_shadows.init("texture-meshes-with-shadows.shader",       Shader::Entity_t::MAP);
-   shader_for_texture_meshes_shadow_map.init("texture-meshes-shadow-map.shader",    Shader::Entity_t::MAP);
-   shader_for_tmeshes.init("texture-meshes.shader",                                 Shader::Entity_t::MAP);  // Hmm! where is this used? (duplicate)
-   shader_for_shadow_map_image_texture_mesh.init("shadow-map-image-texture.shader", Shader::Entity_t::MAP);
-   shaderGeometryPass.init("9.ssao_geometry.shader", Shader::Entity_t::NONE);
-   shaderSSAO.init(        "9.ssao.shader",          Shader::Entity_t::NONE);
-   shaderSSAOBlur.init(    "9.ssao_blur.shader",     Shader::Entity_t::NONE);
-   shader_for_instanced_meshes_with_shadows.init("instanced-meshes-with-shadows.shader", Shader::Entity_t::MAP);
-
+   //  shader_for_tmeshes.init("texture-meshes.shader", Shader::Entity_t::MAP);  // Hmm! where is this used? (duplicate)
    shader_for_outline_of_active_residue.init("outline-of-active-residue.shader", Shader::Entity_t::MODEL);
    shader_for_maps.init("map.shader", Shader::Entity_t::MAP);
    shader_for_map_caps.init("draw-map-cap.shader", Shader::Entity_t::MAP);
@@ -218,7 +157,6 @@ graphics_info_t::init_shaders() {
    shader_for_extra_distance_restraints.init("extra-distance-restraints.shader", Shader::Entity_t::INSTANCED_DISPLAY_OBJECT);
    shader_for_hud_geometry_tooltip_text.init("hud-geometry-tooltip-text.shader", Shader::Entity_t::HUD_TEXT);
    shader_for_happy_face_residue_markers.init("residue-markers.shader", Shader::Entity_t::GENERIC_DISPLAY_OBJECT);
-   shader_for_happy_face_residue_markers_for_ssao.init("residue-markers-for-ssao.shader", Shader::Entity_t::GENERIC_DISPLAY_OBJECT);
    shader_for_ligand_view.init("ligand-view.shader", Shader::Entity_t::NONE);
    shader_for_model_as_meshes.init("model-as-mesh.shader", Shader::Entity_t::MODEL);
    shader_for_symmetry_atoms_bond_lines.init("symmetry-atoms-lines.shader", Shader::Entity_t::MAP);
@@ -227,21 +165,42 @@ graphics_info_t::init_shaders() {
    shader_for_rama_plot_phi_phis_markers.init("rama-plot-phi-psi-markers.shader", Shader::Entity_t::HUD_TEXT);
    shader_for_hud_lines.init("hud-lines.shader", Shader::Entity_t::MODEL);
    shader_for_background_image.init("background-image.shader", Shader::Entity_t::NONE);
-   shader_for_meshes.init("meshes.shader", Shader::Entity_t::MAP); // 20220208-PE temporay while crow code is merged.
-   shader_for_texture_meshes.init("texture-meshes.shader", Shader::Entity_t::MAP);
-   shader_for_effects.init("effects.shader", Shader::Entity_t::NONE);
+   shader_for_meshes.init("meshes.shader", Shader::Entity_t::MAP); // 20220208-PE temporary while crow code is merged.
+   shader_for_texture_meshes.init("texture-meshes.shader", Shader::Entity_t::NONE);
 
-   // testing image textures
-   // camera_facing_quad_shader.init("camera-facing-quad-shader-for-testing.shader", Shader::Entity_t::MODEL);
+   if (graphics_is_gl_es) {
+   } else {
+      // crows
+      shader_for_happy_face_residue_markers_for_ssao.init("residue-markers-for-ssao.shader", Shader::Entity_t::GENERIC_DISPLAY_OBJECT);
+      shader_for_meshes_with_shadows.init("meshes-with-shadows.shader",                Shader::Entity_t::MAP);
+      shader_for_meshes_shadow_map.init("meshes-for-shadow-map.shader",                Shader::Entity_t::MAP);
+      shader_for_instanced_meshes_shadow_map.init("instanced-meshes-for-shadow-map.shader", Shader::Entity_t::MAP);
+      shader_for_meshes_for_ssao.init("meshes-for-ssao.shader",                        Shader::Entity_t::MAP);
+      shader_for_instanced_meshes_for_ssao.init("instanced-meshes-for-ssao.shader",    Shader::Entity_t::MAP);
+      shader_for_tmeshes_for_ssao.init("texture-meshes-for-ssao.shader",               Shader::Entity_t::MAP);
+      shader_for_tmeshes_with_shadows.init("texture-meshes-with-shadows.shader",       Shader::Entity_t::MAP);
+      shader_for_texture_meshes_shadow_map.init("texture-meshes-shadow-map.shader",    Shader::Entity_t::MAP);
+      shader_for_shadow_map_image_texture_mesh.init("shadow-map-image-texture.shader", Shader::Entity_t::MAP);
+      shader_for_moleculestotriangles_with_shadows.init("moleculestotriangles-with-shadows.shader", Shader::Entity_t::MAP);
+      shaderGeometryPass.init("9.ssao_geometry.shader", Shader::Entity_t::NONE);
+      shaderSSAO.init(        "9.ssao.shader",          Shader::Entity_t::NONE);
+      shaderSSAOBlur.init(    "9.ssao_blur.shader",     Shader::Entity_t::NONE);
+      shader_for_instanced_meshes_with_shadows.init("instanced-meshes-with-shadows.shader", Shader::Entity_t::MAP);
 
-   // we use the above to make an image/texture in the framebuffer and use then
-   // shader_for_screen to convert that framebuffer to the screen buffer.
-   shader_for_x_blur.init("blur-x.shader", Shader::Entity_t::SCREEN);
-   shader_for_y_blur.init("blur-y.shader", Shader::Entity_t::SCREEN);
-   shader_for_dof_blur_by_texture_combination.init("depth-of-field.shader", Shader::Entity_t::SCREEN);
+      shader_for_effects.init("effects.shader", Shader::Entity_t::NONE);
 
-   // long name at the bottom
-   shader_for_rotation_centre_cross_hairs_for_ssao.init("rotation-centre-cross-hairs-for-ssao.shader", Shader::Entity_t::NONE);
+      // testing image textures
+      // camera_facing_quad_shader.init("camera-facing-quad-shader-for-testing.shader", Shader::Entity_t::MODEL);
+
+      // we use the above to make an image/texture in the framebuffer and use then
+      // shader_for_screen to convert that framebuffer to the screen buffer.
+      shader_for_x_blur.init("blur-x.shader", Shader::Entity_t::SCREEN);
+      shader_for_y_blur.init("blur-y.shader", Shader::Entity_t::SCREEN);
+      shader_for_dof_blur_by_texture_combination.init("depth-of-field.shader", Shader::Entity_t::SCREEN);
+
+      // long name at the bottom
+      shader_for_rotation_centre_cross_hairs_for_ssao.init("rotation-centre-cross-hairs-for-ssao.shader", Shader::Entity_t::NONE);
+   }
 
    for (it=shaders.begin(); it!=shaders.end(); ++it) {
       if (! it->get().get_success_status()) {
@@ -296,7 +255,7 @@ graphics_info_t::init_framebuffers(unsigned int width, unsigned int height) { //
          std::cout << "Framebuffer for " << framebuffer_name << " not complete!" << std::endl;
       // else
       //    std::cout << "Framebuffer for " << framebuffer_name << " was complete!" << std::endl;
-   
+
       GLenum err = glGetError();
       if (err)
          std::cout << "GL ERROR:: init_framebuffers() post shadow depthmap, error is " << err << std::endl;
@@ -345,6 +304,8 @@ graphics_info_t::unproject(float x, float y, float z) {
 
    // z is 1 and -1 for front and back (or vice verse).
 
+   stereo_eye_t eye = stereo_eye_t::MONO;
+
    if (! glareas[0]) return glm::vec4(0,0,0,0);
 
    GtkAllocation allocation;
@@ -355,7 +316,7 @@ graphics_info_t::unproject(float x, float y, float z) {
    float mouseX = x / (w * 0.5f) - 1.0f;
    float mouseY = (h - y) / (h * 0.5f) - 1.0f;
 
-   glm::mat4 mvp = get_molecule_mvp();
+   glm::mat4 mvp = get_molecule_mvp(eye);
    glm::mat4 vp_inv = glm::inverse(mvp);
    glm::vec4 screenPos_f = glm::vec4(mouseX, mouseY, z, 1.0f); // maybe +1
    glm::vec4 worldPos_f = vp_inv * screenPos_f;
@@ -377,7 +338,9 @@ graphics_info_t::unproject(float x, float y, float z) {
 glm::vec3
 graphics_info_t::unproject_to_world_coordinates(const glm::vec3 &projected_coords) {
 
-   glm::mat4 mvp = get_molecule_mvp();
+   stereo_eye_t eye = stereo_eye_t::MONO;
+
+   glm::mat4 mvp = get_molecule_mvp(eye);
    glm::mat4 vp_inv = glm::inverse(mvp);
    glm::vec4 screenPos = glm::vec4(projected_coords, 1.0f);
    glm::vec4 c = vp_inv * screenPos;
@@ -392,76 +355,96 @@ graphics_info_t::unproject_to_world_coordinates(const glm::vec3 &projected_coord
 int
 graphics_info_t::blob_under_pointer_to_screen_centre() {
 
+   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+
    graphics_info_t g; // needed?
    int r = 0;
    if (use_graphics_interface_flag) {
       int imol_map = Imol_Refinement_Map();
       if (imol_map != -1) {
-	 // OK we have a map to search.
-	 // coot::Cartesian front = unproject(0.0);
-	 // coot::Cartesian back  = unproject(1.0);
-         // glm::vec4 glm_front = new_unproject(-0.3);
-         // glm::vec4 glm_back  = new_unproject( 1.0);
+         if (molecules[imol_map].is_displayed_p()) {
+            // OK we have a map to search.
+            // coot::Cartesian front = unproject(0.0);
+            // coot::Cartesian back  = unproject(1.0);
+            // glm::vec4 glm_front = new_unproject(-0.3);
+            // glm::vec4 glm_back  = new_unproject( 1.0);
 
-         GtkAllocation allocation = graphics_info_t::get_glarea_allocation();
-         int w = allocation.width;
-         int h = allocation.height;
+            GtkAllocation allocation = graphics_info_t::get_glarea_allocation();
+            int w = allocation.width;
+            int h = allocation.height;
 
-         glm::mat4 mvp = graphics_info_t::get_molecule_mvp(); // modeglml matrix includes orientation with the quaternion
-         glm::mat4 vp_inv = glm::inverse(mvp);
+            glm::mat4 mvp = graphics_info_t::get_molecule_mvp(eye); // modeglml matrix includes orientation with the quaternion
+            glm::mat4 vp_inv = glm::inverse(mvp);
 
-         // 20220811-PE mouse_current_x and mouse_current_y are set by the motion callback.
-         float mouseX_2 = mouse_current_x  / (w * 0.5f) - 1.0f; // mouse_x and mouse_y are updated in the motion callback.
-         float mouseY_2 = mouse_current_y  / (h * 0.5f) - 1.0f;
-         // I revered the sign here - it does the right thing now.
-         glm::vec4 screenPos_1 = glm::vec4(mouseX_2, -mouseY_2, -1.0f, 1.0f);
-         glm::vec4 screenPos_2 = glm::vec4(mouseX_2, -mouseY_2,  1.0f, 1.0f);
-         glm::vec4 worldPos_1 = vp_inv * screenPos_1;
-         glm::vec4 worldPos_2 = vp_inv * screenPos_2;
+            // 20220811-PE mouse_current_x and mouse_current_y are set by the motion callback.
+            float mouseX_2 = mouse_current_x  / (w * 0.5f) - 1.0f; // mouse_x and mouse_y are updated in the motion callback.
+            float mouseY_2 = mouse_current_y  / (h * 0.5f) - 1.0f;
+            // I revered the sign here - it does the right thing now.
+            glm::vec4 screenPos_1 = glm::vec4(mouseX_2, -mouseY_2, -1.0f, 1.0f);
+            glm::vec4 screenPos_2 = glm::vec4(mouseX_2, -mouseY_2,  1.0f, 1.0f);
+            glm::vec4 worldPos_1 = vp_inv * screenPos_1;
+            glm::vec4 worldPos_2 = vp_inv * screenPos_2;
 
-         double oowp_1 = 1.0/worldPos_1.w;
-         double oowp_2 = 1.0/worldPos_2.w;
-         coot::Cartesian front(worldPos_1.x * oowp_1, worldPos_1.y * oowp_1, worldPos_1.z * oowp_1);
-	 coot::Cartesian  back(worldPos_2.x * oowp_2, worldPos_2.y * oowp_2, worldPos_2.z * oowp_2);
+            double oowp_1 = 1.0/worldPos_1.w;
+            double oowp_2 = 1.0/worldPos_2.w;
+            coot::Cartesian front(worldPos_1.x * oowp_1, worldPos_1.y * oowp_1, worldPos_1.z * oowp_1);
+            coot::Cartesian  back(worldPos_2.x * oowp_2, worldPos_2.y * oowp_2, worldPos_2.z * oowp_2);
 
-	 clipper::Coord_orth p1(front.x(), front.y(), front.z());
-	 clipper::Coord_orth p2( back.x(),  back.y(),  back.z());
-         if (true) {
-            std::cout << "debug:: blob_under_pointer_to_screen_centre() " << mouse_x << " " << mouse_y << std::endl;
-            std::cout << "debug:: blob_under_pointer_to_screen_centre() " << mouseX_2 << " " << mouseY_2 << std::endl;
-            std::cout << "debug:: blob_under_pointer_to_screen_centre() " << glm::to_string(screenPos_1) << " "
-                      << glm::to_string(screenPos_2) << std::endl;
-            std::cout << "debug:: blob_under_pointer_to_screen_centre() " << front << " " << back << std::endl;
-            // std::cout << "blob_under_pointer_to_screen_centre() " << p1.format() << " "
-            // << p2.format() << std::endl;
+            clipper::Coord_orth p1(front.x(), front.y(), front.z());
+            clipper::Coord_orth p2( back.x(),  back.y(),  back.z());
+            if (true) {
+               std::cout << "debug:: blob_under_pointer_to_screen_centre() " << mouse_x << " " << mouse_y << std::endl;
+               std::cout << "debug:: blob_under_pointer_to_screen_centre() " << mouseX_2 << " " << mouseY_2 << std::endl;
+               std::cout << "debug:: blob_under_pointer_to_screen_centre() " << glm::to_string(screenPos_1) << " "
+                         << glm::to_string(screenPos_2) << std::endl;
+               std::cout << "debug:: blob_under_pointer_to_screen_centre() " << front << " " << back << std::endl;
+               // std::cout << "blob_under_pointer_to_screen_centre() " << p1.format() << " "
+               // << p2.format() << std::endl;
+            }
+            coot::Cartesian rc = g.RotationCentre();
+
+            try {
+               clipper::Coord_orth blob =
+                  molecules[imol_refinement_map].find_peak_along_line_favour_front(p1, p2);
+               coot::Cartesian cc(blob.x(), blob.y(), blob.z());
+               // coot::Cartesian cc = front.mid_point(back);
+               coot::Cartesian delta = rc - cc;
+               // std::cout << "Delta: " << delta << std::endl;
+               g.setRotationCentre(cc);
+               for(int ii=0; ii<n_molecules(); ii++) {
+                  molecules[ii].update_map(auto_recontour_map_flag);
+                  molecules[ii].update_symmetry();
+               }
+               g.make_pointer_distance_objects();
+               graphics_draw();
+            }
+            catch (const std::runtime_error &mess) {
+               // 20220202-PE deprecated copy constexpr coot::Cartesian... I wonder what that means.
+               std::cout << "debug:: given front " << front << " and back " << back << std::endl;
+               std::cout << mess.what() << std::endl;
+            }
          }
-         coot::Cartesian rc = g.RotationCentre();
-
-	 try {
-	    clipper::Coord_orth blob =
-	       molecules[imol_refinement_map].find_peak_along_line_favour_front(p1, p2);
-	    coot::Cartesian cc(blob.x(), blob.y(), blob.z());
-            // coot::Cartesian cc = front.mid_point(back);
-            coot::Cartesian delta = rc - cc;
-            // std::cout << "Delta: " << delta << std::endl;
-	    g.setRotationCentre(cc);
-	    for(int ii=0; ii<n_molecules(); ii++) {
-	       molecules[ii].update_map(auto_recontour_map_flag);
-	       molecules[ii].update_symmetry();
-	    }
-	    g.make_pointer_distance_objects();
-	    graphics_draw();
-	 }
-	 catch (const std::runtime_error &mess) {
-            // 20220202-PE deprecated copy constexpr coot::Cartesian... I wonder what that means.
-            std::cout << "debug:: given front " << front << " and back " << back << std::endl;
-	    std::cout << mess.what() << std::endl;
-	 }
       } else {
-	 std::string s = "WARNING:: Refinement map not selected - no action";
-	 std::cout << s << std::endl;
-	 // add_status_bar_text(s.c_str());
-	 info_dialog(s.c_str());
+
+
+         // 2025-10-01-PE I don't like this popping up when there are no molecules
+         // maybe a visual effect would be better - like the red rings.
+         //
+         // 20260126-PE I still don't like it - let's check at least that there was a map
+         if (! molecules.empty()) {
+
+            unsigned int n_maps = 0;
+            for (unsigned int imol=0; imol<molecules.size(); imol++) {
+               if (is_valid_map_molecule(imol))
+                  if (molecules[imol].get_map_is_displayed())
+                     n_maps++;
+            }
+            if (n_maps > 0) {
+               std::string s = "WARNING:: Refinement map not selected - no action";
+               std::cout << s << std::endl;
+               info_dialog(s.c_str());
+            }
+         }
       }
    }
    return r;
@@ -480,8 +463,11 @@ graphics_info_t::set_clipping_front(float v) {
    } else {
       clipping_front = v;
    }
-   std::cout << "DEBUG:: in set_clipping_front() now planes: front: " << clipping_front << " back: " << clipping_back
-             << " eye-position " << glm::to_string(eye_position) << std::endl;
+
+   // std::cout << "DEBUG:: in set_clipping_front() now planes: front: " << clipping_front
+   //           << " back: " << clipping_back
+   //           << " eye-position " << glm::to_string(eye_position) << std::endl;
+
    graphics_draw();
 }
 
@@ -561,8 +547,8 @@ graphics_info_t::increase_clipping_front() {
 
    if (perspective_projection_flag) {
       double l = eye_position.z;
-      float screen_z_near_perspective_limit = l * 0.99;
-      float v = screen_z_near_perspective * 1.05263;
+      float screen_z_near_perspective_limit = l * 0.995;
+      float v = screen_z_near_perspective * 1.02;
       if (v < screen_z_near_perspective_limit) {
          if (v > 2.0)
             screen_z_near_perspective = v;
@@ -598,8 +584,8 @@ graphics_info_t::decrease_clipping_front() {
 
    if (perspective_projection_flag) {
       double l = eye_position.z;
-      float screen_z_near_perspective_limit = l * 0.99;
-      float v = screen_z_near_perspective * 0.95;
+      float screen_z_near_perspective_limit = l * 0.995;
+      float v = screen_z_near_perspective * 0.98;
       if (v < screen_z_near_perspective_limit) {
          if (v > 2.0) {
             screen_z_near_perspective = v;
@@ -703,6 +689,21 @@ graphics_info_t::update_view_quaternion(int glarea_width, int glarea_height,
 
 }
 
+bool graphics_info_t::set_view(const glm::quat &q, const coot::Cartesian &rc, float zoom_in) {
+
+   bool status = true;
+
+   zoom = zoom_in;
+   view_quaternion = q;
+
+   rotation_centre_x = rc.x();
+   rotation_centre_y = rc.y();
+   rotation_centre_z = rc.z();
+
+   graphics_draw();
+   return status;
+}
+
 
 
 #include "glarea_tick_function.hh"
@@ -726,14 +727,19 @@ graphics_info_t::setup_cylinder_clashes(const coot::atom_overlaps_dots_container
    //
    graphics_info_t g;
    if (c.clashes.size() == 0) {
-      std::cout << "zero clashes" << std::endl;
+      if (false)
+         std::cout << "zero clashes" << std::endl;
       std::string clashes_name = get_clashes_object_name(imol);
       int clashes_obj_index = generic_object_index(clashes_name);
+      // std::cout << "debug:: setup_cylinder_clashes() here with clashes_obj_index " << clashes_obj_index << std::endl;
       if (clashes_obj_index == -1) {
          clashes_obj_index = g.new_generic_object_number_for_molecule(clashes_name, imol); // make static?
-         if (imol == -1)
-            g.generic_display_objects[clashes_obj_index].attach_to_intermediate_atoms();
+         if (imol == -1) {
+	    // std::cout << "........ attaching to intermediate atoms!" << std::endl;
+	    g.generic_display_objects[clashes_obj_index].attach_to_intermediate_atoms();
+	 }
       } else {
+	 std::cout << "clearing clashes..." << std::endl;
          g.generic_display_objects[clashes_obj_index].clear();
          if (imol == -1)
             g.generic_display_objects[clashes_obj_index].attach_to_intermediate_atoms();
@@ -747,6 +753,7 @@ graphics_info_t::setup_cylinder_clashes(const coot::atom_overlaps_dots_container
          if (imol == -1)
             g.generic_display_objects[clashes_obj_index].attach_to_intermediate_atoms();
       } else {
+	 // std::cout << "clearing (2) clashes..." << std::endl;
          g.generic_display_objects[clashes_obj_index].clear();
          if (imol == -1)
             g.generic_display_objects[clashes_obj_index].attach_to_intermediate_atoms();
@@ -766,6 +773,7 @@ graphics_info_t::setup_cylinder_clashes(const coot::atom_overlaps_dots_container
 
       // instancing for capped cylinders
       meshed_generic_display_object &obj = g.generic_display_objects[clashes_obj_index];
+      // std::cout << ":::::::::: in setup_cylinder_clashes() obj.get_imol() " << obj.get_imol() << std::endl;
       float line_radius = 0.062f;
       line_radius = tube_radius;
       const unsigned int n_slices = 16;
@@ -961,6 +969,7 @@ graphics_info_t::coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int im
    };
 
    // more sensible
+
    coot::atom_overlaps_container_t overlaps(mol, graphics_info_t::Geom_p(), ignore_waters, 0.5, 0.25);
    bool do_vdw_surface = all_atom_contact_dots_do_vdw_surface; // static class variable
    c = overlaps.all_atom_contact_dots(contact_dots_density, do_vdw_surface);
@@ -1280,7 +1289,7 @@ graphics_info_t::init_joey_ssao_stuff(int w, int h) {
    err = glGetError();
    if (err)
       std::cout << "ERROR init_joey_ssao_stuff() end err is " << err << std::endl;
-   
+
 }
 
 void
@@ -1484,13 +1493,13 @@ graphics_info_t::read_some_test_models() {
    }
 }
 
-void
+int
 graphics_info_t::load_gltf_model(const std::string &gltf_file_name) {
 
    attach_buffers();
 
-   Mesh e("some name"); // extract/replace this from the gltf data
-   e.load_from_glTF(gltf_file_name);
+   TextureMesh tm("some name"); // extract/replace this from the gltf data
+   tm.load_from_glTF(gltf_file_name);
    // e.invert_normals(); // it is shiny on the inside either way around - hmm.
 
    // why do this?
@@ -1501,11 +1510,20 @@ graphics_info_t::load_gltf_model(const std::string &gltf_file_name) {
       mat.ambient  = glm::vec4(0.7, 0.7, 0.7, 1.0);
       mat.diffuse  = glm::vec4(0.7, 0.7, 0.7, 1.0);
       mat.turn_specularity_on(true);
-      e.set_material(mat); // override the material extracted from the gltf
+      // tm.set_material(mat); // override the material extracted from the gltf
    }
    Model e_model;
-   e_model.add_mesh(e);
+   e_model.add_tmesh(tm);
    add_model(e_model);
+
+   // add continuous updating
+   if (! tick_function_is_active()) {
+      tick_function_id = gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
+   }
+   do_tick_constant_draw = true;
+
+   return models.size() - 1;
+
 }
 
 

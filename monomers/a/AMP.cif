@@ -1,0 +1,279 @@
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+AMP AMP "ADENOSINE MONOPHOSPHATE" NON-POLYMER 35 23 .
+
+data_comp_AMP
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+AMP P      P P    0  7.785  40.217 19.087
+AMP O1P    O O    0  7.126  41.546 19.404
+AMP O2P    O OP   -1 6.783  39.104 18.848
+AMP O3P    O OP   -1 8.858  39.838 20.091
+AMP "O5'"  O O2   0  8.550  40.429 17.682
+AMP "C5'"  C CH2  0  9.613  41.413 17.608
+AMP "C4'"  C CH1  0  10.179 41.441 16.209
+AMP "O4'"  O O2   0  10.693 40.125 15.878
+AMP "C3'"  C CH1  0  9.188  41.799 15.089
+AMP "O3'"  O OH1  0  9.786  42.675 14.141
+AMP "C2'"  C CH1  0  8.844  40.434 14.483
+AMP "O2'"  O OH1  0  8.453  40.504 13.128
+AMP "C1'"  C CH1  0  10.173 39.703 14.640
+AMP N9     N NR5  0  10.056 38.248 14.658
+AMP C8     C CR15 0  9.355  37.497 15.568
+AMP N7     N NRD5 0  9.424  36.209 15.347
+AMP C5     C CR56 0  10.226 36.096 14.221
+AMP C6     C CR6  0  10.678 34.979 13.484
+AMP N6     N NH2  0  10.371 33.721 13.791
+AMP N1     N NRD6 0  11.469 35.215 12.406
+AMP C2     C CR16 0  11.775 36.486 12.102
+AMP N3     N NRD6 0  11.408 37.609 12.720
+AMP C4     C CR56 0  10.625 37.349 13.785
+AMP "H5'1" H H    0  10.329 41.183 18.250
+AMP "H5'2" H H    0  9.260  42.307 17.841
+AMP "H4'"  H H    0  10.923 42.081 16.196
+AMP "H3'"  H H    0  8.376  42.217 15.476
+AMP "HO3'" H H    0  9.174  43.023 13.667
+AMP "H2'"  H H    0  8.135  39.989 15.017
+AMP "HO2'" H H    0  8.294  39.721 12.844
+AMP "H1'"  H H    0  10.777 39.979 13.915
+AMP H8     H H    0  8.867  37.874 16.281
+AMP HN61   H H    0  10.832 33.060 13.441
+AMP HN62   H H    0  9.709  33.556 14.343
+AMP H2     H H    0  12.327 36.601 11.344
+
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+AMP P     O1P    DOUBLE n 1.517 0.0192 1.517 0.0192
+AMP P     O2P    SINGLE n 1.517 0.0192 1.517 0.0192
+AMP P     O3P    SINGLE n 1.517 0.0192 1.517 0.0192
+AMP P     "O5'"  SINGLE n 1.614 0.0178 1.614 0.0178
+AMP "O5'" "C5'"  SINGLE n 1.450 0.0166 1.450 0.0166
+AMP "C5'" "C4'"  SINGLE n 1.509 0.0100 1.509 0.0100
+AMP "C4'" "O4'"  SINGLE n 1.451 0.0100 1.451 0.0100
+AMP "C4'" "C3'"  SINGLE n 1.535 0.0100 1.535 0.0100
+AMP "O4'" "C1'"  SINGLE n 1.409 0.0100 1.409 0.0100
+AMP "C3'" "O3'"  SINGLE n 1.422 0.0100 1.422 0.0100
+AMP "C3'" "C2'"  SINGLE n 1.531 0.0100 1.531 0.0100
+AMP "C2'" "O2'"  SINGLE n 1.411 0.0100 1.411 0.0100
+AMP "C2'" "C1'"  SINGLE n 1.525 0.0100 1.525 0.0100
+AMP "C1'" N9     SINGLE n 1.458 0.0100 1.458 0.0100
+AMP N9    C8     SINGLE y 1.372 0.0100 1.372 0.0100
+AMP N9    C4     SINGLE y 1.374 0.0101 1.374 0.0101
+AMP C8    N7     DOUBLE y 1.310 0.0100 1.310 0.0100
+AMP N7    C5     SINGLE y 1.388 0.0100 1.388 0.0100
+AMP C5    C6     SINGLE y 1.408 0.0100 1.408 0.0100
+AMP C5    C4     DOUBLE y 1.381 0.0100 1.381 0.0100
+AMP C6    N6     SINGLE n 1.330 0.0100 1.330 0.0100
+AMP C6    N1     DOUBLE y 1.354 0.0100 1.354 0.0100
+AMP N1    C2     SINGLE y 1.339 0.0100 1.339 0.0100
+AMP C2    N3     DOUBLE y 1.330 0.0100 1.330 0.0100
+AMP N3    C4     SINGLE y 1.343 0.0100 1.343 0.0100
+AMP "C5'" "H5'1" SINGLE n 1.089 0.0100 0.989 0.0200
+AMP "C5'" "H5'2" SINGLE n 1.089 0.0100 0.989 0.0200
+AMP "C4'" "H4'"  SINGLE n 1.089 0.0100 0.981 0.0200
+AMP "C3'" "H3'"  SINGLE n 1.089 0.0100 0.992 0.0200
+AMP "O3'" "HO3'" SINGLE n 0.970 0.0120 0.849 0.0200
+AMP "C2'" "H2'"  SINGLE n 1.089 0.0100 0.994 0.0200
+AMP "O2'" "HO2'" SINGLE n 0.970 0.0120 0.849 0.0200
+AMP "C1'" "H1'"  SINGLE n 1.089 0.0100 0.984 0.0200
+AMP C8    H8     SINGLE n 1.082 0.0130 0.942 0.0170
+AMP N6    HN61   SINGLE n 1.016 0.0100 0.877 0.0200
+AMP N6    HN62   SINGLE n 1.016 0.0100 0.877 0.0200
+AMP C2    H2     SINGLE n 1.082 0.0130 0.945 0.0200
+
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+AMP O1P    P     O2P    112.864 1.69
+AMP O1P    P     O3P    112.864 1.69
+AMP O1P    P     "O5'"  105.808 2.07
+AMP O2P    P     O3P    112.864 1.69
+AMP O2P    P     "O5'"  105.808 2.07
+AMP O3P    P     "O5'"  105.808 2.07
+AMP P      "O5'" "C5'"  118.783 1.50
+AMP "O5'"  "C5'" "C4'"  109.342 1.50
+AMP "O5'"  "C5'" "H5'1" 109.845 1.50
+AMP "O5'"  "C5'" "H5'2" 109.845 1.50
+AMP "C4'"  "C5'" "H5'1" 109.624 1.50
+AMP "C4'"  "C5'" "H5'2" 109.624 1.50
+AMP "H5'1" "C5'" "H5'2" 108.472 1.50
+AMP "C5'"  "C4'" "O4'"  109.123 1.50
+AMP "C5'"  "C4'" "C3'"  116.008 1.52
+AMP "C5'"  "C4'" "H4'"  108.268 1.50
+AMP "O4'"  "C4'" "C3'"  105.388 1.50
+AMP "O4'"  "C4'" "H4'"  108.947 1.50
+AMP "C3'"  "C4'" "H4'"  109.363 1.86
+AMP "C4'"  "O4'" "C1'"  109.903 1.50
+AMP "C4'"  "C3'" "O3'"  111.281 2.46
+AMP "C4'"  "C3'" "C2'"  102.602 1.50
+AMP "C4'"  "C3'" "H3'"  110.452 2.54
+AMP "O3'"  "C3'" "C2'"  111.581 2.83
+AMP "O3'"  "C3'" "H3'"  110.380 1.67
+AMP "C2'"  "C3'" "H3'"  110.504 1.75
+AMP "C3'"  "O3'" "HO3'" 108.744 3.00
+AMP "C3'"  "C2'" "O2'"  112.782 2.45
+AMP "C3'"  "C2'" "C1'"  101.239 1.50
+AMP "C3'"  "C2'" "H2'"  110.596 1.51
+AMP "O2'"  "C2'" "C1'"  111.715 2.69
+AMP "O2'"  "C2'" "H2'"  110.448 1.97
+AMP "C1'"  "C2'" "H2'"  110.636 1.70
+AMP "C2'"  "O2'" "HO2'" 109.103 2.13
+AMP "O4'"  "C1'" "C2'"  106.047 1.50
+AMP "O4'"  "C1'" N9     108.477 1.50
+AMP "O4'"  "C1'" "H1'"  109.807 1.50
+AMP "C2'"  "C1'" N9     113.824 1.50
+AMP "C2'"  "C1'" "H1'"  109.015 1.50
+AMP N9     "C1'" "H1'"  109.561 1.50
+AMP "C1'"  N9    C8     126.848 1.91
+AMP "C1'"  N9    C4     127.459 1.80
+AMP C8     N9    C4     105.693 1.50
+AMP N9     C8    N7     113.469 1.50
+AMP N9     C8    H8     123.206 1.50
+AMP N7     C8    H8     123.326 1.50
+AMP C8     N7    C5     104.739 1.50
+AMP N7     C5    C6     132.250 1.50
+AMP N7     C5    C4     110.483 1.50
+AMP C6     C5    C4     117.267 1.50
+AMP C5     C6    N6     123.792 1.50
+AMP C5     C6    N1     117.409 1.50
+AMP N6     C6    N1     118.799 1.50
+AMP C6     N6    HN61   119.723 1.50
+AMP C6     N6    HN62   119.723 1.50
+AMP HN61   N6    HN62   120.554 1.88
+AMP C6     N1    C2     118.521 1.50
+AMP N1     C2    N3     129.332 1.50
+AMP N1     C2    H2     115.313 1.50
+AMP N3     C2    H2     115.355 1.50
+AMP C2     N3    C4     110.982 1.50
+AMP N9     C4    C5     105.616 1.50
+AMP N9     C4    N3     127.895 1.50
+AMP C5     C4    N3     126.489 1.50
+
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+AMP sp3_sp3_27      "C5'" "O5'" P     O1P    60.000  10.0 3
+AMP sp3_sp3_52      "C3'" "C2'" "O2'" "HO2'" 180.000 10.0 3
+AMP sp3_sp3_8       "O4'" "C1'" "C2'" "O2'"  180.000 10.0 3
+AMP sp2_sp3_1       C8    N9    "C1'" "O4'"  150.000 10.0 6
+AMP const_14        N7    C8    N9    "C1'"  180.000 10.0 2
+AMP const_26        C5    C4    N9    "C1'"  180.000 10.0 2
+AMP const_17        N9    C8    N7    C5     0.000   10.0 2
+AMP const_20        C6    C5    N7    C8     180.000 10.0 2
+AMP const_sp2_sp2_4 N7    C5    C6    N6     0.000   5.0  2
+AMP const_21        N9    C4    C5    N7     0.000   10.0 2
+AMP sp2_sp2_1       C5    C6    N6    HN61   180.000 5.0  2
+AMP const_sp2_sp2_6 N6    C6    N1    C2     180.000 5.0  2
+AMP const_sp2_sp2_7 N3    C2    N1    C6     0.000   5.0  2
+AMP const_sp2_sp2_9 N1    C2    N3    C4     0.000   5.0  2
+AMP const_12        N9    C4    N3    C2     180.000 10.0 2
+AMP sp3_sp3_28      "C4'" "C5'" "O5'" P      180.000 10.0 3
+AMP sp3_sp3_31      "O4'" "C4'" "C5'" "O5'"  180.000 10.0 3
+AMP sp3_sp3_2       "C5'" "C4'" "O4'" "C1'"  -60.000 10.0 3
+AMP sp3_sp3_44      "O3'" "C3'" "C4'" "C5'"  180.000 10.0 3
+AMP sp3_sp3_4       "C2'" "C1'" "O4'" "C4'"  -60.000 10.0 3
+AMP sp3_sp3_20      "O2'" "C2'" "C3'" "O3'"  -60.000 10.0 3
+AMP sp3_sp3_49      "C4'" "C3'" "O3'" "HO3'" 180.000 10.0 3
+
+loop_
+_chem_comp_chir.comp_id
+_chem_comp_chir.id
+_chem_comp_chir.atom_id_centre
+_chem_comp_chir.atom_id_1
+_chem_comp_chir.atom_id_2
+_chem_comp_chir.atom_id_3
+_chem_comp_chir.volume_sign
+AMP chir_1 P     "O5'" O2P   O3P   both
+AMP chir_2 "C4'" "O4'" "C3'" "C5'" negative
+AMP chir_3 "C3'" "O3'" "C4'" "C2'" positive
+AMP chir_4 "C2'" "O2'" "C1'" "C3'" negative
+AMP chir_5 "C1'" "O4'" N9    "C2'" negative
+
+loop_
+_chem_comp_plane_atom.comp_id
+_chem_comp_plane_atom.plane_id
+_chem_comp_plane_atom.atom_id
+_chem_comp_plane_atom.dist_esd
+AMP plan-1 "C1'" 0.020
+AMP plan-1 C2    0.020
+AMP plan-1 C4    0.020
+AMP plan-1 C5    0.020
+AMP plan-1 C6    0.020
+AMP plan-1 C8    0.020
+AMP plan-1 H2    0.020
+AMP plan-1 H8    0.020
+AMP plan-1 N1    0.020
+AMP plan-1 N3    0.020
+AMP plan-1 N6    0.020
+AMP plan-1 N7    0.020
+AMP plan-1 N9    0.020
+AMP plan-2 C6    0.020
+AMP plan-2 HN61  0.020
+AMP plan-2 HN62  0.020
+AMP plan-2 N6    0.020
+
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+AMP SMILES           ACDLabs              12.01 O=P(O)(O)OCC3OC(n2cnc1c(ncnc12)N)C(O)C3O
+AMP InChI            InChI                1.03  InChI=1S/C10H14N5O7P/c11-8-5-9(13-2-12-8)15(3-14-5)10-7(17)6(16)4(22-10)1-21-23(18,19)20/h2-4,6-7,10,16-17H,1H2,(H2,11,12,13)(H2,18,19,20)/t4-,6-,7-,10-/m1/s1
+AMP InChIKey         InChI                1.03  UDMBCSSLTHHNCD-KQYNXXCUSA-N
+AMP SMILES_CANONICAL CACTVS               3.370 Nc1ncnc2n(cnc12)[C@@H]3O[C@H](CO[P](O)(O)=O)[C@@H](O)[C@H]3O
+AMP SMILES           CACTVS               3.370 Nc1ncnc2n(cnc12)[CH]3O[CH](CO[P](O)(O)=O)[CH](O)[CH]3O
+AMP SMILES_CANONICAL "OpenEye OEToolkits" 1.7.6 c1nc(c2c(n1)n(cn2)[C@H]3[C@@H]([C@@H]([C@H](O3)COP(=O)(O)O)O)O)N
+AMP SMILES           "OpenEye OEToolkits" 1.7.6 c1nc(c2c(n1)n(cn2)C3C(C(C(O3)COP(=O)(O)O)O)O)N
+
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+AMP acedrg          243       "dictionary generator"
+AMP acedrg_database 11        "data source"
+AMP rdkit           2017.03.2 "Chemoinformatics tool"
+AMP refmac5         5.8.0238  "optimization tool"
+
+loop_
+_chem_comp_alias.comp_id
+_chem_comp_alias.group
+_chem_comp_alias.atom_id
+_chem_comp_alias.atom_id_standard
+AMP DNA/RNA O2P OP2
+AMP DNA/RNA O1P OP1
+AMP DNA/RNA O3P OP3

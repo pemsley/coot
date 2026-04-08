@@ -23,6 +23,7 @@ subpkgdata_DATA = layla.ui
 pkginclude_HEADERS = \
 	layla_embedded.hpp \
 	generators.hpp \
+	inchi_key_database.hpp \
 	notifier.hpp \
 	ui.hpp \
 	utils.hpp \
@@ -40,6 +41,7 @@ pkgincludedir = $(includedir)/coot/layla
 libcoot_layla_la_SOURCES = \
 	layla_embedded.cpp \
 	generators.cpp \
+	inchi_key_database.cpp \
 	notifier.cpp \
 	signals.cpp \
 	state.cpp \
@@ -68,13 +70,14 @@ AM_CXXFLAGS = \
 	-DPKGDATADIR='"$(pkgdatadir)"' \
 	$(SQLITE3_CFLAGS)              \
 	$(COOT_WINDOWS_CFLAGS)         \
-	$(CURL_LIBS)                   \
+	$(CURL_CFLAGS)                 \
         $(LIBPNG_CFLAGS)
 
-# maybe libexec_PROGRAMS if/when we use a shell-script wrapper
-bin_PROGRAMS = layla
+dist_bin_SCRIPTS = layla
 
-layla_SOURCES = main.cpp
+libexec_PROGRAMS = layla-bin
 
-layla_LDADD = libcoot-layla.la $(top_builddir)/utils/libcoot-utils.la $(GTK_LIBS) $(GLIB_LIBS)
+layla_bin_SOURCES = main.cpp
+
+layla_bin_LDADD = libcoot-layla.la $(top_builddir)/utils/libcoot-utils.la $(GTK_LIBS) $(GLIB_LIBS)
 

@@ -47,7 +47,7 @@
 
 #ifdef WINDOWS_MINGW
 // for whatever reason (getopt) include python here for windows
-#include "Python.h"  
+#include "Python.h"
 #endif //WINDOWS_MINGW
 
 #include <iostream>
@@ -56,7 +56,6 @@
 #include <gtk/gtk.h>
 
 // #include "mtz-bits.h" use cmtz-interface
-#include "cmtz-interface.hh"
 
 #include "graphics-info.h"
 // Including python needs to come after graphics-info.h, because
@@ -65,7 +64,6 @@
 // BL says:: and (2.3 - dewinter), i.e. is a Mac - Python issue
 // since the follwing two include python graphics-info.h is moved up
 #include "c-interface.h"
-#include "cc-interface.hh"
 #include "coot-version.hh"
 #include "command-line.hh"
 
@@ -78,19 +76,19 @@ parse_command_line(int argc, char ** argv ) {
    coot_optind = 0; // reset the (global) extern because
 	            // parse_command_line() is/can be called more once.
 
-   int ch; 
+   int ch;
 
- /* 
+ /*
    * the option string will be passed to getopt(3), the format
    * of our string "sf:v:" will allow us to accept -s as a flag,
    * and -f or -v with an argument, the colon suffix tells getopt(3)
    * that we're expecting an argument.  Eg:  optest -s -f this -v8
    *
    */
- 
-   const char *optstr = "p:m:d:s:c:"; 
 
-     /* 
+   const char *optstr = "p:m:d:s:c:";
+
+     /*
    * getopt(3) takes our argc, and argv, it also takes
    * the option string we set up earlier.  It will assign
    * the switch character to ch, and -1 when there are no more
@@ -107,6 +105,7 @@ parse_command_line(int argc, char ** argv ) {
       {"hklin",  1, 0, 0},
       {"auto",   1, 0, 0},
       {"script", 1, 0, 0},
+      {"buster", 1, 0, 0},
       {"command", 1, 0, 0},
       {"ccp4-project", 1, 0, 0},
       {"dictionary", 1, 0, 0},
@@ -121,21 +120,23 @@ parse_command_line(int argc, char ** argv ) {
       {"hostname",   1, 0, 0}, // alternate for host
       {"help",       0, 0, 0},
       {"python",     0, 0, 0},
-      {"run-state-script", 0, 0, 0},
-      {"splash-screen",    1, 0, 0}, // alternate splash screen
-      {"self-test",        0, 0, 0},
-      {"no-state-script",  0, 0, 0},
+      {"run-state-script",   0, 0, 0},
+      {"splash-screen",      1, 0, 0}, // alternate splash screen
+      {"self-test",          0, 0, 0},
+      {"show-ccp4i2-save-button", 0, 0, 0},
+      {"opengl-es",          0, 0, 0},
+      {"no-state-script",    0, 0, 0},
       {"no-startup-scripts", 0, 0, 0},
       {"no-graphics",      0, 0, 0},
       {"no-splash-screen", 0, 0, 0},
-      {"stereo",           0, 0, 0},        // no arguments 
+      {"stereo",           0, 0, 0},        // no arguments
       {"side-by-side",     0, 0, 0},  //
       {"zalman-stereo",    0, 0, 0},  //
       {"version",          0, 0, 0},        //
       {"version-full",     0, 0, 0},     //
       {"no-guano",         0, 0, 0},        //
       {"small-screen", 0, 0, 0},      // no arguments (setting for small screens)
-      {"update-self", 0, 0, 0},  
+      {"update-self", 0, 0, 0},
       {0, 0, 0, 0}	       // must have blanks at end
    };
 
@@ -143,35 +144,35 @@ parse_command_line(int argc, char ** argv ) {
 
    bool found_no_graphics_in_the_command_line = false;
 
-   while( -1 != 
+   while( -1 !=
 	  (ch = coot_getopt_long(argc, argv, optstr, long_options, &option_index) )) {
 
       switch(ch) {
-	 
+
       case 0:
 
 	 if (coot_optarg) {
 
 	    // options that need an argument:
-	    
+
 	    std::string arg_str = long_options[option_index].name;
 
-	    if (arg_str == "pdb") { 
+	    if (arg_str == "pdb") {
 	       cld.coords.push_back(coot_optarg);
 	    }
-	    if (arg_str == "coords") { 
+	    if (arg_str == "coords") {
 	       cld.coords.push_back(coot_optarg);
 	    }
 	    if (arg_str == "xyzin") {
 	       cld.coords.push_back(coot_optarg);
 	    }
-	    if (arg_str == "map") { 
+	    if (arg_str == "map") {
 	       cld.maps.push_back(coot_optarg);
 	    }
-	    if (arg_str == "data") { 
+	    if (arg_str == "data") {
 	       cld.datasets.push_back(coot_optarg);
 	    }
-	    if (arg_str == "hklin") { 
+	    if (arg_str == "hklin") {
 	       cld.datasets.push_back(coot_optarg);
 	    }
 	    if (arg_str == "script") {
@@ -182,10 +183,10 @@ parse_command_line(int argc, char ** argv ) {
 	    }
 	    if (arg_str == "port") {
 	       cld.port = atoi(coot_optarg);
-	    } 
+	    }
 	    if (arg_str == "host") {
 	       cld.hostname = coot_optarg;
-	    } 
+	    }
 	    if (arg_str == "hostname") {
 	       cld.hostname = coot_optarg;
 	    }
@@ -194,6 +195,9 @@ parse_command_line(int argc, char ** argv ) {
 	    }
 	    if (arg_str == "dictionary") {
 	       cld.dictionaries.push_back(coot_optarg);
+	    }
+	    if (arg_str == "dictionary-with-mol") {
+	       cld.dictionaries_with_mol.push_back(coot_optarg);
 	    }
 	    if (arg_str == "ccp4-project") {
 	       cld.ccp4_project = coot_optarg;
@@ -210,6 +214,12 @@ parse_command_line(int argc, char ** argv ) {
 	    if (arg_str == "comp-id") {
 	       cld.comp_ids.push_back(coot_optarg);
 	    }
+	    if (arg_str == "show-ccp4i2-save-button") {
+	       cld.show_ccp4i2_save_button = true;
+	    }
+	    if (arg_str == "buster") {
+	       cld.open_buster_output_files = true;
+	    }
 	    if (arg_str == "title") {
 	       cld.title = coot_optarg;
 	    }
@@ -217,7 +227,7 @@ parse_command_line(int argc, char ** argv ) {
 	       cld.alternate_splash_screen_file_name = coot_optarg;
 	    }
 
-	 } else { 
+	 } else {
 
 	    // long argument without parameter:
 	    std::string arg_str(long_options[option_index].name);
@@ -228,9 +238,9 @@ parse_command_line(int argc, char ** argv ) {
 	       if (arg_str == "zalman-stereo") {
 		  cld.hardware_stereo_flag = 5;
 	       } else {
-		  
+
 		  // Thanks for suggesting this Ezra.
-		  // 
+		  //
 		  if (arg_str == "help") {
 		     std::cout << std::endl
 			       << "Usage: coot [--pdb pdb-file-name]\n"
@@ -240,6 +250,7 @@ parse_command_line(int argc, char ** argv ) {
 			       << "            [--hklin mtz-file-name]\n"
 			       << "            [--auto mtz-file-name]\n"
 			       << "            [--dictionary cif-dictionary-file-name]\n"
+			       << "            [--dictionary-with-mol cif-dictionary-file-name]\n"
 			       << "            [--script script-file-name]\n"
 			       << "            [--em]\n"
 			       << "            [--title some-title]\n"
@@ -247,20 +258,21 @@ parse_command_line(int argc, char ** argv ) {
 			       << "            [--small-screen]\n"
 			       << "            [--splash-screen]\n"
 			       << "            [--stereo]\n"
-			       << "            [--zalman-stereo]\n"
-			       << "            [--side-by-side]\n"
+                        //			       << "            [--zalman-stereo]\n"
+                        //             << "            [--side-by-side]\n"
 			       << "            [--version]\n"
-// 			       << "            [--update-self]\n"
+			       << "            [--show-ccp4i2-save-button]\n"
 			       << "            [--self-test]\n"
 			       << "            [--no-state-script]\n"
 			       << "            [--no-startup-scripts]\n"
 			       << "            [--no-splash-screen]\n"
+			       << "            [--opengl-es]\n"
 			       << "            [--no-graphics]\n"
 			       << "            [--no-guano]\n"
 			       << std::endl;
-		     coot_no_state_real_exit(0);
+		     coot_no_state_real_exit(0); // merge conflict resolved 4c1ace414
 		  } else {
-		     
+
 			if (arg_str == "version") {
 			   std::cout  << VERSION << " " << coot_version_extra_info();
 			   // this is in coot_version_extra_info() now
@@ -303,10 +315,9 @@ parse_command_line(int argc, char ** argv ) {
 			      std::cout << std::endl;
 			   }
 			   std::string s = COOT_BUILD_INFO_STRING;
-			   if (s.length())
+			   if (s.length() > 0)
 			      std::cout << "Builder_info: " << s << std::endl;
 			   exit(0);
-			   
 			} else {
 			   if (arg_str == "python") {
 			      cld.script_is_python_flag = 1;
@@ -342,13 +353,21 @@ parse_command_line(int argc, char ** argv ) {
                                                          if (arg_str == "self-test") {
                                                             cld.run_internal_tests_and_exit = 1;
                                                          } else {
-                                                            if (arg_str == "update-self") {
-                                                               cld.update_self = 1;
-                                                               cld.do_graphics = 0;
+                                                            if (arg_str == "opengl-es") {
+                                                               cld.use_opengl_es = true;
                                                             } else {
-                                                               std::cout << "WARNING! Malformed option - needs an argument: "
-                                                                         << long_options[option_index].name
-                                                                         << std::endl << std::endl;
+                                                               if (arg_str == "show-ccp4i2-save-button") {
+                                                                  cld.show_ccp4i2_save_button = true;
+                                                               } else {
+                                                                  if (arg_str == "update-self") {
+                                                                     cld.update_self = 1;
+                                                                     cld.do_graphics = 0;
+                                                                  } else {
+                                                                     std::cout << "WARNING! Malformed option - needs an argument: "
+                                                                               << long_options[option_index].name
+                                                                               << std::endl << std::endl;
+                                                                  }
+                                                               }
                                                             }
                                                          }
                                                       }
@@ -362,50 +381,50 @@ parse_command_line(int argc, char ** argv ) {
                               }
 			   }
 			}
-		     
+
 		  }
 	       }
 	    }
 	 }
-	 break; 
-	 
+	 break;
+
 	 // try short options then...
-	 
+
       case 'p':
 	 cld.coords.push_back(coot_optarg);
-	 break; 
-	 
+	 break;
+
       case 's':
 	 cld.script.push_back(coot_optarg);
-	 break; 
-	 
+	 break;
+
       case 'd':
 	 cld.datasets.push_back(coot_optarg);
-	 break; 
-	 
+	 break;
+
       case 'a':
 	 cld.auto_datasets.push_back(coot_optarg);
 	 break;
-	 
+
       case 'm':
 	 cld.maps.push_back(coot_optarg);
-	 break; 
-	 
+	 break;
+
       case 'c':
-         if (coot_optarg) { 
+         if (coot_optarg) {
             // std::cout << "command coot_optarg: " << coot_optarg << std::endl;
 	    cld.command.push_back(coot_optarg);
-         } else { 
+         } else {
             std::cout << "command coot_optarg is NULL " << std::endl;
-         } 
-	 break; 
-	 
+         }
+	 break;
+
       case '?':
 	 std::cout << "Unrecognised option: " << optopt << std::endl;
 	 break;
-	 
+
       default:
-	 std::cout << "Unaccounted for coot_optarg condition " << std::endl; 
+	 std::cout << "Unaccounted for coot_optarg condition " << std::endl;
 	 break;
       }
    }
@@ -418,9 +437,9 @@ parse_command_line(int argc, char ** argv ) {
 
    cld.roberto_pdbs(argc, argv);
 
-   return cld; 
+   return cld;
 
-} 
+}
 
 void
 command_line_data::handle_immediate_settings() {

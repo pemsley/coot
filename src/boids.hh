@@ -55,7 +55,7 @@ namespace fun {
       glm::vec3 calc_velocity_delta(const std::vector<boid> &bonds,
                                     const std::vector<unsigned int> &seeable_other_boids,
                                     float box_lim) const;
-      void apply_velocity_delta(const glm::vec3 &velocity_delta, float time_step);
+      void apply_velocity_delta(unsigned int idx, const glm::vec3 &velocity_delta, float time_step);
       glm::mat4 make_mat() const;
    };
 

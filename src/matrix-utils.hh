@@ -39,4 +39,6 @@ glm::quat coot_quaternion_to_glm(const coot::util::quaternion &q);
 
 coot::util::quaternion glm_to_coot_quaternion(const glm::quat &q);
 
+glm::quat matrix_to_quaternion(const clipper::Mat33<double> &m);
+
 #endif // COOT_MATRIX_UTILS_HH

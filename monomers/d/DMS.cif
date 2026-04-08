@@ -1,0 +1,117 @@
+#
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+DMS     DMS      "DIMETHYL SULFOXIDE"     NON-POLYMER     10     4     .     
+#
+data_comp_DMS
+#
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+DMS     S       S       S3      0       63.218      46.394      -11.587     
+DMS     O       O       O       0       63.732      46.133      -12.975     
+DMS     C1      C       CH3     0       64.619      46.928      -10.638     
+DMS     C2      C       CH3     0       63.010      44.801      -10.834     
+DMS     H11     H       H       0       64.347      47.082      -9.723      
+DMS     H12     H       H       0       64.967      47.748      -11.014     
+DMS     H13     H       H       0       65.302      46.245      -10.662     
+DMS     H21     H       H       0       63.858      44.337      -10.825     
+DMS     H22     H       H       0       62.366      44.288      -11.340     
+DMS     H23     H       H       0       62.693      44.913      -9.927      
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+DMS           S           O      DOUBLE       n     1.503  0.0200     1.503  0.0200
+DMS           S          C1      SINGLE       n     1.774  0.0176     1.774  0.0176
+DMS           S          C2      SINGLE       n     1.774  0.0176     1.774  0.0176
+DMS          C1         H11      SINGLE       n     1.089  0.0100     0.967  0.0136
+DMS          C1         H12      SINGLE       n     1.089  0.0100     0.967  0.0136
+DMS          C1         H13      SINGLE       n     1.089  0.0100     0.967  0.0136
+DMS          C2         H21      SINGLE       n     1.089  0.0100     0.967  0.0136
+DMS          C2         H22      SINGLE       n     1.089  0.0100     0.967  0.0136
+DMS          C2         H23      SINGLE       n     1.089  0.0100     0.967  0.0136
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+DMS           O           S          C1     106.047    1.50
+DMS           O           S          C2     106.047    1.50
+DMS          C1           S          C2      97.789    1.50
+DMS           S          C1         H11     109.408    1.50
+DMS           S          C1         H12     109.408    1.50
+DMS           S          C1         H13     109.408    1.50
+DMS         H11          C1         H12     109.545    1.50
+DMS         H11          C1         H13     109.545    1.50
+DMS         H12          C1         H13     109.545    1.50
+DMS           S          C2         H21     109.408    1.50
+DMS           S          C2         H22     109.408    1.50
+DMS           S          C2         H23     109.408    1.50
+DMS         H21          C2         H22     109.545    1.50
+DMS         H21          C2         H23     109.545    1.50
+DMS         H22          C2         H23     109.545    1.50
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+DMS             sp3_sp3_1         H11          C1           S           O     180.000    10.0     3
+DMS             sp3_sp3_8         H21          C2           S           O     -60.000    10.0     3
+loop_
+_chem_comp_chir.comp_id
+_chem_comp_chir.id
+_chem_comp_chir.atom_id_centre
+_chem_comp_chir.atom_id_1
+_chem_comp_chir.atom_id_2
+_chem_comp_chir.atom_id_3
+_chem_comp_chir.volume_sign
+DMS    chir_1    S    O    C1    C2    both
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+DMS           SMILES              ACDLabs 10.04               sulfinyldimethane
+DMS SMILES_CANONICAL               CACTVS 3.341                       C[S](C)=O
+DMS           SMILES               CACTVS 3.341                       C[S](C)=O
+DMS SMILES_CANONICAL "OpenEye OEToolkits" 1.5.0                         CS(=O)C
+DMS           SMILES "OpenEye OEToolkits" 1.5.0                         CS(=O)C
+DMS            InChI                InChI  1.03 InChI=1S/C2H6OS/c1-4(2)3/h1-2H3
+DMS         InChIKey                InChI  1.03     IAZDPXIOMUYVGZ-UHFFFAOYSA-N
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+DMS acedrg               243         "dictionary generator"                  
+DMS acedrg_database      11          "data source"                           
+DMS rdkit                2017.03.2   "Chemoinformatics tool"
+DMS refmac5              5.8.0238    "optimization tool"                     

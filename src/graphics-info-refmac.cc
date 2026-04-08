@@ -67,11 +67,11 @@
 #endif
 
 #include <mmdb2/mmdb_manager.h>
-#include "coords/mmdb-extras.h"
+#include "coords/mmdb-extras.hh"
 #include "coords/mmdb.hh"
-#include "coords/mmdb-crystal.h"
-#include "coords/Cartesian.h"
-#include "coords/Bond_lines.h"
+#include "coords/mmdb-crystal.hh"
+#include "coords/Cartesian.hh"
+#include "coords/Bond_lines.hh"
 
 #include "clipper/core/map_utils.h" // Map_stats
 #include "skeleton/graphical_skel.h"
@@ -82,7 +82,7 @@
 #include "molecule-class-info.h"
 #include "skeleton/BuildCas.h"
 
-#include "gl-matrix.h" // for baton rotation
+#include "coot-utils/gl-matrix.h" // for baton rotation
 
 #include "analysis/bfkurt.hh"
 

@@ -34,7 +34,6 @@ fi
 echo libtoolize --copy
 libtoolize --copy
 
-
 # we can only add the directories if they exist, otherwise aclocal barfs (sigh)
 
 aclocal_extras=

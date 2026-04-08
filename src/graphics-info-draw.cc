@@ -24,12 +24,14 @@
  *
  */
 
+#include "stereo-eye.hh"
 #ifdef USE_PYTHON
 #include <Python.h>
 #endif // USE_PYTHON
 
 #include "compat/coot-sysdep.h"
 
+#include "glm/matrix.hpp"
 #define GLM_ENABLE_EXPERIMENTAL // # for norm things
 // #include <glm/ext.hpp>
 #include <glm/gtx/string_cast.hpp>  // to_string()
@@ -37,26 +39,26 @@
 #include <glm/gtc/type_ptr.hpp>  // for value_ptr() 20240326-PE
 
 #include <iostream>
-#include <iomanip>
 #include <string>
-#include <fstream>
 #include <gtk/gtk.h>
 #include <epoxy/gl.h>
 
 #include "c-interface.h" // for update_go_to_atom_from_current_position()
-#include "globjects.h"
 #include "graphics-info.h"
 
-#include "draw.hh"
 #include "draw-2.hh"
 #include "framebuffer.hh"
 
 #include "text-rendering-utils.hh"
 #include "cc-interface-scripting.hh"
 #include "coot-utils/cylinder-with-rotation-translation.hh"
-#include "vnc-vertex-to-generic-vertex.hh"
 
 #include "screendump-tga.hh"
+#include "widget-from-builder.hh"
+
+#include "utils/logging.hh"
+extern logging logger;
+
 
 enum {VIEW_CENTRAL_CUBE, ORIGIN_CUBE};
 
@@ -378,7 +380,7 @@ graphics_info_t::mouse_zoom_by_scale_factor_inner(double sf) {
    } else {
 
       // stabilize the scale factor
-      if (sf < 0.1) sf = 0.1;
+      if (sf < 0.5) sf = 0.5;
       if (sf > 2.0) sf = 2.0;
       graphics_info_t::eye_position.z *= sf;
 
@@ -480,7 +482,7 @@ glm::mat4
 graphics_info_t::get_model_matrix() {
 
    // rework this so that the view rotation matrix becomes part of the *model* matrix
-   // for both orthograph and perspective
+   // for both orthographic and perspective
 
    glm::mat4 m(1.0f);
    glm::vec3 rc = get_rotation_centre();
@@ -630,22 +632,47 @@ graphics_info_t::get_light_space_mvp(int light_index) {
 
 // static
 glm::mat4
-graphics_info_t::get_molecule_mvp(bool debug_matrices) {
+graphics_info_t::get_molecule_mvp(stereo_eye_t eye, bool debug_matrices) {
 
    int w = graphics_x_size;
    int h = graphics_y_size;
 
-   if (true) {  // debug problematic matrices - get rid of this, make sure that it doesn't do anything                    
+   if (false) {  // debug problematic matrices - get rid of this, make sure that it doesn't do anything
       GtkAllocation allocation;
       gtk_widget_get_allocation(graphics_info_t::glareas[0], &allocation);
       w = allocation.width;
       h = allocation.height;
    }
 
+   if (scale_up_graphics != 1) {
+      w *= scale_up_graphics;
+      h *= scale_up_graphics;
+   }
+   if (scale_down_graphics != 1) {
+      w /= scale_down_graphics;
+      h /= scale_down_graphics;
+   }
+   // std::cout << scale_up_graphics << " " << scale_down_graphics << " " << w << " " << h << std::endl;
+
    bool do_orthographic_projection = ! perspective_projection_flag; // weird
    glm::mat4  view_matrix =       get_view_matrix();
    glm::mat4 model_matrix =      get_model_matrix();
    glm::mat4  proj_matrix = get_projection_matrix(do_orthographic_projection, w, h);
+
+   // this setup is for cross-eye : i.e left image is on the right.
+   // we use the stereo mode (wall vs cross) to get the correct sign
+   //
+   float angle = -stereo_angle / 2.0f; // 6 degrees default, default cross-eye
+   if (display_mode == coot::SIDE_BY_SIDE_STEREO_WALL_EYE) angle = -angle;
+   if (eye == stereo_eye_t::LEFT_EYE) {
+      glm::mat4 rot_z = glm::rotate(glm::mat4(1.0f), glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
+      view_matrix = rot_z * view_matrix;
+   }
+   if (eye == stereo_eye_t::RIGHT_EYE) {
+      glm::mat4 rot_z = glm::rotate(glm::mat4(1.0f), glm::radians(-angle), glm::vec3(0.0f, 1.0f, 0.0f));
+      view_matrix = rot_z * view_matrix;
+   }
+
    glm::mat4 mvp = proj_matrix * view_matrix * model_matrix;
 
    if (false) {
@@ -725,6 +752,8 @@ glm::vec4
 graphics_info_t::unproject(float z) {
 
    // z is 1 and -1 for front and back (or vice verse).
+ 
+   stereo_eye_t eye = stereo_eye_t::MONO;
 
    GtkAllocation allocation;
    gtk_widget_get_allocation(graphics_info_t::glareas[0], &allocation);
@@ -738,7 +767,7 @@ graphics_info_t::unproject(float z) {
              << g.GetMouseBeginX() << " "
              << g.GetMouseBeginY() << std::endl;
    std::cout << "debug in new_unproject mouse x and y GL      " << mouseX << " " << mouseY << std::endl;
-   glm::mat4 mvp = get_molecule_mvp();
+   glm::mat4 mvp = get_molecule_mvp(eye);
    glm::mat4 vp_inv = glm::inverse(mvp);
    float real_y = - mouseY; // in range -1 -> 1
    glm::vec4 screenPos_f = glm::vec4(mouseX, real_y, z, 1.0f);
@@ -783,7 +812,7 @@ graphics_info_t::myglLineWidth(int n_pixels) {
 }
 
 void
-graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
+graphics_info_t::draw_map_molecules(stereo_eye_t eye, bool draw_transparent_maps) {
 
    GLenum err = glGetError();
    if (err) std::cout << "GL ERROR:: g.draw_map_molecules() -- start -- " << err << std::endl;
@@ -843,7 +872,7 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
       Shader &shader = shader_for_meshes;
       shader.Use(); // needed? I think not.
 
-      glm::mat4 mvp = get_molecule_mvp();
+      glm::mat4 mvp = get_molecule_mvp(eye);
       glm::mat4 model_rotation = get_model_rotation();
 
       glEnable(GL_DEPTH_TEST); // this needs to be in the draw loop!?
@@ -863,7 +892,7 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
                       << " shader " << shader.name << std::endl;
 
          m.map_as_mesh_gl_lines_version.set_material(m.material_for_maps); // how/why is this needed? (seems that it is)
-         m.draw_map_molecule(draw_transparent_maps, shader, mvp, model_rotation, eye_position, ep,
+         m.draw_map_molecule(eye, draw_transparent_maps, shader, mvp, model_rotation, eye_position, ep,
                              lights, background_colour, perspective_projection_flag);
       }
    }
@@ -874,14 +903,14 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
 }
 
 void
-graphics_info_t::draw_model_molecules() {
+graphics_info_t::draw_model_molecules(stereo_eye_t eye) {
 
    // std::cout << "draw_model_molecules() --- start ---" << std::endl;
 
    // This is only called in "Plain" mode - i.e. it is not used in "Fancy" mode.
    // This function is called by draw_molecules(), which in turn is called by render_3d_scene()
 
-   glm::mat4 mvp = get_molecule_mvp();
+   glm::mat4 mvp = get_molecule_mvp(eye);
 
    // std::cout << "debug:: mvp in draw_model_molecules() is     " << glm::to_string(mvp) << std::endl;
    glm::mat4 model_rotation = get_model_rotation();
@@ -902,7 +931,7 @@ graphics_info_t::draw_model_molecules() {
       float opacity = 1.0f;
       bool gl_lines_mode = false;
       bool show_just_shadows = false;
-      m.model_molecule_meshes.draw(&shader_for_meshes, &shader_instances_p, mvp, model_rotation, lights, eye_position,
+      m.model_molecule_meshes.draw(&shader_for_meshes, &shader_instances_p, eye, mvp, model_rotation, lights, eye_position,
                                    opacity, bgc, gl_lines_mode, shader_do_depth_fog_flag, show_just_shadows);
 
       if (show_symmetry) {
@@ -936,14 +965,17 @@ graphics_info_t::draw_model_molecules() {
       m.draw_dots(&shader_for_rama_balls, mvp, model_rotation, lights, eye_position,
                      bgc, shader_do_depth_fog_flag);
 
+      m.draw_ncs_ghosts(&shader_for_meshes, eye, mvp, model_rotation, lights, eye_position, bgc);
+
       glEnable(GL_BLEND);
-      draw_molecule_atom_labels(m, mvp, model_rotation);
+      if (draw_distance_labels_user_control)
+         draw_molecule_atom_labels(m, eye, mvp, model_rotation);
 
    }
 }
 
 void
-graphics_info_t::draw_model_molecules_symmetry_with_shadows() {
+graphics_info_t::draw_model_molecules_symmetry_with_shadows(stereo_eye_t eye) {
 
    if (show_symmetry) {
       for (int ii=n_molecules()-1; ii>=0; ii--) {
@@ -953,7 +985,7 @@ graphics_info_t::draw_model_molecules_symmetry_with_shadows() {
          Shader &symm_shader_p = shader_for_symmetry_atoms_bond_lines;
          glm::mat4 model_rotation = get_model_rotation();
          glm::vec4 bgc(background_colour, 1.0);
-         glm::mat4 mvp = get_molecule_mvp();
+         glm::mat4 mvp = get_molecule_mvp(eye);
          m.draw_symmetry(&symm_shader_p, mvp, model_rotation, lights, eye_position, bgc, shader_do_depth_fog_flag);
       }
    }
@@ -967,8 +999,12 @@ graphics_info_t::draw_map_molecules_with_shadows() {
 
 void
 graphics_info_t::draw_molecule_atom_labels(molecule_class_info_t &m,
+                                           stereo_eye_t eye,
                                            const glm::mat4 &mvp,
                                            const glm::mat4 &view_rotation) {
+
+   if (! draw_distance_labels_user_control)
+      return;
 
    // pass the glarea widget width and height.
 
@@ -1002,17 +1038,36 @@ graphics_info_t::draw_molecule_atom_labels(molecule_class_info_t &m,
    int n_symm_atoms_to_label = m.labelled_symm_atom_index_list.size();
 
    // std::cout << "draw_molecule_atom_labels " << n_atoms_to_label << " " << n_symm_atoms_to_label << std::endl;
-   if (n_atoms_to_label == 0 && n_symm_atoms_to_label == 0) return;
 
-   m.draw_atom_labels(brief_atom_labels_flag, seg_ids_in_atom_labels_flag,
-                      label_colour, mvp, view_rotation);
+   if (n_atoms_to_label == 0 && n_symm_atoms_to_label == 0) {
+   } else {
+      m.draw_atom_labels(brief_atom_labels_flag, seg_ids_in_atom_labels_flag,
+                         label_colour, eye, mvp, view_rotation);
+   }
+
+   // this is draw_generic_texts() - but not in its own function
+
+   if (! generic_texts.empty()) {
+      auto atom_label_colour = label_colour;
+      for (unsigned int i=0; i<generic_texts.size(); i++) {
+         const coot::generic_text_object_t gto = generic_texts[i];
+         const std::string &label = gto.s;
+         glm::vec3 position(gto.x, gto.y, gto.z);
+         tmesh_for_labels.draw_atom_label(label, position, atom_label_colour,
+                                          &shader_for_atom_labels, eye, mvp, view_rotation,
+                                          glm::vec4(background_colour, 1.0),
+                                          shader_do_depth_fog_flag,
+                                          perspective_projection_flag);
+      }
+   }
+
 
    glDisable(GL_BLEND);
 
 }
 
 void
-graphics_info_t::draw_intermediate_atoms(unsigned int pass_type) { // draw_moving_atoms()
+graphics_info_t::draw_intermediate_atoms(stereo_eye_t eye, unsigned int pass_type) { // draw_moving_atoms()
 
    // std::cout << "draw_intermediate_atoms() --- start --- " << std::endl;
 
@@ -1026,7 +1081,7 @@ graphics_info_t::draw_intermediate_atoms(unsigned int pass_type) { // draw_movin
    if (! moving_atoms_asc) return;
    if (! moving_atoms_asc->mol) return;
 
-   glm::mat4 mvp = get_molecule_mvp();
+   glm::mat4 mvp = get_molecule_mvp(eye);
    glm::mat4 model_rotation = get_model_rotation();
 
    molecule_class_info_t &m = graphics_info_t::moving_atoms_molecule;
@@ -1040,7 +1095,7 @@ graphics_info_t::draw_intermediate_atoms(unsigned int pass_type) { // draw_movin
       // instanced:
       Shader &shader_p = shader_for_instanced_objects;
       // m.model_molecule_meshes.set_debug_mode(true);
-      m.draw_molecule_as_meshes(&shader_p, mvp, model_rotation, lights, eye_position, bgc, shader_do_depth_fog_flag);
+      m.draw_molecule_as_meshes(&shader_p, eye, mvp, model_rotation, lights, eye_position, bgc, shader_do_depth_fog_flag);
    }
 
    if (pass_type == PASS_TYPE_SSAO) {
@@ -1074,7 +1129,7 @@ graphics_info_t::draw_intermediate_atoms(unsigned int pass_type) { // draw_movin
       bool do_depth_fog = true;
       glm::vec4 bg_col(background_colour, 1.0);
       m.model_molecule_meshes.draw(&shader_for_models, &shader_for_instanced_objects,
-                                   mvp_orthogonal, model_rotation, lights, dummy_eye_position,
+                                   eye, mvp_orthogonal, model_rotation, lights, dummy_eye_position,
                                    opacity, bg_col, gl_lines_mode, do_depth_fog, show_just_shadows);
    }
 
@@ -1098,7 +1153,7 @@ graphics_info_t::update_rama_balls(std::vector<Instanced_Markup_Mesh_attrib_t> *
    // the calling function calls
    // rama_balls_mesh.update_instancing_buffers(balls) after this function
 
-   auto rr = saved_dragged_refinement_results;
+   const auto &rr = saved_dragged_refinement_results;
 
    balls->clear();
 
@@ -1139,7 +1194,7 @@ graphics_info_t::update_rama_balls(std::vector<Instanced_Markup_Mesh_attrib_t> *
 
 
 void
-graphics_info_t::draw_intermediate_atoms_rama_balls(unsigned int pass_type) {
+graphics_info_t::draw_intermediate_atoms_rama_balls(stereo_eye_t eye, unsigned int pass_type) {
 
    // 20220302-PE Currently I don't draw rama balls with instancing
    //             It would be nice to have.
@@ -1150,7 +1205,7 @@ graphics_info_t::draw_intermediate_atoms_rama_balls(unsigned int pass_type) {
 
    Shader &shader = graphics_info_t::shader_for_rama_balls;
 
-   glm::mat4 mvp = get_molecule_mvp();
+   glm::mat4 mvp = get_molecule_mvp(eye);
    glm::vec3 eye_position = get_world_space_eye_position();
    glm::mat4 model_rotation = get_model_rotation();
    glm::vec4 bg_col(background_colour, 1.0);
@@ -1371,7 +1426,7 @@ graphics_info_t::setup_atom_pull_restraints_glsl() {
 
 // static
 void
-graphics_info_t::draw_atom_pull_restraints() {
+graphics_info_t::draw_atom_pull_restraints(stereo_eye_t eye) {
 
    // Note to self: do this first with standard (modern) OpenGL.
    //
@@ -1404,7 +1459,7 @@ graphics_info_t::draw_atom_pull_restraints() {
             if (err) std::cout << "   error draw_atom_pull_restraints() glBindVertexArray()"
                                << " with GL err " << err << std::endl;
 
-            glm::mat4 mvp = get_molecule_mvp();
+            glm::mat4 mvp = get_molecule_mvp(eye);
             glm::mat4 model_rotation = get_model_rotation();
             GLuint mvp_location = shader.mvp_uniform_location;
             GLuint view_rotation_location = shader.view_rotation_uniform_location;
@@ -1483,13 +1538,13 @@ graphics_info_t::draw_molecular_triangles() {
 
 // static
 void
-graphics_info_t::draw_particles() {
+graphics_info_t::draw_particles(stereo_eye_t eye) {
 
    if (curmudgeon_mode) return;
 
    if (! particles.empty()) {
       if (mesh_for_particles.have_instances()) {
-         glm::mat4 mvp = get_molecule_mvp();
+         glm::mat4 mvp = get_molecule_mvp(eye);
          glm::mat4 model_rotation = get_model_rotation();
          mesh_for_particles.draw_particles(&shader_for_particles, mvp, model_rotation);
       }
@@ -1500,7 +1555,7 @@ graphics_info_t::draw_particles() {
       for (unsigned int i=0; i<meshed_particles_for_gone_diegos.size(); i++) {
          Mesh &mesh(meshed_particles_for_gone_diegos[i].mesh);
          if (mesh.have_instances()) {
-            glm::mat4 mvp = get_molecule_mvp();
+            glm::mat4 mvp = get_molecule_mvp(eye);
             glm::mat4 model_rotation = get_model_rotation();
             // std::cout << "debug:: draw_particles(): drawing gone diego particles! imesh: " << i << std::endl;
             mesh.draw_particles(&shader_for_particles, mvp, model_rotation);
@@ -1513,7 +1568,7 @@ graphics_info_t::draw_particles() {
    { // gone difference map peaks.
       Mesh &mesh = meshed_particles_for_gone_diff_map_peaks.mesh;
       if (mesh.have_instances()) {
-         glm::mat4 mvp = get_molecule_mvp();
+         glm::mat4 mvp = get_molecule_mvp(eye);
          glm::mat4 model_rotation = get_model_rotation();
          mesh.draw_particles(&shader_for_particles, mvp, model_rotation);
       }
@@ -1522,7 +1577,7 @@ graphics_info_t::draw_particles() {
 
 // static
 void
-graphics_info_t::draw_happy_face_residue_markers() {
+graphics_info_t::draw_happy_face_residue_markers(stereo_eye_t eye) {
 
    if (curmudgeon_mode) return;
 
@@ -1541,7 +1596,7 @@ graphics_info_t::draw_happy_face_residue_markers() {
          // the update of the instanced positions is done in the tick function
 
          graphics_info_t g; // needed for draw_count_max_for_happy_face_residue_markers. Use a better way?
-         glm::mat4 mvp = get_molecule_mvp();
+         glm::mat4 mvp = get_molecule_mvp(eye);
          glm::mat4 model_rotation = get_model_rotation();
          texture_for_happy_face_residue_marker.Bind(0);
          unsigned int draw_count = draw_count_for_happy_face_residue_markers;
@@ -1555,11 +1610,11 @@ graphics_info_t::draw_happy_face_residue_markers() {
 
 // static
 void
-graphics_info_t::draw_anchored_atom_markers()  {
+graphics_info_t::draw_anchored_atom_markers(stereo_eye_t eye) {
 
    if (tmesh_for_anchored_atom_markers.draw_this_mesh) {
       if (tmesh_for_anchored_atom_markers.have_instances()) {
-         glm::mat4 mvp = get_molecule_mvp();
+         glm::mat4 mvp = get_molecule_mvp(eye);
          glm::mat4 view_rotation = get_model_rotation();
          glm::vec4 bg_col(background_colour, 1.0);
          texture_for_anchored_atom_markers.Bind(0);
@@ -1570,12 +1625,12 @@ graphics_info_t::draw_anchored_atom_markers()  {
 }
 
 void
-graphics_info_t::draw_texture_meshes() {
+graphics_info_t::draw_texture_meshes(stereo_eye_t eye) {
 
    // std::cout << "draw_texture_meshes() --- start --- " << std::endl;
 
    if (! texture_meshes.empty()) {
-      glm::mat4 mvp = get_molecule_mvp();
+      glm::mat4 mvp = get_molecule_mvp(eye);
       glm::vec3 eye_position = get_world_space_eye_position();
       glm::mat4 model_rotation = get_model_rotation();
       glm::vec4 bg_col(background_colour, 1.0);
@@ -1810,66 +1865,75 @@ graphics_info_t::draw_hud_colour_bar() {
 
 
 void
-graphics_info_t::draw_molecules() {
+graphics_info_t::draw_molecules(stereo_eye_t eye) {
+
+   // this is not called in fancy mode.
 
    // opaque things
 
-   draw_outlined_active_residue();
+   draw_outlined_active_residue(eye);
 
-   draw_intermediate_atoms(PASS_TYPE_STANDARD);
+   draw_intermediate_atoms(eye, PASS_TYPE_STANDARD);
 
-   draw_intermediate_atoms_rama_balls(PASS_TYPE_STANDARD);
+   draw_intermediate_atoms_rama_balls(eye, PASS_TYPE_STANDARD);
 
    draw_intermediate_atoms_pull_restraint_neighbour_displacement_max_radius_ring(); // proportional editing
 
-   draw_atom_pull_restraints();
+   draw_atom_pull_restraints(eye);
 
-   draw_meshed_generic_display_object_meshes(PASS_TYPE_STANDARD);
+   // return; // no draw
 
-   draw_molecules_other_meshes(PASS_TYPE_STANDARD);
+   draw_instanced_meshes(eye);
 
-   draw_instanced_meshes();
+   draw_map_molecules(eye, false); // transparency
 
-   draw_map_molecules(false); // transparency
+   draw_unit_cells(eye);
 
-   draw_unit_cells();
+   draw_environment_graphics_object(eye);
 
-   draw_environment_graphics_object();
+   draw_hydrogen_bonds_mesh(eye); // like boids
 
-   draw_generic_objects(PASS_TYPE_STANDARD);
+   draw_boids(eye);
 
-   draw_hydrogen_bonds_mesh(); // like boids
+   draw_particles(eye);
 
-   draw_boids();
+   draw_happy_face_residue_markers(eye);
 
-   draw_particles();
+   draw_bad_nbc_atom_pair_markers(eye, PASS_TYPE_STANDARD);
 
-   draw_happy_face_residue_markers();
+   draw_bad_nbc_atom_pair_dashed_lines(eye, PASS_TYPE_STANDARD);
 
-   draw_bad_nbc_atom_pair_markers(PASS_TYPE_STANDARD);
+   draw_chiral_volume_outlier_markers(eye, PASS_TYPE_STANDARD);
 
-   draw_chiral_volume_outlier_markers(PASS_TYPE_STANDARD);
+   draw_unhappy_atom_markers(eye, PASS_TYPE_STANDARD);
 
-   draw_anchored_atom_markers();
+   draw_anchored_atom_markers(eye);
 
    // this is the last opaque thing to be drawn because the atom labels are blended.
    // It should be easy to break out the atom label code into its own function. That
    // might be better.
    //
-   draw_model_molecules();
+   draw_model_molecules(eye);
 
    // transparent things...
 
-   draw_map_molecules(true); // transparent
+   draw_molecules_other_meshes(eye, PASS_TYPE_STANDARD);
+
+   draw_map_molecules(eye, true); // transparent
+
+   draw_generic_objects(PASS_TYPE_STANDARD, eye);
+
+   // moved down
+   draw_meshed_generic_display_object_meshes(eye, PASS_TYPE_STANDARD);
 
 }
 
 void
-graphics_info_t::draw_molecules_with_shadows() {
+graphics_info_t::draw_molecules_with_shadows(stereo_eye_t eye) {
 
    int n_mols = n_molecules();
    bool show_just_shadows = false;
-   glm::mat4 mvp = get_molecule_mvp();
+   glm::mat4 mvp = get_molecule_mvp(eye);
    auto model_rotation_matrix = get_model_rotation();
 
    int light_index = 0; // 20220215-PE for now.
@@ -1912,7 +1976,7 @@ graphics_info_t::draw_molecules_with_shadows() {
             m.draw_dots(&shader_for_rama_balls, mvp, model_rotation_matrix, lights, eye_position,
                         bg_col_v4, shader_do_depth_fog_flag);
 
-            m.draw_ncs_ghosts(&shader_for_meshes, mvp, model_rotation_matrix, lights, eye_position, bg_col_v4);
+            m.draw_ncs_ghosts(&shader_for_meshes, eye, mvp, model_rotation_matrix, lights, eye_position, bg_col_v4);
 
             glEnable(GL_BLEND);
             // good idea to not use shadows on atom labels?
@@ -1983,39 +2047,39 @@ graphics_info_t::draw_molecules_with_shadows() {
 
    // convert these to read the shadow texture
 
-   draw_model_molecules_symmetry_with_shadows(); // does symmetry
+   draw_model_molecules_symmetry_with_shadows(eye); // does symmetry
 
-   draw_outlined_active_residue();
+   draw_outlined_active_residue(eye);
 
-   draw_intermediate_atoms(PASS_TYPE_STANDARD);
+   draw_intermediate_atoms(eye, PASS_TYPE_STANDARD);
 
-   draw_intermediate_atoms_rama_balls(PASS_TYPE_STANDARD);
+   draw_intermediate_atoms_rama_balls(eye, PASS_TYPE_STANDARD);
 
-   draw_atom_pull_restraints();
+   draw_atom_pull_restraints(eye);
 
-   draw_meshed_generic_display_object_meshes(PASS_TYPE_WITH_SHADOWS);
+   draw_meshed_generic_display_object_meshes(eye, PASS_TYPE_WITH_SHADOWS);
 
-   draw_molecules_other_meshes(PASS_TYPE_STANDARD);
+   draw_molecules_other_meshes(eye, PASS_TYPE_WITH_SHADOWS);
 
-   draw_instanced_meshes();
+   draw_instanced_meshes(eye);
 
    // draw_map_molecules(false); // transparency
 
-   draw_unit_cells();
+   draw_unit_cells(eye);
 
-   draw_environment_graphics_object();
+   draw_environment_graphics_object(eye);
 
-   draw_generic_objects(PASS_TYPE_STANDARD);
+   draw_generic_objects(PASS_TYPE_STANDARD, eye);
 
-   draw_hydrogen_bonds_mesh(); // like boids
+   draw_hydrogen_bonds_mesh(eye); // like boids
 
-   draw_anchored_atom_markers();
+   draw_anchored_atom_markers(eye);
 
-   draw_boids();
+   draw_boids(eye);
 
-   draw_particles();
+   draw_particles(eye);
 
-   draw_happy_face_residue_markers();
+   draw_happy_face_residue_markers(eye);
 
    // now drawn later, like atom labels
    // draw_bad_nbc_atom_pair_markers(PASS_TYPE_STANDARD);
@@ -2035,13 +2099,12 @@ graphics_info_t::draw_molecules_with_shadows() {
 
 
 void
-graphics_info_t::draw_molecules_atom_labels() {
-
+graphics_info_t::draw_molecules_atom_labels(stereo_eye_t eye) {
 
    // calls draw_molecule_atom_labels(m, mvp, model_rotation_matrix);
 
    int n_mols = n_molecules();
-   glm::mat4 mvp = get_molecule_mvp();
+   glm::mat4 mvp = get_molecule_mvp(eye);
    auto model_rotation_matrix = get_model_rotation();
 
    for (int i=0; i<n_mols; i++) {
@@ -2049,12 +2112,10 @@ graphics_info_t::draw_molecules_atom_labels() {
          // glEnable(GL_BLEND); // surely this is called inside draw_labels()?
          molecule_class_info_t &m = molecules[i];
          if (m.draw_it) {
-            draw_molecule_atom_labels(m, mvp, model_rotation_matrix);
+            draw_molecule_atom_labels(m, eye, mvp, model_rotation_matrix);
          }
       }
    }
-
-
 }
 
 
@@ -2062,7 +2123,7 @@ graphics_info_t::draw_molecules_atom_labels() {
 //
 // static
 void
-graphics_info_t::draw_environment_graphics_object() {
+graphics_info_t::draw_environment_graphics_object(stereo_eye_t eye) {
 
 #if 0   // old... keep for reference (for a while)
    graphics_info_t g;
@@ -2079,7 +2140,7 @@ graphics_info_t::draw_environment_graphics_object() {
       molecule_class_info_t &m = molecules[mol_no_for_environment_distances];
       if (m.is_displayed_p()) {
          if (environment_show_distances) {
-            glm::mat4 mvp = get_molecule_mvp();
+            glm::mat4 mvp = get_molecule_mvp(eye);
             glm::vec3 eye_position = get_world_space_eye_position();
             glm::mat4 model_rotation = get_model_rotation();
             glm::vec4 bg_col(background_colour, 1.0);
@@ -2091,7 +2152,7 @@ graphics_info_t::draw_environment_graphics_object() {
             auto ccrc = RotationCentre();
             glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
             mesh_for_environment_distances.mesh.draw(&shader_for_moleculestotriangles,
-                                                     mvp, model_rotation,
+                                                     eye, mvp, model_rotation,
                                                      lights, eye_position, rc, opacity, bg_col,
                                                      wireframe_mode, do_depth_fog, show_just_shadows);
 
@@ -2109,7 +2170,7 @@ graphics_info_t::draw_environment_graphics_object() {
                   // caches these textures in a map std::map<std::string, thing> where
                   // the key is the label.
                   tmesh_for_labels.draw_atom_label(label, position, colour, shader_p,
-                                                   mvp, model_rotation, bg_col, do_depth_fog,
+                                                   eye, mvp, model_rotation, bg_col, do_depth_fog,
                                                    perspective_projection_flag);
                }
             }
@@ -2125,9 +2186,25 @@ graphics_info_t::draw_environment_graphics_object() {
 }
 
 #include "molecular-mesh-generator.hh"
+#include "pulse-data.hh"
 
 void
 graphics_info_t::update_mesh_for_outline_of_active_residue(int imol, const coot::atom_spec_t &spec, int n_press) {
+
+   // if the range was not valid, but n_press was 5, we want some visual feedback - use
+   // the invalid residue pulse (maybe it needs a new name then?). It uses delete_item_pulse_centres
+   // for the centres of the pulses.
+   auto setup_invalid_residue_pulse_for_invalid_range_outine = [] () {
+      bool broken_line_mode = false;
+      float radius_overall = 6.0;
+      unsigned int n_rings = 3;
+      lines_mesh_for_generic_pulse.setup_red_pulse(radius_overall, n_rings, broken_line_mode);
+      pulse_data_t *pulse_data = new pulse_data_t(0, 12);
+      gpointer user_data = reinterpret_cast<void *>(pulse_data);
+      std::vector<glm::vec3> positions = { get_rotation_centre() };
+      generic_pulse_centres = positions;
+      gtk_widget_add_tick_callback(glareas[0], generic_pulse_function, user_data, NULL);
+   };
 
 
    if (is_valid_model_molecule(imol)) {
@@ -2140,13 +2217,43 @@ graphics_info_t::update_mesh_for_outline_of_active_residue(int imol, const coot:
             int bond_width = 9;
             int model_number = residue_p->GetModelNum();
             molecular_mesh_generator_t mmg;
+
+            // setup the range, if the user had defined one in this molecule
+            molecular_mesh_generator_t::range_t range;
+            int imol_1 = in_range_first_picked_atom.int_user_data;
+            int imol_2 = in_range_second_picked_atom.int_user_data;
+            if (imol_1 == imol_2) {
+               if (imol_1 == imol) {
+                  coot::atom_spec_t spec_1 = in_range_first_picked_atom;
+                  coot::atom_spec_t spec_2 = in_range_second_picked_atom;
+                  if (spec_1.chain_id == spec_2.chain_id) {
+                     int rn1 = spec_1.res_no;
+                     int rn2 = spec_2.res_no;
+                     if (rn2 < rn1) std::swap(rn1, rn2);
+                     range = molecular_mesh_generator_t::range_t(spec_1.chain_id, rn1, rn2);
+                  }
+               }
+            }
+
             std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > p =
                mmg.get_molecular_triangles_mesh_for_active_residue(imol, mol, model_number, residue_p, Geom_p(),
-                                                                   bond_width, n_press);
+                                                                   bond_width, range, n_press);
+
+            // if the range was not valid, but n_press was 5, we want some visual feedback - use
+            // the invalid residue pulse (maybe it needs a new name then?) It uses delete_item_pulse_centres
+            // for the centres of the pulses
+            if (n_press == 5) {
+               if (! range.is_valid) {
+                  setup_invalid_residue_pulse_for_invalid_range_outine();
+               }
+            }
+
             mesh_for_outline_of_active_residue.clear();
-            mesh_for_outline_of_active_residue.import(p);
-            Material mat;
-            mesh_for_outline_of_active_residue.setup(mat);
+            if (!p.first.empty()) {
+               mesh_for_outline_of_active_residue.import(p);
+               Material mat;
+               mesh_for_outline_of_active_residue.setup(mat);
+            }
          }
       }
    }
@@ -2154,10 +2261,10 @@ graphics_info_t::update_mesh_for_outline_of_active_residue(int imol, const coot:
 
 
 void
-graphics_info_t::draw_outlined_active_residue() {
+graphics_info_t::draw_outlined_active_residue(stereo_eye_t eye) {
 
    if (outline_for_active_residue_frame_count > 0) {
-      glm::mat4 mvp = get_molecule_mvp();
+      glm::mat4 mvp = get_molecule_mvp(eye);
       std::map<unsigned int, lights_info_t> dummy_lights;
       glm::vec3 eye_position = get_world_space_eye_position();
       glm::mat4 model_rotation = get_model_rotation();
@@ -2168,16 +2275,16 @@ graphics_info_t::draw_outlined_active_residue() {
       float opacity = 1.0f;
       auto ccrc = RotationCentre();
       glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
-      mesh_for_outline_of_active_residue.draw(&shader, mvp, model_rotation, dummy_lights, eye_position, rc,
+      mesh_for_outline_of_active_residue.draw(&shader, eye, mvp, model_rotation, dummy_lights, eye_position, rc,
                                               opacity, bg_col, wireframe_mode, false, show_just_shadows);
    }
 };
 
 
 void
-graphics_info_t::draw_unit_cells() {
+graphics_info_t::draw_unit_cells(stereo_eye_t eye) {
 
-   glm::mat4 mvp = get_molecule_mvp();
+   glm::mat4 mvp = get_molecule_mvp(eye);
    for (int ii=n_molecules()-1; ii>=0; ii--) {
       molecule_class_info_t &m = molecules[ii];
       m.draw_unit_cell(&shader_for_lines, mvp);
@@ -2186,7 +2293,9 @@ graphics_info_t::draw_unit_cells() {
 }
 
 void
-graphics_info_t::draw_meshed_generic_display_object_meshes(unsigned int pass_type) {
+graphics_info_t::draw_meshed_generic_display_object_meshes(stereo_eye_t eye, unsigned int pass_type) {
+
+   // non-instanced.
 
    // std::cout << "draw_meshed_generic_display_object_meshes() with pass_type " << pass_type << std::endl;
 
@@ -2204,17 +2313,21 @@ graphics_info_t::draw_meshed_generic_display_object_meshes(unsigned int pass_typ
    };
 
    if (pass_type == PASS_TYPE_STANDARD) {
+
+      glEnable(GL_BLEND); // 20250714-PE
       if (have_generic_display_objects_to_draw()) {
          glm::mat4 model_rotation = get_model_rotation();
-         glm::mat4 mvp = get_molecule_mvp();
+         glm::mat4 mvp = get_molecule_mvp(eye);
          glm::vec4 bg_col(background_colour, 1.0);
          bool wireframe_mode = false;
-         float opacity = 1.0f;
+         float opacity = 0.5;
          auto ccrc = RotationCentre();
          glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
          for (unsigned int i=0; i<generic_display_objects.size(); i++) {
+            if (false)
+               std::cout << "drawing i " << i << std::endl;
             generic_display_objects[i].mesh.draw(&shader_for_moleculestotriangles,
-                                                 mvp, model_rotation, lights, eye_position, rc, opacity,
+                                                 eye, mvp, model_rotation, lights, eye_position, rc, opacity,
                                                  bg_col, wireframe_mode, false, show_just_shadows);
          }
       }
@@ -2259,7 +2372,7 @@ graphics_info_t::draw_meshed_generic_display_object_meshes(unsigned int pass_typ
             bool gl_lines_mode = false;
             for (unsigned int i=0; i<generic_display_objects.size(); i++) {
                generic_display_objects[i].mesh.draw(&shader_for_meshes_shadow_map,
-                                                    mvp_orthogonal, model_rotation, lights, dummy_eye_position,
+                                                    eye, mvp_orthogonal, model_rotation, lights, dummy_eye_position,
                                                     rc, opacity, bg_col_v4, gl_lines_mode,
                                                     do_depth_fog, show_just_shadows);
             }
@@ -2271,7 +2384,7 @@ graphics_info_t::draw_meshed_generic_display_object_meshes(unsigned int pass_typ
 
       // std::cout << "--------------------------- pass_type WITH SHADOWS!!!!!!!!!!!!!!!!!" << std::endl;
       if (have_generic_display_objects_to_draw()) {
-         glm::mat4 mvp = get_molecule_mvp();
+         glm::mat4 mvp = get_molecule_mvp(eye);
          glm::mat4 model_rotation = get_model_rotation();
          glm::vec4 bg_col_v4(background_colour, 1.0f);
          auto ccrc = RotationCentre();
@@ -2297,7 +2410,9 @@ graphics_info_t::draw_meshed_generic_display_object_meshes(unsigned int pass_typ
 
 
 void
-graphics_info_t::draw_molecules_other_meshes(unsigned int pass_type) {
+graphics_info_t::draw_molecules_other_meshes(stereo_eye_t eye, unsigned int pass_type) {
+
+   // std::cout << "debug:: draw_molecules_other_meshes() ---start--- " << pass_type << std::endl;
 
    // This function doesn't draw these
    // graphics_info_t::draw_instanced_meshes() A Molecule 2: Ligand Contact Dots H-bond
@@ -2307,13 +2422,11 @@ graphics_info_t::draw_molecules_other_meshes(unsigned int pass_type) {
    // graphics_info_t::draw_instanced_meshes() A Molecule 2: Ligand Contact Dots vdw-surface
    // graphics_info_t::draw_instanced_meshes() A Molecule 2: Ligand Contact Dots big-overlap
 
-   // std::cout << "------------- draw_meshed_generic_display_object_meshes() " << std::endl;
-
    bool draw_meshes = true;
    bool draw_mesh_normals = false;
 
    glm::vec3 eye_position = get_world_space_eye_position();
-   glm::mat4 mvp = get_molecule_mvp();
+   glm::mat4 mvp = get_molecule_mvp(eye);
    glm::mat4 mvp_orthogonal = glm::mat4(1.0f); // placeholder
    glm::mat4 model_rotation = get_model_rotation();
    glm::vec4 bg_col(background_colour, 1.0);
@@ -2334,13 +2447,7 @@ graphics_info_t::draw_molecules_other_meshes(unsigned int pass_type) {
 
    glm::mat3 vrm(glm::toMat4(graphics_info_t::view_quaternion));
 
-   // Yes, identity matrix
-   // std::cout << "p: " << glm::to_string(p) << std::endl;
-
-   // 20231121-PE Hack for now:
-   if (pass_type == PASS_TYPE_WITH_SHADOWS) pass_type = PASS_TYPE_STANDARD;
-
-   if (draw_meshes) { //local, debugging
+   if (draw_meshes) {
       bool have_meshes_to_draw = false;
       for (int i=n_molecules()-1; i>=0; i--) {
          if (! molecules[i].meshes.empty()) {
@@ -2352,10 +2459,10 @@ graphics_info_t::draw_molecules_other_meshes(unsigned int pass_type) {
       // std::cout << "in draw_meshed_generic_display_object_meshes() with have_meshes_to_draw " << have_meshes_to_draw << std::endl;
 
       if (have_meshes_to_draw) {
-         // std::cout << "   Here A in draw_meshed_generic_display_object_meshes() " << std::endl;
+
          glDisable(GL_BLEND);
          for (int ii=n_molecules()-1; ii>=0; ii--) {
-            // std::cout << "Here B in draw_meshed_generic_display_object_meshes() " << ii  << std::endl;
+
             molecule_class_info_t &m = molecules[ii]; // not const because the shader changes
             if (! is_valid_model_molecule(ii)) continue;
             for (unsigned int jj=0; jj<m.meshes.size(); jj++) {
@@ -2363,24 +2470,58 @@ graphics_info_t::draw_molecules_other_meshes(unsigned int pass_type) {
                Mesh &mesh = m.meshes[jj];
 
                if (false)
-                  std::cout << "mesh jj " << jj << " of " << m.meshes.size()
+                  std::cout << "debug:: mesh jj " << jj << " of " << m.meshes.size()
                             << " instanced: " << m.meshes[jj].is_instanced << std::endl;
 
                if (mesh.is_instanced) {
 
                   bool transferred_colour_is_instanced = false;
                   mesh.draw_instanced(pass_type,
-                                      &shader_for_moleculestotriangles, mvp,
+                                      &shader_for_moleculestotriangles, eye, mvp,
                                       model_rotation, lights, eye_position,
                                       bg_col, do_depth_fog, transferred_colour_is_instanced);
                } else {
+
                   if (pass_type == PASS_TYPE_STANDARD) {
+
                      bool show_just_shadows = false;
                      bool wireframe_mode = false;
                      float opacity = 1.0f;
-                     m.meshes[jj].draw(&shader_for_meshes_with_shadows, mvp,
+                     opacity = m.gaussian_surface_opacity;
+#if 0 // 20260208-PE debugging colours
+                     if (jj == 0 && !m.meshes[jj].vertices.empty()) {
+                        auto &v = m.meshes[jj].vertices;
+                        for (unsigned int kk=0; kk<v.size(); kk++) {
+                           std::cout << "DEBUG:: M2T vertex colour: "
+                                     << v[kk].color[0] << " " << v[kk].color[1] << " " << v[kk].color[2] << " " << v[kk].color[3]
+                                     << std::endl;
+                        }
+                     }
+#endif
+
+                     // if (m.meshes[jj].mesh_is_semi_transparent) glEnable(GL_BLEND);
+                     m.meshes[jj].draw(&shader_for_moleculestotriangles, eye, mvp,
                                        model_rotation, lights, eye_position, rc, opacity, bg_col,
                                        wireframe_mode, do_depth_fog, show_just_shadows);
+                     if (m.meshes[jj].mesh_is_semi_transparent) glDisable(GL_BLEND);
+
+                  }
+                  if (pass_type == PASS_TYPE_WITH_SHADOWS) {
+                     if (false)
+                        std::cout << "draw-molecule-other-meshes() " << m.meshes[jj].name << " "
+                                  << shader_for_moleculestotriangles_with_shadows.name << std::endl;
+                     bool show_just_shadows = false;
+                     float opacity = 1.0f;
+                     glm::mat4 light_view_mvp = get_light_space_mvp(light_index);
+                     show_just_shadows = false;
+
+                     // we don't do eye for shadows yet.
+                     m.meshes[jj].draw_with_shadows(&shader_for_moleculestotriangles_with_shadows, mvp,
+                                                    model_rotation, lights, eye_position, opacity, bg_col,
+                                                    do_depth_fog, light_view_mvp,
+                                                    shadow_depthMap_texture, shadow_strength,
+                                                    shadow_softness, show_just_shadows);
+
                   }
                   if (pass_type == PASS_TYPE_SSAO) {
                      bool do_orthographic_projection = ! perspective_projection_flag;
@@ -2404,6 +2545,7 @@ graphics_info_t::draw_molecules_other_meshes(unsigned int pass_type) {
                      bool opacity = 1.0;
 
                      mesh.draw(&shader_for_meshes_shadow_map,
+                               eye,
                                mvp_orthogonal,
                                model_rotation,
                                lights,
@@ -2433,7 +2575,7 @@ graphics_info_t::draw_molecules_other_meshes(unsigned int pass_type) {
 }
 
 void
-graphics_info_t::draw_instanced_meshes() {
+graphics_info_t::draw_instanced_meshes(stereo_eye_t eye) {
 
    // presumes opaque-only
 
@@ -2452,7 +2594,7 @@ graphics_info_t::draw_instanced_meshes() {
 
    if (have_mol_meshes_to_draw) {
       glm::vec3 eye_position = get_world_space_eye_position();
-      glm::mat4 mvp = get_molecule_mvp();
+      glm::mat4 mvp = get_molecule_mvp(eye);
       glm::mat4 model_rotation = get_model_rotation();
       glm::vec4 bg_col(background_colour, 1.0);
       bool do_depth_fog = shader_do_depth_fog_flag;
@@ -2474,7 +2616,7 @@ graphics_info_t::draw_instanced_meshes() {
 
    if (! instanced_meshes.empty()) {
       glm::mat4 model_rotation = get_model_rotation();
-      glm::mat4 mvp = get_molecule_mvp();
+      glm::mat4 mvp = get_molecule_mvp(eye);
       glm::vec4 bg_col(background_colour, 1.0);
       bool do_depth_fog = shader_do_depth_fog_flag;
       for (unsigned int jj=0; jj<instanced_meshes.size(); jj++) {
@@ -2501,7 +2643,7 @@ graphics_info_t::draw_meshes() {
 }
 
 void
-graphics_info_t::draw_cube(GtkGLArea *glarea, unsigned int cube_type) {
+graphics_info_t::draw_cube(stereo_eye_t eye, GtkGLArea *glarea, unsigned int cube_type) {
 
    // std::cout << "draw_cube() with cube_type " << cube_type << std::endl;
 
@@ -2525,7 +2667,7 @@ graphics_info_t::draw_cube(GtkGLArea *glarea, unsigned int cube_type) {
    // glGetFloatv(GL_ALIASED_LINE_WIDTH_RANGE, lineWidthRange);
    // This may not be possible in GL_LINE_SMOOTH mode.
 
-   glm::mat4 mvp = get_molecule_mvp();
+   glm::mat4 mvp = get_molecule_mvp(eye);
    glm::mat4 model_rotation = get_model_rotation(); // hhmm... naming ... 20220212-PE  fixed now.
 
    glBindVertexArray(central_cube_vertexarray_id);
@@ -2535,7 +2677,7 @@ graphics_info_t::draw_cube(GtkGLArea *glarea, unsigned int cube_type) {
    glm::vec3 rc = get_rotation_centre();
    if (cube_type == VIEW_CENTRAL_CUBE) {
       mvp = glm::translate(mvp, rc);
-      float s = rotation_centre_cube_size;
+      float s = user_defined_rotation_centre_crosshairs_size_scale_factor;
       glm::vec3 sc(s,s,s);
       mvp = glm::scale(mvp, sc);
    }
@@ -2587,18 +2729,18 @@ graphics_info_t::draw_cube(GtkGLArea *glarea, unsigned int cube_type) {
 
 
 void
-graphics_info_t::draw_central_cube(GtkGLArea *glarea) {
-   draw_cube(glarea, VIEW_CENTRAL_CUBE);
+graphics_info_t::draw_central_cube(stereo_eye_t eye, GtkGLArea *glarea) {
+   draw_cube(eye, glarea, VIEW_CENTRAL_CUBE);
 }
 
 void
-graphics_info_t::draw_origin_cube(GtkGLArea *glarea) {
+graphics_info_t::draw_origin_cube(stereo_eye_t eye, GtkGLArea *glarea) {
 
-   draw_cube(glarea, ORIGIN_CUBE);
+   draw_cube(eye, glarea, ORIGIN_CUBE);
 }
 
 void
-graphics_info_t::draw_rotation_centre_crosshairs(GtkGLArea *glarea, unsigned int pass_type) {
+graphics_info_t::draw_rotation_centre_crosshairs(stereo_eye_t eye, GtkGLArea *glarea, unsigned int pass_type) {
 
    // gtk_gl_area_make_current(glarea); // needed?, no it isn't.
    GLenum err = glGetError();
@@ -2608,7 +2750,7 @@ graphics_info_t::draw_rotation_centre_crosshairs(GtkGLArea *glarea, unsigned int
    err = glGetError();
    if (err) std::cout << "error draw_rotation_centre_crosshairs() A1 err " << err << std::endl;
 
-   glm::mat4 mvp = get_molecule_mvp();
+   glm::mat4 mvp = get_molecule_mvp(eye);
    glm::mat4 model_rotation = get_model_rotation();
 
    glBindVertexArray(rotation_centre_crosshairs_vertexarray_id);
@@ -2624,7 +2766,10 @@ graphics_info_t::draw_rotation_centre_crosshairs(GtkGLArea *glarea, unsigned int
 
    glm::vec3 rc = graphics_info_t::get_rotation_centre();
    mvp = glm::translate(mvp, rc);
-   float s = 6.0f * rotation_centre_cube_size;
+   // 20241105-PE is this a good idea?
+   if (user_defined_rotation_centre_crosshairs_size_scale_factor < 0.02)
+      user_defined_rotation_centre_crosshairs_size_scale_factor = 0.02;
+   float s = 0.2f * user_defined_rotation_centre_crosshairs_size_scale_factor * zoom;
    glm::vec3 sc(s,s,s);
    mvp = glm::scale(mvp, sc);
 
@@ -2640,10 +2785,14 @@ graphics_info_t::draw_rotation_centre_crosshairs(GtkGLArea *glarea, unsigned int
                       << std::endl;
 
    if (pass_type == PASS_TYPE_STANDARD) {
+
       bool is_bb = graphics_info_t::background_is_black_p();
-      glm::vec4 line_colour(0.8f, 0.8f, 0.8f, 1.0f);
-      if (! is_bb) 
-         line_colour = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
+      glm::vec4 line_colour = rotation_centre_cross_hairs_colour;
+      if (! is_bb)
+         line_colour = glm::vec4(1.0f - rotation_centre_cross_hairs_colour[0],
+                                 1.0f - rotation_centre_cross_hairs_colour[1],
+                                 1.0f - rotation_centre_cross_hairs_colour[0],
+                                 1.0f);
 
       GLuint line_colour_uniform_location = shader_for_central_cube.line_colour_uniform_location;
       glUniform4fv(line_colour_uniform_location, 1, glm::value_ptr(line_colour));
@@ -2681,224 +2830,12 @@ graphics_info_t::draw_rotation_centre_crosshairs(GtkGLArea *glarea, unsigned int
 
 }
 
-#if 0 // reproduced in new-startup.cc
-
-<<<<<<< HEAD
-void on_glarea_drag_begin_primary(GtkGestureDrag *gesture,
-                          double          x,
-                          double          y,
-                          GtkWidget      *area) {
-
-   // display_info_t di;
-   // di.mouse_x = x;
-   // di.mouse_y = y;
-   // di.drag_begin_x = x;
-   // di.drag_begin_y = y;
-=======
-// create and pack, but don't show it (in this function).
-//
-GtkWidget *create_and_pack_gtkglarea(GtkWidget *vbox, bool use_gtk_builder) {
->>>>>>> gtk3
-
-   graphics_info_t g;
-   g.on_glarea_drag_begin_primary(gesture, x, y, area);
-
-<<<<<<< HEAD
-=======
-   GtkWidget *w = gtk_gl_area_new();
-
-   auto get_gl_widget_dimension_scale_factor  = [] () {
-                                                   int sf = 1;
-                                                   char *e = getenv("COOT_OPENGL_WIDGET_SCALE_FACTOR");
-                                                   if (e) {
-                                                      std::string ee(e);
-                                                      sf = std::stoi(ee);
-                                                   }
-                                                   return sf;
-                                                };
-
-   // allow the user to set the major and minor version (for debugging)
-
-   int opengl_major_version = 3;
-   int opengl_minor_version = 3;
-   char *e1 = getenv("COOT_OPENGL_MAJOR_VERSION");
-   char *e2 = getenv("COOT_OPENGL_MINOR_VERSION");
-   if (e1) {
-      std::string e1s(e1);
-      opengl_major_version = std::stoi(e1s);
-   }
-   if (e2) {
-      std::string e2s(e2);
-      opengl_minor_version = std::stoi(e2s);
-   }
-
-   if (e1 || e2)
-      std::cout << "INFO:: setting OpenGL required version to "
-                << opengl_major_version << " " << opengl_minor_version << std::endl;
-
-   gtk_gl_area_set_required_version(GTK_GL_AREA(w), opengl_major_version, opengl_minor_version);
-
-   unsigned int dimensions = 900;
-   int gl_widget_dimension_scale_factor = get_gl_widget_dimension_scale_factor();
-   gtk_widget_set_size_request(w,
-                               gl_widget_dimension_scale_factor * dimensions,
-                               gl_widget_dimension_scale_factor * dimensions);
-   gtk_box_pack_start(GTK_BOX(vbox), w, TRUE, TRUE, 0);
-   return w;
->>>>>>> gtk3
-}
-
-void on_glarea_drag_update_primary(GtkGestureDrag *gesture,
-                           double          delta_x,
-                           double          delta_y,
-                           GtkWidget      *area) {
-
-   graphics_info_t g;
-   g.on_glarea_drag_update_primary(gesture, delta_x, delta_y, area);
-
-}
-
-void on_glarea_drag_end_primary(GtkGestureDrag *gesture,
-                                double          x,
-                                double          y,
-                                GtkWidget      *area) {
-
-   // std::cout << "drag end" << std::endl;
-   // do nothing at the moment.
-   graphics_info_t g;
-   g.on_glarea_drag_end_primary(gesture, x, y, area);
-}
-
-
-void on_glarea_drag_begin_secondary(GtkGestureDrag *gesture,
-                          double          x,
-                          double          y,
-                          GtkWidget      *area) {
-
-   graphics_info_t g;
-   g.on_glarea_drag_begin_secondary(gesture, x, y, area);
-
-}
-
-void on_glarea_drag_update_secondary(GtkGestureDrag *gesture,
-                                     double          delta_x,
-                                     double          delta_y,
-                                     GtkWidget      *area) {
-
-   graphics_info_t g;
-   g.on_glarea_drag_update_secondary(gesture, delta_x, delta_y, area);
-
-}
-
-void on_glarea_drag_end_secondary(GtkGestureDrag *gesture,
-                                  double          x,
-                                  double          y,
-                                  GtkWidget      *area) {
-
-   graphics_info_t g;
-   g.on_glarea_drag_end_secondary(gesture, x, y, area);
-}
-
-
-
-void on_glarea_drag_begin_middle(GtkGestureDrag *gesture,
-                          double          x,
-                          double          y,
-                          GtkWidget      *area) {
-
-   graphics_info_t g;
-   g.on_glarea_drag_begin_middle(gesture, x, y, area);
-
-}
-
-void on_glarea_drag_update_middle(GtkGestureDrag *gesture,
-                                  double          delta_x,
-                                  double          delta_y,
-                                  GtkWidget      *area) {
-
-   graphics_info_t g;
-   g.on_glarea_drag_update_middle(gesture, delta_x, delta_y, area);
-
-}
-
-void on_glarea_drag_end_middle(GtkGestureDrag *gesture,
-                               double          x,
-                               double          y,
-                               GtkWidget      *area) {
-
-
-   graphics_info_t g;
-   g.on_glarea_drag_end_middle(gesture, x, y, area);
-}
-
-#endif // reproduced in new-startup.cc
-
-
-
-
-#if 0 // old
-// ---------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------
-//                            key press
-// ---------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------
-
-
-gboolean
-on_glarea_key_controller_key_pressed(GtkEventControllerKey *controller,
-                                     guint                  keyval,
-                                     guint                  keycode,
-                                     guint                  modifiers,
-                                     GtkButton             *button) {
-
-   graphics_info_t g;
-   // allow other controllers to act (say TAB has been pressed)
-   gboolean handled = g.on_glarea_key_controller_key_pressed(controller, keyval, keycode, modifiers);
-   return gboolean(handled);
-}
-
-void
-on_glarea_key_controller_key_released(GtkEventControllerKey *controller,
-                                      guint                  keyval,
-                                      guint                  keycode,
-                                      guint                  modifiers,
-                                      GtkButton             *button) {
-
-   graphics_info_t g;
-   g.on_glarea_key_controller_key_released(controller, keyval, keycode, modifiers);
-
-}
-
-void
-on_glarea_click(GtkGestureClick* click_gesture,
-                gint n_press,
-                gdouble x,
-                gdouble y,
-                gpointer user_data) {
-
-   graphics_info_t g;
-   g.on_glarea_click(click_gesture, n_press, x, y, user_data);
-
-}
-
-void
-on_glarea_scrolled(GtkEventControllerScroll *controller,
-                   double                    dx,
-                   double                    dy,
-                   gpointer                  user_data) {
-
-   graphics_info_t g;
-   g.on_glarea_scrolled(controller, dx, dy, user_data);
-
-}
-
-#endif // event handlers
 
 // #include "event-controller-callbacks.hh"
 
 void print_opengl_info() {
 
-   std::cout << "----------------------- print_opengl_info() ----------" << std::endl;
+   // std::cout << "----------------------- print_opengl_info() ----------" << std::endl;
 
    const char *s1 = reinterpret_cast<const char *>(glGetString(GL_VERSION));
    const char *s2 = reinterpret_cast<const char *>(glGetString(GL_SHADING_LANGUAGE_VERSION));
@@ -2909,12 +2846,16 @@ void print_opengl_info() {
       std::string ss2(s2);
       std::string ss3(s3);
       std::string ss4(s4);
-      std::cout << "INFO:: GL Version:                  " << ss1 << std::endl;
-      std::cout << "INFO:: GL Shading Language Version: " << ss2 << std::endl;
-      std::cout << "INFO:: GL Renderer:                 " << ss3 << std::endl;
-      std::cout << "INFO:: GL Vendor:                   " << ss4 << std::endl;
+      // std::cout << "INFO:: GL Version:                  " << ss1 << std::endl;
+      // std::cout << "INFO:: GL Shading Language Version: " << ss2 << std::endl;
+      // std::cout << "INFO:: GL Renderer:                 " << ss3 << std::endl;
+      // std::cout << "INFO:: GL Vendor:                   " << ss4 << std::endl;
+      logger.log(log_t::INFO, "GL Version:",                  ss1);
+      logger.log(log_t::INFO, "GL Shading Language Version:", ss2);
+      logger.log(log_t::INFO, "GL Renderer:",                 ss3);
+      logger.log(log_t::INFO, "GL Vendor:",                   ss4);
    } else {
-      std::cout << "error:: on_glarea_realize() null from glGetString()" << std::endl;
+      std::cout << "ERROR:: on_glarea_realize() null from glGetString()" << std::endl;
    }
 
 }
@@ -2941,7 +2882,8 @@ on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
    g.graphics_x_size = width;
    g.graphics_y_size = height;
 
-   std::cout << "INFO:: in on_glarea_resize() GtkGLArea widget dimensions " << width << " " << height << std::endl;
+   // std::cout << "INFO:: in on_glarea_resize() GtkGLArea widget dimensions " << width << " " << height << std::endl;
+   logger.log(log_t::INFO, "in on_glarea_resize() GtkGLArea widget dimensions", width, height);
 
    // why do I need to do this?
    // setup_hud_text(width, height, g.shader_for_hud_text, false);
@@ -2960,11 +2902,11 @@ on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
 
 
 void
-graphics_info_t::draw_measure_distance_and_angles() {
+graphics_info_t::draw_measure_distance_and_angles(stereo_eye_t eye) {
 
    if (mesh_for_measure_distance_object_vec.get_draw_this_mesh()) {
       Shader &shader = shader_for_moleculestotriangles;
-      glm::mat4 mvp = get_molecule_mvp();
+      glm::mat4 mvp = get_molecule_mvp(eye);
       glm::mat4 model_rotation_matrix = get_model_rotation();
       glm::vec4 bg_col(background_colour, 1.0);
       bool show_just_shadows = false;
@@ -2972,18 +2914,20 @@ graphics_info_t::draw_measure_distance_and_angles() {
       float opacity = 1.0f;
       auto ccrc = RotationCentre();
       glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
-      mesh_for_measure_distance_object_vec.draw(&shader, mvp, model_rotation_matrix, lights, eye_position, rc,
+      mesh_for_measure_distance_object_vec.draw(&shader, eye, mvp, model_rotation_matrix, lights, eye_position, rc,
                                                 opacity, bg_col, wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
 
-      mesh_for_measure_angle_object_vec.draw(&shader, mvp, model_rotation_matrix, lights, eye_position, rc,
+      mesh_for_measure_angle_object_vec.draw(&shader, eye, mvp, model_rotation_matrix, lights, eye_position, rc,
                                              opacity, bg_col, wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
 
-      if (! labels_for_measure_distances_and_angles.empty()) {
-         for (unsigned int i=0; i<labels_for_measure_distances_and_angles.size(); i++) {
-            const auto &label = labels_for_measure_distances_and_angles[i];
-            tmesh_for_labels.draw_atom_label(label.label, label.position, label.colour, &shader_for_atom_labels,
-                                             mvp, model_rotation_matrix, bg_col,
-                                             shader_do_depth_fog_flag, perspective_projection_flag);
+      if (draw_distance_labels_user_control) {
+         if (! labels_for_measure_distances_and_angles.empty()) {
+            for (unsigned int i=0; i<labels_for_measure_distances_and_angles.size(); i++) {
+               const auto &label = labels_for_measure_distances_and_angles[i];
+               tmesh_for_labels.draw_atom_label(label.label, label.position, label.colour, &shader_for_atom_labels,
+                                                eye, mvp, model_rotation_matrix, bg_col,
+                                                shader_do_depth_fog_flag, perspective_projection_flag);
+            }
          }
       }
    }
@@ -3129,6 +3073,7 @@ graphics_info_t::setup_hud_buttons() {
 void
 graphics_info_t::clear_hud_buttons() {
 
+   attach_buffers();
    hud_button_info.clear();
    mesh_for_hud_buttons.update_instancing_buffer_data(hud_button_info); // empty
 }
@@ -3299,6 +3244,50 @@ graphics_info_t::draw_hud_buttons() {
       }
    }
 }
+
+void
+graphics_info_t::setup_draw_for_translation_gizmo() {
+
+   GLenum err = glGetError();
+   if (err)
+      logger.log(log_t::GL_ERROR, logging::function_name_t("setup_draw_for_translation_gizmo"),
+                 "--start--", stringify_error_code(err));
+
+   size_t tgmv_size = translation_gizmo.mesh.vertices.size();
+   std::vector<s_generic_vertex> cv(tgmv_size); // converted vertices
+   for (unsigned int i=0; i<cv.size(); i++) {
+      cv[i].pos    = translation_gizmo.mesh.vertices[i].pos;
+      cv[i].normal = translation_gizmo.mesh.vertices[i].normal;
+      cv[i].color  = translation_gizmo.mesh.vertices[i].color;
+   }
+   err = glGetError();
+   if (err)
+      logger.log(log_t::GL_ERROR, logging::function_name_t("setup_draw_for_translation_gizmo"),
+                 "B", stringify_error_code(err));
+   translation_gizmo_mesh.clear(); // so that we don't add to the mesh!
+   err = glGetError();
+   if (err)
+      logger.log(log_t::GL_ERROR, logging::function_name_t("setup_draw_for_translation_gizmo"),
+                 "C", stringify_error_code(err));
+   translation_gizmo_mesh.import(cv, translation_gizmo.mesh.triangles);
+   err = glGetError();
+   if (err)
+      logger.log(log_t::GL_ERROR, logging::function_name_t("setup_draw_for_translation_gizmo"),
+                 "D", stringify_error_code(err));
+   translation_gizmo_mesh.setup_buffers();
+   err = glGetError();
+   if (err)
+      logger.log(log_t::GL_ERROR, logging::function_name_t("setup_draw_for_translation_gizmo"),
+                 "E",  stringify_error_code(err));
+
+   translation_gizmo_mesh.set_draw_this_mesh(true);
+   err = glGetError();
+   if (err)
+      logger.log(log_t::GL_ERROR, logging::function_name_t("setup_draw_for_translation_gizmo"),
+                 "F", stringify_error_code(err));
+
+}
+
 
 void
 graphics_info_t::clear_gl_rama_plot() {
@@ -3488,6 +3477,7 @@ graphics_info_t::draw_hud_fps() {
 void
 graphics_info_t::show_atom_pull_toolbar_buttons() {
 
+#if 0 // this is old-school graphics/gui, isn't it?
    if (use_graphics_interface_flag) {
       GtkWidget *button_1 = get_widget_from_builder("clear_atom_pull_restraints_toolbutton");
       GtkWidget *button_2 = get_widget_from_builder("auto_clear_atom_pull_restraints_togglebutton");
@@ -3501,6 +3491,7 @@ graphics_info_t::show_atom_pull_toolbar_buttons() {
       else
          std::cout << "in show_atom_pull_toolbar_buttons() missing button2" << std::endl;
    }
+#endif
 }
 
 
@@ -3510,7 +3501,7 @@ graphics_info_t::hide_atom_pull_toolbar_buttons() {
    if (use_graphics_interface_flag) {
       GtkWidget *button_1 = get_widget_from_builder("clear_atom_pull_restraints_toolbutton");
       GtkWidget *button_2 = get_widget_from_builder("auto_clear_atom_pull_restraints_togglebutton");
-      
+
       if (button_1)
          gtk_widget_set_visible(button_1, FALSE);
       if (button_2)
@@ -3522,7 +3513,8 @@ void
 graphics_info_t::show_accept_reject_hud_buttons() {
 
 
-   std::cout << "--------------------- show_accept_reject_hud_buttons() " << std::endl;
+   if (false)
+      std::cout << "--------------------- show_accept_reject_hud_buttons() " << std::endl;
 
    // add some HUD buttons
 
@@ -3554,10 +3546,11 @@ graphics_info_t::show_accept_reject_hud_buttons() {
    button_4.set_scales_and_position_offset(7, w, h);
 
    auto button_1_func = [] () {
+
                            graphics_info_t g;
                            g.stop_refinement_internal();
                            g.accept_moving_atoms();
-                           g.hud_button_info.clear();
+                           // g.hud_button_info.clear();
                            g.hide_atom_pull_toolbar_buttons();
                            // g.draw_bad_nbc_atom_pair_markers = false;
                            g.clear_gl_rama_plot();
@@ -3569,7 +3562,7 @@ graphics_info_t::show_accept_reject_hud_buttons() {
                            graphics_info_t g;
                            g.stop_refinement_internal();
                            g.clear_up_moving_atoms();
-                           g.hud_button_info.clear();
+                           // g.hud_button_info.clear();
                            // g.draw_bad_nbc_atom_pair_markers = false;
                            g.rebond_molecule_corresponding_to_moving_atoms();
                            g.graphics_draw();
@@ -4335,7 +4328,16 @@ graphics_info_t::check_if_hud_button_moused_over_or_act_on_hit(double x, double 
                                                     button.set_button_colour_for_mode(HUD_button_info_t::BASIC);
                                                  }
                                               }
+                                              GLenum err = glGetError();
+                                              if (err) std::cout << "GL ERROR:: highlight_just_button_with_index pos-B "
+                                                                 << err << std::endl;
+                                              attach_buffers();
+                                              err = glGetError();
+                                              if (err) std::cout << "GL ERROR:: highlight_just_button_with_index pos-C "
+                                                                 << err << std::endl;
                                               mesh_for_hud_buttons.update_instancing_buffer_data(hud_button_info);
+                                              if (err) std::cout << "GL ERROR:: highlight_just_button_with_index pos-D "
+                                                                 << err << std::endl;
                                               graphics_draw(); // let's see the changes then
                                            };
    auto unhighlight_all_buttons = [] () {
@@ -4343,10 +4345,21 @@ graphics_info_t::check_if_hud_button_moused_over_or_act_on_hit(double x, double 
                                                  auto &button = hud_button_info[i];
                                                  button.set_button_colour_for_mode(HUD_button_info_t::BASIC);
                                               }
+                                              GLenum err = glGetError();
+                                              if (err) std::cout << "GL ERROR:: unhighlight_all_buttons pos-B "
+                                                                 << err << std::endl;
+                                              attach_buffers();
+                                              err = glGetError();
+                                              if (err) std::cout << "GL ERROR:: unhighlight_all_buttons pos-C "
+                                                                 << err << std::endl;
                                               mesh_for_hud_buttons.update_instancing_buffer_data(hud_button_info);
+                                              err = glGetError();
+                                              if (err) std::cout << "GL ERROR:: unhighlight_all_buttons pos-D "
+                                                                 << err << std::endl;
                                   };
 
    bool status = false;
+   bool clear_HUD_buttons_flag = false;
    if (! hud_button_info.empty()) {
       GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
       GtkAllocation allocation;
@@ -4363,10 +4376,13 @@ graphics_info_t::check_if_hud_button_moused_over_or_act_on_hit(double x, double 
          HUD_button_limits_t lims = button.get_button_limits(w, h);
          if (lims.is_hit(x_gl_coords,y_gl_coords)) {
             if (act_on_hit) {
-               std::cout << "Act on button " << i << " callback" << std::endl;
+               // std::cout << "Act on button " << i << " callback" << std::endl;
                if (button.callback_function) {
                   button.callback_function();
                }
+               // don't clear the hud buttons in the callback.
+               if (button.button_label == "Accept") clear_HUD_buttons_flag = true;
+               if (button.button_label == "Reject") clear_HUD_buttons_flag = true;
             }
             status = true;
             highlight_just_button_with_index(i);
@@ -4376,6 +4392,7 @@ graphics_info_t::check_if_hud_button_moused_over_or_act_on_hit(double x, double 
          unhighlight_all_buttons();
       }
    }
+   if (clear_HUD_buttons_flag) clear_hud_buttons();
 
    return status;
 }
@@ -4519,9 +4536,10 @@ graphics_info_t::check_if_hud_rama_plot_clicked(double mouse_x, double mouse_y) 
                int w = allocation.width;
                int h = allocation.height;
                mouse_over_hit_t hit = gl_rama_plot.get_mouse_over_hit(mouse_x, mouse_y, w, h);
-               std::cout << "hit: plot clicked: " << hit.plot_was_clicked
-                         << " residue_was_clicked: " << hit.residue_was_clicked
-                         << " spec " << hit.residue_spec << std::endl;
+               if (false)
+                  std::cout << "hit: plot clicked: " << hit.plot_was_clicked
+                            << " residue_was_clicked: " << hit.residue_was_clicked
+                            << " spec " << hit.residue_spec << std::endl;
                if (hit.plot_was_clicked) status = true;
                if (hit.residue_was_clicked) {
                   std::pair<bool, coot::Cartesian> rc = get_rotation_centre_from_intermediate_atoms_residue_spec(hit.residue_spec);
@@ -4538,7 +4556,7 @@ graphics_info_t::check_if_hud_rama_plot_clicked(double mouse_x, double mouse_y) 
 
 
 void
-graphics_info_t::render_3d_scene(GtkGLArea *gl_area) {
+graphics_info_t::render_3d_scene(GtkGLArea *gl_area, stereo_eye_t eye) {
 
    // note: this function is called from render_scene_sans_depth_blur()
    // 20230814-PE Is it?
@@ -4557,31 +4575,36 @@ graphics_info_t::render_3d_scene(GtkGLArea *gl_area) {
    // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
    err = glGetError(); if (err) std::cout << "render_3d_scene lambda C err " << err << std::endl;
 
-   draw_origin_cube(gl_area);
+   draw_origin_cube(eye, gl_area);
    err = glGetError(); if (err) std::cout << "render scene lambda post cubes err " << err << std::endl;
 
-   draw_molecules(); // includes particles, happy-faces and boids (should they be there (maybe not))
+   draw_molecules(eye); // includes particles, happy-faces and boids (should they be there (maybe not))
                      // so rename this function? Or just bring everything here?  Put this render() function
                      // into new file graphics-info-opengl-render.cc
 
-   draw_invalid_residue_pulse();
+   draw_at_screen_centre_pulse(eye);
 
-   draw_identification_pulse();
+   draw_invalid_residue_pulse(eye);
 
-   draw_delete_item_pulse();
+   draw_delete_item_pulse(eye);
 
-   draw_measure_distance_and_angles(); // maybe in draw_molecules()?
+   draw_generic_pulses(eye);
 
-   draw_extra_distance_restraints(PASS_TYPE_STANDARD); // GM_restraints
+   draw_measure_distance_and_angles(eye); // maybe in draw_molecules()?
 
-   draw_pointer_distances_objects();
+   draw_extra_distance_restraints(eye, PASS_TYPE_STANDARD); // GM_restraints
 
-   draw_texture_meshes();
+   draw_pointer_distances_objects(eye);
+
+   draw_translation_gizmo(eye); // maybe rotation gizmo too, later.
+
+   draw_texture_meshes(eye);
 
 }
 
+
 void
-graphics_info_t::render_3d_scene_with_shadows() {
+graphics_info_t::render_3d_scene_with_shadows(stereo_eye_t eye) {
 
    // std::cout << "render_3d_scene_with_shadows() --- start ---" << std::endl;
 
@@ -4599,28 +4622,36 @@ graphics_info_t::render_3d_scene_with_shadows() {
    GLenum err = glGetError();
    if (err) std::cout << "render_3d_scene_with_shadows B err " << err << std::endl;
 
-   draw_origin_cube(gl_area);
+   draw_origin_cube(eye, gl_area);
    err = glGetError(); if (err) std::cout << "render scene lambda post cubes err " << err << std::endl;
 
    // draw_rotation_centre_crosshairs(gl_area, PASS_TYPE_STANDARD);
 
-   draw_molecules_with_shadows(); // includes particles, happy-faces and boids (should they be there (maybe not))
-                                  // so rename this function? Or just bring everything here?  Put this render() function
-                                  // into new file graphics-info-opengl-render.cc
+   draw_molecules_with_shadows(eye); // includes particles, happy-faces and boids (should they be there (maybe not))
+                                     // so rename this function? Or just bring everything here?  Put this render() function
+                                     // into new file graphics-info-opengl-render.cc
+                                     // draw_molecules_with_shadows() called draw_molecules_other_meshes()
+                                     // so we don't need to call it again from this function!
 
-   draw_invalid_residue_pulse();
 
-   draw_identification_pulse();
+   // draw_molecules_other_meshes(eye, PASS_TYPE_WITH_SHADOWS);
 
-   draw_delete_item_pulse();
+   draw_at_screen_centre_pulse(eye);
 
-   draw_measure_distance_and_angles(); // maybe in draw_molecules()?
 
-   draw_pointer_distances_objects();
+   draw_invalid_residue_pulse(eye);
 
-   draw_extra_distance_restraints(PASS_TYPE_WITH_SHADOWS); // GM_restraints. 20231121-PE is this the right pass type?
+   draw_generic_pulses(eye);
 
-   draw_texture_meshes();
+   draw_delete_item_pulse(eye);
+
+   draw_measure_distance_and_angles(eye); // maybe in draw_molecules()?
+
+   draw_pointer_distances_objects(eye);
+
+   draw_extra_distance_restraints(eye, PASS_TYPE_WITH_SHADOWS); // GM_restraints. 20231121-PE is this the right pass type?
+
+   draw_texture_meshes(eye);
 
 }
 
@@ -4631,7 +4662,7 @@ graphics_info_t::render_3d_scene_for_ssao() {
 }
 
 
-
+// these are both optional arguments.
 gboolean
 graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &output_file_name) {
 
@@ -4685,69 +4716,57 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
                                 };
 
    auto screendump_image = [update_fps_statistics] (const std::string &output_file_name) {
-      // this works! Nice framebuffer scaling with screendump_tga().
-
-      std::cout << "debug:: in screendump_image() with use_framebuffers " << use_framebuffers << std::endl;
 
       GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
       GtkAllocation allocation;
       gtk_widget_get_allocation(GTK_WIDGET(gl_area), &allocation);
       int w = allocation.width;
       int h = allocation.height;
+      unsigned int sf = framebuffer_scale;
 
-// #ifdef __APPLE__
-//      use_framebuffers = false;
-// #endif
+      bool show_basic_scene_state = (displayed_image_type == SHOW_BASIC_SCENE);
 
-      if (use_framebuffers) { // static class variable
+      // Save state
+      int saved_gx = graphics_x_size;
+      int saved_gy = graphics_y_size;
 
-         glViewport(0, 0, framebuffer_scale * w, framebuffer_scale * h);
-         GLenum err = glGetError();
-         if (err) std::cout << "GL ERROR:: render() post glViewport() err " << err << std::endl;
-         screen_framebuffer.bind(); // screen_ao, that is
-         err = glGetError();
-         if (err) std::cout << "GL ERROR:: render() post screen_framebuffer bind() err " << err << std::endl;
+      // Create screendump FBO
+      framebuffer screendump_fb;
+      unsigned int index_offset = 0;
+      screendump_fb.init(sf * w, sf * h, index_offset, "screendump");
 
-         render_3d_scene(gl_area);
+      // Set dimensions for projection matrix and viewport
+      graphics_x_size = sf * w;
+      graphics_y_size = sf * h;
 
-         // screendump
-         glDisable(GL_DEPTH_TEST);
-         const unsigned int &sf = framebuffer_scale;
-         glViewport(0, 0, sf * w, sf * h);
-         framebuffer screendump_framebuffer;
-         unsigned int index_offset = 0;
-         screendump_framebuffer.init(sf * w, sf * h, index_offset, "screendump");
-         screendump_framebuffer.bind();
-
-         // render_3d_scene(gl_area);
-         // render_scene_with_screen_ao_shader();
-
-         render_scene();
-
-         gtk_gl_area_attach_buffers(gl_area);
-         screendump_tga_internal(output_file_name, w, h, sf, screendump_framebuffer.get_fbo());
-
-      } else {
-
-         gtk_gl_area_attach_buffers(gl_area);
-         render_3d_scene(gl_area);
-         draw_hud_elements();
-
+      if (!show_basic_scene_state) {
+         // Fancy path needs intermediate FBOs resized
+         graphics_info_t g;
+         g.resize_framebuffers_textures_renderbuffers(sf * w, sf * h);
       }
 
-      // 20211112-PE
-      // This seems to do bad things to the frame-rate on the PC (although fullscreen mode seems
-      // unaffected and looks to be *faster* than windowed mode (could be a gtk thing)).
-      // This is vital to see anything sane on the Mac.
+      // Redirect attach_buffers() to our screendump FBO
+      screendump_target_framebuffer = screendump_fb.get_fbo();
+
+      // Render (works for both basic and fancy paths)
+      render_scene();
+
+      // Read pixels from the screendump FBO
+      screendump_fb.bind();
+      screendump_tga_internal(output_file_name, w, h, sf);
+
+      // Restore state
+      screendump_target_framebuffer = 0;
+      graphics_x_size = saved_gx;
+      graphics_y_size = saved_gy;
+
+      if (!show_basic_scene_state) {
+         graphics_info_t g;
+         g.resize_framebuffers_textures_renderbuffers(saved_gx, saved_gy);
+      }
+
       glFlush();
-
-      // auto tp_1 = std::chrono::high_resolution_clock::now();
-      // auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
-      // std::cout << "INFO:: render() " << d10 << " microseconds" << std::endl;
-
-      // std::cout << "calling update_fps_statistics() " << std::endl;
       update_fps_statistics();
-
       return FALSE;
 
    };
@@ -4952,6 +4971,7 @@ graphics_info_t::try_label_unlabel_active_atom() {
          int ierr = at->GetUDData(molecules[im].atom_sel.UDDAtomIndexHandle, atom_index);
 	 if (ierr == mmdb::UDDATA_Ok) {
             molecules[im].add_to_labelled_atom_list(atom_index);
+	    add_picked_atom_info_to_status_bar(im, atom_index);
             graphics_draw();
          } else {
             std::cout << "WARNING:: Bad UDData for atom_index for atom " << std::endl;
@@ -5410,15 +5430,33 @@ graphics_info_t::update_bad_nbc_atom_pair_marker_positions() {
          // if (nbc_baddies_count_delta(previous_round_nbc_baddies_atom_index_map, rr.nbc_baddies_atom_index_map) > 1)
          // play_sound("diego-arrives");
 
+         int bad_nbc_atom_pair_marker_positions_size_pre = bad_nbc_atom_pair_marker_positions.size();
          bad_nbc_atom_pair_marker_positions.clear();
          std::vector<coot::refinement_results_nbc_baddie_t> &baddies(rr.sorted_nbc_baddies);
          for (unsigned int i=0; i<baddies.size(); i++) {
             bad_nbc_atom_pair_marker_positions.push_back(coord_orth_to_glm(baddies[i].mid_point));
          }
+         int bad_nbc_atom_pair_marker_positions_size_post = bad_nbc_atom_pair_marker_positions.size();
+
+         int bad_nbc_size_delta = bad_nbc_atom_pair_marker_positions_size_post - bad_nbc_atom_pair_marker_positions_size_pre;
+         if (bad_nbc_size_delta > 0)
+            play_sound("diego-arrives");  // maybe new-bump
+
+         GLenum err = glGetError();
+         if (err)
+            std::cout << "GL ERROR:: update_bad_nbc_atom_pair_marker_positions() pos-B " << stringify_error_code(err) << std::endl;
 
          attach_buffers();
+         err = glGetError();
+         if (err)
+            std::cout << "GL ERROR:: update_bad_nbc_atom_pair_marker_positions() pos-C - post attach_buffers "
+                      << stringify_error_code(err) << std::endl;
          tmesh_for_bad_nbc_atom_pair_markers.draw_this_mesh = true;
          tmesh_for_bad_nbc_atom_pair_markers.update_instancing_buffer_data(bad_nbc_atom_pair_marker_positions);
+         err = glGetError();
+         if (err)
+            std::cout << "GL ERROR:: update_bad_nbc_atom_pair_marker_positions() pos-C - post update_instancing_buffer_data "
+                      << stringify_error_code(err) << std::endl;
          if (! bad_nbc_atom_pair_marker_positions.empty())
             draw_bad_nbc_atom_pair_markers_flag = true;
 
@@ -5445,6 +5483,98 @@ graphics_info_t::update_bad_nbc_atom_pair_marker_positions() {
       }
    } else {
       bad_nbc_atom_pair_marker_positions.clear();
+   }
+}
+
+#include "coot-utils/cylinder-utils.hh"
+
+// static
+void graphics_info_t::update_bad_nbc_atom_pair_dashed_lines() {
+
+   // look at above
+
+   auto convert_vertices = [] (const std::vector<coot::api::vnc_vertex> &vertices) {
+      std::vector<s_generic_vertex> v_out(vertices.size());
+      for (unsigned int i=0; i<vertices.size(); i++) {
+         const auto &v = vertices[i];
+         v_out[i].pos    = v.pos;
+         v_out[i].normal = v.normal;
+         v_out[i].color  = v.color;
+      }
+      return v_out;
+   };
+
+   auto baddies_to_dashed_lines = [] (const std::vector<coot::refinement_results_nbc_baddie_t> &baddies,
+                                      unsigned int n_dashes) {
+      dashed_cylinders_info_t dci;
+      std::vector<std::pair<glm::vec3, glm::vec3> > positions;
+      for (unsigned int i=0; i<baddies.size(); i++) {
+         const auto &baddie = baddies[i];
+         glm::vec3 p1(baddie.atom_1_pos.x(), baddie.atom_1_pos.y(), baddie.atom_1_pos.z());
+         glm::vec3 p2(baddie.atom_2_pos.x(), baddie.atom_2_pos.y(), baddie.atom_2_pos.z());
+         positions.push_back(std::make_pair(p1, p2));
+      }
+      dci = get_dashed_cylinders(positions, n_dashes);
+      return dci;
+   };
+
+   // Note:
+   //    class dashed_cylinders_info_t {
+   // public:
+   //    dashed_cylinders_info_t() {}
+   //    cylinder c;
+   //    glm::mat3 rot;
+   //    glm::vec3 scales;
+   //    std::vector<glm::vec3> offsets;
+   // };
+
+   GLenum err = glGetError();
+   if (err)
+      logger.log(log_t::GL_ERROR, logging::function_name_t("update_bad_nbc_atom_pair_dashed_lines"),
+                 "--start--", stringify_error_code(err));
+
+   if (moving_atoms_asc) {
+      if (moving_atoms_asc->mol) {
+         coot::refinement_results_t &rr = saved_dragged_refinement_results;
+
+         unsigned int n_dashes = 23;
+
+         attach_buffers();
+         err = glGetError();
+         if (err)
+            logger.log(log_t::GL_ERROR, logging::function_name_t("update_bad_nbc_atom_pair_dashed_lines"),
+                       "A", stringify_error_code(err));
+
+         // make instances
+         std::vector<coot::refinement_results_nbc_baddie_t> &baddies(rr.sorted_nbc_baddies);
+         if (! baddies.empty()) {
+            dashed_cylinders_info_t dl = baddies_to_dashed_lines(baddies, n_dashes);
+            std::vector<glm::mat4> mats;
+            std::vector<glm::vec4> colours;
+            for (unsigned int i=0; i<dl.oris_and_offsets.size(); i++) {
+               const auto &ori = dl.oris_and_offsets[i].first;
+               for (unsigned int j=0; j<dl.oris_and_offsets[i].second.size(); j++) {
+                  const auto &offset = dl.oris_and_offsets[i].second[j];
+                  glm::mat4 u(1.0f);
+                  glm::mat4 s = glm::scale(u, dl.scales);
+                  glm::mat4 r = dl.oris_and_offsets[i].first;
+                  glm::mat4 t = glm::translate(u, offset);
+                  glm::mat4 m1 = t * r * s;
+                  mats.push_back(m1);
+                  colours.push_back(glm::vec4(0.6, 0.4, 0.2, 1.0));
+               }
+            }
+            Shader *shader_p = nullptr;
+            unsigned int n_instances = mats.size();
+            Material material;
+            if (n_instances > 0) {
+               for (unsigned int i=0; i<mats.size(); i++) {
+                  // std::cout << "mat " << i << " " << glm::to_string(mats[i]) << std::endl;
+               }
+            }
+            bad_nbc_atom_pair_dashed_line.setup_rtsc_instancing(shader_p, mats, colours, n_instances, material);
+         }
+      }
    }
 }
 
@@ -5540,16 +5670,51 @@ graphics_info_t::setup_draw_for_bad_nbc_atom_pair_markers() {
 
 }
 
+void graphics_info_t::setup_draw_for_bad_nbc_atom_pair_dashed_line() {
+
+   // the mesh gets setup on update
+   auto convert_vertices = [] (const std::vector<coot::api::vnc_vertex> &vertices) {
+      std::vector<s_generic_vertex> v_out(vertices.size());
+      for (unsigned int i=0; i<vertices.size(); i++) {
+         const auto &v = vertices[i];
+         v_out[i].pos    = v.pos;
+         v_out[i].normal = v.normal;
+         v_out[i].color  = v.color;
+      }
+      return v_out;
+   };
+
+   GLenum err = glGetError();
+   if (err)
+      logger.log(log_t::WARNING, logging::function_name_t("setup_draw_for_bad_nbc_atom_pair_dashed_line"),
+                 "---start---", stringify_error_code(err));
+
+   attach_buffers();
+   cylinder c;
+   c.init_unit(20);
+   c.add_flat_end_cap();
+   c.add_flat_start_cap();
+   bad_nbc_atom_pair_dashed_line = Mesh(convert_vertices(c.vertices), c.triangles);
+   bad_nbc_atom_pair_dashed_line.set_name("bad_nbc_atom_pair_dashed_line Mesh");
+   bad_nbc_atom_pair_dashed_line.setup_buffers();
+
+   if (err)
+      logger.log(log_t::WARNING, logging::function_name_t("setup_draw_for_bad_nbc_atom_pair_dashed_line"),
+                 "---end---", stringify_error_code(err));
+
+}
+
+
 // static
 void
-graphics_info_t::draw_bad_nbc_atom_pair_markers(unsigned int pass_type) {
+graphics_info_t::draw_bad_nbc_atom_pair_markers(stereo_eye_t eye, unsigned int pass_type) {
 
    if (curmudgeon_mode) return;
 
    if (draw_bad_nbc_atom_pair_markers_flag) {
       if (! bad_nbc_atom_pair_marker_positions.empty()) {
 
-         glm::mat4 mvp = get_molecule_mvp();
+         glm::mat4 mvp = get_molecule_mvp(eye);
          glm::mat4 model_rotation = get_model_rotation();
          glm::vec4 bg_col(background_colour, 1.0);
          texture_for_bad_nbc_atom_pair_markers.Bind(0);
@@ -5574,8 +5739,37 @@ graphics_info_t::draw_bad_nbc_atom_pair_markers(unsigned int pass_type) {
    }
 }
 
- void
-    graphics_info_t::setup_draw_for_chiral_volume_outlier_markers() {
+void graphics_info_t::draw_bad_nbc_atom_pair_dashed_lines(stereo_eye_t eye, unsigned int pass_type) {
+
+   if (curmudgeon_mode) return;
+
+   if (draw_bad_nbc_atom_pair_markers_flag) {
+
+      if (! bad_nbc_atom_pair_marker_positions.empty()) {
+         glm::mat4 mvp = get_molecule_mvp(eye);
+         glm::mat4 model_rotation = get_model_rotation();
+         glm::vec4 bg_col(background_colour, 1.0);
+
+         bool transfered_colour_is_instanced = true;
+         if (pass_type == PASS_TYPE_STANDARD)
+            bad_nbc_atom_pair_dashed_line.draw_instanced(pass_type,
+                                                         &shader_for_instanced_objects,
+                                                         eye,
+                                                         mvp,
+                                                         model_rotation,
+                                                         lights,
+                                                         eye_position,
+                                                         bg_col,
+                                                         shader_do_depth_fog_flag,
+                                                         transfered_colour_is_instanced);
+
+      }
+   }
+
+}
+
+
+void graphics_info_t::setup_draw_for_chiral_volume_outlier_markers() {
 
     texture_for_chiral_volume_outlier_markers.init("chiral-volume-outlier-marker.png");
     float ts = 0.7; // relative texture size
@@ -5585,12 +5779,13 @@ graphics_info_t::draw_bad_nbc_atom_pair_markers(unsigned int pass_type) {
 
 }
 
- // static
- void
-    graphics_info_t::draw_chiral_volume_outlier_markers(unsigned int pass_type) {
+// static
+void graphics_info_t::draw_chiral_volume_outlier_markers(stereo_eye_t eye, unsigned int pass_type) {
 
-    // unlike NBC markers, each molecule can have it's own chiral volume outlier markers
-    for (unsigned int imol=0; imol<molecules.size(); imol++) {
+   if (curmudgeon_mode) return;
+
+   // unlike NBC markers, each molecule can have it's own chiral volume outlier markers
+   for (unsigned int imol=0; imol<molecules.size(); imol++) {
        if (is_valid_model_molecule(imol)) {
           if (molecules[imol].draw_it) {
              if (molecules[imol].draw_chiral_volume_outlier_markers_flag) {
@@ -5598,7 +5793,7 @@ graphics_info_t::draw_bad_nbc_atom_pair_markers(unsigned int pass_type) {
 
                    unsigned int n = graphics_info_t::molecules[imol].chiral_volume_outlier_marker_positions.size();
 
-                   glm::mat4 mvp = get_molecule_mvp();
+                   glm::mat4 mvp = get_molecule_mvp(eye);
                    glm::mat4 model_rotation = get_model_rotation();
                    glm::vec4 bg_col(background_colour, 1.0);
                    texture_for_chiral_volume_outlier_markers.Bind(0);
@@ -5651,6 +5846,87 @@ graphics_info_t::draw_bad_nbc_atom_pair_markers(unsigned int pass_type) {
        }
     }
  }
+
+void graphics_info_t::add_unhappy_atom_marker(int imol, const coot::atom_spec_t &atom_spec) {
+
+   if (curmudgeon_mode) return;
+
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Atom *at = molecules[imol].get_atom(atom_spec);
+      if (at) {
+         glm::vec3 p(at->x, at->y, at->z);
+         auto &positions = molecules[imol].unhappy_atom_marker_positions;
+         positions.push_back(p);
+         attach_buffers();
+         tmesh_for_unhappy_atom_markers.draw_this_mesh = true;
+         tmesh_for_unhappy_atom_markers.update_instancing_buffer_data(positions);
+         unsigned int n_instances = tmesh_for_unhappy_atom_markers.get_n_instances();
+         if (false)
+            std::cout << "debug:: :::::::::::::::::::::::::::::::: add position " << glm::to_string(p)
+                      << "  " << n_instances << std::endl;
+      }
+   }
+}
+
+void graphics_info_t::remove_all_unhappy_atom_markers() {
+
+   for (unsigned int imol=0; imol<molecules.size(); imol++) {
+      if (is_valid_model_molecule(imol)) {
+         if (! molecules[imol].unhappy_atom_marker_positions.empty()) {
+            molecules[imol].unhappy_atom_marker_positions.clear();
+         }
+      }
+   }
+   std::vector<glm::vec3> empty;
+   tmesh_for_unhappy_atom_markers.draw_this_mesh = false;
+   tmesh_for_unhappy_atom_markers.update_instancing_buffer_data(empty);
+   graphics_draw();
+}
+
+void graphics_info_t::setup_draw_for_unhappy_atom_markers() {
+
+   texture_for_unhappy_atom_markers.init("sad-santiago.png");
+   float ts = 0.7; // relative texture size
+   tmesh_for_unhappy_atom_markers.setup_camera_facing_quad(ts, ts, 0.0, 0.7);
+   tmesh_for_unhappy_atom_markers.setup_instancing_buffers(200);
+   tmesh_for_unhappy_atom_markers.draw_this_mesh = true;
+}
+
+// static
+void graphics_info_t::draw_unhappy_atom_markers(stereo_eye_t eye, unsigned int pass_type) {
+
+   if (curmudgeon_mode) return;
+
+   for (unsigned int imol=0; imol<molecules.size(); imol++) {
+      if (is_valid_model_molecule(imol)) {
+         if (molecules[imol].draw_it) {
+                   glm::mat4 mvp = get_molecule_mvp(eye);
+                   glm::mat4 model_rotation = get_model_rotation();
+                   glm::vec4 bg_col(background_colour, 1.0);
+                   texture_for_unhappy_atom_markers.Bind(0);
+
+                   if (pass_type == PASS_TYPE_STANDARD) {
+                      tmesh_for_unhappy_atom_markers.draw_instances(&shader_for_happy_face_residue_markers,
+                                                                    mvp, model_rotation, bg_col, perspective_projection_flag);
+                   }
+
+                   if (pass_type == PASS_TYPE_SSAO) {
+                      GtkAllocation allocation;
+                      gtk_widget_get_allocation(GTK_WIDGET(glareas[0]), &allocation);
+                      int w = allocation.width;
+                      int h = allocation.height;
+                      bool do_orthographic_projection = ! perspective_projection_flag;
+                      auto model_matrix = get_model_matrix();
+                      auto view_matrix = get_view_matrix();
+                      auto projection_matrix = get_projection_matrix(do_orthographic_projection, w, h);
+                      tmesh_for_unhappy_atom_markers.draw_instances_for_ssao(&shader_for_happy_face_residue_markers_for_ssao,
+                                                                             model_matrix, view_matrix, projection_matrix);
+                   }
+         }
+      }
+   }
+
+}
 
 
 // static
@@ -5723,8 +5999,8 @@ graphics_info_t::setup_draw_for_boids() {
 
       meshed_generic_display_object m;
       coot::colour_holder col(0.4, 0.5, 0.6);
-      std::pair<glm::vec3, glm::vec3> start_end(glm::vec3(0.95,0,0), glm::vec3(-0.95,0,0));
-      m.add_cone(start_end, col, 1.0, 0.0, 12, false, true,
+      std::pair<glm::vec3, glm::vec3> start_end(glm::vec3(1.95,0,0), glm::vec3(-1.95,0,0));
+      m.add_cone(start_end, col, 3.0, 0.0, 24, false, true,
                  meshed_generic_display_object::FLAT_CAP,
                  meshed_generic_display_object::FLAT_CAP);
       mesh_for_boids = m.mesh;
@@ -5732,7 +6008,6 @@ graphics_info_t::setup_draw_for_boids() {
       std::vector<glm::mat4>    mats(n_boids);
       std::vector<glm::vec4> colours(n_boids);
       for (unsigned int i=0; i<n_boids; i++) {
-         const fun::boid boid = boids[i];
          mats[i] = glm::mat4(1.0f);
          colours[i] = glm::vec4(0.2, 0.6, 0.4, 1.0);
       }
@@ -5824,10 +6099,10 @@ graphics_info_t::draw_hud_ligand_view() {
 
 
 void
-graphics_info_t::draw_boids() {
+graphics_info_t::draw_boids(stereo_eye_t eye) {
 
    if (boids.size() > 0) {
-      glm::mat4 mvp = get_molecule_mvp();
+      glm::mat4 mvp = get_molecule_mvp(eye);
       glm::vec3 eye_position = get_world_space_eye_position();
       glm::mat4 model_rotation_matrix = get_model_rotation();
       glm::vec4 bg_col(background_colour, 1.0);
@@ -5837,7 +6112,7 @@ graphics_info_t::draw_boids() {
       auto ccrc = RotationCentre();
       glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
       mesh_for_boids.draw(&shader_for_instanced_objects,
-                          mvp, model_rotation_matrix, lights, eye_position, rc, opacity, bg_col,
+                          eye, mvp, model_rotation_matrix, lights, eye_position, rc, opacity, bg_col,
                           wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
 
       lines_mesh_for_boids_box.draw(&shader_for_lines, mvp, model_rotation_matrix);
@@ -5880,21 +6155,21 @@ graphics_info_t::update_hydrogen_bond_mesh(const std::string &label) {
 }
 
 void
-graphics_info_t::draw_hydrogen_bonds_mesh() {
+graphics_info_t::draw_hydrogen_bonds_mesh(stereo_eye_t eye) {
 
    // 20210827-PE  each molecule should have its own hydrogen bond mesh. Not just one of them.
    // Fix that later.
 
    if (mesh_for_hydrogen_bonds.get_draw_this_mesh()) {
 
-      glm::mat4 mvp = get_molecule_mvp();
+      glm::mat4 mvp = get_molecule_mvp(eye);
       glm::vec3 eye_position = get_world_space_eye_position();
       glm::mat4 model_rotation_matrix = get_model_rotation();
       glm::vec4 bg_col(background_colour, 1.0);
 
       int pass_type = PASS_TYPE_STANDARD;
       mesh_for_hydrogen_bonds.draw_instanced(pass_type,
-                                             &shader_for_instanced_objects,
+                                             &shader_for_instanced_objects, eye,
                                              mvp, model_rotation_matrix, lights, eye_position, bg_col,
                                              shader_do_depth_fog_flag, false, false, true, 0, 0, 0, 0.2);
    }
@@ -5937,11 +6212,11 @@ graphics_info_t::setup_delete_item_pulse(mmdb::Residue *residue_p) {
                                     pulse_data->n_pulse_steps += 1;
                                     if (pulse_data->n_pulse_steps > pulse_data->n_pulse_steps_max) {
                                        continue_status = 0;
-                                       lines_mesh_for_delete_item_pulse.clear();
-                                       delete_item_pulse_centres.clear();
+                                       lines_mesh_for_generic_pulse.clear();
+                                       generic_pulse_centres.clear();
                                     } else {
                                        float ns = pulse_data->n_pulse_steps;
-                                       lines_mesh_for_delete_item_pulse.update_buffers_for_pulse(ns, -1);
+                                       lines_mesh_for_generic_pulse.update_buffers_for_pulse(ns, -1);
                                     }
                                     graphics_draw();
                                     return gboolean(continue_status);
@@ -5950,10 +6225,12 @@ graphics_info_t::setup_delete_item_pulse(mmdb::Residue *residue_p) {
    pulse_data_t *pulse_data = new pulse_data_t(0, 20); // 20 matches the number in update_buffers_for_pulse()
    gpointer user_data = reinterpret_cast<void *>(pulse_data);
    std::vector<glm::vec3> positions = residue_to_positions(residue_p);
-   delete_item_pulse_centres = positions;
+   generic_pulse_centres = positions;
    gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
    bool broken_line_mode = true;
-   lines_mesh_for_delete_item_pulse.setup_pulse(broken_line_mode);
+   float radius_overall = 6.0;
+   unsigned int n_rings = 3;
+   lines_mesh_for_generic_pulse.setup_red_pulse(radius_overall, n_rings, broken_line_mode);
    gtk_widget_add_tick_callback(glareas[0], delete_item_pulse_func, user_data, NULL);
 
 };
@@ -5961,11 +6238,11 @@ graphics_info_t::setup_delete_item_pulse(mmdb::Residue *residue_p) {
 void
 graphics_info_t::setup_delete_residues_pulse(const std::vector<mmdb::Residue *> &residues) {
 
-   // next you use this functionn make it a member of graphics_info_t
+   // next you use this function make it a member of graphics_info_t
    // gboolean delete_item_pulse_func(GtkWidget *widget,
    //                                 GdkFrameClock *frame_clock,
    //                                 gpointer data)
-   // 
+   //
    auto delete_item_pulse_func = [] (GtkWidget *widget,
                                      GdkFrameClock *frame_clock,
                                      gpointer data) {
@@ -5975,11 +6252,11 @@ graphics_info_t::setup_delete_residues_pulse(const std::vector<mmdb::Residue *> 
                                     pulse_data->n_pulse_steps += 1;
                                     if (pulse_data->n_pulse_steps > pulse_data->n_pulse_steps_max) {
                                        continue_status = 0;
-                                       lines_mesh_for_delete_item_pulse.clear();
-                                       delete_item_pulse_centres.clear();
+                                       lines_mesh_for_generic_pulse.clear();
+                                       generic_pulse_centres.clear();
                                     } else {
                                        float ns = pulse_data->n_pulse_steps;
-                                       lines_mesh_for_delete_item_pulse.update_buffers_for_pulse(ns, -1);
+                                       lines_mesh_for_generic_pulse.update_buffers_for_pulse(ns, -1);
                                     }
                                     graphics_draw();
                                     return gboolean(continue_status);
@@ -5993,18 +6270,17 @@ graphics_info_t::setup_delete_residues_pulse(const std::vector<mmdb::Residue *> 
       std::vector<glm::vec3> residue_positions = residue_to_positions(residue_p);
       all_positions.insert(all_positions.end(), residue_positions.begin(), residue_positions.end());
    }
-   delete_item_pulse_centres = all_positions;
+   generic_pulse_centres = all_positions;
    gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
    bool broken_line_mode = true;
-   lines_mesh_for_delete_item_pulse.setup_pulse(broken_line_mode);
+   unsigned int n_rings = 3;
+   float radius_overall = 6.0;
+   lines_mesh_for_generic_pulse.setup_red_pulse(radius_overall, n_rings, broken_line_mode);
    gtk_widget_add_tick_callback(glareas[0], delete_item_pulse_func, user_data, NULL);
 
 };
 
 
-// I think that this function should be part of glarea_tick_func().
-// (bring glarea_tick_func() into graphics_info_t.)
-//
 // static
 gboolean
 graphics_info_t::invalid_residue_pulse_function(GtkWidget *widget,
@@ -6017,7 +6293,7 @@ graphics_info_t::invalid_residue_pulse_function(GtkWidget *widget,
    if (pulse_data->n_pulse_steps > pulse_data->n_pulse_steps_max) {
       continue_status = 0;
       lines_mesh_for_identification_pulse.clear();
-      delete_item_pulse_centres.clear(); // we sneakily use this vector (but no longer)
+      generic_pulse_centres.clear(); // we sneakily use this vector (but no longer)
    } else {
       float ns = pulse_data->n_pulse_steps;
       lines_mesh_for_identification_pulse.update_buffers_for_invalid_residue_pulse(ns);
@@ -6026,77 +6302,134 @@ graphics_info_t::invalid_residue_pulse_function(GtkWidget *widget,
    return gboolean(continue_status);
 }
 
+// static
+gboolean
+graphics_info_t::screen_centre_pulse_function(GtkWidget *widget,
+                                              GdkFrameClock *frame_clock,
+                                              gpointer data) {
+
+   gboolean continue_status = 1;
+   pulse_data_t *pulse_data = reinterpret_cast<pulse_data_t *>(data);
+   pulse_data->n_pulse_steps += 1;
+   if (pulse_data->n_pulse_steps > pulse_data->n_pulse_steps_max) {
+      continue_status = 0;
+      lines_mesh_for_identification_pulse.clear();
+      generic_pulse_centres.clear();
+   }
+   return gboolean(continue_status);
+}
+
+// static
+gboolean
+graphics_info_t::generic_pulse_function(GtkWidget *widget,
+                                        GdkFrameClock *frame_clock,
+                                        gpointer data) {
+
+   gboolean continue_status = 1;
+   pulse_data_t *pulse_data = reinterpret_cast<pulse_data_t *>(data);
+   pulse_data->n_pulse_steps += 1;
+   if (pulse_data->n_pulse_steps > pulse_data->n_pulse_steps_max) {
+      continue_status = 0;
+      lines_mesh_for_generic_pulse.clear();
+      generic_pulse_centres.clear();
+   } else {
+      lines_mesh_for_generic_pulse.update_buffers_by_resize(pulse_data->resize_factor);
+   }
+   graphics_draw();
+   return gboolean(continue_status);
+}
+
+
 void
 graphics_info_t::setup_invalid_residue_pulse(mmdb::Residue *residue_p) {
 
    pulse_data_t *pulse_data = new pulse_data_t(0, 24);
    gpointer user_data = reinterpret_cast<void *>(pulse_data);
    std::vector<glm::vec3> residue_positions = residue_to_positions(residue_p);
-   delete_item_pulse_centres = residue_positions; // sneakily use a wrongly named function
+   generic_pulse_centres = residue_positions; // sneakily use a wrongly named function
    gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
+   unsigned int n_rings = 3;
+   float radius_overall = 6.0;
    bool broken_line_mode = false;
-   lines_mesh_for_identification_pulse.setup_pulse(broken_line_mode);
+   lines_mesh_for_identification_pulse.setup_red_pulse(radius_overall, n_rings, broken_line_mode);
    gtk_widget_add_tick_callback(glareas[0], invalid_residue_pulse_function, user_data, NULL);
 
 }
 
 
-void
-graphics_info_t::draw_invalid_residue_pulse() {
+void graphics_info_t::draw_at_screen_centre_pulse(stereo_eye_t eye) {
+
+   // 2025-12-06-PE identification and screen-centre are the same thing. "identification" should be renamed.
 
    if (! lines_mesh_for_identification_pulse.empty()) {
-      glm::mat4 mvp = get_molecule_mvp();
-      glm::mat4 model_rotation_matrix = get_model_rotation();
-      myglLineWidth(3.0);
-      GLenum err = glGetError();
-      if (err) std::cout << "draw_invalid_residue_pulse() glLineWidth " << err << std::endl;
-      for (auto pulse_centre : delete_item_pulse_centres)
-         lines_mesh_for_identification_pulse.draw(&shader_for_lines_pulse,
-                                                  pulse_centre, mvp,
-                                                  model_rotation_matrix, true);
-   }
-}
-
-
-void
-graphics_info_t::draw_identification_pulse() {
-
-   if (! lines_mesh_for_identification_pulse.empty()) {
-      glm::mat4 mvp = get_molecule_mvp();
+      glm::mat4 mvp = get_molecule_mvp(eye);
       glm::mat4 model_rotation_matrix = get_model_rotation();
       myglLineWidth(2.0);
       GLenum err = glGetError();
-      if (err) std::cout << "draw_identification_pulse() glLineWidth " << err << std::endl;
+      if (err) std::cout << "draw_at_screen_centre_pulse() post glLineWidth " << err << std::endl;
       lines_mesh_for_identification_pulse.draw(&shader_for_lines_pulse,
                                                identification_pulse_centre,
                                                mvp, model_rotation_matrix, true);
    }
 }
 
-void
-graphics_info_t::draw_delete_item_pulse() {
+void graphics_info_t::draw_generic_pulses(stereo_eye_t eye) {
 
-   if (! lines_mesh_for_delete_item_pulse.empty()) {
-      glm::mat4 mvp = get_molecule_mvp();
+   if (false)
+      std::cout << "draw_generic_pulses()  -- start -- "
+                << lines_mesh_for_generic_pulse.empty() << " " << generic_pulse_centres.size() << std::endl;
+
+   if (! lines_mesh_for_generic_pulse.empty()) {
+      glm::mat4 mvp = get_molecule_mvp(eye);
+      glm::mat4 model_rotation_matrix = get_model_rotation();
+      for (auto pulse_centre : generic_pulse_centres)
+         lines_mesh_for_generic_pulse.draw(&shader_for_lines_pulse,
+                                           pulse_centre, mvp,
+                                           model_rotation_matrix, true);
+   }
+}
+
+void graphics_info_t::draw_invalid_residue_pulse(stereo_eye_t eye) {
+
+   return; // because we do it in draw_generic_pulses()
+
+   if (! lines_mesh_for_generic_pulse.empty()) {
+      glm::mat4 mvp = get_molecule_mvp(eye);
+      glm::mat4 model_rotation_matrix = get_model_rotation();
+      myglLineWidth(3.0);
+      GLenum err = glGetError();
+      if (err) std::cout << "draw_invalid_residue_pulse() glLineWidth " << err << std::endl;
+      for (auto pulse_centre : generic_pulse_centres)
+         lines_mesh_for_generic_pulse.draw(&shader_for_lines_pulse,
+                                           pulse_centre, mvp,
+                                           model_rotation_matrix, true);
+   }
+}
+
+void
+graphics_info_t::draw_delete_item_pulse(stereo_eye_t eye) {
+
+   if (! lines_mesh_for_generic_pulse.empty()) {
+      glm::mat4 mvp = get_molecule_mvp(eye);
       glm::mat4 model_rotation_matrix = get_model_rotation();
       myglLineWidth(2.0);
       GLenum err = glGetError();
       if (err) std::cout << "draw_delete_item_pulse() glLineWidth " << err << std::endl;
-      for (unsigned int i=0; i<delete_item_pulse_centres.size(); i++) {
-         lines_mesh_for_delete_item_pulse.draw(&shader_for_lines_pulse,
-                                               delete_item_pulse_centres[i],
-                                               mvp, model_rotation_matrix, true);
+      for (unsigned int i=0; i<generic_pulse_centres.size(); i++) {
+         lines_mesh_for_generic_pulse.draw(&shader_for_lines_pulse,
+                                           generic_pulse_centres[i],
+                                           mvp, model_rotation_matrix, true);
       }
    }
 }
 
 void
-graphics_info_t::draw_pointer_distances_objects() {
+graphics_info_t::draw_pointer_distances_objects(stereo_eye_t eye) {
 
    if (show_pointer_distances_flag) {
       if (! pointer_distances_object_vec.empty()) {
          Shader &shader = shader_for_moleculestotriangles;
-         glm::mat4 mvp = get_molecule_mvp();
+         glm::mat4 mvp = get_molecule_mvp(eye);
          glm::mat4 model_rotation_matrix = get_model_rotation();
          glm::vec4 bg_col(background_colour, 1.0);
          bool show_just_shadows = false;
@@ -6104,21 +6437,60 @@ graphics_info_t::draw_pointer_distances_objects() {
          float opacity = 1.0f;
          auto ccrc = RotationCentre();
          glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
-         mesh_for_pointer_distances.mesh.draw(&shader, mvp, model_rotation_matrix, lights, eye_position, rc, opacity,
+         mesh_for_pointer_distances.mesh.draw(&shader, eye, mvp, model_rotation_matrix, lights, eye_position, rc, opacity,
                                               bg_col, wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
 
-         if (! labels_for_pointer_distances.empty()) {
-            Shader &shader_labels = shader_for_atom_labels;
-            for (unsigned int i=0; i<labels_for_pointer_distances.size(); i++) {
-               const auto &label = labels_for_pointer_distances[i];
-               tmesh_for_labels.draw_atom_label(label.label, label.position, label.colour, &shader_labels,
-                                                mvp, model_rotation_matrix, bg_col,
-                                                shader_do_depth_fog_flag, perspective_projection_flag);
+         if (draw_distance_labels_user_control) {
+            if (! labels_for_pointer_distances.empty()) {
+               Shader &shader_labels = shader_for_atom_labels;
+               for (unsigned int i=0; i<labels_for_pointer_distances.size(); i++) {
+                  const auto &label = labels_for_pointer_distances[i];
+                  tmesh_for_labels.draw_atom_label(label.label, label.position, label.colour, &shader_labels,
+                                                   eye, mvp, model_rotation_matrix, bg_col,
+                                                   shader_do_depth_fog_flag, perspective_projection_flag);
+               }
             }
          }
       }
    }
 }
+
+void
+graphics_info_t::draw_translation_gizmo(stereo_eye_t eye) { // maybe rotation gizmo too, later.
+
+   if (translation_gizmo_mesh.get_draw_this_mesh()) {
+      bool do_it = false;
+      int tgagdo_num = translation_gizmo.attached_to_generic_display_object_number;
+      int tgam_num   = translation_gizmo.attached_to_molecule_number;
+      if (tgagdo_num != translation_gizmo_t::UNATTACHED)
+         if (tgagdo_num >= 0)
+            if (tgagdo_num < int(generic_display_objects.size()))
+               if (generic_display_objects[tgagdo_num].mesh.get_draw_this_mesh())
+                  do_it = true;
+      if (is_valid_model_molecule(tgam_num))
+         if (molecules[tgagdo_num].get_mol_is_displayed())
+            do_it = true;
+      if (is_valid_map_molecule(tgam_num))
+         if (molecules[tgagdo_num].is_displayed_p())
+            do_it = true;
+      if (do_it) {
+         Shader &shader = shader_for_moleculestotriangles;
+         glm::mat4 mvp = get_molecule_mvp(eye);
+         glm::mat4 model_rotation_matrix = get_model_rotation();
+         glm::vec4 bg_col(background_colour, 1.0);
+         bool show_just_shadows = false;
+         bool wireframe_mode = false;
+         float opacity = 1.0f;
+         auto ccrc = RotationCentre();
+         glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
+         translation_gizmo_mesh.draw(&shader, eye, mvp, model_rotation_matrix, lights, eye_position, rc, opacity,
+                                     bg_col, wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
+      }
+   }
+
+}
+
+
 
 void
 graphics_info_t::make_extra_distance_restraints_objects() {
@@ -6197,7 +6569,7 @@ graphics_info_t::make_extra_distance_restraints_objects() {
 
 // static
 void
-graphics_info_t::draw_extra_distance_restraints(int pass_type) {
+graphics_info_t::draw_extra_distance_restraints(stereo_eye_t eye, int pass_type) {
 
    // 20230825-PE we don't want to see these if there are no intermediate atoms being displayed
    // Maybe they should be cleared up on "clear_moving_atoms()" (or whatever the function is called).
@@ -6227,7 +6599,7 @@ graphics_info_t::draw_extra_distance_restraints(int pass_type) {
                    << std::endl;
       if (show_extra_distance_restraints_flag) {
          if (! extra_distance_restraints_markup_data.empty()) {
-            glm::mat4 mvp = get_molecule_mvp();
+            glm::mat4 mvp = get_molecule_mvp(eye);
             glm::mat4 model_rotation_matrix = get_model_rotation();
             glm::vec4 bg_col(background_colour, 1.0f);
             glDisable(GL_BLEND);
@@ -6355,8 +6727,11 @@ graphics_info_t::idle_contour_function(gpointer data) {
 	   continue_status = 0;
            float cl = g.molecules[imol].contour_level;
            float r = cl/map_rmsd;
-           std::cout << "DEBUG:: idle_contour_function() imol: " << imol << " contour level: "
-                     << g.molecules[imol].contour_level << " n-rmsd: " << r << std::endl;
+           // std::cout << "DEBUG:: idle_contour_function() imol: " << imol << " contour level: "
+	   // << g.molecules[imol].contour_level << " n-rmsd: " << r << std::endl;
+	   logger.log(log_t::DEBUG, logging::function_name_t("idle_contour_function"),
+		      {imol, "contour_level", g.molecules[imol].contour_level, "n-rmsd:",
+		       r});
            g.set_density_level_string(imol, g.molecules[imol].contour_level);
            std::string s = "Map " + std::to_string(imol) + "  contour_level " +
               coot::util::float_to_string_using_dec_pl(cl, 3) + "  n-rmsd: " +
@@ -6373,712 +6748,6 @@ graphics_info_t::idle_contour_function(gpointer data) {
 
    // std::cout << "--- debug:: idle_contour_function() done " << continue_status << std::endl;
    return continue_status;
-}
-
-// can't be a lambda funtion because of capture issues
-
-void keypad_translate_xyz(short int axis, short int direction) {
-      
-      graphics_info_t g;
-      if (axis == 3) {
-         coot::Cartesian v = screen_z_to_real_space_vector(graphics_info_t::glareas[0]);
-         v *= 0.05 * float(direction);
-         g.add_vector_to_RotationCentre(v);
-      } else {
-         gdouble x_diff, y_diff;
-         x_diff = y_diff = 0;
-         coot::CartesianPair vec_x_y = screen_x_to_real_space_vector(graphics_info_t::glareas[0]);
-         if (axis == 1) x_diff = 1;
-         if (axis == 2) y_diff = 1;
-         g.add_to_RotationCentre(vec_x_y, x_diff * 0.1 * float(direction),
-                                 y_diff * 0.1 * float(direction));
-         if (g.GetActiveMapDrag() == 1) {
-            for (int ii=0; ii<g.n_molecules(); ii++) {
-               g.molecules[ii].update_map(true); // to take account
-               // of new rotation centre.
-            }
-         }
-         for (int ii=0; ii<g.n_molecules(); ii++) {
-            g.molecules[ii].update_symmetry();
-         }
-         g.graphics_draw();
-      }
- }
-
-
-
-#include "rsr-functions.hh"
-
-void
-graphics_info_t::setup_key_bindings() {
-
-   graphics_info_t g;
-
-   // if we are serious about user-defined key-bindings all of these functions should be thunks in the user API
-   // (and returning gboolean).
-
-   auto l1 = []() { graphics_info_t g; g.adjust_clipping(-0.1); return gboolean(TRUE); };
-   auto l2 = []() { graphics_info_t g; g.adjust_clipping( 0.1); return gboolean(TRUE); };
-   auto l5 = []() { graphics_info_t g; g.blob_under_pointer_to_screen_centre(); return gboolean(TRUE); };
-
-   auto l6 = []() {
-
-                if (do_tick_spin) {
-                  std::cout << "removing tick spin flag" << std::endl;
-                   do_tick_spin = false;
-                } else {
-                   std::cout << "adding tick spin flag A" << std::endl;
-                   if (! tick_function_is_active()) {
-                      std::cout << "adding tick spin flag B" << std::endl;
-                      int spin_tick_id = gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
-                      // this is not a good name if we are storing a generic tick function id.
-                      idle_function_spin_rock_token = spin_tick_id;
-                   }
-                   do_tick_spin = true;
-                }
-                return gboolean(TRUE);
-             };
-
-   auto l7 = []() {
-                int imol_scroll = graphics_info_t::scroll_wheel_map;
-                if (graphics_info_t::is_valid_map_molecule(imol_scroll))
-                   graphics_info_t::molecules[imol_scroll].pending_contour_level_change_count--;
-                if (graphics_info_t::glareas.size() > 0)
-                   int contour_idle_token = g_idle_add(idle_contour_function, graphics_info_t::glareas[0]);
-                graphics_info_t g;
-                g.set_density_level_string(imol_scroll, graphics_info_t::molecules[imol_scroll].contour_level);
-                graphics_info_t::display_density_level_this_image = 1;
-                return gboolean(TRUE);
-             };
-
-   auto l8 = []() {
-                int imol_scroll = graphics_info_t::scroll_wheel_map;
-                if (graphics_info_t::is_valid_map_molecule(imol_scroll))
-                   graphics_info_t::molecules[imol_scroll].pending_contour_level_change_count++;
-                if (graphics_info_t::glareas.size() > 0)
-                   int contour_idle_token = g_idle_add(idle_contour_function, graphics_info_t::glareas[0]);
-                graphics_info_t g;
-                g.set_density_level_string(imol_scroll, graphics_info_t::molecules[imol_scroll].contour_level);
-                graphics_info_t::display_density_level_this_image = 1;
-                return gboolean(TRUE);
-             };
-
-   auto l9 = [] () {
-                update_go_to_atom_from_current_position();
-                return gboolean(TRUE);
-             };
-
-   auto l10 = []() { graphics_info_t::zoom *= 0.9; return gboolean(TRUE); };
-
-   auto l11 = []() { graphics_info_t::zoom *= 1.1; return gboolean(TRUE); };
-
-   auto l12 = []() { graphics_info_t g; g.move_forwards(); return gboolean(TRUE); };
-
-   auto l13 = []() { graphics_info_t g; g.move_backwards(); return gboolean(TRUE); };
-
-   auto l13l = []() { graphics_info_t g; g.step_screen_left();   return gboolean(TRUE); };
-   auto l13r = []() { graphics_info_t g; g.step_screen_right(); return gboolean(TRUE); };
-
-   //    auto l14 = []() { safe_python_command("import ncs; ncs.skip_to_next_ncs_chain('forward')"); return gboolean(TRUE); };
-
-   // auto l14 = []() { /* use l28 */ return gboolean(TRUE); };
-
-   // auto l15 = []() { /* use l28 */ return gboolean(TRUE); };
-
-   auto l16 = []() { graphics_info_t g; g.undo_last_move(); return gboolean(TRUE); };
-
-   auto l18 = []() { graphics_info_t g; g.clear_hud_buttons(); g.accept_moving_atoms(); return gboolean(TRUE); };
-
-   auto l18_space = []() {
-                       graphics_info_t g;
-                       if (g.hud_button_info.size()) {
-                          g.clear_hud_buttons(); g.accept_moving_atoms();
-                       } else {
-
-                          // Move the view - don't click the button
-
-                          // g.reorienting_next_residue_mode = false; // hack
-                          bool reorienting = graphics_info_t::reorienting_next_residue_mode;
-                          if (reorienting) {
-                             if (graphics_info_t::shift_is_pressed) {
-                                g.reorienting_next_residue(false); // backwards
-                             } else {
-                                g.reorienting_next_residue(true); // forwards
-                             }
-                          } else {
-                             // old/standard simple translation
-                             if (graphics_info_t::shift_is_pressed) {
-                                g.intelligent_previous_atom_centring(g.go_to_atom_window);
-                             } else {
-                                g.intelligent_next_atom_centring(g.go_to_atom_window);
-                             }
-                          }
-                       }
-                       return gboolean(TRUE);
-                    };
-
-   auto l19 = []() {
-                 graphics_info_t g;
-                 if (g.moving_atoms_asc) {
-                    g.clear_up_moving_atoms_wrapper(); g.clear_gl_rama_plot();
-                 } else {
-                    unfullscreen();
-                 }
-                 return gboolean(TRUE);
-              };
-
-   auto l20 = []() { graphics_info_t g; g.eigen_flip_active_residue(); return gboolean(TRUE); };
-
-   auto l21 = []() { graphics_info_t g; g.try_label_unlabel_active_atom(); return gboolean(TRUE); };
-
-   auto l22 = []() {
-                  graphics_info_t g;
-                  g.setup_draw_for_particles();
-                  return gboolean(TRUE);
-             };
-
-   // boids
-   auto l23 = [] () {
-      graphics_info_t g;
-
-      if (false) {
-         if (! graphics_info_t::do_tick_boids)
-            graphics_info_t::do_tick_boids = true;
-         else
-            graphics_info_t::do_tick_boids = false;
-         g.setup_draw_for_boids();
-         if (! graphics_info_t::do_tick_boids)
-            std::cout << "--------- key press ----------- do_tick_boids "
-                      << graphics_info_t::do_tick_boids << std::endl;
-      }
-      return gboolean(TRUE);
-   };
-
-   auto l24 = [] () {
-                 // using the C API
-                 // do_add_terminal_residue(1); // waits for user click :-)
-                 graphics_info_t g;
-                 g.add_terminal_residue_using_active_atom();
-                 return gboolean(TRUE);
-      };
-
-   auto l25 = [] () {
-                 graphics_info_t g;
-                 std::pair<bool, std::pair<int, coot::atom_spec_t> > aa_spec_pair = active_atom_spec();
-                 if (aa_spec_pair.first) {
-                    int imol = aa_spec_pair.second.first;
-                    mmdb::Atom *at = molecules[imol].get_atom(aa_spec_pair.second.second);
-                    mmdb::Residue *residue_p = at->GetResidue();
-                    int imol_map = g.imol_refinement_map;
-                    if (residue_p) {
-                       mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
-                       coot::residue_spec_t residue_spec(residue_p);
-                       g.molecules[imol].fill_partial_residue(residue_spec, g.Geom_p(), imol_map);
-
-                       // now refine that
-                       int saved_state = g.refinement_immediate_replacement_flag;
-                       g.refinement_immediate_replacement_flag = 1;
-                       std::string alt_conf("");
-                       std::vector<mmdb::Residue *> rs = { residue_p };
-                       g.refine_residues_vec(imol, rs, alt_conf, mol);
-                       g.conditionally_wait_for_refinement_to_finish();
-                       g.accept_moving_atoms();
-                       g.refinement_immediate_replacement_flag = saved_state;
-                    }
-                 }
-                 return gboolean(TRUE);
-              };
-
-
-   auto l26 = [] () {
-                 graphics_info_t g;
-                 std::pair<bool, std::pair<int, coot::atom_spec_t> > aa_spec_pair = active_atom_spec();
-                 if (aa_spec_pair.first) {
-                    int imol = aa_spec_pair.second.first;
-                    mmdb::Atom *at = molecules[imol].get_atom(aa_spec_pair.second.second);
-                    mmdb::Residue *residue_p = at->GetResidue();
-                    if (residue_p) {
-                       coot::residue_spec_t residue_spec(residue_p);
-                       g.molecules[imol].delete_residue_sidechain(residue_spec);
-                    }
-                 }
-                 return gboolean(TRUE);
-              };
-
-   auto l28 = [] () {
-
-                 std::cout << "@@@@@@@@@@@@@@@@@@@@@@@ l28" << std::endl;
-
-                 std::pair<bool, std::pair<int, coot::atom_spec_t> > aa_spec_pair = active_atom_spec();
-                 if (aa_spec_pair.first) {
-                    int imol = aa_spec_pair.second.first;
-                    mmdb::Atom *at = molecules[imol].get_atom(aa_spec_pair.second.second);
-                    mmdb::Residue *residue_p = at->GetResidue();
-                    if (residue_p) {
-                       std::string this_chain_id = residue_p->GetChainID();
-                       coot::residue_spec_t residue_spec(residue_p);
-                       std::vector<std::vector<std::string> > ghost_chains_sets = molecules[imol].ncs_ghost_chains();
-                       unsigned int n_ghost_chain_sets = ghost_chains_sets.size();
-                       for (unsigned int i=0; i<n_ghost_chain_sets; i++) {
-                          const std::vector<std::string> &chain_ids = ghost_chains_sets[i];
-                          if (std::find(chain_ids.begin(), chain_ids.end(), this_chain_id) != chain_ids.end()) {
-                             unsigned int idx_next = 0;
-                             for (unsigned int j=0; j<chain_ids.size(); j++) {
-                                if (chain_ids[j] == this_chain_id) {
-                                   idx_next = j + 1;
-                                   if (idx_next == chain_ids.size())
-                                      idx_next = 0;
-                                   break;
-                                }
-                             }
-                             std::string chain_id_next = chain_ids[idx_next];
-                             clipper::Coord_orth current_position = coot::co(at);
-                             bool forward_flag = true;
-                             glm::mat4 quat_mat = glm::toMat4(view_quaternion);
-                             clipper::Mat33<double> current_view_mat = glm_to_mat33(quat_mat);
-
-                             if (molecules[imol].ncs_ghosts_have_rtops_p() == 0)
-                                molecules[imol].fill_ghost_info(1, ncs_homology_level);
-
-                             std::pair<bool, clipper::RTop_orth> new_ori =
-                                molecules[imol].apply_ncs_to_view_orientation(current_view_mat,
-                                                                              current_position,
-                                                                              this_chain_id, chain_id_next,
-                                                                              forward_flag);
-                             if (new_ori.first) {
-
-                                coot::util::quaternion q(new_ori.second.rot());
-                                glm::quat q_ncs = coot_quaternion_to_glm(q);
-
-                                // glm::quat qq = view_quaternion * q_ncs;
-                                // glm::quat qq = view_quaternion * glm::inverse(q_ncs);
-                                // glm::quat qq = view_quaternion * glm::conjugate(q_ncs);
-                                // glm::quat qq = q_ncs * view_quaternion;
-                                // glm::quat qq = glm::inverse(q_ncs) * view_quaternion;
-                                // glm::quat qq = glm::conjugate(q_ncs) * view_quaternion;
-
-                                glm::quat qq = glm::conjugate(q_ncs) * view_quaternion;
-
-                                view_quaternion = qq;
-                                // view_quaternion = glm::normalize(view_quaternion * q_ncs); // wrong
-
-                                clipper::Coord_orth t(new_ori.second.trn());
-                                set_rotation_centre(t);
-
-                                glm::quat q_ncs_1 = glm::rotate(q_ncs,   3.1415926f, glm::vec3(1,0,0));
-                                glm::quat q_ncs_2 = glm::rotate(q_ncs_1, 3.1415926f, glm::vec3(1,0,0));
-                                glm::quat q_ncs_3 = glm::inverse(q_ncs_2);
-
-                                coot::util::quaternion cq = glm_to_coot_quaternion(q_ncs_3);
-
-                                std::cout << "debug q_ncs  : " << glm::to_string(q_ncs)   << std::endl;
-                                std::cout << "debug q_ncs_1: " << glm::to_string(q_ncs_1) << std::endl;
-                                std::cout << "debug q_ncs_2: " << glm::to_string(q_ncs_2) << std::endl;
-                                std::cout << "debug q_ncs_3: " << glm::to_string(q_ncs_3) << std::endl;
-                                std::cout << "before: " << q << " after " << cq << std::endl;
-
-                                graphics_info_t g;
-                                g.update_things_on_move();
-
-                             }
-                             break;
-                          }
-                       }
-                    } else {
-                       std::cout << "ERROR:: no residue" << std::endl;
-                    }
-                 }
-                 graphics_draw();
-                 return gboolean(TRUE);
-              };
-
-   auto l29 = [] () {
-
-      graphics_info_t g;
-      auto tp_now = std::chrono::high_resolution_clock::now();
-      int n_press = g.get_n_pressed_for_leftquote_tap(tp_now);
-      // std::cout << "highlighting active residue " << n_press << std::endl;
-      std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
-      if (pp.first) {
-         int imol = pp.second.first;
-         g.update_mesh_for_outline_of_active_residue(imol, pp.second.second, n_press);
-         if (! tick_function_is_active()) {
-            int new_tick_id = gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
-         }
-         outline_for_active_residue_frame_count = 30;
-         do_tick_outline_for_active_residue = true;
-      }
-      return gboolean(TRUE);
-   };
-
-   auto l31 = [] () {
-                 graphics_info_t g;
-                 g.decrease_clipping_front();
-                 return gboolean(TRUE);
-              };
-
-   auto l32 = [] () {
-                 graphics_info_t g;
-                 g.increase_clipping_front();
-                 return gboolean(TRUE);
-              };
-
-   auto l33 = [] () {
-                 graphics_info_t g;
-                 g.decrease_clipping_back();
-                 return gboolean(TRUE);
-              };
-
-   auto l34 = [] () {
-                 graphics_info_t g;
-                 g.increase_clipping_back();
-                 return gboolean(TRUE);
-              };
-
-   auto l35 = [] () {
-                 graphics_info_t g;
-                 g.wrapped_create_display_control_window();
-                 return gboolean(TRUE);
-              };
-
-   auto l36 = [] () {
-                 graphics_info_t g;
-                 g.triple_refine_auto_accept();
-                 return gboolean(TRUE);
-              };
-
-   auto l37 = [] {
-      graphics_info_t g;
-      g.display_next_map(); // one at a time, all, none.
-      return gboolean(TRUE);
-   };
-
-   auto l38 = [] () {
-      graphics_info_t g;
-      g.toggle_display_of_last_model();
-      return gboolean(TRUE);
-   };
-
-   auto l40 = [] () {
-      rsr_sphere_refine_plus();
-      return gboolean(TRUE);
-   };
-
-   auto l40c = [] () {
-      rsr_refine_chain();
-      return gboolean(TRUE);
-   };
-
-   auto l41 = [] () {
-      box_radius_xray *= (1.0/1.15);
-      box_radius_em *= (1.0/1.15);
-      // is there an "update maps" function?
-      for (int ii=0; ii<n_molecules(); ii++) {
-         if (is_valid_map_molecule(ii))
-            molecules[ii].update_map(true);
-      }
-      return gboolean(TRUE);
-   };
-
-   auto l42 = [] () {
-      box_radius_xray *= 1.15;
-      box_radius_em *= 1.15;
-      for (int ii=0; ii<n_molecules(); ii++) {
-         if (is_valid_map_molecule(ii))
-            molecules[ii].update_map(true);
-      }
-      return gboolean(TRUE);
-   };
-
-   auto l43 = [] () {
-      bool done = false;
-      int scroll_wheel_map_prev = scroll_wheel_map;
-      for (int ii=0; ii<n_molecules(); ii++) {
-         if (is_valid_map_molecule(ii)) {
-            if (ii > scroll_wheel_map) {
-               scroll_wheel_map = ii;
-               done = true;
-               break;
-            }
-         }
-      }
-      if (! done) {
-         for (int ii=0; ii<n_molecules(); ii++) {
-            if (is_valid_map_molecule(ii)) {
-               scroll_wheel_map = ii;
-               break;
-            }
-         }
-      }
-      if (scroll_wheel_map != scroll_wheel_map_prev) {
-         // we need to update the Display Manager
-         graphics_info_t g;
-         g.set_scrollable_map(scroll_wheel_map); // calls activate_scroll_radio_button_in_display_manager()
-      }
-      return gboolean(TRUE);
-   };
-
-   auto l44 = [] () {
-      graphics_info_t g;
-      if (moving_atoms_asc) {
-         if (moving_atoms_asc->mol) {
-            g.backrub_rotamer_intermediate_atoms();
-         }
-      } else {
-         std::pair<int, mmdb::Atom *> aa = g.get_active_atom();
-         int imol = aa.first;
-         if (is_valid_model_molecule(imol)) {
-            std::string alt_conf = aa.second->altLoc;
-            coot::residue_spec_t res_spec(coot::atom_spec_t(aa.second));
-            g.auto_fit_rotamer_ng(imol, res_spec, alt_conf);
-         }
-      }
-      return gboolean(TRUE);
-   };
-
-   auto l45 = [] () {
-
-      std::cout << "------------------- Here l45 start " << moving_atoms_asc << std::endl;
-      graphics_info_t g;
-      bool done = false;
-      // I need to be consistent about checking for moving_atoms_asc or moving_atoms_asc->mol
-      // being null to mean if moving atoms are being displayed.
-      // init() does a `new` for moving_atoms_asc.
-      if (moving_atoms_asc) {
-         if (moving_atoms_asc->mol) {
-            g.pepflip_intermediate_atoms();
-            done = true;
-         }
-      }
-
-      if (! done) {
-         std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
-         int imol = pp.second.first;
-         if (is_valid_model_molecule(imol)) {
-            coot::atom_spec_t as(pp.second.second);
-            g.pepflip(imol, as);
-         }
-      }
-      return gboolean(TRUE);
-   };
-
-   // Note to self, Space and Shift Space are key *Release* functions
-
-   std::vector<std::pair<keyboard_key_t, key_bindings_t> > kb_vec;
-   // kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_d,      key_bindings_t(l1, "increase clipping")));
-   kb_vec.push_back(std::make_pair(GDK_KEY_d, key_bindings_t(l13r, "step right")));
-   kb_vec.push_back(std::make_pair(GDK_KEY_a, key_bindings_t(l13l, "step left")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_e,      key_bindings_t(l44, "Auto-fit Rotamer")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_f,      key_bindings_t(l2, "decrease clipping")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_g,      key_bindings_t(l5, "go to blob")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_h,      key_bindings_t(l36, "Triple Refine with Auto-accept")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_i,      key_bindings_t(l6, "spin")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_plus,   key_bindings_t(l8, "increase contour level")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_equal,  key_bindings_t(l8, "increase contour level")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_minus,  key_bindings_t(l7, "decrease contour level")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_p,      key_bindings_t(l9, "update go-to atom by position")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_q,      key_bindings_t(l45, "Pep-flip")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_n,      key_bindings_t(l10, "Zoom in")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_m,      key_bindings_t(l11, "Zoom out")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_w,      key_bindings_t(l12, "Move forward")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_s,      key_bindings_t(l13, "Move backward")));
-   // kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_o,      key_bindings_t(l14, "NCS Skip forward")));
-   // kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_O,      key_bindings_t(l15, "NCS Skip backward")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_u,      key_bindings_t(l16, "Undo Move")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_Return, key_bindings_t(l18, "Accept Moving Atoms")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_Escape, key_bindings_t(l19, "Reject Moving Atoms")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_l,      key_bindings_t(l21, "Label/Unlabel Active Atom")));
-   // kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_b,      key_bindings_t(l23, "Murmuration")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_y,      key_bindings_t(l24, "Add Terminal Residue")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_k,      key_bindings_t(l25, "Fill Partial Residue")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_K,      key_bindings_t(l26, "Delete Sidechain")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_o,      key_bindings_t(l28, "NCS Other Chain")));
-
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_A,      key_bindings_t(l38, "Toggle Display of Last Model")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_E,      key_bindings_t(l40c, "Chain Refine")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_R,      key_bindings_t(l40, "Sphere Refine")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_Q,      key_bindings_t(l37, "Display Next Map")));
-
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_space,  key_bindings_t(l18_space, "Accept Moving Atoms")));
-
-   // clipping
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_1,      key_bindings_t(l31, "Clipping Front Expand")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_2,      key_bindings_t(l32, "Clipping Front Reduce")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_3,      key_bindings_t(l33, "Clipping Back Reduce")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_4,      key_bindings_t(l34, "Clipping Back Expand")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_F8,     key_bindings_t(l35, "Show Display Manager")));
-
-   // map radius
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_bracketleft,  key_bindings_t(l41, "Decrease Map Radius")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_bracketright, key_bindings_t(l42, "Increase Map Radius")));
-
-   // scroll-wheel map change
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_W, key_bindings_t(l43, "Change Scroll-wheel map")));
-
-   // control
-   // meh - ugly and almost useless. Try again.
-   // kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_asciitilde, key_bindings_t(l29, "Highlight Active Residue")));
-   // try backtick:
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_quoteleft, key_bindings_t(l29, "Highlight Active Residue")));
-
-   // control keys
-
-   auto lc_copy = [] () { graphics_info_t g; g.copy_active_atom_molecule(); return gboolean(TRUE); };
-   key_bindings_t copy_mol_key_binding(lc_copy, "Copy Model Molecule");
-   std::pair<keyboard_key_t, key_bindings_t> p_copy(keyboard_key_t(GDK_KEY_c, true), copy_mol_key_binding);
-   kb_vec.push_back(p_copy);
-
-   auto lc1 = []() { show_go_to_residue_keyboarding_mode_window(); return gboolean(TRUE); };
-   key_bindings_t go_to_residue_key_binding(lc1, "Show Go To Residue Keyboarding Window");
-   std::pair<keyboard_key_t, key_bindings_t> p1(keyboard_key_t(GDK_KEY_g, true), go_to_residue_key_binding);
-   kb_vec.push_back(p1);
-
-   auto lc2 = []() { graphics_info_t g; g.apply_undo(); return gboolean(TRUE); };
-   key_bindings_t undo_key_binding(lc2, "Undo");
-   std::pair<keyboard_key_t, key_bindings_t> p2(keyboard_key_t(GDK_KEY_z, true), undo_key_binding);
-   kb_vec.push_back(p2);
-
-   auto lc3 = []() { graphics_info_t g; g.apply_redo(); return gboolean(TRUE);};
-   key_bindings_t redo_key_binding(lc3, "Redo");
-   std::pair<keyboard_key_t, key_bindings_t> p3(keyboard_key_t(GDK_KEY_y, true), redo_key_binding);
-   kb_vec.push_back(p3);
-
-   auto lc_res_info = []() {
-      // this blob was copied from residue_info_action() - it could be refactored
-      std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
-      if (pp.first) {
-         int imol = pp.second.first;
-         coot::residue_spec_t res_spec(pp.second.second);
-         output_residue_info_dialog(imol, res_spec);
-      }
-      return gboolean(TRUE);
-   };
-   key_bindings_t residue_info_key_binding(lc_res_info, "Residue Info");
-   std::pair<keyboard_key_t, key_bindings_t> p_res_info(keyboard_key_t(GDK_KEY_i, true), residue_info_key_binding);
-   kb_vec.push_back(p_res_info);
-
-   auto ldr = [] () {
-                 graphics_info_t g;
-                 std::pair<bool, std::pair<int, coot::atom_spec_t> > aa_spec_pair = active_atom_spec();
-                 if (aa_spec_pair.first) {
-                    int imol = aa_spec_pair.second.first;
-                    mmdb::Atom *at = molecules[imol].get_atom(aa_spec_pair.second.second);
-                    mmdb::Residue *residue_p = at->GetResidue();
-                    if (residue_p) {
-                       // for this to work I need to move setup_delete_item_pulse() into
-                       // graphics_info_t. Not today.
-                       g.setup_delete_item_pulse(residue_p);
-                       coot::residue_spec_t residue_spec(residue_p);
-                       g.molecules[imol].delete_residue(residue_spec);
-                    }
-                 }
-                 return gboolean(TRUE);
-              };
-   key_bindings_t delete_residue_key_binding(ldr, "Delete Residue");
-   std::pair<keyboard_key_t, key_bindings_t> pdel(keyboard_key_t(GDK_KEY_d, true), delete_residue_key_binding);
-   kb_vec.push_back(pdel);
-
-   // Direction is either +1 or -1 (in or out)
-   //
-
-   // ctrl left
-   auto lc4 = []() {
-                 if (true) { // we don't get here unless Ctrl is pressed. No need to test it again here.
-                    if (graphics_info_t::shift_is_pressed)
-                       graphics_info_t::nudge_active_residue_by_rotate(GDK_KEY_Left);
-                    else
-                       graphics_info_t::nudge_active_residue(GDK_KEY_Left);
-                 } else {
-                    keypad_translate_xyz(1, 1);
-                 }
-                 return gboolean(TRUE);
-              };
-
-   // ctrl right
-   auto lc5 = []() {
-                 if (true) { // we don't get here unless Ctrl is pressed.
-                    if (graphics_info_t::shift_is_pressed)
-                       graphics_info_t::nudge_active_residue_by_rotate(GDK_KEY_Right);
-                    else
-                       graphics_info_t::nudge_active_residue(GDK_KEY_Right);
-                 } else {
-                    keypad_translate_xyz(1, -1);
-                 }
-                 return gboolean(TRUE);
-              };
-
-   // ctrl up
-   auto lc6 = []() {
-                 if (true) { // we don't get here unless Ctrl is pressed.
-                    if (graphics_info_t::shift_is_pressed)
-                       graphics_info_t::nudge_active_residue_by_rotate(GDK_KEY_Up);
-                    else
-                       graphics_info_t::nudge_active_residue(GDK_KEY_Up);
-                 } else {
-                    keypad_translate_xyz(2, 1);
-                 }
-                 return gboolean(TRUE);
-              };
-   // ctrl down
-   auto lc7 = []() {
-                 if (true) { // we don't get here unless Ctrl is pressed.
-                    if (graphics_info_t::shift_is_pressed)
-                       graphics_info_t::nudge_active_residue_by_rotate(GDK_KEY_Down);
-                    else
-                       graphics_info_t::nudge_active_residue(GDK_KEY_Down);
-                 } else {
-                    keypad_translate_xyz(2, -1);
-                 }
-                 return gboolean(TRUE);
-              };
-
-   auto lc_qsa = [] () {
-                    graphics_info_t g;
-                    g.quick_save();
-                    return gboolean(TRUE);
-                 };
-
-   auto lc_toggle_validation_side_panel = [] () {
-      graphics_info_t g;
-      GtkWidget* pane = widget_from_builder("main_window_ramchandran_and_validation_pane");
-      if (pane) {
-         if (gtk_widget_get_visible(pane) == TRUE) {
-            gtk_widget_set_visible(pane, FALSE);
-         } else {
-            gtk_widget_set_visible(pane, TRUE);
-         }
-      }
-      return gboolean(TRUE);
-   };
-
-   key_bindings_t ctrl_arrow_left_key_binding(lc4, "R/T Left");
-   key_bindings_t ctrl_arrow_right_key_binding(lc5, "R/T Right");
-   key_bindings_t ctrl_arrow_up_key_binding(lc6, "R/T Up");
-   key_bindings_t ctrl_arrow_down_key_binding(lc7, "R/T Down");
-   key_bindings_t ctrl_eigen_flip(l20, "Eigen-Flip");
-   key_bindings_t ctrl_quick_save(lc_qsa, "Quick Save");
-   key_bindings_t ctrl_toggle_panel(lc_toggle_validation_side_panel, "Toggle Validation Panel");
-
-   std::pair<keyboard_key_t, key_bindings_t> p4(keyboard_key_t(GDK_KEY_Left,  true), ctrl_arrow_left_key_binding);
-   std::pair<keyboard_key_t, key_bindings_t> p5(keyboard_key_t(GDK_KEY_Right, true), ctrl_arrow_right_key_binding);
-   std::pair<keyboard_key_t, key_bindings_t> p6(keyboard_key_t(GDK_KEY_Up,    true), ctrl_arrow_up_key_binding);
-   std::pair<keyboard_key_t, key_bindings_t> p7(keyboard_key_t(GDK_KEY_Down,  true), ctrl_arrow_down_key_binding);
-   std::pair<keyboard_key_t, key_bindings_t> p8(keyboard_key_t(GDK_KEY_e,     true), ctrl_eigen_flip);
-   std::pair<keyboard_key_t, key_bindings_t> p9(keyboard_key_t(GDK_KEY_s,     true), ctrl_quick_save);
-   std::pair<keyboard_key_t, key_bindings_t> p10(keyboard_key_t(GDK_KEY_b,     true), ctrl_toggle_panel);
-
-   kb_vec.push_back(p4);
-   kb_vec.push_back(p5);
-   kb_vec.push_back(p6);
-   kb_vec.push_back(p7);
-   kb_vec.push_back(p8);
-   kb_vec.push_back(p9);
-   kb_vec.push_back(p10);
-
-   std::vector<std::pair<keyboard_key_t, key_bindings_t> >::const_iterator it;
-   for (it=kb_vec.begin(); it!=kb_vec.end(); ++it)
-     g.key_bindings_map[it->first] = it->second;
-
 }
 
 
@@ -7110,10 +6779,16 @@ graphics_info_t::contour_level_scroll_scrollable_map(int direction) {
       if (direction ==  1) molecules[imol_scroll].pending_contour_level_change_count--;
       if (direction == -1) molecules[imol_scroll].pending_contour_level_change_count++;
 
-      std::cout << "INFO:: contour level for map " << imol_scroll << " is "
-                << molecules[imol_scroll].contour_level
-                << " pending: " << molecules[imol_scroll].pending_contour_level_change_count
-                << std::endl;
+      // std::cout << "INFO:: contour level for map " << imol_scroll << " is "
+      //           << molecules[imol_scroll].contour_level
+      //           << " pending: " << molecules[imol_scroll].pending_contour_level_change_count
+      //           << std::endl;
+      logger.log(log_t::INFO, "contour level for map", imol_scroll, "is",
+		 molecules[imol_scroll].contour_level,
+                 "step-size iso:", iso_level_increment,
+                 "diff: ", diff_map_iso_level_increment,
+                 "pending",
+		 molecules[imol_scroll].pending_contour_level_change_count);
 
       set_density_level_string(imol_scroll, molecules[imol_scroll].contour_level);
       display_density_level_this_image = 1;
@@ -7121,8 +6796,6 @@ graphics_info_t::contour_level_scroll_scrollable_map(int direction) {
       graphics_draw(); // queue
    }
 }
-
-#include "widget-from-builder.hh"
 
 //static
 void

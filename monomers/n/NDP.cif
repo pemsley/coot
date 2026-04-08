@@ -1,0 +1,473 @@
+#
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+NDP     NDP      "NADPH DIHYDRO-NICOTINAMIDE-ADENINE-DINUCLEOTIDE PHOSPHATE"     NON-POLYMER     74     48     .     
+#
+data_comp_NDP
+#
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+NDP     PA      P       P       0       14.746      11.568      81.367      
+NDP     O1A     O       O       0       14.846      12.116      82.752      
+NDP     O2A     O       OP      -1      15.219      10.173      81.123      
+NDP     O5B     O       O2      0       15.480      12.564      80.346      
+NDP     C5B     C       CH2     0       15.269      13.993      80.484      
+NDP     C4B     C       CH1     0       15.682      14.683      79.207      
+NDP     O4B     O       O2      0       15.216      16.056      79.244      
+NDP     C3B     C       CH1     0       17.194      14.748      78.938      
+NDP     O3B     O       OH1     0       17.492      14.414      77.587      
+NDP     C2B     C       CH1     0       17.556      16.184      79.308      
+NDP     O2B     O       O2      0       18.652      16.694      78.540      
+NDP     C1B     C       CH1     0       16.277      16.931      78.947      
+NDP     N9A     N       NR5     0       16.067      18.164      79.699      
+NDP     C8A     C       CR15    0       16.031      18.293      81.065      
+NDP     N7A     N       NRD5    0       15.816      19.519      81.470      
+NDP     C5A     C       CR56    0       15.691      20.250      80.299      
+NDP     C6A     C       CR6     0       15.449      21.620      80.056      
+NDP     N6A     N       NH2     0       15.287      22.522      81.021      
+NDP     N1A     N       NRD6    0       15.382      22.028      78.762      
+NDP     C2A     C       CR16    0       15.546      21.113      77.794      
+NDP     N3A     N       NRD6    0       15.777      19.804      77.905      
+NDP     C4A     C       CR56    0       15.840      19.425      79.196      
+NDP     O3      O       O2      0       13.226      11.692      80.871      
+NDP     PN      P       P       0       12.518      11.379      79.466      
+NDP     O1N     O       O       0       13.514      10.727      78.565      
+NDP     O2N     O       OP      -1      11.231      10.667      79.724      
+NDP     O5D     O       O2      0       12.213      12.863      78.935      
+NDP     C5D     C       CH2     0       11.328      13.716      79.706      
+NDP     C4D     C       CH1     0       11.023      14.974      78.929      
+NDP     O4D     O       O2      0       12.257      15.648      78.585      
+NDP     C3D     C       CH1     0       10.306      14.797      77.585      
+NDP     O3D     O       OH1     0       8.904       14.643      77.770      
+NDP     C2D     C       CH1     0       10.697      16.089      76.857      
+NDP     O2D     O       OH1     0       9.719       17.111      76.999      
+NDP     C1D     C       CH1     0       12.016      16.522      77.506      
+NDP     N1N     N       NR6     0       13.173      16.451      76.558      
+NDP     C2N     C       CR16    0       13.593      15.236      76.075      
+NDP     C3N     C       CR6     0       14.740      15.096      75.322      
+NDP     C7N     C       C       0       15.161      13.734      74.898      
+NDP     O7N     O       O       0       15.511      13.557      73.727      
+NDP     N7N     N       NH2     0       15.161      12.736      75.773      
+NDP     C4N     C       CH2     0       15.493      16.332      74.936      
+NDP     C5N     C       CR16    0       14.940      17.593      75.478      
+NDP     C6N     C       CR16    0       13.806      17.617      76.151      
+NDP     P2B     P       P       0       20.124      16.448      79.172      
+NDP     O1X     O       O       0       20.271      14.965      79.456      
+NDP     O2X     O       OP      -1      20.204      17.281      80.438      
+NDP     O3X     O       OP      -1      21.106      16.923      78.118      
+NDP     H51A    H       H       0       15.806      14.341      81.239      
+NDP     H52A    H       H       0       14.314      14.177      80.667      
+NDP     H4B     H       H       0       15.242      14.224      78.463      
+NDP     H3B     H       H       0       17.664      14.123      79.548      
+NDP     HO3A    H       H       0       17.093      14.951      77.068      
+NDP     H2B     H       H       0       17.743      16.245      80.273      
+NDP     H1B     H       H       0       16.282      17.128      77.984      
+NDP     H8A     H       H       0       16.159      17.569      81.654      
+NDP     H61A    H       H       0       14.828      23.253      80.863      
+NDP     H62A    H       H       0       15.640      22.380      81.812      
+NDP     H2A     H       H       0       15.491      21.442      76.910      
+NDP     H51N    H       H       0       11.757      13.954      80.565      
+NDP     H52N    H       H       0       10.485      13.237      79.901      
+NDP     H4D     H       H       0       10.493      15.568      79.503      
+NDP     H3D     H       H       0       10.672      14.015      77.099      
+NDP     HO3N    H       H       0       8.534       14.576      77.009      
+NDP     H2D     H       H       0       10.834      15.895      75.897      
+NDP     HO2N    H       H       0       9.885       17.733      76.446      
+NDP     H1D     H       H       0       11.933      17.443      77.851      
+NDP     H2N     H       H       0       13.079      14.471      76.264      
+NDP     H71N    H       H       0       14.910      12.863      76.612      
+NDP     H72N    H       H       0       15.415      11.924      75.519      
+NDP     H41N    H       H       0       15.516      16.397      73.959      
+NDP     H42N    H       H       0       16.424      16.244      75.229      
+NDP     H5N     H       H       0       15.417      18.410      75.332      
+NDP     H6N     H       H       0       13.411      18.445      76.360      
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+NDP          PA         O1A      DOUBLE       n     1.493  0.0122     1.493  0.0122
+NDP          PA         O2A      SINGLE       n     1.493  0.0122     1.493  0.0122
+NDP          PA         O5B      SINGLE       n     1.604  0.0133     1.604  0.0133
+NDP          PA          O3      SINGLE       n     1.604  0.0133     1.604  0.0133
+NDP         O5B         C5B      SINGLE       n     1.450  0.0166     1.450  0.0166
+NDP         C5B         C4B      SINGLE       n     1.509  0.0100     1.509  0.0100
+NDP         C4B         O4B      SINGLE       n     1.451  0.0100     1.451  0.0100
+NDP         C4B         C3B      SINGLE       n     1.535  0.0100     1.535  0.0100
+NDP         O4B         C1B      SINGLE       n     1.409  0.0100     1.409  0.0100
+NDP         C3B         O3B      SINGLE       n     1.422  0.0100     1.422  0.0100
+NDP         C3B         C2B      SINGLE       n     1.523  0.0106     1.523  0.0106
+NDP         C2B         O2B      SINGLE       n     1.425  0.0152     1.425  0.0152
+NDP         C2B         C1B      SINGLE       n     1.524  0.0100     1.524  0.0100
+NDP         O2B         P2B      SINGLE       n     1.614  0.0178     1.614  0.0178
+NDP         C1B         N9A      SINGLE       n     1.458  0.0100     1.458  0.0100
+NDP         N9A         C8A      SINGLE       y     1.372  0.0100     1.372  0.0100
+NDP         N9A         C4A      SINGLE       y     1.374  0.0101     1.374  0.0101
+NDP         C8A         N7A      DOUBLE       y     1.310  0.0100     1.310  0.0100
+NDP         N7A         C5A      SINGLE       y     1.388  0.0100     1.388  0.0100
+NDP         C5A         C6A      SINGLE       y     1.408  0.0100     1.408  0.0100
+NDP         C5A         C4A      DOUBLE       y     1.381  0.0100     1.381  0.0100
+NDP         C6A         N6A      SINGLE       n     1.330  0.0100     1.330  0.0100
+NDP         C6A         N1A      DOUBLE       y     1.354  0.0100     1.354  0.0100
+NDP         N1A         C2A      SINGLE       y     1.339  0.0100     1.339  0.0100
+NDP         C2A         N3A      DOUBLE       y     1.330  0.0100     1.330  0.0100
+NDP         N3A         C4A      SINGLE       y     1.343  0.0100     1.343  0.0100
+NDP          O3          PN      SINGLE       n     1.604  0.0133     1.604  0.0133
+NDP          PN         O1N      DOUBLE       n     1.493  0.0122     1.493  0.0122
+NDP          PN         O2N      SINGLE       n     1.493  0.0122     1.493  0.0122
+NDP          PN         O5D      SINGLE       n     1.604  0.0133     1.604  0.0133
+NDP         O5D         C5D      SINGLE       n     1.450  0.0166     1.450  0.0166
+NDP         C5D         C4D      SINGLE       n     1.509  0.0100     1.509  0.0100
+NDP         C4D         O4D      SINGLE       n     1.449  0.0100     1.449  0.0100
+NDP         C4D         C3D      SINGLE       n     1.535  0.0100     1.535  0.0100
+NDP         O4D         C1D      SINGLE       n     1.407  0.0132     1.407  0.0132
+NDP         C3D         O3D      SINGLE       n     1.422  0.0100     1.422  0.0100
+NDP         C3D         C2D      SINGLE       n     1.530  0.0134     1.530  0.0134
+NDP         C2D         O2D      SINGLE       n     1.420  0.0122     1.420  0.0122
+NDP         C2D         C1D      SINGLE       n     1.527  0.0119     1.527  0.0119
+NDP         C1D         N1N      SINGLE       n     1.492  0.0124     1.492  0.0124
+NDP         N1N         C2N      SINGLE       n     1.367  0.0104     1.367  0.0104
+NDP         N1N         C6N      SINGLE       n     1.374  0.0156     1.374  0.0156
+NDP         C2N         C3N      DOUBLE       n     1.365  0.0175     1.365  0.0175
+NDP         C3N         C7N      SINGLE       n     1.480  0.0169     1.480  0.0169
+NDP         C3N         C4N      SINGLE       n     1.491  0.0200     1.491  0.0200
+NDP         C7N         O7N      DOUBLE       n     1.235  0.0110     1.235  0.0110
+NDP         C7N         N7N      SINGLE       n     1.325  0.0100     1.325  0.0100
+NDP         C4N         C5N      SINGLE       n     1.477  0.0200     1.477  0.0200
+NDP         C5N         C6N      DOUBLE       n     1.315  0.0139     1.315  0.0139
+NDP         P2B         O1X      DOUBLE       n     1.517  0.0192     1.517  0.0192
+NDP         P2B         O2X      SINGLE       n     1.517  0.0192     1.517  0.0192
+NDP         P2B         O3X      SINGLE       n     1.517  0.0192     1.517  0.0192
+NDP         C5B        H51A      SINGLE       n     1.089  0.0100     0.989  0.0200
+NDP         C5B        H52A      SINGLE       n     1.089  0.0100     0.989  0.0200
+NDP         C4B         H4B      SINGLE       n     1.089  0.0100     0.981  0.0200
+NDP         C3B         H3B      SINGLE       n     1.089  0.0100     0.992  0.0200
+NDP         O3B        HO3A      SINGLE       n     0.970  0.0120     0.849  0.0200
+NDP         C2B         H2B      SINGLE       n     1.089  0.0100     0.985  0.0119
+NDP         C1B         H1B      SINGLE       n     1.089  0.0100     0.984  0.0200
+NDP         C8A         H8A      SINGLE       n     1.082  0.0130     0.942  0.0170
+NDP         N6A        H61A      SINGLE       n     1.016  0.0100     0.877  0.0200
+NDP         N6A        H62A      SINGLE       n     1.016  0.0100     0.877  0.0200
+NDP         C2A         H2A      SINGLE       n     1.082  0.0130     0.945  0.0200
+NDP         C5D        H51N      SINGLE       n     1.089  0.0100     0.989  0.0200
+NDP         C5D        H52N      SINGLE       n     1.089  0.0100     0.989  0.0200
+NDP         C4D         H4D      SINGLE       n     1.089  0.0100     0.981  0.0200
+NDP         C3D         H3D      SINGLE       n     1.089  0.0100     0.992  0.0200
+NDP         O3D        HO3N      SINGLE       n     0.970  0.0120     0.849  0.0200
+NDP         C2D         H2D      SINGLE       n     1.089  0.0100     0.988  0.0200
+NDP         O2D        HO2N      SINGLE       n     0.970  0.0120     0.849  0.0200
+NDP         C1D         H1D      SINGLE       n     1.089  0.0100     0.986  0.0200
+NDP         C2N         H2N      SINGLE       n     1.082  0.0130     0.940  0.0112
+NDP         N7N        H71N      SINGLE       n     1.016  0.0100     0.887  0.0200
+NDP         N7N        H72N      SINGLE       n     1.016  0.0100     0.887  0.0200
+NDP         C4N        H41N      SINGLE       n     1.089  0.0100     0.980  0.0113
+NDP         C4N        H42N      SINGLE       n     1.089  0.0100     0.980  0.0113
+NDP         C5N         H5N      SINGLE       n     1.082  0.0130     0.957  0.0130
+NDP         C6N         H6N      SINGLE       n     1.082  0.0130     0.941  0.0198
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+NDP         O1A          PA         O2A     118.411    2.35
+NDP         O1A          PA         O5B     109.410    1.50
+NDP         O1A          PA          O3     108.816    2.14
+NDP         O2A          PA         O5B     109.410    1.50
+NDP         O2A          PA          O3     108.816    2.14
+NDP         O5B          PA          O3     101.065    1.97
+NDP          PA         O5B         C5B     118.553    2.41
+NDP         O5B         C5B         C4B     109.342    1.50
+NDP         O5B         C5B        H51A     109.845    1.50
+NDP         O5B         C5B        H52A     109.845    1.50
+NDP         C4B         C5B        H51A     109.624    1.50
+NDP         C4B         C5B        H52A     109.624    1.50
+NDP        H51A         C5B        H52A     108.472    1.50
+NDP         C5B         C4B         O4B     109.123    1.50
+NDP         C5B         C4B         C3B     116.008    1.52
+NDP         C5B         C4B         H4B     108.268    1.50
+NDP         O4B         C4B         C3B     105.388    1.50
+NDP         O4B         C4B         H4B     108.947    1.50
+NDP         C3B         C4B         H4B     109.363    1.86
+NDP         C4B         O4B         C1B     109.903    1.50
+NDP         C4B         C3B         O3B     111.281    2.46
+NDP         C4B         C3B         C2B     102.352    1.50
+NDP         C4B         C3B         H3B     110.452    2.54
+NDP         O3B         C3B         C2B     112.463    2.73
+NDP         O3B         C3B         H3B     110.380    1.67
+NDP         C2B         C3B         H3B     110.255    2.04
+NDP         C3B         O3B        HO3A     108.744    3.00
+NDP         C3B         C2B         O2B     110.766    3.00
+NDP         C3B         C2B         C1B     101.388    1.50
+NDP         C3B         C2B         H2B     110.255    2.04
+NDP         O2B         C2B         C1B     110.738    2.44
+NDP         O2B         C2B         H2B     110.343    1.64
+NDP         C1B         C2B         H2B     111.050    1.62
+NDP         C2B         O2B         P2B     109.471    3.00
+NDP         O4B         C1B         C2B     106.416    1.50
+NDP         O4B         C1B         N9A     108.477    1.50
+NDP         O4B         C1B         H1B     109.807    1.50
+NDP         C2B         C1B         N9A     113.659    1.50
+NDP         C2B         C1B         H1B     109.319    1.50
+NDP         N9A         C1B         H1B     109.561    1.50
+NDP         C1B         N9A         C8A     126.848    1.91
+NDP         C1B         N9A         C4A     127.459    1.80
+NDP         C8A         N9A         C4A     105.693    1.50
+NDP         N9A         C8A         N7A     113.469    1.50
+NDP         N9A         C8A         H8A     123.206    1.50
+NDP         N7A         C8A         H8A     123.326    1.50
+NDP         C8A         N7A         C5A     104.739    1.50
+NDP         N7A         C5A         C6A     132.250    1.50
+NDP         N7A         C5A         C4A     110.483    1.50
+NDP         C6A         C5A         C4A     117.267    1.50
+NDP         C5A         C6A         N6A     123.792    1.50
+NDP         C5A         C6A         N1A     117.409    1.50
+NDP         N6A         C6A         N1A     118.799    1.50
+NDP         C6A         N6A        H61A     119.723    1.50
+NDP         C6A         N6A        H62A     119.723    1.50
+NDP        H61A         N6A        H62A     120.554    1.88
+NDP         C6A         N1A         C2A     118.521    1.50
+NDP         N1A         C2A         N3A     129.332    1.50
+NDP         N1A         C2A         H2A     115.313    1.50
+NDP         N3A         C2A         H2A     115.355    1.50
+NDP         C2A         N3A         C4A     110.982    1.50
+NDP         N9A         C4A         C5A     105.616    1.50
+NDP         N9A         C4A         N3A     127.895    1.50
+NDP         C5A         C4A         N3A     126.489    1.50
+NDP          PA          O3          PN     132.542    3.00
+NDP          O3          PN         O1N     108.816    2.14
+NDP          O3          PN         O2N     108.816    2.14
+NDP          O3          PN         O5D     101.065    1.97
+NDP         O1N          PN         O2N     118.411    2.35
+NDP         O1N          PN         O5D     109.410    1.50
+NDP         O2N          PN         O5D     109.410    1.50
+NDP          PN         O5D         C5D     118.553    2.41
+NDP         O5D         C5D         C4D     109.342    1.50
+NDP         O5D         C5D        H51N     109.845    1.50
+NDP         O5D         C5D        H52N     109.845    1.50
+NDP         C4D         C5D        H51N     109.624    1.50
+NDP         C4D         C5D        H52N     109.624    1.50
+NDP        H51N         C5D        H52N     108.472    1.50
+NDP         C5D         C4D         O4D     109.123    1.50
+NDP         C5D         C4D         C3D     116.008    1.52
+NDP         C5D         C4D         H4D     108.268    1.50
+NDP         O4D         C4D         C3D     105.508    1.50
+NDP         O4D         C4D         H4D     108.642    1.50
+NDP         C3D         C4D         H4D     109.363    1.86
+NDP         C4D         O4D         C1D     109.926    1.50
+NDP         C4D         C3D         O3D     111.281    2.46
+NDP         C4D         C3D         C2D     102.352    1.50
+NDP         C4D         C3D         H3D     110.452    2.54
+NDP         O3D         C3D         C2D     112.463    2.73
+NDP         O3D         C3D         H3D     110.380    1.67
+NDP         C2D         C3D         H3D     110.255    2.04
+NDP         C3D         O3D        HO3N     108.744    3.00
+NDP         C3D         C2D         O2D     112.463    2.73
+NDP         C3D         C2D         C1D     104.443    2.26
+NDP         C3D         C2D         H2D     110.255    2.04
+NDP         O2D         C2D         C1D     111.164    2.38
+NDP         O2D         C2D         H2D     110.259    1.63
+NDP         C1D         C2D         H2D     110.518    1.74
+NDP         C2D         O2D        HO2N     109.104    3.00
+NDP         O4D         C1D         C2D     106.204    2.50
+NDP         O4D         C1D         N1N     108.278    1.50
+NDP         O4D         C1D         H1D     109.395    1.50
+NDP         C2D         C1D         N1N     112.110    1.66
+NDP         C2D         C1D         H1D     109.914    1.68
+NDP         N1N         C1D         H1D     109.209    1.50
+NDP         C1D         N1N         C2N     120.851    1.78
+NDP         C1D         N1N         C6N     120.851    1.78
+NDP         C2N         N1N         C6N     118.299    1.80
+NDP         N1N         C2N         C3N     121.110    1.66
+NDP         N1N         C2N         H2N     119.532    1.52
+NDP         C3N         C2N         H2N     119.358    1.50
+NDP         C2N         C3N         C7N     117.781    1.96
+NDP         C2N         C3N         C4N     118.007    1.50
+NDP         C7N         C3N         C4N     124.211    3.00
+NDP         C3N         C7N         O7N     119.878    1.50
+NDP         C3N         C7N         N7N     118.037    3.00
+NDP         O7N         C7N         N7N     122.085    1.50
+NDP         C7N         N7N        H71N     120.214    2.13
+NDP         C7N         N7N        H72N     120.224    2.13
+NDP        H71N         N7N        H72N     119.583    2.34
+NDP         C3N         C4N         C5N     114.356    2.46
+NDP         C3N         C4N        H41N     108.993    1.50
+NDP         C3N         C4N        H42N     108.993    1.50
+NDP         C5N         C4N        H41N     108.815    3.00
+NDP         C5N         C4N        H42N     108.815    3.00
+NDP        H41N         C4N        H42N     106.630    2.58
+NDP         C4N         C5N         C6N     121.257    2.14
+NDP         C4N         C5N         H5N     119.218    1.70
+NDP         C6N         C5N         H5N     119.525    1.50
+NDP         N1N         C6N         C5N     120.771    1.66
+NDP         N1N         C6N         H6N     119.193    1.52
+NDP         C5N         C6N         H6N     120.036    1.50
+NDP         O2B         P2B         O1X     106.518    3.00
+NDP         O2B         P2B         O2X     106.518    3.00
+NDP         O2B         P2B         O3X     106.518    3.00
+NDP         O1X         P2B         O2X     112.139    1.52
+NDP         O1X         P2B         O3X     112.139    1.52
+NDP         O2X         P2B         O3X     112.139    1.52
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+NDP            sp3_sp3_54          PN          O3          PA         O1A      60.000    10.0     3
+NDP            sp3_sp3_51         C5B         O5B          PA         O1A      60.000    10.0     3
+NDP            sp3_sp3_82         C2B         O2B         P2B         O1X     180.000    10.0     3
+NDP            sp2_sp3_13         C8A         N9A         C1B         O4B     150.000    10.0     6
+NDP              const_14         N7A         C8A         N9A         C1B     180.000    10.0     2
+NDP              const_26         C5A         C4A         N9A         C1B     180.000    10.0     2
+NDP              const_17         N9A         C8A         N7A         C5A       0.000    10.0     2
+NDP              const_20         C6A         C5A         N7A         C8A     180.000    10.0     2
+NDP       const_sp2_sp2_4         N7A         C5A         C6A         N6A       0.000     5.0     2
+NDP              const_21         N9A         C4A         C5A         N7A       0.000    10.0     2
+NDP            sp2_sp2_13         C5A         C6A         N6A        H61A     180.000     5.0     2
+NDP       const_sp2_sp2_6         N6A         C6A         N1A         C2A     180.000     5.0     2
+NDP       const_sp2_sp2_7         N3A         C2A         N1A         C6A       0.000     5.0     2
+NDP       const_sp2_sp2_9         N1A         C2A         N3A         C4A       0.000     5.0     2
+NDP              const_12         N9A         C4A         N3A         C2A     180.000    10.0     2
+NDP            sp3_sp3_87          PA          O3          PN         O1N      60.000    10.0     3
+NDP            sp3_sp3_88         C5D         O5D          PN          O3     180.000    10.0     3
+NDP            sp3_sp3_91         C4D         C5D         O5D          PN     180.000    10.0     3
+NDP            sp3_sp3_94         O4D         C4D         C5D         O5D     180.000    10.0     3
+NDP            sp3_sp3_26         C5D         C4D         O4D         C1D     -60.000    10.0     3
+NDP           sp3_sp3_107         O3D         C3D         C4D         C5D     180.000    10.0     3
+NDP            sp3_sp3_28         C2D         C1D         O4D         C4D     -60.000    10.0     3
+NDP           sp3_sp3_112         C4D         C3D         O3D        HO3N     180.000    10.0     3
+NDP            sp3_sp3_44         O2D         C2D         C3D         O3D     -60.000    10.0     3
+NDP           sp3_sp3_115         C3D         C2D         O2D        HO2N     180.000    10.0     3
+NDP            sp3_sp3_32         O4D         C1D         C2D         O2D     180.000    10.0     3
+NDP            sp2_sp3_19         C2N         N1N         C1D         O4D     150.000    10.0     6
+NDP             sp2_sp2_2         C3N         C2N         N1N         C1D     180.000     5.0     2
+NDP            sp2_sp2_18         C5N         C6N         N1N         C1D     180.000     5.0     2
+NDP             sp2_sp2_6         N1N         C2N         C3N         C7N     180.000     5.0     2
+NDP            sp2_sp2_24         C2N         C3N         C7N         O7N     180.000     5.0     2
+NDP             sp2_sp3_4         C7N         C3N         C4N         C5N     180.000    10.0     6
+NDP            sp2_sp2_27         O7N         C7N         N7N        H71N       0.000     5.0     2
+NDP            sp3_sp3_55         C4B         C5B         O5B          PA     180.000    10.0     3
+NDP             sp2_sp3_7         C6N         C5N         C4N         C3N       0.000    10.0     6
+NDP             sp2_sp2_9         C4N         C5N         C6N         N1N       0.000     5.0     2
+NDP            sp3_sp3_58         O4B         C4B         C5B         O5B     180.000    10.0     3
+NDP             sp3_sp3_2         C5B         C4B         O4B         C1B     -60.000    10.0     3
+NDP            sp3_sp3_71         O3B         C3B         C4B         C5B     180.000    10.0     3
+NDP             sp3_sp3_4         C2B         C1B         O4B         C4B     -60.000    10.0     3
+NDP            sp3_sp3_76         C4B         C3B         O3B        HO3A     180.000    10.0     3
+NDP            sp3_sp3_20         O2B         C2B         C3B         O3B     -60.000    10.0     3
+NDP            sp3_sp3_79         C3B         C2B         O2B         P2B     180.000    10.0     3
+NDP             sp3_sp3_8         O4B         C1B         C2B         O2B     180.000    10.0     3
+loop_
+_chem_comp_chir.comp_id
+_chem_comp_chir.id
+_chem_comp_chir.atom_id_centre
+_chem_comp_chir.atom_id_1
+_chem_comp_chir.atom_id_2
+_chem_comp_chir.atom_id_3
+_chem_comp_chir.volume_sign
+NDP    chir_1    PA    O3    O5B    O2A    both
+NDP    chir_2    C4B    O4B    C3B    C5B    negative
+NDP    chir_3    C3B    O3B    C2B    C4B    negative
+NDP    chir_4    C2B    O2B    C1B    C3B    negative
+NDP    chir_5    C1B    O4B    N9A    C2B    negative
+NDP    chir_6    PN    O3    O5D    O2N    both
+NDP    chir_7    C4D    O4D    C3D    C5D    negative
+NDP    chir_8    C3D    O3D    C4D    C2D    positive
+NDP    chir_9    C2D    O2D    C1D    C3D    negative
+NDP    chir_10    C1D    O4D    N1N    C2D    negative
+loop_
+_chem_comp_plane_atom.comp_id
+_chem_comp_plane_atom.plane_id
+_chem_comp_plane_atom.atom_id
+_chem_comp_plane_atom.dist_esd
+NDP    plan-1         C1B   0.020
+NDP    plan-1         C2A   0.020
+NDP    plan-1         C4A   0.020
+NDP    plan-1         C5A   0.020
+NDP    plan-1         C6A   0.020
+NDP    plan-1         C8A   0.020
+NDP    plan-1         H2A   0.020
+NDP    plan-1         H8A   0.020
+NDP    plan-1         N1A   0.020
+NDP    plan-1         N3A   0.020
+NDP    plan-1         N6A   0.020
+NDP    plan-1         N7A   0.020
+NDP    plan-1         N9A   0.020
+NDP    plan-2         C6A   0.020
+NDP    plan-2        H61A   0.020
+NDP    plan-2        H62A   0.020
+NDP    plan-2         N6A   0.020
+NDP    plan-3         C1D   0.020
+NDP    plan-3         C2N   0.020
+NDP    plan-3         C6N   0.020
+NDP    plan-3         N1N   0.020
+NDP    plan-4         C2N   0.020
+NDP    plan-4         C3N   0.020
+NDP    plan-4         H2N   0.020
+NDP    plan-4         N1N   0.020
+NDP    plan-5         C2N   0.020
+NDP    plan-5         C3N   0.020
+NDP    plan-5         C4N   0.020
+NDP    plan-5         C7N   0.020
+NDP    plan-6         C3N   0.020
+NDP    plan-6         C7N   0.020
+NDP    plan-6         N7N   0.020
+NDP    plan-6         O7N   0.020
+NDP    plan-7         C7N   0.020
+NDP    plan-7        H71N   0.020
+NDP    plan-7        H72N   0.020
+NDP    plan-7         N7N   0.020
+NDP    plan-8         C4N   0.020
+NDP    plan-8         C5N   0.020
+NDP    plan-8         C6N   0.020
+NDP    plan-8         H5N   0.020
+NDP    plan-9         C5N   0.020
+NDP    plan-9         C6N   0.020
+NDP    plan-9         H6N   0.020
+NDP    plan-9         N1N   0.020
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+NDP SMILES_CANONICAL               CACTVS 3.341                                                                                                                                                                                  NC(=O)C1=CN(C=CC1)[C@@H]2O[C@H](CO[P@@](O)(=O)O[P@](O)(=O)OC[C@H]3O[C@H]([C@H](O[P](O)(O)=O)[C@@H]3O)n4cnc5c(N)ncnc45)[C@@H](O)[C@H]2O
+NDP           SMILES               CACTVS 3.341                                                                                                                                                                                                NC(=O)C1=CN(C=CC1)[CH]2O[CH](CO[P](O)(=O)O[P](O)(=O)OC[CH]3O[CH]([CH](O[P](O)(O)=O)[CH]3O)n4cnc5c(N)ncnc45)[CH](O)[CH]2O
+NDP SMILES_CANONICAL "OpenEye OEToolkits" 1.5.0                                                                                                                                                                           c1nc(c2c(n1)n(cn2)[C@H]3[C@@H]([C@@H]([C@H](O3)CO[P@](=O)(O)O[P@@](=O)(O)OC[C@@H]4[C@H]([C@H]([C@@H](O4)N5C=CCC(=C5)C(=O)N)O)O)O)OP(=O)(O)O)N
+NDP           SMILES "OpenEye OEToolkits" 1.5.0                                                                                                                                                                                                                      c1nc(c2c(n1)n(cn2)C3C(C(C(O3)COP(=O)(O)OP(=O)(O)OCC4C(C(C(O4)N5C=CCC(=C5)C(=O)N)O)O)O)OP(=O)(O)O)N
+NDP            InChI                InChI  1.03 InChI=1S/C21H30N7O17P3/c22-17-12-19(25-7-24-17)28(8-26-12)21-16(44-46(33,34)35)14(30)11(43-21)6-41-48(38,39)45-47(36,37)40-5-10-13(29)15(31)20(42-10)27-3-1-2-9(4-27)18(23)32/h1,3-4,7-8,10-11,13-16,20-21,29-31H,2,5-6H2,(H2,23,32)(H,36,37)(H,38,39)(H2,22,24,25)(H2,33,34,35)/t10-,11-,13-,14-,15-,16-,20-,21-/m1/s1
+NDP         InChIKey                InChI  1.03                                                                                                                                                                                                                                                                                             ACFIXJIJDZMPPO-NNYOXOHSSA-N
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+NDP acedrg               243         "dictionary generator"                  
+NDP acedrg_database      11          "data source"                           
+NDP rdkit                2017.03.2   "Chemoinformatics tool"
+NDP refmac5              5.8.0238    "optimization tool"                     

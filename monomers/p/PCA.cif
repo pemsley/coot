@@ -1,0 +1,166 @@
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+PCA PCA "PYROGLUTAMIC ACID" NON-POLYMER 15 9 .
+
+data_comp_PCA
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+PCA N   N NR5 0  38.798 57.849 67.945
+PCA CA  C CH1 0  38.414 59.017 67.178
+PCA CB  C CH2 0  37.502 59.809 68.138
+PCA CG  C CH2 0  37.672 59.132 69.493
+PCA CD  C CR5 0  38.410 57.850 69.218
+PCA OE  O O   0  38.631 56.944 70.029
+PCA C   C C   0  39.635 59.832 66.743
+PCA O   O O   0  40.396 60.201 67.620
+PCA OXT O OC  -1 39.756 60.052 65.552
+PCA H   H H   0  39.250 57.196 67.591
+PCA HA  H H   0  37.890 58.734 66.381
+PCA HB2 H H   0  36.567 59.766 67.844
+PCA HB3 H H   0  37.772 60.753 68.186
+PCA HG2 H H   0  36.803 58.942 69.899
+PCA HG3 H H   0  38.187 59.695 70.104
+
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+PCA N  CA  SINGLE n 1.450 0.0100 1.450 0.0100
+PCA N  CD  SINGLE n 1.332 0.0100 1.332 0.0100
+PCA CA CB  SINGLE n 1.541 0.0100 1.541 0.0100
+PCA CA C   SINGLE n 1.527 0.0175 1.527 0.0175
+PCA CB CG  SINGLE n 1.520 0.0160 1.520 0.0160
+PCA CG CD  SINGLE n 1.505 0.0100 1.505 0.0100
+PCA CD OE  DOUBLE n 1.236 0.0100 1.236 0.0100
+PCA C  O   DOUBLE n 1.218 0.0200 1.218 0.0200
+PCA C  OXT SINGLE n 1.218 0.0200 1.218 0.0200
+PCA N  H   SINGLE n 1.016 0.0100 0.869 0.0200
+PCA CA HA  SINGLE n 1.089 0.0100 0.995 0.0100
+PCA CB HB2 SINGLE n 1.089 0.0100 0.982 0.0200
+PCA CB HB3 SINGLE n 1.089 0.0100 0.982 0.0200
+PCA CG HG2 SINGLE n 1.089 0.0100 0.978 0.0150
+PCA CG HG3 SINGLE n 1.089 0.0100 0.978 0.0150
+
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+PCA CA  N  CD  115.181 1.50
+PCA CA  N  H   121.915 2.02
+PCA CD  N  H   122.904 1.93
+PCA N   CA CB  103.011 1.50
+PCA N   CA C   111.417 2.02
+PCA N   CA HA  109.408 1.50
+PCA CB  CA C   110.031 2.42
+PCA CB  CA HA  109.388 1.50
+PCA C   CA HA  110.011 1.50
+PCA CA  CB CG  103.619 1.50
+PCA CA  CB HB2 111.018 1.50
+PCA CA  CB HB3 111.018 1.50
+PCA CG  CB HB2 110.929 1.50
+PCA CG  CB HB3 110.929 1.50
+PCA HB2 CB HB3 108.922 1.50
+PCA CB  CG CD  104.467 1.50
+PCA CB  CG HG2 111.113 1.50
+PCA CB  CG HG3 111.113 1.50
+PCA CD  CG HG2 110.409 1.50
+PCA CD  CG HG3 110.409 1.50
+PCA HG2 CG HG3 108.838 1.50
+PCA N   CD CG  108.239 1.50
+PCA N   CD OE  125.266 1.50
+PCA CG  CD OE  126.495 1.50
+PCA CA  C  O   117.013 1.95
+PCA CA  C  OXT 117.013 1.95
+PCA O   C  OXT 125.975 1.50
+
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+PCA sp2_sp3_2  CD N  CA C  120.000 10.0 6
+PCA sp2_sp2_3  OE CD N  CA 180.000 5.0  2
+PCA sp3_sp3_4  C  CA CB CG 180.000 10.0 3
+PCA sp2_sp3_13 O  C  CA N  0.000   10.0 6
+PCA sp3_sp3_10 CA CB CG CD 60.000  10.0 3
+PCA sp2_sp3_10 OE CD CG CB 180.000 10.0 6
+
+loop_
+_chem_comp_chir.comp_id
+_chem_comp_chir.id
+_chem_comp_chir.atom_id_centre
+_chem_comp_chir.atom_id_1
+_chem_comp_chir.atom_id_2
+_chem_comp_chir.atom_id_3
+_chem_comp_chir.volume_sign
+PCA chir_1 CA N C CB positive
+
+loop_
+_chem_comp_plane_atom.comp_id
+_chem_comp_plane_atom.plane_id
+_chem_comp_plane_atom.atom_id
+_chem_comp_plane_atom.dist_esd
+PCA plan-1 CA  0.020
+PCA plan-1 CD  0.020
+PCA plan-1 H   0.020
+PCA plan-1 N   0.020
+PCA plan-2 CD  0.020
+PCA plan-2 CG  0.020
+PCA plan-2 N   0.020
+PCA plan-2 OE  0.020
+PCA plan-3 C   0.020
+PCA plan-3 CA  0.020
+PCA plan-3 O   0.020
+PCA plan-3 OXT 0.020
+
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+PCA SMILES           ACDLabs              10.04 O=C(O)C1NC(=O)CC1
+PCA SMILES_CANONICAL CACTVS               3.341 OC(=O)[C@@H]1CCC(=O)N1
+PCA SMILES           CACTVS               3.341 OC(=O)[CH]1CCC(=O)N1
+PCA SMILES_CANONICAL "OpenEye OEToolkits" 1.5.0 C1CC(=O)N[C@@H]1C(=O)O
+PCA SMILES           "OpenEye OEToolkits" 1.5.0 C1CC(=O)NC1C(=O)O
+PCA InChI            InChI                1.03  InChI=1S/C5H7NO3/c7-4-2-1-3(6-4)5(8)9/h3H,1-2H2,(H,6,7)(H,8,9)/t3-/m0/s1
+PCA InChIKey         InChI                1.03  ODHCTXKNWHHXJC-VKHMYHEASA-N
+
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+PCA acedrg          243       "dictionary generator"
+PCA acedrg_database 11        "data source"
+PCA rdkit           2017.03.2 "Chemoinformatics tool"
+PCA refmac5         5.8.0238  "optimization tool"

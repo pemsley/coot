@@ -20,7 +20,7 @@ echo date: $(date) >> $f
 echo --- >> $f
 
 
-vi $f
+nvim $f
 
 echo git add $f
 

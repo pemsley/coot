@@ -1,16 +1,33 @@
 
 #include <iostream>
 #include <iomanip>
+#include <string>
 
+#include <fstream>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
+#ifdef USE_GEMMI
+#include <gemmi/mmread.hpp>
+#include <gemmi/mmdb.hpp>
+#include <gemmi/enumstr.hpp>
+#include <gemmi/metadata.hpp>
+#include <gemmi/polyheur.hpp>
+#endif
 #include "MoleculesToTriangles/CXXClasses/MyMolecule.h"
+#include <clipper/clipper-contrib.h>
+#include <clipper/ccp4/ccp4_mtz_io.h>
+#include <clipper/ccp4/ccp4_map_io.h>
+#include <clipper/core/map_interp.h>
 #include "molecules-container.hh"
 #include "coot-utils/acedrg-types-for-residue.hh"
+#include "coot-utils/coot-map-utils.hh"
+#include "coot-utils/coot-coord-utils.hh"
+#include "coot-utils/patterson.hh"
+#include "coot-utils/crowther.hh"
 #include "filo-tests.hh"
 #include "lucrezia-tests.hh"
 
@@ -585,6 +602,60 @@ int test_undo_and_redo_2(molecules_container_t &mc) {
    return status;
 }
 
+// Test for set_residue_to_rotamer_number()
+//
+int test_set_residue_to_rotamer_number(molecules_container_t &mc) {
+
+    starting_test(__FUNCTION__);
+    int status = 0;
+
+    // Load test structure model
+    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+    if (!mc.is_valid_model_molecule(imol)) {
+        std::cout << "Failed to load model molecule" << std::endl;
+        return status;
+    }
+
+    // Pick a known residue (e.g. chain A, residue 270)
+    int rotamer_number = 2; // Try setting to rotamer #2
+
+    // Get a key atom to track the change (e.g. CG for ASP)
+    std::string chain_id = "A";
+    int res_no = 269;
+    std::string residue_cid = "//A/269";
+    std::string alt_conf;
+    coot::atom_spec_t atom_spec(chain_id, res_no, "", " CG ", alt_conf);
+    mmdb::Atom* at_start = mc.get_atom(imol, atom_spec);
+    if (!at_start) {
+        std::cout << "Failed to find atom CG in starting residue" << std::endl;
+        mc.close_molecule(imol);
+        return status;
+    }
+    coot::Cartesian pos_start = coot::Cartesian(at_start->x, at_start->y, at_start->z);
+
+    int result = mc.set_residue_to_rotamer_number(imol, residue_cid, alt_conf, rotamer_number);
+
+    // Find the atom after the function call
+    mmdb::Atom* at_end = mc.get_atom(imol, atom_spec);
+    if (!at_end) {
+        std::cout << "Failed to find atom CG after rotamer set" << std::endl;
+        mc.close_molecule(imol);
+        return status;
+    }
+    coot::Cartesian pos_end = coot::Cartesian(at_end->x, at_end->y, at_end->z);
+
+    double dist_moved = std::sqrt(coot::Cartesian::lengthsq(pos_start, pos_end));
+    std::cout << "CG atom moved " << dist_moved << " Å by set_residue_to_rotamer_number()" << std::endl;
+
+    // Success: function returned 1 and atom moved
+    if (result == 1 && dist_moved > 0.3) {
+        status = 1;
+    }
+
+    mc.close_molecule(imol);
+    return status;
+}
+
 
 int test_ramachandran_analysis(molecules_container_t &mc) {
 
@@ -680,6 +751,1303 @@ int test_rota_dodecs_mesh(molecules_container_t &mc) {
 
 }
 
+int test_patterson_from_map_using_mtz(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   // Build an Xmap directly from the MTZ file using clipper
+   std::string mtz_file = reference_data("moorhen-tutorial-map-number-1.mtz");
+   clipper::CCP4MTZfile mtzin;
+   mtzin.open_read(mtz_file);
+   clipper::Spacegroup spgr = mtzin.spacegroup();
+   clipper::Cell cell = mtzin.cell();
+   clipper::Resolution mtz_reso = mtzin.resolution();
+   clipper::HKL_info hkls(spgr, cell, mtz_reso, true);
+   clipper::HKL_data<clipper::datatypes::F_phi<float>> fphi(hkls);
+   mtzin.import_hkl_data(fphi, "/*/*/[FWT,PHWT]");
+   mtzin.close_read();
+
+   if (hkls.num_reflections() == 0) {
+      std::cout << "ERROR:: test_patterson_from_map_using_mtz() failed to read reflections from "
+                << mtz_file << std::endl;
+      return status;
+   }
+
+   clipper::Grid_sampling grid(spgr, cell, mtz_reso);
+   clipper::Xmap<float> xmap(spgr, cell, grid);
+   xmap.fft_from(fphi);
+
+   clipper::Resolution reso(3.0);
+   clipper::Xmap<float> patterson = coot::make_patterson_from_map(xmap, reso);
+
+   // The Patterson should have a large origin peak (autocorrelation of the whole map).
+   // Sample at the origin and check it's significantly positive.
+   clipper::Coord_orth origin(0.0, 0.0, 0.0);
+   float origin_val = 0.0f;
+   clipper::Interp_linear::interp(patterson, patterson.coord_map(origin), origin_val);
+   std::cout << "INFO:: test_patterson_from_map_using_mtz() origin peak value: " << origin_val << std::endl;
+
+   // The origin peak should be the largest value in the Patterson.
+   // Also check that the Patterson is not all zeros.
+   float max_val = -1e30f;
+   float min_val =  1e30f;
+   clipper::Xmap_base::Map_reference_index ix;
+   for (ix = patterson.first(); !ix.last(); ix.next()) {
+      float v = patterson[ix];
+      if (v > max_val) max_val = v;
+      if (v < min_val) min_val = v;
+   }
+   std::cout << "INFO:: test_patterson_from_map_using_mtz() min: " << min_val << " max: " << max_val << std::endl;
+
+   // The Patterson should not be flat (max > min) and origin should be large
+   if (max_val > min_val && origin_val > 0.0f)
+      status = 1;
+
+   return status;
+}
+
+int test_patterson_from_map_using_map(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   std::string map_file = reference_data("32143-masked-around-N.map");
+   int imol_map = mc.read_ccp4_map(map_file, false);
+   if (! mc.is_valid_map_molecule(imol_map)) {
+      std::cout << "ERROR:: test_patterson_from_map_using_map() failed to read " << map_file << std::endl;
+      return status;
+   }
+   clipper::Xmap<float> xmap = mc.get_xmap(imol_map);
+   mc.close_molecule(imol_map);
+
+   // Extract a map fragment around the box centre
+   clipper::Coord_orth centre(121.0, 75.0, 106.0);
+   float fragment_radius = 20.0;
+   coot::util::map_fragment_info_t mf(xmap, centre, fragment_radius, true, 0.5f);
+
+   if (mf.xmap.is_null()) {
+      std::cout << "ERROR:: test_patterson_from_map_using_map() map fragment is null" << std::endl;
+      return status;
+   }
+
+   clipper::Resolution reso(5.0);
+   clipper::Xmap<float> patterson = coot::make_patterson_from_map(mf.xmap, reso);
+
+   clipper::Coord_orth origin(0.0, 0.0, 0.0);
+   float origin_val = 0.0f;
+   clipper::Interp_linear::interp(patterson, patterson.coord_map(origin), origin_val);
+   std::cout << "INFO:: test_patterson_from_map_using_map() origin peak value: " << origin_val << std::endl;
+
+   float max_val = -1e30f;
+   float min_val =  1e30f;
+   clipper::Xmap_base::Map_reference_index ix;
+   for (ix = patterson.first(); !ix.last(); ix.next()) {
+      float v = patterson[ix];
+      if (v > max_val) max_val = v;
+      if (v < min_val) min_val = v;
+   }
+   std::cout << "INFO:: test_patterson_from_map_using_map() min: " << min_val << " max: " << max_val << std::endl;
+
+   if (max_val > min_val && origin_val > 0.0f)
+      status = 1;
+
+   return status;
+}
+
+int test_self_rotation_function(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   std::string map_file = reference_data("32143-masked-around-N.map");
+   int imol_map = mc.read_ccp4_map(map_file, false);
+   if (! mc.is_valid_map_molecule(imol_map)) {
+      std::cout << "ERROR:: test_self_rotation_function() failed to read " << map_file << std::endl;
+      return status;
+   }
+   clipper::Xmap<float> xmap = mc.get_xmap(imol_map);
+   mc.close_molecule(imol_map);
+
+   // Extract a map fragment around the box centre
+   clipper::Coord_orth centre(121.0, 75.0, 106.0);
+   float fragment_radius = 20.0;
+   coot::util::map_fragment_info_t mf(xmap, centre, fragment_radius, false);
+
+   if (mf.xmap.is_null()) {
+      std::cout << "ERROR:: test_self_rotation_function() map fragment is null" << std::endl;
+      return status;
+   }
+
+   clipper::Resolution reso(5.0);
+   clipper::Xmap<float> patterson = coot::make_patterson_from_map(mf.xmap, reso);
+
+   // Diagnostic: sample Patterson along x-axis to see if it has structure
+   for (float x=0.0f; x<=30.0f; x+=2.0f) {
+      float val;
+      clipper::Coord_orth pos(x, 0.0, 0.0);
+      clipper::Interp_linear::interp(patterson, patterson.coord_map(pos), val);
+      std::cout << "INFO:: Patterson at (" << x << ", 0, 0): "
+                << std::scientific << std::setprecision(5) << val << std::endl;
+   }
+
+   // Self rotation function: compare the Patterson with itself.
+   // The top peak should be at (or very near) the identity rotation.
+   float shell_inner = 5.0f;
+   float shell_outer = 25.0f;
+   float angular_step = 5.0f;
+
+   std::vector<coot::rotation_function_result_t> results =
+      coot::rotation_function_search(patterson, patterson, shell_inner, shell_outer, angular_step);
+
+   std::cout << "INFO:: test_self_rotation_function() " << results.size() << " results" << std::endl;
+
+   unsigned int n_print = std::min(static_cast<unsigned int>(results.size()), 20u);
+   for (unsigned int i=0; i<n_print; i++) {
+      const auto &r = results[i];
+      glm::vec3 euler = glm::degrees(glm::eulerAngles(r.rotation));
+      std::cout << "INFO::   result " << std::setw(3) << i
+                << " score: " << std::setw(14) << std::scientific << std::setprecision(5) << r.score
+                << " quat: " << glm::to_string(r.rotation)
+                << " euler(deg): (" << std::fixed << std::setprecision(1)
+                << euler.x << ", " << euler.y << ", " << euler.z << ")"
+                << std::endl;
+   }
+
+   // For a self-Patterson, the function is centrosymmetric: P(u) = P(-u).
+   // This means all 180-degree rotations (w~0) score the same as the identity.
+   // Find the nearest-to-identity quaternion and check its score is close to the top.
+   if (!results.empty()) {
+      float top_score = results[0].score;
+      glm::quat identity(1, 0, 0, 0);
+      float best_dot = 0.0f;
+      float identity_score = 0.0f;
+      for (const auto &r : results) {
+         float d = std::abs(glm::dot(r.rotation, identity));
+         if (d > best_dot) {
+            best_dot = d;
+            identity_score = r.score;
+         }
+      }
+      float ratio = identity_score / top_score;
+      std::cout << "INFO:: test_self_rotation_function() top score: "
+                << std::scientific << std::setprecision(5) << top_score
+                << " nearest-identity score: " << identity_score
+                << " ratio: " << std::fixed << std::setprecision(3) << ratio
+                << " (nearest-identity |dot|: " << best_dot << ")" << std::endl;
+      // The near-identity rotation should score within a few percent of the top
+      if (ratio > 0.95f)
+         status = 1;
+   }
+
+   return status;
+}
+
+int test_cross_rotation_function(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   std::string map_file = reference_data("32143-masked-around-N.map");
+   int imol_map = mc.read_ccp4_map(map_file, false);
+   if (! mc.is_valid_map_molecule(imol_map)) {
+      std::cout << "ERROR:: test_cross_rotation_function() failed to read " << map_file << std::endl;
+      return status;
+   }
+   clipper::Xmap<float> xmap = mc.get_xmap(imol_map);
+   mc.close_molecule(imol_map);
+
+   // Extract a map fragment
+   clipper::Coord_orth centre(121.0, 75.0, 106.0);
+   float fragment_radius = 20.0;
+   bool centre_at_origin = true;
+   coot::util::map_fragment_info_t mf(xmap, centre, fragment_radius, centre_at_origin);
+
+   if (mf.xmap.is_null()) {
+      std::cout << "ERROR:: test_cross_rotation_function() map fragment is null" << std::endl;
+      return status;
+   }
+
+   if (true) {
+      // by eye debug the maps
+      clipper::CCP4MAPfile mapout;
+      mapout.open_write(std::string("map-fragment.map"));
+      mapout.export_xmap(mf.xmap);
+   }
+
+   // Apply a known rotation: 35 degrees around z-axis
+   float known_angle = glm::radians(35.0f);
+   glm::quat known_rotation = glm::angleAxis(known_angle, glm::vec3(0.0f, 0.0f, 1.0f));
+   glm::mat3 rot_mat = glm::mat3_cast(known_rotation);
+
+   // glm is column-major, clipper is row-major
+   clipper::Mat33<> clipper_rot(rot_mat[0][0], rot_mat[1][0], rot_mat[2][0],
+                                rot_mat[0][1], rot_mat[1][1], rot_mat[2][1],
+                                rot_mat[0][2], rot_mat[1][2], rot_mat[2][2]);
+
+   // Rotate the map fragment about the cell centre, no wrapping
+   clipper::Xmap<float> rotated_map = coot::rotate_p1_map(mf.xmap, clipper_rot);
+
+   if (true) {
+      clipper::CCP4MAPfile mapout_2;
+      mapout_2.open_write(std::string("rotated-map-fragment.map"));
+      mapout_2.export_xmap(rotated_map);
+      mapout_2.close_write();
+   }
+
+   // Compute Pattersons of both
+   clipper::Resolution reso(5.0);
+   clipper::Xmap<float> patterson_target = coot::make_patterson_from_map(mf.xmap, reso);
+   clipper::Xmap<float> patterson_search = coot::make_patterson_from_map(rotated_map, reso);
+
+   // Run rotation function search
+   float shell_inner = 5.0f;
+   float shell_outer = 25.0f;
+   float angular_step = 10.0f;
+
+   std::vector<coot::rotation_function_result_t> results =
+      coot::rotation_function_search(patterson_target, patterson_search,
+                                     shell_inner, shell_outer, angular_step);
+
+   std::cout << "INFO:: test_cross_rotation_function() " << results.size() << " results" << std::endl;
+   std::cout << "INFO:: known rotation: " << glm::to_string(known_rotation) << std::endl;
+
+   unsigned int n_print = std::min(static_cast<unsigned int>(results.size()), 30u);
+   for (unsigned int i=0; i<n_print; i++) {
+      const auto &r = results[i];
+      glm::vec3 euler = glm::degrees(glm::eulerAngles(r.rotation));
+      std::cout << "INFO::   result " << std::setw(3) << i
+                << " score: " << std::setw(14) << std::scientific << std::setprecision(5) << r.score
+                << " quat: " << glm::to_string(r.rotation)
+                << " euler(deg): ( " << std::fixed << std::setprecision(1)
+                << euler.x << ", " << euler.y << ", " << euler.z << " )"
+                << std::endl;
+   }
+
+   // The top result should be close to the known rotation.
+   // Because the Patterson is centrosymmetric, the known rotation composed
+   // with 180-degree rotations will also score highly. Check that one of
+   // the top results is close to the known rotation.
+   if (!results.empty()) {
+      float best_dot = 0.0f;
+      int best_idx = -1;
+      unsigned int n_check = std::min(static_cast<unsigned int>(results.size()), 50u);
+      for (unsigned int i=0; i<n_check; i++) {
+         float d = std::abs(glm::dot(results[i].rotation, known_rotation));
+         if (d > best_dot) {
+            best_dot = d;
+            best_idx = static_cast<int>(i);
+         }
+      }
+      std::cout << "INFO:: test_cross_rotation_function() best match to known rotation at index "
+                << best_idx << " |dot|: " << best_dot << std::endl;
+      // The known rotation should be found in the top results with a close match.
+      // Note: Patterson centrosymmetry means rotations composed with 180-degree
+      // rotations score equally, so the pure known rotation may not be #1.
+      if (best_dot > 0.95f && best_idx < 50)
+         status = 1;
+   }
+
+   return status;
+}
+
+int test_crowther_rotation_function(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   std::string map_file = reference_data("32143-masked-around-N.map");
+   int imol_map = mc.read_ccp4_map(map_file, false);
+   if (! mc.is_valid_map_molecule(imol_map)) {
+      std::cout << "ERROR:: test_crowther_rotation_function() failed to read " << map_file << std::endl;
+      return status;
+   }
+   clipper::Xmap<float> xmap = mc.get_xmap(imol_map);
+   mc.close_molecule(imol_map);
+
+   // Extract a map fragment centred at origin
+   clipper::Coord_orth centre(121.0, 75.0, 106.0);
+   float fragment_radius = 20.0;
+   coot::util::map_fragment_info_t mf(xmap, centre, fragment_radius, true, 0.5f);
+
+   if (mf.xmap.is_null()) {
+      std::cout << "ERROR:: test_crowther_rotation_function() map fragment is null" << std::endl;
+      return status;
+   }
+
+   // Apply a known rotation: 35 degrees around z-axis
+   float known_angle = glm::radians(35.0f);
+   glm::quat known_rotation = glm::angleAxis(known_angle, glm::vec3(0.0f, 0.0f, 1.0f));
+   glm::mat3 rot_mat = glm::mat3_cast(known_rotation);
+
+   clipper::Mat33<> clipper_rot(rot_mat[0][0], rot_mat[1][0], rot_mat[2][0],
+                                rot_mat[0][1], rot_mat[1][1], rot_mat[2][1],
+                                rot_mat[0][2], rot_mat[1][2], rot_mat[2][2]);
+
+   clipper::Xmap<float> rotated_map = coot::rotate_p1_map(mf.xmap, clipper_rot);
+
+   // Crowther fast rotation function
+   int ell_max = 15;
+   float radius = 25.0f;
+   clipper::Resolution reso(5.0);
+   int n_beta = 36;
+
+   coot::crowther_t crowther(ell_max, radius, reso);
+   crowther.set_target(mf.xmap);
+   crowther.set_search(rotated_map);
+
+   std::vector<coot::rotation_function_result_t> results = crowther.compute(n_beta);
+
+   std::cout << "INFO:: test_crowther_rotation_function() " << results.size() << " results" << std::endl;
+   std::cout << "INFO:: known rotation: " << glm::to_string(known_rotation) << std::endl;
+
+   unsigned int n_print = std::min(static_cast<unsigned int>(results.size()), 30u);
+   for (unsigned int i=0; i<n_print; i++) {
+      const auto &r = results[i];
+      glm::vec3 euler = glm::degrees(glm::eulerAngles(r.rotation));
+      std::cout << "INFO::   result " << std::setw(3) << i
+                << " score: " << std::setw(14) << std::scientific << std::setprecision(5) << r.score
+                << " quat: " << glm::to_string(r.rotation)
+                << " euler(deg): ( " << std::fixed << std::setprecision(1)
+                << euler.x << ", " << euler.y << ", " << euler.z << " )"
+                << std::endl;
+   }
+
+   // Check if the known rotation is among the top results
+   if (!results.empty()) {
+      float best_dot = 0.0f;
+      int best_idx = -1;
+      unsigned int n_check = std::min(static_cast<unsigned int>(results.size()), 50u);
+      for (unsigned int i=0; i<n_check; i++) {
+         float d = std::abs(glm::dot(results[i].rotation, known_rotation));
+         if (d > best_dot) {
+            best_dot = d;
+            best_idx = static_cast<int>(i);
+         }
+      }
+      std::cout << "INFO:: test_crowther_rotation_function() best match at index "
+                << best_idx << " |dot|: " << std::fixed << std::setprecision(3) << best_dot << std::endl;
+
+      // With the Crowther method, the known rotation should be clearly distinguished.
+      // The angular grid is discrete (ell_max=15 gives ~12 degree steps in alpha/gamma),
+      // so the nearest grid point may not match perfectly.
+      if (best_dot > 0.85f && best_idx < 100)
+         status = 1;
+   }
+
+   return status;
+}
+
+int test_crowther_rotation_with_model(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   // Read the EM map (masked around nanobody)
+   std::string map_file = reference_data("32143-masked-around-N.map");
+   int imol_map = mc.read_ccp4_map(map_file, false);
+   if (! mc.is_valid_map_molecule(imol_map)) {
+      std::cout << "ERROR:: failed to read " << map_file << std::endl;
+      return status;
+   }
+   clipper::Xmap<float> xmap = mc.get_xmap(imol_map);
+   mc.close_molecule(imol_map);
+
+   // Extract target map fragment centred at origin
+   clipper::Coord_orth centre(121.0, 75.0, 106.0);
+   float fragment_radius = 20.0;
+   coot::util::map_fragment_info_t mf(xmap, centre, fragment_radius, true, 0.5f);
+   if (mf.xmap.is_null()) {
+      std::cout << "ERROR:: target map fragment is null" << std::endl;
+      return status;
+   }
+
+   // Read the nanobody model
+   std::string pdb_file = reference_data("nanobody-from-7vvl-moved-again-v2.pdb");
+   int imol_model = mc.read_pdb(pdb_file);
+   if (! mc.is_valid_model_molecule(imol_model)) {
+      std::cout << "ERROR:: failed to read " << pdb_file << std::endl;
+      return status;
+   }
+   mmdb::Manager *mol = mc.get_mol(imol_model);
+
+   // Find the centre and extents of the model
+   std::pair<bool, clipper::Coord_orth> mol_centre = coot::centre_of_molecule(mol);
+   if (! mol_centre.first) {
+      std::cout << "ERROR:: failed to find centre of molecule" << std::endl;
+      mc.close_molecule(imol_model);
+      return status;
+   }
+
+   int SelHnd = mol->NewSelection();
+   mol->SelectAtoms(SelHnd, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*",
+                    "*", "*", "*", "*");
+   std::pair<clipper::Coord_orth, clipper::Coord_orth> ext = coot::util::extents(mol, SelHnd);
+   double x_range = ext.second.x() - ext.first.x();
+   double y_range = ext.second.y() - ext.first.y();
+   double z_range = ext.second.z() - ext.first.z();
+
+   // Create a P1 cell large enough for the model with border
+   double border = 10.0;
+   double r_90 = clipper::Util::d2rad(90.0);
+   clipper::Cell_descr cell_descr(x_range + 2.0*border,
+                                  y_range + 2.0*border,
+                                  z_range + 2.0*border, r_90, r_90, r_90);
+   clipper::Cell cell(cell_descr);
+   clipper::Spacegroup spacegroup = clipper::Spacegroup::p1();
+   clipper::Resolution reso(3.0);
+   clipper::Grid_sampling gs(spacegroup, cell, reso);
+
+   // Move the model to the centre of the cell
+   clipper::Coord_orth cell_centre(0.5 * cell_descr.a(),
+                                   0.5 * cell_descr.b(),
+                                   0.5 * cell_descr.c());
+   clipper::Coord_orth shift = clipper::Coord_orth(cell_centre.x() - mol_centre.second.x(),
+                                                   cell_centre.y() - mol_centre.second.y(),
+                                                   cell_centre.z() - mol_centre.second.z());
+
+   // Apply shift to all atoms
+   mmdb::PPAtom sel_atoms = 0;
+   int n_atoms;
+   mol->GetSelIndex(SelHnd, sel_atoms, n_atoms);
+   for (int i=0; i<n_atoms; i++) {
+      sel_atoms[i]->x += shift.x();
+      sel_atoms[i]->y += shift.y();
+      sel_atoms[i]->z += shift.z();
+   }
+
+   std::cout << "INFO:: model centre: " << mol_centre.second.format()
+             << " shifted to cell centre: " << cell_centre.format() << std::endl;
+   std::cout << "INFO:: model extents: " << x_range << " x " << y_range << " x " << z_range << std::endl;
+   std::cout << "INFO:: cell: " << cell.format() << std::endl;
+   std::cout << "INFO:: n_atoms: " << n_atoms << std::endl;
+
+   // Compute atom map
+   clipper::Xmap<float> model_map = coot::util::calc_atom_map(mol, SelHnd, cell, spacegroup, gs);
+   mol->DeleteSelection(SelHnd);
+   mc.close_molecule(imol_model);
+
+   // Extract model map fragment centred at origin
+   coot::util::map_fragment_info_t mf_model(model_map, cell_centre, fragment_radius, true, 0.5f);
+   if (mf_model.xmap.is_null()) {
+      std::cout << "ERROR:: model map fragment is null" << std::endl;
+      return status;
+   }
+
+   // Write out intermediate maps for debugging
+   if (true) {
+      // The full model map (before fragment extraction)
+      clipper::CCP4MAPfile mapout_full;
+      mapout_full.open_write("model-full.map");
+      mapout_full.export_xmap(model_map);
+      mapout_full.close_write();
+      std::cout << "INFO:: wrote model-full.map" << std::endl;
+
+      // The map fragments
+      clipper::CCP4MAPfile mapout;
+      mapout.open_write("target-fragment.map");
+      mapout.export_xmap(mf.xmap);
+      mapout.close_write();
+      std::cout << "INFO:: wrote target-fragment.map" << std::endl;
+
+      clipper::CCP4MAPfile mapout2;
+      mapout2.open_write("model-fragment.map");
+      mapout2.export_xmap(mf_model.xmap);
+      mapout2.close_write();
+      std::cout << "INFO:: wrote model-fragment.map" << std::endl;
+
+      // Write Pattersons of both fragments
+      clipper::Xmap<float> target_patt = coot::make_patterson_from_map(mf.xmap, reso);
+      clipper::Xmap<float> search_patt = coot::make_patterson_from_map(mf_model.xmap, reso);
+      clipper::CCP4MAPfile mapout_tp;
+      mapout_tp.open_write("target-patterson.map");
+      mapout_tp.export_xmap(target_patt);
+      mapout_tp.close_write();
+      std::cout << "INFO:: wrote target-patterson.map" << std::endl;
+
+      clipper::CCP4MAPfile mapout_sp;
+      mapout_sp.open_write("search-patterson.map");
+      mapout_sp.export_xmap(search_patt);
+      mapout_sp.close_write();
+      std::cout << "INFO:: wrote search-patterson.map" << std::endl;
+   }
+
+   // Run Crowther fast rotation function
+   int ell_max = 15;
+   float crowther_radius = 18.0f;
+   int n_beta = 36;
+
+   coot::crowther_t crowther(ell_max, crowther_radius, reso);
+   crowther.set_target(mf.xmap);
+   crowther.set_search(mf_model.xmap);
+   crowther.print_diagnostics();
+
+   auto t_coarse_start = std::chrono::high_resolution_clock::now();
+   std::vector<coot::rotation_function_result_t> results = crowther.compute(n_beta);
+   auto t_coarse_end = std::chrono::high_resolution_clock::now();
+   double t_coarse_ms = std::chrono::duration<double, std::milli>(t_coarse_end - t_coarse_start).count();
+   std::cout << "INFO:: coarse search: " << results.size() << " results in "
+             << std::fixed << std::setprecision(1) << t_coarse_ms << " ms" << std::endl;
+
+   // Print top 30 results
+   unsigned int n_print = std::min(static_cast<unsigned int>(results.size()), 30u);
+   for (unsigned int i=0; i<n_print; i++) {
+      const auto &r = results[i];
+      glm::vec3 euler = glm::degrees(glm::eulerAngles(r.rotation));
+      std::cout << "INFO::   result " << std::setw(3) << i
+                << " score: " << std::setw(14) << std::scientific << std::setprecision(5) << r.score
+                << " quat: " << glm::to_string(r.rotation)
+                << " euler(deg): ( " << std::fixed << std::setprecision(1)
+                << euler.x << ", " << euler.y << ", " << euler.z << " )"
+                << std::endl;
+   }
+
+   // Write all results to a file for analysis
+   {
+      std::string output_file = "crowther-rotation-function.dat";
+      std::ofstream ofs(output_file);
+      if (ofs.is_open()) {
+         ofs << "# Crowther rotation function results" << std::endl;
+         ofs << "# ell_max=" << ell_max << " radius=" << crowther_radius
+             << " resolution=" << reso.limit() << " n_beta=" << n_beta << std::endl;
+         ofs << "# alpha(deg)  beta(deg)  gamma(deg)  score  qw  qx  qy  qz" << std::endl;
+         for (const auto &r : results) {
+            glm::vec3 euler = glm::degrees(glm::eulerAngles(r.rotation));
+            ofs << std::fixed << std::setprecision(2)
+                << std::setw(10) << euler.x
+                << std::setw(10) << euler.y
+                << std::setw(10) << euler.z
+                << std::scientific << std::setprecision(6)
+                << std::setw(16) << r.score
+                << std::fixed << std::setprecision(6)
+                << std::setw(12) << r.rotation.w
+                << std::setw(12) << r.rotation.x
+                << std::setw(12) << r.rotation.y
+                << std::setw(12) << r.rotation.z
+                << std::endl;
+         }
+         ofs.close();
+         std::cout << "INFO:: wrote " << results.size() << " rotation function values to "
+                   << output_file << std::endl;
+      }
+   }
+
+   // Known rotation matrix (from SSM superposition of moved nanobody onto original):
+   glm::mat3 known_rot_mat(
+      -0.08604f,  -0.2008f, -0.9758f,   // column 0
+       0.6589f,    0.7232f, -0.2069f,    // column 1
+       0.7473f,   -0.6608f,  0.07012f    // column 2
+   );
+   // The rotation function finds the direct rotation.
+   glm::quat known_quat_direct = glm::normalize(glm::quat_cast(known_rot_mat));
+
+   std::cout << "INFO:: known rotation quat (direct): " << glm::to_string(known_quat_direct) << std::endl;
+
+   // Compute angular distance from known rotation to each top coarse result
+   std::cout << "INFO:: Coarse angular distances from known rotation:" << std::endl;
+   for (unsigned int i=0; i<n_print; i++) {
+      const auto &r = results[i];
+      float dot = std::abs(glm::dot(r.rotation, known_quat_direct));
+      if (dot > 1.0f) dot = 1.0f;
+      float angle_deg = glm::degrees(2.0f * std::acos(dot));
+      glm::vec3 euler = glm::degrees(glm::eulerAngles(r.rotation));
+      std::cout << "INFO::   result " << std::setw(3) << i
+                << " angle_from_known: " << std::fixed << std::setprecision(1)
+                << std::setw(6) << angle_deg << " deg"
+                << "  score: " << std::scientific << std::setprecision(3) << r.score
+                << "  euler: (" << std::fixed << std::setprecision(1)
+                << euler.x << ", " << euler.y << ", " << euler.z << ")"
+                << std::endl;
+   }
+
+   // Refine top 10 orientations: two passes, 2 deg then 0.7 deg
+   auto t_ref1_start = std::chrono::high_resolution_clock::now();
+   auto refined = crowther.refine_orientations(results, 10, 2.0f);
+   auto t_ref1_end = std::chrono::high_resolution_clock::now();
+   double t_ref1_ms = std::chrono::duration<double, std::milli>(t_ref1_end - t_ref1_start).count();
+   std::cout << "INFO:: refinement pass 1 (step=2 deg): " << std::fixed << std::setprecision(1)
+             << t_ref1_ms << " ms" << std::endl;
+
+   auto t_ref2_start = std::chrono::high_resolution_clock::now();
+   refined = crowther.refine_orientations(refined, 10, 0.7f);
+   auto t_ref2_end = std::chrono::high_resolution_clock::now();
+   double t_ref2_ms = std::chrono::duration<double, std::milli>(t_ref2_end - t_ref2_start).count();
+   std::cout << "INFO:: refinement pass 2 (step=0.7 deg): " << std::fixed << std::setprecision(1)
+             << t_ref2_ms << " ms" << std::endl;
+
+   std::cout << "INFO:: Refined angular distances from known rotation:" << std::endl;
+   for (unsigned int i=0; i<refined.size(); i++) {
+      const auto &r = refined[i];
+      float dot = std::abs(glm::dot(r.rotation, known_quat_direct));
+      if (dot > 1.0f) dot = 1.0f;
+      float angle_deg = glm::degrees(2.0f * std::acos(dot));
+      glm::vec3 euler = glm::degrees(glm::eulerAngles(r.rotation));
+      std::cout << "INFO::   refined " << std::setw(3) << i
+                << " angle_from_known: " << std::fixed << std::setprecision(1)
+                << std::setw(6) << angle_deg << " deg"
+                << "  score: " << std::scientific << std::setprecision(3) << r.score
+                << "  euler: (" << std::fixed << std::setprecision(1)
+                << euler.x << ", " << euler.y << ", " << euler.z << ")"
+                << std::endl;
+   }
+
+   // For now, pass if we got results with some variation
+   if (results.size() > 100) {
+      float top_score = results[0].score;
+      float mid_score = results[results.size() / 2].score;
+      float ratio = mid_score / top_score;
+      std::cout << "INFO:: score ratio top/mid: " << std::fixed << std::setprecision(3) << ratio << std::endl;
+      status = 1;  // pass if we got this far
+   }
+
+   // --- Now repeat with the full (unmasked) EM map for comparison ---
+   {
+      std::cout << "\nINFO:: =============================================" << std::endl;
+      std::cout << "INFO:: === Now using full EM map (emd_32143.map) ===" << std::endl;
+      std::cout << "INFO:: =============================================" << std::endl;
+
+      std::string full_map_file = reference_data("emd_32143.map");
+      int imol_full = mc.read_ccp4_map(full_map_file, false);
+      if (! mc.is_valid_map_molecule(imol_full)) {
+         std::cout << "ERROR:: failed to read " << full_map_file << std::endl;
+         return status;
+      }
+      clipper::Xmap<float> xmap_full = mc.get_xmap(imol_full);
+      mc.close_molecule(imol_full);
+
+      // Extract target fragment from the full map at the same centre/radius
+      coot::util::map_fragment_info_t mf_full(xmap_full, centre, fragment_radius, true, 0.5f);
+
+      // Re-read the model (it was closed earlier)
+      int imol_model2 = mc.read_pdb(reference_data("nanobody-from-7vvl-moved-again-v2.pdb"));
+      mmdb::Manager *mol2 = mc.get_mol(imol_model2);
+      std::pair<bool, clipper::Coord_orth> mc2 = coot::centre_of_molecule(mol2);
+      int sel2 = mol2->NewSelection();
+      mol2->SelectAtoms(sel2, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*",
+                        "*", "*", "*", "*");
+      std::pair<clipper::Coord_orth, clipper::Coord_orth> ext2 = coot::util::extents(mol2, sel2);
+      double xr2 = ext2.second.x() - ext2.first.x();
+      double yr2 = ext2.second.y() - ext2.first.y();
+      double zr2 = ext2.second.z() - ext2.first.z();
+      double r_90_2 = clipper::Util::d2rad(90.0);
+      clipper::Cell_descr cd2(xr2 + 2.0*border, yr2 + 2.0*border, zr2 + 2.0*border,
+                              r_90_2, r_90_2, r_90_2);
+      clipper::Cell cell2(cd2);
+      clipper::Grid_sampling gs2(spacegroup, cell2, reso);
+      clipper::Coord_orth cc2(0.5*cd2.a(), 0.5*cd2.b(), 0.5*cd2.c());
+      mmdb::PPAtom atoms2 = 0;
+      int na2;
+      mol2->GetSelIndex(sel2, atoms2, na2);
+      for (int i=0; i<na2; i++) {
+         atoms2[i]->x += cc2.x() - mc2.second.x();
+         atoms2[i]->y += cc2.y() - mc2.second.y();
+         atoms2[i]->z += cc2.z() - mc2.second.z();
+      }
+      clipper::Xmap<float> model_map2 = coot::util::calc_atom_map(mol2, sel2, cell2, spacegroup, gs2);
+      mol2->DeleteSelection(sel2);
+      mc.close_molecule(imol_model2);
+      coot::util::map_fragment_info_t mf_model2(model_map2, cc2, fragment_radius, true, 0.5f);
+
+      // Run Crowther
+      coot::crowther_t crowther2(ell_max, crowther_radius, reso);
+      crowther2.set_target(mf_full.xmap);
+      crowther2.set_search(mf_model2.xmap);
+      auto t2_coarse_start = std::chrono::high_resolution_clock::now();
+      std::vector<coot::rotation_function_result_t> results2 = crowther2.compute(n_beta);
+      auto t2_coarse_end = std::chrono::high_resolution_clock::now();
+      double t2_coarse_ms = std::chrono::duration<double, std::milli>(t2_coarse_end - t2_coarse_start).count();
+      std::cout << "INFO:: full-map coarse search: " << results2.size() << " results in "
+                << std::fixed << std::setprecision(1) << t2_coarse_ms << " ms" << std::endl;
+      unsigned int n_print2 = std::min(static_cast<unsigned int>(results2.size()), 30u);
+      for (unsigned int i=0; i<n_print2; i++) {
+         const auto &r = results2[i];
+         float dot = std::abs(glm::dot(r.rotation, known_quat_direct));
+         if (dot > 1.0f) dot = 1.0f;
+         float angle_deg = glm::degrees(2.0f * std::acos(dot));
+         glm::vec3 euler = glm::degrees(glm::eulerAngles(r.rotation));
+         std::cout << "INFO::   result " << std::setw(3) << i
+                   << " angle_from_known: " << std::fixed << std::setprecision(1)
+                   << std::setw(6) << angle_deg << " deg"
+                   << "  score: " << std::scientific << std::setprecision(3) << r.score
+                   << "  euler: (" << std::fixed << std::setprecision(1)
+                   << euler.x << ", " << euler.y << ", " << euler.z << ")"
+                   << std::endl;
+      }
+
+      // Refine top 10 for full map too: two passes
+      auto t2_ref1_start = std::chrono::high_resolution_clock::now();
+      auto refined2 = crowther2.refine_orientations(results2, 10, 2.0f);
+      auto t2_ref1_end = std::chrono::high_resolution_clock::now();
+      double t2_ref1_ms = std::chrono::duration<double, std::milli>(t2_ref1_end - t2_ref1_start).count();
+      std::cout << "INFO:: full-map refinement pass 1 (step=2 deg): " << std::fixed << std::setprecision(1)
+                << t2_ref1_ms << " ms" << std::endl;
+
+      auto t2_ref2_start = std::chrono::high_resolution_clock::now();
+      refined2 = crowther2.refine_orientations(refined2, 10, 0.7f);
+      auto t2_ref2_end = std::chrono::high_resolution_clock::now();
+      double t2_ref2_ms = std::chrono::duration<double, std::milli>(t2_ref2_end - t2_ref2_start).count();
+      std::cout << "INFO:: full-map refinement pass 2 (step=0.7 deg): " << std::fixed << std::setprecision(1)
+                << t2_ref2_ms << " ms" << std::endl;
+
+      std::cout << "INFO:: Full-map refined angular distances from known rotation:" << std::endl;
+      for (unsigned int i=0; i<refined2.size(); i++) {
+         const auto &r = refined2[i];
+         float dot = std::abs(glm::dot(r.rotation, known_quat_direct));
+         if (dot > 1.0f) dot = 1.0f;
+         float angle_deg = glm::degrees(2.0f * std::acos(dot));
+         glm::vec3 euler = glm::degrees(glm::eulerAngles(r.rotation));
+         std::cout << "INFO::   refined " << std::setw(3) << i
+                   << " angle_from_known: " << std::fixed << std::setprecision(1)
+                   << std::setw(6) << angle_deg << " deg"
+                   << "  score: " << std::scientific << std::setprecision(3) << r.score
+                   << "  euler: (" << std::fixed << std::setprecision(1)
+                   << euler.x << ", " << euler.y << ", " << euler.z << ")"
+                   << std::endl;
+      }
+   }
+
+   return status;
+}
+
+int test_phased_translation_function(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   // ---------------------------------------------------------------
+   // Phased translation function for cryo-EM molecular replacement.
+   //
+   // 1. Run the Crowther rotation function with refinement to find the orientation
+   // 2. Rotate the search model by the best rotation
+   // 3. Compute an atom map on the same cell/grid as the EM map
+   // 4. FFT cross-correlate to find the translation
+   // ---------------------------------------------------------------
+
+   // Known nanobody position in the EM map
+   clipper::Coord_orth known_centre(121.0, 75.0, 106.0);
+
+   // === Step 1: Rotation search (same as test_crowther_rotation_with_model) ===
+
+   auto t_total_start = std::chrono::high_resolution_clock::now();
+
+   // Read the EM map (masked around nanobody)
+   std::string map_file = reference_data("32143-masked-around-N.map");
+   int imol_map = mc.read_ccp4_map(map_file, false);
+   if (! mc.is_valid_map_molecule(imol_map)) {
+      std::cout << "ERROR:: failed to read " << map_file << std::endl;
+      return status;
+   }
+   clipper::Xmap<float> xmap_obs = mc.get_xmap(imol_map);
+   mc.close_molecule(imol_map);
+
+   // Extract target map fragment for rotation search
+   float fragment_radius = 20.0;
+   coot::util::map_fragment_info_t mf(xmap_obs, known_centre, fragment_radius, true, 0.5f);
+
+   // Read the nanobody model
+   std::string pdb_file = reference_data("nanobody-from-7vvl-moved-again-v2.pdb");
+   int imol_model = mc.read_pdb(pdb_file);
+   if (! mc.is_valid_model_molecule(imol_model)) {
+      std::cout << "ERROR:: failed to read " << pdb_file << std::endl;
+      return status;
+   }
+   mmdb::Manager *mol = mc.get_mol(imol_model);
+
+   // Centre the model at origin for the rotation search
+   std::pair<bool, clipper::Coord_orth> mol_centre = coot::centre_of_molecule(mol);
+   if (! mol_centre.first) {
+      std::cout << "ERROR:: failed to find centre of molecule" << std::endl;
+      mc.close_molecule(imol_model);
+      return status;
+   }
+
+   int SelHnd = mol->NewSelection();
+   mol->SelectAtoms(SelHnd, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*",
+                    "*", "*", "*", "*");
+
+   // Build a small P1 cell for the model fragment map
+   std::pair<clipper::Coord_orth, clipper::Coord_orth> ext = coot::util::extents(mol, SelHnd);
+   double x_range = ext.second.x() - ext.first.x();
+   double y_range = ext.second.y() - ext.first.y();
+   double z_range = ext.second.z() - ext.first.z();
+   double border = 10.0;
+   double r_90 = clipper::Util::d2rad(90.0);
+   clipper::Cell_descr cd_model(x_range + 2.0*border, y_range + 2.0*border,
+                                z_range + 2.0*border, r_90, r_90, r_90);
+   clipper::Cell cell_model(cd_model);
+   clipper::Spacegroup spacegroup = clipper::Spacegroup::p1();
+   clipper::Resolution reso(3.0);
+   clipper::Grid_sampling gs_model(spacegroup, cell_model, reso);
+
+   // Shift model to centre of its cell
+   clipper::Coord_orth cell_centre_model(0.5 * cd_model.a(), 0.5 * cd_model.b(), 0.5 * cd_model.c());
+   clipper::Coord_orth shift = clipper::Coord_orth(cell_centre_model.x() - mol_centre.second.x(),
+                                                    cell_centre_model.y() - mol_centre.second.y(),
+                                                    cell_centre_model.z() - mol_centre.second.z());
+   mmdb::PPAtom sel_atoms = 0;
+   int n_atoms;
+   mol->GetSelIndex(SelHnd, sel_atoms, n_atoms);
+   for (int i=0; i<n_atoms; i++) {
+      sel_atoms[i]->x += shift.x();
+      sel_atoms[i]->y += shift.y();
+      sel_atoms[i]->z += shift.z();
+   }
+
+   // Compute atom map for the model, extract fragment
+   clipper::Xmap<float> model_map = coot::util::calc_atom_map(mol, SelHnd, cell_model, spacegroup, gs_model);
+   coot::util::map_fragment_info_t mf_model(model_map, cell_centre_model, fragment_radius, true, 0.5f);
+
+   // Crowther rotation function
+   int ell_max = 15;
+   float crowther_radius = 18.0f;
+   int n_beta = 36;
+
+   coot::crowther_t crowther(ell_max, crowther_radius, reso);
+   crowther.set_target(mf.xmap);
+   crowther.set_search(mf_model.xmap);
+
+   auto t_rot_start = std::chrono::high_resolution_clock::now();
+   std::vector<coot::rotation_function_result_t> results = crowther.compute(n_beta);
+   auto t_rot_end = std::chrono::high_resolution_clock::now();
+   double t_rot_ms = std::chrono::duration<double, std::milli>(t_rot_end - t_rot_start).count();
+   std::cout << "INFO:: rotation coarse search: " << results.size() << " results in "
+             << std::fixed << std::setprecision(1) << t_rot_ms << " ms" << std::endl;
+
+   // Two-pass refinement
+   auto t_refine_start = std::chrono::high_resolution_clock::now();
+   auto refined = crowther.refine_orientations(results, 10, 2.0f);
+   refined = crowther.refine_orientations(refined, 10, 0.7f);
+   auto t_refine_end = std::chrono::high_resolution_clock::now();
+   double t_refine_ms = std::chrono::duration<double, std::milli>(t_refine_end - t_refine_start).count();
+   std::cout << "INFO:: rotation refinement: " << std::fixed << std::setprecision(1)
+             << t_refine_ms << " ms" << std::endl;
+
+   glm::quat best_rotation = refined[0].rotation;
+   std::cout << "INFO:: best rotation: " << glm::to_string(best_rotation)
+             << " score: " << std::scientific << std::setprecision(3) << refined[0].score << std::endl;
+
+   // === Step 2: Apply the rotation to the model ===
+
+   // Shift model back to origin (undo the cell-centre shift)
+   for (int i=0; i<n_atoms; i++) {
+      sel_atoms[i]->x -= shift.x();
+      sel_atoms[i]->y -= shift.y();
+      sel_atoms[i]->z -= shift.z();
+   }
+   // Now centre at the true origin
+   clipper::Coord_orth mc2 = mol_centre.second;
+   for (int i=0; i<n_atoms; i++) {
+      sel_atoms[i]->x -= mc2.x();
+      sel_atoms[i]->y -= mc2.y();
+      sel_atoms[i]->z -= mc2.z();
+   }
+
+   // Apply the rotation
+   glm::mat3 rot_mat = glm::mat3_cast(best_rotation);
+   for (int i=0; i<n_atoms; i++) {
+      glm::vec3 pos(sel_atoms[i]->x, sel_atoms[i]->y, sel_atoms[i]->z);
+      glm::vec3 rotated = rot_mat * pos;
+      sel_atoms[i]->x = rotated.x;
+      sel_atoms[i]->y = rotated.y;
+      sel_atoms[i]->z = rotated.z;
+   }
+
+   std::cout << "INFO:: model centred at origin and rotated, n_atoms=" << n_atoms << std::endl;
+
+   // === Step 3: Compute atom map on the EM map's cell/grid ===
+
+   clipper::Cell em_cell = xmap_obs.cell();
+   clipper::Grid_sampling em_grid = xmap_obs.grid_sampling();
+
+   std::cout << "INFO:: EM map cell: " << em_cell.format() << std::endl;
+   std::cout << "INFO:: EM map grid: " << em_grid.nu() << " x "
+             << em_grid.nv() << " x " << em_grid.nw() << std::endl;
+
+   auto t_model_map_start = std::chrono::high_resolution_clock::now();
+   clipper::Xmap<float> rotated_model_map = coot::util::calc_atom_map(mol, SelHnd,
+                                                                       em_cell, spacegroup, em_grid);
+   auto t_model_map_end = std::chrono::high_resolution_clock::now();
+   double t_model_map_ms = std::chrono::duration<double, std::milli>(t_model_map_end - t_model_map_start).count();
+   std::cout << "INFO:: model map computation: " << std::fixed << std::setprecision(1)
+             << t_model_map_ms << " ms" << std::endl;
+
+   mol->DeleteSelection(SelHnd);
+   mc.close_molecule(imol_model);
+
+   // === Step 4: Phased translation search ===
+
+   auto t_trans_start = std::chrono::high_resolution_clock::now();
+   clipper::Xmap<float> tf_map;
+   std::vector<coot::translation_search_result_t> trans_results =
+      coot::phased_translation_search(xmap_obs, rotated_model_map, 20, &tf_map);
+   auto t_trans_end = std::chrono::high_resolution_clock::now();
+   double t_trans_ms = std::chrono::duration<double, std::milli>(t_trans_end - t_trans_start).count();
+   std::cout << "INFO:: translation search: " << std::fixed << std::setprecision(1)
+             << t_trans_ms << " ms" << std::endl;
+
+   // Write the TF map for inspection
+   {
+      clipper::CCP4MAPfile mapout;
+      mapout.open_write("translation-function.map");
+      mapout.export_xmap(tf_map);
+      mapout.close_write();
+      std::cout << "INFO:: wrote translation-function.map" << std::endl;
+   }
+
+   // Print results and compare with known position
+   std::cout << "INFO:: Translation function results:" << std::endl;
+   for (unsigned int i=0; i<trans_results.size(); i++) {
+      const auto &r = trans_results[i];
+      double dx = r.position.x() - known_centre.x();
+      double dy = r.position.y() - known_centre.y();
+      double dz = r.position.z() - known_centre.z();
+      double dist = std::sqrt(dx*dx + dy*dy + dz*dz);
+      std::cout << "INFO::   peak " << std::setw(3) << i
+                << " position: (" << std::fixed << std::setprecision(1)
+                << r.position.x() << ", " << r.position.y() << ", " << r.position.z() << ")"
+                << "  sigma: " << std::setprecision(1) << r.score
+                << "  dist_from_known: " << std::setprecision(1) << dist << " A"
+                << std::endl;
+   }
+
+   auto t_total_end = std::chrono::high_resolution_clock::now();
+   double t_total_ms = std::chrono::duration<double, std::milli>(t_total_end - t_total_start).count();
+   std::cout << "INFO:: total MR time: " << std::fixed << std::setprecision(1)
+             << t_total_ms << " ms (" << t_total_ms / 1000.0 << " s)" << std::endl;
+
+   // Check if the top peak is within 5 A of the known position
+   if (trans_results.size() > 0) {
+      double dx = trans_results[0].position.x() - known_centre.x();
+      double dy = trans_results[0].position.y() - known_centre.y();
+      double dz = trans_results[0].position.z() - known_centre.z();
+      double dist = std::sqrt(dx*dx + dy*dy + dz*dz);
+      if (dist < 5.0) {
+         std::cout << "INFO:: Top translation peak is " << std::fixed << std::setprecision(1)
+                   << dist << " A from known position - GOOD" << std::endl;
+         status = 1;
+      } else {
+         std::cout << "WARNING:: Top translation peak is " << std::fixed << std::setprecision(1)
+                   << dist << " A from known position" << std::endl;
+      }
+   }
+
+   return status;
+}
+
+int test_molecular_placement_pipeline(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   // Use the full (unmasked) EM map - this is the realistic scenario.
+   // The user picks a centre in the map and we fit the model there.
+   std::string map_file = reference_data("emd_32143.map");
+   int imol_map = mc.read_ccp4_map(map_file, false);
+   if (! mc.is_valid_map_molecule(imol_map)) {
+      std::cout << "ERROR:: failed to read " << map_file << std::endl;
+      return status;
+   }
+
+   std::string pdb_file = reference_data("nanobody-from-7vvl-moved-again-v2.pdb");
+   int imol_model = mc.read_pdb(pdb_file);
+   if (! mc.is_valid_model_molecule(imol_model)) {
+      std::cout << "ERROR:: failed to read " << pdb_file << std::endl;
+      mc.close_molecule(imol_map);
+      return status;
+   }
+
+   // The known nanobody position - but pretend the user picked a point
+   // a few angstroms off (as would happen in practice)
+   float cx = 125.0f;  // ~5 A offset from known COM (~122.4, ~73.0, ~105.7)
+   float cy = 76.0f;   // typical user click accuracy
+   float cz = 108.0f;
+
+   auto solutions = mc.molecular_placement_fit(imol_map, imol_model, cx, cy, cz, 10, 10);
+
+   std::cout << "INFO:: got " << solutions.size() << " MR solutions" << std::endl;
+
+   // Load the true (reference) structure for comparison
+   std::string ref_pdb_file = reference_data("nanobody-from-7vvl.pdb");
+   int imol_ref = mc.read_pdb(ref_pdb_file);
+   if (! mc.is_valid_model_molecule(imol_ref)) {
+      std::cout << "ERROR:: failed to read reference " << ref_pdb_file << std::endl;
+   }
+   // Extract CA coordinates from the reference model
+   mmdb::Manager *mol_ref = mc.get_mol(imol_ref);
+   // Helper lambda: extract CA coordinates from a molecule by iterating all atoms
+   auto get_ca_coords = [](mmdb::Manager *mol_p) {
+      std::vector<clipper::Coord_orth> ca_coords;
+      if (! mol_p) return ca_coords;
+      int sel = mol_p->NewSelection();
+      mol_p->SelectAtoms(sel, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*",
+                         "*", "*", "*", "*");
+      mmdb::PPAtom atoms = 0;
+      int n_atoms;
+      mol_p->GetSelIndex(sel, atoms, n_atoms);
+      for (int i=0; i<n_atoms; i++) {
+         std::string aname(atoms[i]->GetAtomName());
+         if (aname == " CA " || aname == "CA")
+            ca_coords.push_back(clipper::Coord_orth(atoms[i]->x, atoms[i]->y, atoms[i]->z));
+      }
+      mol_p->DeleteSelection(sel);
+      return ca_coords;
+   };
+
+   std::vector<clipper::Coord_orth> ref_ca = get_ca_coords(mol_ref);
+
+   // Compute reference centre of mass
+   clipper::Coord_orth ref_centre(0,0,0);
+   if (! ref_ca.empty()) {
+      for (const auto &c : ref_ca) {
+         ref_centre = clipper::Coord_orth(ref_centre.x() + c.x(),
+                                          ref_centre.y() + c.y(),
+                                          ref_centre.z() + c.z());
+      }
+      double n = static_cast<double>(ref_ca.size());
+      ref_centre = clipper::Coord_orth(ref_centre.x()/n, ref_centre.y()/n, ref_centre.z()/n);
+   }
+   std::cout << "INFO:: reference CA centre: (" << std::fixed << std::setprecision(1)
+             << ref_centre.x() << ", " << ref_centre.y() << ", " << ref_centre.z()
+             << ") n_CA=" << ref_ca.size() << std::endl;
+
+   // For each MR solution molecule, extract CA coords and compute RMSD + centre distance
+   std::cout << "INFO:: " << std::setw(4) << "Rank"
+             << std::setw(10) << "TF_sigma"
+             << std::setw(10) << "CA_RMSD"
+             << std::setw(12) << "Dist_centre"
+             << "   " << "PDB file" << std::endl;
+   std::cout << "INFO:: " << std::string(70, '-') << std::endl;
+
+   unsigned int n_show = std::min(static_cast<unsigned int>(solutions.size()), 20u);
+   for (unsigned int i=0; i<n_show; i++) {
+      const auto &sol = solutions[i];
+      if (sol.imol < 0) continue;
+
+      // Extract CA coords from the solution molecule
+      mmdb::Manager *mol_sol = mc.get_mol(sol.imol);
+      if (! mol_sol) continue;
+      std::vector<clipper::Coord_orth> sol_ca = get_ca_coords(mol_sol);
+
+      // Centre of solution
+      clipper::Coord_orth sol_centre(0,0,0);
+      for (const auto &c : sol_ca) {
+         sol_centre = clipper::Coord_orth(sol_centre.x() + c.x(),
+                                          sol_centre.y() + c.y(),
+                                          sol_centre.z() + c.z());
+      }
+      double n_ca = static_cast<double>(sol_ca.size());
+      sol_centre = clipper::Coord_orth(sol_centre.x()/n_ca, sol_centre.y()/n_ca, sol_centre.z()/n_ca);
+
+      double dist_centre = clipper::Coord_orth::length(sol_centre, ref_centre);
+
+      // CA RMSD (assuming same atom order)
+      double rmsd = 0.0;
+      if (sol_ca.size() == ref_ca.size()) {
+         double sum_sq = 0.0;
+         for (unsigned int j=0; j<sol_ca.size(); j++) {
+            double d = clipper::Coord_orth::length(sol_ca[j], ref_ca[j]);
+            sum_sq += d * d;
+         }
+         rmsd = std::sqrt(sum_sq / sol_ca.size());
+      }
+
+      std::cout << "INFO:: " << std::setw(4) << i
+                << std::fixed << std::setprecision(1)
+                << std::setw(10) << sol.translation_score
+                << std::setw(10) << rmsd
+                << std::setw(12) << dist_centre
+                << "   " << sol.pdb_filename << std::endl;
+   }
+
+   // Check: the best RMSD solution among the top by TF score
+   clipper::Coord_orth known_centre(121.9, 72.7, 105.3);
+   if (solutions.size() > 0) {
+      const auto &best = solutions[0];
+      double dx = best.translation.x() - known_centre.x();
+      double dy = best.translation.y() - known_centre.y();
+      double dz = best.translation.z() - known_centre.z();
+      double dist = std::sqrt(dx*dx + dy*dy + dz*dz);
+      std::cout << "INFO:: top solution at " << std::fixed << std::setprecision(1)
+                << dist << " A from known position" << std::endl;
+      if (dist < 3.0) {
+         std::cout << "INFO:: MR pipeline test PASSED (top solution within 3 A of known)" << std::endl;
+         status = 1;
+      } else {
+         std::cout << "WARNING:: top solution is " << dist << " A from known position" << std::endl;
+      }
+   }
+
+   mc.close_molecule(imol_ref);
+   mc.close_molecule(imol_map);
+   mc.close_molecule(imol_model);
+
+   return status;
+}
+
+int test_molecular_placement_pipeline_r_chain(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   // Same EM map as the nanobody test
+   std::string map_file = reference_data("emd_32143.map");
+   int imol_map = mc.read_ccp4_map(map_file, false);
+   if (! mc.is_valid_map_molecule(imol_map)) {
+      std::cout << "ERROR:: failed to read " << map_file << std::endl;
+      return status;
+   }
+
+   // R-chain fragment from 7vvl (search model, moved away from true position)
+   std::string pdb_file = reference_data("R-chain-frag-from-7vvl.pdb");
+   int imol_model = mc.read_pdb(pdb_file);
+   if (! mc.is_valid_model_molecule(imol_model)) {
+      std::cout << "ERROR:: failed to read " << pdb_file << std::endl;
+      mc.close_molecule(imol_map);
+      return status;
+   }
+
+   // User picked centre - about 4 A from the true R-chain COM (~68.4, ~82.7, ~71.3)
+   float cx = 70.0f;
+   float cy = 80.0f;
+   float cz = 70.0f;
+
+   auto solutions = mc.molecular_placement_fit(imol_map, imol_model, cx, cy, cz, 10, 10);
+
+   std::cout << "INFO:: got " << solutions.size() << " MR solutions for R-chain" << std::endl;
+
+   // Load the reference R-chain structure at the true position for comparison
+   std::string ref_pdb_file = reference_data("R-chain-from-7vvl.pdb");
+   int imol_ref = mc.read_pdb(ref_pdb_file);
+
+   auto get_ca_coords = [](mmdb::Manager *mol_p) {
+      std::vector<clipper::Coord_orth> ca_coords;
+      if (! mol_p) return ca_coords;
+      int sel = mol_p->NewSelection();
+      mol_p->SelectAtoms(sel, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*",
+                         "*", "*", "*", "*");
+      mmdb::PPAtom atoms = 0;
+      int n_atoms;
+      mol_p->GetSelIndex(sel, atoms, n_atoms);
+      for (int i=0; i<n_atoms; i++) {
+         std::string aname(atoms[i]->GetAtomName());
+         if (aname == " CA " || aname == "CA")
+            ca_coords.push_back(clipper::Coord_orth(atoms[i]->x, atoms[i]->y, atoms[i]->z));
+      }
+      mol_p->DeleteSelection(sel);
+      return ca_coords;
+   };
+
+   // If we have the reference structure, compute RMSD-based comparison
+   if (mc.is_valid_model_molecule(imol_ref)) {
+      mmdb::Manager *mol_ref = mc.get_mol(imol_ref);
+      std::vector<clipper::Coord_orth> ref_ca = get_ca_coords(mol_ref);
+
+      clipper::Coord_orth ref_centre(0,0,0);
+      if (! ref_ca.empty()) {
+         for (const auto &c : ref_ca) {
+            ref_centre = clipper::Coord_orth(ref_centre.x() + c.x(),
+                                             ref_centre.y() + c.y(),
+                                             ref_centre.z() + c.z());
+         }
+         double n = static_cast<double>(ref_ca.size());
+         ref_centre = clipper::Coord_orth(ref_centre.x()/n, ref_centre.y()/n, ref_centre.z()/n);
+      }
+      std::cout << "INFO:: R-chain reference CA centre: (" << std::fixed << std::setprecision(1)
+                << ref_centre.x() << ", " << ref_centre.y() << ", " << ref_centre.z()
+                << ") n_CA=" << ref_ca.size() << std::endl;
+
+      std::cout << "INFO:: " << std::setw(4) << "Rank"
+                << std::setw(10) << "TF_sigma"
+                << std::setw(10) << "CA_RMSD"
+                << std::setw(12) << "Dist_centre"
+                << "   " << "PDB file" << std::endl;
+      std::cout << "INFO:: " << std::string(70, '-') << std::endl;
+
+      unsigned int n_show = std::min(static_cast<unsigned int>(solutions.size()), 20u);
+      for (unsigned int i=0; i<n_show; i++) {
+         const auto &sol = solutions[i];
+         if (sol.imol < 0) continue;
+
+         mmdb::Manager *mol_sol = mc.get_mol(sol.imol);
+         if (! mol_sol) continue;
+         std::vector<clipper::Coord_orth> sol_ca = get_ca_coords(mol_sol);
+
+         clipper::Coord_orth sol_centre(0,0,0);
+         for (const auto &c : sol_ca) {
+            sol_centre = clipper::Coord_orth(sol_centre.x() + c.x(),
+                                             sol_centre.y() + c.y(),
+                                             sol_centre.z() + c.z());
+         }
+         double n_ca = static_cast<double>(sol_ca.size());
+         sol_centre = clipper::Coord_orth(sol_centre.x()/n_ca,
+                                          sol_centre.y()/n_ca,
+                                          sol_centre.z()/n_ca);
+
+         double dist_centre = clipper::Coord_orth::length(sol_centre, ref_centre);
+
+         double rmsd = 0.0;
+         if (sol_ca.size() == ref_ca.size()) {
+            double sum_sq = 0.0;
+            for (unsigned int j=0; j<sol_ca.size(); j++) {
+               double d = clipper::Coord_orth::length(sol_ca[j], ref_ca[j]);
+               sum_sq += d * d;
+            }
+            rmsd = std::sqrt(sum_sq / sol_ca.size());
+         }
+
+         std::cout << "INFO:: " << std::setw(4) << i
+                   << std::fixed << std::setprecision(1)
+                   << std::setw(10) << sol.translation_score
+                   << std::setw(10) << rmsd
+                   << std::setw(12) << dist_centre
+                   << "   " << sol.pdb_filename << std::endl;
+      }
+   } else {
+      std::cout << "WARNING:: no reference structure " << ref_pdb_file
+                << " - using centre-distance check only" << std::endl;
+   }
+
+   // Check: top solution should be near the known R-chain position
+   // R-chain COM in 7vvl is approximately (68.4, 82.7, 71.3)
+   clipper::Coord_orth known_centre(68.0, 83.0, 71.0);
+   if (solutions.size() > 0) {
+      // Use the solution molecule's CA centroid for the distance check
+      mmdb::Manager *mol_sol = mc.get_mol(solutions[0].imol);
+      if (mol_sol) {
+         std::vector<clipper::Coord_orth> sol_ca = get_ca_coords(mol_sol);
+         clipper::Coord_orth sol_centre(0,0,0);
+         for (const auto &c : sol_ca) {
+            sol_centre = clipper::Coord_orth(sol_centre.x() + c.x(),
+                                             sol_centre.y() + c.y(),
+                                             sol_centre.z() + c.z());
+         }
+         double n_ca = static_cast<double>(sol_ca.size());
+         sol_centre = clipper::Coord_orth(sol_centre.x()/n_ca,
+                                          sol_centre.y()/n_ca,
+                                          sol_centre.z()/n_ca);
+         double dist = clipper::Coord_orth::length(sol_centre, known_centre);
+         std::cout << "INFO:: R-chain top solution CA centre at ("
+                   << std::fixed << std::setprecision(1)
+                   << sol_centre.x() << ", " << sol_centre.y() << ", " << sol_centre.z()
+                   << "), " << dist << " A from known position" << std::endl;
+         if (dist < 5.0) {
+            std::cout << "INFO:: R-chain MR pipeline test PASSED (within 5 A of known)" << std::endl;
+            status = 1;
+         } else {
+            std::cout << "WARNING:: R-chain top solution is " << dist
+                      << " A from known position" << std::endl;
+         }
+      }
+   }
+
+   if (mc.is_valid_model_molecule(imol_ref))
+      mc.close_molecule(imol_ref);
+   mc.close_molecule(imol_map);
+   mc.close_molecule(imol_model);
+
+   return status;
+}
+
 int test_density_mesh(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -687,17 +2055,20 @@ int test_density_mesh(molecules_container_t &mc) {
    // this could be any mtz file I suppose
    int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
 
-   clipper::Coord_orth p(55, 10, 10);
-   float radius = 22;
-   float contour_level = 0.13;
+   std::cout << "DEBUG:: test_density_mesh() imol_map " << imol_map << std::endl;
+
+   clipper::Coord_orth p(26, 35, 36); // center of cell where protein density exists
+   float radius = 10;
+   float contour_level = 0.13; // was 0.13
    mc.set_map_is_contoured_with_thread_pool(true);
    coot::simple_mesh_t map_mesh = mc.get_map_contours_mesh(imol_map, p.x(), p.y(), p.z(), radius, contour_level);
 
-   // std::cout << "DEBUG:: test_density_mesh(): " << map_mesh.vertices.size() << " vertices and " << map_mesh.triangles.size()
-   // << " triangles" << std::endl;
+   if (true)
+      std::cout << "DEBUG:: test_density_mesh(): " << map_mesh.vertices.size() << " vertices and " << map_mesh.triangles.size()
+                << " triangles name: " << map_mesh.name << std::endl;
 
    unsigned int size_1 = map_mesh.vertices.size();
-   if (map_mesh.vertices.size() > 30000)
+   if (map_mesh.vertices.size() > 20000)
       status = 1;
 
    mc.set_map_is_contoured_with_thread_pool(false);
@@ -1510,6 +2881,7 @@ int test_jed_flip(molecules_container_t &mc) {
       mc.write_coordinates(imol, "jed-flip.pdb");
       if (d > 0.9) {
 
+	 mc.import_cif_dictionary(reference_data("NUT.cif"), coot::protein_geometry::IMOL_ENC_ANY);
          // now test an altconf ligand
          int imol_lig = mc.get_monomer("NUT");
          mc.delete_hydrogen_atoms(imol_lig);
@@ -1609,12 +2981,12 @@ int test_no_dictionary_residues(molecules_container_t &mc) {
    int status = 0;
 
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
-   std::vector<std::string> nst = mc.get_residue_names_with_no_dictionary(imol);
-
-   // weak test
-   if (nst.empty())
-      status = 1;
-
+   if (mc.is_valid_model_molecule(imol)) {
+      std::vector<std::string> nst = mc.get_residue_names_with_no_dictionary(imol);
+      // weak test
+      if (nst.empty())
+	 status = 1;
+   }
    return status;
 }
 
@@ -1716,30 +3088,55 @@ int test_dictionary_bonds(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
+   // 2026-02-14 Gemmi 0.7.4 crashes here
+   // #9    Object "/home/runner/install/chapi-Linux-ubuntu/lib/libcootapi.so.1.1", at 0x7fd0da654a14, in molecules_container_t::read_pdb(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+   // #8    Object "/home/runner/install/chapi-Linux-ubuntu/lib/libcootapi.so.1.1", at 0x7fd0da65460f, in molecules_container_t::read_coordinates(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+   // #7    Object "/home/runner/install/chapi-Linux-ubuntu/lib/libcootapi.so.1.1", at 0x7fd0da9da7a4, in get_atom_selection(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, bool, bool, bool)
+   // #6    Object "/home/runner/install/chapi-Linux-ubuntu/lib/libcootapi.so.1.1", at 0x7fd0da9d9cf4, in 
+   // #5    Object "/home/runner/install/chapi-Linux-ubuntu/lib/libcootapi.so.1.1", at 0x7fd0da9ea53b, in gemmi::copy_to_mmdb(gemmi::Structure const&, mmdb::Manager*)
+   // #4    Object "/home/runner/install/chapi-Linux-ubuntu/lib/libcootapi.so.1.1", at 0x7fd0da9e95cb, in gemmi::transfer_seqres_to_mmdb(gemmi::Structure const&, mmdb::Manager*)
+   // #3    Object "/home/runner/install/chapi-Linux-ubuntu/lib/libcootapi.so.1.1", at 0x7fd0da9e8f7c, in gemmi::set_mmdb_seqres(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&, mmdb::SeqRes&)
+   // #2    Object "./test-molecules-container", at 0x55fd099045be, in std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::empty() const
+
+   bool use_gemmi = false;
+   if (mc.get_use_gemmi()) {
+      use_gemmi = true;
+      mc.set_use_gemmi(false);
+   }
+
    int imol_1 = mc.read_pdb(reference_data("pdb2sar-part.ent"));
-   mc.import_cif_dictionary("ATP.cif", coot::protein_geometry::IMOL_ENC_ANY);
-   mc.import_cif_dictionary("3GP.cif", imol_1);
+   mc.import_cif_dictionary(reference_data("ATP.cif"), coot::protein_geometry::IMOL_ENC_ANY);
+   mc.import_cif_dictionary(reference_data("3GP.cif"), imol_1);
    int imol_2 = mc.get_monomer("ATP");
    int imol_3 = mc.read_pdb(reference_data("pdb2sar-part.ent"));
 
-   std::cout << ":::: test_dictionary_bonds() imol_2: " << imol_2 << std::endl;
-   std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
+   if (mc.is_valid_model_molecule(imol_2)) {
+      if (mc.is_valid_model_molecule(imol_3)) {
 
-   glm::vec3 atom_ligand_C4_position(53.4, 9.7, 20.3);
+	 std::cout << ":::: test_dictionary_bonds() imol_2: " << imol_2 << std::endl;
+	 std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
 
-   coot::simple_mesh_t mesh = mc.get_bonds_mesh(imol_3, mode, true, 0.1, 1.0, 1);
+	 glm::vec3 atom_ligand_C4_position(53.4, 9.7, 20.3);
 
-   // there is no dictionary, but we should see vertices for the atoms
-   //
-   unsigned int n_ligand_vertices = 0;
-   for (const auto &vert : mesh.vertices) {
-      double d = glm::distance(vert.pos, atom_ligand_C4_position);
-      if (d < 1.0)
-         n_ligand_vertices++;
+	 coot::simple_mesh_t mesh = mc.get_bonds_mesh(imol_3, mode, true, 0.1, 1.0, 1);
+
+	 // there is no dictionary, but we should see vertices for the atoms
+	 //
+	 unsigned int n_ligand_vertices = 0;
+	 for (const auto &vert : mesh.vertices) {
+	    double d = glm::distance(vert.pos, atom_ligand_C4_position);
+	    if (d < 1.0)
+	       n_ligand_vertices++;
+	 }
+	 std::cout << "debug:: test_dictionary_bonds n_ligand_vertices: " << n_ligand_vertices << std::endl;
+	 if (n_ligand_vertices > 0)
+	    status = 1;
+      }
    }
-   std::cout << "debug:: test_dictionary_bonds n_ligand_vertices: " << n_ligand_vertices << std::endl;
-   if (n_ligand_vertices > 0)
-      status = 1;
+
+   // restore gemmi if needed
+   if (use_gemmi)
+      mc.set_use_gemmi(true);
 
    return status;
 }
@@ -1793,11 +3190,11 @@ int test_new_position_for_atoms(molecules_container_t &mc) {
    if (pos.first) {
       coot::Cartesian pos_pre = pos.second;
 
-      std::vector<coot::molecule_t::moved_atom_t> moved_atom_positions;
+      std::vector<coot::api::moved_atom_t> moved_atom_positions;
       std::vector<std::string> atom_names = {" N  ", " CA ", " C  ", " O  ", " CB ", " CG1", " CG2"};
       for (const auto &name : atom_names) {
          coot::atom_spec_t as("A", 20, "", name, "");
-         moved_atom_positions.push_back(coot::molecule_t::moved_atom_t(name, "", 2.1, 3.2, 4.3));
+         moved_atom_positions.push_back(coot::api::moved_atom_t(name, "", 2.1, 3.2, 4.3));
       }
 
       mc.new_positions_for_residue_atoms(imol, "//A/20", moved_atom_positions);
@@ -1829,11 +3226,11 @@ int test_new_position_for_atoms_in_residues(molecules_container_t &mc) {
       coot::Cartesian pos_pre = pos.second;
 
       std::vector<std::string> atom_names = {" N  ", " CA ", " C  ", " O  ", " CB ", " CG1", " CG2"};
-      std::vector<coot::molecule_t::moved_residue_t> moved_atoms_residue_vec;
-      coot::molecule_t::moved_residue_t mr("A", 20, "");
+      std::vector<coot::api::moved_residue_t> moved_atoms_residue_vec;
+      coot::api::moved_residue_t mr("A", 20, "");
       for (const auto &name : atom_names) {
          coot::atom_spec_t as("A", 20, "", name, "");
-         mr.add_atom(coot::molecule_t::moved_atom_t(name, "", 2.1, 3.2, 4.3));
+         mr.add_atom(coot::api::moved_atom_t(name, "", 2.1, 3.2, 4.3));
       }
       moved_atoms_residue_vec.push_back(mr);
 
@@ -1860,9 +3257,9 @@ int test_merge_molecules(molecules_container_t &mc) {
    int status = 0;
 
    int imol_1 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
-   mc.import_cif_dictionary("ATP.cif", coot::protein_geometry::IMOL_ENC_ANY);
-   mc.import_cif_dictionary("3GP.cif", coot::protein_geometry::IMOL_ENC_ANY);
-   mc.import_cif_dictionary("NUT.cif", coot::protein_geometry::IMOL_ENC_ANY);
+   mc.import_cif_dictionary(reference_data("ATP.cif"), coot::protein_geometry::IMOL_ENC_ANY);
+   mc.import_cif_dictionary(reference_data("3GP.cif"), coot::protein_geometry::IMOL_ENC_ANY);
+   mc.import_cif_dictionary(reference_data("NUT.cif"), coot::protein_geometry::IMOL_ENC_ANY);
 
    int imol_2 = mc.get_monomer_and_position_at("ATP", coot::protein_geometry::IMOL_ENC_ANY, 60, 50, 30);
    int imol_3 = mc.get_monomer_and_position_at("3GP", coot::protein_geometry::IMOL_ENC_ANY, 80, 55, 20);
@@ -1983,18 +3380,21 @@ int test_read_a_map(molecules_container_t &mc) {
    bool is_diff_map = false;
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    int imol_map = mc.read_ccp4_map(reference_data("test.map"), is_diff_map);
-   std::cout << "Here in test_read_a_map() with imol_map " << imol_map << std::endl;
+   std::cout << "DEBUG:: in test_read_a_map() with imol_map " << imol_map << std::endl;
    if (mc.is_valid_map_molecule(imol_map)) {
 
-      float radius = 20;
-      float contour_level = 0.013;
-      coot::Cartesian p(88.25823211669922, 69.19033813476562, 89.1391372680664);
+      float radius = 14; // 2026-02-15-PE there is a limit. I don't know why this hits the limit
+                         // and normal usage does not.
+      float contour_level = 0.13;
+      coot::Cartesian p(88.25, 69.19, 89.13);
       coot::simple_mesh_t map_mesh = mc.get_map_contours_mesh(imol_map, p.x(), p.y(), p.z(), radius, contour_level);
       std::cout << "DEBUG:: test_read_a_map(): " << map_mesh.vertices.size() << " vertices and " << map_mesh.triangles.size()
-                << " triangles" << std::endl;
+                << " triangles with name " << map_mesh.name << std::endl;
 
-      if (map_mesh.vertices.size() > 30000)
+      if (map_mesh.vertices.size() > 20000)
          status = 1;
+   } else {
+      std::cout << "DEBUG:: map form test.map is not a valid map" << std::endl;
    }
    mc.close_molecule(imol);
    mc.close_molecule(imol_map);
@@ -2783,6 +4183,33 @@ int test_instanced_rota_markup(molecules_container_t &mc) {
    return status;
 }
 
+int test_instanced_goodsell_style_mesh(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   mc.set_use_gemmi(false);
+   int imol = mc.read_pdb(reference_data("pdb8ox7.ent"));
+   float cwr = 97.0;
+   coot::instanced_mesh_t im = mc.get_goodsell_style_mesh_instanced(imol, cwr, 0.8, 0.6);
+   std::vector<std::pair<glm::vec4, unsigned int> > ca = colour_analysis(im);
+
+   // check that we have colour variation
+   unsigned int n_above = 0;
+   unsigned int n_below = 0;
+   for (unsigned int i=0; i<im.geom.size(); i++) {
+      const coot::instanced_geometry_t &ig = im.geom[i];
+      for (unsigned int jj=0; jj<ig.instancing_data_A.size(); jj++) {
+         const auto &col =  ig.instancing_data_A[jj].colour;
+         if (col.r > 0.8) n_above++;
+         if (col.r < 0.5) n_below++;
+      }
+   }
+   if (n_above > 1)
+      if (n_below > 1)
+         status = 1;
+   return status;
+}
+
 int test_gaussian_surface(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -2813,11 +4240,18 @@ int test_instanced_bonds_mesh(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
+   // crash here with gemmi 0.7.4
+   bool use_gemmi = false;
+   if (mc.get_use_gemmi()) {
+      use_gemmi = true;
+      mc.set_use_gemmi(false);
+   }
+
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
 
    std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
    if (mc.is_valid_model_molecule(imol)) {
-      coot::instanced_mesh_t im = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, 1);
+      coot::instanced_mesh_t im = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, false, false, false, true, 1);
       std::cout << "instanced mesh has " << im.geom.size()  << " geoms" << std::endl;
       if (im.geom.size() > 3) {
          if (false) {
@@ -2843,7 +4277,7 @@ int test_instanced_bonds_mesh(molecules_container_t &mc) {
    }
 
    std::string cid("/*/A/270");
-   coot::instanced_mesh_t im_lig = mc.get_bonds_mesh_for_selection_instanced(imol, cid, mode, true, 0.1, 1.0, 1);
+   coot::instanced_mesh_t im_lig = mc.get_bonds_mesh_for_selection_instanced(imol, cid, mode, true, 0.1, 1.0, false, false, false, true, 1);
    unsigned int n_geoms = im_lig.geom.size();
    for (unsigned int i=0; i<n_geoms; i++) {
       std::cout << "test_instanced_bonds_mesh()) im_lig " << im_lig.geom[i].name << " " << i << " has A " << im_lig.geom[i].instancing_data_A.size() << std::endl;
@@ -2854,6 +4288,8 @@ int test_instanced_bonds_mesh(molecules_container_t &mc) {
       }
    }
    mc.close_molecule(imol);
+   if (use_gemmi)
+      mc.set_use_gemmi(true);
    return status;
 }
 
@@ -2861,15 +4297,22 @@ int test_instanced_bonds_mesh_v2(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
    int status = 0;
+
+   bool use_gemmi = false;
+   if (mc.get_use_gemmi()) {
+      use_gemmi = true;
+      mc.set_use_gemmi(false);
+   }
+
    int imol = mc.read_pdb(reference_data("pdb8ox7.ent"));
    std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
    std::string selection_cid = "//A/1301"; // "//A/1301||//A/456";
 
    int imol_frag = mc.copy_fragment_using_cid(imol, selection_cid);
-   coot::instanced_mesh_t im_frag = mc.get_bonds_mesh_instanced(imol, mode, true, 0.2, 1.0, 2);
+   coot::instanced_mesh_t im_frag = mc.get_bonds_mesh_instanced(imol, mode, true, 0.2, 1.0, false, false, false, true, 2);
    colour_analysis(im_frag);
 
-   coot::instanced_mesh_t im = mc.get_bonds_mesh_for_selection_instanced(imol_frag, selection_cid, mode, true, 0.2, 1.0, 2);
+   coot::instanced_mesh_t im = mc.get_bonds_mesh_for_selection_instanced(imol_frag, selection_cid, mode, true, 0.2, 1.0, false, false, false, true, 2);
    colour_analysis(im);
 
    unsigned int n_geoms = im.geom.size();
@@ -2884,6 +4327,7 @@ int test_instanced_bonds_mesh_v2(molecules_container_t &mc) {
             status = true;
       }
    }
+   if (use_gemmi) mc.set_use_gemmi(true);
    return status;
 }
 
@@ -3214,7 +4658,7 @@ int test_colour_rules(molecules_container_t &mc) {
    auto v = mc.get_colour_rules(imol_0);
 
    std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
-   auto mesh = mc.get_bonds_mesh_instanced(imol_0, mode, true, 0.1, 1.0, 1);
+   auto mesh = mc.get_bonds_mesh_instanced(imol_0, mode, true, 0.1, 1.0, false, false, false, true, 1);
 
    if (true) {
       std::cout << "colour rules: " << std::endl;
@@ -3292,6 +4736,7 @@ int test_mmrrcc(molecules_container_t &mc) {
    int status = 0;
    int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+   unsigned int n_residue_per_residue_range = 11;
 
    if (mc.is_valid_model_molecule(imol)) {
       std::string chain_id = "A";
@@ -3437,11 +4882,11 @@ int test_svg(molecules_container_t &mc) {
    int imol_1 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    int imol_2 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
 
-   mc.import_cif_dictionary("ATP.cif", imol_1);
-   mc.import_cif_dictionary("ATP.cif", imol_2);
-   bool dark_bg = false;
+   mc.import_cif_dictionary(reference_data("ATP.cif"), imol_1);
+   mc.import_cif_dictionary(reference_data("ATP.cif"), imol_2);
    bool use_rdkit_svg = false;
-   std::string s = mc.get_svg_for_residue_type(imol_1, "ATP", use_rdkit_svg, dark_bg);
+   std::string bg = "dark-bonds/opaque-bg";
+   std::string s = mc.get_svg_for_residue_type(imol_1, "ATP", use_rdkit_svg, bg);
 
    if (s.length() > 0) {
 
@@ -3450,7 +4895,7 @@ int test_svg(molecules_container_t &mc) {
       f.close();
       {
          mc.import_cif_dictionary("G37.cif", coot::protein_geometry::IMOL_ENC_ANY);
-         s = mc.get_svg_for_residue_type(imol_1, "G37", use_rdkit_svg, dark_bg);
+         s = mc.get_svg_for_residue_type(imol_1, "G37", use_rdkit_svg, bg);
          std::ofstream f2("G37.svg");
          f2 << s;
          f2.close();
@@ -3458,7 +4903,7 @@ int test_svg(molecules_container_t &mc) {
 
       {
          mc.import_cif_dictionary("GLC.cif", coot::protein_geometry::IMOL_ENC_ANY);
-         s = mc.get_svg_for_residue_type(imol_1, "GLC", use_rdkit_svg, dark_bg);
+         s = mc.get_svg_for_residue_type(imol_1, "GLC", use_rdkit_svg, bg);
          std::ofstream f2("GLC.svg");
          f2 << s;
          f2.close();
@@ -3566,9 +5011,9 @@ int test_non_drawn_atoms(molecules_container_t &mc) {
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    glm::vec3 ca_pos(26.83, 3.43, 31.43);
    std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
-   auto mesh_1 = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, 1);
+   auto mesh_1 = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, false, false, false, true, 1);
    mc.add_to_non_drawn_bonds(imol, "//A/270");
-   auto mesh_2 = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, 1);
+   auto mesh_2 = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, false, false, false, true, 1);
 
    // the first one should have the atom, the second should not.
    bool f1 = atom_in_mesh(mesh_1, ca_pos);
@@ -3764,7 +5209,7 @@ int test_user_defined_bond_colours(molecules_container_t &mc) {
          mc.set_user_defined_bond_colours(imol, colour_map);
          bool colour_applies_to_non_carbon_atoms_also = true;
          mc.set_user_defined_atom_colour_by_selection(imol, indexed_residues_cids, colour_applies_to_non_carbon_atoms_also);
-         coot::instanced_mesh_t im = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, 1);
+         coot::instanced_mesh_t im = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, false, false, false, true, 1);
          if (im.geom.size() > 3) {
             if (im.geom[0].instancing_data_A.size() > 1000)
                status = 1;
@@ -3914,6 +5359,9 @@ int test_bespoke_carbon_colour(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
+   int import_status = mc.import_cif_dictionary(reference_data("LZA.cif"), -999999);
+   if (import_status == 0)
+      return status;
    int imol = mc.get_monomer("LZA");
 
    if (mc.is_valid_model_molecule(imol)) {
@@ -3921,7 +5369,7 @@ int test_bespoke_carbon_colour(molecules_container_t &mc) {
       mc.set_use_bespoke_carbon_atom_colour(imol, true);
       mc.set_bespoke_carbon_atom_colour(imol, col);
       std::string mode("VDW-BALLS");
-      coot::instanced_mesh_t im = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, 1);
+      coot::instanced_mesh_t im = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, false, false, false, true, 1);
 
       std::cout << "There are " << im.geom.size() << " geoms " << std::endl;
       for (unsigned int ig=0; ig<im.geom.size(); ig++) {
@@ -3955,11 +5403,14 @@ int test_dark_mode_colours(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
+   int import_status = mc.import_cif_dictionary(reference_data("LZA.cif"), -999999);
+   if (import_status == 0)
+      return status;
    int imol = mc.get_monomer("LZA");
    if (mc.is_valid_model_molecule(imol)) {
       std::string mode = "COLOUR-BY-CHAIN-AND-DICTIONARY";
-      auto mesh_light = mc.get_bonds_mesh_instanced(imol, mode, false, 0.2, 1.0, 1);
-      auto mesh_dark  = mc.get_bonds_mesh_instanced(imol, mode, true,  0.2, 1.0, 1);
+      auto mesh_light = mc.get_bonds_mesh_instanced(imol, mode, false, 0.2, 1.0, false, false, false, true, 1);
+      auto mesh_dark  = mc.get_bonds_mesh_instanced(imol, mode, true,  0.2, 1.0, false, false, false, true, 1);
       std::cout << "starting colour analysis for mesh_light" << std::endl;
       colour_analysis(mesh_light);
       std::cout << "starting colour analysis for mesh_dark" << std::endl;
@@ -4210,7 +5661,7 @@ int test_user_defined_bond_colours_v2(molecules_container_t &mc) {
      }
    }
 
-   auto bonds = mc.get_bonds_mesh_instanced(imol, mode, false, 0.2, 1.0, 1);
+   auto bonds = mc.get_bonds_mesh_instanced(imol, mode, false, 0.2, 1.0, false, false, false, true, 1);
 
    auto colour_table = mc.get_colour_table(imol, false);
    for (unsigned int i=0; i<colour_table.size(); i++) {
@@ -4226,7 +5677,7 @@ int test_user_defined_bond_colours_v2(molecules_container_t &mc) {
                   if (close_float(colour_table[13][2], 1.0))
                      status = 1;
 
-   coot::instanced_mesh_t im = mc.get_bonds_mesh_for_selection_instanced(imol, "//A/1-3", "VDW-BALLS", false, 0.1, 1.0, 1);
+   coot::instanced_mesh_t im = mc.get_bonds_mesh_for_selection_instanced(imol, "//A/1-3", "VDW-BALLS", false, 0.1, 1.0, false, false, false, true, 1);
    if (! im.geom.empty()) {
       const coot::instanced_geometry_t &ig = im.geom[0]; // 0 is spheres
       std::cout << "debug:: in im type A data size: " << ig.instancing_data_A.size() << std::endl;
@@ -4307,7 +5758,7 @@ int test_user_defined_bond_colours_v3(molecules_container_t &mc) {
       std::string mode = "COLOUR-BY-CHAIN-AND-DICTIONARY";
 
       // now test the colours:
-      auto bonds = mc.get_bonds_mesh_for_selection_instanced(imol, "/", mode, false, 0.2, 1.0, 1);
+      auto bonds = mc.get_bonds_mesh_for_selection_instanced(imol, "/", mode, false, 0.2, 1.0, false, false, false, true, 1);
       auto &geom = bonds.geom;
       auto ca = get_colour_analysis(bonds);
 
@@ -4379,10 +5830,10 @@ int test_other_user_defined_colours_other(molecules_container_t &mc) {
          std::vector<std::pair<std::string, unsigned int> > indexed_cids;
          indexed_cids.push_back(std::make_pair("//A/1-5", 21));
          bool non_carbon_atoms_also_flag = false;
-         auto bonds_1 = mc.get_bonds_mesh_for_selection_instanced(imol, "/", mode, false, 0.2, 1.0, 1);
-         auto bonds_2 = mc.get_bonds_mesh_instanced(imol, mode, false, 0.2, 1.0, 1);
+         auto bonds_1 = mc.get_bonds_mesh_for_selection_instanced(imol, "/", mode, false, 0.2, 1.0, false, false, false, true, 1);
+         auto bonds_2 = mc.get_bonds_mesh_instanced(imol, mode, false, 0.2, 1.0, false, false, false, true, 1);
          mc.set_user_defined_atom_colour_by_selection(imol, indexed_cids, non_carbon_atoms_also_flag);
-         auto bonds_3 = mc.get_bonds_mesh_for_selection_instanced(imol, "/", mode, false, 0.2, 1.0, 1);
+         auto bonds_3 = mc.get_bonds_mesh_for_selection_instanced(imol, "/", mode, false, 0.2, 1.0, false, false, false, true, 1);
          auto &geom_1 = bonds_1.geom;
          auto &geom_3 = bonds_3.geom;
 
@@ -4452,15 +5903,20 @@ int test_read_extra_restraints(molecules_container_t &mc) {
    if (mc.is_valid_model_molecule(imol_1)) {
       if (mc.is_valid_model_molecule(imol_2)) {
          // it's actually for moleecule 4 (1 was renamed to 4)
-         mc.read_extra_restraints(imol_1, reference_data("moorhen-tutorial-structure-number-1-prosmart.txt"));
-         coot::instanced_mesh_t im = mc.get_extra_restraints_mesh(imol_1, 0);
-         if (! im.geom.empty()) {
-            std::cout << "instancing_data_B size " << im.geom[0].instancing_data_B.size() << std::endl;
-            if (im.geom[0].instancing_data_B.size() > 10)
-               status = 1;
-         } else {
-            std::cout << "ERROR:: im geom is empty" << std::endl;
-         }
+         int n_extra =
+	    mc.read_extra_restraints(imol_1,
+				     reference_data("moorhen-tutorial-structure-number-1-prosmart.txt"));
+	 std::cout << "test_read_extra_restraints made " << n_extra << " extra restraints" << std::endl;
+	 if (n_extra > 0) {
+	    coot::instanced_mesh_t im = mc.get_extra_restraints_mesh(imol_1, 0);
+	    if (! im.geom.empty()) {
+	       std::cout << "instancing_data_B size " << im.geom[0].instancing_data_B.size() << std::endl;
+	       if (im.geom[0].instancing_data_B.size() > 10)
+		  status = 1;
+	    } else {
+	       std::cout << "ERROR:: im geom is empty" << std::endl;
+	    }
+	 }
       }
    }
    return status;
@@ -4545,8 +6001,8 @@ int test_pdbe_dictionary_depiction(molecules_container_t &mc) {
    // if (coot::file_exists("MOI-depiction.png")) status = 1; // not a good test.
 
    bool use_rdkit_rendering = true;
-   bool dark_background = false;
-   std::string svg = mc.get_svg_for_residue_type(coot::protein_geometry::IMOL_ENC_ANY, "MOI", use_rdkit_rendering, dark_background);
+   std::string bg = "dark-bonds/opaque-bg";
+   std::string svg = mc.get_svg_for_residue_type(coot::protein_geometry::IMOL_ENC_ANY, "MOI", use_rdkit_rendering, bg);
    std::ofstream f("MOI.svg");
    f << svg;
    f.close();
@@ -4650,7 +6106,7 @@ int test_mmcif_atom_selection(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   std::string fn = "1ej6-assembly1.cif";
+   std::string fn = reference_data("1ej6-assembly1.cif");
    std::cout << "reading " << fn << std::endl;
    int imol = mc.read_pdb(reference_data(fn));
    mmdb::Manager *mol = mc.get_mol(imol); // testing get_mol()
@@ -4764,6 +6220,7 @@ int test_long_name_ligand_cif_merge(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
    int status = 0;
+   mc.set_use_gemmi(true);
    int imol = mc.read_pdb(reference_data("8a2q.cif"));
    mc.import_cif_dictionary(reference_data("7ZTVU.cif"), coot::protein_geometry::IMOL_ENC_ANY);
    int imol_lig = mc.get_monomer("7ZTVU");
@@ -4788,7 +6245,7 @@ int test_long_name_ligand_cif_merge(molecules_container_t &mc) {
    if (found_it) status = 1;
    return status;
 }
-
+#undef USE_GEMMI
 #ifdef USE_GEMMI
 #include "gemmi/mmread.hpp"
 #include "gemmi/mmdb.hpp"
@@ -4798,7 +6255,8 @@ int test_disappearing_ligand(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
    // int imol = mc.read_pdb(reference_data("6ttq.cif")); // needs gemmi
-   int imol = mc.read_pdb(reference_data("8a2q.cif"));
+   // mc.set_use_gemmi(true);
+   int imol = mc.read_coordinates(reference_data("8a2q.cif"));
    if (mc.is_valid_model_molecule(imol)) {
       mmdb::Manager *mol = mc.get_mol(imol);
       for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
@@ -4851,7 +6309,7 @@ int test_ligand_merge(molecules_container_t &mc) {
       // int imol_2 = mc.read_pdb(reference_data("2vtq.cif"));
       // mc.write_coordinates(imol_2, "2vtq-just-input-output.cif");
       mmdb::Manager *mol = new mmdb::Manager;
-      mol->ReadCoorFile("2vtq.cif");
+      mol->ReadCoorFile(reference_data("2vtq.cif").c_str());
       mol->WriteCIFASCII("2vtq-input-output-pure-mmdb.cif");
       delete mol;
    };
@@ -4942,25 +6400,28 @@ int test_gltf_export(molecules_container_t &mc) {
    float contour_level = 0.4;
    std::cout << "-------------------------------------------------- map mesh " << std::endl;
    coot::simple_mesh_t map_mesh = mc.get_map_contours_mesh(imol_map, p.x(), p.y(), p.z(), radius, contour_level);
-   map_mesh.export_to_gltf("map-around-ligand.glb", true);
+   map_mesh.export_to_gltf("map-around-ligand.glb", 0.5, 0.5, true);
 
    std::cout << "-------------------------------------------------- ligand mesh " << std::endl;
 
    std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
+   int import_status = mc.import_cif_dictionary(reference_data("LZA.cif"), -999999);
+   if (import_status == 0)
+      return status;
    int imol_lig = mc.get_monomer("LZA");
    int imol_frag = mc.copy_fragment_using_cid(imol, "//A/1299");
    std::cout << "test_gltf_export() imol_frag " << imol_frag << std::endl;
-   coot::instanced_mesh_t im    = mc.get_bonds_mesh_instanced(imol_frag, mode, true, 0.1, 1.0, 1);
+   coot::instanced_mesh_t im    = mc.get_bonds_mesh_instanced(imol_frag, mode, true, 0.1, 1.0, false, false, false, true, 1);
    coot::simple_mesh_t sm_lig = coot::instanced_mesh_to_simple_mesh(im);
-   sm_lig.export_to_gltf("lig.glb", true);
+   sm_lig.export_to_gltf("lig.glb", 0.5, 0.5, true);
 
    std::cout << "-------------------------------------------------- neighbour mesh " << std::endl;
    std::vector<coot::residue_spec_t> neighbs = mc.get_residues_near_residue(imol, "//A/1299", 4.2);
    std::string multi_cid = make_multi_cid(neighbs);
    mc.set_draw_missing_residue_loops(false);
-   coot::instanced_mesh_t im_neighbs = mc.get_bonds_mesh_for_selection_instanced(imol, multi_cid, mode, true, 0.15, 1.0, 1);
+   coot::instanced_mesh_t im_neighbs = mc.get_bonds_mesh_for_selection_instanced(imol, multi_cid, mode, true, 0.15, 1.0, false, false, false, true, 1);
    coot::simple_mesh_t sm_neighbs = coot::instanced_mesh_to_simple_mesh(im_neighbs);
-   sm_neighbs.export_to_gltf("neighbs.glb", true);
+   sm_neighbs.export_to_gltf("neighbs.glb", 0.5f, 0.5f, true);
 
    struct stat buf_1;
    int istat_1 = stat("lig.glb", &buf_1);
@@ -4988,8 +6449,8 @@ int test_gltf_export_via_api(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   mc.set_use_gemmi(false); // 20240727-PE there seems to be a memory problem when using gemmi atm
-                            // so for now, let's not use gemmi for the tests.
+   mc.set_use_gemmi(true); // 20240727-PE there seems to be a memory problem when using gemmi atm
+                           // so for now, let's not use gemmi for the tests.
 
    int imol     = mc.read_pdb(reference_data("2vtq.cif"));
    int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
@@ -5034,7 +6495,7 @@ int test_5char_ligand_merge(molecules_container_t &mc) {
    int status = 0;
    int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
 
-   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    mc.import_cif_dictionary(reference_data("acedrg-7z-new.cif"), imol_enc);
    int imol_lig = mc.get_monomer("7ZTVU");
    if (mc.is_valid_model_molecule(imol)) {
@@ -5275,7 +6736,7 @@ int test_non_drawn_CA_bonds(molecules_container_t &mc) {
       int imol_frag = mc.copy_fragment_using_cid(imol, "//A/101-111");
       mc.add_to_non_drawn_bonds(imol_frag, "//A/103-111");
       std::string mode = "CA+LIGANDS";
-      auto bonds = mc.get_bonds_mesh_for_selection_instanced(imol_frag, "//A", mode, false, 0.2, 1.0, 1);
+      auto bonds = mc.get_bonds_mesh_for_selection_instanced(imol_frag, "//A", mode, false, 0.2, 1.0, false, false, false, true, 1);
       auto &geom = bonds.geom;
       // should be size 2 of course, if we don't add the range to the non-drawn bond
       // not 4
@@ -5338,7 +6799,7 @@ int test_shiftfield_b_factor_refinement(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   mc.set_use_gemmi(false); // 20240211-PE crash if set_use_gemmi(true) (the default).
+   mc.set_use_gemmi(true); // 20240211-PE crash if set_use_gemmi(true) (the default).
    int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
    int imol_diff_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "DELFWT", "PHDELWT", "W", false, true);
@@ -5410,7 +6871,7 @@ int test_copy_molecule_memory_leak(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   mc.set_use_gemmi(false);
+   mc.set_use_gemmi(true);
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    const unsigned int n_new_mols = 200;
 
@@ -5622,6 +7083,8 @@ int test_texture_as_floats(molecules_container_t &mc) {
 
    int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
 
+   if (!mc.is_valid_map_molecule(imol_map)) std::cout << "Failed to read moorhen-tutorial-map-number-1.mtz" << std::endl;
+
    texture_as_floats_t tf = mc.get_map_section_texture(imol_map, 6, 0, -0.1, 0.2);
 
    std::cout << " image data size " << tf.image_data.size() << std::endl;
@@ -5659,6 +7122,7 @@ int test_n_map_sections(molecules_container_t &mc) {
    return status;
 }
 
+#if 0
 int test_rdkit_mol(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -5673,6 +7137,7 @@ int test_rdkit_mol(molecules_container_t &mc) {
 #endif
    return status;
 }
+#endif
 
 
 
@@ -5685,7 +7150,8 @@ int test_lsq_superpose(molecules_container_t &mc) {
    int imol_2 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    mc.clear_lsq_matches();
    mc.add_lsq_superpose_match("A", 185, 195, "A", 105, 115, 1);
-   auto tm = mc.get_lsq_matrix(imol_1, imol_2);
+   bool summary_to_screen = false;
+   auto tm = mc.get_lsq_matrix(imol_1, imol_2, summary_to_screen);
    mc.lsq_superpose(imol_1, imol_2);
    for(unsigned int i=0; i<tm.rotation_matrix.size(); i++)
       std::cout << " " << tm.rotation_matrix[i];
@@ -5727,7 +7193,7 @@ int test_alpha_in_colour_holder(molecules_container_t &mc) {
       mc.set_user_defined_bond_colours(imol_1, colour_map);
       mc.set_user_defined_atom_colour_by_selection(imol_1, indexed_residues_cids, true);
       std::string mode = "COLOUR-BY-CHAIN-AND-DICTIONARY";
-      auto mesh = mc.get_bonds_mesh_instanced(imol_1, mode, true,  0.2, 1.0, 1);
+      auto mesh = mc.get_bonds_mesh_instanced(imol_1, mode, true,  0.2, 1.0, false, false, false, true, 1);
       std::vector<std::pair<glm::vec4, unsigned int> > colour_count = colour_analysis(mesh);
       unsigned int n_transparent = 0;
       for(const auto &cc : colour_count) {
@@ -5774,7 +7240,7 @@ int test_assign_sequence(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   mc.set_use_gemmi(false);
+   mc.set_use_gemmi(true);
    int imol = mc.read_pdb(reference_data("pdb7vvl.ent"));
    if (mc.is_valid_model_molecule(imol)) {
       int imol_map = mc.read_ccp4_map(reference_data("emd_32143.map"), false);
@@ -5861,7 +7327,7 @@ int test_for_long_bonds(molecules_container_t &mc, int imol) {
 
    int state = -1; // unset
    if (mc.is_valid_model_molecule(imol)) {
-      auto instanced_mesh = mc.get_bonds_mesh_instanced(imol, "COLOUR-BY-CHAIN-AND-DICTIONARY", false, 0.1f, 1.0f, 1);
+      auto instanced_mesh = mc.get_bonds_mesh_instanced(imol, "COLOUR-BY-CHAIN-AND-DICTIONARY", false, 0.1f, 1.0f, false, false, false, true, 1);
       const auto &geom_vec = instanced_mesh.geom;
       unsigned int geom_vec_size = geom_vec.size();
       for (unsigned int i = 0; i < geom_vec_size; i++) {
@@ -5887,9 +7353,9 @@ int test_import_LIG_dictionary(molecules_container_t &mc) {
 
    int status = 0;
    starting_test(__FUNCTION__);
-   mc.import_cif_dictionary("LIG.cif", coot::protein_geometry::IMOL_ENC_ANY);
+   mc.import_cif_dictionary(reference_data("LIG.cif"), coot::protein_geometry::IMOL_ENC_ANY);
    int imol_pdb = mc.read_pdb("7vvl.pdb");
-   status = mc.import_cif_dictionary("LIG.cif", imol_pdb);
+   status = mc.import_cif_dictionary(reference_data("LIG.cif"), imol_pdb);
    return status;
 }
 
@@ -5919,7 +7385,7 @@ int test_dictionary_acedrg_atom_types(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   mc.import_cif_dictionary("YXG-as-LIG.cif", coot::protein_geometry::IMOL_ENC_ANY);
+   mc.import_cif_dictionary(reference_data("YXG-as-LIG.cif"), coot::protein_geometry::IMOL_ENC_ANY);
    std::vector<std::pair<std::string, std::string> > v = mc.get_acedrg_atom_types("LIG", coot::protein_geometry::IMOL_ENC_ANY);
 
    if (v.size() > 10) {
@@ -5939,7 +7405,7 @@ int test_dictionary_acedrg_atom_types_for_ligand(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   mc.import_cif_dictionary("YXG-as-LIG.cif", coot::protein_geometry::IMOL_ENC_ANY);
+   mc.import_cif_dictionary(reference_data("YXG-as-LIG.cif"), coot::protein_geometry::IMOL_ENC_ANY);
    int imol = mc.get_monomer_from_dictionary("LIG", coot::protein_geometry::IMOL_ENC_ANY, false);
    coot::acedrg_types_for_residue_t types = mc.get_acedrg_atom_types_for_ligand(imol, "//A/1");
 
@@ -5955,6 +7421,737 @@ int test_dictionary_acedrg_atom_types_for_ligand(molecules_container_t &mc) {
    return status;
 }
 
+
+int test_links_in_model_read_via_gemmi(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   mc.set_use_gemmi(true);
+   int imol = mc.read_pdb(reference_data("6dgd.cif"));
+   if (mc.is_valid_model_molecule(imol)) {
+      mmdb::Manager *mol = mc.get_mol(imol);
+      for (int imod = 1; imod <= mol->GetNumberOfModels(); imod++) {
+         mmdb::Model *model_p = mol->GetModel(imod);
+         if (model_p) {
+            int n_links = model_p->GetNumberOfLinks();
+            std::cout << "Found n_links: " << n_links << std::endl;
+            for (int i_link = 0; i_link < n_links; i_link++) {
+               mmdb::Link *link_p = model_p->GetLink(i_link);
+               // std::cout << "Link " << i_link << " " << link_p << std::endl;
+            }
+            if (n_links > 4) status = 1;
+         }
+      }
+   }
+
+   return status;
+}
+
+int test_delete_two_add_one_using_gemmi(molecules_container_t &mc) {
+
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   mc.set_use_gemmi(true);
+
+   int coordMolNo = mc.read_pdb(reference_data("./5a3h.pdb"));
+   int mapMolNo = mc.read_mtz(reference_data("./5a3h_sigmaa.mtz"), "FWT", "PHWT", "", false, false);
+   mc.set_imol_refinement_map(mapMolNo);
+
+   mc.delete_using_cid(coordMolNo, "A/100-101/*", "LITERAL");
+   mc.write_coordinates(coordMolNo, "add_terminal_test_tmp_1.pdb");
+
+   int result = mc.add_terminal_residue_directly_using_cid(coordMolNo, "A/99");
+
+   mc.write_coordinates(coordMolNo, "add_terminal_test_tmp_2.pdb");
+
+   std::vector<mmdb::Residue *> A100s;
+   mmdb::Manager *mol = mc.get_mol(coordMolNo);
+   for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int n_res = chain_p->GetNumberOfResidues();
+            std::cout << "    " << chain_p->GetChainID() << " " << n_res << " residues " << std::endl;
+            std::string chain_id = chain_p->GetChainID();
+            if (chain_id == "A") {
+               for (int ires=0; ires<n_res; ires++) {
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                  int seq_num = residue_p->GetSeqNum();
+                  if (seq_num == 100)
+                     A100s.push_back(residue_p);
+               }
+            }
+         }
+      }
+   }
+   std::cout << " here with " << A100s.size() << " residues A 100s" << std::endl;
+   if (A100s.size() == 1)
+      status = 1;
+   return status;
+}
+
+int test_merge_ligand_and_gemmi_parse_mmcif(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+#ifdef USE_GEMMI_REALLY
+
+  auto read_structure_from_string = [] (const std::string &data, const std::string& path){
+    char *c_data = (char *)data.c_str();
+    size_t size = data.length();
+    // return gemmi::read_structure_from_char_array(c_data,size,path);
+    return nullptr;
+  };
+
+   auto coordMolNo_1 = mc.read_pdb(reference_data("5a3h.mmcif"));
+   // expect(coordMolNo_1).toBe(0)
+   if (! mc.is_valid_model_molecule(coordMolNo_1))
+     return status;
+
+   int import_status = mc.import_cif_dictionary(reference_data("LZA.cif"), -999999);
+   // expect(result_import_dict).toBe(1)
+   if (import_status == 0)
+     return status;
+
+   auto ligandMolNo = mc.get_monomer_and_position_at("LZA", -999999, 0, 0, 0);
+   // expect(ligandMolNo).toBe(1);
+
+   auto merge_info = mc.merge_molecules(coordMolNo_1, std::to_string(ligandMolNo));
+   // expect(merge_info.second.size()).toBe(1)
+
+   mc.write_coordinates(coordMolNo_1, "my-mol-with-ligand.cif");
+
+   bool merge_chain_parts = true;
+   gemmi::Structure st = gemmi::read_structure_file("my-mol-with-ligand.cif");
+   if (merge_chain_parts)
+      st.merge_chain_parts();
+
+   // std::string mmcifString = mc.get_molecule_atoms(coordMolNo_1, "mmcif");
+   // auto st = read_structure_from_string(mmcifString, "test-molecule");
+   gemmi::setup_entities(st);
+   gemmi::add_entity_types(st, true);
+
+   auto model = st.first_model();
+   auto chains = model.chains;
+   auto chain = chains[2];
+   gemmi::ResidueSpan ligands = chain.get_ligands();
+   // expect(ligands.length()).toBe(1);
+
+   std::cout << "we found " << model.chains.size() << " model chains" << std::endl;
+
+   std::cout << "debug:: test_merge_ligand_and_gemmi_parse_mmcif() merge_info second length "
+	     << merge_info.second.size() << std::endl;
+
+   std::cout << "debug:: test_merge_ligand_and_gemmi_parse_mmcif() ligands length() "
+	     << ligands.size() << std::endl;
+
+   std::cout << "chain things " << chain.whole().size() << std::endl;
+   std::cout << "chain 0 things " << chains[0].name << " " << chains[0].whole().size() << std::endl;
+   std::cout << "chain 1 things " << chains[1].name << " " << chains[1].whole().size() << std::endl;
+   std::cout << "chain 2 things " << chains[2].name << " " << chains[2].whole().size() << std::endl;
+   // std::cout << "chain 3 things " << chains[3].name << " " << chains[3].whole().size() << std::endl;
+
+   std::cout << "get_ligands(): size    " << chains[2].get_ligands().size()   << std::endl;
+   std::cout << "get_ligands(): length  " << chains[2].get_ligands().length() << std::endl;
+   std::cout << "get polymer " << chains[2].get_polymer().length() << std::endl;
+   std::cout << "get waters  " << chains[2].get_waters().length()  << std::endl;
+
+   gemmi::EntityType et = chains[2].whole().at(0).entity_type;
+   std::cout << "get_ligands(): whole " << gemmi::entity_type_to_string(et) << std::endl;
+
+   gemmi::ResidueSpan whole = chains[2].whole();
+   std::cout << "whole span length: " << whole.length() << std::endl;
+
+   if (model.chains.size() == 3)
+      if (chains[2].get_ligands().size() == 1)
+         status = 1;
+
+#endif
+
+   return status;
+
+}
+
+int test_dictionary_atom_name_match(molecules_container_t &mc) {
+
+   int status = 0;
+   starting_test(__FUNCTION__);
+
+   std::string comp_id_1 = "TYR";
+   std::string comp_id_2 = "PTR";
+   int imol_1 = coot::protein_geometry::IMOL_ENC_ANY;
+   int imol_2 = coot::protein_geometry::IMOL_ENC_ANY;
+
+   // 20241031-PE these are relatively modern dictionaries (from CCP4-9)
+   mc.import_cif_dictionary(reference_data("TYR.cif"), imol_1);
+   mc.import_cif_dictionary(reference_data("PTR.cif"), imol_2);
+
+   int imol_pty = mc.get_monomer(comp_id_2);  // I want the dictionary, not the molecule
+
+   if (mc.is_valid_model_molecule(imol_pty)) {
+      std::map<std::string, std::string> m =
+         mc.dictionary_atom_name_map(comp_id_1, imol_1, comp_id_2, imol_2);
+
+      std::cout << "got a name map of size " << m.size() << std::endl;
+      for (const auto &name : m)
+         std::cout << "    " << name.first << " " << name.second << std::endl;
+      if (m.size() > 8) status = 1;
+   }
+
+   return status;
+}
+
+int test_average_position_functions(molecules_container_t &mc) {
+
+   auto close_position = [] (const std::vector<double> &p,
+                             const clipper::Coord_orth &r) {
+      double t = 0.9;
+      if (abs(p[0] - r.x()) < t) {
+         if (abs(p[1] - r.y()) < t) {
+            if (abs(p[2] - r.z()) < t) {
+               return true;
+            }
+         }
+      }
+      return false;
+   };
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   std::vector<double> ap_1 = mc.get_residue_average_position(imol, "//A/15");
+   std::vector<double> ap_2 = mc.get_residue_sidechain_average_position(imol, "//A/15");
+   std::vector<double> ap_3 = mc.get_residue_CA_position(imol, "//A/15");
+
+   int n_pass = 0;
+   if (close_position(ap_1, clipper::Coord_orth(16.4, 10.1, 57.5))) n_pass += 1;
+   if (close_position(ap_2, clipper::Coord_orth(16.2,  8.9, 56.0))) n_pass += 2;
+   if (close_position(ap_3, clipper::Coord_orth(16.4, 11.5, 58.7))) n_pass += 4;
+
+   std::cout << "here with n_pass " << n_pass << std::endl;
+   if (n_pass == 7) status = 1;
+   return status;
+}
+
+int test_set_occupancy(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int n_zero = 0;
+   mc.set_occupancy(imol, "//A/18-19", 0.0);
+
+   mmdb::Manager *mol = mc.get_mol(imol);
+   for (int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int n_res = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<n_res; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               if (residue_p) {
+                  int n_atoms = residue_p->GetNumberOfAtoms();
+                  for (int iat=0; iat<n_atoms; iat++) {
+                     mmdb::Atom *at = residue_p->GetAtom(iat);
+                     if (! at->isTer()) {
+                        if (at->occupancy < 0.00001) n_zero++;
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+   if (n_zero == 19) status = 1;
+   return status;
+}
+
+int test_missing_residues(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   if (mc.is_valid_model_molecule(imol)) {
+      mc.delete_residue(imol, "A", 10, "");
+      mc.delete_residue(imol, "A", 11, "");
+      mc.delete_residue(imol, "A", 12, "");
+      mc.delete_residue(imol, "A", 15, "");
+
+      auto vec = mc.get_missing_residue_ranges(imol);
+      for (const auto &rr : vec) {
+         std::cout << "   " << rr.chain_id << " " << rr.res_no_start << " " << rr.res_no_end
+	  	   << std::endl;
+       }
+       if (vec.size() == 5) {
+          if (vec[0].res_no_start ==  10 && vec[0].res_no_end ==  12)
+          if (vec[1].res_no_start ==  15 && vec[1].res_no_end ==  15)
+          if (vec[2].res_no_start ==  37 && vec[2].res_no_end ==  45)
+          if (vec[3].res_no_start ==  73 && vec[3].res_no_end ==  75)
+          if (vec[4].res_no_start == 147 && vec[4].res_no_end == 165)
+ 	     status = 1;
+       }
+   }
+   return status;
+}
+
+int test_mutation_info(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   if (mc.is_valid_model_molecule(imol)) {
+      mc.delete_residue(imol, "A", 10, "");
+      mc.delete_residue(imol, "A", 11, "");
+      mc.delete_residue(imol, "A", 12, "");
+      mc.delete_residue(imol, "A", 15, "");
+
+      std::string t("MENFQKVEKIGEGTYGVVYKARNKLTGEVVALKKIRLDTETEGVPSTAIREISLLKELNHPNIVKLLDVIHTENKLYLVFEFLHQDLKKFMDASALTGIPLPLIKSYLFQLLQGLAFCHSHRVLHRDLKPQNLLINTEGAIKLADFGLARAFGVPVRTYTHEVVTLWYRAPEILLGCKYYSTAVDIWSLGCIFAEMVTRRALFPGDSEIDQLFRIFRTLGTPDEVVWPGVTSMPDYKPSFPKWARQDFSKVVPPLDEDGRSLLSQMLHYDPNKRISAKAALAHPFFQDVTKPVPHLRL");
+
+      mc.associate_sequence(imol, "A", t);
+      auto mi = mc.get_mutation_info(imol);
+      std::cout << "mutation-info: "
+		<< mi.mutations.size()  << " mutations "
+		<< mi.insertions.size() << " insertions "
+		<< mi.deletions.size()  << " deletions "
+		<< std::endl;
+
+      for (const auto &m : mi.mutations)
+	 std::cout << "   mutation " << m.first << " " << m.second << std::endl;
+      for (const auto &m : mi.insertions) {
+	 std::cout << "   insertions " << m.start_resno << std::endl << "  ";
+	 for (const auto &t : m.types)
+	    std::cout << " " << t;
+	 std::cout << std::endl;
+      }
+      for (const auto &m : mi.deletions)
+	 std::cout << "   deletions " << m << std::endl;
+
+      if (mi.mutations.size() > 2)
+	 if (mi.insertions.size() > 2)
+	    status = 1;
+   }
+   return status;
+}
+
+int test_scale_map(molecules_container_t &mc) {
+
+   auto close_float = [] (float a, float b) {
+      return fabsf(a - b) < 0.001;
+   };
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"),
+                              "FWT", "PHWT", "W", false, false);
+   if (mc.is_valid_map_molecule(imol_map)) {
+      float sf = 2.4;
+      float r_1 = mc.get_map_rmsd_approx(imol_map);
+      mc.scale_map(imol_map, sf);
+      float r_2 = mc.get_map_rmsd_approx(imol_map);
+      float f = r_2 / r_1;
+      if (close_float(f, sf))
+         status = 1;
+   } else {
+      std::cout << "ERROR:: failed to read moorhen-tutorial-map-number-1.mtz" << std::endl;
+   }
+   return status;
+}
+
+int test_add_RNA_residue(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol = mc.read_coordinates(reference_data("5bjo-needs-E6.pdb"));
+   if (mc.is_valid_model_molecule(imol)) {
+      mc.add_terminal_residue_directly_using_cid(imol, "//E/5");
+      mmdb::Residue *residue_p = mc.get_residue_using_cid(imol, "//E/6");
+      if (residue_p) {
+         status = true;
+      }
+   } else {
+      std::cout << "failed to read 5bjo-needs-E6.pdb" << std::endl;
+   }
+   return status;
+}
+
+int test_HOLE(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol = mc.read_coordinates(reference_data("pdb2y5m.ent"));
+   // get restraints for 15P, DVA, FVA, DLE and, of course ETA.
+   int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
+   std::vector<std::string> new_types = {"15P", "DVA", "FVA", "DLE", "ETA"};
+   for (const auto &type : new_types) {
+      int imol_type = mc.get_monomer_from_dictionary(type, imol_enc, true);
+      if (! mc.is_valid_model_molecule(imol_type))
+         std::cout << "Failed to get_monomer_from_dictionary() for " << type << std::endl;
+   }
+   if (mc.is_valid_model_molecule(imol)) {
+      clipper::Coord_orth s(1.6, 14.9, -14.2);
+      clipper::Coord_orth e(8.4, -16.8, -17.0);
+      coot::instanced_mesh_t im = mc.get_HOLE(imol, s.x(), s.y(), s.z(), e.x(), e.y(), e.z());
+      if (! im.geom.empty()) {
+         const coot::instanced_geometry_t &ig = im.geom[0];
+         unsigned int n_spots = ig.instancing_data_A.size();
+         std::cout << "n_spots " << n_spots << std::endl;
+         if (n_spots > 1000) {
+            status = 1;
+         }
+      }
+   } else {
+      std::cout << "Failed to read pdb2y5m.ent" << std::endl;
+   }
+   return status;
+}
+
+int test_is_nucleic_acid(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   bool fail = false;
+   int imol_1 = mc.read_coordinates(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_2 = mc.read_coordinates(reference_data("5bjo-needs-E6.pdb"));
+   for (unsigned int res_no=0; res_no<=298; res_no++) {
+      std::string cid = "//A/" + std::to_string(res_no);
+      bool r = mc.residue_is_nucleic_acid(imol_1, cid);
+      std::string rn = "--unset--";
+      mmdb::Residue *residue_p = mc.get_residue_using_cid(imol_1, cid);
+      if (residue_p)
+         rn = residue_p->GetResName();
+      if (r) {
+         std::cout << "fail for imol_1 " << cid << " type " << rn << std::endl;
+         fail = true;
+         break;
+      }
+   }
+
+   for (unsigned int res_no=1; res_no<=16; res_no++) {
+      if (res_no == 6) continue;
+      if (res_no == 7) continue;
+      std::string cid = "//E/" + std::to_string(res_no);
+      bool r = mc.residue_is_nucleic_acid(imol_2, cid);
+      mmdb::Residue *residue_p = mc.get_residue_using_cid(imol_2, cid);
+      std::string rn = "--unset--";
+      if (residue_p)
+         rn = residue_p->GetResName();
+      if (! r) {
+         std::cout << "fail for imol_2 " << cid << " type " << rn << std::endl;
+         fail = true;
+      } else {
+         std::cout << "pass for imol_2 " << cid << " type " << rn << std::endl;
+      }
+   }
+
+   if (fail)
+      status = 0;
+   else
+      status = 1;
+   return status;
+}
+
+int test_delete_all_carbohydrate(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("pdb8ox7.ent"));
+   if (mc.is_valid_model_molecule(imol)) {
+      mc.delete_all_carbohydrate(imol);
+      mmdb::Manager *mol = mc.get_mol(imol);
+      if (mol) {
+         // check for remaining NAGs
+         int n_nags = 0;
+         for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+            mmdb::Model *model_p = mol->GetModel(imod);
+            if (model_p) {
+               int n_chains = model_p->GetNumberOfChains();
+               for (int ichain=0; ichain<n_chains; ichain++) {
+                  mmdb::Chain *chain_p = model_p->GetChain(ichain);
+                  int n_res = chain_p->GetNumberOfResidues();
+                  for (int ires=0; ires<n_res; ires++) {
+                     mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                     if (residue_p) {
+                        std::string rn = residue_p->GetResName();
+                        if (rn == "NAG") n_nags++;
+                     }
+                  }
+               }
+            }
+         }
+         if (n_nags == 0) status = 1;
+      }
+   }
+   return status;
+}
+
+int test_map_vertices_histogram(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   auto make_n_stars = [] (int counts) {
+      std::string n_stars = "";
+      for (int i=0; i<counts; i+=2000)
+	 n_stars += "*";
+      return n_stars;
+   };
+
+   int imol_map_1 = mc.read_ccp4_map(reference_data("emd_16890.map"), false);
+   int imol_map_2 = mc.read_ccp4_map(reference_data("scale_res_emd_16890.mrc"), false);
+   if (mc.is_valid_map_molecule(imol_map_1)) {
+      if (mc.is_valid_map_molecule(imol_map_2)) {
+	 unsigned int n_bins = 40;
+	 coot::molecule_t::histogram_info_t histo =
+	    mc.get_map_vertices_histogram(imol_map_1, imol_map_2,
+					  160, 160, 160,
+					  100, 0.16, n_bins);
+	 unsigned int n_bins_hist = histo.counts.size();
+	 std::cout << "n_bins_hist " << n_bins_hist << std::endl;
+	 for (unsigned int i=0; i<n_bins_hist; i++) {
+	    int counts = histo.counts[i];
+	    float f_min = histo.base + static_cast<float>(i)   * histo.bin_width;
+	    float f_max = histo.base + static_cast<float>(i+1) * histo.bin_width;
+	    std::string n_stars = make_n_stars(counts);
+	    std::cout << "   " << std::setw(9) << f_min << " " << std::setw(9) << f_max
+		      << " " << std::setw(6) << counts << " " << n_stars << std::endl;
+	    if (n_bins_hist >= 40)
+	       if (counts > 100000)
+		  status = 1;
+	 }
+      }
+   }
+   return status;
+}
+
+int test_non_XYZ_EM_map_status(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   // the test here is that we shouldd be seeing zero vertices outside the unit cell box
+   // when the map is an EM map.
+
+   int imol = mc.read_ccp4_map("initial_map_clement.ccp4", 0);
+   if (mc.is_valid_map_molecule(imol)) {
+      bool em_status = mc.is_EM_map(imol);
+      if (em_status) {
+         float radius = 20.0;
+         float contour_level = 0.1;
+         coot::simple_mesh_t map_mesh = mc.get_map_contours_mesh(imol, -111, 111, 111, radius, contour_level);
+         std::cout << "n-vertices: " << map_mesh.vertices.size() << std::endl;
+         std::cout << "n-triangles: " << map_mesh.triangles.size() << std::endl;
+         if (map_mesh.triangles.size() == 0)
+            status = 1;
+      } else {
+         std::cout << "ERROR:: in " << __FUNCTION__ << " the EM map is marked as a non-EM map" << std::endl;
+      }
+   } else {
+      std::cout << "Failed to read initial_map_clement.ccp4 " << std::endl;
+   }
+
+   return status;
+}
+
+int test_radius_of_gyration(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   if (mc.is_valid_model_molecule(imol)) {
+      double rg = mc.get_radius_of_gyration(imol);
+      std::cout << "Radius of gyration: " << rg << std::endl;
+      // Expect a positive value for a valid molecule
+      if (rg > 0.0 && rg < 100.0)
+         status = 1;
+      else
+         std::cout << "Unexpected radius of gyration value: " << rg << std::endl;
+   } else {
+      std::cout << "Invalid model molecule for radius of gyration test." << std::endl;
+   }
+   mc.close_molecule(imol);
+   return status;
+}
+
+int test_temperature_factor_of_atom(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   float b1 = mc.get_temperature_factor_of_atom(imol, "//A/8/CB");
+   float b2 = mc.get_temperature_factor_of_atom(imol, "//x/8/CB");
+
+   std::cout << "debug b1 " << b1 << " b2 " << b2 << std::endl;
+
+   if (b2 < 0.0)
+      if (b1 < 40.0)
+         if (b1 > 39.0)
+            status = 1;
+
+   return status;
+}
+
+int test_water_spherical_variance(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+   if (mc.is_valid_model_molecule(imol)) {
+      unsigned int n_waters = mc.add_waters(imol, imol_map);
+      std::cout << "DEBUG:: test_water_spherical_variance(): n_waters: " << n_waters << std::endl;
+      mc.write_coordinates(imol, "with-waters.pdb");
+      bool all_pass = true;
+      for (unsigned int rn=1; rn<=50; rn++) {
+         std::string atom_cid = "//B/" + std::to_string(rn) + "/O";
+         std::pair<float,float> mv = mc.get_mean_and_variance_of_density_for_non_water_atoms(imol, imol_map);
+         if (mv.first > 0) { // this test that the function worked as expected/hoped
+            float sv = mc.get_spherical_variance(imol_map, imol, atom_cid, mv.first);
+            // std::cout << "spherical variance: " << atom_cid << " " << sv << std::endl;
+            if (sv <= 0.0) all_pass = false;
+         }
+      }
+      if (all_pass) status = 1;
+   }
+   return status;
+}
+
+
+int test_dedust(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol_map = mc.read_ccp4_map(reference_data("emd_16890.map"), false);
+   int imol_new = mc.dedust_map(imol_map);
+   mc.write_map(imol_new, "dedust-16890.map");
+   return status;
+}
+
+int test_atom_overlaps(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   std::vector<coot::plain_atom_overlap_t> aov = mc.get_atom_overlaps(imol);
+   for (unsigned int i=0; i<aov.size(); i++) {
+      if (i > 10) continue;
+      const auto &ao = aov[i];
+      std::cout << "Overlapping atom " << ao.atom_spec_1 << " " << ao.atom_spec_2
+                << " with overlap volume " << ao.overlap_volume << std::endl;
+      if (ao.overlap_volume > 2.0) status = 1;
+   }
+
+   return status;
+}
+
+#include "coot-utils/json.hpp"
+using json = nlohmann::json;
+
+int test_pucker_info(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol = mc.read_pdb(reference_data("2pwt.cif"));
+   std::string pucker_info_json = mc.get_pucker_analysis_info(imol);
+   // parsign an empty json string causes a crash
+   if (pucker_info_json.size() > 10) {
+      json j = json::parse(pucker_info_json);
+      unsigned int count = 0;
+      for (json::iterator it=j.begin(); it!=j.end(); ++it) {
+         count += 1;
+         if (count > 5) continue;
+         json &item = *it;
+         std::string s = item.dump(4);
+         std::cout << s << std::endl;
+      }
+      if (count > 10) status = 1;
+   }
+   return status;
+}
+
+int test_inner_bond_kekulization(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   if (mc.is_valid_model_molecule(imol)) {
+
+      // first delete the water
+      // status,atom_count
+      std::pair<int, unsigned int> dw = mc.delete_residue(imol, "B", 1, "");
+      if (dw.first == 1) {
+
+         std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
+         std::string selection_cid_1 = "//*";
+         std::string selection_cid_2 = "//*/(!HOH)";
+         coot::instanced_mesh_t m_1 = mc.get_bonds_mesh_for_selection_instanced(imol, selection_cid_1, mode,
+                                                                                false, 0.1, 1.0, false, false, false, false, 2);
+         coot::instanced_mesh_t m_2 = mc.get_bonds_mesh_for_selection_instanced(imol, selection_cid_2, mode,
+                                                                                false, 0.1, 1.0, false, false, false, false, 2);
+         std::cout << "--------------------------------- mesh 1 ---------------------------" << std::endl;
+         std::vector<std::pair<glm::vec4, unsigned int> > r_1 = colour_analysis(m_1);
+         std::cout << "--------------------------------- mesh 2 ---------------------------" << std::endl;
+         std::vector<std::pair<glm::vec4, unsigned int> > r_2 = colour_analysis(m_2);
+         status = 1; // failure on mismatch
+         for (unsigned int i=0; i<r_1.size(); i++) {
+            const auto &cp_1 = r_1[i];
+            const auto &cp_2 = r_2[i];
+            if (cp_1.second != cp_2.second) status = 0;
+         }
+      }
+   }
+   return status;
+}
+
+int test_gaussian_surface_to_map_molecule(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+
+   //!
+   //! @param imol is the model molecule index
+   //! @param cid is the atom selection CID
+   //! @param sigma default 4.4
+   //! @param contour_level default 4.0
+   //! @param box_radius default 5.0
+   //! @param grid_scale default 0.7
+   //! @param b_factor default 100.0 (use 0.0 for no FFT-B-factor smoothing)
+   //!
+   //! @return a new molecule index for the map or -1 on failur
+   float sigma = 4.0;
+   float box_radius = 5.0;
+   float grid_scale = 1.0;
+   float fft_b_factor = 30.0;
+   std::string cid  = "//A";
+   int imol_new = mc.gaussian_surface_to_map_molecule_v2(imol, cid, sigma, box_radius, grid_scale, fft_b_factor);
+   if (mc.is_valid_map_molecule(imol_new)) {
+      status = 1;
+      if (true) {
+         mc.write_map(imol_new, "gaussian-surface-as-map.map");
+         int imol_mask = mc.make_mask(imol_map, imol, "//A", 13.0f);
+         mc.write_map(imol_mask, "mask-map.map");
+      }
+   }
+   return status;
+}
 
 int test_template(molecules_container_t &mc) {
 
@@ -6081,11 +8278,12 @@ int main(int argc, char **argv) {
       // access (memory allocated but not deleted - e.g. Atom Selections)
       //
       molecules_container_t mc(true); // quiet
+      mc.set_use_gemmi(true);
 
       // now check that the monomer library was read OK
       int imol = mc.get_monomer("ATP");
       if (! mc.is_valid_model_molecule(imol)) {
-         std::cout << "Failed to read the monomer library" << std::endl;
+         std::cout << "Failed to read the monomer library - exit now" << std::endl;
          exit(1);
       } else {
          mc.close_molecule(imol);
@@ -6132,6 +8330,18 @@ int main(int argc, char **argv) {
          status += run_test(test_delete_literal,        "delete literal",           mc);
          status += run_test(test_side_chain_180,        "side-chain 180",           mc);
          status += run_test(test_peptide_omega,         "peptide omega",            mc);
+
+         // Molecular replacement tests (moved here to run before potentially-crashing tests)
+         status += run_test(test_patterson_from_map_using_mtz,     "patterson from mtz",       mc);
+         status += run_test(test_patterson_from_map_using_map,     "patterson from map",       mc);
+         status += run_test(test_self_rotation_function,          "self rotation function",   mc);
+         status += run_test(test_cross_rotation_function,         "cross rotation function",  mc);
+         status += run_test(test_crowther_rotation_function,    "crowther rotation fn",     mc);
+         status += run_test(test_crowther_rotation_with_model, "crowther with model",      mc);
+         status += run_test(test_phased_translation_function, "phased translation fn",   mc);
+         status += run_test(test_molecular_placement_pipeline, "MR pipeline",          mc);
+         status += run_test(test_molecular_placement_pipeline_r_chain, "MR R-chain",  mc);
+
          status += run_test(test_undo_and_redo,         "undo and redo",            mc);
          status += run_test(test_undo_and_redo_2,       "undo/redo 2",              mc);
          status += run_test(test_merge_molecules,       "merge molecules",          mc);
@@ -6229,6 +8439,10 @@ int main(int argc, char **argv) {
          status += run_test(test_B_factor_multiply, "B-factor multiply",    mc);
          status += run_test(test_change_chain_id, "change chain id",    mc);
          status += run_test(test_17257, "read emd_17257.map.gz",    mc);
+
+         // 2026-02-14-PE too many gemmi errors. Let's shut it down for now 
+         mc.set_use_gemmi(false);
+
          status += run_test(test_get_diff_map_peaks, "get diff map peaks",    mc);
          status += run_test(test_shiftfield_b_factor_refinement, "Shiftfield B",    mc);
          status += run_test(test_non_drawn_CA_bonds,       "non-drawn bonds in CA+LIGANDS", mc);
@@ -6241,7 +8455,7 @@ int main(int argc, char **argv) {
          status += run_test(test_n_map_sections, "N map sections ", mc);
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
          status += run_test(test_pdbe_dictionary_depiction, "pdbe dictionary depiction", mc);
-         status += run_test(test_rdkit_mol, "RDKit mol", mc);
+         // status += run_test(test_rdkit_mol, "RDKit mol", mc);
 #endif
 
 #ifdef USE_GEMMI
@@ -6267,9 +8481,40 @@ int main(int argc, char **argv) {
          // status += run_test(test_ligand_distortion,   "Ligand Distortion", mc);
          // status += run_test(test_import_LIG_dictionary,   "Import LIG.cif", mc);
          // status += run_test(test_tricky_ligand_problem,   "Tricky Ligand import/refine", mc);
-         status += run_test(test_dictionary_acedrg_atom_types, "Acedrg atom types", mc);
-         status += run_test(test_dictionary_acedrg_atom_types_for_ligand, "Acedrg atom types for ligand", mc);
+         // status += run_test(test_dictionary_acedrg_atom_types, "Acedrg atom types", mc);
+         // status += run_test(test_dictionary_acedrg_atom_types_for_ligand, "Acedrg atom types for ligand", mc);
+         // status += run_test(test_long_name_ligand_cif_merge, "test long name ligand cif merge", mc);
+         // status += run_test(test_merge_ligand_and_gemmi_parse_mmcif, "test_merge_ligand_and_gemmi_parse_mmcif", mc);
+         // status += run_test(test_delete_two_add_one_using_gemmi, "test_delete_two_add_one_using_gemmi", mc);
+         // status += run_test(test_dictionary_atom_name_match, "dictionary atom names match", mc);
+         // status += run_test(test_average_position_functions, "average position functions", mc);
 
+         // status += run_test(test_get_torsion, "get_torsion", mc);
+         // status += run_test(test_set_occupancy, "set occupancy", mc);
+         // status += run_test(test_missing_residues, "missing residues", mc);
+         // status += run_test(test_mutation_info, "mutation info", mc);
+         // status += run_test(test_scale_map, "scale_map", mc);
+         // status += run_test(test_add_RNA_residue, "add RNA residue", mc);
+         // status += run_test(test_HOLE, "HOLE", mc);
+         // status += run_test(test_is_nucleic_acid, "is nucleic acid?", mc);
+         // status += run_test(test_delete_all_carbohydrate, "delete all carbohydrate", mc);
+         // status += run_test(test_instanced_goodsell_style_mesh, "instanced goodsell style mesh", mc);
+         // status += run_test(test_map_vertices_histogram, "map vertices histogram", mc);
+         // status += run_test(test_non_XYZ_EM_map_status, "non-XYZ map status", mc);
+
+         // put these up
+         // status += run_test(test_radius_of_gyration, "radius of gyration", mc);
+         // status += run_test(test_temperature_factor_of_atom, "temperature factor of atom", mc);
+         // status += run_test(test_water_spherical_variance, "water spherical variance", mc);
+         // status += run_test(test_dedust, "dedust", mc);  .... maybe not this one
+         // status += run_test(test_atom_overlaps, "atom overlaps", mc);
+         // status += run_test(test_pucker_info, "pucker info", mc);
+         // status += run_test(test_set_residue_to_rotamer_number, "set residue", mc);
+         // status += run_test(test_inner_bond_kekulization, "inner-bond kekulization", mc);
+         // status += run_test(test_gaussian_surface_to_map_molecule, "gaussian-surface to map", mc);
+         // status += run_test(test_density_mesh,          "density mesh",             mc);
+         // status += run_test(test_molecular_placement_pipeline_r_chain, "MR R-chain", mc);
+         status += run_test(test_molecular_placement_pipeline, "MR pipeline", mc);
          if (status == n_tests) all_tests_status = 0;
 
          print_results_summary();

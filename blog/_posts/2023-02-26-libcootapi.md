@@ -41,18 +41,18 @@ already in place, you can get quite a lot done as it stands.
 ```
 $ python3
 >>> import coot_headless_api
->>> coot = coot_headless_api.molecules_container_t()
+>>> chapi = coot_headless_api.molecules_container_t()
 ```
 
-Many useful functions are now available from `coot`:
+Many useful functions are now available in the `chapi` object:
 
 ```
->>> imol     = coot.read_pdb("test.pdb")
->>> imol_map = coot.read_mtz("test.mtz", "FWT", "PHWT", "W", False, False)
->>> coot.auto_fit_rotamer(imol, "A", 44, "", "", imol_map)
->>> coot.set_imol_refinement_map(imol_map)
->>> coot.refine_residue_range(imol, "A", 43, 45)
->>> coot.write_coordinates(imol, "mini-ref.pdb")
+>>> imol     = chapi.read_pdb("test.pdb")
+>>> imol_map = chapi.read_mtz("test.mtz", "FWT", "PHWT", "W", False, False)
+>>> chapi.auto_fit_rotamer(imol, "A", 44, "", "", imol_map)
+>>> chapi.set_imol_refinement_map(imol_map)
+>>> chapi.refine_residue_range(imol, "A", 43, 45)
+>>> chapi.write_coordinates(imol, "mini-ref.pdb")
 ```
 
 The libcootapi documentation is here:

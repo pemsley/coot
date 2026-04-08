@@ -356,6 +356,11 @@ void launch_generator_async(GTask* task) {
         argv_raw[i] = argv[i].data();
     }
     GError* err = NULL;
+#ifdef WINDOWS_MINGW
+    // for Windows we need to unset PYTHONHOME and PYTHONPATH so that acedrug find its own
+    g_subprocess_launcher_unsetenv(launcher, "PYTHONHOME");
+    g_subprocess_launcher_unsetenv(launcher, "PYTHONPATH");
+#endif // WINDOWS_MINGW
     GSubprocess* subprocess = g_subprocess_launcher_spawnv(launcher, argv_raw, &err);
     g_object_unref(launcher);
     g_slice_free1(slice_size, argv_raw);

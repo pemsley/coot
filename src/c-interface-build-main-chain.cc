@@ -46,19 +46,19 @@
 #else
 #include <windows.h>
 #endif
- 
+
 
 #include <mmdb2/mmdb_manager.h>
-#include "coords/mmdb-extras.h"
+
+#include "coords/mmdb-extras.hh"
 #include "coords/mmdb.hh"
+#include "coords/Cartesian.hh"
+#include "coords/Bond_lines.hh"
+#include "coords/mmdb-crystal.hh"
 
 // 20220723-PE maybe just delete this header altogether.
 #include "globjects.h" //includes gtk/gtk.h
 
-#include "coords/mmdb-crystal.h"
-
-#include "coords/Cartesian.h"
-#include "coords/Bond_lines.h"
 
 #include "graphics-info.h"
 
@@ -108,18 +108,18 @@
 /*                    terminal residue functions:                            */
 /*  ------------------------------------------------------------------------ */
 
-void do_add_terminal_residue(short int state) { 
+void do_add_terminal_residue(short int state) {
 
    graphics_info_t g;
    g.in_terminal_residue_define = state;
    if (state) {
       int imol_map = g.Imol_Refinement_Map();
-      if (imol_map >= 0) { 
+      if (imol_map >= 0) {
 	 std::cout << "click on an atom of a terminal residue" << std::endl;
 	 g.pick_cursor_maybe();
 	 g.pick_pending_flag = 1;
       } else {
-	 g.show_select_map_dialog();
+	 g.show_select_map_frame();
 	 g.in_terminal_residue_define = 0;
 	 g.model_fit_refine_unactive_togglebutton("model_refine_dialog_fit_terminal_residue_togglebutton");
 	 g.normal_cursor();
@@ -133,7 +133,7 @@ void do_add_terminal_residue(short int state) {
    add_to_history(command_strings);
 }
 
-void 
+void
 set_add_terminal_residue_n_phi_psi_trials(int n) {
    graphics_info_t g;
    g.add_terminal_residue_n_phi_psi_trials = n;
@@ -258,6 +258,14 @@ int add_terminal_residue(int imol,
    add_to_history(command_strings);
    return istate;
 }
+
+int add_residue_by_map_fit(int imol, const char *chain_id, int residue_number,
+                           const char *residue_type, int immediate_add) {
+
+   return add_terminal_residue(imol, chain_id, residue_number, residue_type, immediate_add);
+}
+
+
 
 /*! \brief Add a terminal residue using given phi and psi angles
  */
@@ -501,7 +509,7 @@ int pepflip_intermediate_atoms_other_peptide() {
    return g.pepflip_intermediate_atoms_other_peptide();
 }
 
-									 
+
 /*  ----------------------------------------------------------------------- */
 /*                         Planar Peptide Restraints                        */
 /*  ----------------------------------------------------------------------- */
@@ -509,7 +517,7 @@ int pepflip_intermediate_atoms_other_peptide() {
 void add_planar_peptide_restraints() {
    graphics_info_t g;
    g.Geom_p()->add_planar_peptide_restraint();
-} 
+}
 
 void remove_planar_peptide_restraints() {
    graphics_info_t g;
@@ -754,14 +762,14 @@ protein_db_loop_specs_to_atom_selection_string(const std::vector<coot::residue_s
 /*                      LINKs                                                */
 /* ------------------------------------------------------------------------- */
 void
-make_link(int imol, coot::atom_spec_t &spec_1, coot::atom_spec_t &spec_2,
+make_link(int imol, const coot::atom_spec_t &spec_1, const coot::atom_spec_t &spec_2,
 	  const std::string &link_name, float length) {
 
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       g.molecules[imol].make_link(spec_1, spec_2, link_name, length, *g.Geom_p());
       graphics_draw();
-   } 
+   }
 }
 
 #ifdef USE_GUILE
@@ -775,11 +783,11 @@ void make_link_scm(int imol, SCM spec_1, SCM spec_2,
    if (s1.string_user_data != "OK")
       std::cout << "WARNING:: problem with atom spec "
 		<< scm_to_locale_string(display_scm(spec_1)) << std::endl;
-   else 
+   else
       if (s2.string_user_data != "OK")
-	 std::cout << "WARNING:: problem with atom spec "
+	 std::cout << "WARNING:: make_link_scm(): problem with atom spec "
 		   << scm_to_locale_string(display_scm(spec_2)) << std::endl;
-      else 
+      else
 	 make_link(imol, s1, s2, link_name, length);
 }
 #endif
@@ -787,16 +795,17 @@ void make_link_scm(int imol, SCM spec_1, SCM spec_2,
 #ifdef USE_PYTHON
 void make_link_py(int imol, PyObject *spec_1, PyObject *spec_2,
                   const std::string &link_name, float length) {
+
    coot::atom_spec_t s1 = atom_spec_from_python_expression(spec_1);
    coot::atom_spec_t s2 = atom_spec_from_python_expression(spec_2);
    if (s1.string_user_data != "OK")
-     std::cout << "WARNING:: problem with atom spec "
-               << PyUnicode_AsUTF8String(display_python(spec_1)) << std::endl;
-   else 
+     std::cout << "WARNING:: make_link_py(): A problem with atom spec "
+               << PyUnicode_AsUTF8String(display_python(spec_1)) << " " << s1 << std::endl;
+   else
      if (s2.string_user_data != "OK")
-       std::cout << "WARNING:: problem with atom spec "
-                 << PyUnicode_AsUTF8String(display_python(spec_2)) << std::endl;
-     else 
+       std::cout << "WARNING:: make_link_py() B problem with atom spec "
+                 << PyUnicode_AsUTF8String(display_python(spec_2)) << " " << s2 << std::endl;
+     else
        make_link(imol, s1, s2, link_name, length);
 }
 #endif

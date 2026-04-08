@@ -60,14 +60,15 @@
 #include <string>
 
 #include <mmdb2/mmdb_manager.h>
-#include "coords/mmdb-extras.h"
+
+#include "coords/mmdb-extras.hh"
 #include "coords/mmdb.hh"
-#include "coords/mmdb-crystal.h"
+#include "coords/mmdb-crystal.hh"
 
 #include "coot-utils/coot-map-utils.hh" // for make_rtop_orth_from()
 
-#include "coords/Cartesian.h"
-#include "coords/Bond_lines.h"
+#include "coords/Cartesian.hh"
+#include "coords/Bond_lines.hh"
 
 #include "graphics-info.h"
 
@@ -412,9 +413,9 @@ std::string atom_info_as_text_for_statusbar(int atom_index, int imol) {
            ai += at->GetInsCode();
            ai += " ";
            ai += at->GetResName();
-           ai += " occ: ";
+           ai += " occupancy: ";
            ai += graphics_info_t::float_to_string(at->occupancy);
-           ai += " bf: ";
+           ai += " b-factor: ";
            ai += graphics_info_t::float_to_string(at->tempFactor);
            ai += " ele: ";
            ai += at->element;
@@ -786,6 +787,17 @@ SCM residues_near_residues_scm(int imol, SCM residues_in_scm, float radius) {
 // closer than radius Angstroems to any atom in the residues
 // specified by residues_in.
 //
+//! \brief get the residues near a specified list of residues
+//!
+//! @param imol is the molecule index
+//! @param residues_in is a list of residue specs each of which is
+//!        [chain_id, res_no, insertion_code]
+//! @param radius is the cut-off distance atoms of the surrounding residues
+//!        if they are to be included in the residue selection.
+//! @return a list of residue specs for residues that have atoms that are
+//! closer than radius Angstroems to any atom in the residue
+//! specified by the input residue spec list.
+//
 #ifdef USE_PYTHON
 PyObject *residues_near_residues_py(int imol, PyObject *residues_in, float radius) {
 
@@ -977,6 +989,20 @@ void label_atoms_in_residue() {
       }
    }
 }
+
+/*! \brief Label the atoms with their B-factors */
+void set_show_local_b_factors(short int state) {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      graphics_info_t g;
+      coot::Cartesian screen_centre = g.RotationCentre();
+      g.molecules[imol].local_b_factor_display(state, screen_centre);
+      graphics_draw();
+   }
+}
+
 
 
 #include "c-interface-scm.hh"
@@ -1293,7 +1319,8 @@ PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char 
                         int idx = -1;
                         int ierr = at->GetUDData(udd_handle, idx);
                         if (ierr != mmdb::UDDATA_Ok) {
-                           std::cout << "WARNING:: error getting uddata for atom " << at << std::endl;
+                           std::cout << "WARNING:: residue_info_py(): error getting uddata for atom "
+                                     << at << std::endl;
                            idx = -1; // maybe not needed
                         }
                         PyObject *atom_idx_py = PyLong_FromLong(idx);
@@ -2323,6 +2350,10 @@ void residue_info_apply_all_checkbutton_toggled() {
 
 }
 
+void set_show_distance_labels(short int state) {
+   graphics_info_t::draw_distance_labels_user_control = state;
+   graphics_draw();
+}
 
 void apply_residue_info_changes() {
    graphics_info_t g;
@@ -3304,6 +3335,35 @@ void save_state_file_py(const char *filename) {
    add_to_history_typed(cmd, args);
 }
 
+/*! \brief scale up graphics - now available in scripting */
+void scale_up_graphics() {
+
+   // 20260330-PE these are the same function as in create-menu-item-actions
+   // maybe that function should call this one.
+
+   graphics_info_t g;
+   if (g.scale_down_graphics > 1)
+      g.scale_down_graphics -= 1;
+   else
+      g.scale_up_graphics += 1;
+   g.graphics_draw();
+   graphics_info_t::graphics_grab_focus();
+}
+
+/*! \brief scale down graphics - now available in scripting */
+void scale_down_graphics() {
+
+   // 20260330-PE these are the same function as in create-menu-item-actions
+   // maybe that function should call this one.
+
+   graphics_info_t g;
+   if (g.scale_up_graphics > 1)
+      g.scale_up_graphics -= 1;
+   else
+      g.scale_down_graphics += 1;
+   g.graphics_draw();
+   graphics_info_t::graphics_grab_focus();
+}
 
 
 #ifdef USE_GUILE
@@ -3374,7 +3434,7 @@ float model_resolution(int imol) {
 /*                     residue exists?                                       */
 /*  ------------------------------------------------------------------------ */
 
-int does_residue_exist_p(int imol, char *chain_id, int resno, char *inscode) {
+int does_residue_exist_p(int imol, const char *chain_id, int resno, const char *inscode) {
 
    int istate = 0;
    if (is_valid_model_molecule(imol)) {
@@ -3595,13 +3655,14 @@ PyObject *cell_py(int imol) {
 // use should be given access to colour and size.
 int place_text(const char *text, float x, float y, float z, int size) {
 
-   int handle = graphics_info_t::generic_texts_p->size();
+   int handle = graphics_info_t::generic_texts.size();
    std::string s(text);
-   coot::old_generic_text_object_t o(s, handle, x, y, z);
-   graphics_info_t::generic_texts_p->push_back(o);
+   coot::generic_text_object_t o(s, handle, x, y, z);
+   graphics_info_t::generic_texts.push_back(o);
+
    //   return graphics_info_t::generic_text->size() -1; // the index of the
-                                                      // thing we just
-                                                    // pushed.
+                                                         // thing we just
+                                                         // pushed.
    std::string cmd = "place-text";
    std::vector<coot::command_arg_t> args;
    args.push_back(text);
@@ -3617,12 +3678,12 @@ int place_text(const char *text, float x, float y, float z, int size) {
 
 void remove_text(int text_handle) {
 
-   std::vector<coot::old_generic_text_object_t>::iterator it;
-   for (it = graphics_info_t::generic_texts_p->begin();
-        it != graphics_info_t::generic_texts_p->end();
+   std::vector<coot::generic_text_object_t>::iterator it;
+   for (it = graphics_info_t::generic_texts.begin();
+        it != graphics_info_t::generic_texts.end();
         it++) {
       if (it->handle == text_handle) {
-         graphics_info_t::generic_texts_p->erase(it);
+         graphics_info_t::generic_texts.erase(it);
          break;
       }
    }
@@ -3640,8 +3701,8 @@ void edit_text(int text_handle, const char *str) {
    if (str) {
       if (text_handle >= 0) {
          unsigned int ui_text_handle = text_handle;
-         if (ui_text_handle < g.generic_texts_p->size()) {
-            (*g.generic_texts_p)[ui_text_handle].s = str;
+         if (ui_text_handle < g.generic_texts.size()) {
+            g.generic_texts[ui_text_handle].s = str;
          }
       }
    }
@@ -3661,14 +3722,14 @@ int text_index_near_position(float x, float y, float z, float rad) {
    graphics_info_t g;
    double best_dist = 999999999.9; // not (long) integer, conversion to double problems in GCC 4.1.2
 
-   std::cout << "size: " << g.generic_texts_p->size() << std::endl;
+   std::cout << "size: " << g.generic_texts.size() << std::endl;
 
-   for (unsigned int i=0; i<g.generic_texts_p->size(); i++) {
+   for (unsigned int i=0; i<g.generic_texts.size(); i++) {
       std::cout << "i " << i << std::endl;
       clipper::Coord_orth p1(x,y,z);
-      clipper::Coord_orth p2((*g.generic_texts_p)[i].x,
-                             (*g.generic_texts_p)[i].y,
-                             (*g.generic_texts_p)[i].z);
+      clipper::Coord_orth p2(g.generic_texts[i].x,
+                             g.generic_texts[i].y,
+                             g.generic_texts[i].z);
       double d = (p1-p2).lengthsq();
       std::cout << "   d " << d  << std::endl;
       if (d < rad*rad) {
@@ -3753,16 +3814,20 @@ PyObject *cif_file_for_comp_id_py(const std::string &comp_id) {
 }
 #endif // PYTHON
 
-// can throw and std::runtime_error exception
 std::string SMILES_for_comp_id(const std::string &comp_id) {
+
+   int imol_enc = coot::protein_geometry::IMOL_ENC_ANY; // pass this?
 
    graphics_info_t g;
    std::string s;
    try {
-      s = g.Geom_p()->Get_SMILES_for_comp_id(comp_id); // can throw
+      s = g.Geom_p()->Get_SMILES_for_comp_id(comp_id, imol_enc); // can throw
    }
    catch (const std::runtime_error &e) {
       std::cout << "WARNING::" << e.what() << std::endl;
+   }
+   catch (...) {
+      std::cout << "SMILES_for_comp_id() caught generic throw" << std::endl;
    }
    return s;
 }

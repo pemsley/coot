@@ -23,6 +23,7 @@
  */
 
 #include <cstring>
+#include <cmath>
 
 #include "MolecularRepresentation.h"
 #include "DishyBase.h"
@@ -449,6 +450,7 @@ int MolecularRepresentation::drawStickBases() {
    };
 
    mmdb::Manager *mmdb = myMolecule->getMmdb();
+   selHnd = selection->handleInMMDB(mmdb);
    shared_ptr<CylindersPrimitive>cylinder(new CylindersPrimitive());
    cylinder->setAngularSampling(intParameters["cylindersStyleAngularSampling"]);
    float cylinderRadius = floatParameters[std::string("cylindersStyleCylinderRadius")];
@@ -494,11 +496,13 @@ int MolecularRepresentation::drawStickBases() {
                                     atom_2 = at;
                            }
                            if (atom_1 && atom_2) {
-                              FCXXCoord atom1Color = colorScheme->colorForAtom(atom_1, handles);
-                              FCXXCoord atom2Color = colorScheme->colorForAtom(atom_2, handles);
-                              cylinder->addHalfAtomBond(atom_1, atom1Color, atom_2, atom2Color, cylinderRadius);
-                              FCXXCoord atom1Coord(atom_2->x,atom_2->y, atom_2->z);
-                              balls->addBall(atom1Coord, atom1Color, ballRadius);
+                               if(atom_1->isInSelection(selHnd)&&atom_2->isInSelection(selHnd)) {
+                                   FCXXCoord atom1Color = colorScheme->colorForAtom(atom_1, handles);
+                                   FCXXCoord atom2Color = colorScheme->colorForAtom(atom_2, handles);
+                                   cylinder->addHalfAtomBond(atom_1, atom1Color, atom_2, atom2Color, cylinderRadius);
+                                   FCXXCoord atom1Coord(atom_2->x,atom_2->y, atom_2->z);
+                                   balls->addBall(atom1Coord, atom1Color, ballRadius);
+                              }
                            }
                         }
                      }
@@ -509,6 +513,7 @@ int MolecularRepresentation::drawStickBases() {
       }
    }
 
+   mmdb->DeleteSelection(selHnd);
    displayPrimitives.push_back(cylinder);
    displayPrimitives.push_back(balls);
    colorScheme->freeSelectionHandles(mmdb, handles);
@@ -543,7 +548,8 @@ int MolecularRepresentation::drawRibbon()
         DiscreteSegment &segment = *(segments[iSegment]);
         segment.evaluateNormals();
         if (boolParameters["smoothBetas"]) segment.smoothBetas();
-        segment.evaluateSplines();
+        segment.evaluateSplines(subdivisionsPerCalpha);
+        segment.evaluateColors(colorScheme, handles);
         FCXXCoord color;
 
         std::shared_ptr<CylindersPrimitive>currentCylinder(new CylindersPrimitive());
@@ -552,6 +558,8 @@ int MolecularRepresentation::drawRibbon()
 
         int lastSSE = -32767;
         int currentSSE = -32767;
+        bool useArrowTipCoord = false;
+        FCXXCoord arrowTipCoord;
         for (int iCalpha = 0; iCalpha<segment.nCalphas(); iCalpha++){
             const mmdb::Atom *calpha = (segment.calpha(iCalpha));
             auto residue = const_cast<mmdb::Atom*>(calpha)->GetResidue();
@@ -582,21 +590,47 @@ int MolecularRepresentation::drawRibbon()
                     currentCylinder->setAngularSampling(intParameters["cylindersStyleAngularSampling"]);
                 }
             }
-            color = colorScheme->colorForAtom(calpha, handles);
-
             int endSubdivision = ((iCalpha == (segment.nCalphas()-1))?subdivisionsPerCalpha/2:subdivisionsPerCalpha);
             int startSubdivision = ((iCalpha == 0) ? (subdivisionsPerCalpha/2):0);
             float xVal = 0.;
 
+            //Arrow head extrapolation state
+            bool inArrowTaper = false;
+            FCXXCoord arrowBaseCoord, arrowBaseTangent, arrowBaseNormalOne, arrowBaseNormalTwo;
+            float arrowBaseXVal = 0.f;
+
             for (int i=startSubdivision; i<endSubdivision; i++){
                 //for (int i=0; i<subdivisionsPerCalpha; i++){
                 xVal = (iCalpha + (i*stepPerSubdivision)) - 0.5;
-                FCXXCoord coord = segment.coordFor(xVal);
+                FCXXCoord coord     = segment.coordFor(xVal);
                 FCXXCoord normalOne = segment.normalOneFor(xVal);
                 FCXXCoord normalTwo = segment.normalTwoFor(xVal);
+                //Re-orthonormalise against tangent after spline interpolation
+                FCXXCoord tangentVec = segment.coordFor(xVal + stepPerSubdivision) - segment.coordFor(xVal - stepPerSubdivision);
+                FCXXCoord tangent = tangentVec;
+                tangent.normalise();
+                normalOne = normalOne - tangent * (normalOne * tangent);
+                normalOne.normalise();
+                normalTwo = normalTwo - tangent * (normalTwo * tangent);
+                normalTwo = normalTwo - normalOne * (normalTwo * normalOne);
+                normalTwo.normalise();
+                //Override with extrapolated frame during arrow taper
+                if (inArrowTaper) {
+                    coord = arrowBaseCoord + arrowBaseTangent * ((xVal - arrowBaseXVal) / (2.f * stepPerSubdivision));
+                    normalOne = arrowBaseNormalOne;
+                    normalTwo = arrowBaseNormalTwo;
+                }
+                //Start next SSE element at arrow tip for continuity
+                if (useArrowTipCoord) {
+                    coord = arrowTipCoord;
+                    useArrowTipCoord = false;
+                }
+                color = segment.colorFor(xVal);
+                // Get per-residue radius multiplier from the 4th component (interpolated via spline)
+                float radiusMultiplier = (coord.r() > 0.0f) ? coord.r() : 1.0f;
                 //Widths at which things should be drawn is a matter of painful heuristics
-                float radiusOne = radiusOneNone;
-                float radiusTwo = radiusTwoNone;
+                float radiusOne = radiusOneNone * radiusMultiplier;
+                float radiusTwo = radiusTwoNone * radiusMultiplier;
                 if (currentSSE == mmdb::SSE_Helix) {
                     if (i<subdivisionsPerCalpha/2){
                         if (currentSSE == lastSSE) {
@@ -620,6 +654,8 @@ int MolecularRepresentation::drawRibbon()
                             radiusTwo = radiusTwoHelix - factor * (radiusTwoHelix-radiusTwoNone);
                         }
                     }
+                    radiusOne *= radiusMultiplier;
+                    radiusTwo *= radiusMultiplier;
                     CylinderPoint cylinderPoint(coord, color, normalOne, normalTwo, radiusOne, radiusTwo, calpha);
                     currentCylinder->addPoint(cylinderPoint);
                 }
@@ -630,7 +666,7 @@ int MolecularRepresentation::drawRibbon()
                             radiusTwo = radiusTwoDNARNA;
                         }
                         else {
-                            float factor = (float)i / ((float)subdivisionsPerCalpha/2.f);
+                            float factor = (float)i / ((float)subdivisionsPerCalpha/2.0f);
                             radiusOne = radiusOneNone + factor * (radiusOneDNARNA-radiusOneNone);
                             radiusTwo = radiusTwoNone + factor * (radiusTwoDNARNA-radiusTwoNone);
                         }
@@ -641,17 +677,20 @@ int MolecularRepresentation::drawRibbon()
                             radiusTwo = radiusTwoDNARNA;
                         }
                         else {
-                            float factor = (float)(i-(subdivisionsPerCalpha/2)) / ((float)subdivisionsPerCalpha/2.f);
+                            float factor = (float)(i-(subdivisionsPerCalpha/2.0f)) / ((float)subdivisionsPerCalpha/2.0f);
                             radiusOne = radiusOneDNARNA - factor * (radiusOneDNARNA-radiusOneNone);
                             radiusTwo = radiusTwoDNARNA - factor * (radiusTwoDNARNA-radiusTwoNone);
                         }
                     }
+                    radiusOne *= radiusMultiplier;
+                    radiusTwo *= radiusMultiplier;
                     CylinderPoint cylinderPoint(coord, color, normalOne, normalTwo, radiusOne, radiusTwo, calpha);
                     currentCylinder->addPoint(cylinderPoint);
                 }
                 else if (currentSSE == mmdb::SSE_Strand) {
                     if (i==startSubdivision && lastSSE != currentSSE) {
-                        CylinderPoint cylinderPoint(coord, color, normalOne, normalTwo, radiusOneNone, radiusTwoNone, calpha);
+                        CylinderPoint cylinderPoint(coord, color, normalOne, normalTwo,
+                                                    radiusOneNone * radiusMultiplier, radiusTwoNone * radiusMultiplier, calpha);
                         currentBoxSection->addPoint(cylinderPoint);
                         lastSSE = currentSSE;
                     }
@@ -663,7 +702,14 @@ int MolecularRepresentation::drawRibbon()
                     }
                     if (i == subdivisionsPerCalpha/2){
                         if (currentSSE != nextSSE){
-                            CylinderPoint cylinderPoint(coord, color, normalOne, normalTwo, radiusOneStrand, radiusTwoStrand, calpha);
+                            //Capture frame at arrow base for extrapolation
+                            arrowBaseCoord = coord;
+                            arrowBaseTangent = tangentVec;
+                            arrowBaseNormalOne = normalOne;
+                            arrowBaseNormalTwo = normalTwo;
+                            arrowBaseXVal = xVal;
+                            inArrowTaper = true;
+                            CylinderPoint cylinderPoint(coord, color, normalOne, normalTwo, radiusOneStrand * radiusMultiplier, radiusTwoStrand * radiusMultiplier, calpha);
                             currentBoxSection->addPoint(cylinderPoint);
                         }
                     }
@@ -678,10 +724,24 @@ int MolecularRepresentation::drawRibbon()
                             radiusTwo = radiusTwoArrow - factor * (radiusTwoArrow-radiusTwoNone);
                         }
                     }
+                    radiusOne *= radiusMultiplier;
+                    radiusTwo *= radiusMultiplier;
                     CylinderPoint cylinderPoint(coord, color, normalOne, normalTwo, radiusOne, radiusTwo, calpha);
                     currentBoxSection->addPoint(cylinderPoint);
                 }
                 else {
+                    // Get interpolated aniso values and apply projection onto normals
+                    auto [ax, ay, az] = segment.anisoFor(xVal);
+                    float anisoMultiplierOne = std::sqrt(
+                        std::pow(normalOne.x() * ax, 2) +
+                        std::pow(normalOne.y() * ay, 2) +
+                        std::pow(normalOne.z() * az, 2));
+                    float anisoMultiplierTwo = std::sqrt(
+                        std::pow(normalTwo.x() * ax, 2) +
+                        std::pow(normalTwo.y() * ay, 2) +
+                        std::pow(normalTwo.z() * az, 2));
+                    radiusOne = radiusOneNone * anisoMultiplierOne;
+                    radiusTwo = radiusTwoNone * anisoMultiplierTwo;
                     CylinderPoint cylinderPoint(coord, color, normalOne, normalTwo, radiusOne, radiusTwo, calpha);
                     currentCylinder->addPoint(cylinderPoint);
                 }
@@ -693,6 +753,24 @@ int MolecularRepresentation::drawRibbon()
             FCXXCoord coord = segment.coordFor(xVal);
             FCXXCoord normalOne = segment.normalOneFor(xVal);
             FCXXCoord normalTwo = segment.normalTwoFor(xVal);
+            //Re-orthonormalise against tangent after spline interpolation
+            FCXXCoord tangent = segment.coordFor(xVal + stepPerSubdivision) - segment.coordFor(xVal - stepPerSubdivision);
+            tangent.normalise();
+            normalOne = normalOne - tangent * (normalOne * tangent);
+            normalOne.normalise();
+            normalTwo = normalTwo - tangent * (normalTwo * tangent);
+            normalTwo = normalTwo - normalOne * (normalTwo * normalOne);
+            normalTwo.normalise();
+            //Extrapolate arrow tip and store for next SSE continuity
+            if (inArrowTaper) {
+                coord = arrowBaseCoord + arrowBaseTangent * ((xVal - arrowBaseXVal) / (2.f * stepPerSubdivision));
+                normalOne = arrowBaseNormalOne;
+                normalTwo = arrowBaseNormalTwo;
+                arrowTipCoord = coord;
+                useArrowTipCoord = true;
+                inArrowTaper = false;
+            }
+            color = segment.colorFor(xVal);
 
             float radiusOne;
             float radiusTwo;
@@ -709,6 +787,20 @@ int MolecularRepresentation::drawRibbon()
             else if (nextSSE == mmdb::SSE_Strand && lastSSE == mmdb::SSE_Strand){
                 radiusOne = radiusOneStrand;
                 radiusTwo = radiusTwoStrand;
+            }
+            else {
+                // Coil case: apply interpolated aniso projection
+                auto [ax, ay, az] = segment.anisoFor(xVal);
+                float anisoMultiplierOne = std::sqrt(
+                    std::pow(normalOne.x() * ax, 2) +
+                    std::pow(normalOne.y() * ay, 2) +
+                    std::pow(normalOne.z() * az, 2));
+                float anisoMultiplierTwo = std::sqrt(
+                    std::pow(normalTwo.x() * ax, 2) +
+                    std::pow(normalTwo.y() * ay, 2) +
+                    std::pow(normalTwo.z() * az, 2));
+                radiusOne = radiusOneNone * anisoMultiplierOne;
+                radiusTwo = radiusTwoNone * anisoMultiplierTwo;
             }
             CylinderPoint cylinderPoint(coord, color, normalOne, normalTwo, radiusOne, radiusTwo, calpha);
             if (currentSSE == mmdb::SSE_Strand) currentBoxSection->addPoint(cylinderPoint);
@@ -777,6 +869,7 @@ int MolecularRepresentation::drawSurfaceOfKind(int surfaceKind)
     int chunkSize = 1000000;
     if (sizeof(GLIndexType) == sizeof(short)) chunkSize = 100;
     mmdb->GetSelIndex(selHnd, SelAtoms, nAtoms);
+
     int iAtom = 0;
     int chunkHndl = mmdb->NewSelection();
 

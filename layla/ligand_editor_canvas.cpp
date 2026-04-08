@@ -93,6 +93,11 @@ CootLigandEditorCanvas::CootLigandEditorCanvas() noexcept {
     self->state_stack = std::make_unique<impl::WidgetCoreData::StateStack>();
     self->display_mode = DisplayMode::Standard;
     self->scale = 1.0;
+    self->viewport_origin_offset = std::make_pair(0,0);
+    #ifdef __EMSCRIPTEN__
+    this->minimum_dimensions.width = 0;
+    this->minimum_dimensions.height = 0;
+    #endif
     self->allow_invalid_molecules = false;
     self->use_coordgen = false;
     self->state_stack_pos = -1;
@@ -151,37 +156,20 @@ void coot_ligand_editor_canvas_measure(GtkWidget *widget, GtkOrientation orienta
 {
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(widget);
 #else
-CootLigandEditorCanvas::SizingInfo CootLigandEditorCanvas::measure(CootLigandEditorCanvas::MeasurementDirection orientation) const noexcept {
+CootLigandEditorCanvas::SizingInfo CootLigandEditorCanvas::measure() const noexcept {
     auto* self = this;
     SizingInfo ret;
-    int* minimum_size = &ret.requested_size;
-    int* natural_size = &ret.requested_size;
 #endif
-    graphene_rect_t bounding_rect_for_all;
-    graphene_rect_init(&bounding_rect_for_all, 0, 0, 0, 0);
-
-    for(const auto& a: *self->molecules) {
-        if(a.has_value()) {
-            auto bounding_rect = a->get_on_screen_bounding_rect();
-            graphene_rect_union(&bounding_rect_for_all, &bounding_rect, &bounding_rect_for_all);
-        }
-    }
+    const auto bounding_rect_for_all = self->get_on_screen_bounding_rect();
+    #ifndef __EMSCRIPTEN__
     switch (orientation) {
-        #ifndef __EMSCRIPTEN__
         case GTK_ORIENTATION_HORIZONTAL:{
-        #else
-        case MeasurementDirection::HORIZONTAL:{
-        #endif
             // For now:
             *natural_size = bounding_rect_for_all.size.width;
             *minimum_size = bounding_rect_for_all.size.width;
             break;
         }
-        #ifndef __EMSCRIPTEN__
         case GTK_ORIENTATION_VERTICAL:{
-        #else
-        case MeasurementDirection::VERTICAL:{
-        #endif
             // For now:
             *natural_size = bounding_rect_for_all.size.height;
             *minimum_size = bounding_rect_for_all.size.height;
@@ -190,11 +178,17 @@ CootLigandEditorCanvas::SizingInfo CootLigandEditorCanvas::measure(CootLigandEdi
         default:
             break;
     }
-    #ifdef __EMSCRIPTEN__
-    // if(ret.requested_size == 0) {
-    //     g_warning("FIXME: Overriding zeroed 'requested_size' with 600.");
-    //     ret.requested_size = 600;
-    // }
+    #else
+    ret.width = bounding_rect_for_all.size.width;
+    ret.height = bounding_rect_for_all.size.height;
+    if(ret.width < this->minimum_dimensions.width) {
+        g_debug("Overriding measured width (%u) with a minimum of (%u).", ret.width, this->minimum_dimensions.width);
+        ret.width = this->minimum_dimensions.width;
+    }
+    if(ret.height < this->minimum_dimensions.height) {
+        g_debug("Overriding measured height (%u) with a minimum of (%u).", ret.height, this->minimum_dimensions.height);
+        ret.height = this->minimum_dimensions.height;
+    }
     return ret;
     #endif
 }
@@ -260,7 +254,7 @@ void CootLigandEditorCanvas::on_hover(double x, double y, bool alt_pressed, bool
             // when creating a bond
             if(self->currently_created_bond.has_value()) {
                 auto& new_bond = *self->currently_created_bond;
-                auto coords = target.get_on_screen_coords(atom.x, atom.y);
+                auto coords = target.get_on_screen_coords(atom.x, atom.y, self->viewport_origin_offset, self->scale);
                 new_bond.second_atom_x = coords.first;
                 new_bond.second_atom_y = coords.second;
             }
@@ -366,7 +360,7 @@ void CootLigandEditorCanvas::on_left_click(double x, double y, bool alt_pressed,
     if(self->active_tool->is_creating_bond()) {
         CurrentlyCreatedBond new_bond;
         auto [mol_idx, atom_idx] = self->active_tool->get_molecule_idx_and_first_atom_of_new_bond().value();
-        auto coords = *self->molecules->at(mol_idx)->get_on_screen_coords_of_atom(atom_idx);
+        auto coords = *self->molecules->at(mol_idx)->get_on_screen_coords_of_atom(atom_idx, self->viewport_origin_offset, self->scale);
         new_bond.first_atom_x = coords.first;
         new_bond.first_atom_y = coords.second;
         new_bond.second_atom_x = coords.first;
@@ -551,11 +545,6 @@ G_END_DECLS
 
 void coot_ligand_editor_canvas_set_scale(CootLigandEditorCanvas* self, float display_scale) noexcept {
     self->scale = display_scale;
-    for(auto& mol_opt: *self->molecules) {
-        if(mol_opt) {
-            mol_opt->set_canvas_scale(display_scale);
-        }
-    }
     _LIGAND_EDITOR_SIGNAL_EMIT_ARG(self, scale_changed_signal,self->scale);
     self->queue_redraw();
     self->queue_resize();
@@ -582,16 +571,17 @@ int coot_ligand_editor_canvas_append_molecule(CootLigandEditorCanvas* self, std:
         // Might throw if the constructor fails.
         self->begin_edition();
         self->molecules->push_back(CanvasMolecule(rdkit_mol, self->allow_invalid_molecules, self->use_coordgen));
-        self->molecules->back()->set_canvas_scale(self->scale);
         #ifndef __EMSCRIPTEN__
         self->molecules->back()->apply_canvas_translation(
             gtk_widget_get_size(GTK_WIDGET(self), GTK_ORIENTATION_HORIZONTAL) / 2.0, 
-            gtk_widget_get_size(GTK_WIDGET(self), GTK_ORIENTATION_VERTICAL) / 2.0
+            gtk_widget_get_size(GTK_WIDGET(self), GTK_ORIENTATION_VERTICAL) / 2.0,
+            self->scale
         );
         #else
         self->molecules->back()->apply_canvas_translation(
-            self->measure(CootLigandEditorCanvas::MeasurementDirection::HORIZONTAL).requested_size / 2.0, 
-            self->measure(CootLigandEditorCanvas::MeasurementDirection::VERTICAL).requested_size / 2.0
+            self->measure().width / 2.0, 
+            self->measure().height / 2.0,
+            self->scale
         );
         #endif
         self->rdkit_molecules->push_back(std::move(rdkit_mol));
@@ -649,12 +639,14 @@ void coot_ligand_editor_canvas_update_molecule_from_smiles(CootLigandEditorCanva
 
 void coot_ligand_editor_canvas_undo_edition(CootLigandEditorCanvas* self) noexcept {
     self->undo_edition();
+    self->queue_resize();
     self->queue_redraw();
     self->emit_mutation_signals();
 }
 
 void coot_ligand_editor_canvas_redo_edition(CootLigandEditorCanvas* self) noexcept {
     self->redo_edition();
+    self->queue_resize();
     self->queue_redraw();
     self->emit_mutation_signals();
 }
@@ -710,6 +702,7 @@ DisplayMode coot_ligand_editor_canvas_get_display_mode(CootLigandEditorCanvas* s
 
 void coot_ligand_editor_canvas_set_display_mode(CootLigandEditorCanvas* self, DisplayMode value) noexcept {
     self->display_mode = value;
+    self->queue_resize();
     self->queue_redraw();
 }
 
@@ -717,19 +710,42 @@ coot::ligand_editor_canvas::SmilesMap coot_ligand_editor_canvas_get_smiles(CootL
     return self->build_smiles();
 }
 
+coot::ligand_editor_canvas::InchiKeyMap coot_ligand_editor_canvas_get_inchi_keys(CootLigandEditorCanvas* self) noexcept {
+    return self->build_inchi_keys();
+}
+
 std::string coot_ligand_editor_canvas_get_smiles_for_molecule(CootLigandEditorCanvas* self, unsigned int molecule_idx) noexcept {
     if(molecule_idx < self->rdkit_molecules->size()) {
         const auto& mol_opt = (*self->rdkit_molecules)[molecule_idx];
         if(mol_opt.has_value()) {
-            return RDKit::MolToSmiles(*mol_opt->get());
+            return RDKit::MolToSmiles(*mol_opt->get(), true);
         }
     }
     return "";
 }
 
+std::string coot_ligand_editor_canvas_get_inchi_key_for_molecule(CootLigandEditorCanvas* self, unsigned int molecule_idx) noexcept {
+   if (molecule_idx < self->rdkit_molecules->size()) {
+        const auto &mol_opt = (*self->rdkit_molecules)[molecule_idx];
+        if (mol_opt.has_value()) {
+            #ifdef RDK_BUILD_INCHI_SUPPORT
+            // This should not crash. Do not remove this line or you're breaking functionality on platforms where Inchi works.
+            // If it crashes - try to update your RDKit, idk. Or maybe try ... catch if you need it,
+            // but don't remove this line.
+            return RDKit::MolToInchiKey(*mol_opt->get());
+            #else
+            g_warning("Your version of RDKit was built without InChI support. Molecule InChI key lookup will not be available.");
+            return "";
+            #warning Your version of RDKit was built without InChI support. Molecule InChI key lookup will not be available.
+            #endif
+        }
+   }
+    return "";
+}
+
 std::string coot_ligand_editor_canvas_get_pickled_molecule(CootLigandEditorCanvas* self, unsigned int molecule_idx) noexcept {
     std::string ret = "";
-    if(molecule_idx < self->rdkit_molecules->size()) {
+    if (molecule_idx < self->rdkit_molecules->size()) {
         const auto& mol_opt = (*self->rdkit_molecules)[molecule_idx];
         if(mol_opt.has_value()) {
             RDKit::MolPickler::pickleMol(mol_opt->get(), ret);

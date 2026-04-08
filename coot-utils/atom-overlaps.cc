@@ -20,6 +20,9 @@
  * 02110-1301, USA
  */
 
+#include <string.h>
+
+#include "mmdb2/mmdb_uddata.h"
 #include <stdlib.h> // needed from abs()
 
 #include <iomanip>
@@ -35,6 +38,9 @@
 #include "coot-coord-utils.hh"
 #include "geometry/main-chain.hh"
 
+#include "utils/logging.hh"
+extern logging logger;
+
 coot::atom_overlaps_container_t::atom_overlaps_container_t(mmdb::Residue *res_central_in,
                                                            const std::vector<mmdb::Residue *> &neighbours_in,
                                                            mmdb::Manager *mol_in,
@@ -43,6 +49,7 @@ coot::atom_overlaps_container_t::atom_overlaps_container_t(mmdb::Residue *res_ce
    res_central = res_central_in;
    neighbours = neighbours_in;
    mol = mol_in;
+   imol_enc = protein_geometry::IMOL_ENC_ANY;
    clash_spike_length = 0.5;
    init();
 
@@ -57,17 +64,21 @@ coot::atom_overlaps_container_t::atom_overlaps_container_t(mmdb::Residue *res_ce
    res_central = res_central_in;
    neighbours.push_back(neighbour);
    mol = mol_in;
+   imol_enc = protein_geometry::IMOL_ENC_ANY; // hack
    clash_spike_length = 0.5;
    init();
 
 }
 
+// this one for contact dots (around central ligand)
+//
 // this can throw a std::out_of_range (missing residue from dictionary)
 //
 // clash spike_length should be 0.5;
 coot::atom_overlaps_container_t::atom_overlaps_container_t(mmdb::Residue *res_central_in,
                                                            const std::vector<mmdb::Residue *> &neighbours_in,
                                                            mmdb::Manager *mol_in,
+                                                           int imol_enc_in,
                                                            const protein_geometry *geom_p_in,
                                                            double clash_spike_length_in,
                                                            double probe_radius_in) {
@@ -76,6 +87,7 @@ coot::atom_overlaps_container_t::atom_overlaps_container_t(mmdb::Residue *res_ce
    res_central = res_central_in;
    neighbours = neighbours_in;
    mol = mol_in;
+   imol_enc = imol_enc_in,
    clash_spike_length = clash_spike_length_in;
    init();
 
@@ -88,9 +100,11 @@ coot::atom_overlaps_container_t::atom_overlaps_container_t(mmdb::Manager *mol_in
                                                            bool ignore_water_contacts_flag_in,
                                                            double clash_spike_length_in,
                                                            double probe_radius_in) {
+
    geom_p = geom_p_in;
    res_central = 0;
    mol = mol_in;
+   imol_enc = protein_geometry::IMOL_ENC_ANY; // hack
    clash_spike_length = 0.5;
    probe_radius = probe_radius_in;
    ignore_water_contacts_flag = ignore_water_contacts_flag_in;
@@ -106,14 +120,15 @@ coot::atom_overlaps_container_t::init() {
 
    overlap_mode = CENTRAL_RESIDUE;
 
+   udd_residue_index_handle = -1; // unset
+
    have_dictionary = false; // initially.
    molecule_has_hydrogens = false; // initially
 
    if (res_central) {
 
       std::string cres_name = res_central->GetResName();
-      std::pair<bool, dictionary_residue_restraints_t> d =
-         geom_p->get_monomer_restraints(cres_name, protein_geometry::IMOL_ENC_ANY);
+      std::pair<bool, dictionary_residue_restraints_t> d = geom_p->get_monomer_restraints(cres_name, imol_enc);
       if (! d.first) {
          std::cout << "WARNING:: (or ERROR::) in atom_overlaps_container_t::init() Failed to get dictionary for "
                    << cres_name << std::endl;
@@ -130,7 +145,8 @@ coot::atom_overlaps_container_t::init() {
          have_dictionary = true;
          for (unsigned int i=0; i<neighbours.size(); i++) {
             std::string residue_name = neighbours[i]->GetResName();
-            d = geom_p->get_monomer_restraints(residue_name, protein_geometry::IMOL_ENC_ANY);
+            // std::cout << "testing for " << residue_name << std::endl;
+            d = geom_p->get_monomer_restraints(residue_name, imol_enc);
             if (! d.first) {
                std::cout << "WARNING:: Overlap fail. Failed to get dictionary for name "
                          << residue_name << std::endl;
@@ -145,9 +161,11 @@ coot::atom_overlaps_container_t::init() {
 
       if (have_dictionary) {
          fill_ligand_atom_neighbour_map(); // and add radius
+
          mark_donors_and_acceptors();
       }
    }
+
 }
 
 // this can throw a std::out_of_range (missing residue from dictionary)
@@ -155,13 +173,31 @@ coot::atom_overlaps_container_t::init() {
 void
 coot::atom_overlaps_container_t::init_for_all_atom() {
 
+   // 20250225-PE the molecule could be re-used in a new atom_overlaps_container_t
+   // so let's check if we have a udd for hb_type and if so, we can skip this
+   // init() - because the molecule has already been setup.
+   // int udd_test_handle = mol->GetUDDHandle(mmdb::UDR_ATOM, "hb_typeadsfadf");
+   // std::cout << "::::::::::::::::::::::::: udd_test_handle " << udd_test_handle << std::endl;
+
    overlap_mode = ALL_ATOM;
+
+   int udd_handle_t2 = mol->GetUDDHandle(mmdb::UDR_HIERARCHY, "setup-hydrogen-types");
+   // std::cout << "::::: udd_handle_t2 " << udd_handle_t2 << std::endl;
+   if (udd_handle_t2 == 0) {
+      udd_handle_t2 = mol->RegisterUDInteger(mmdb::UDR_HIERARCHY, "setup-hydrogen-types");
+      mol->PutUDData(udd_handle_t2, 11);
+   } else {
+      // std::cout << ":::: udd_handle_t2 found - returning early" << std::endl;
+      // return;
+   }
+
+   // only do this once
+   udd_residue_index_handle = mol->RegisterUDInteger(mmdb::UDR_ATOM, "neighb-residue-index");
 
    // neighbours is a misnomer in this case - it is merely a list of all residue
 
    have_dictionary = true; // initially.
    molecule_has_hydrogens = false; // initially
-
 
    for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
       mmdb::Model *model_p = mol->GetModel(imod);
@@ -173,7 +209,18 @@ coot::atom_overlaps_container_t::init_for_all_atom() {
             for (int ires=0; ires<nres; ires++) {
                mmdb::Residue *residue_p = chain_p->GetResidue(ires);
                if (residue_p) {
+                  int neigh_idx = neighbours.size();
                   neighbours.push_back(residue_p);
+
+                  // for lookups in setup_env_residue_atoms_radii()
+                  mmdb::Atom **residue_atoms = 0;
+                  int n_residue_atoms;
+                  residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+                  for (int iat=0; iat<n_residue_atoms; iat++) {
+                     mmdb::Atom *at = residue_atoms[iat];
+                     at->PutUDData(udd_residue_index_handle, neigh_idx);
+                  }
+
                   std::string residue_name(residue_p->GetResName());
                   std::map<std::string, dictionary_residue_restraints_t>::const_iterator it;
                   it = dictionary_map.find(residue_name);
@@ -197,6 +244,8 @@ coot::atom_overlaps_container_t::init_for_all_atom() {
    // now mark donors and acceptors.
    //
    udd_h_bond_type_handle = mol->RegisterUDInteger(mmdb::UDR_ATOM, "hb_type");
+   // std::cout << "::::: registered ud integer handle: " << udd_h_bond_type_handle
+   //           << " for mol " << mol << std::endl;
 
    mark_donors_and_acceptors_for_neighbours(udd_h_bond_type_handle);
 
@@ -245,22 +294,25 @@ coot::atom_overlaps_container_t::mark_donors_and_acceptors_central_residue(int u
                   // std::cout << "----- adding ligand HB_HYDROGEN udd " << atom_spec_t(at) << std::endl;
                   at->PutUDData(udd_h_bond_type_handle, coot::HB_HYDROGEN); // hb_t -> int
                }
-	       // additionally NR5 can be a donor (because the real type should be NR15)
-	       if (neigh_energy_type == "NR5") {
+               // additionally NR5 can be a donor (because the real type should be NR15)
+               if (neigh_energy_type == "NR5") {
                   at->PutUDData(udd_h_bond_type_handle, coot::HB_HYDROGEN);
-	       }
+               }
             }
          } else {
             std::string energy_type = central_residue_dictionary.type_energy(atom_name);
             energy_lib_atom ela = geom_p->get_energy_lib_atom(energy_type);
             hb_t hb_type = ela.hb_type;
             at->PutUDData(udd_h_bond_type_handle, hb_type); // hb_t -> int
-	    if (energy_type == "NR5") {
-	      // test here that there is a hydrogen atom bonded to this one
-	      if (true) {
-		at->PutUDData(udd_h_bond_type_handle, coot::HB_DONOR); // hack, for above reasons
-	      }
-	    }
+            if (false)
+               std::cout << "marked ligand atom " << coot::atom_spec_t(at) << " as hb_type " << hb_type
+                         << " note HB_DONOR " << HB_DONOR << " HB_ACCEPTOR " << HB_ACCEPTOR << std::endl;
+            if (energy_type == "NR5") {
+              // test here that there is a hydrogen atom bonded to this one
+              if (true) {
+                at->PutUDData(udd_h_bond_type_handle, coot::HB_DONOR); // hack, for above reasons
+              }
+            }
          }
       }
    }
@@ -271,7 +323,13 @@ coot::atom_overlaps_container_t::mark_donors_and_acceptors_central_residue(int u
 const coot::dictionary_residue_restraints_t &
 coot::atom_overlaps_container_t::get_dictionary(mmdb::Residue *r, unsigned int idx) const {
 
+   if (false)
+      std::cout << ":::::::::::::::::::::::: in get_dictionary() the dictionary_map is of size "
+                << dictionary_map.size() << " and idx is " << idx
+                << " overlap_mode " << overlap_mode  << " vs ALL_ATOM " << ALL_ATOM << std::endl;
+
    if (overlap_mode == ALL_ATOM) {
+
       std::string res_name = r->GetResName();
       std::map<std::string, dictionary_residue_restraints_t>::const_iterator it =
          dictionary_map.find(res_name);
@@ -294,6 +352,8 @@ coot::atom_overlaps_container_t::get_dictionary(mmdb::Residue *r, unsigned int i
 //
 void
 coot::atom_overlaps_container_t::mark_donors_and_acceptors_for_neighbours(int udd_h_bond_type_handle) {
+
+   // std::cout << "mark_donors_and_acceptors_for_neighbours() " << udd_h_bond_type_handle << std::endl;
 
    if (false) {
       std::cout << "mark_donors_and_acceptors_for_neighbours() here are the neigbhors"
@@ -323,7 +383,7 @@ coot::atom_overlaps_container_t::mark_donors_and_acceptors_for_neighbours(int ud
                   energy_lib_atom neighb_ela = geom_p->get_energy_lib_atom(neigh_energy_type);
                   hb_t neighb_hb_type = neighb_ela.hb_type;
                   if (false)
-                     std::cout << "2222222222222222222222 mark_donors_and_acceptors_for_neighbours() "
+                     std::cout << "222 mark_donors_and_acceptors_for_neighbours() "
                                << "heavy_neighb_of_H_atom " << heavy_neighb_of_H_atom << " neigh_hb_type for H-atom "
                                << atom_name << " is " << neighb_hb_type << " with neighb_ela type " << neighb_ela.type << std::endl;
                   if (neighb_hb_type == coot::HB_DONOR) {
@@ -334,10 +394,10 @@ coot::atom_overlaps_container_t::mark_donors_and_acceptors_for_neighbours(int ud
                      // std::cout << "----- adding env HB_HYDROGEN udd " << atom_spec_t(n_at) << std::endl;
                      n_at->PutUDData(udd_h_bond_type_handle, coot::HB_HYDROGEN); // hb_t -> int
                   }
-		  // additionally NR5 can be a donor (because the real type should be NR15)
-		  if (neigh_energy_type == "NR5") {
-		    n_at->PutUDData(udd_h_bond_type_handle, coot::HB_HYDROGEN);
-		  }
+                  // additionally NR5 can be a donor (because the real type should be NR15)
+                  if (neigh_energy_type == "NR5") {
+                    n_at->PutUDData(udd_h_bond_type_handle, coot::HB_HYDROGEN);
+                  }
                } else {
                   std::cout << "ERROR:: mark_donors_and_acceptors_for_neighbours() oops empty heavy for H-atom "
                             << atom_name << std::endl;
@@ -346,20 +406,21 @@ coot::atom_overlaps_container_t::mark_donors_and_acceptors_for_neighbours(int ud
                std::string energy_type = dict.type_energy(atom_name);
                energy_lib_atom ela = geom_p->get_energy_lib_atom(energy_type);
                hb_t hb_type = ela.hb_type;
-               // std::cout << "----- adding env hb_type " << hb_type << " udd " << atom_spec_t(n_at) << " "
-               // << n_at << " using handle " << udd_h_bond_type_handle << std::endl;
+               if (false)
+                  std::cout << "----- adding env hb_type " << hb_type << " udd " << atom_spec_t(n_at) << " "
+                            << " using handle " << udd_h_bond_type_handle << std::endl;
                if (n_at->PutUDData(udd_h_bond_type_handle, hb_type) == mmdb::UDDATA_Ok) { // hb_t -> int
                   // std::cout << "putting uddata for hb_type " << hb_type << " OK" << std::endl;
                } else {
                   std::cout << "ERROR:: mark_donors_and_acceptors_for_neighbours() putting uddata for hb_type "
                             << hb_type << " fail" << std::endl;
                }
-	       if (energy_type == "NR5") {
-		 // test here that there is a hydrogen atom bonded to this one
-		 if (true) {
-		   n_at->PutUDData(udd_h_bond_type_handle, coot::HB_DONOR); // hack, for above reasons
-		 }
-	       }
+               if (energy_type == "NR5") {
+                 // test here that there is a hydrogen atom bonded to this one
+                 if (true) {
+                   n_at->PutUDData(udd_h_bond_type_handle, coot::HB_DONOR); // hack, for above reasons
+                 }
+               }
                if (false)
                   std::cout << "........... type_energy for atom name " << atom_name
                             << " in dictionary for comp-id \"" << dict.residue_info.comp_id
@@ -417,6 +478,9 @@ coot::atom_overlaps_container_t::fill_ligand_atom_neighbour_map() {
 
 void
 coot::atom_overlaps_container_t::make_overlaps() {
+
+   if (false)
+      std::cout << ":::::::::::::::::: make_overlaps()" << std::endl;
 
    if (! have_dictionary) {
       std::cout << "WARNING:: make_overlaps(): No dictionary!" << std::endl;
@@ -530,10 +594,13 @@ coot::atom_overlaps_container_t::make_overlaps() {
                } else {
                   if (hbi.is_h_bond_H_and_acceptor) {
                      if (d < (dist_crit + 0.5)) {
-                        std::cout << "INFO:: " << atom_spec_t(cr_at) << "" << " and " << atom_spec_t(n_at)
-                                  << " r_1 " << r_1 << " and r_2 " << r_2  <<  " and d " << d
-                                  << " but might be h-bond anyway (is this strange?)"
-                                  << std::endl;
+                        // std::cout << "INFO:: " << atom_spec_t(cr_at) << "" << " and " << atom_spec_t(n_at)
+                        //           << " r_1 " << r_1 << " and r_2 " << r_2  <<  " and d " << d
+                        //           << " but might be h-bond anyway (is this strange?)"
+                        //           << std::endl;
+                        logger.log(log_t::INFO, atom_spec_t(cr_at).format(), "and", atom_spec_t(n_at).format(),
+                                   "r_1", r_1, "and r_2", r_2, "and d", d,
+                                   "but might be h-bond anyway (is this strange?)");
                         // double o = 0;
                         // atom_overlap_t ao(cr_at, n_at, r_1, r_2, o);
                         // ao.is_h_bond = true;
@@ -548,17 +615,30 @@ coot::atom_overlaps_container_t::make_overlaps() {
 
    std::sort(baddies.begin(), baddies.end(), baddie_attribs_t::sorter);
    for(auto const &b : baddies) {
-      std::cout << "INFO:: " << atom_spec_t(b.cr_at) << "" << " and " << atom_spec_t(b.n_at)
-                << " r_1 " << b.r_1 << " and r_2 " << b.r_2  <<  " and d " << b.d
-                << " overlap " << b.o;
-      // << " IS H-Bond (ligand donor)" << std::endl;
+      // std::cout << "INFO:: make_overlaps(): baddie: "
+      //           << atom_spec_t(b.cr_at) << "" << " and " << atom_spec_t(b.n_at)
+      //           << " r_1 " << std::left << std::setw(4) << b.r_1 << " and r_2 "
+      //           << std::left << std::setw(4) << b.r_2
+      //           <<  " and d " << std::setw(4) << b.d << " overlap " << b.o;
+      // // << " IS H-Bond (ligand donor)" << std::endl;
+      // if (b.is_hydrogen_bond) {
+      //    if (b.hydrogen_atom_is_first_atom)
+      //       std::cout << " is H-bond (ligand donor)";
+      //    else
+      //       std::cout << " is H-bond (ligand acceptor)";
+      // }
+      // std::cout << std::endl;
+      std::string hb_str;
       if (b.is_hydrogen_bond) {
          if (b.hydrogen_atom_is_first_atom)
-            std::cout << " is H-bond (ligand donor)";
+            hb_str = "is H-bond (ligand donor)";
          else
-            std::cout << " is H-bond (ligand acceptor)";
+            hb_str = "is H-bond (ligand acceptor)";
       }
-      std::cout << std::endl;
+      logger.log(log_t::INFO, "make_overlaps(): baddie: " + atom_spec_t(b.cr_at).format() +
+                 " and " + atom_spec_t(b.n_at).format() +
+                 " r_1 " + std::to_string(b.r_1) + " and r_2 " + std::to_string(b.r_2) +
+                 " and d " + std::to_string(b.d) + " overlap " + std::to_string(b.o) + " " + hb_str);
    }
 }
 
@@ -839,14 +919,17 @@ coot::atom_overlaps_container_t::h_bond_info_t::h_bond_info_t(mmdb::Atom *ligand
       if (env_atom->GetUDData(udd_h_bond_type_handle, hb_2) == mmdb::UDDATA_Ok) {
 
          if (false) // 20240325-PE used to help debug the error message below (not an error, I now think)
-            std::cout << "INFO::  h_bond_info_t() env_atom->GetUDData(udd_h_bond_type_handle, hb_2) worked with handle "
-                      << udd_h_bond_type_handle << " ligand-atom: " << coot::atom_spec_t(ligand_atom) << " env_atom: "
-                      << env_atom << " " << coot::atom_spec_t(env_atom) << std::endl;
+            // std::cout << "INFO::  h_bond_info_t() env_atom->GetUDData(udd_h_bond_type_handle, hb_2) worked with handle "
+            //           << udd_h_bond_type_handle << " ligand-atom: " << coot::atom_spec_t(ligand_atom) << " env_atom: "
+            //           << env_atom << " " << coot::atom_spec_t(env_atom) << std::endl;
+            logger.log(log_t::INFO, "h_bond_info_t() env_atom->GetUDData(udd_h_bond_type_handle, hb_2) worked with handle",
+                       udd_h_bond_type_handle, "ligand-atom:", coot::atom_spec_t(ligand_atom).format(),
+                       "env_atom:", coot::atom_spec_t(env_atom).format());
 #if 0
-	if (ligand_atom->GetSeqNum() == 901 || env_atom->GetSeqNum() == 901) {
-	  std::cout << "h_bond_info_t constructor " << atom_spec_t(ligand_atom)   << " "
-		    << atom_spec_t(env_atom) << " " << hb_1 << " " << hb_2 << "\n";
-	}
+        if (ligand_atom->GetSeqNum() == 901 || env_atom->GetSeqNum() == 901) {
+          std::cout << "h_bond_info_t constructor " << atom_spec_t(ligand_atom)   << " "
+                    << atom_spec_t(env_atom) << " " << hb_1 << " " << hb_2 << "\n";
+        }
 #endif
 
          if (hb_1 == HB_HYDROGEN) {
@@ -1279,7 +1362,7 @@ coot::atom_overlaps_container_t::contact_dots_for_ligand(double dot_density_in) 
                   sphere_points_for_atom = H_sphere_points;
 
                for (unsigned int j=0; j<sphere_points_for_atom.size(); j++) {
-                  
+
                   const clipper::Coord_orth &pt(sphere_points[j]);
                   clipper::Coord_orth pt_at_surface = r_1 * pt + pt_at_1;
                   bool draw_it = ! is_inside_another_ligand_atom(iat, pt_at_surface);
@@ -1356,8 +1439,8 @@ coot::atom_overlaps_container_t::contact_dots_for_ligand(double dot_density_in) 
                         // is_h_bond_H_and_acceptor(cr_at, atom_with_biggest_overlap, udd_h_bond_type_handle);
                         h_bond_info_t hbi(cr_at, atom_with_biggest_overlap, udd_h_bond_type_handle);
                         bool is_h_bond = false;
-                        if (hbi.is_h_bond_H_and_acceptor)
-                           is_h_bond = true;
+                        if (hbi.is_h_bond_H_and_acceptor) is_h_bond = true;
+                        if (hbi.is_h_bond_donor_and_acceptor)  is_h_bond = true;
 
                         std::pair<std::string, std::string> c_type_col =
                            overlap_delta_to_contact_type(overlap_delta, is_h_bond);
@@ -1365,7 +1448,10 @@ coot::atom_overlaps_container_t::contact_dots_for_ligand(double dot_density_in) 
                         const std::string &col    = c_type_col.second;
 
                         if (false)
-                           std::cout << "............ here with is_h_bond " << is_h_bond
+                           std::cout << "............ here in contact_dots_for_ligand() "
+                                     << coot::atom_spec_t(cr_at) << " "
+                                     << coot::atom_spec_t(atom_with_biggest_overlap) << " "
+                                     << "with is_h_bond " << is_h_bond
                                      << " " <<  c_type << " " << col << std::endl;
 
                         if (false)
@@ -1464,7 +1550,7 @@ coot::atom_overlaps_container_t::all_atom_contact_dots(double dot_density_in,
       //
          ao = all_atom_contact_dots_internal_single_thread(dot_density_in, mol, i_sel_hnd, i_sel_hnd,
                                                            min_dist, max_dist, make_vdw_surface);
-         
+
 #endif //
 
          mol->DeleteSelection(i_sel_hnd);
@@ -1729,7 +1815,7 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_multi_thread(dou
    for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
 
    mmdb::Atom **atom_selection = 0;
-   int n_selected_atoms;
+   int n_selected_atoms = 0;
    mol->GetSelIndex(i_sel_hnd_1, atom_selection, n_selected_atoms);
    setup_env_residue_atoms_radii(i_sel_hnd_1);
    mmdb::Contact *pscontact = NULL;
@@ -2198,14 +2284,14 @@ coot::atom_overlaps_container_t::overlap_delta_to_contact_type(double delta, boo
 
    if (is_h_bond) {
       if (delta >= -0.15) { // not 0, so that we turn small overlaps to H-bond dots
-	 delta -= 0.8;
-	 if (delta > 0.4) {
-	    type = "clash";
-	    colour = "hotpink";
-	 } else {
-	    type = "H-bond";
-	    colour = "darkpurple";
-	 }
+         delta -= 0.8;
+         if (delta > 0.4) {
+            type = "clash";
+            colour = "hotpink";
+         } else {
+            type = "H-bond";
+            colour = "darkpurple";
+         }
       }
    } else {
 
@@ -2295,8 +2381,8 @@ coot::atom_overlaps_container_t::overlap_delta_to_contact_type(double delta,
             colour = "darkpurple";
          }
       } else {
-	type = "H-bond";
-	colour = "darkpurple";
+        type = "H-bond";
+        colour = "darkpurple";
       }
    } else {
 
@@ -2393,6 +2479,8 @@ coot::atom_overlaps_container_t::add_residue_neighbour_index_to_neighbour_atoms(
 void
 coot::atom_overlaps_container_t::setup_env_residue_atoms_radii(int i_sel_hnd_env_atoms) {
 
+   if (! neighb_atom_radius.empty()) return;
+
    if (!have_dictionary) {
       std::cout << "setup_env_residue_atoms_radii() no dictionary " << std::endl;
    }
@@ -2402,30 +2490,55 @@ coot::atom_overlaps_container_t::setup_env_residue_atoms_radii(int i_sel_hnd_env
    mol->GetSelIndex(i_sel_hnd_env_atoms, env_residue_atoms, n_env_residue_atoms);
    neighb_atom_radius.resize(n_env_residue_atoms);
 
+   if (false) {
+      for (int i=0; i<n_env_residue_atoms; i++) {
+         mmdb::Atom *at = env_residue_atoms[i];
+         std::cout << "atom at " << i << " " << coot::atom_spec_t(at) << std::endl;
+      }
+   }
+
    for (int i=0; i<n_env_residue_atoms; i++) {
       mmdb::Atom *at = env_residue_atoms[i];
-      mmdb::Residue *res = at->residue;
-      int residue_index;
-      at->GetUDData(udd_residue_index_handle, residue_index);
-      // const dictionary_residue_restraints_t &rest = neighb_dictionaries[residue_index];
-      try {
-         const dictionary_residue_restraints_t &rest = get_dictionary(res, residue_index);
-         std::string te = rest.type_energy(at->GetAtomName());
-         if (! te.empty()) {
-            std::map<std::string, double>::const_iterator it_type = type_to_vdw_radius_map.find(te);
-            if (it_type == type_to_vdw_radius_map.end()) {
-               if (geom_p)
-                  r = type_energy_to_radius(te);
-               type_to_vdw_radius_map[te] = r;
-               // std::cout << "debug type_to_vdw_radius_map " << std::setw(4) << te << "   " << r << std::endl;
-            } else {
-               r = it_type->second;
+      // std::cout << "loop that breaks " << i << " " << at << " " << at->GetAtomName() << std::endl;
+      int residue_index = -1;
+      int ierr = at->GetUDData(udd_residue_index_handle, residue_index);
+
+      if (ierr == mmdb::UDDATA_Ok) {
+
+         // const dictionary_residue_restraints_t &rest = neighb_dictionaries[residue_index];
+         try {
+
+            // in ALL_ATOM mode the lookup uses the residue name, not the index.
+            // there should be two functions because this is confusing.
+            if (false)
+               std::cout << ":::::::::::::::::: in setup_env_residue_atoms_radii() the dictionary_map is of size "
+                         << dictionary_map.size() << " and residue_index is " << residue_index << std::endl;
+
+            mmdb::Residue *res = at->residue;
+            const dictionary_residue_restraints_t &rest = get_dictionary(res, residue_index);
+            // is rest sane?
+            // std::cout << "debug:: rest has " << rest.atom_info.size() << " atoms "<< std::endl;
+            // std::cout << "debug:: rest has " << rest.bond_restraint.size() << " bond restraints "<< std::endl;
+            std::string atom_name = at->GetAtomName();
+            std::string te = rest.type_energy(atom_name);
+            if (! te.empty()) {
+               std::map<std::string, double>::const_iterator it_type = type_to_vdw_radius_map.find(te);
+               if (it_type == type_to_vdw_radius_map.end()) {
+                  if (geom_p)
+                     r = type_energy_to_radius(te);
+                  type_to_vdw_radius_map[te] = r;
+                  // std::cout << "debug type_to_vdw_radius_map " << std::setw(4) << te << "   " << r << std::endl;
+               } else {
+                  r = it_type->second;
+               }
+               neighb_atom_radius[i] = r;
             }
-            neighb_atom_radius[i] = r;
          }
-      }
-      catch (const std::out_of_range &ex) {
-         std::cout << "OOpps " << ex.what() << std::endl;
+         catch (const std::out_of_range &ex) {
+            std::cout << "OOpps " << ex.what() << std::endl;
+         }
+      } else {
+         std::cout << "ERROR:: failed to get UDData for residue index" << std::endl;
       }
    }
 }
@@ -2547,7 +2660,7 @@ coot::atom_overlaps_container_t::bonded_angle_or_ring_related(mmdb::Manager *mol
             std::cout << "------------------ in bonded_angle_or_ring_related() with res names " << res_name_1 << " " << res_name_2
                       << " and ignore_water_contacts_flag " << ignore_water_contacts_flag << " ait: " << ait << std::endl;
          }
-         
+
       }
    } else {
 
@@ -2583,6 +2696,7 @@ coot::atom_overlaps_container_t::bonded_angle_or_ring_related(mmdb::Manager *mol
          }
       }
       if (ait == CLASHABLE) { // i.e. so far, unset by this block
+         // std::cout << "checking for in-same-ring for " << coot::atom_spec_t(at_1) << " " << coot::atom_spec_t(at_2) << std::endl;
          bool ringed = in_same_ring(at_1, at_2, *ring_list_map); // update ring_list_map
          if (ringed) ait = BONDED;
       }
@@ -2880,6 +2994,8 @@ coot::atom_overlaps_container_t::in_same_ring(mmdb::Atom *at_1, mmdb::Atom *at_2
       }
       catch (const std::out_of_range &ex) {
          std::cout << "OOpps " << ex.what() << std::endl;
+         logger.log(log_t::WARNING, logging::function_name_t(__FUNCTION__),
+                    "Ooops", ex.what());
       }
    }
    return same;

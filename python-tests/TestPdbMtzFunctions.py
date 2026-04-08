@@ -183,7 +183,7 @@ class TestPdbMtzFunctions(unittest.TestCase):
 
         imol = coot_testing_utils.unittest_pdb("tutorial-modern.pdb")
 
-        coot_utils.mutate_by_overlap(imol, "A", 86, "PTR")
+        coot.mutate_by_overlap(imol, "A", 86, "PTR")
         rn = coot.residue_name(imol, "A", 86, "")
         self.assertTrue(rn == "PTR")
         # OK, did the the refinement run OK? Check the C-N distance
@@ -452,6 +452,26 @@ class TestPdbMtzFunctions(unittest.TestCase):
         r = coot.residue_info_py(imol, "A", 42, "")
         print("residue info (should be False):", r)
         self.assertFalse(r)
+
+
+    def test13_2(self):
+       """Undo and redo, i.e. backup"""
+
+       imol = coot.read_pdb(coot_testing_utils.rnase_pdb())
+       self.assertTrue(coot_utils.valid_model_molecule_qm(imol))
+       coot.delete_residue(imol, "A", 42, "")
+       r1 = coot.residue_info_py(imol, "A", 42, "")
+       print("residue info (after delete should be False):", r1)
+       # now undo and r should be back
+       coot.set_undo_molecule(imol)
+       coot.apply_undo()
+       r2 = coot.residue_info_py(imol, "A", 42, "")
+       print("now residue info (after undo should be something):", r2)
+       self.assertTrue(len(r2) > 0)
+       coot.apply_redo()
+       r3 = coot.residue_info_py(imol, "A", 42, "")
+       print("now residue info (after redo should be False again):", r3)
+       self.assertFalse(r3)
 
 
     def test14_0(self):
@@ -1454,25 +1474,54 @@ class TestPdbMtzFunctions(unittest.TestCase):
 
 
     def test30_0(self):
-        """Make a glycosidic linkage"""
+        """Refine, Make a glycosidic linkage, refine again"""
+
+        # 20251223-PE I have doubts about this test.
+        # They are consequitive residues so should form
+        # a link implicity. Hmm.
 
         carbo = "multi-carbo-coot-3.pdb"
         imol = coot_testing_utils.unittest_pdb(carbo)
+        imol_copy = coot.copy_molecule(imol)
 
         atom_1 = coot_utils.get_atom(imol, "A", 1, "", " O4 ")
         atom_2 = coot_utils.get_atom(imol, "A", 2, "", " C1 ")
 
-        print("   bond-length: ", coot_testing_utils.bond_length(atom_1[2], atom_2[2]))
+        bl_1 = coot_testing_utils.bond_length(atom_1[2], atom_2[2])
+        print("   bond-length bl_1: ", bl_1)
 
         s = coot.dragged_refinement_steps_per_frame()
         coot.set_dragged_refinement_steps_per_frame(300)
         coot_utils.with_auto_accept([coot.regularize_zone, imol, "A", 1, 2, ""])
         coot.set_dragged_refinement_steps_per_frame(s)
 
+        # O4 and C1 should be pushed apart because there is no link in the PDB file
+
         atom_1 = coot_utils.get_atom(imol, "A", 1, "", " O4 ")
         atom_2 = coot_utils.get_atom(imol, "A", 2, "", " C1 ")
 
-        print("   bond-length: ", coot_testing_utils.bond_length(atom_1[2], atom_2[2]))
+        bl_2 = coot_testing_utils.bond_length(atom_1[2], atom_2[2])
+        print("   bond-length bl_2: ", bl_2)
+
+        # should be pushed apart (20251223-PE or should they?)
+        if bl_1 < bl_2:
+            pass
+        else:
+            return False # fail
+
+        coot.set_mol_displayed(imol, 0)
+
+        # add a link
+        coot.make_link_py(imol_copy, ["A", 1, "", " O4 ", ""], ["A", 2, "", " C1 ", ""], "BETA1-4", 1.4)
+
+        coot_utils.with_auto_accept([coot.regularize_zone, imol_copy, "A", 1, 2, ""])
+
+        atom_1 = coot_utils.get_atom(imol_copy, "A", 1, "", " O4 ")
+        atom_2 = coot_utils.get_atom(imol_copy, "A", 2, "", " C1 ")
+        bl_3 = coot_testing_utils.bond_length(atom_1[2], atom_2[2])
+        print("   bond-length bl_3: ", bl_3)
+
+        self.assertTrue(bl_3 < 1.55, " glyco-link fail")
 
     def test30_1(self):
         """Refine an NAG-ASN Link"""
@@ -1480,12 +1529,14 @@ class TestPdbMtzFunctions(unittest.TestCase):
         imol = coot_testing_utils.unittest_pdb("pdb2qc1-sans-cho.pdb")
 
         imol_map = coot.make_and_draw_map(coot_testing_utils.rnase_mtz(), "FWT", "PHWT", "", 0, 0)
-        status = coot.add_linked_residue(imol, "B", 141, "", "NAG", "NAG-ASN", 3000)
+        status = coot.add_linked_residue(imol, "B", 141, "", "NAG", "pyr-ASN", 3000) # 20251223-PE was "NAG-ASN"
         # do something with status?!
         coot_utils.with_auto_accept([coot.refine_residues_py, imol, [["B", 141, ""], ["B", 464, ""]]])
 
         atom_1 = coot_utils.get_atom(imol, "B", 141, "", " ND2")
         atom_2 = coot_utils.get_atom(imol, "B", 464, "", " C1 ")
+
+        coot.write_pdb_file(imol, "test30-post-refine.pdb")
 
         self.assertTrue(coot_testing_utils.bond_length_within_tolerance_qm(atom_1, atom_2, 1.43, 0.2),
                         "the bond between the two atoms is not within the tolerance")
@@ -1778,7 +1829,7 @@ class TestPdbMtzFunctions(unittest.TestCase):
         pt = [43.838, 0.734, 13.811] # CA 47 A
         residues = coot.residues_near_position_py(imol, pt, 2)
         self.assertTrue(len(residues) == 1, "  Fail, got residues: %s" %residues)
-        self.assertTrue(residues[0] == [True, "A", 47, ""],
+        self.assertTrue(residues[0] == ["A", 47, ""],  # no leading True these days
                         "  Fail 2, got residues: %s" %residues)
         residues_2 = coot.residues_near_position_py(imol, pt, 4)
         self.assertTrue(len(residues_2) == 3, "  Fail 3, got residues-2: %s" %residues_2) #its neighbours too.
@@ -2020,6 +2071,7 @@ class TestPdbMtzFunctions(unittest.TestCase):
         """TER on water chain is removed on adding a water by hand"""
 
         imol = coot_testing_utils.unittest_pdb("some-waters-with-ter.pdb")
+        coot.set_display_only_model_mol(imol)
 
         self.assertTrue(coot_utils.valid_model_molecule_qm(imol), "bad read of some-waters-with-ter.pdb")
 
@@ -2150,6 +2202,7 @@ class TestPdbMtzFunctions(unittest.TestCase):
         def create_water_chain(imol, from_chain_id, chain_id, n_waters,
                                offset, prev_offset):
             for n in range(n_waters):
+                coot.set_display_only_model_mol(imol)
                 coot.place_typed_atom_at_pointer("Water")
                 # move the centre of the screen
                 rc = coot_utils.rotation_centre()
@@ -2176,13 +2229,11 @@ class TestPdbMtzFunctions(unittest.TestCase):
         # Test the result:
         #
         nc = coot.n_chains(imol)
-        self.assertTrue(nc == 3,
-                        "  wrong number of chains %s" %nc)
+        self.assertTrue(nc == 3, "  wrong number of chains %s" %nc)
         # There should be 15 waters in the last chain
         solvent_chain_id = coot.chain_id_py(imol, 2)
         n_res = coot.chain_n_residues(solvent_chain_id, imol)
-        self.assertTrue(n_res == 15,
-                        "  wrong number of residues %s" %n_res)
+        self.assertTrue(n_res == 15, "  wrong number of residues %s" %n_res)
         r1  = coot.seqnum_from_serial_number(imol, "D", 0)
         r15 = coot.seqnum_from_serial_number(imol, "D", 14)
         self.assertTrue(r1  == 1, "  wrong residue number r1 %s"  %r1)

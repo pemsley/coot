@@ -25,6 +25,7 @@
  */
 //
 #include <iostream>
+#include "stereo-eye.hh"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>  // to_string()
 
@@ -42,6 +43,9 @@ Model::Model(const std::string &obj_file_name) {
    std::cout << "file " << obj_file_name << std::endl;
    assimp_import(obj_file_name);
    draw_this_model = true;
+   time_constructed = std::chrono::system_clock::now();
+   do_animation = false;
+
 }
 #endif
 
@@ -58,6 +62,8 @@ Model::Model(const std::vector<molecular_triangles_mesh_t> &mtm,
       mesh.setup(material);
       meshes.push_back(mesh);
    }
+   time_constructed = std::chrono::system_clock::now();
+   do_animation = false;
 }
 
 
@@ -261,6 +267,7 @@ Model::loadMaterialTextures(aiMaterial *mat,
 
 void
 Model::draw_meshes(Shader *shader_p,  // e.g. molecular_triangles_shader
+                   stereo_eye_t eye,
                    const glm::mat4 &mvp,
                    const glm::mat4 &view_rotation_matrix,
                    const std::map<unsigned int, lights_info_t> &lights,
@@ -282,7 +289,7 @@ Model::draw_meshes(Shader *shader_p,  // e.g. molecular_triangles_shader
       }
       bool draw_just_shadows = false; // pass this if needed.
       bool wireframe_mode = false;
-      meshes[i].draw(shader_p, mvp, view_rotation_matrix, lights, eye_position, rotation_centre,
+      meshes[i].draw(shader_p, eye, mvp, view_rotation_matrix, lights, eye_position, rotation_centre,
                      opacity, background_colour, wireframe_mode, do_depth_fog, draw_just_shadows);
       if (false)
          meshes[i].draw_normals(mvp, 0.1);
@@ -292,6 +299,7 @@ Model::draw_meshes(Shader *shader_p,  // e.g. molecular_triangles_shader
 void
 Model::draw_mesh(unsigned int mesh_index,
                  Shader *shader_p,
+                 stereo_eye_t eye,
                  const glm::mat4 &mvp,
                  const glm::mat4 &view_rotation_matrix,
                  const std::map<unsigned int, lights_info_t> &lights,
@@ -305,7 +313,7 @@ Model::draw_mesh(unsigned int mesh_index,
    glDisable(GL_BLEND);
    // std::cout << "Model draw_mesh() " << mesh_index << " \"" << meshes[mesh_index].name << "\"" << std::endl;
    bool wireframe_mode = false;
-   meshes[mesh_index].draw(shader_p, mvp, view_rotation_matrix, lights, eye_position, rotation_centre,
+   meshes[mesh_index].draw(shader_p, eye, mvp, view_rotation_matrix, lights, eye_position, rotation_centre,
                            opacity, background_colour, wireframe_mode, do_depth_fog, draw_just_shadows);
 }
 
@@ -558,4 +566,23 @@ Model::export_as_obj(const std::string &file_name) const {
    }
 
    return status;
+}
+
+// 20250527-PE Holy Zarquon swimming fish
+void
+Model::set_animation_parameters(float amplitide_overall, float wave_number, float freq) {
+
+   for (unsigned int i=0; i<tmeshes.size(); i++) {
+      tmeshes[i].set_animation_paramaters(amplitide_overall, wave_number, freq);
+   }
+}
+
+void
+Model::set_do_animation(bool state) {
+
+   do_animation = state;
+   for (unsigned int i=0; i<tmeshes.size(); i++) {
+      tmeshes[i].set_do_animation(state);
+   }
+
 }

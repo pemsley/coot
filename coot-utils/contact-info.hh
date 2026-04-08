@@ -38,8 +38,8 @@ namespace coot {
       int id1;
       int id2;
       contacts_pair(int id1_in, int id2_in) { 
-	id1 = id1_in; 
-	id2 = id2_in;
+        id1 = id1_in; 
+        id2 = id2_in;
       }
     };
 
@@ -48,11 +48,11 @@ namespace coot {
     mmdb::realtype get_radius(const std::string &element) const;
 
     void contacts_from_monomer_restraints(const atom_selection_container_t asc, 
-			    std::map<mmdb::Residue *, dictionary_residue_restraints_t> &res_restraints); // non-const for map [] usage
+                            std::map<mmdb::Residue *, dictionary_residue_restraints_t> &res_restraints); // non-const for map [] usage
 
     void setup_from_monomer_restraints(const atom_selection_container_t &asc,
-				       int imol,
-				       protein_geometry *geom_p);
+                                       int imol,
+                                       protein_geometry *geom_p);
 
   public:
     std::vector<contacts_pair> contacts;
@@ -66,16 +66,16 @@ namespace coot {
     // constructor.
     //
     contact_info(const atom_selection_container_t &asc,
-		 const std::string &monomer_type,
-		 int imol,
-		 protein_geometry *geom_p);
+                 const std::string &monomer_type,
+                 int imol,
+                 protein_geometry *geom_p);
 
     // as above, exect thid *does* take an alt-conf
     contact_info(const atom_selection_container_t &asc,
                  const std::string &alt_conf,
-		 const std::string &monomer_type,
-		 int imol,
-		 protein_geometry *geom_p);
+                 const std::string &monomer_type,
+                 int imol,
+                 protein_geometry *geom_p);
 
     // Here we look up the contacts for each monomer in the atom
     // selection. We also allow descriptions of bonds between
@@ -84,24 +84,24 @@ namespace coot {
     // Can throw a std::runtime_error.
     // 
     contact_info(const atom_selection_container_t &asc,
-		 int imol,
-		 protein_geometry *geom_p, 
-		 const bonded_pair_container_t &bonded_pairs);
+                 int imol,
+                 protein_geometry *geom_p, 
+                 const bonded_pair_container_t &bonded_pairs);
 
     contact_info(const atom_selection_container_t &asc,
-		 int imol,
-		 protein_geometry *geom_p, 
-		 const std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > &link_bond_atoms);
+                 int imol,
+                 protein_geometry *geom_p, 
+                 const std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > &link_bond_atoms);
 
     // like above, but we have link atom quads (selhnd is a selection
     // handle - usually all atoms in mol, but not necessarily).
     // 
     template<class T>
     contact_info(mmdb::Manager *mol,
-		 int imol,
-		 int selhnd,
-		 const std::vector<T> &link_torsions,
-		 protein_geometry *geom_p);
+                 int imol,
+                 int selhnd,
+                 const std::vector<T> &link_torsions,
+                 protein_geometry *geom_p);
 
     void add_MSE_Se_bonds(const atom_selection_container_t &asc);
     int n_contacts() const { return contacts.size(); } 
@@ -117,13 +117,13 @@ namespace coot {
 
   contact_info getcontacts(const atom_selection_container_t &asc); 
   contact_info getcontacts(const atom_selection_container_t &asc, 
-			   const std::string &monomer_type, int imol,
-			   protein_geometry *geom_p);
+                           const std::string &monomer_type, int imol,
+                           protein_geometry *geom_p);
   // as above except we specify the alt-conf of the atoms in asc
   contact_info getcontacts(const atom_selection_container_t &asc,
                            const std::string &alt_conf,
-			   const std::string &monomer_type, int imol,
-			   protein_geometry *geom_p); 
+                           const std::string &monomer_type, int imol,
+                           protein_geometry *geom_p); 
 
    
 }

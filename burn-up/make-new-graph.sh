@@ -23,12 +23,12 @@ if Rscript burn-up-graph.r ; then
 
 fi
 
-Rscript burn-up-wide-graph.r
+# Rscript burn-up-wide-graph.r
 
 
 if [ $(uname) = Darwin ] ; then
    open burn-up.png
 else
-   eog burn-up.png &
-   eog burn-up-wide.png
+   eog burn-up.png
+   # eog burn-up-wide.png
 fi

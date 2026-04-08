@@ -1,0 +1,226 @@
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+MET MET METHIONINE peptide 20 9 .
+
+data_comp_MET
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+MET N N NT3 1 16.235 16.083 52.229
+MET CA C CH1 0 15.074 16.893 51.770
+MET C C C 0 13.874 15.966 51.506
+MET O O O 0 12.749 16.368 51.879
+MET CB C CH2 0 15.401 17.671 50.489
+MET CG C CH2 0 16.529 18.680 50.635
+MET SD S S2 0 18.171 17.933 50.684
+MET CE C CH3 0 18.367 17.396 48.979
+MET OXT O OC -1 14.108 14.877 50.937
+MET H H H 0 16.577 15.615 51.537
+MET H2 H H 0 15.985 15.507 52.876
+MET H3 H H 0 16.877 16.622 52.563
+MET HA H H 0 14.833 17.529 52.491
+MET HB3 H H 0 14.592 18.143 50.197
+MET HB2 H H 0 15.638 17.028 49.787
+MET HG3 H H 0 16.395 19.191 51.458
+MET HG2 H H 0 16.495 19.307 49.886
+MET HE3 H H 0 18.130 18.128 48.379
+MET HE2 H H 0 17.783 16.634 48.809
+MET HE1 H H 0 19.294 17.136 48.825
+
+loop_
+_chem_comp_tree.comp_id
+_chem_comp_tree.atom_id
+_chem_comp_tree.atom_back
+_chem_comp_tree.atom_forward
+_chem_comp_tree.connect_type
+MET N n/a CA START
+MET H N . .
+MET H2 N . .
+MET H3 N . .
+MET CA N C .
+MET HA CA . .
+MET CB CA CG .
+MET HB3 CB . .
+MET HB2 CB . .
+MET CG CB SD .
+MET HG3 CG . .
+MET HG2 CG . .
+MET SD CG CE .
+MET CE SD HE3 .
+MET HE1 CE . .
+MET HE2 CE . .
+MET HE3 CE . .
+MET C CA . END
+MET O C . .
+MET OXT C . .
+
+loop_
+_chem_comp_acedrg.comp_id
+_chem_comp_acedrg.atom_id
+_chem_comp_acedrg.atom_type
+MET N N(CCCH)(H)3
+MET CA C(CCHH)(NH3)(COO)(H)
+MET C C(CCHN)(O)2
+MET O O(CCO)
+MET CB C(CCHN)(CHHS)(H)2
+MET CG C(CCHH)(SC)(H)2
+MET SD S(CCHH)(CH3)
+MET CE C(SC)(H)3
+MET OXT O(CCO)
+MET H H(NCHH)
+MET H2 H(NCHH)
+MET H3 H(NCHH)
+MET HA H(CCCN)
+MET HB3 H(CCCH)
+MET HB2 H(CCCH)
+MET HG3 H(CCHS)
+MET HG2 H(CCHS)
+MET HE3 H(CHHS)
+MET HE2 H(CHHS)
+MET HE1 H(CHHS)
+
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+MET N CA SINGLE n 1.487 0.0100 1.487 0.0100
+MET CA C SINGLE n 1.538 0.0113 1.538 0.0113
+MET CA CB SINGLE n 1.533 0.0100 1.533 0.0100
+MET C O DOUBLE n 1.251 0.0183 1.251 0.0183
+MET C OXT SINGLE n 1.251 0.0183 1.251 0.0183
+MET CB CG SINGLE n 1.517 0.0186 1.517 0.0186
+MET CG SD SINGLE n 1.804 0.0100 1.804 0.0100
+MET SD CE SINGLE n 1.798 0.0100 1.798 0.0100
+MET N H SINGLE n 1.018 0.0520 0.902 0.0102
+MET N H2 SINGLE n 1.018 0.0520 0.902 0.0102
+MET N H3 SINGLE n 1.018 0.0520 0.902 0.0102
+MET CA HA SINGLE n 1.092 0.0100 0.991 0.0200
+MET CB HB3 SINGLE n 1.092 0.0100 0.981 0.0141
+MET CB HB2 SINGLE n 1.092 0.0100 0.981 0.0141
+MET CG HG3 SINGLE n 1.092 0.0100 0.978 0.0200
+MET CG HG2 SINGLE n 1.092 0.0100 0.978 0.0200
+MET CE HE3 SINGLE n 1.092 0.0100 0.975 0.0110
+MET CE HE2 SINGLE n 1.092 0.0100 0.975 0.0110
+MET CE HE1 SINGLE n 1.092 0.0100 0.975 0.0110
+
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+MET CA N H 109.990 3.00
+MET CA N H2 109.990 3.00
+MET CA N H3 109.990 3.00
+MET H N H2 109.032 3.00
+MET H N H3 109.032 3.00
+MET H2 N H3 109.032 3.00
+MET N CA C 109.258 1.50
+MET N CA CB 110.970 1.50
+MET N CA HA 108.387 1.58
+MET C CA CB 109.608 2.17
+MET C CA HA 108.774 1.79
+MET CB CA HA 109.550 1.56
+MET CA C O 117.148 1.60
+MET CA C OXT 117.148 1.60
+MET O C OXT 125.704 1.50
+MET CA CB CG 113.978 1.60
+MET CA CB HB3 108.606 1.50
+MET CA CB HB2 108.606 1.50
+MET CG CB HB3 108.930 1.50
+MET CG CB HB2 108.930 1.50
+MET HB3 CB HB2 107.726 1.50
+MET CB CG SD 112.846 3.00
+MET CB CG HG3 109.287 1.50
+MET CB CG HG2 109.287 1.50
+MET SD CG HG3 108.733 1.50
+MET SD CG HG2 108.733 1.50
+MET HG3 CG HG2 107.881 1.50
+MET CG SD CE 100.693 3.00
+MET SD CE HE3 109.472 1.50
+MET SD CE HE2 109.472 1.50
+MET SD CE HE1 109.472 1.50
+MET HE3 CE HE2 109.569 2.44
+MET HE3 CE HE1 109.569 2.44
+MET HE2 CE HE1 109.569 2.44
+
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+MET chi1 N CA CB CG -60.000 10.0 3
+MET chi2 CA CB CG SD 180.000 10.0 3
+MET chi3 CB CG SD CE 180.000 10.0 3
+MET hh1 CG SD CE HE3 60.000 10.0 3
+MET sp3_sp3_1 C CA N H 180.000 10.0 3
+MET sp2_sp3_1 O C CA N 0.000 10.0 6
+
+loop_
+_chem_comp_chir.comp_id
+_chem_comp_chir.id
+_chem_comp_chir.atom_id_centre
+_chem_comp_chir.atom_id_1
+_chem_comp_chir.atom_id_2
+_chem_comp_chir.atom_id_3
+_chem_comp_chir.volume_sign
+MET chir_1 CA N C CB positive
+
+loop_
+_chem_comp_plane_atom.comp_id
+_chem_comp_plane_atom.plane_id
+_chem_comp_plane_atom.atom_id
+_chem_comp_plane_atom.dist_esd
+MET plan-1 C 0.020
+MET plan-1 CA 0.020
+MET plan-1 O 0.020
+MET plan-1 OXT 0.020
+
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+MET SMILES ACDLabs 10.04 O=C(O)C(N)CCSC
+MET SMILES_CANONICAL CACTVS 3.341 CSCC[C@H](N)C(O)=O
+MET SMILES CACTVS 3.341 CSCC[CH](N)C(O)=O
+MET SMILES_CANONICAL "OpenEye OEToolkits" 1.5.0 CSCC[C@@H](C(=O)O)N
+MET SMILES "OpenEye OEToolkits" 1.5.0 CSCCC(C(=O)O)N
+MET InChI InChI 1.03 InChI=1S/C5H11NO2S/c1-9-3-2-4(6)5(7)8/h4H,2-3,6H2,1H3,(H,7,8)/t4-/m0/s1
+MET InChIKey InChI 1.03 FFEARJCKVFRZRR-BYPYZUCNSA-N
+
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+MET acedrg 278 "dictionary generator"
+MET acedrg_database 12 "data source"
+MET rdkit 2019.09.1 "Chemoinformatics tool"
+MET refmac5 5.8.0419 "optimization tool"

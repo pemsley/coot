@@ -61,6 +61,7 @@ public:
             float base_radius, float top_radius, float height,
             const glm::vec4 &base_colour,
             unsigned int n_slices=8, unsigned int n_stacks=2);
+   void init_unit(unsigned int n_slices=12);
    void add_flat_end_cap();
    void add_flat_start_cap();
    void add_octahemisphere_end_cap();
@@ -69,6 +70,14 @@ public:
    void z_translate(float zt);
    void add_sad_face(); // to move the eyesballs. the eyes would have to be in a different mesh.
    void crenulations();
+
+   // static function - not only for cylinders - but all things using glm
+   // angle in radians.
+   static glm::vec3 rotate_around_vector(const glm::vec3 &direction,
+                                         const glm::vec3 &position,
+                                         const glm::vec3 &origin_shift,
+                                         double angle);
+
 };
 
 #endif

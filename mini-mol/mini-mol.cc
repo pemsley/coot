@@ -1368,6 +1368,7 @@ coot::minimol::molecule::has_atoms() const {
 
 } 
 
+// c.f. get_number_of_atoms()
 int
 coot::minimol::molecule::count_atoms() const {
 
@@ -1516,7 +1517,22 @@ coot::minimol::molecule::get_spacegroup() const {
       r = mmdb_spacegroup;
 
    return r;
-} 
+}
+
+// c.f. count_atoms
+unsigned int
+coot::minimol::molecule::get_number_of_atoms() const {
+
+   unsigned int n_atoms = 0;
+   for (unsigned int ifr=0; ifr<fragments.size(); ifr++) {
+      const auto &frag = fragments[ifr];
+      for (int ires=frag.min_res_no(); ires<=frag.max_residue_number(); ires++) {
+         n_atoms += frag[ires].n_atoms();
+      }
+   }
+   return n_atoms;
+}
+
 
 
 short int

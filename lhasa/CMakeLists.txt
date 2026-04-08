@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.25)
 project(Lhasa)
-set(CMAKE_CXX_STANDARD 17)
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
@@ -16,7 +15,7 @@ else()
 endif()
 set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 set(CMAKE_C_FLAGS_RELEASE "-O2")
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 23)
 
 
 
@@ -72,7 +71,8 @@ target_sources(lh PRIVATE
 
 add_executable(lhasa embind.cpp embind.hpp)
 
-set_target_properties(lhasa PROPERTIES LINK_FLAGS " -s ENVIRONMENT=web,worker -s EXPORT_ES6=1 -s MODULARIZE=1 -s EXPORT_NAME='Lhasa' -s ALLOW_MEMORY_GROWTH=1 -s ASSERTIONS")
+set_target_properties(lhasa PROPERTIES LINK_FLAGS " -s ENVIRONMENT=web,worker -s MODULARIZE=1 -s EXPORT_NAME='Lhasa' -s ALLOW_MEMORY_GROWTH=1 -s ASSERTIONS")
+#set_target_properties(lhasa PROPERTIES LINK_FLAGS " -s ENVIRONMENT=web,worker -s EXPORT_ES6=1 -s MODULARIZE=1 -s EXPORT_NAME='Lhasa' -s ALLOW_MEMORY_GROWTH=1 -s ASSERTIONS")
 
 target_link_libraries(lhasa PRIVATE 
     RDKitDepictor 
@@ -81,9 +81,15 @@ target_link_libraries(lhasa PRIVATE
     RDKitSmilesParse 
     RDKitMolDraw2D 
     RDKitGraphMol 
+    RDKitRDInchiLib
+    RDKitInchi
     RDKitRDGeneral 
     RDKitRDGeometryLib
-    RDKitFileParsers 
+    RDKitFileParsers
+    RDKitRDChemDrawLib
+    RDKitChemDraw
+    RDKitCIPLabeler
+    expat
     RDKitDescriptors
     RDKitChemTransforms
     RDKitSubstructMatch

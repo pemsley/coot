@@ -35,12 +35,12 @@ private:
 public:
    // sync to c-interface-ligands.hh
    enum { H_BOND_DONOR_MAINCHAIN,
-      H_BOND_DONOR_SIDECHAIN,
-      H_BOND_ACCEPTOR_MAINCHAIN,
-      H_BOND_ACCEPTOR_SIDECHAIN,
-      METAL_CONTACT_BOND,
-      BOND_COVALENT,
-      BOND_OTHER };
+          H_BOND_DONOR_SIDECHAIN,
+          H_BOND_ACCEPTOR_MAINCHAIN,
+          H_BOND_ACCEPTOR_SIDECHAIN,
+          METAL_CONTACT_BOND,
+          BOND_COVALENT,
+          BOND_OTHER };
    std::string ligand_atom_name;
    double bond_length;
    int bond_type; // acceptor or donor

@@ -115,7 +115,7 @@ pli::pi_stacking_container_t::init(const coot::dictionary_residue_restraints_t &
 	       thresh = pi_pi_overlap_thresh;
 	    if (pi_overlap_1.second == pi_stacking_instance_t::PI_CATION_STACKING)
 	       thresh = pi_cation_overlap_thresh;
-	    
+
 	    if (pi_overlap_1.first > thresh) {
 	       pi_stacking_instance_t st(residues[ires],
                                          pi_overlap_1.second,
@@ -766,12 +766,12 @@ pli::pi_stacking_container_t::overlap_of_cation_pi(const clipper::Coord_orth &li
 						    const clipper::Coord_orth &cation_atom_point) const {
 
    // multipliers follow the order of the atom/control points
-   // 
+   //
    float score = overlap_of_pi_spheres(ligand_pi_point, cation_atom_point, 0.78, -1, 7.8, -0.05);
 
    // std::cout << "overlap_of_cation_pi() calling overlap_of_pi_spheres() returns "
    // << score << std::endl;
-   
+
    return score;
 }
 

@@ -38,8 +38,12 @@
 #include <MoleculesToTriangles/CXXClasses/VertexColorNormalPrimitive.h>
 #include <MoleculesToTriangles/CXXClasses/BallsPrimitive.h>
 
+#include "MoleculesToTriangles/CXXClasses/tubes.hh"
+
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
+
+#include <tuple>
 
 
 //! Add a colour rule: eg. ("//A", "red")
@@ -195,6 +199,74 @@ coot::molecule_t::print_M2T_IntParameters() const {
 #include "MoleculesToTriangles/CXXSurface/CXXSurface.h"
 #include "MoleculesToTriangles/CXXSurface/CXXCreator.h"
 
+#include "coot-utils/json.hpp"
+using json = nlohmann::json;
+
+//! \brief set the residue properties
+//!
+//! a list of propperty maps such as `{"chain-id": "A", "res-no": 34, "ins-code": "", "worm-radius": 1.2}`
+//!
+//! @param json_string is the properties in JSON format
+//! @return true
+bool
+coot::molecule_t::set_residue_properties(const std::string &json_string) {
+
+   bool status = true;
+
+   json j = json::parse(json_string);
+   for (json::iterator it=j.begin(); it!=j.end(); ++it) {
+      json j_residue_properties = *it;
+      json::const_iterator j_chain_id          = j_residue_properties.find("chain-id");
+      json::const_iterator j_res_no            = j_residue_properties.find("res-no");
+      json::const_iterator j_ins_code          = j_residue_properties.find("ins-code");
+      json::const_iterator j_worm_radius       = j_residue_properties.find("worm-radius");
+      json::const_iterator j_worm_radius_aniso = j_residue_properties.find("worm-radius-aniso");
+      float radius = -1.1f;
+      if (j_chain_id != j_residue_properties.end()) {
+         if (j_res_no != j_residue_properties.end()) {
+            if (j_ins_code != j_residue_properties.end()) {
+               res_prop_t res_prop;
+
+               std::string chain_id = j_chain_id.value();
+               int res_no = j_res_no.value();
+               std::string ins_code = j_ins_code.value();
+               coot::residue_spec_t res_spec(chain_id, res_no, ins_code);
+
+               if (j_worm_radius_aniso != j_residue_properties.end()) {
+                  if (j_worm_radius_aniso->is_array()) {
+                     if (j_worm_radius_aniso->size() == 3) {
+                        res_prop.value_x = (*j_worm_radius_aniso)[0];
+                        res_prop.value_y = (*j_worm_radius_aniso)[1];
+                        res_prop.value_z = (*j_worm_radius_aniso)[2];
+                     }
+                  }
+               }
+
+               if (j_worm_radius != j_residue_properties.end()) {
+                  float radius = j_worm_radius.value();
+                  if (radius > 0.0) {
+                     // std::cout << "debug:: radius for " << res_spec << " " << radius << std::endl;
+                     res_prop.value = radius;
+                  }
+               }
+
+               if (res_prop.value > 0 || res_prop.filled_aniso())
+                  residue_properties_map[res_spec] = res_prop;
+
+            }
+         }
+      }
+   }
+   return status;
+}
+
+void
+coot::molecule_t::clear_residue_properties() {
+
+   residue_properties_map.clear();
+}
+
+
 coot::simple_mesh_t
 coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_selection_str,
                                                     const std::string &colour_scheme,
@@ -317,8 +389,7 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
                   mmdb::Residue *residue_p = chain_p->GetResidue(ires);
                   if (residue_p) {
                      int res_no = residue_p->GetSeqNum();
-                     std::string res_name(residue_p->GetResName());
-                     if (res_name != "HOH") {
+                     if (residue_p->isAminoacid()) {
                         if (res_no > resno_max) resno_max = res_no;
                         if (res_no < resno_min) resno_min = res_no;
                      }
@@ -341,20 +412,26 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
        const std::vector<std::pair<std::string, int> > &M2T_int_params) {
 
       coot::simple_mesh_t mesh;
-      auto ramp_cs  = ColorScheme::colorRampChainsScheme();
 
       std::vector<chain_info_t> ci = get_chains_in_selection(my_mol, atom_selection_str);
 
       for (const auto &ch : ci) {
 
-         std::string atom_selection_str = "//" + std::string(ch.chain_p->GetChainID());
-         AtomPropertyRampColorRule apcrr;
-         apcrr.setStartValue(ch.resno_min);
-         apcrr.setEndValue(ch.resno_max);
-         auto apcrr_p = std::make_shared<AtomPropertyRampColorRule> (apcrr);
+         if (ch.resno_max <= ch.resno_min) continue;
+         std::string chain_sel = "//" + std::string(ch.chain_p->GetChainID());
+
+         auto ramp_cs = std::shared_ptr<ColorScheme>(new ColorScheme());
+         auto apcrr_p = std::make_shared<AtomPropertyRampColorRule>();
+         int n_ramp_points = ch.resno_max - ch.resno_min;
+         apcrr_p->setNumberOfRampPoints(n_ramp_points);
+         apcrr_p->setStartValue(ch.resno_min);
+         apcrr_p->setEndValue(ch.resno_max);
+         apcrr_p->setCompoundSelection(
+            std::shared_ptr<CompoundSelection>(new CompoundSelection(chain_sel + "/*.*/*:*")));
          ramp_cs->addRule(apcrr_p);
+
          std::shared_ptr<MolecularRepresentationInstance> molrepinst =
-            MolecularRepresentationInstance::create(my_mol, ramp_cs, atom_selection_str, style);
+            MolecularRepresentationInstance::create(my_mol, ramp_cs, chain_sel, style);
          coot::simple_mesh_t submesh = molecular_representation_instance_to_mesh(molrepinst, M2T_float_params, M2T_int_params);
          mesh.add_submesh(submesh);
       }
@@ -366,16 +443,15 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
    };
 
    auto set_vertex_colour = [] (api::vnc_vertex &vertex, float potential) {
-      float pk = 10.0;
-      if (potential == 0.0) {
-         vertex.color = glm::vec4(0.6, 0.6, 0.6, 1.0);
-      } else {
-         if (potential < 0.0)
-            vertex.color = glm::vec4(0.6 - pk, 0.6 + pk * 0.5, 0.6 + pk * 0.5, 1.0);
-         else
-            vertex.color = glm::vec4(0.6 - pk * 0.5, 0.6 - pk * 0.5, 0.6 + pk, 1.0);
-      }
+       float pot_f = min(1.0,fabs(potential)*2.);
+       if (potential < 0.0){
+           vertex.color = glm::vec4(1.0, 1.0-pot_f, 1.0-pot_f, 1.0);
+       } else {
+           vertex.color = glm::vec4(1.0-pot_f, 1.0-pot_f, 1.0, 1.0);
+       }
    };
+
+   // ----------------- main line -------------------
 
    coot::simple_mesh_t mesh;
 
@@ -383,76 +459,115 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
       std::cout << "get_molecular_representation_mesh() atom_selection: " << atom_selection_str
                 << " colour_scheme: " << colour_scheme << " style: " << style << std::endl;
 
-   try {
+   if (style == "Tubes") { //  bendy helices
 
-      auto my_mol = std::make_shared<MyMolecule>(atom_sel.mol, secondaryStructureUsageFlag);
-      // auto chain_cs = ColorScheme::colorChainsScheme();
-      auto chain_cs = ColorScheme::colorChainsSchemeWithColourRules(colour_rules);
-      if (! colour_rules.empty())
-         chain_cs = ColorScheme::colorChainsSchemeWithColourRules(colour_rules);
-      auto ele_cs   = ColorScheme::colorByElementScheme();
-      auto ss_cs    = ColorScheme::colorBySecondaryScheme();
-      auto bf_cs    = ColorScheme::colorBFactorScheme();
-      auto this_cs  = chain_cs; // default
-      if (colour_scheme == "Chains")    this_cs = chain_cs;
-      if (colour_scheme == "Element")   this_cs = ele_cs;
-      if (colour_scheme == "BFactor")   this_cs = bf_cs;
-      if (colour_scheme == "Secondary") this_cs = ss_cs;
-      if (colour_scheme == "RampChains") {
-         mesh = ramp_chains(my_mol, atom_selection_str, style, M2T_float_params, M2T_int_params);
-      } else {
+      mmdb::Manager *mol = atom_sel.mol;
+      std::string atom_selection = "//";
+      std::string colour_scheme = "Helix";
+      float radius_for_helices = 3.2;
+      unsigned int n_slices_for_helices = 16;
+      float radius_for_coil = 0.8;
+      float Cn_for_coil = 2;
+      int accuracy_for_coil = 12;
+      unsigned int n_slices_for_coil = 12;
+      // make_tubes_representation() removed until it can be compiled without using coot include/libs
+      // mesh = make_tubes_representation(mol, atom_selection, colour_scheme, radius_for_coil, Cn_for_coil,
+      //                                  accuracy_for_coil, n_slices_for_coil, secondaryStructureUsageFlag);
 
-         if (colour_scheme == "ByOwnPotential") {
+   } else {
 
-            std::shared_ptr<MolecularRepresentationInstance> molrepinst =
-               MolecularRepresentationInstance::create(my_mol, this_cs, atom_selection_str, style);
-            mesh = molecular_representation_instance_to_mesh(molrepinst, M2T_float_params, M2T_int_params);
+      {
 
-            //Instantiate an electrostatics map and cause it to calculate itself
-            CXXChargeTable theChargeTable;
-            CXXUtils::assignCharge(atom_sel.mol, atom_sel.SelectionHandle, &theChargeTable);
-            CXXCreator *theCreator = new CXXCreator(atom_sel.mol, atom_sel.SelectionHandle);
-            theCreator->calculate();
-            clipper::Cell cell;
-            clipper::NXmap<double> theClipperNXMap;
-            theClipperNXMap = theCreator->coerceToClipperMap(cell);
+         try {
 
-            for (unsigned int i=0; i<mesh.vertices.size(); i++) {
-               clipper::Coord_orth orthogonals = glm_to_clipper(mesh.vertices[i].pos);
-               const clipper::Coord_map mapUnits(theClipperNXMap.coord_map(orthogonals));
-               float potential = theClipperNXMap.interp<clipper::Interp_cubic>( mapUnits );
-               // subSurfaceIter->setScalar(potentialHandle, i, potential);
-               // std::cout << "potential: " << potential << std::endl;  // 20240226-PE Quiet! (now that this test is run)
-               set_vertex_colour(mesh.vertices[i], potential); // change ref
-            }
+            auto my_mol = std::make_shared<MyMolecule>(atom_sel.mol, secondaryStructureUsageFlag);
 
-            delete theCreator;
-
-         } else {
-
-            std::shared_ptr<MolecularRepresentationInstance> molrepinst =
-               MolecularRepresentationInstance::create(my_mol, this_cs, atom_selection_str, style);
-            mesh = molecular_representation_instance_to_mesh(molrepinst, M2T_float_params, M2T_int_params);
-
-            if (false) {
-               for (unsigned int i=0; i<mesh.vertices.size(); i++) {
-                  const auto &vertex = mesh.vertices[i];
-                  std::cout << i << " " << glm::to_string(vertex.pos) << " " << glm::to_string(vertex.color) << std::endl;
+            // Convert residue_properies_map to M2T format and pass to MyMolecule
+            if (!residue_properties_map.empty()) {
+               std::map<std::tuple<std::string, int, std::string>, std::tuple<float, float, float>> radii_map;
+               for (const auto &[spec, prop] : residue_properties_map) {
+                  if (prop.filled_aniso()) {
+                     radii_map[std::make_tuple(spec.chain_id, spec.res_no, spec.ins_code)] =
+                         std::make_tuple(prop.value_x, prop.value_y, prop.value_z);
+                  } else if (prop.value > 0.0f) {
+                     // Isotropic fallback: use same value for all axes
+                     radii_map[std::make_tuple(spec.chain_id, spec.res_no, spec.ins_code)] =
+                         std::make_tuple(prop.value, prop.value, prop.value);
+                  }
+               }
+               if (!radii_map.empty()) {
+                  my_mol->setResidueRadii(radii_map);
                }
             }
+
+            // auto chain_cs = ColorScheme::colorChainsScheme();
+            auto chain_cs = ColorScheme::colorChainsSchemeWithColourRules(colour_rules);
+            if (! colour_rules.empty())
+               chain_cs = ColorScheme::colorChainsSchemeWithColourRules(colour_rules);
+            auto ele_cs   = ColorScheme::colorByElementScheme();
+            auto ss_cs    = ColorScheme::colorBySecondaryScheme();
+            auto bf_cs    = ColorScheme::colorBFactorScheme();
+            auto this_cs  = chain_cs; // default
+            if (colour_scheme == "Chains")    this_cs = chain_cs;
+            if (colour_scheme == "Element")   this_cs = ele_cs;
+            if (colour_scheme == "BFactor")   this_cs = bf_cs;
+            if (colour_scheme == "Secondary") this_cs = ss_cs;
+            if (colour_scheme == "RampChains" || colour_scheme == "colorRampChainsScheme") {
+               mesh = ramp_chains(my_mol, atom_selection_str, style, M2T_float_params, M2T_int_params);
+            } else {
+
+               if (colour_scheme == "ByOwnPotential") {
+
+                  std::shared_ptr<MolecularRepresentationInstance> molrepinst =
+                     MolecularRepresentationInstance::create(my_mol, this_cs, atom_selection_str, style);
+                  mesh = molecular_representation_instance_to_mesh(molrepinst, M2T_float_params, M2T_int_params);
+
+                  //Instantiate an electrostatics map and cause it to calculate itself
+                  CXXChargeTable theChargeTable;
+                  CXXUtils::assignCharge(atom_sel.mol, atom_sel.SelectionHandle, &theChargeTable);
+                  CXXCreator *theCreator = new CXXCreator(atom_sel.mol, atom_sel.SelectionHandle);
+                  theCreator->calculate();
+                  clipper::Cell cell;
+                  clipper::NXmap<double> theClipperNXMap;
+                  theClipperNXMap = theCreator->coerceToClipperMap(cell);
+
+                  for (unsigned int i=0; i<mesh.vertices.size(); i++) {
+                     clipper::Coord_orth orthogonals = glm_to_clipper(mesh.vertices[i].pos);
+                     const clipper::Coord_map mapUnits(theClipperNXMap.coord_map(orthogonals));
+                     float potential = theClipperNXMap.interp<clipper::Interp_cubic>( mapUnits );
+                     // subSurfaceIter->setScalar(potentialHandle, i, potential);
+                     // std::cout << "potential: " << potential << std::endl;  // 20240226-PE Quiet! (now that this test is run)
+                     set_vertex_colour(mesh.vertices[i], potential); // change ref
+                  }
+
+                  delete theCreator;
+
+               } else {
+
+                  std::shared_ptr<MolecularRepresentationInstance> molrepinst =
+                     MolecularRepresentationInstance::create(my_mol, this_cs, atom_selection_str, style);
+                  mesh = molecular_representation_instance_to_mesh(molrepinst, M2T_float_params, M2T_int_params);
+
+                  if (false) {
+                     for (unsigned int i=0; i<mesh.vertices.size(); i++) {
+                        const auto &vertex = mesh.vertices[i];
+                        std::cout << i << " " << glm::to_string(vertex.pos) << " " << glm::to_string(vertex.color) << std::endl;
+                     }
+                  }
+               }
+            }
+            mesh.fill_colour_map(); // for blendering
+         }
+         catch (const std::out_of_range &oor) {
+            std::cout << "ERROR:: out of range in get_molecular_representation_mesh() " << oor.what() << std::endl;
+         }
+         catch (const std::runtime_error &rte) {
+            std::cout << "ERROR:: runtime error in get_molecular_representation_mesh() " << rte.what() << std::endl;
+         }
+         catch (...) {
+            std::cout << "ERROR:: unknown exception in get_molecular_representation_mesh()! " << std::endl;
          }
       }
-      mesh.fill_colour_map(); // for blendering
    }
-   catch (const std::out_of_range &oor) {
-      std::cout << "ERROR:: out of range in get_molecular_representation_mesh() " << oor.what() << std::endl;
-   }
-   catch (const std::runtime_error &rte) {
-      std::cout << "ERROR:: runtime error in get_molecular_representation_mesh() " << rte.what() << std::endl;
-   }
-   catch (...) {
-      std::cout << "ERROR:: unknown exception in get_molecular_representation_mesh()! " << std::endl;
-   }
-
    return mesh;
 }

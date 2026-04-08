@@ -37,25 +37,25 @@ namespace coot {
    public:
       class residue_id_t {
       public:
-	 enum prime_arm_flag_t { UNSET, PRIME, NON_PRIME };
-	 std::string res_type; // this is tested as empty to see if this object is filled
-	 std::string link_type;
-	 std::string parent_res_type;
-	 residue_spec_t parent_res_spec;
-	 unsigned int level;
-	 prime_arm_flag_t prime_arm_flag; // are we in the (4') arm?
-	 residue_id_t() {}
-	 residue_id_t(int level_in,
-		      prime_arm_flag_t prime_flag_in,
-		      const std::string &res_type_in,
-		      const std::string &link_type_in,
-		      const std::string &parent_res_type_in,
-		      const residue_spec_t &parent_res_spec_in) : res_type(res_type_in),
-								  link_type(link_type_in),
-								  parent_res_type(parent_res_type_in),
-								  parent_res_spec(parent_res_spec_in),
-								  level(level_in),
-								  prime_arm_flag(prime_flag_in) {}
+         enum prime_arm_flag_t { UNSET, PRIME, NON_PRIME };
+         std::string res_type; // this is tested as empty to see if this object is filled
+         std::string link_type;
+         std::string parent_res_type;
+         residue_spec_t parent_res_spec;
+         unsigned int level;
+         prime_arm_flag_t prime_arm_flag; // are we in the (4') arm?
+         residue_id_t() {}
+         residue_id_t(int level_in,
+                      prime_arm_flag_t prime_flag_in,
+                      const std::string &res_type_in,
+                      const std::string &link_type_in,
+                      const std::string &parent_res_type_in,
+                      const residue_spec_t &parent_res_spec_in) : res_type(res_type_in),
+                                                                  link_type(link_type_in),
+                                                                  parent_res_type(parent_res_type_in),
+                                                                  parent_res_spec(parent_res_spec_in),
+                                                                  level(level_in),
+                                                                  prime_arm_flag(prime_flag_in) {}
       };
    private:
       protein_geometry *geom_p;
@@ -64,32 +64,32 @@ namespace coot {
 
       bool is_pyranose(mmdb::Residue *r) const;
       tree<linked_residue_t> find_rooted_tree(mmdb::Residue *residue_root_p,
-					      const std::vector<mmdb::Residue *> &residues) const;
+                                              const std::vector<mmdb::Residue *> &residues) const;
       tree<linked_residue_t> find_ASN_rooted_tree(mmdb::Residue *residue_p,
-						  const std::vector<mmdb::Residue *> &residues) const;
+                                                  const std::vector<mmdb::Residue *> &residues) const;
       tree<linked_residue_t> find_stand_alone_tree(const std::vector<mmdb::Residue *> &residues) const;
       void compare_vs_allowed_trees(const tree<linked_residue_t> &tr) const;
       bool compare_trees(const tree<linked_residue_t> &tree_for_testing,
-			 const tree<linked_residue_t> &tree_reference) const;
+                         const tree<linked_residue_t> &tree_reference) const;
       tree<linked_residue_t> oligomannose_tree() const;
       tree<linked_residue_t>      complex_tree() const;
       tree<linked_residue_t>       hybrid_tree() const;
 #ifndef SWIG
       static bool residue_comparitor(mmdb::Residue *res1, mmdb::Residue *res2) {
-	 return (residue_spec_t(res1) < residue_spec_t(res2));
+         return (residue_spec_t(res1) < residue_spec_t(res2));
       }
 #endif
       void print(const tree<linked_residue_t> &glyco_tree) const;
       std::vector<mmdb::Residue *> residues(const tree<linked_residue_t> &glyco_tree) const;
       void output_internal_distances(mmdb::Residue *residue_p,
-				     mmdb::Residue *parent_residue_p,
-				     double dist_lim,
-				     std::ofstream &f) const;
+                                     mmdb::Residue *parent_residue_p,
+                                     double dist_lim,
+                                     std::ofstream &f) const;
       // old, all-residue
       void output_internal_distances(mmdb::Residue *residue_p,
-				     std::vector<mmdb::Residue *> residues,
-				     double dist_lim,
-				     std::ofstream &f) const;
+                                     std::vector<mmdb::Residue *> residues,
+                                     double dist_lim,
+                                     std::ofstream &f) const;
       residue_id_t::prime_arm_flag_t get_prime(mmdb::Residue *residue_p) const;
       int get_level(mmdb::Residue *residue_p) const;
 

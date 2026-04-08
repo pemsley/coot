@@ -75,7 +75,7 @@ public:
                 rules.sort(ColorRule::compareRank);
             }
         } else {
-            std::cout << "Error:: ColorScheme::addRule(): null rule" << std::endl;
+            std::cout << "Error:: ColorScheme::addRule(): null rule (whatever that means)" << std::endl;
         }
     };
     void removeRule(std::shared_ptr<ColorRule> _rule){
@@ -91,7 +91,7 @@ public:
     const std::string &getName() const {
         return name;
     };
-    
+
     virtual FCXXCoord colorForAtom(const mmdb::Atom* atom, std::map<std::shared_ptr<ColorRule>, int> &handles){
         auto rule = rules.begin();
         FCXXCoord result(1.,1.,1.,1.);

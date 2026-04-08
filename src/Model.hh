@@ -32,6 +32,7 @@
 #include <gtk/gtk.h>
 #include <epoxy/gl.h>
 
+#include "stereo-eye.hh"
 #include "Shader.hh"
 #include "Texture.hh"
 #include "Mesh.hh"
@@ -49,6 +50,7 @@ class Model {
    std::string directory;
    std::string append_dir_file(const std::string &directory, const std::string &tfn);
    void assimp_import(const std::string &file_name_in);
+   std::chrono::time_point<std::chrono::system_clock> time_constructed;
 
 #ifdef USE_ASSIMP
    void import(const aiScene* scene);
@@ -98,16 +100,28 @@ class Model {
                                bool show_Just_shadows);
 
 public:
-   Model() { draw_this_model = true; }
+   Model() {
+      draw_this_model = true;
+      time_constructed = std::chrono::system_clock::now();
+      do_animation = false;
+   }
    explicit Model(const std::string &obj_file_name);
    explicit Model(const std::vector<molecular_triangles_mesh_t> &mtm,
                   Material material, GtkWidget *gl_area);
-   explicit Model(const Mesh &m) { draw_this_model = true; meshes.push_back(m); }
+   explicit Model(const Mesh &m) {
+      draw_this_model = true;
+      meshes.push_back(m);
+      time_constructed = std::chrono::system_clock::now();
+      do_animation = false;
+   }
 
    // std::vector<std::pair<TextureMesh, std::string> > tmeshes;
    std::vector<TextureMesh> tmeshes;
    std::vector<Mesh> meshes;
    // should models have names?
+
+   bool do_animation; // so that we don't have to query the texture meshes
+                      // i.e. if the model animates, the meshes animate.
 
    void add_mesh(const Mesh &m) { meshes.push_back(m); }
    void add_tmesh(const TextureMesh &tm) { tmeshes.push_back(tm); }
@@ -116,6 +130,7 @@ public:
    bool draw_this_model; // overall control
    void draw_mesh(unsigned int mesh_index,
 		  Shader *shader_p, // for plain meshes (e.g. molecular triangles)
+                  stereo_eye_t eye,
                   const glm::mat4 &mvp,
                   const glm::mat4 &view_rotation_matrix,
                   const std::map<unsigned int, lights_info_t> &lights,
@@ -151,6 +166,7 @@ public:
                       const glm::mat4 &view,
                       const glm::mat4 &projection);
    void draw_meshes(Shader *shader_p, // for plain meshes (e.g. molecular triangles)
+                    stereo_eye_t eye,
                     const glm::mat4 &mvp,
                     const glm::mat4 &view_rotation_matrix,
                     const std::map<unsigned int, lights_info_t> &lights,
@@ -171,7 +187,16 @@ public:
    void scale(const float &sf);
    // debugging function
    bool export_as_obj(const std::string &file_name) const;
+   //! return the time in milliseconds since this Model was constructed
+   float duration() const {
+      std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
+      float time = std::chrono::duration_cast<std::chrono::milliseconds>(now - time_constructed).count();
+      return time;
+   }
 
+   // 20250527-PE Holy Zarquon swimming fish
+   void set_animation_parameters(float amplitude_overall, float wave_number, float freq);
+   void set_do_animation(bool state);
 };
 
 #endif // MODEL_HH

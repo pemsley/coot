@@ -25,6 +25,7 @@
  */
 
 #include <iostream>
+#include <iomanip>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/norm.hpp>
@@ -53,14 +54,18 @@ fun::boid::velocity_delta_cohesion(const std::vector<boid> &boids,
                                    const std::vector<unsigned int> &seeable_other_boids) const {
 
    glm::vec3 mid(0,0,0);
+   // std::cout << "cohesion seeable others: " << seeable_other_boids.size() << std::endl;
    if (! seeable_other_boids.empty()) {
+      float sf = 1.0f/static_cast<float>(seeable_other_boids.size());
       for (unsigned int i=0; i<seeable_other_boids.size(); i++) {
          mid += boids[seeable_other_boids[i]].position;
       }
-      mid *= 1.0f/static_cast<float>(seeable_other_boids.size());
+      mid *= sf;
    }
    glm::vec3 delta_position = mid - position;
-   return 0.02f * delta_position;
+   glm::vec3 r = 2.2f * delta_position;
+   std::cout << "cohesion-delta: " << r.x << " " << r.y << " " << r.z << std::endl;
+   return r;
 }
 
 
@@ -93,16 +98,14 @@ fun::boid::velocity_delta_no_bumps_in_objects(float box_lim) const {
 
    glm::vec3 delta_v(0,0,0);
    for (unsigned int i=0; i<3; i++) {
-      if (position[i] > box_lim) {
-         float d = position[i] - box_lim;
-         delta_v[i] += -d;
-      }
-      if (position[i] < -box_lim) {
-         float d = position[i] + box_lim;
-         delta_v[i] += -d;
-      }
+      float pp = position[i]; // x y or z
+      float dp = pp - box_lim;
+      float dm = pp + box_lim;
+      float sf = -0.1;
+      delta_v[i] += sf * dp;
+      delta_v[i] += sf * dm;
    }
-   return 0.1f * delta_v;
+   return delta_v;
 }
 
 #include "utils/coot-utils.hh"
@@ -112,27 +115,34 @@ fun::boid::calc_velocity_delta(const std::vector<boid> &boids,
                                const std::vector<unsigned int> &seeable_other_boids,
                                float box_lim) const {
 
-   const float sf = 1.0/static_cast<float>(RAND_MAX);
-   float p0 = 2.0 * sf * coot::util::random() - 1.0;
-   float p1 = 2.0 * sf * coot::util::random() - 1.0;
-   float p2 = 2.0 * sf * coot::util::random() - 1.0;
+   float p0 = 2.0 * coot::util::random_f() - 1.0;
+   float p1 = 2.0 * coot::util::random_f() - 1.0;
+   float p2 = 2.0 * coot::util::random_f() - 1.0;
 
    glm::vec3 random_v(p0, p1, p2);
-   glm::vec3 delta_v =
-      velocity_delta_no_bumps_in_objects(box_lim) +
-      velocity_delta_no_bumps(boids, seeable_other_boids) + 
-      velocity_delta_cohesion(boids, seeable_other_boids) +
-      velocity_delta_alignment(boids, seeable_other_boids);
+   glm::vec3 vd1 = velocity_delta_no_bumps_in_objects(box_lim);
+   glm::vec3 vd2 = velocity_delta_no_bumps(boids,  seeable_other_boids);
+   glm::vec3 vd3 = velocity_delta_cohesion(boids,  seeable_other_boids);
+   glm::vec3 vd4 = velocity_delta_alignment(boids, seeable_other_boids);
 
-   float delta_v_dd = glm::distance2(delta_v, glm::vec3(0,0,0));
-   float max_d = 100000.0;
-   float max_dd = max_d * max_d;
-   if (delta_v_dd > max_dd) {
-      glm::vec3 delta_v_uv = glm::normalize(delta_v);
-      delta_v = max_d * delta_v_uv;
-   }
+   glm::vec3 delta_v = vd1 + vd3 + vd4;
 
-   return delta_v;
+   std::cout << "compare"
+	     << " " << vd1.x << " " << vd1.y << " " << vd1.z
+	     << " " << vd3.x << " " << vd3.y << " " << vd3.z
+	     << std::endl;
+
+   // float delta_v_dd = glm::distance2(delta_v, glm::vec3(0,0,0));
+   // float max_d = 100000.0;
+   // float max_dd = max_d * max_d;
+   // if (delta_v_dd > max_dd) {
+   //    glm::vec3 delta_v_uv = glm::normalize(delta_v);
+   //    delta_v = max_d * delta_v_uv;
+   // }
+
+   float sff = 1.1f;
+   // delta_v = glm::vec3(0.0f,0.0f,0.0f);
+   return delta_v * sff;
 
 }
 
@@ -140,15 +150,14 @@ fun::boid::calc_velocity_delta(const std::vector<boid> &boids,
 void
 fun::boids_container_t::make_boids(unsigned int n_boids) {
 
-   const float sf = 1.0/static_cast<float>(RAND_MAX);
    for (unsigned int i=0; i<n_boids; i++) {
       glm::vec3 colour(0.4, 0.4, 0.6);
-      float p0 = 2.0 * sf * coot::util::random() - 1.0;
-      float p1 = 2.0 * sf * coot::util::random() - 1.0;
-      float p2 = 2.0 * sf * coot::util::random() - 1.0;
-      float v0 = 2.0 * sf * coot::util::random() - 1.0;
-      float v1 = 2.0 * sf * coot::util::random() - 1.0;
-      float v2 = 2.0 * sf * coot::util::random() - 1.0;
+      float p0 = 2.0 * coot::util::random_f() - 1.0;
+      float p1 = 2.0 * coot::util::random_f() - 1.0;
+      float p2 = 2.0 * coot::util::random_f() - 1.0;
+      float v0 = 2.0 * coot::util::random_f() - 1.0;
+      float v1 = 2.0 * coot::util::random_f() - 1.0;
+      float v2 = 2.0 * coot::util::random_f() - 1.0;
       glm::vec3 position(p0, p1, p2);
       glm::vec3 velocity(v0, v1, v2);
       boid b(i, 10.0f * position, 10.0f * velocity, colour);
@@ -168,7 +177,7 @@ fun::boids_container_t::make_boids(unsigned int n_boids) {
 }
 
 void
-fun::boid::apply_velocity_delta(const glm::vec3 &velocity_delta, float time_step) {
+fun::boid::apply_velocity_delta(unsigned int idx, const glm::vec3 &velocity_delta, float time_step) {
 
    velocity += 0.01f * velocity_delta;
 
@@ -181,7 +190,17 @@ fun::boid::apply_velocity_delta(const glm::vec3 &velocity_delta, float time_step
          velocity = 5.0f * glm::normalize(velocity);
    }
 
-   position += 5.5f * velocity * time_step;
+   // glm::vec3 delta_position = 0.005f * velocity;
+   float sf = 0.01;
+   glm::vec3 delta_position(velocity.x * sf, velocity.y * sf, velocity.z * sf);
+   if (false)
+      std::cout << "position-delta " << idx << " "
+		<< delta_position.x << " "
+		<< delta_position.y << " "
+		<< delta_position.z << std::endl;
+   position += delta_position;
+   // std::cout << "position: " << idx << " " << position.x << " " << position.y << " " << position.z
+   // << std::endl;
 
 }
 
@@ -189,7 +208,7 @@ fun::boid::apply_velocity_delta(const glm::vec3 &velocity_delta, float time_step
 std::vector<unsigned int>
 fun::boids_container_t::get_seeable_other_boids(unsigned int idx_this_boid) {
 
-   float max_distance_to_another_boid = 100.0;
+   float max_distance_to_another_boid = 400.0;
    float dd_max = max_distance_to_another_boid * max_distance_to_another_boid;
 
    const boid &this_boid = boids[idx_this_boid];
@@ -214,22 +233,31 @@ fun::boids_container_t::get_seeable_other_boids(unsigned int idx_this_boid) {
    //    std::cout << "for boid " << idx_this_boid
    // << " returning seeable_other_boids size " << others.size() << std::endl;
 
+   // debugging
+   others.clear();
+   for (unsigned int i=0; i<boids.size(); i++) {
+      if (i == idx_this_boid)
+         continue;
+      others.push_back(i);
+   }
+
    return others;
 }
 
 void
 fun::boids_container_t::update() {
 
+   std::cout << "boids update()" << std::endl;
+
    float timestep = 0.02; // seconds
 
-   if (true) {
+   if (false) {
       for (unsigned int i=0; i<boids.size(); i++) {
-         boid &boid = boids[i];
-         if (false)
-            std::cout << i << " "
-                      << glm::to_string(boid.position) <<  " "
-                      << glm::to_string(boid.velocity) <<  " "
-                      << glm::to_string(boid.colour) << std::endl;
+         const boid &boid = boids[i];
+	 std::cout << i << " "
+		   << glm::to_string(boid.position) <<  " "
+		   << glm::to_string(boid.velocity) <<  " "
+		   << glm::to_string(boid.colour) << std::endl;
       }
    }
 
@@ -243,32 +271,34 @@ fun::boids_container_t::update() {
       velocities[i] = boid.velocity;
    }
 
-   // sanitize the velocities
-   float sum_vel = 0;
-   for (unsigned int i=0; i<boids.size(); i++) {
-      float d = glm::distance(velocities[i], glm::vec3(0,0,0));
-      sum_vel += d;
-   }
-   float av_vel = sum_vel/static_cast<float>(boids.size());
-   float target_average = 1.0;
-   float vel_sf = target_average/av_vel;
+   // // sanitize the velocities
+   // float sum_vel = 0;
+   // for (unsigned int i=0; i<boids.size(); i++) {
+   //    float d = glm::distance(velocities[i], glm::vec3(0,0,0));
+   //    sum_vel += d;
+   // }
+   // float av_vel = sum_vel/static_cast<float>(boids.size());
+   // float target_average = 1.0;
+   // float vel_sf = target_average/av_vel;
    
    
    for (unsigned int i=0; i<boids.size(); i++) {
-      boids[i].apply_velocity_delta(velocity_deltas[i], timestep);
+      boids[i].apply_velocity_delta(i, velocity_deltas[i], timestep);
    }
 
-   for (unsigned int i=0; i<boids.size(); i++) {
-      boids[i].velocity *= vel_sf;
-   }
-   
-   for (unsigned int i=0; i<boids.size(); i++) {
-      float dd = glm::distance2(velocity_deltas[i], glm::vec3(0,0,0));
-      std::cout << "boid accel " << i << " " << sqrt(dd)
-                << " " << velocity_deltas[i].x
-                << " " << velocity_deltas[i].y
-                << " " << velocity_deltas[i].z
-                << std::endl;
+   // for (unsigned int i=0; i<boids.size(); i++) {
+   //    boids[i].velocity *= vel_sf;
+   // }
+
+   if (false) {
+      for (unsigned int i=0; i<boids.size(); i++) {
+	 float dd = glm::distance2(velocity_deltas[i], glm::vec3(0,0,0));
+	 std::cout << "boid accel " << std::setw(2) << i << " " << sqrt(dd)
+		   << " " << std::setw(12) << velocity_deltas[i].x
+		   << " " << std::setw(12) << velocity_deltas[i].y
+		   << " " << std::setw(12) << velocity_deltas[i].z
+		   << std::endl;
+      }
    }
 
 }
@@ -278,8 +308,8 @@ fun::boid::make_mat() const {
 
    glm::vec3 normalized_vel = glm::normalize(velocity);
    glm::mat4 m = glm::transpose(glm::orientation(normalized_vel, glm::vec3(0.0, 0.0, 1.0)));
-   // m = glm::mat4(1.0f);
+   // m = glm::mat4(1.0f); // remove orientation
    glm::mat4 mt = glm::translate(m, position);
-   // glm::mat4 mt = m;
+   mt = m;
    return mt;
 }

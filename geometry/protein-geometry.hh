@@ -199,6 +199,8 @@ namespace coot {
       double dist_nuclear_;
       double dist_nuclear_esd_;
       bool dist_nuclear_was_set;
+      bool atom_has_only_this_non_hydrogen_bond_first;
+      bool atom_has_only_this_non_hydrogen_bond_second;
 
    public:
       enum bond_length_type_t { UNKNOWN, NUCLEAR_POSITION, ELECTONS_POSITION };
@@ -223,6 +225,8 @@ namespace coot {
          have_target_values = 1;
          aromaticity = arom_in;
          bond_length_type_ = blt;
+	 atom_has_only_this_non_hydrogen_bond_first  = false;
+	 atom_has_only_this_non_hydrogen_bond_second = false;
          dist_nuclear_ = -1.0;
          dist_nuclear_esd_ = -1.0;
          dist_nuclear_was_set = dist_nuclear_was_set_in;
@@ -240,6 +244,8 @@ namespace coot {
          have_target_values = 0;
          aromaticity = arom_in;
          bond_length_type_ = UNKNOWN;
+	 atom_has_only_this_non_hydrogen_bond_first  = false;
+	 atom_has_only_this_non_hydrogen_bond_second = false;
          dist_nuclear_ = -1.0;
          dist_nuclear_esd_ = -1.0;
          dist_nuclear_was_set = false;
@@ -274,6 +280,11 @@ namespace coot {
       }
       void set_atom_1_atom_id(const std::string &id) { set_atom_id_1(id); }
       void set_atom_2_atom_id(const std::string &id) { set_atom_id_2(id); }
+      // this function called by dictionary parser after all the bonds have been read
+      void set_only_bond(const std::string &pos, bool b) {
+         if (pos == "first")  atom_has_only_this_non_hydrogen_bond_first  = b;
+         if (pos == "second") atom_has_only_this_non_hydrogen_bond_second = b;
+      }
       friend std::ostream& operator<<(std::ostream &s, const dict_bond_restraint_t &rest);
    };
    std::ostream& operator<<(std::ostream &s, const dict_bond_restraint_t &rest);
@@ -578,7 +589,7 @@ namespace coot {
       }
    public:
       enum aromaticity_t { NON_AROMATIC, AROMATIC, UNASSIGNED };
-      enum { IDEAL_MODEL_POS, REAL_MODEL_POS}; 
+      enum { IDEAL_MODEL_POS, REAL_MODEL_POS};
       std::string atom_id;
       std::string atom_id_4c;
       std::string type_symbol;
@@ -640,7 +651,7 @@ namespace coot {
    //
 
    class dictionary_match_info_t; // yes.
-   
+
    // ------------------------------------------------------------------------
    // class dictionary_residue_restraints_t
    // ------------------------------------------------------------------------
@@ -715,7 +726,7 @@ namespace coot {
                if (pair_in.at_2 == at_1) {
                   shared_atom = at_1;
                }
-            } 
+            }
             return shared_atom;
          }
       };
@@ -734,7 +745,7 @@ namespace coot {
 
 
       void write_cif_pdbx_chem_comp_descriptor(mmdb::mmcif::Data *data) const;
-      
+
       // imol_enc can be the model molecule number or
       // -1 for all
       // -2 for auto
@@ -863,6 +874,10 @@ namespace coot {
       bool in_same_ring(const std::string &atom_name_1, const std::string &atom_name_2,
                         const std::vector<std::vector<std::string> > &ring_list) const;
 
+      void add_pyranose_pseudo_ring_plane_restraints(const std::string &plane_id,
+                                                     std::vector<std::string> &atom_name_vec,
+                                                     double esd);
+
       bool ligand_has_aromatic_bonds_p() const;
 
       std::vector<std::vector<std::string> > get_ligand_aromatic_ring_list() const;
@@ -914,6 +929,9 @@ namespace coot {
       // If new_comp_id is "auto", suggest_new_comp_id() is called to
       // generate a comp_id string.
       //
+      // If residue_p is not null, then change the atom names
+      // in the residue.
+      //
       dictionary_match_info_t
       match_to_reference(const dictionary_residue_restraints_t &ref,
                          mmdb::Residue *residue_p,
@@ -929,12 +947,12 @@ namespace coot {
       //
       // Caller disposes of the memory with a delete().
       mmdb::math::Graph *make_graph(bool use_hydrogen) const;
-      
+
       // Are the atoms only of elements C,N.O,H,F,Cl,I,Br,P,S?
       bool comprised_of_organic_set() const;
 
       // are the number of atoms of each element the same ie. they have the same chemical formula?
-      // 
+      //
       bool composition_matches(const dictionary_residue_restraints_t &other) const;
 
       // for hydrogens
@@ -997,6 +1015,12 @@ namespace coot {
       int atom_1_comp_id, atom_2_comp_id;
       double dist() const { return value_dist; }
       double esd()  const { return value_dist_esd; }
+      bool matches(const std::string &at_name_1, const std::string &at_name_2) const {
+         bool status = true;
+         if (at_name_1 != atom_id_1()) status = false;
+         if (at_name_2 != atom_id_2()) status = false;
+         return status;
+      }
    }; 
 
    class dict_link_angle_restraint_t : public basic_dict_restraint_t {
@@ -1262,7 +1286,7 @@ namespace coot {
             return 0;
       }
    };
-   
+
    class read_refmac_mon_lib_info_t {
    public:
       unsigned int n_atoms;
@@ -1286,7 +1310,7 @@ namespace coot {
    // class protein_geometry     the container class
    // ------------------------------------------------------------------------
    // ------------------------------------------------------------------------
-   // 
+   //
    // consider molecule_geometry
    class protein_geometry {
 
@@ -1629,14 +1653,14 @@ namespace coot {
       // the chiral restraint for this comp_id(s) may need filtering
       // (i.e. removing some of them if they are not real chiral centres
       // (e.g. from prodrg restraints)).
-      // 
+      //
       void filter_chiral_centres(int imol, const std::vector<std::string> & comp_id_for_filtering);
 
       // Return a filtered list, that is don't include chiral centers that
       // are connected to more than one hydrogen.
-      // 
+      //
       std::vector<dict_chiral_restraint_t> filter_chiral_centres(const dictionary_residue_restraints_t &restraints);
-      
+
       void assign_link_chiral_volume_targets();
       int read_number;
 
@@ -1677,9 +1701,9 @@ namespace coot {
       // return empty file name on failure.
       std::string comp_id_to_file_name(const std::string &comp_id) const;
 
-#ifdef HAVE_CCP4SRS      
+#ifdef HAVE_CCP4SRS
       ccp4srs::Manager *ccp4srs;
-#endif      
+#endif
 
       void add_molecule_number_to_entries(const std::vector<std::string> &comp_ids, int imol_enc);
 
@@ -1692,7 +1716,7 @@ namespace coot {
          read_number = 0;
          set_verbose(1);
          parse_metal_NOS_distance_tables();
-#if HAVE_CCP4SRS         
+#if HAVE_CCP4SRS
          ccp4srs = NULL;
 #endif
          fill_default_non_auto_load_residue_names();
@@ -1721,10 +1745,14 @@ namespace coot {
       // for the link_id (and that's fine)
       std::pair<chem_mod, chem_mod> get_chem_mods_for_link(const std::string &link_id) const;
       void debug_mods() const;
-      
-      
+
+      // when making the bonds mesh, we would like to have a mesh that includes a hemisphere
+      // where there are atoms that have only one non-Hydrogen bond. So the dictionary
+      // needs to know where such atoms here. We set them in this function.
+      void set_only_bonds(int dict_idx);
+
       // Refmac monomer lib things
-      // 
+      //
       // Return the number of bond restraints
       //
       read_refmac_mon_lib_info_t
@@ -1739,22 +1767,13 @@ namespace coot {
          return dict_res_restraints[i]; }
       const dictionary_residue_link_restraints_t & link(int i) const {
          return dict_link_res_restraints[i]; }
-      dictionary_residue_link_restraints_t link(const std::string &id_in) const {
-         dictionary_residue_link_restraints_t r;
-         for (unsigned int id=0; id<dict_link_res_restraints.size(); id++) {
-            if (dict_link_res_restraints[id].link_id == id_in) {
-               r = dict_link_res_restraints[id];
-               break;
-            }
-         } 
-         return r;
-      }
+
+      dictionary_residue_link_restraints_t link(const std::string &id_in) const;
 
       // return "" on comp_id not found, else return the file name.
-      // 
-      std::string get_cif_file_name(const std::string &comp_id,
-                                    int imol_enc) const;
-      
+      //
+      std::string get_cif_file_name(const std::string &comp_id, int imol_enc) const;
+
       int link_size() const { return dict_link_res_restraints.size(); }
       void info() const;
       std::string three_letter_code(const unsigned int &i) const;
@@ -1763,10 +1782,19 @@ namespace coot {
 
       int init_standard(); // standard protein residues and links.
                                   // Return the current read_number
-      
+
+      // if the dictionary is already in the store, then do nothing, otherwise
+      // try_dynamic_add().
+      //
+      // Internally this function wraps have_dictionary_for_residue_type() which
+      // is not as good a name as check_and_try_dynamic_add() for what the function
+      // does.
+      //
+      int check_and_try_dynamic_add(const std::string &resname, int imol_enc, int read_number);  // return success status?
+
       // Return 0 on failure to do a dynamic add, otherwise return the
       // number of atoms read.
-      // 
+      //
       int try_dynamic_add(const std::string &resname, int read_number);  // return success status?
       // this is not const if we use dynamic add.
 
@@ -1781,7 +1809,7 @@ namespace coot {
       void print_dictionary_store() const;
 
       // return a pair, the first is status (1 if the name was found, 0 if not)
-      // 
+      //
       std::pair<bool, std::string> get_monomer_name(const std::string &comp_id, int imol_enc) const;
 
       // return 2-3 filtered torsions
@@ -1795,7 +1823,7 @@ namespace coot {
       // as above, except filter out of the returned vectors torsions
       // that move (or are based on) hydrogens.
       // return 2-3 filtered torsions
-      // 
+      //
       std::vector <dict_torsion_restraint_t>
       get_monomer_torsions_from_geometry(const std::string &monomer_type,
                                          int imol_enc,
@@ -1804,6 +1832,8 @@ namespace coot {
       std::pair<bool, dict_atom> get_monomer_atom_info(const std::string &monomer_name,
                                                        const std::string &atom_name,
                                                        int imol_enc) const;
+
+      std::vector<std::pair<int, std::string> > get_monomer_names() const;
 
       bool copy_monomer_restraints(const std::string &monomer_type, int imol_enc_current, int imol_enc_new);
 
@@ -1841,12 +1871,17 @@ namespace coot {
                                        int imol_enc,
                                        bool allow_minimal_flag) const;
 
+      // 20250124-PE and the reverse
+      //
+      // return the second blank on lookup failure
+      std::pair<int, std::string> get_monomer_name(int monomer_index) const;
+
       // non-const because we try to read in stuff from ccp4srs when
       // it's not in the dictionary yet.  ccp4srs gives us bond orders.
       //
       // This relies on ccp4srs being setup before we get to make this
       // call (init_ccp4srs()).
-      // 
+      //
       std::pair<bool, dictionary_residue_restraints_t>
       get_bond_orders(const std::string &monomer_type);
 
@@ -1860,7 +1895,7 @@ namespace coot {
       // If monomer_type is not in dict_res_restraints, then add a new
       // item to the dict_res_restraints and add mon_res_in.  Return 1
       // for replaced 0 for added.
-      // 
+      //
       bool replace_monomer_restraints(std::string monomer_type,
                                       int imol_enc,
                                       const dictionary_residue_restraints_t &mon_res_in);
@@ -1873,7 +1908,7 @@ namespace coot {
       // Used to update bond and angle restraints from Mogul.
       //
       // status returned was if there was something already there.
-      // 
+      //
       bool replace_monomer_restraints_conservatively(std::string monomer_type,
                                                      const dictionary_residue_restraints_t &mon_res_in);
       void replace_monomer_restraints_conservatively_bonds(int irest,
@@ -1881,7 +1916,6 @@ namespace coot {
       void replace_monomer_restraints_conservatively_angles(int irest,
                                                             const dictionary_residue_restraints_t &mon_res);
 
-      
       // this function is no longer const because it can run try_dynamic_add
       //
       bool have_dictionary_for_residue_type(const std::string &monomer_type,
@@ -1900,16 +1934,16 @@ namespace coot {
       // this is const because there is no dynamic add.
       //
       // if there is just an ccp4srs entry, then this returns false.
-      // 
-      bool have_dictionary_for_residue_type_no_dynamic_add(const std::string &monomer_type) const;
-      
+      //
+      bool have_dictionary_for_residue_type_no_dynamic_add(const std::string &monomer_type, int imol) const;
+
       // this is const because there is no dynamic add.
       //
       // if there is (even) a ccp4srs entry, then this returns true.
-      // 
+      //
       bool have_at_least_minimal_dictionary_for_residue_type(const std::string &monomer_type,
                                                              int imol) const;
-      
+
       // likewise not const
       bool have_dictionary_for_residue_types(const std::vector<std::string> &residue_types,
                                              int imol_enc,
@@ -1937,7 +1971,7 @@ namespace coot {
 
       // return a pair: a status, yes/no atoms match and a vector of
       // atoms whose names do not match.
-      // 
+      //
       std::pair<bool, std::vector<std::string> >
       atoms_match_dictionary(mmdb::Residue *res,
                              bool check_hydrogens_too_flag,
@@ -2013,12 +2047,12 @@ namespace coot {
                           const std::string &group_1,
                           const std::string &comp_id_2,
                           const std::string &group_2) const;
-      
+
       // Try to find a link that is not a peptide link (because that
       // fails on a distance check).  This is the method to find
       // isopeptide links (which again need to be distance checked in
       // find_link_type_rigourous()).
-      // 
+      //
       // bool the need-order-switch-flag
       std::vector<chem_link>
       matching_chem_links_non_peptide(const std::string &comp_id_1,
@@ -2036,14 +2070,13 @@ namespace coot {
 
       // return "" on failure.
       // no order switch is considered.
-      // 
-      std::string find_glycosidic_linkage_type(mmdb::Residue *first, mmdb::Residue *second) const;
+      //
+      std::string find_glycosidic_linkage_type_by_distance(mmdb::Residue *first, mmdb::Residue *second) const;
       std::string find_glycosidic_linkage_type(mmdb::Residue *first, mmdb::Residue *second,
                                                mmdb::Manager *mol) const;
       bool are_linked_in_order(mmdb::Residue *first,
                                mmdb::Residue *second,
                                mmdb::Link *link) const;
-      
 
       std::pair<std::string, bool>
       find_glycosidic_linkage_type_with_order_switch(mmdb::Residue *first, mmdb::Residue *second) const;
@@ -2195,7 +2228,7 @@ namespace coot {
       std::vector<std::string> monomer_restraints_comp_ids() const;
 
       // can throw a std::runtime_error
-      std::string Get_SMILES_for_comp_id(const std::string &comp_id) const;
+      std::string Get_SMILES_for_comp_id(const std::string &comp_id,  int imol_enc) const;
 
       // debug
       void debug() const;
@@ -2246,6 +2279,14 @@ namespace coot {
                                                 const std::vector<atom_name_torsion_quad> &tors_info_vec,
                                                 int mmcif_read_number);
 
+      // (list "pseudo-ring-1" (list " C1 " " C2 " " C4 " " C5 ") 0.01)
+      // (list "pseudo-ring-2" (list " C2 " " C3 " " C5 " " O5 ") 0.01)
+      // (list "pseudo-ring-3" (list " C3 " " C4 " " O5 " " C1 ") 0.01)
+      void add_pyranose_pseudo_ring_plane_restraints(const std::string &comp_id, int imol_enc,
+                                                     const std::string &plane_id,
+                                                     std::vector<std::string> &atom_name_vec,
+                                                     double esd);
+
       // to use improper dihedrals rather than plane restraints, call this
       // after reading restraints. Fills the improper dihedral restraints
       // If you read new restraints, you will need to call this function again
@@ -2271,7 +2312,7 @@ namespace coot {
       std::vector<std::string> get_available_ligand_comp_id(const std::string &hoped_for_head,
                                                             unsigned int n_top=10) const;
 
-#endif // HAVE_CCP4SRS      
+#endif // HAVE_CCP4SRS
 
    };
 

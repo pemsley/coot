@@ -29,8 +29,8 @@
 
 #include<vector>
 #include<string>
-#include "coot-align.hh"
 #include "utils/coot-fasta.hh"
+#include "coot-utils/coot-align.hh"
 
 class sequence_to_chain_results_t {
 public:

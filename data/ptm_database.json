@@ -1,0 +1,858 @@
+{
+    "ALA": {
+        "ACE": {
+            "category": "Terminal acetylation",
+            "type": "None",
+            "position": "Amino-acid backbone",
+            "location": "N-terminal"
+        },
+        "AIB": {
+            "category": "Named protein modification",
+            "type": "Methylation",
+            "position": "Amino-acid backbone",
+            "location": "Any position"
+        },
+        "DPP": {
+            "category": "Named protein modification",
+            "type": "Amination",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "MAA": {
+            "category": "Named protein modification",
+            "type": "Methylation",
+            "position": "Amino-acid backbone",
+            "location": "Any position"
+        },
+        "NH2": {
+            "category": "Terminal amidation",
+            "type": "None",
+            "position": "Amino-acid backbone",
+            "location": "C-terminal"
+        }
+    },
+    "ARG": {
+        "2MR": {
+            "category": "Named protein modification",
+            "type": "Methylation",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "4D4": {
+            "category": "Named protein modification",
+            "type": "Hydroxylation",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "ACE": {
+            "category": "Terminal acetylation",
+            "type": "None",
+            "position": "Amino-acid backbone",
+            "location": "N-terminal"
+        },
+        "AGM": {
+            "category": "Named protein modification",
+            "type": "Methylation",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "AR7": {
+            "category": "Named protein modification",
+            "type": "Hydrogenation",
+            "position": "Amino-acid backbone",
+            "location": "Any position"
+        },
+        "CIR": {
+            "category": "Named protein modification",
+            "type": "Citrullination",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "NH2": {
+            "category": "Terminal amidation",
+            "type": "None",
+            "position": "Amino-acid backbone",
+            "location": "C-terminal"
+        },
+        "NMM": {
+            "category": "Named protein modification",
+            "type": "Methylation",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        }
+    },
+    "ASN": {
+        "ACE": {
+            "category": "Terminal acetylation",
+            "type": "None",
+            "position": "Amino-acid backbone",
+            "location": "N-terminal"
+        },
+        "MEN": {
+            "category": "Named protein modification",
+            "type": "Methylation",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "NH2": {
+            "category": "Terminal amidation",
+            "type": "None",
+            "position": "Amino-acid backbone",
+            "location": "C-terminal"
+        },
+        "SNN": {
+            "category": "Named protein modification",
+            "type": "Succinamide ring",
+            "position": "Amino-acid side chain and backbone",
+            "location": "Any position"
+        }
+    },
+    "ASP": {
+        "0TD": {
+            "category": "Named protein modification",
+            "type": "Methylsulfanylation",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "ACE": {
+            "category": "Terminal acetylation",
+            "type": "None",
+            "position": "Amino-acid backbone",
+            "location": "N-terminal"
+        },
+        "ASA": {
+            "category": "Named protein modification",
+            "type": "Dehydroxylation",
+            "position": "Amino-acid backbone",
+            "location": "C-terminal"
+        },
+        "ASJ": {
+            "category": "Named protein modification",
+            "type": "Deoxidation",
+            "position": "Amino-acid backbone",
+            "location": "C-terminal"
+        },
+        "D2T": {
+            "category": "Named protein modification",
+            "type": "Methylsulfanylation",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "NH2": {
+            "category": "Terminal amidation",
+            "type": "None",
+            "position": "Amino-acid backbone",
+            "location": "C-terminal"
+        },
+        "PHD": {
+            "category": "Named protein modification",
+            "type": "Phosphorylation",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "SNN": {
+            "category": "Named protein modification",
+            "type": "Succinamide ring",
+            "position": "Amino-acid side chain and backbone",
+            "location": "Any position"
+        }
+    },
+    "CYS": {
+        "ACE": {
+            "category": "Terminal acetylation",
+            "type": "None",
+            "position": "Amino-acid backbone",
+            "location": "N-terminal"
+        },
+        "CCS": {
+            "category": "Named protein modification",
+            "type": "Carboxymethylation",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "CIR": {
+            "category": "Covalent chemical modification",
+            "type": "None",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "CME": {
+            "category": "Named protein modification",
+            "type": "Beta-mercaptoethanol",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "CSD": {
+            "category": "Named protein modification",
+            "type": "Hydroxylation",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "CSO": {
+            "category": "Named protein modification",
+            "type": "Hydroxylation",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "CSS": {
+            "category": "Named protein modification",
+            "type": "Sulfhydration",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "CSX": {
+            "category": "Named protein modification",
+            "type": "Oxidation",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "DHA": {
+            "category": "Named protein modification",
+            "type": "Dehydroamino acid",
+            "position": "Amino-acid side chain and backbone",
+            "location": "Any position"
+        },
+        "NH2": {
+            "category": "Terminal amidation",
+            "type": "None",
+            "position": "Amino-acid backbone",
+            "location": "C-terminal"
+        },
+        "OCS": {
+            "category": "Named protein modification",
+            "type": "Hydroxylation",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "PYR": {
+            "category": "Covalent chemical modification",
+            "type": "None",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "SCH": {
+            "category": "Named protein modification",
+            "type": "Methylsulfanylation",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "SCY": {
+            "category": "Named protein modification",
+            "type": "Acetylation",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "SMC": {
+            "category": "Named protein modification",
+            "type": "Methylation",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "SNC": {
+            "category": "Named protein modification",
+            "type": "Nitrosylation",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "YCM": {
+            "category": "Named protein modification",
+            "type": "Acetamidation",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        }
+    },
+    "GLN": {
+        "ACE": {
+            "category": "Terminal acetylation",
+            "type": "None",
+            "position": "Amino-acid backbone",
+            "location": "N-terminal"
+        },
+        "MEQ": {
+            "category": "Named protein modification",
+            "type": "Methylation",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "MGN": {
+            "category": "Named protein modification",
+            "type": "Methylation",
+            "position": "Amino-acid backbone",
+            "location": "Any position"
+        },
+        "NH2": {
+            "category": "Terminal amidation",
+            "type": "None",
+            "position": "Amino-acid backbone",
+            "location": "C-terminal"
+        },
+        "PCA": {
+            "category": "Named protein modification",
+            "type": "Pyrrolidone carboxylic acid",
+            "position": "Amino-acid side chain and backbone",
+            "location": "N-terminal"
+        }
+    },
+    "GLU": {
+        "ACE": {
+            "category": "Terminal acetylation",
+            "type": "None",
+            "position": "Amino-acid backbone",
+            "location": "N-terminal"
+        },
+        "B3E": {
+            "category": "Named protein modification",
+            "type": "Beta-amino acid",
+            "position": "Amino-acid backbone",
+            "location": "Any position"
+        },
+        "CGU": {
+            "category": "Named protein modification",
+            "type": "Carboxylation",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "NH2": {
+            "category": "Terminal amidation",
+            "type": "None",
+            "position": "Amino-acid backbone",
+            "location": "C-terminal"
+        },
+        "PCA": {
+            "category": "Named protein modification",
+            "type": "Pyrrolidone carboxylic acid",
+            "position": "Amino-acid side chain and backbone",
+            "location": "N-terminal"
+        }
+    },
+    "GLY": {
+        "ACE": {
+            "category": "Terminal acetylation",
+            "type": "None",
+            "position": "Amino-acid backbone",
+            "location": "N-terminal"
+        },
+        "GL3": {
+            "category": "Named protein modification",
+            "type": "Sulfhydration",
+            "position": "Amino-acid backbone",
+            "location": "Any position"
+        },
+        "NH2": {
+            "category": "Terminal amidation",
+            "type": "None",
+            "position": "Amino-acid backbone",
+            "location": "C-terminal"
+        },
+        "SAR": {
+            "category": "Named protein modification",
+            "type": "Methylation",
+            "position": "Amino-acid backbone",
+            "location": "Any position"
+        }
+    },
+    "HIS": {
+        "ACE": {
+            "category": "Terminal acetylation",
+            "type": "None",
+            "position": "Amino-acid backbone",
+            "location": "N-terminal"
+        },
+        "DDE": {
+            "category": "Named protein modification",
+            "type": "Diphthamide",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "HIC": {
+            "category": "Named protein modification",
+            "type": "Methylation",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "MHS": {
+            "category": "Named protein modification",
+            "type": "Methylation",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "NEP": {
+            "category": "Named protein modification",
+            "type": "Phosphorylation",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "NH2": {
+            "category": "Terminal amidation",
+            "type": "None",
+            "position": "Amino-acid backbone",
+            "location": "C-terminal"
+        },
+        "PYR": {
+            "category": "Covalent chemical modification",
+            "type": "None",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        }
+    },
+    "ILE": {
+        "ACE": {
+            "category": "Terminal acetylation",
+            "type": "None",
+            "position": "Amino-acid backbone",
+            "location": "N-terminal"
+        },
+        "IML": {
+            "category": "Named protein modification",
+            "type": "Methylation",
+            "position": "Amino-acid backbone",
+            "location": "Any position"
+        },
+        "NH2": {
+            "category": "Terminal amidation",
+            "type": "None",
+            "position": "Amino-acid backbone",
+            "location": "C-terminal"
+        }
+    },
+    "LEU": {
+        "ACE": {
+            "category": "Terminal acetylation",
+            "type": "None",
+            "position": "Amino-acid backbone",
+            "location": "N-terminal"
+        },
+        "B3L": {
+            "category": "Named protein modification",
+            "type": "Beta-amino acid",
+            "position": "Amino-acid backbone",
+            "location": "Any position"
+        },
+        "EEP": {
+            "category": "Named protein modification",
+            "type": "Hydroxylation",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "MK8": {
+            "category": "Named protein modification",
+            "type": "Methylation",
+            "position": "Amino-acid backbone",
+            "location": "Any position"
+        },
+        "MLE": {
+            "category": "Named protein modification",
+            "type": "Methylation",
+            "position": "Amino-acid backbone",
+            "location": "Any position"
+        },
+        "NH2": {
+            "category": "Terminal amidation",
+            "type": "None",
+            "position": "Amino-acid backbone",
+            "location": "C-terminal"
+        },
+        "NLE": {
+            "category": "Named protein modification",
+            "type": "Norleucine",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        }
+    },
+    "LYS": {
+        "5CT": {
+            "category": "Named protein modification",
+            "type": "Hypusine",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "ACE": {
+            "category": "Terminal acetylation",
+            "type": "None",
+            "position": "Amino-acid backbone",
+            "location": "N-terminal"
+        },
+        "ALY": {
+            "category": "Named protein modification",
+            "type": "Acetylation",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "B3K": {
+            "category": "Named protein modification",
+            "type": "Beta-amino acid",
+            "position": "Amino-acid backbone",
+            "location": "Any position"
+        },
+        "KBE": {
+            "category": "Named protein modification",
+            "type": "Beta-amino acid",
+            "position": "Amino-acid side chain and backbone",
+            "location": "Any position"
+        },
+        "KCX": {
+            "category": "Named protein modification",
+            "type": "Carboxylation",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "KPI": {
+            "category": "Named protein modification",
+            "type": "Carboxyethylation",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "LLP": {
+            "category": "Named protein modification",
+            "type": "Pyridoxal phosphate",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "M3L": {
+            "category": "Named protein modification",
+            "type": "Methylation",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "MLY": {
+            "category": "Named protein modification",
+            "type": "Methylation",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "MLZ": {
+            "category": "Named protein modification",
+            "type": "Methylation",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "NH2": {
+            "category": "Terminal amidation",
+            "type": "None",
+            "position": "Amino-acid backbone",
+            "location": "C-terminal"
+        },
+        "PYR": {
+            "category": "Covalent chemical modification",
+            "type": "None",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        }
+    },
+    "MET": {
+        "ACE": {
+            "category": "Terminal acetylation",
+            "type": "None",
+            "position": "Amino-acid backbone",
+            "location": "N-terminal"
+        },
+        "CXM": {
+            "category": "Named protein modification",
+            "type": "Carboxylation",
+            "position": "Amino-acid backbone",
+            "location": "N-terminal"
+        },
+        "FME": {
+            "category": "Named protein modification",
+            "type": "Formylation",
+            "position": "Amino-acid backbone",
+            "location": "N-terminal"
+        },
+        "MHO": {
+            "category": "Named protein modification",
+            "type": "Oxidation",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "MSE": {
+            "category": "Named protein modification",
+            "type": "Selenomethionine",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "NH2": {
+            "category": "Terminal amidation",
+            "type": "None",
+            "position": "Amino-acid backbone",
+            "location": "C-terminal"
+        },
+        "SME": {
+            "category": "Named protein modification",
+            "type": "Oxidation",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        }
+    },
+    "PHE": {
+        "4BF": {
+            "category": "Named protein modification",
+            "type": "Bromination",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "ACE": {
+            "category": "Terminal acetylation",
+            "type": "None",
+            "position": "Amino-acid backbone",
+            "location": "N-terminal"
+        },
+        "MEA": {
+            "category": "Named protein modification",
+            "type": "Methylation",
+            "position": "Amino-acid backbone",
+            "location": "Any position"
+        },
+        "NH2": {
+            "category": "Terminal amidation",
+            "type": "None",
+            "position": "Amino-acid backbone",
+            "location": "C-terminal"
+        },
+        "PHI": {
+            "category": "Named protein modification",
+            "type": "Iodination",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "PHL": {
+            "category": "Named protein modification",
+            "type": "Deoxidation",
+            "position": "Amino-acid backbone",
+            "location": "C-terminal"
+        }
+    },
+    "PRO": {
+        "ACE": {
+            "category": "Terminal acetylation",
+            "type": "None",
+            "position": "Amino-acid backbone",
+            "location": "N-terminal"
+        },
+        "HY3": {
+            "category": "Named protein modification",
+            "type": "Hydroxylation",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "HYP": {
+            "category": "Named protein modification",
+            "type": "Hydroxylation",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "MP8": {
+            "category": "Named protein modification",
+            "type": "Methylation",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "NH2": {
+            "category": "Terminal amidation",
+            "type": "None",
+            "position": "Amino-acid backbone",
+            "location": "C-terminal"
+        }
+    },
+    "SER": {
+        "4HH": {
+            "category": "Named protein modification",
+            "type": "4-Phosphopantetheine",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "ACE": {
+            "category": "Terminal acetylation",
+            "type": "None",
+            "position": "Amino-acid backbone",
+            "location": "N-terminal"
+        },
+        "DHA": {
+            "category": "Named protein modification",
+            "type": "Dehydroamino acid",
+            "position": "Amino-acid side chain and backbone",
+            "location": "Any position"
+        },
+        "NH2": {
+            "category": "Terminal amidation",
+            "type": "None",
+            "position": "Amino-acid backbone",
+            "location": "C-terminal"
+        },
+        "PTR": {
+            "category": "Covalent chemical modification",
+            "type": "None",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "PYR": {
+            "category": "Named protein modification",
+            "type": "Pyruvic acid",
+            "position": "Amino-acid backbone",
+            "location": "N-terminal"
+        },
+        "SEP": {
+            "category": "Named protein modification",
+            "type": "Phosphorylation",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        }
+    },
+    "THR": {
+        "ACE": {
+            "category": "Terminal acetylation",
+            "type": "None",
+            "position": "Amino-acid backbone",
+            "location": "N-terminal"
+        },
+        "DBU": {
+            "category": "Named protein modification",
+            "type": "Dehydroamino acid",
+            "position": "Amino-acid side chain and backbone",
+            "location": "Any position"
+        },
+        "NH2": {
+            "category": "Terminal amidation",
+            "type": "None",
+            "position": "Amino-acid backbone",
+            "location": "C-terminal"
+        },
+        "TPO": {
+            "category": "Named protein modification",
+            "type": "Phosphorylation",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        }
+    },
+    "TRP": {
+        "0AF": {
+            "category": "Named protein modification",
+            "type": "Hydroxylation",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "ACE": {
+            "category": "Terminal acetylation",
+            "type": "None",
+            "position": "Amino-acid backbone",
+            "location": "N-terminal"
+        },
+        "FTR": {
+            "category": "Named protein modification",
+            "type": "Fluorination",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "NH2": {
+            "category": "Terminal amidation",
+            "type": "None",
+            "position": "Amino-acid backbone",
+            "location": "C-terminal"
+        },
+        "TOX": {
+            "category": "Named protein modification",
+            "type": "Hydroperoxylation",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "TRQ": {
+            "category": "Named protein modification",
+            "type": "Oxidation",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "TRX": {
+            "category": "Named protein modification",
+            "type": "Hydroxylation",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        }
+    },
+    "TYR": {
+        "ACE": {
+            "category": "Terminal acetylation",
+            "type": "None",
+            "position": "Amino-acid backbone",
+            "location": "N-terminal"
+        },
+        "DHA": {
+            "category": "Named protein modification",
+            "type": "Dehydroamino acid",
+            "position": "Amino-acid side chain and backbone",
+            "location": "Any position"
+        },
+        "IYR": {
+            "category": "Named protein modification",
+            "type": "Iodination",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "NH2": {
+            "category": "Terminal amidation",
+            "type": "None",
+            "position": "Amino-acid backbone",
+            "location": "C-terminal"
+        },
+        "NIY": {
+            "category": "Named protein modification",
+            "type": "Nitration",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "OMY": {
+            "category": "Named protein modification",
+            "type": "Chlorination",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "PTR": {
+            "category": "Named protein modification",
+            "type": "Phosphorylation",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "PYR": {
+            "category": "Named protein modification",
+            "type": "Pyruvic acid",
+            "position": "Amino-acid side chain and backbone",
+            "location": "N-terminal"
+        },
+        "TPQ": {
+            "category": "Named protein modification",
+            "type": "Oxidation",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "TYQ": {
+            "category": "Named protein modification",
+            "type": "Amination",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        },
+        "TYS": {
+            "category": "Named protein modification",
+            "type": "Sulfation",
+            "position": "Amino-acid side chain",
+            "location": "Any position"
+        }
+    },
+    "VAL": {
+        "ACE": {
+            "category": "Terminal acetylation",
+            "type": "None",
+            "position": "Amino-acid backbone",
+            "location": "N-terminal"
+        },
+        "MVA": {
+            "category": "Named protein modification",
+            "type": "Methylation",
+            "position": "Amino-acid backbone",
+            "location": "Any position"
+        },
+        "NH2": {
+            "category": "Terminal amidation",
+            "type": "None",
+            "position": "Amino-acid backbone",
+            "location": "C-terminal"
+        }
+    }
+}

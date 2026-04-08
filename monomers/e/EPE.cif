@@ -1,0 +1,224 @@
+#
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+EPE     EPE      "4-(2-HYDROXYETHYL)-1-PIPERAZINE ETHANESULFONIC ACID"     NON-POLYMER     33     15     .     
+#
+data_comp_EPE
+#
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+EPE     N1      N       NT      0       61.676      47.311      51.655      
+EPE     C2      C       CH2     0       63.098      47.091      51.979      
+EPE     C3      C       CH2     0       63.985      47.497      50.825      
+EPE     N4      N       NT      0       63.649      46.733      49.609      
+EPE     C5      C       CH2     0       62.228      46.958      49.281      
+EPE     C6      C       CH2     0       61.337      46.557      50.433      
+EPE     C7      C       CH2     0       64.536      47.072      48.486      
+EPE     C8      C       CH2     0       65.889      46.404      48.534      
+EPE     O8      O       OH1     0       65.762      45.000      48.617      
+EPE     C9      C       CH2     0       60.786      46.978      52.792      
+EPE     C10     C       CH2     0       60.676      48.099      53.815      
+EPE     S       S       S3      0       59.562      47.701      55.134      
+EPE     O1S     O       O       0       59.479      48.865      55.968      
+EPE     O2S     O       O       0       60.025      46.469      55.706      
+EPE     O3S     O       OH1     0       58.209      47.474      54.413      
+EPE     H21     H       H       0       63.336      47.612      52.771      
+EPE     H22     H       H       0       63.243      46.146      52.182      
+EPE     H31     H       H       0       64.920      47.340      51.064      
+EPE     H32     H       H       0       63.872      48.453      50.651      
+EPE     H51     H       H       0       61.987      46.436      48.490      
+EPE     H52     H       H       0       62.088      47.904      49.075      
+EPE     H61     H       H       0       60.404      46.726      50.193      
+EPE     H62     H       H       0       61.437      45.599      50.604      
+EPE     H71     H       H       0       64.665      48.041      48.467      
+EPE     H72     H       H       0       64.099      46.821      47.649      
+EPE     H81     H       H       0       66.387      46.731      49.309      
+EPE     H82     H       H       0       66.393      46.636      47.728      
+EPE     HO8     H       H       0       66.497      44.676      48.881      
+EPE     H91     H       H       0       61.119      46.174      53.238      
+EPE     H92     H       H       0       59.892      46.776      52.453      
+EPE     H101    H       H       0       60.365      48.910      53.371      
+EPE     H102    H       H       0       61.557      48.281      54.190      
+EPE     HOS3    H       H       0       57.783      46.894      54.786      
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+EPE          N1          C2      SINGLE       n     1.469  0.0137     1.469  0.0137
+EPE          N1          C6      SINGLE       n     1.469  0.0137     1.469  0.0137
+EPE          N1          C9      SINGLE       n     1.471  0.0185     1.471  0.0185
+EPE          C2          C3      SINGLE       n     1.509  0.0100     1.509  0.0100
+EPE          C3          N4      SINGLE       n     1.469  0.0137     1.469  0.0137
+EPE          N4          C5      SINGLE       n     1.469  0.0137     1.469  0.0137
+EPE          N4          C7      SINGLE       n     1.467  0.0100     1.467  0.0100
+EPE          C5          C6      SINGLE       n     1.509  0.0100     1.509  0.0100
+EPE          C7          C8      SINGLE       n     1.509  0.0178     1.509  0.0178
+EPE          C8          O8      SINGLE       n     1.412  0.0124     1.412  0.0124
+EPE          C9         C10      SINGLE       n     1.521  0.0150     1.521  0.0150
+EPE         C10           S      SINGLE       n     1.771  0.0119     1.771  0.0119
+EPE           S         O1S      DOUBLE       n     1.435  0.0100     1.435  0.0100
+EPE           S         O2S      DOUBLE       n     1.435  0.0100     1.435  0.0100
+EPE           S         O3S      SINGLE       n     1.549  0.0200     1.549  0.0200
+EPE          C2         H21      SINGLE       n     1.089  0.0100     0.978  0.0109
+EPE          C2         H22      SINGLE       n     1.089  0.0100     0.978  0.0109
+EPE          C3         H31      SINGLE       n     1.089  0.0100     0.978  0.0109
+EPE          C3         H32      SINGLE       n     1.089  0.0100     0.978  0.0109
+EPE          C5         H51      SINGLE       n     1.089  0.0100     0.978  0.0109
+EPE          C5         H52      SINGLE       n     1.089  0.0100     0.978  0.0109
+EPE          C6         H61      SINGLE       n     1.089  0.0100     0.978  0.0109
+EPE          C6         H62      SINGLE       n     1.089  0.0100     0.978  0.0109
+EPE          C7         H71      SINGLE       n     1.089  0.0100     0.977  0.0152
+EPE          C7         H72      SINGLE       n     1.089  0.0100     0.977  0.0152
+EPE          C8         H81      SINGLE       n     1.089  0.0100     0.978  0.0200
+EPE          C8         H82      SINGLE       n     1.089  0.0100     0.978  0.0200
+EPE          O8         HO8      SINGLE       n     0.970  0.0120     0.846  0.0200
+EPE          C9         H91      SINGLE       n     1.089  0.0100     0.977  0.0152
+EPE          C9         H92      SINGLE       n     1.089  0.0100     0.977  0.0152
+EPE         C10        H101      SINGLE       n     1.089  0.0100     0.975  0.0200
+EPE         C10        H102      SINGLE       n     1.089  0.0100     0.975  0.0200
+EPE         O3S        HOS3      SINGLE       n     0.970  0.0120     0.811  0.0200
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+EPE          C2          N1          C6     108.582    1.50
+EPE          C2          N1          C9     111.692    1.59
+EPE          C6          N1          C9     111.692    1.59
+EPE          N1          C2          C3     110.891    1.50
+EPE          N1          C2         H21     109.491    1.50
+EPE          N1          C2         H22     109.491    1.50
+EPE          C3          C2         H21     109.532    1.50
+EPE          C3          C2         H22     109.532    1.50
+EPE         H21          C2         H22     108.187    1.50
+EPE          C2          C3          N4     110.891    1.50
+EPE          C2          C3         H31     109.532    1.50
+EPE          C2          C3         H32     109.532    1.50
+EPE          N4          C3         H31     109.491    1.50
+EPE          N4          C3         H32     109.491    1.50
+EPE         H31          C3         H32     108.187    1.50
+EPE          C3          N4          C5     108.582    1.50
+EPE          C3          N4          C7     110.993    1.77
+EPE          C5          N4          C7     110.993    1.77
+EPE          N4          C5          C6     110.891    1.50
+EPE          N4          C5         H51     109.491    1.50
+EPE          N4          C5         H52     109.491    1.50
+EPE          C6          C5         H51     109.532    1.50
+EPE          C6          C5         H52     109.532    1.50
+EPE         H51          C5         H52     108.187    1.50
+EPE          N1          C6          C5     110.891    1.50
+EPE          N1          C6         H61     109.491    1.50
+EPE          N1          C6         H62     109.491    1.50
+EPE          C5          C6         H61     109.532    1.50
+EPE          C5          C6         H62     109.532    1.50
+EPE         H61          C6         H62     108.187    1.50
+EPE          N4          C7          C8     114.643    1.61
+EPE          N4          C7         H71     108.784    1.50
+EPE          N4          C7         H72     108.784    1.50
+EPE          C8          C7         H71     108.992    1.50
+EPE          C8          C7         H72     108.992    1.50
+EPE         H71          C7         H72     107.745    1.50
+EPE          C7          C8          O8     111.219    2.30
+EPE          C7          C8         H81     109.353    1.50
+EPE          C7          C8         H82     109.353    1.50
+EPE          O8          C8         H81     109.427    1.50
+EPE          O8          C8         H82     109.427    1.50
+EPE         H81          C8         H82     108.203    1.50
+EPE          C8          O8         HO8     108.643    2.83
+EPE          N1          C9         C10     113.716    2.56
+EPE          N1          C9         H91     109.135    1.50
+EPE          N1          C9         H92     109.135    1.50
+EPE         C10          C9         H91     109.015    1.50
+EPE         C10          C9         H92     109.015    1.50
+EPE         H91          C9         H92     107.781    1.50
+EPE          C9         C10           S     111.256    2.92
+EPE          C9         C10        H101     109.160    1.50
+EPE          C9         C10        H102     109.160    1.50
+EPE           S         C10        H101     108.904    1.50
+EPE           S         C10        H102     108.904    1.50
+EPE        H101         C10        H102     107.925    1.50
+EPE         C10           S         O1S     106.916    1.50
+EPE         C10           S         O2S     106.916    1.50
+EPE         C10           S         O3S     103.568    2.80
+EPE         O1S           S         O2S     119.289    2.60
+EPE         O1S           S         O3S     110.306    2.80
+EPE         O2S           S         O3S     110.306    2.80
+EPE           S         O3S        HOS3     110.371    3.00
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+EPE             sp3_sp3_2          C3          C2          N1          C9     180.000    10.0     3
+EPE            sp3_sp3_38          C5          C6          N1          C9     -60.000    10.0     3
+EPE            sp3_sp3_44         C10          C9          N1          C2     -60.000    10.0     3
+EPE            sp3_sp3_76          C9         C10           S         O1S     180.000    10.0     3
+EPE            sp3_sp3_87        HOS3         O3S           S         C10      60.000    10.0     3
+EPE             sp3_sp3_7          N1          C2          C3          N4     -60.000    10.0     3
+EPE            sp3_sp3_17          C2          C3          N4          C7     180.000    10.0     3
+EPE            sp3_sp3_23          C6          C5          N4          C7      60.000    10.0     3
+EPE            sp3_sp3_50          C8          C7          N4          C3     -60.000    10.0     3
+EPE            sp3_sp3_28          N4          C5          C6          N1      60.000    10.0     3
+EPE            sp3_sp3_55          N4          C7          C8          O8     180.000    10.0     3
+EPE            sp3_sp3_64          C7          C8          O8         HO8     180.000    10.0     3
+EPE            sp3_sp3_67           S         C10          C9          N1     180.000    10.0     3
+loop_
+_chem_comp_chir.comp_id
+_chem_comp_chir.id
+_chem_comp_chir.atom_id_centre
+_chem_comp_chir.atom_id_1
+_chem_comp_chir.atom_id_2
+_chem_comp_chir.atom_id_3
+_chem_comp_chir.volume_sign
+EPE    chir_1    N1    C9    C2    C6    both
+EPE    chir_2    N4    C7    C3    C5    both
+EPE    chir_3    S    O1S    O2S    O3S    both
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+EPE           SMILES              ACDLabs 10.04                                                          O=S(=O)(O)CCN1CCN(CCO)CC1
+EPE SMILES_CANONICAL               CACTVS 3.341                                                        OCCN1CCN(CC1)CC[S](O)(=O)=O
+EPE           SMILES               CACTVS 3.341                                                        OCCN1CCN(CC1)CC[S](O)(=O)=O
+EPE SMILES_CANONICAL "OpenEye OEToolkits" 1.5.0                                                          C1CN(CCN1CCO)CCS(=O)(=O)O
+EPE           SMILES "OpenEye OEToolkits" 1.5.0                                                          C1CN(CCN1CCO)CCS(=O)(=O)O
+EPE            InChI                InChI  1.03 InChI=1S/C8H18N2O4S/c11-7-5-9-1-3-10(4-2-9)6-8-15(12,13)14/h11H,1-8H2,(H,12,13,14)
+EPE         InChIKey                InChI  1.03                                                        JKMHFZQWWAIEOD-UHFFFAOYSA-N
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+EPE acedrg               243         "dictionary generator"                  
+EPE acedrg_database      11          "data source"                           
+EPE rdkit                2017.03.2   "Chemoinformatics tool"
+EPE refmac5              5.8.0238    "optimization tool"                     

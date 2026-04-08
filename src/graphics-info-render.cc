@@ -34,7 +34,7 @@
 #include "clipper/core/coords.h"
 #include "clipper/core/rotation.h"
 
-#include "gl-matrix.h"
+#include "coot-utils/gl-matrix.h"
 #include "graphics-info.h"
 #include "coot-render.hh"
 

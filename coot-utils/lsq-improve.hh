@@ -45,7 +45,7 @@ namespace coot {
       clipper::RTop_orth rtop_of_moving(const std::vector<lsq_range_match_info_t> &matches) const;
    public:
       lsq_improve(mmdb::Manager *mol_ref, const std::string &ref_selection_string,
-		  mmdb::Manager *mol_moving, const std::string &moving_selection_string);
+                  mmdb::Manager *mol_moving, const std::string &moving_selection_string);
       void set_crit_close(mmdb::realtype val) { crit_close = val; }
       void set_n_res_for_frag(int n_res_in) { n_res_for_frag = n_res_in; }
       void improve();
@@ -57,9 +57,9 @@ namespace coot {
       clipper::RTop_orth rtop_of_moving() const;
       
       ~lsq_improve() {
-	 mol->DeleteSelection(sel_hnd_1);
-	 mol->DeleteSelection(sel_hnd_2);
-	 delete mol;
+         mol->DeleteSelection(sel_hnd_1);
+         mol->DeleteSelection(sel_hnd_2);
+         delete mol;
       }
    };
 }

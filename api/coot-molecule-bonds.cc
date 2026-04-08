@@ -295,6 +295,7 @@ coot::molecule_t::make_colour_by_chain_bonds(coot::protein_geometry *geom,
 
    bool draw_hydrogens_flag = draw_hydrogen_atoms_flag;
 
+   // Constructor M
    Bond_lines_container bonds(geom, no_bonds_to_these_atoms, draw_hydrogens_flag);
 
    bonds.add_rotamer_tables(tables_p);
@@ -1188,6 +1189,9 @@ coot::molecule_t::get_bond_colour_basic(int colour_index, bool against_a_dark_ba
       case DARK_VIOLET:
          col = coot::colour_t(0.58, 0.0, 0.83);
          break;
+      case BORON_PINK:
+         col = coot::colour_t(0.98, 0.72, 0.63); // 0.98 0.72 0.63
+         break;
       default:
          col = coot::colour_t (0.7, 0.8, 0.8);
       }
@@ -1324,6 +1328,9 @@ coot::molecule_t::get_bond_colour_by_mol_no(int colour_index, bool against_a_dar
             case DARK_VIOLET:
                rgb[0] = 0.58; rgb[1] = 0.0; rgb[2] = 0.83;
                break;
+            case BORON_PINK:
+                  rgb[0] = 0.98; rgb[1] = 0.72; rgb[2] = 0.63;
+                  break;
             default:
                rgb[0] = 0.8; rgb[1] =  0.2; rgb[2] =  0.2;
                rgb.rotate(colour_index*26.0/360.0);
@@ -1386,6 +1393,9 @@ coot::molecule_t::get_bond_colour_by_mol_no(int colour_index, bool against_a_dar
             case DARK_VIOLET:
                rgb[0] = 0.58; rgb[1] = 0.0; rgb[2] = 0.83;
                break;
+            case BORON_PINK:
+                  rgb[0] = 0.98; rgb[1] = 0.72; rgb[2] = 0.63;
+                  break;
 
             default:
                rgb[0] = 0.5; rgb[1] =  0.1; rgb[2] =  0.1;
@@ -1570,7 +1580,7 @@ std::vector<glm::vec4>
 coot::molecule_t::make_colour_table_for_goodsell_style(float colour_wheel_rotation_step, float saturation, float goodselliness) const {
 
    bool debug_colour_table = true;
-   float gcwrs = colour_wheel_rotation_step;
+   float gcwrs = colour_wheel_rotation_step / 360.0;
    std::vector<glm::vec4> colour_table;
    int icol_max = -1;
    for (int i=0; i<bonds_box.n_atom_centres_; i++) {
@@ -1586,16 +1596,22 @@ coot::molecule_t::make_colour_table_for_goodsell_style(float colour_wheel_rotati
          int icol = bonds_box.atom_centres_colour_[i];
          if (done_colours.find(icol) == done_colours.end()) {
             // c.f. molecules-class-info.cc lines 4000 or so
-            coot::colour_holder ch(0.8, 0.5, 0.6);
+            coot::colour_holder ch(0.8, 0.4, 0.6);
             int ic = icol - 100;
             bool is_C = !(ic%2);
             int chain_index =  ic/2;
-            float pastel_factor = 1.0/saturation;
-            ch.pastelize(pastel_factor);
+            if (is_C) {
+               float pastel_factor = 0.2;
+               ch.pastelize(pastel_factor);
+            }
             float rotation_angle = gcwrs * static_cast<float>(chain_index);
             ch.rotate_by(rotation_angle);
             if (is_C) ch.make_pale(goodselliness);
+            if (false)
+               std::cout << "colour table: " << icol << " rotation_angle " << rotation_angle << " "
+                         << ch.red << " " << ch.green << " " << ch.blue << std::endl;
             colour_table[icol] = glm::vec4(ch.red, ch.green, ch.blue, 1.0);
+            done_colours.insert(icol);
          }
       }
    }
@@ -1825,17 +1841,18 @@ coot::molecule_t::get_bonds_mesh(const std::string &mode, coot::protein_geometry
 
 
 generic_3d_lines_bonds_box_t
-coot::molecule_t::make_exportable_environment_bond_box(coot::residue_spec_t &spec, coot::protein_geometry &geom) const {
+coot::molecule_t::make_exportable_environment_bond_box(coot::residue_spec_t &spec, float max_dist, coot::protein_geometry &geom) const {
 
    // 20230327-PE when you make the libcootapi version, just export this function
    // and make a simple_mesh_t from the bonds_box_env.
    //
    auto make_bonds_box_env = [] (const coot::residue_spec_t &spec,
                                  atom_selection_container_t atom_sel,
+				 float max_dist,
                                  coot::protein_geometry &geom) {
       graphical_bonds_container bonds_box_env;
       float environment_min_distance = 0.0f;
-      float environment_max_distance = 3.5f;
+      float environment_max_distance = max_dist;
       bool draw_bonds_to_hydrogens_flag = true;
 
       mmdb::Residue *residue_p = coot::util::get_residue(spec, atom_sel.mol);
@@ -1870,7 +1887,7 @@ coot::molecule_t::make_exportable_environment_bond_box(coot::residue_spec_t &spe
       return bonds_box_env;
    };
 
-   graphical_bonds_container bonds_box_env = make_bonds_box_env(spec, atom_sel, geom);
+   graphical_bonds_container bonds_box_env = make_bonds_box_env(spec, atom_sel, max_dist, geom);
    return generic_3d_lines_bonds_box_t(bonds_box_env);
 
 }
@@ -1908,10 +1925,9 @@ coot::molecule_t::get_simple_molecule(int imol, mmdb::Residue *residue_p, bool d
       }
 
       for (int icol=0; icol<gbc.num_colours; icol++) {
-         glm::vec4 col = colour_table[icol];
          graphical_bonds_lines_list<graphics_line_t> &ll = gbc.bonds_[icol];
          for (int j=0; j<ll.num_lines; j++) {
-            bool thin = ll.thin_lines_flag; // do something with this?
+            // const bool &thin = ll.thin_lines_flag; // do something with this?
             simple::bond_t::bond_type_t bt = simple::bond_t::SINGLE_BOND;
             sm.add_bond(simple::bond_t(ll.pair_list[j].atom_index_1, ll.pair_list[j].atom_index_2, bt));
          }
@@ -1925,7 +1941,8 @@ coot::molecule_t::get_simple_molecule(int imol, mmdb::Residue *residue_p, bool d
    mmdb::Manager *new_mol = util::create_mmdbmanager_from_residue(residue_p);
    atom_selection_container_t atom_sel = make_asc(new_mol);
    Bond_lines_container bonds(geom_p, no_bonds_to_these_atoms, draw_hydrogen_atoms_flag);
-   bonds.do_colour_by_chain_bonds(atom_sel, false, imol, draw_hydrogen_atoms_flag, false, true, false, false);
+   bonds.do_colour_by_chain_bonds(atom_sel, false, imol, draw_hydrogen_atoms_flag,
+                                  false, true, false, false);
    bonds_box = bonds.make_graphical_bonds();
    sm = make_simple_molecule(bonds_box);
    atom_sel.clear_up();

@@ -54,7 +54,7 @@ bool is_valid_generic_display_object_number(int obj);
 int new_generic_object_number_for_molecule(const std::string &obj_name, int imol);
 
 /*! \brief add line to generic object object_number */
-void to_generic_object_add_line(int object_number, 
+void to_generic_object_add_line(int object_number,
                                 const char *colour,
                                 int line_width,
                                 float to_x1,
@@ -67,7 +67,8 @@ void to_generic_object_add_line(int object_number,
 #ifdef USE_PYTHON
 /*! \brief add multiple lines to generic object object_number
 
-c.f. to_generic_object_add_points() */
+c.f. to_generic_object_add_points()
+each list item is a [colour, width, x1, y1, z1, x2, y2, z2] */
 void to_generic_object_add_lines(int object_number, PyObject *line_info_list_py);
 #endif
 
@@ -84,7 +85,7 @@ void to_generic_object_add_cylinder(int object_number,
                                     bool cap_start,
                                     bool cap_end);
 
-/*! \brief add a dashed line to generic object object_number 
+/*! \brief add a dashed line to generic object object_number
 
 dash_density is number of dashes per Angstrom.*/
 void to_generic_object_add_dashed_line(int object_number,
@@ -96,7 +97,7 @@ void to_generic_object_add_dashed_line(int object_number,
 				       float from_z1,
 				       float to_x2,
 				       float to_y2,
-				       float to_z2); 
+				       float to_z2);
 
 /*! \brief add point to generic object object_number */
 void to_generic_object_add_point(int object_number,
@@ -123,7 +124,7 @@ void to_generic_object_add_point_internal(int object_number,
 void from_generic_object_remove_last_item(int object_number);
 
 /*! \brief add point to generic object object_number */
-void to_generic_object_add_arc(int object_number, 
+void to_generic_object_add_arc(int object_number,
 			       const char *colour,
 			       float radius,
 			       float radius_inner,
@@ -134,8 +135,8 @@ void to_generic_object_add_arc(int object_number,
 			       float start_dir_x,
 			       float start_dir_y,
 			       float start_dir_z,
-			       float normal_x1, 
-			       float normal_y1, 
+			       float normal_x1,
+			       float normal_y1,
 			       float normal_z1);
 
 void to_generic_object_add_torus(int object_number,
@@ -178,6 +179,8 @@ void to_generic_object_add_pentakis_dodecahedron(int object_number,
 #ifdef USE_PYTHON
 void to_generic_object_add_mesh(int object_number, PyObject *mesh_py);
 #endif
+
+void to_generic_object_attach_translation_gizmo(int object_number);
 
 void generic_object_mesh_calculate_normals(int object_number);
 
@@ -237,8 +240,12 @@ PyObject *get_generic_object_info(int obj_number);
 @return 0 for no things, 1 for things. */
 short int generic_object_has_objects_p(int obj_no); 
 
-/*! \brief close generic object, clear the lines/points etc, not
-  available for buttons/displaying etc */
+/*! \brief close generic object
+ *
+ * clear the lines/points etc, not available for buttons/displaying etc
+ *
+ * param obj_number the object_number of the generic object to close
+ * */
 void close_generic_object(int object_number);
 
 /*! \brief has the generic object been closed? 

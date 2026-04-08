@@ -43,20 +43,20 @@ coot::mol_to_asc_rdkit(const std::string &file_name) {
 
       std::string res_name = "UNL";
       try {
-	 m->getProp("_Name", res_name);
+         m->getProp("_Name", res_name);
       }
       catch (const KeyErrorException &kee) {
-	 std::cout << "mol_to_asc_rdkit() no rdkit molecule name for " << m << " " << kee.what() << std::endl;
+         std::cout << "mol_to_asc_rdkit() no rdkit molecule name for " << m << " " << kee.what() << std::endl;
       }
 
       if (m) {
-	 mmdb::Residue *res = make_residue(*m, 0, res_name);
-	 if (res) { 
-	    mmdb::Manager *mol = util::create_mmdbmanager_from_residue(res);
-	    asc = make_asc(mol);
-	 }
+         mmdb::Residue *res = make_residue(*m, 0, res_name);
+         if (res) { 
+            mmdb::Manager *mol = util::create_mmdbmanager_from_residue(res);
+            asc = make_asc(mol);
+         }
       } else {
-	 std::cout << "Null rdkit mol ptr m" << std::endl;
+         std::cout << "Null rdkit mol ptr m" << std::endl;
       } 
    }
    catch (const RDKit::FileParseException &rte) {

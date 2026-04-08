@@ -28,9 +28,15 @@
 
 #include "compat/coot-sysdep.h"
 
+#include "coot-utils/bonded-pairs.hh"
+#include "geometry/residue-and-atom-specs.hh"
 #include "simple-restraint.hh"
 #include "coot-utils/contacts-by-bricks.hh"
 #include "coot-utils/stack-and-pair.hh"
+
+#include "utils/logging.hh"
+extern logging logger;
+
 
 int
 coot::restraints_container_t::make_restraints_ng(int imol,
@@ -308,8 +314,9 @@ coot::restraints_container_t::make_rama_plot_restraints_ng(const std::map<mmdb::
 void
 coot::restraints_container_t::make_base_pairing_and_stacking_restraints_ng(int imol, const coot::protein_geometry &geom) {
 
-
+   // maybe useful for to change to DEBUG
    bool console_output_for_restraints_generation_timings = false;
+
    auto tp_6 = std::chrono::high_resolution_clock::now();
    stack_and_pair sp(mol, residues_vec);
    std::vector<stack_and_pair::stacked_planes_info_t> stacked_residues = sp.stacked_residues(mol);
@@ -355,9 +362,10 @@ coot::restraints_container_t::make_base_pairing_and_stacking_restraints_ng(int i
          }
       }
    }
-   if (console_output_for_restraints_generation_timings)
-      std::cout << "INFO:: Made " << n_base_pairing_bonds << " base pairing Hydrogen bonds"
-                << std::endl;
+
+   // std::cout << "INFO:: Made " << n_base_pairing_bonds << " base pairing Hydrogen bonds"
+   //           << std::endl;
+   logger.log(log_t::DEBUG, "Made", n_base_pairing_bonds, "base pairing hydrogen bonds");
 
    auto tp_9 = std::chrono::high_resolution_clock::now();
 
@@ -1833,7 +1841,42 @@ coot::restraints_container_t::N_and_C_are_close_ng(mmdb::Residue *res_1,
             status = true;
       }
    }
-   /// No linking of there was a TER in res_1
+   /// No linking if there was a TER in res_1
+   if (status) {
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      res_1->GetAtomTable(residue_atoms, n_residue_atoms);
+      for(int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (at->isTer()) {
+            status = false;
+            break;
+         }
+      }
+   }
+   return status;
+}
+
+bool
+coot::restraints_container_t::O3prime_and_P_are_close_ng(mmdb::Residue *res_1,
+                                                         mmdb::Residue *res_2,
+                                                         float d_crit) const {
+
+   bool status = false;
+
+   mmdb::Atom *at_1 = res_1->GetAtom(" O3'"); // PDBv3 FIXME
+   mmdb::Atom *at_2 = res_2->GetAtom(" P  ");
+   if (at_1) {
+      if (at_2) {
+         float dd =
+            (at_1->x - at_2->x) * (at_1->x - at_2->x) +
+            (at_1->y - at_2->y) * (at_1->y - at_2->y) +
+            (at_1->z - at_2->z) * (at_1->z - at_2->z);
+         if (dd < d_crit * d_crit)
+            status = true;
+      }
+   }
+   /// No linking if there was a TER in res_1
    if (status) {
       mmdb::Atom **residue_atoms = 0;
       int n_residue_atoms = 0;
@@ -1940,6 +1983,12 @@ coot::restraints_container_t::make_polymer_links_ng(const coot::protein_geometry
                   results = try_make_phosphodiester_link_ng(geom, residues_vec[i1], residues_vec[i2]);
                   if (results.first) {
                      accum_links.add(results.second);
+                  }
+               } else {
+                  if (O3prime_and_P_are_close_ng(res_1, res_2, 2.0)) {
+                     results = try_make_phosphodiester_link_ng(geom, residues_vec[i1], residues_vec[i2]);
+                     if (results.first)
+                        accum_links.add(results.second);
                   }
                }
             }
@@ -2098,7 +2147,7 @@ coot::restraints_container_t::make_header_metal_links_ng(const coot::protein_geo
          }
       }
    }
-   std::cout << "------------------------- done make_header_metal_links_ng() " << std::endl;
+   // std::cout << "------------------------- done make_header_metal_links_ng() " << std::endl;
 }
 
 
@@ -2109,7 +2158,16 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
                                                        const std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > &residue_link_vector_map,
                                                        const std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > &residue_pair_link_set) {
 
-   // ------------- Generic/non-polymer and carbohydrate Links -------------------
+   // ------------- Generic/non-polymer -------------------
+
+   // carbohydrate links are generated using LINKs in the header, not here, make_link_restraints_from_links()
+
+   auto is_member = [] (const std::vector<std::string> &names, const std::string &n) {
+      return std::find(names.begin(), names.end(), n) != names.end();
+   };
+
+
+   // 21/10/2025-PE I no longer want carbohydrate to be linked by distance (and this is a link-by-distance function)
 
    link_restraints_counts lrc("CHO-SS-and-other");
 
@@ -2123,6 +2181,7 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
    make_header_metal_links_ng(geom);
 
    new_linked_residue_list_t nlrs;
+   std::vector<std::string> cho_residue_types = {"MAN", "BMA", "NAG", "FUC", "GLC"};
 
    std::set<unsigned int> fixed_atom_flags_set;
    {
@@ -2143,7 +2202,7 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
       for (std::size_t i=0; i<vcontacts.size(); i++) {
          const std::set<unsigned int> &n_set = vcontacts[i];
          if (! n_set.empty()) {
-            mmdb::Atom *at_1 = atom[i];
+           mmdb::Atom *at_1 = atom[i];
             std::cout << "vcontact for " << i << " " << atom_spec_t(at_1) << ": ";
             std::set<unsigned int>::const_iterator it_inner;
             for (it_inner=n_set.begin(); it_inner!=n_set.end(); ++it_inner) {
@@ -2158,11 +2217,14 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
    for (std::size_t i=0; i<vcontacts.size(); i++) {
       const std::set<unsigned int> &n_set = vcontacts[i];
       mmdb::Atom *at_1 = atom[i];
+      if (strcmp(at_1->element, " H") == 0) continue;
       // if (! is_fully_linked_ng(at_1->residue, residue_link_count_map)) {
       if (true) {
          std::set<unsigned int>::const_iterator it;
          for (it=n_set.begin(); it!=n_set.end(); ++it) {
             mmdb::Atom *at_2 = atom[*it];
+
+            if (strcmp(at_2->element, " H") == 0) continue;
 
             mmdb::Residue *res_1 = at_1->residue;
             mmdb::Residue *res_2 = at_2->residue;
@@ -2178,6 +2240,10 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
                // At some state test if this is still needed.
                continue;
             }
+
+            // now delete carbohydrate links - they will be done by header
+            if (is_member(cho_residue_types, res_name_1)) continue;
+            if (is_member(cho_residue_types, res_name_2)) continue;
 
             // Keitaro wanted this test deleted. OK. 20220917-PE
             // if (at_2->GetChain() == at_1->GetChain()) {
@@ -2242,12 +2308,15 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
                   std::pair<std::string, bool> lt = find_link_type_2022(res_1, res_2, geom);
 
                   if (false)
-                     std::cout << "debug:: lt.first size " << lt.first.size() << std::endl;
+                     std::cout << "debug:: found " << lt.first.size() << " link types" << std::endl;
 
-                  if (! lt.first.empty())
-                     std::cout << "DEBUG:: make_other_types_of_link() \"" << lt.first << "\""
-                               << " for " << atom_spec_t(at_1) << " " << atom_spec_t(at_2)
-                               << " detected" << std::endl;
+                  if (! lt.first.empty()) {
+                     // std::cout << "DEBUG:: make_other_types_of_link() \"" << lt.first << "\""
+                     //           << " for " << atom_spec_t(at_1) << " " << atom_spec_t(at_2)
+                     //           << " detected" << std::endl;
+                     logger.log(log_t::DEBUG, "make_other_types_of_link()", lt.first, "for",
+                                atom_spec_t(at_1).format(), atom_spec_t(at_2).format(), "detected");
+                  }
 
                   if (! lt.first.empty()) {
                      // this is not the place to make peptide links, event though find_link_type_complicado()
@@ -2309,9 +2378,10 @@ coot::restraints_container_t::make_link_restraints_ng(const coot::protein_geomet
 
    auto tp_2 = std::chrono::high_resolution_clock::now();
 
-   std::cout << "debug:: calling make_other_types_of_link() with links size " << links.size() << std::endl;
-
+   // std::cout << "debug:: calling make_other_types_of_link() with links size " << links.size() << std::endl;
    link_restraints_counts others = make_other_types_of_link(geom, *residue_link_vector_map_p, *residue_pair_link_set_p);
+
+   bonded_pair_container_t header_based_links = make_link_restraints_from_links(geom);
 
    if (verbose_geometry_reporting != QUIET)
       others.report();
@@ -2386,49 +2456,76 @@ coot::restraints_container_t::analyze_for_bad_restraints(restraint_type_t r_type
 
       if (r_type == CHIRAL_VOLUME_RESTRAINT) {
          mmdb::Atom *at_c = atom[rest.atom_index_centre];
-         std::cout << "INFO:: Model: Bad Chiral Volume: "
-                   << atom_spec_t(at_c)
-                   << " delta "      << std::setw(6) << std::get<2>(d)
-                   << " target "     << std::setw(5) <<rest.target_chiral_volume
-                   << " sigma "      << std::setw(4) << rest.sigma
-                   << " distortion " << std::setw(4) << std::right << std::get<3>(d) << "\n";
+         // std::cout << "INFO:: Model: Bad Chiral Volume: "
+         //           << atom_spec_t(at_c)
+         //           << " delta "      << std::setw(6) << std::get<2>(d)
+         //           << " target "     << std::setw(5) <<rest.target_chiral_volume
+         //           << " sigma "      << std::setw(4) << rest.sigma
+         //           << " distortion " << std::setw(4) << std::right << std::get<3>(d) << "\n";
+         logger.log(log_t::INFO, {"Model: Bad Chiral Volume",
+                                  atom_spec_t(at_c).format(), "delta", std::get<2>(d), "target", rest.target_chiral_volume,
+                                  "sigma", rest.sigma, "distortion", std::get<3>(d)});
       }
 
       if (r_type == BOND_RESTRAINT) {
-         std::cout << "INFO:: Model: Bad Bond: " << std::setw(5)
-                   << atom_spec_t(at_1) << " to " << atom_spec_t(at_2)
-                   << " nZ "         << std::right << std::setprecision(2) << std::fixed << std::get<1>(d)
-                   << " delta "      << std::right << std::setprecision(3) << std::fixed << std::setw(6) << std::get<2>(d)
-                   << " target "     << std::right << std::setprecision(3) << std::fixed << rest.target_value
-                   << " sigma "      << std::right << std::setprecision(3) << std::fixed << rest.sigma
-                   << " distortion " << std::setw(6) << std::get<3>(d);
-         if (rest.is_hydrogen_bond) std::cout << " H";
-         std::cout << "\n";
+         // std::cout << "INFO:: Model: Bad Bond: " << std::setw(5)
+         //           << atom_spec_t(at_1) << " to " << atom_spec_t(at_2)
+         //           << " nZ "         << std::right << std::setprecision(2) << std::fixed << std::get<1>(d)
+         //           << " delta "      << std::right << std::setprecision(3) << std::fixed << std::setw(6) << std::get<2>(d)
+         //           << " target "     << std::right << std::setprecision(3) << std::fixed << rest.target_value
+         //           << " sigma "      << std::right << std::setprecision(3) << std::fixed << rest.sigma
+         //           << " distortion " << std::setw(6) << std::get<3>(d);
+         if (rest.is_hydrogen_bond) {
+            logger.log(log_t::INFO, {"Model: Bad Bond:",
+                                     atom_spec_t(at_1).format(), "to", atom_spec_t(at_2).format(),
+                                     "nZ", std::get<1>(d), "delta", std::get<2>(d), "target", rest.target_value,
+                                     "sigma", rest.sigma, "distortion", std::get<3>(d)});
+         } else {
+            logger.log(log_t::INFO, {"Model: Bad Bond:",
+                                     atom_spec_t(at_1).format(), "to", atom_spec_t(at_2).format(),
+                                     "nZ", std::get<1>(d), "delta", std::get<2>(d), "target", rest.target_value,
+                                     "sigma", rest.sigma, "distortion", std::get<3>(d), "H"});
+         }
       }
 
       if (r_type == ANGLE_RESTRAINT) {
-         std::cout << "INFO:: Model: Bad Angle: " << std::setw(5)
-                   << atom_spec_t(at_1) << " to " << atom_spec_t(at_2)
-                   << " nZ "         << std::right << std::setprecision(2) << std::fixed << std::get<1>(d)
-                   << " delta "      << std::right << std::setprecision(3) << std::fixed << std::setw(6) << std::get<2>(d)
-                   << " target "     << std::right << std::setprecision(3) << std::fixed << rest.target_value
-                   << " sigma "      << std::right << std::setprecision(3) << std::fixed << rest.sigma
-                   << " distortion " << std::setw(6) << std::get<3>(d) << "\n";
+         // std::cout << "INFO:: Model: Bad Angle: " << std::setw(5)
+         //           << atom_spec_t(at_1) << " to " << atom_spec_t(at_2)
+         //           << " nZ "         << std::right << std::setprecision(2) << std::fixed << std::get<1>(d)
+         //           << " delta "      << std::right << std::setprecision(3) << std::fixed << std::setw(6) << std::get<2>(d)
+         //           << " target "     << std::right << std::setprecision(3) << std::fixed << rest.target_value
+         //           << " sigma "      << std::right << std::setprecision(3) << std::fixed << rest.sigma
+         //           << " distortion " << std::setw(6) << std::get<3>(d) << "\n";
+         logger.log(log_t::INFO, {"Model: Bad Angle:",
+                                  atom_spec_t(at_1).format(), "to", atom_spec_t(at_2).format(),
+                                  "nZ", std::get<1>(d), "delta", std::get<2>(d), "target", rest.target_value,
+                                  "sigma", rest.sigma, "distortion", std::get<3>(d)});
       }
 
-      if (r_type == NON_BONDED_CONTACT_RESTRAINT)
-         std::cout << "INFO:: Model: Bad Non-Bonded Contact: " << std::setw(5)
-                   << atom_spec_t(at_1) << " " << std::setw(3) << at_1->GetResName()
-                   << " to " << atom_spec_t(at_2) << " " << std::setw(3) << at_2->GetResName()
-                   << " delta "      << std::get<2>(d)
-                   << " target "     << rest.target_value
-                   << " distortion " << std::get<3>(d) << "\n";
+      if (r_type == NON_BONDED_CONTACT_RESTRAINT) {
+         // std::cout << "INFO:: Model: Bad Non-Bonded Contact: " << std::setw(5)
+         //           << atom_spec_t(at_1) << " " << std::setw(3) << at_1->GetResName()
+         //           << " to " << atom_spec_t(at_2) << " " << std::setw(3) << at_2->GetResName()
+         //           << " delta "      << std::get<2>(d)
+         //           << " target "     << rest.target_value
+         //           << " distortion " << std::get<3>(d) << "\n";
+         logger.log(log_t::INFO, {"Model: Bad Non-Bonded Contact:",
+                                  atom_spec_t(at_1).format(), at_1->GetResName(),
+                                  "to", atom_spec_t(at_2).format(), at_2->GetResName(),
+                                  "delta", std::get<2>(d), "target", rest.target_value,
+                                  "distortion", std::get<3>(d)});
+      }
 
-      if (r_type == GEMAN_MCCLURE_DISTANCE_RESTRAINT)
-         std::cout << "INFO:: Model: Bad GM Distance: " << std::setw(5)
-                   << atom_spec_t(at_1) << " to " << atom_spec_t(at_2) << " "
-                   << " delta "      << std::get<2>(d)
-                   << " target "     << rest.target_value
-                   << " distortion " << std::get<3>(d) << "\n";
+      if (r_type == GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
+         // std::cout << "INFO:: Model: Bad GM Distance: " << std::setw(5)
+         //           << atom_spec_t(at_1) << " to " << atom_spec_t(at_2) << " "
+         //           << " delta "      << std::get<2>(d)
+         //           << " target "     << rest.target_value
+         //           << " distortion " << std::get<3>(d) << "\n";
+         logger.log(log_t::INFO, {"Model: Bad GM Distance:",
+                                  atom_spec_t(at_1).format(), "to", atom_spec_t(at_2).format(),
+                                  "delta", std::get<2>(d), "target", rest.target_value,
+                                  "distortion", std::get<3>(d)});
+      }
    }
 }

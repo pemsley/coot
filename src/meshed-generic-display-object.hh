@@ -27,7 +27,6 @@
 #ifndef MESHED_GENERIC_DISPLAY_OBJECT_HH
 #define MESHED_GENERIC_DISPLAY_OBJECT_HH
 
-#include "utils/coot-utils.hh"  // for colour_holder
 #include "utils/dodec.hh"
 
 #include "coords/graphical-bonds-container.hh"
@@ -42,7 +41,6 @@
 #include "Mesh.hh"
 #include "utils/colour-holder.hh"
 #include "coot-utils/arc-info.hh"
-#include "coot-colour.hh"
 
 std::string probe_dots_short_contact_name_to_expanded_name(const std::string &short_name);
 
@@ -181,7 +179,7 @@ public:
       coot::colour_holder colour;
       clipper::Coord_orth position_start;
       clipper::Coord_orth position_end;
-      float radius;;
+      float radius;
    };
 
    enum {UNDEFINED = -1, INTERMEDIATE_ATOMS=-9};
@@ -212,7 +210,7 @@ public:
    void attach_to_molecule(int imol_in) { imol = imol_in; }
    void clear() {
       mesh.clear();
-      imol = UNDEFINED; }
+   }
    void close_yourself() { clear();
       mesh.close();
    }
@@ -255,6 +253,8 @@ public:
                                   const clipper::Coord_orth &pos);
    void add_arc(const arc_t &arc);
    void add_torus(const torus_t &torus);
+
+   void translate(const coot::Cartesian &t);
 
    void remove_last_object(); // remove from info vector and remove 182 triangles from the mesh (that's a bit of a hack)
 

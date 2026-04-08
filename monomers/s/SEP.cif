@@ -1,0 +1,162 @@
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+SEP SEP PHOSPHOSERINE peptide 17 11 .
+
+data_comp_SEP
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+SEP N N NT3 1 12.862 43.979 -5.259
+SEP CA C CH1 0 12.409 44.697 -6.480
+SEP CB C CH2 0 11.114 45.432 -6.195
+SEP OG O O2 0 10.581 45.935 -7.448
+SEP C C C 0 13.512 45.642 -6.970
+SEP O O O 0 13.911 46.514 -6.172
+SEP OXT O OC -1 13.933 45.473 -8.131
+SEP P P P 0 9.346 45.163 -8.150
+SEP O1P O O 0 9.093 45.892 -9.456
+SEP O2P O OP -1 9.811 43.734 -8.355
+SEP O3P O OP -1 8.186 45.271 -7.179
+SEP H H H 0 13.619 43.506 -5.443
+SEP H2 H H 0 12.212 43.405 -4.981
+SEP H3 H H 0 13.036 44.579 -4.596
+SEP HA H H 0 12.238 44.021 -7.191
+SEP HB3 H H 0 11.280 46.181 -5.581
+SEP HB2 H H 0 10.467 44.826 -5.770
+
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+SEP N CA SINGLE n 1.487 0.0100 1.487 0.0100
+SEP CA CB SINGLE n 1.515 0.0158 1.515 0.0158
+SEP CA C SINGLE n 1.533 0.0100 1.533 0.0100
+SEP CB OG SINGLE n 1.447 0.0162 1.447 0.0162
+SEP OG P SINGLE n 1.614 0.0178 1.614 0.0178
+SEP C O DOUBLE n 1.247 0.0187 1.247 0.0187
+SEP C OXT SINGLE n 1.247 0.0187 1.247 0.0187
+SEP P O1P DOUBLE n 1.517 0.0192 1.517 0.0192
+SEP P O2P SINGLE n 1.517 0.0192 1.517 0.0192
+SEP P O3P SINGLE n 1.517 0.0192 1.517 0.0192
+SEP N H SINGLE n 1.036 0.0160 0.911 0.0200
+SEP N H2 SINGLE n 1.036 0.0160 0.911 0.0200
+SEP N H3 SINGLE n 1.036 0.0160 0.911 0.0200
+SEP CA HA SINGLE n 1.089 0.0100 0.995 0.0200
+SEP CB HB3 SINGLE n 1.089 0.0100 0.982 0.0184
+SEP CB HB2 SINGLE n 1.089 0.0100 0.982 0.0184
+
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+SEP CA N H 109.619 1.50
+SEP CA N H2 109.619 1.50
+SEP CA N H3 109.619 1.50
+SEP H N H2 109.028 2.41
+SEP H N H3 109.028 2.41
+SEP H2 N H3 109.028 2.41
+SEP N CA CB 109.782 1.50
+SEP N CA C 109.829 1.50
+SEP N CA HA 108.049 1.50
+SEP CB CA C 111.899 1.50
+SEP CB CA HA 108.381 1.50
+SEP C CA HA 108.255 1.50
+SEP CA CB OG 108.381 1.50
+SEP CA CB HB3 110.023 1.50
+SEP CA CB HB2 110.023 1.50
+SEP OG CB HB3 109.758 1.50
+SEP OG CB HB2 109.758 1.50
+SEP HB3 CB HB2 108.157 1.50
+SEP CB OG P 118.609 1.50
+SEP CA C O 117.181 1.50
+SEP CA C OXT 117.181 1.50
+SEP O C OXT 125.637 1.50
+SEP OG P O1P 105.795 2.09
+SEP OG P O2P 105.795 2.09
+SEP OG P O3P 105.795 2.09
+SEP O1P P O2P 112.864 1.69
+SEP O1P P O3P 112.864 1.69
+SEP O2P P O3P 112.864 1.69
+
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+SEP chi1 N CA CB OG 180.000 10.0 3
+SEP sp3_sp3_1 CB CA N H 180.000 10.0 3
+SEP sp3_sp3_19 CA CB OG P 180.000 10.0 3
+SEP sp2_sp3_1 O C CA N 0.000 10.0 6
+SEP sp3_sp3_22 CB OG P O3P 180.000 10.0 3
+
+loop_
+_chem_comp_chir.comp_id
+_chem_comp_chir.id
+_chem_comp_chir.atom_id_centre
+_chem_comp_chir.atom_id_1
+_chem_comp_chir.atom_id_2
+_chem_comp_chir.atom_id_3
+_chem_comp_chir.volume_sign
+SEP chir_1 CA N C CB positive
+SEP chir_2 P OG O2P O3P both
+
+loop_
+_chem_comp_plane_atom.comp_id
+_chem_comp_plane_atom.plane_id
+_chem_comp_plane_atom.atom_id
+_chem_comp_plane_atom.dist_esd
+SEP plan-1 C 0.020
+SEP plan-1 CA 0.020
+SEP plan-1 O 0.020
+SEP plan-1 OXT 0.020
+
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+SEP SMILES ACDLabs 10.04 O=P(O)(O)OCC(C(=O)O)N
+SEP SMILES_CANONICAL CACTVS 3.341 N[C@@H](CO[P](O)(O)=O)C(O)=O
+SEP SMILES CACTVS 3.341 N[CH](CO[P](O)(O)=O)C(O)=O
+SEP SMILES_CANONICAL "OpenEye OEToolkits" 1.5.0 C([C@@H](C(=O)O)N)OP(=O)(O)O
+SEP SMILES "OpenEye OEToolkits" 1.5.0 C(C(C(=O)O)N)OP(=O)(O)O
+SEP InChI InChI 1.03 InChI=1S/C3H8NO6P/c4-2(3(5)6)1-10-11(7,8)9/h2H,1,4H2,(H,5,6)(H2,7,8,9)/t2-/m0/s1
+SEP InChIKey InChI 1.03 BZQFBWGGLXLEPQ-REOHCLBHSA-N
+
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+SEP acedrg 243 "dictionary generator"
+SEP acedrg_database 11 "data source"
+SEP rdkit 2017.03.2 "Chemoinformatics tool"
+SEP refmac5 5.8.0238 "optimization tool"

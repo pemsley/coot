@@ -1,9 +1,11 @@
 [Desktop Entry]
 Type=Application
 Name=Coot
-Comment=Macromolecular model builder
+GenericName=Crystallographic Object-Oriented Toolkit
+Comment=Macromolecular Model Builder
 Exec=coot %f
 Icon=coot
-Terminal=true
-Categories=Science;Chemistry;
+StartupWMClass=coot-1
+Terminal=false
+Categories=Science;Chemistry;Biology;GTK;
 MimeType=chemical/x-pdb;chemical/x-mmcif;chemical/x-mdl-molfile;

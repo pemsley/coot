@@ -24,7 +24,305 @@
  *
  */
 
+#include "compat/coot-sysdep.h"
+#include "clipper/core/clipper_types.h"
+#include "clipper/core/coords.h"
+#include "geometry/residue-and-atom-specs.hh"
+#include "mmdb2/mmdb_atom.h"
 #include "molecules-container.hh"
+#include "validation-information.hh"
+
+#include "clipper-ccp4-map-file-wrapper.hh"
+#include "coot-utils/slurp-map.hh"
+#include "coot-utils/segmap.hh"
+
+int
+molecules_container_t::read_ccp4_map(const std::string &file_name, bool is_a_difference_map) {
+
+   bool debug = false;
+   int imol = -1; // currently unset
+   int imol_in_hope = molecules.size();
+   bool done = false;
+
+   if (! coot::file_exists(file_name)) {
+      std::cout << "WARNING:: file does not exist " << file_name << std::endl;
+      return imol;
+   }
+
+   if (debug) {
+      if (coot::util::is_basic_em_map_file(file_name) == coot::util::slurp_map_result_t::IS_SLURPABLE_EM_MAP) {
+         std::cout << "::::: read_ccp4_map() is_basic_em_map_file() finds a slurpable map " << std::endl;
+      } else {
+         std::cout << "::::: read_ccp4_map() is_basic_em_map_file() - not a slurpable map " << std::endl;
+      }
+   }
+
+   if (coot::util::is_basic_em_map_file(file_name) == coot::util::slurp_map_result_t::IS_SLURPABLE_EM_MAP) {
+
+      if (debug)
+         std::cout << "DEBUG:: mc::read_ccp4_map() returns true for is_basic_em_map_file() "
+                   << file_name << std::endl;
+
+      // fill xmap
+      bool check_only = false;
+      short int is_em_map = 1; // this is the correct type - it can be -1.
+      coot::molecule_t m(file_name, imol_in_hope, is_em_map);
+      short int m_em_status = m.is_EM_map();
+      if (debug)
+         std::cout << "::::: read_ccp4_map() m_em_status " << m_em_status << std::endl;
+      clipper::Xmap<float> &xmap = m.xmap;
+      coot::util::slurp_map_result_t smr = coot::util::slurp_fill_xmap_from_map_file(file_name, &xmap, check_only);
+      if (smr == coot::util::slurp_map_result_t::OK) {
+         molecules.push_back(m);
+         imol = imol_in_hope;
+      }
+   }
+
+   if (false) {
+      // this is only true at the moment if the map was slurpable.
+      if (is_valid_map_molecule(imol)) {
+         short int em_status = molecules[imol].is_EM_map();
+         std::cout << "here with imol " << imol << " molecules size " << molecules.size() << std::endl;
+         std::cout << "here with imol " << imol << " done " << done << std::endl;
+         std::cout << "here with imol " << imol << " is_em_map:  " << em_status << std::endl;
+      } else {
+         std::cout << "here with imol " << imol << " not a valid map molecule" << std::endl;
+      }
+   }
+
+   if (! done) {
+
+      if (false)
+         std::cout << "INFO:: attempting to read CCP4 map: " << file_name
+                   << " via non-slurp method" << std::endl;
+
+      // clipper::CCP4MAPfile file;
+      clipper_map_file_wrapper w_file;
+      try {
+         w_file.open_read(file_name);
+
+         // em = set_is_em_map(file_name);
+
+         if (true) {
+            clipper::Cell fcell = w_file.cell();
+            double vol = fcell.volume();
+            if (vol < 1.0) {
+               std::cout << "WARNING:: read_ccp4_map(): non-sane unit cell volume " << vol << " - skip read"
+                         << std::endl;
+               // bad_read = true;
+            } else {
+               try {
+                  clipper::CCP4MAPfile file;
+                  file.open_read(file_name);
+                  clipper::Xmap<float> xmap;
+                  file.import_xmap(xmap);
+                  if (xmap.is_null()) {
+                     std::cout << "ERROR:: read_ccp4_map(): failed to read the map" << file_name << std::endl;
+                  } else {
+                     std::string name = file_name;
+                     short int is_em_map = 0;
+                     coot::util::slurp_map_result_t smr = coot::util::is_basic_em_map_file(file_name);
+                     if (smr == coot::util::slurp_map_result_t::IS_NON_SLURPABLE_EM_MAP)
+                        is_em_map = 1;
+                     coot::molecule_t m(name, imol_in_hope, is_em_map);
+                     m.xmap = xmap;
+                     if (is_a_difference_map)
+                        m.set_map_is_difference_map(true);
+                     molecules.push_back(m); // oof.
+                     imol = imol_in_hope;
+                     bool em_status = molecules[imol].is_EM_map();
+                     if (debug)
+                        std::cout << "DEBUG:: read_ccp4_map(): inner block em_status "
+                                  << em_status << std::endl;
+                  }
+               }
+               catch (const clipper::Message_generic &exc) {
+                  std::cout << "WARNING:: read_ccp4_map(): failed to read " << file_name
+                            << " Bad ASU (inconsistant gridding?)." << std::endl;
+                  // bad_read = true;
+               }
+            }
+         }
+      }
+      catch (const clipper::Message_base &exc) {
+         std::cout << "WARNING:: read_ccp4_map(): failed to open " << file_name << std::endl;
+         // bad_read = true;
+         imol = -3; // clipper error
+      }
+   }
+   return imol;
+}
+
+
+clipper::Xmap<float> molecules_container_t::get_xmap(int imol) const {
+
+   return molecules[imol].xmap;
+}
+
+coot::validation_information_t
+molecules_container_t::density_fit_analysis(int imol_model, int imol_map) const {
+
+   coot::validation_information_t r;
+   r.name = "Density fit analysis";
+#ifdef EMSCRIPTEN
+   r.type = "DENSITY";
+#else
+   r.type = coot::DENSITY;
+#endif
+   if (is_valid_model_molecule(imol_model)) {
+      if (is_valid_map_molecule(imol_map)) {
+         // fill these
+         mmdb::PResidue *SelResidues = 0;
+         int nSelResidues = 0;
+
+         auto atom_sel = molecules[imol_model].atom_sel;
+         int selHnd = atom_sel.mol->NewSelection(); // yes, it's deleted.
+         int imod = 1; // multiple models don't work on validation graphs
+
+         atom_sel.mol->Select(selHnd, mmdb::STYPE_RESIDUE, imod,
+                              "*", // chain_id
+                              mmdb::ANY_RES, "*",
+                              mmdb::ANY_RES, "*",
+                              "*",  // residue name
+                              "*",  // Residue must contain this atom name?
+                              "*",  // Residue must contain this Element?
+                              "*",  // altLocs
+                              mmdb::SKEY_NEW // selection key
+                              );
+         atom_sel.mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
+
+         for (int ir=0; ir<nSelResidues; ir++) {
+            mmdb::Residue *residue_p = SelResidues[ir];
+            coot::residue_spec_t res_spec(residue_p);
+            mmdb::PAtom *residue_atoms=0;
+            int n_residue_atoms;
+            residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+            double residue_density_score =
+               coot::util::map_score(residue_atoms, n_residue_atoms, molecules[imol_map].xmap, 1);
+            std::string l = res_spec.label();
+            std::string atom_name = coot::util::intelligent_this_residue_mmdb_atom(residue_p)->GetAtomName();
+            const std::string &chain_id = res_spec.chain_id;
+            int this_resno = res_spec.res_no;
+            coot::atom_spec_t atom_spec(chain_id, this_resno, res_spec.ins_code, atom_name, "");
+            coot::residue_validation_information_t rvi(res_spec, atom_spec, residue_density_score, l);
+            r.add_residue_validation_information(rvi, chain_id);
+         }
+         atom_sel.mol->DeleteSelection(selHnd);
+      }
+   }
+   r.set_min_max();
+   return r;
+}
+
+//! @return the sum of the density of the given atoms in the specified CID
+//!  return -1001 on failure to find the residue or any atoms in the residue or if imol_map is not a map
+double
+molecules_container_t::get_sum_density_for_atoms_in_residue(int imol, const std::string &cid,
+                                                            const std::vector<std::string> &atom_names,
+                                                            int imol_map) {
+   double v = 1001.0;
+   if (is_valid_model_molecule(imol)) {
+      if (is_valid_map_molecule(imol_map)) {
+         const clipper::Xmap<float> &xmap = molecules.at(imol_map).xmap;
+         v = molecules[imol].sum_density_for_atoms_in_residue(cid, atom_names, xmap);
+      } else {
+         std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid map molecule " << imol_map << std::endl;
+      }
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return v;
+
+}
+
+
+// Move this out of the maps file.
+//! get the number of atoms in a given residue
+//!
+//! @param imol is the model molecule index
+//! @param residue_cid is the selection CID e.g "//A/15" (residue 15 of chain A)
+//! @return the number of atoms in the residue, or -1 on failure
+int
+molecules_container_t::get_number_of_atoms_in_residue(int imol, const std::string &residue_cid) const {
+      int n_atoms = -1;
+      if (is_valid_model_molecule(imol)) {
+         mmdb::Residue *residue = molecules[imol].get_residue(residue_cid);
+         if (residue) {
+            mmdb::PAtom *atoms = 0;
+            int n_atoms_in_residue = 0;
+            residue->GetAtomTable(atoms, n_atoms_in_residue);
+            int n = 0;
+            if (n_atoms_in_residue > 0) {
+               for (int iat=0; iat<n_atoms_in_residue; iat++) {
+                  mmdb::Atom *at = atoms[iat];
+                  if (!at->isTer())
+                     n++;
+               }
+               n_atoms = n;
+            }
+         } else {
+            std::cout << "WARNING:: " << __FUNCTION__ << "(): no residue found for CID " << residue_cid << std::endl;
+         }
+      } else {
+         std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+      }
+      return n_atoms;
+}
+
+
+//! density correlation validation information
+coot::validation_information_t
+molecules_container_t::density_correlation_analysis(int imol_model, int imol_map) const {
+
+   coot::validation_information_t r;
+   r.name = "Density correlation analysis";
+#ifdef EMSCRIPTEN
+   r.type = "CORRELATION";
+#else
+   r.type = coot::CORRELATION;
+#endif
+   if (is_valid_model_molecule(imol_model)) {
+      if (is_valid_map_molecule(imol_map)) {
+
+         mmdb::Manager *mol = molecules[imol_model].atom_sel.mol;
+         const clipper::Xmap<float> &xmap = molecules.at(imol_map).xmap;
+
+         unsigned short int atom_mask_mode = 0;
+         float atom_radius = 2.0;
+
+         std::vector<coot::residue_spec_t> residue_specs;
+         std::vector<mmdb::Residue *> residues = coot::util::residues_in_molecule(mol);
+         for (unsigned int i=0; i<residues.size(); i++)
+            residue_specs.push_back(coot::residue_spec_t(residues[i]));
+
+         std::vector<std::pair<coot::residue_spec_t, float> > correlations =
+            coot::util::map_to_model_correlation_per_residue(mol,
+                                                             residue_specs,
+                                                             atom_mask_mode,
+                                                             atom_radius, // for masking
+                                                             xmap);
+
+         std::vector<std::pair<coot::residue_spec_t, float> >::const_iterator it;
+         for (it=correlations.begin(); it!=correlations.end(); ++it) {
+            const auto &r_spec(it->first);
+            const auto &correl(it->second);
+
+            std::string atom_name = " CA ";
+            coot::atom_spec_t atom_spec(r_spec.chain_id, r_spec.res_no, r_spec.ins_code, atom_name, "");
+            std::string label = "Correl: ";
+            coot::residue_validation_information_t rvi(r_spec, atom_spec, correl, label);
+            r.add_residue_validation_information(rvi, r_spec.chain_id);
+         }
+
+      } else {
+         std::cout << "debug:: " << __FUNCTION__ << "(): not a valid map molecule " << imol_map << std::endl;
+      }
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol_model << std::endl;
+   }
+   r.set_min_max();
+   return r;
+}
 
 // This function does no normalisztion of the scales,
 // presuming that they are pre-normalized.
@@ -148,11 +446,87 @@ molecules_container_t::get_number_of_map_sections(int imol_map, int axis_id) con
 #include "coot-utils/xmap-stats.hh"
 #include "coot-utils/q-score.hh"
 
+coot::validation_information_t
+molecules_container_t::get_q_score_validation_information(mmdb::Manager *mol, int udd_q_score, bool do_per_atom) const {
+
+   coot::validation_information_t vi; // return this
+   int imod = 1;
+   mmdb::Model *model_p = mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain = 0; ichain < n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         coot::chain_validation_information_t cvi(chain_p->GetChainID());
+         int n_res = chain_p->GetNumberOfResidues();
+         for (int ires = 0; ires < n_res; ires++) {
+            mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+            if (residue_p) {
+               int n_atoms = residue_p->GetNumberOfAtoms();
+
+               if (n_atoms > 0) {
+                  coot::residue_spec_t residue_spec(residue_p);
+                  coot::atom_spec_t spec_for_atom_in_residue(
+                      residue_p->GetAtom(0)); // say
+                  double qed_residue_sum = 0;
+                  unsigned int n_qed_atoms = 0;
+
+                  // accumulate QED for the residue
+                  for (int iat = 0; iat < n_atoms; iat++) {
+                     mmdb::Atom *at = residue_p->GetAtom(iat);
+                     if (!at->isTer()) {
+                       mmdb::realtype q;
+                       if (at->GetUDData(udd_q_score, q) == mmdb::UDDATA_Ok) {
+                         if (q > -1000.0) { // test for not invalid QED on atom
+                           qed_residue_sum += q;
+                           n_qed_atoms++;
+                         }
+                       }
+                     }
+                  }
+
+                  if (n_qed_atoms > 0) {
+                     double qed_residue =
+                         qed_residue_sum / static_cast<double>(n_qed_atoms);
+                     std::string fs = coot::util::float_to_string_using_dec_pl(
+                         qed_residue, 2);
+                     std::string label = residue_spec.chain_id + " " +
+                                         std::to_string(residue_spec.res_no) +
+                                         " " + fs;
+                     coot::residue_validation_information_t rvi(
+                         residue_spec, spec_for_atom_in_residue, qed_residue,
+                         label);
+                     cvi.add(rvi);
+
+                     if (do_per_atom) {
+                       // now the per-atom score
+                       for (int iat = 0; iat < n_atoms; iat++) {
+                         mmdb::Atom *at = residue_p->GetAtom(iat);
+                         if (!at->isTer()) {
+                           mmdb::realtype q;
+                           at->GetUDData(udd_q_score, q);
+                           if (false)
+                             std::cout << " " << coot::atom_spec_t(at) << " B "
+                                       << at->tempFactor << "  Q-Score: " << q
+                                       << std::endl;
+                         }
+                       }
+                     }
+                  }
+               }
+            }
+         }
+         vi.add(cvi);
+      }
+   }
+   return vi;
+}
+
 //! Get the Pintile et al. Q Score
 //!
 //! @return a coot::validation_information_t object
 coot::validation_information_t
 molecules_container_t::get_q_score(int imol_model, int imol_map) const {
+
 
    // The Q score is stored as a UDD per atom.
    //
@@ -160,7 +534,7 @@ molecules_container_t::get_q_score(int imol_model, int imol_map) const {
    // to make scores for each residue
 
    coot::validation_information_t vi;
-   bool do_per_atom = false; // 20240629-PE we currently don't have a (good)_container for this.
+   bool do_per_atom = false; // 20240629-PE we currently don't have a (good) container for this.
                              //  Per residue will do for now.
 
    if (is_valid_model_molecule(imol_model)) {
@@ -170,73 +544,45 @@ molecules_container_t::get_q_score(int imol_model, int imol_map) const {
          mmdb::Manager *mol = molecules[imol_model].atom_sel.mol;
          coot::q_score_t q_score(mol);
          q_score.calc(xmap, mv.mean, std::sqrt(mv.variance));
-
          int udd_q_score = mol->GetUDDHandle(mmdb::UDR_ATOM, "Q Score");
-         int imod = 1;
-         mmdb::Model *model_p = mol->GetModel(imod);
-         if (model_p) {
-            int n_chains = model_p->GetNumberOfChains();
-            for (int ichain=0; ichain<n_chains; ichain++) {
-               mmdb::Chain *chain_p = model_p->GetChain(ichain);
-               coot::chain_validation_information_t cvi(chain_p->GetChainID());
-               int n_res = chain_p->GetNumberOfResidues();
-               for (int ires=0; ires<n_res; ires++) {
-                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-                  if (residue_p) {
-                     int n_atoms = residue_p->GetNumberOfAtoms();
-
-                     if (n_atoms > 0) {
-                        coot::residue_spec_t residue_spec(residue_p);
-                        coot::atom_spec_t spec_for_atom_in_residue(residue_p->GetAtom(0)); // say
-                        double qed_residue_sum = 0;
-                        unsigned int n_qed_atoms = 0;
-
-                        // accumulate QED for the residue
-                        for (int iat=0; iat<n_atoms; iat++) {
-                           mmdb::Atom *at = residue_p->GetAtom(iat);
-                           if (! at->isTer()) {
-                              mmdb::realtype q;
-                              if (at->GetUDData(udd_q_score, q) == mmdb::UDDATA_Ok) {
-                                 if (q > -1000.0) { // test for not invalid QED on atom
-                                    qed_residue_sum += q;
-                                    n_qed_atoms++;
-                                 }
-                              }
-                           }
-                        }
-
-                        if (n_qed_atoms > 0) {
-                           double qed_residue = qed_residue_sum / static_cast<double>(n_qed_atoms);
-                           std::string fs = coot::util::float_to_string_using_dec_pl(qed_residue, 2);
-                           std::string label = residue_spec.chain_id + " " + std::to_string(residue_spec.res_no) + " " + fs;
-                           coot::residue_validation_information_t rvi(residue_spec, spec_for_atom_in_residue, qed_residue, label);
-                           cvi.add(rvi);
-
-                           if (do_per_atom) {
-                              // now the per-atom score
-                              for (int iat=0; iat<n_atoms; iat++) {
-                                 mmdb::Atom *at = residue_p->GetAtom(iat);
-                                 if (! at->isTer()) {
-                                    mmdb::realtype q;
-                                    at->GetUDData(udd_q_score, q);
-                                    if (false)
-                                       std::cout << " " << coot::atom_spec_t(at) << " B " << at->tempFactor
-                                                 << "  Q-Score: " << q << std::endl;
-                                 }
-                              }
-                           }
-                        }
-                     }
-                  }
-               }
-               vi.add(cvi);
-            }
-         }
-         q_score.close();
+         vi = get_q_score_validation_information(mol, udd_q_score, do_per_atom);
+         q_score.close(); // delete selection
       }
    }
    return vi;
 }
+
+//! Get the Pintile et al. Q Score for a particular residue (typically a ligand)
+//!
+//! @param cid If the `cid` matches more than one residue the score will be returned for all of the
+//! residues covered in the `cid`. Typically, of course the `cid` will be something like
+//! "//A/301".
+//!
+//! @return a coot::validation_information_t object
+coot::validation_information_t
+molecules_container_t::get_q_score_for_cid(int imol_model, const std::string &cid, int imol_map) const {
+
+   coot::validation_information_t vi;
+   bool do_per_atom = false; // 20240629-PE we currently don't have a (good) container for this.
+                             //  Per residue will do for now.
+
+   if (is_valid_model_molecule(imol_model)) {
+      if (is_valid_map_molecule(imol_map)) {
+         const clipper::Xmap<float> &xmap = molecules[imol_map].xmap;
+         mean_and_variance<float> mv = map_density_distribution(xmap, 1000, false, true);
+         mmdb::Manager *mol = molecules[imol_model].atom_sel.mol;
+         std::vector<mmdb::Residue *> residues = molecules[imol_model].cid_to_residues(cid);
+         coot::q_score_t q_score(mol, cid);
+         q_score.calc(xmap, mv.mean, std::sqrt(mv.variance));
+         int udd_q_score = mol->GetUDDHandle(mmdb::UDR_ATOM, "Q Score");
+         vi = get_q_score_validation_information(mol, udd_q_score, do_per_atom);
+         q_score.close(); // delete selection
+      }
+   }
+
+   return vi;
+}
+
 
 //! Make a FSC-scaled map
 //!
@@ -318,3 +664,200 @@ molecules_container_t::make_mask(int imol_map_ref, int imol_model, const std::st
    return imol_map_new;
 
 }
+
+//! transform a map and create a new map
+//! @return the molecule index of the new map, -1 for failure
+int
+molecules_container_t::transform_map_using_lsq_matrix(int imol_map, lsq_results_t lsq_matrix,
+                                                      float x, float y, float z, float radius) {
+
+   auto make_rtop_from_lsq_results = [] (const lsq_results_t &lsq_mat) {
+      clipper::Coord_orth t(lsq_mat.translation[0],lsq_mat.translation[1], lsq_mat.translation[2]);
+      const std::vector<double> &m = lsq_mat.rotation_matrix;
+      clipper::Mat33<double> rm(m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8]);
+      return clipper::RTop_orth(rm,t);
+   };
+
+   int imol_map_new = -1;
+   if (is_valid_map_molecule(imol_map)) {
+      if (! lsq_matrix.empty()) {
+         clipper::Coord_orth about_pt(x,y,z);
+         clipper::Xmap<float> &xmap = molecules[imol_map].xmap;
+         clipper::RTop_orth rtop = make_rtop_from_lsq_results(lsq_matrix);
+         clipper::Xmap<float> xmap_new = coot::util::transform_map(xmap, xmap.spacegroup(), xmap.cell(), rtop,
+                                                                   about_pt, radius);
+         imol_map_new = molecules.size();
+         std::string name = "Transformed map from " + molecules[imol_map].get_name();
+         bool is_em_map = molecules[imol_map].is_EM_map();
+         molecules.push_back(coot::molecule_t(name, imol_map_new, xmap_new, is_em_map));
+      }
+   }
+   return imol_map_new;
+}
+
+//! Scale map
+//!
+//! @param imol is the model molecule index
+void
+molecules_container_t::scale_map(int imol, float factor) {
+
+   if (is_valid_map_molecule(imol)) {
+      molecules[imol].scale_map(factor);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+}
+
+
+//! Get map vertices histogram
+//!
+//! @param imol is the map molecule index
+//! @param n_bins is the number of bins - 200 is a reasonable default.
+//! @param zoom_factor (reduces the range by the given factor)
+//! centred around the median (typically 1.0 but usefully can vary until ~20.0).
+//!
+//! @return the map histogram
+coot::molecule_t::histogram_info_t
+molecules_container_t::get_map_vertices_histogram(int imol, int imol_map_for_sampling,
+						  double position_x, double position_y, double position_z,
+						  float radius, float contour_level,
+						  unsigned int n_bins) {
+   coot::molecule_t::histogram_info_t hi;
+   if (is_valid_map_molecule(imol)) {
+      if (is_valid_map_molecule(imol_map_for_sampling)) {
+	 clipper::Coord_orth p(position_x, position_y, position_z);
+	 const clipper::Xmap<float> &other_xmap = molecules[imol_map_for_sampling].xmap;
+	 hi = molecules[imol].get_map_vertices_histogram(other_xmap, p, radius, contour_level,
+							 map_is_contoured_using_thread_pool_flag, &thread_pool, n_bins);
+      }
+   }
+   return hi;
+}
+
+int
+molecules_container_t::dedust_map(int imol) {
+   int imol_new = -1;
+   if (is_valid_map_molecule(imol)) {
+      const clipper::Xmap<float> xmap = molecules[imol].xmap;
+      clipper::Xmap<float> new_map = coot::dedust(xmap, 0);
+      imol_new = molecules.size();
+      std::string name = "Dedusted map from " + molecules[imol].get_name();
+      bool is_em_map = molecules[imol].is_EM_map();
+      molecules.push_back(coot::molecule_t(name, imol_new, new_map, is_em_map));
+   }
+   return imol_new;
+}
+
+#include "ligand/ligand.hh"
+
+std::pair<float,float>
+molecules_container_t::get_mean_and_variance_of_density_for_non_water_atoms(int imol_coords, int imol_map) const {
+
+   std::pair<float,float> r(-1, -1);
+   if (is_valid_map_molecule(imol_map)) {
+      const clipper::Xmap<float> &xmap = molecules[imol_map].xmap;
+      if (is_valid_model_molecule(imol_coords)) {
+         mmdb::Manager *mol = molecules[imol_coords].atom_sel.mol;
+         coot::ligand l;
+         l.import_map_from(xmap);
+         std::pair<float, float> mv = l.mean_and_variance_where_the_atoms_are(mol);
+         r = mv;
+      }
+   }
+   return r;
+}
+
+
+//! Get spherical variance - typically for water atoms
+//!
+//! @return the variance or a negative number on failure
+float
+molecules_container_t::get_spherical_variance(int imol_map, int imol_model,
+                                              const std::string &atom_cid,
+                                              float mean_density_other_atoms) const {
+
+   float v = -1.0;
+   if (is_valid_map_molecule(imol_map)) {
+      if (is_valid_model_molecule(imol_model)) {
+         const clipper::Xmap<float> &xmap = molecules[imol_map].xmap;
+         std::pair<bool, coot::atom_spec_t> p = molecules[imol_model].cid_to_atom_spec(atom_cid);
+         if (p.first) {
+            mmdb::Atom *at_m = molecules[imol_model].get_atom(p.second);
+            if (at_m) {
+               coot::atom_spec_t atom_spec(at_m);
+               mmdb::Atom *at = molecules[imol_model].get_atom(atom_spec);
+               if (at) {
+                  clipper::Coord_orth pt(at->x, at->y, at->z);
+                  float mean_d = mean_density_other_atoms;
+                  coot::ligand::spherical_density_score_t sds;
+                  float sv = sds.get_spherical_variance(pt, xmap, mean_d);
+                  v = sv;
+               } else {
+                  std::cout << "WARNING:: get_spherical_variance() not found atom pointer " << atom_spec << std::endl;
+               }
+            } else {
+               std::cout << "WARNING:: get_spherical_variance() not found atom " << atom_cid << std::endl;
+            }
+         } else {
+            std::cout << "WARNING:: get_spherical_variance() failed to convert cid to atom spec " << atom_cid << std::endl;
+         }
+      } else {
+         std::cout << "WARNING:: get_spherical_variance() not a valid model molecule " << imol_model << std::endl;
+      }
+   } else {
+     std::cout << "WARNING:: get_spherical_variance() not a valid map molecule " << imol_map << std::endl;
+   }
+   return v;
+}
+
+#include "coot-utils/rebox-map.hh"
+#include "coot-utils/json.hpp"
+
+std::string
+molecules_container_t::rebox_map(int imol_model, const std::string &atom_selection_cid,
+                                 int imol_map, float border, unsigned int n_pixels_per_edge) {
+
+   nlohmann::json j;
+   j["molecule_number"] = -1;
+   j["offset"] = nlohmann::json::array({0.0, 0.0, 0.0});
+
+   if (!is_valid_model_molecule(imol_model)) {
+      std::cout << "WARNING:: rebox_map(): not a valid model molecule " << imol_model << std::endl;
+      return j.dump();
+   }
+   if (!is_valid_map_molecule(imol_map)) {
+      std::cout << "WARNING:: rebox_map(): not a valid map molecule " << imol_map << std::endl;
+      return j.dump();
+   }
+
+   mmdb::Manager *mol = molecules[imol_model].atom_sel.mol;
+   int selHnd = mol->NewSelection(); // d
+   mol->Select(selHnd, mmdb::STYPE_ATOM, atom_selection_cid.c_str(), mmdb::SKEY_NEW);
+   mmdb::Atom **SelAtoms = nullptr;
+   int nSelAtoms = 0;
+   mol->GetSelIndex(selHnd, SelAtoms, nSelAtoms);
+
+   if (nSelAtoms == 0) {
+      std::cout << "WARNING:: rebox_map(): no atoms selected with CID \"" << atom_selection_cid << "\"" << std::endl;
+      mol->DeleteSelection(selHnd);
+      return j.dump();
+   }
+
+   const clipper::Xmap<float> &xmap_in = molecules[imol_map].xmap;
+   coot::util::reboxed_map_t reboxed = coot::util::rebox_map(xmap_in, mol, selHnd, border, n_pixels_per_edge);
+   mol->DeleteSelection(selHnd);
+
+   if (reboxed.success) {
+      int imol_new = molecules.size();
+      bool is_em_map = molecules[imol_map].is_EM_map();
+      std::string name = "Reboxed map from map " + std::to_string(imol_map);
+      molecules.push_back(coot::molecule_t(name, imol_new, reboxed.xmap, is_em_map));
+      j["molecule_number"] = imol_new;
+      j["offset"] = nlohmann::json::array({reboxed.offset.x(), reboxed.offset.y(), reboxed.offset.z()});
+   } else {
+      std::cout << "WARNING:: rebox_map(): " << reboxed.message << std::endl;
+   }
+
+   return j.dump();
+}
+

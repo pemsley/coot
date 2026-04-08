@@ -48,7 +48,7 @@ lig_build::bond_t::over_bond(double x_in, double y_in,
 //       static
 std::vector<std::pair<lig_build::pos_t, lig_build::pos_t> >
 lig_build::pos_t::make_wedge_in_bond(const pos_t &pos_1, const pos_t &pos_2) {
-   
+
    std::vector<std::pair<pos_t, pos_t> > lines;
    pos_t buv = (pos_2-pos_1).unit_vector();
    pos_t buv_90 = buv.rotate(90);
@@ -87,11 +87,11 @@ lig_build::pos_t::make_wedge_out_bond(const pos_t &pos_1, const pos_t &pos_2) {
    // Also, make it a quadralateral, with the sharp points very close,
    // this make the spike go away.
    //
-   // 
+   //
    // pos_t sharp_point = pos_t::fraction_point(pos_1, pos_2, 0.11);
    // pos_t sharp_point = pos_t::fraction_point(pos_1, pos_2, 0.07);
    pos_t sharp_point = pos_t::fraction_point(pos_1, pos_2, 0.03);
-   
+
    pos_t sharp_point_1 = sharp_point + buv_90 * sharp_point_sharp_factor;
    pos_t sharp_point_2 = sharp_point - buv_90 * sharp_point_sharp_factor;
    v.push_back(sharp_point_2);

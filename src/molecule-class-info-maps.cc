@@ -50,12 +50,15 @@
 #include <glm/gtc/type_ptr.hpp>  // for value_ptr() 20240326-PE
 
 #include <mmdb2/mmdb_manager.h>
-#include "coords/mmdb-extras.h"
-#include "coords/Cartesian.h"
-#include "coords/mmdb-crystal.h"
-#include "molecule-class-info.h"
+
+#include "coords/mmdb-extras.hh"
+#include "coords/Cartesian.hh"
+#include "coords/mmdb-crystal.hh"
 #include "coot-utils/coot-coord-utils.hh"
+#include "coot-utils/xmap-stats.hh"
 #include "density-contour/CIsoSurface.h"
+
+#include "molecule-class-info.h"
 
 #include "clipper/ccp4/ccp4_mtz_io.h"
 #include "clipper/cns/cns_hkl_io.h"
@@ -74,7 +77,6 @@
 #include "clipper/contrib/sfcalc.h"
 
 #include "xmap-utils.h"
-#include "coot-utils/xmap-stats.hh"
 
 #include "graphics-info.h"
 // #include <GL/glut.h> // needed (only?) for wirecube
@@ -89,6 +91,8 @@
 #include "coot-utils/coot-map-heavy.hh"
 #include "ligand/ligand.hh"
 
+#include "utils/logging.hh"
+extern logging logger;
 
 void
 molecule_class_info_t::gtk3_draw() {
@@ -104,13 +108,14 @@ molecule_class_info_t::set_use_vertex_gradients_for_map_normals(bool state) {
 
 
 void
-molecule_class_info_t::draw_map_molecule( bool draw_transparent_maps,
+molecule_class_info_t::draw_map_molecule( stereo_eye_t eye,
+                                          bool draw_transparent_maps,
                                           Shader &shader, // unusual reference.. .change to pointer for consistency?
                                           const glm::mat4 &mvp,
                                           const glm::mat4 &view_rotation,
                                           const glm::vec3 &eye_position,
                                           const glm::vec4 &ep,
-                                          const std::map<unsigned int, lights_info_t> &lights, 
+                                          const std::map<unsigned int, lights_info_t> &lights,
                                           const glm::vec3 &background_colour,
                                           bool perspective_projection_flag
                                           ) {
@@ -146,12 +151,10 @@ molecule_class_info_t::draw_map_molecule( bool draw_transparent_maps,
 
                              };
 
-
-   
    if (! draw_it_for_map) return;
 
    bool cosine_dependent_map_opacity = true; // I wonder what this does these days
-                                
+
    if (draw_transparent_maps) {
       if (is_an_opaque_map())
          return; // not this round
@@ -234,7 +237,7 @@ molecule_class_info_t::draw_map_molecule( bool draw_transparent_maps,
          bool show_just_shadows = false;
          bool do_depth_fog = graphics_info_t::shader_do_depth_fog_flag;
          bool wireframe_mode = true; // aka "standard lines" / chickenwire
-         map_as_mesh_gl_lines_version.draw(&shader, mvp, view_rotation, lights, eye_position, rotation_centre, opacity, bgc,
+         map_as_mesh_gl_lines_version.draw(&shader, eye, mvp, view_rotation, lights, eye_position, rotation_centre, opacity, bgc,
                                            wireframe_mode, do_depth_fog, show_just_shadows);
       }
 
@@ -244,7 +247,7 @@ molecule_class_info_t::draw_map_molecule( bool draw_transparent_maps,
          bool wireframe_mode = false; // aka "standard lines" / chickenwire
          if (opacity < 1.0)
             map_as_mesh.sort_map_triangles(eye_position);
-         map_as_mesh.draw(&shader, mvp, view_rotation, lights, eye_position, rotation_centre, opacity, bgc,
+         map_as_mesh.draw(&shader, eye, mvp, view_rotation, lights, eye_position, rotation_centre, opacity, bgc,
                           wireframe_mode, do_depth_fog, show_just_shadows);
       }
    }
@@ -267,6 +270,27 @@ molecule_class_info_t::draw_map_molecule_for_ssao(Shader *shader_p,
       }
    }
 }
+
+
+void
+molecule_class_info_t::set_map_is_displayed(int state) {
+
+   draw_it_for_map = state;
+   if (draw_it_for_map) {
+      if (map_contours_outdated) {
+         float radius = graphics_info_t::box_radius_xray;
+         if (has_xmap()) {
+            if (is_EM_map())
+               radius = graphics_info_t::box_radius_em;
+            coot::Cartesian centre(graphics_info_t::RotationCentre_x(),
+                                   graphics_info_t::RotationCentre_y(),
+                                   graphics_info_t::RotationCentre_z());
+            update_map_triangles(radius, centre);
+         }
+      }
+   }
+}
+
 
 
 //
@@ -357,8 +381,9 @@ molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz
       }
 
       if (debugging)
-	 std::cout << "INFO:: sharpening " << original_fphis_p->num_obs() << " "
-		   << fphis.num_obs() << " data " << std::endl;
+	 // std::cout << "INFO:: sharpening " << original_fphis_p->num_obs() << " "
+	 //           << fphis.num_obs() << " data " << std::endl;
+	 logger.log(log_t::INFO, "sharpening", original_fphis_p->num_obs(), fphis.num_obs(), "data");
 
       n_count = 0;
       int n_gompertz_count = 0;
@@ -410,10 +435,11 @@ molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz
       }
       if (do_gompertz) {
 	 if (n_gompertz_count)
-	    std::cout << "INFO:: Average gompertz scale factor "
-		      << gompertz_sum/double(n_gompertz_count)
-		      << " from " << n_gompertz_count << " scaled reflections"
-		      << std::endl;
+	    // std::cout << "INFO:: Average gompertz scale factor "
+	    //           << gompertz_sum/double(n_gompertz_count)
+	    //           << " from " << n_gompertz_count << " scaled reflections"
+	    //           << std::endl;
+	    logger.log(log_t::INFO, "Average gompertz scale factor", gompertz_sum/double(n_gompertz_count), "from", n_gompertz_count, "scaled reflections");
 	 else
 	    std::cout << "WARNING:: no gompertz F/sig correction to reflections!"
 		      << std::endl;
@@ -513,7 +539,9 @@ molecule_class_info_t::update_map(bool do_it) {
 void
 molecule_class_info_t::update_map_internal() {
 
-   // std::cout << "debug:: update_map_internal() --- start --- with contour_level " << contour_level << std::endl;
+   if (false)
+   std::cout << "DEBUG:: update_map_internal() --- start --- " << imol_no
+             << " with contour_level " << contour_level << std::endl;
 
    // duck out of doing map OpenGL map things if we are not in gui mode
    //
@@ -526,10 +554,9 @@ molecule_class_info_t::update_map_internal() {
          radius = graphics_info_t::box_radius_em;
 
       if (false)
-
-          std::cout << "in update_map_internal() " << radius << " vs x "
-                    << graphics_info_t::box_radius_xray << " em "
-                    << graphics_info_t::box_radius_em << " is-em: "
+          std::cout << "in update_map_internal() radius: " << radius
+                    << " c.f. x-ray " << graphics_info_t::box_radius_xray
+                    << " em " << graphics_info_t::box_radius_em << " is-em: "
                     << is_EM_map() << std::endl;
 
       coot::Cartesian rc(graphics_info_t::RotationCentre_x(),
@@ -624,9 +651,10 @@ molecule_class_info_t::fill_fobs_sigfobs() {
             mtzin_p->open_read(Refmac_mtz_filename());
             mtzin_p->import_hkl_data(*original_fobs_sigfobs_p, p.first);
             mtzin_p->close_read();
-            std::cout << "INFO:: reading " << Refmac_mtz_filename() << " provided "
-                      << original_fobs_sigfobs_p->num_obs() << " data using data name: "
-                      << p.first << std::endl;
+            // std::cout << "INFO:: reading " << Refmac_mtz_filename() << " provided "
+            //           << original_fobs_sigfobs_p->num_obs() << " data using data name: "
+            //           << p.first << std::endl;
+            logger.log(log_t::INFO, "reading", Refmac_mtz_filename(), "provided", original_fobs_sigfobs_p->num_obs(), "data using data name:", p.first);
             if (original_fobs_sigfobs_p->num_obs() > 10)
                original_fobs_sigfobs_filled = 1;
             else
@@ -642,16 +670,20 @@ molecule_class_info_t::fill_fobs_sigfobs() {
                      dataname = refmac_r_free_col;
                      dataname = "/*/*/[" + coot::util::file_name_non_directory(refmac_r_free_col) + "]";
                   }
-               std::cout << "INFO:: About to read " << Refmac_mtz_filename() << " with dataname " << dataname << std::endl;
+               // std::cout << "INFO:: About to read " << Refmac_mtz_filename() << " with dataname " << dataname << std::endl;
+               logger.log(log_t::INFO, "About to read", Refmac_mtz_filename(), "with dataname", dataname);
                clipper::CCP4MTZfile *mtzin_rfree_p = new clipper::CCP4MTZfile;
                mtzin_rfree_p->open_read(Refmac_mtz_filename());
                mtzin_rfree_p->import_hkl_data(*original_r_free_flags_p, dataname);
                mtzin_rfree_p->close_read();
 
-               std::cout << "INFO:: reading " << Refmac_mtz_filename() << " using dataname: " << dataname << " provided "
-                         << original_r_free_flags_p->num_obs() << " R-free flags\n";
+               // std::cout << "INFO:: reading " << Refmac_mtz_filename() << " using dataname: " << dataname << " provided "
+               //          << original_r_free_flags_p->num_obs() << " R-free flags\n";
+               logger.log(log_t::INFO, "reading " + Refmac_mtz_filename() + " using dataname: " + dataname +
+                          " provided " + std::to_string(original_r_free_flags_p->num_obs()) + " R-free flags");
             } else {
-               std::cout << "INFO:: no sensible R-free flag column label\n";
+               // std::cout << "INFO:: no sensible R-free flag column label\n";
+               logger.log(log_t::INFO, "no sensible R-free flag column label");
             }
          }
          catch (const clipper::Message_fatal &m) {
@@ -664,7 +696,7 @@ molecule_class_info_t::fill_fobs_sigfobs() {
          auto tp_1 = std::chrono::high_resolution_clock::now();
          auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
          std::cout << "Timings: read mtz file and store data " << d10 << " milliseconds" << std::endl;
-         
+
       }
    } else {
       std::cout << "DEBUG:: fill_fobs_sigfobs() no Fobs parameters\n";
@@ -693,6 +725,12 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
    // thing to do.
 
    // if (! graphics_info_t::use_graphics_interface_flag) return;
+
+   // 20250216-PE new style - don't do anything, just set the map contours as expired
+   if (! draw_it_for_map) {
+      map_contours_outdated = true;
+      return;
+   }
 
    CIsoSurface<float> my_isosurface;
    coot::CartesianPairInfo v;
@@ -789,7 +827,7 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
 
       // post_process_map_triangles();
 
-      if (false) {
+      if (false) { // apply occlusions
          for (std::size_t i=0; i<draw_vector_sets.size(); i++) {
             coot::density_contour_triangles_container_t &tri_con = draw_vector_sets[i];
             std::vector<coot::augmented_position> positions(tri_con.points.size());
@@ -797,7 +835,7 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
             for (unsigned int j=0; j<n; j++) {
                const clipper::Coord_orth &pos  = tri_con.points[j];
                const clipper::Coord_orth &norm = tri_con.normals[j];
-               positions[i] = coot::augmented_position(pos, norm);
+               positions[j] = coot::augmented_position(pos, norm);
             }
             coot::set_occlusions(positions); // crash, related to range
             coot::transfer_occlusions(positions, &draw_vector_sets[i]);
@@ -806,7 +844,22 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
 
       clipper::Coord_orth centre_c(centre.x(), centre.y(), centre.z()); // dont I have an converter?
 
-      setup_glsl_map_rendering(centre_c, radius); // turn tri_con into buffers.
+
+      // 20260124-PE so that we have a GL Context, so that attach_buffers() in setup_glsl_map_rendering()
+      //             works
+
+      gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glareas[0]));
+
+      // Check for errors from make_current
+      GError *error = gtk_gl_area_get_error(GTK_GL_AREA(graphics_info_t::glareas[0]));
+      if (error) {
+         std::cout << "ERROR:: gtk_gl_area_make_current failed: "
+                   << error->message << std::endl;
+         return;
+      } else {
+         // std::cout << "INFO:: no make_current context error!" << std::endl;
+         setup_glsl_map_rendering(centre_c, radius); // turn tri_con into buffers.
+      }
 
 
       // 20220211-PE what does this do!?
@@ -1120,19 +1173,64 @@ molecule_class_info_t::sort_map_triangles(const clipper::Coord_orth &eye_positio
 void
 molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centre, float radius) {
 
+   auto stringify_error_code = [] (GLenum err) {
+
+      std::string r = std::to_string(err);
+      if (err == GL_INVALID_ENUM)      r = "GL_INVALID_ENUM";
+      if (err == GL_INVALID_VALUE)     r = "GL_INVALID_VALUE";
+      if (err == GL_INVALID_OPERATION) r = "GL_INVALID_OPERATION";
+      return r;
+   };
+
+
    // This is called from update_map_triangles().
 
    auto gdk_col_to_glm = [] (const GdkRGBA &rgba) {
       return glm::vec4(rgba.red, rgba.green, rgba.blue, rgba.alpha);
    };
 
+   GdkGLContext *context = gtk_gl_area_get_context(GTK_GL_AREA(graphics_info_t::glareas[0]));
+
+   GLenum err = glGetError();
+   if (err) {
+      std::cout << "GL ERROR:: mci::setup_glsl_map_rendering() \""  << "\" --- start --- "
+                << stringify_error_code(err) << std::endl;
+   } else {
+      // std::cout << "INFO:: Mesh::setup_glsl_map_rendering() \""  << "\" --- start --- "
+      //                 << "no error here" << std::endl;
+   }
+
    if (false)
-      std::cout << "#### setup_glsl_map_rendering() start: map_colour " << imol_no << " "
+      std::cout << "#### mci::setup_glsl_map_rendering() start: map_colour " << imol_no << " "
                 << map_colour.red << " "  << map_colour.green << " " << map_colour.blue << std::endl;
 
    if (! has_xmap()) return;
 
-   graphics_info_t::attach_buffers();
+   err = glGetError();
+   if (err) {
+      std::cout << "GL ERROR:: mci::setup_glsl_map_rendering() Pos A0 "
+                << stringify_error_code(err) << std::endl;
+   } else {
+      // std::cout << "INFO:: Mesh::setup_glsl_map_rendering() Pos A0 "
+      // << "no error here" << std::endl;
+   }
+
+   // 20260124-PE Don't do this:
+   // Why? Map setup (creating meshes, uploading vertices) doesn't
+   // need the GLArea's framebuffer attached. You're just creating GPU
+   // resources, not rendering. The framebuffer will be correctly
+   // attached automatically when the render callback runs.
+   //
+   // graphics_info_t::attach_buffers();
+
+   err = glGetError();
+   if (err) {
+      std::cout << "GL ERROR:: mci::setup_glsl_map_rendering() Pos A1 "
+                << stringify_error_code(err) << std::endl;
+   } else {
+      // std::cout << "INFO:: Mesh::setup_glsl_map_rendering() Pos A1 "
+      // << "no error here" << std::endl;
+   }
 
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > vertices_and_triangles;
    auto &vertices = vertices_and_triangles.first;
@@ -1140,6 +1238,15 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
    std::vector<std::pair<int, map_triangle_t> > map_triangle_centres; // for sorting
 
    auto tp_0 = std::chrono::high_resolution_clock::now();
+
+   err = glGetError();
+   if (err) {
+      std::cout << "GL ERROR:: mci::setup_glsl_map_rendering() Pos A "
+                << stringify_error_code(err) << std::endl;
+   } else {
+      // std::cout << "INFO:: mci::setup_glsl_map_rendering() Pos A "
+      // << "no error here" << std::endl;
+   }
 
    if (colour_map_using_other_map_flag) {
 
@@ -1185,9 +1292,18 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
          const coot::density_contour_triangles_container_t &tri_con(*it);
          unsigned int idx_base = vertices.size();
          for (unsigned int i=0; i<tri_con.points.size(); i++) {
+            float w = 1.0;
+            if (false) { // apply the occlusions.
+               const float &of = tri_con.occlusion_factor[i];
+               w = (200.0 - of)/200.0;
+               if (w < 0.0) w = 0.0;
+               if (w > 1.0) w = 1.0;
+               // std::cout << "DEBUG:: occlusion_factor  i " << i << " " << of << " w " << w << std::endl;
+            }
             glm::vec3 pos    = coord_orth_to_glm(tri_con.points[i]);
             glm::vec3 normal = coord_orth_to_glm(tri_con.normals[i]);
-            s_generic_vertex vert(pos, normal, col);
+            glm::vec4 vert_col(col[0] * w, col[1] * w, col[2] * w, col[3]);
+            s_generic_vertex vert(pos, normal, vert_col);
             vertices.push_back(vert);
          }
          for (unsigned int i=0; i<tri_con.point_indices.size(); i++) {
@@ -1214,10 +1330,21 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
    auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
 
    if (false) // useful for me, not others
-      std::cout << "INFO:: with storing map triangles centres " << d10 << " milliseconds" << std::endl;
+      // std::cout << "INFO:: with storing map triangles centres " << d10 << " milliseconds" << std::endl;
+      logger.log(log_t::INFO, "with storing map triangles centres " + std::to_string(d10) + " milliseconds");
+
+   err = glGetError();
+   if (err) {
+      std::cout << "GL ERROR:: mci::setup_glsl_map_rendering() Pos B "
+                << stringify_error_code(err) << std::endl;
+   } else {
+      // std::cout << "INFO:: Mesh::setup_glsl_map_rendering() Pos B "
+      // << "no error here" << std::endl;
+   }
 
    if (xmap_is_diff_map) {
-      glm::vec4 diff_map_col(map_colour_negative_level.red, map_colour_negative_level.green, map_colour_negative_level.blue, 1.0f);
+      glm::vec4 diff_map_col(map_colour_negative_level.red, map_colour_negative_level.green,
+                             map_colour_negative_level.blue, 1.0f);
       std::vector<coot::density_contour_triangles_container_t>::const_iterator it;
       for (it=draw_diff_map_vector_sets.begin(); it!=draw_diff_map_vector_sets.end(); ++it) {
          const coot::density_contour_triangles_container_t &tri_con(*it);
@@ -1242,15 +1369,34 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
       map_as_mesh.set_is_headless();
       map_as_mesh_gl_lines_version.set_is_headless();
    }
+
+   err = glGetError();
+   if (err) {
+      std::cout << "GL ERROR:: mci::setup_glsl_map_rendering() Pos C "
+                << stringify_error_code(err) << std::endl;
+   } else {
+      // std::cout << "INFO:: Mesh::setup_glsl_map_rendering() Pos C "
+      //                 << "no error here" << std::endl;
+   }
+
    map_as_mesh.clear();
-   map_as_mesh.import(vertices_and_triangles, map_triangle_centres);
    map_as_mesh.set_name(name_);
+   map_as_mesh.import(vertices_and_triangles, map_triangle_centres);
    map_as_mesh.translate_by(glm::vec3(0,0,0)); // calls private setup_buffers(). There should be a better way.
 
    map_as_mesh_gl_lines_version.clear();
    map_as_mesh_gl_lines_version.import(vertices_and_triangles, map_triangle_centres, true); // setup lines indices too
    map_as_mesh_gl_lines_version.set_name(name_ + " gl-lines-version");
    map_as_mesh_gl_lines_version.translate_by(glm::vec3(0,0,0)); // calls private setup_buffers(). There should be a better way.
+
+   err = glGetError();
+   if (err) {
+      std::cout << "GL ERROR:: mci::setup_glsl_map_rendering() Pos D "
+                << stringify_error_code(err) << std::endl;
+   } else {
+      // std::cout << "INFO:: mci::setup_glsl_map_rendering() Pos D "
+      // << "no error here" << std::endl;
+   }
 
    // 20220211-PE we need to store map triangle centres (for sorting) and that information needs to be added to a Mesh
    // Come back to this later.
@@ -1505,7 +1651,7 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 							  std::string phi_col,
 							  std::string weight_col,
 							  int use_weights,
-							  short int is_anomalous_flag,
+							  short int anom_phases_need_90_degree_shift,
 							  int is_diff_map,
 							  short int use_reso_limits,
 							  float low_reso_limit,
@@ -1516,7 +1662,8 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
    bool debug = false;
 
    if (debug) {
-      std::cout << "mci::map_fill_from_mtz_with_reso_limits() " << mtz_file_name << " " << f_col << " " << phi_col << std::endl;
+      std::cout << "mci::map_fill_from_mtz_with_reso_limits() " << mtz_file_name << " " << f_col << " "
+                << phi_col << std::endl;
    }
 
    graphics_info_t g;
@@ -1526,8 +1673,8 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
       fourier_f_label = f_col;
       fourier_phi_label = phi_col;
       fourier_weight_label = weight_col; // magic label, we can go
-					 // combining if this is not
-					 // "";
+                                         // combining if this is not
+                                         // "";
 //       std::cout << "DEBUG:: saving fourier_weight_label: " <<
 // 	 fourier_weight_label << std::endl;
    }
@@ -1567,7 +1714,7 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
       mol_name += g.float_to_string(high_reso_limit);
    }
 
-   initialize_map_things_on_read_molecule(mol_name, is_diff_map, is_anomalous_flag,
+   initialize_map_things_on_read_molecule(mol_name, is_diff_map, anom_phases_need_90_degree_shift,
                                           g.swap_difference_map_colours);
 
    // If use weights, use both strings, else just use the first
@@ -1599,7 +1746,8 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
       }
 
       int n_reflections = fphidata.num_obs();
-      std::cout << "INFO:: Number of observed reflections: " << n_reflections << "\n";
+      // std::cout << "INFO:: Number of observed reflections: " << n_reflections << "\n";
+      logger.log(log_t::INFO, "Number of observed reflections:", n_reflections);
       if (n_reflections <= 0) {
          std::cout << "WARNING:: No reflections in mtz file!?" << std::endl;
       } else {
@@ -1615,16 +1763,18 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	    data_resolution_ = 1.0/sqrt(fft_reso.invresolsq_limit());
 	 }
 
-	 if (is_anomalous_flag) {
-	    fix_anomalous_phases(&fphidata);
+	 if (anom_phases_need_90_degree_shift) {
+	    shift_90_anomalous_phases(&fphidata);
 	 }
-         std::cout << "INFO:: finding ASU unique map points with sampling rate "
-                   << map_sampling_rate	<< std::endl;
+         // std::cout << "INFO:: finding ASU unique map points with sampling rate "
+         //           << map_sampling_rate	<< std::endl;
+         logger.log(log_t::INFO, "finding ASU unique map points with sampling rate:", map_sampling_rate);
          clipper::Grid_sampling gs(fphidata.spacegroup(),
                                    fphidata.cell(),
                                    fft_reso,
                                    map_sampling_rate);
-         std::cout << "INFO:: grid sampling..." << gs.format() << std::endl;
+         // std::cout << "INFO:: grid sampling..." << gs.format() << std::endl;
+         logger.log(log_t::INFO, "grid sampling", gs.format());
          xmap.init(fphidata.spacegroup(), fphidata.cell(), gs);
 
 
@@ -1673,7 +1823,7 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	 save_phi_col = phi_col;
 	 save_weight_col = weight_col;
 	 save_use_weights = use_weights;
-	 save_is_anomalous_map_flag = is_anomalous_flag;
+	 save_is_anomalous_map_flag = anom_phases_need_90_degree_shift;
 	 save_is_diff_map_flag = is_diff_map;
 	 save_high_reso_limit = high_reso_limit;
 	 save_low_reso_limit = low_reso_limit;
@@ -1693,14 +1843,21 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	 // long T4 = glutGet(GLUT_ELAPSED_TIME);
 	 // std::cout << "INFO:: " << float(T4-T3)/1000.0 << " seconds for statistics\n";
 
-	 std::cout << "      Map extents: ..... "
-		   << xmap.grid_sampling().nu() << " "
-		   << xmap.grid_sampling().nv() << " "
-		   << xmap.grid_sampling().nw() << " " << std::endl;
-	 std::cout << "      Map mean: ........ " << map_mean_ << std::endl;
-	 std::cout << "      Map sigma: ....... " << map_sigma_ << std::endl;
-	 std::cout << "      Map maximum: ..... " << map_max_ << std::endl;
-	 std::cout << "      Map minimum: ..... " << map_min_ << std::endl;
+	 // std::cout << "      Map extents: ..... "
+	 //           << xmap.grid_sampling().nu() << " "
+	 //           << xmap.grid_sampling().nv() << " "
+	 //           << xmap.grid_sampling().nw() << " " << std::endl;
+	 // std::cout << "      Map mean: ........ " << map_mean_ << std::endl;
+	 // std::cout << "      Map sigma: ....... " << map_sigma_ << std::endl;
+	 // std::cout << "      Map maximum: ..... " << map_max_ << std::endl;
+	 // std::cout << "      Map minimum: ..... " << map_min_ << std::endl;
+
+         logger.log(log_t::INFO, "Map extents",
+                    xmap.grid_sampling().nu(), xmap.grid_sampling().nv(), xmap.grid_sampling().nw());
+         logger.log(log_t::INFO, "Map mean:    ", map_mean_);
+         logger.log(log_t::INFO, "Map sigma:   ", map_sigma_);
+         logger.log(log_t::INFO, "Map maximum: ", map_max_);
+         logger.log(log_t::INFO, "Map minimum: ", map_min_);
 
          if (! updating_existing_map_flag)
             set_initial_contour_level();
@@ -1746,12 +1903,12 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	       save_state_command_strings_.push_back(single_quote(""));
 	       save_state_command_strings_.push_back(single_quote(""));
 	       save_state_command_strings_.push_back(g.int_to_string(0)); // sensible r-free
-	       save_state_command_strings_.push_back(g.int_to_string(is_anomalous_flag));
+	       save_state_command_strings_.push_back(g.int_to_string(anom_phases_need_90_degree_shift));
 	       save_state_command_strings_.push_back(g.int_to_string(save_use_reso_limits));
 	       save_state_command_strings_.push_back(g.float_to_string( low_reso_limit));
 	       save_state_command_strings_.push_back(g.float_to_string(high_reso_limit));
 	    } else {
-	       if (is_anomalous_flag) {
+	       if (anom_phases_need_90_degree_shift) {
 		  save_state_command_strings_.push_back("coot.make-and-draw-map-with-reso-with-refmac-params");
 		  save_state_command_strings_.push_back(single_quote(f2));
 		  save_state_command_strings_.push_back(single_quote(f_col));
@@ -1764,7 +1921,7 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 		  save_state_command_strings_.push_back(single_quote(""));
 		  save_state_command_strings_.push_back(single_quote(""));
 		  save_state_command_strings_.push_back(g.int_to_string(0)); // sensible r-free
-		  save_state_command_strings_.push_back(g.int_to_string(is_anomalous_flag));
+		  save_state_command_strings_.push_back(g.int_to_string(anom_phases_need_90_degree_shift));
 		  save_state_command_strings_.push_back(g.int_to_string(0)); // use reso limits
 		  save_state_command_strings_.push_back(g.float_to_string(999.9));
 		  save_state_command_strings_.push_back(g.float_to_string(1.2));
@@ -1835,8 +1992,9 @@ molecule_class_info_t::map_fill_from_cns_hkl(std::string cns_file_name,
 	 std::cout << "WARNING:: No reflections in cns file!?" << std::endl;
 	 return 0;
       }
-      std::cout << "INFO:: finding ASU unique map points with sampling rate "
-                << map_sampling_rate << std::endl;
+      // std::cout << "INFO:: finding ASU unique map points with sampling rate "
+      //           << map_sampling_rate << std::endl;
+      logger.log(log_t::INFO, "finding ASU unique map points with sampling rate", map_sampling_rate);
       clipper::Grid_sampling gs(fphidata.spacegroup(),
 				fphidata.cell(),
 				fphidata.resolution(),
@@ -1852,9 +2010,12 @@ molecule_class_info_t::map_fill_from_cns_hkl(std::string cns_file_name,
       // cout << "done fft..." << endl;
 
       long T3 = 0; // glutGet(GLUT_ELAPSED_TIME);
-      std::cout << "INFO:: " << float(T1-T0)/1000.0 << " seconds to read CNS file\n";
-      std::cout << "INFO:: " << float(T2-T1)/1000.0 << " seconds to initialize map\n";
-      std::cout << "INFO:: " << float(T3-T2)/1000.0 << " seconds for FFT\n";
+      // std::cout << "INFO:: " << float(T1-T0)/1000.0 << " seconds to read CNS file\n";
+      logger.log(log_t::INFO, float(T1-T0)/1000.0, "seconds to read CNS file");
+      // std::cout << "INFO:: " << float(T2-T1)/1000.0 << " seconds to initialize map\n";
+      logger.log(log_t::INFO, float(T2-T1)/1000.0, "seconds to initialize map");
+      // std::cout << "INFO:: " << float(T3-T2)/1000.0 << " seconds for FFT\n";
+      logger.log(log_t::INFO, float(T3-T2)/1000.0, "seconds for FFT");
       update_map_in_display_control_widget();
 
       // Fill the class variables:
@@ -1882,7 +2043,8 @@ molecule_class_info_t::map_fill_from_cns_hkl(std::string cns_file_name,
       // original_fphis = fphidata;
 
       long T4 = 0; // glutGet(GLUT_ELAPSED_TIME);
-      std::cout << "INFO:: " << float(T4-T3)/1000.0 << " seconds for statistics\n";
+      // std::cout << "INFO:: " << float(T4-T3)/1000.0 << " seconds for statistics\n";
+      logger.log(log_t::INFO, float(T4-T3)/1000.0, "seconds for statistics");
 
       std::cout << "      Map mean: ........ " << map_mean_ << std::endl;
       std::cout << "      Map sigma: ....... " << map_sigma_ << std::endl;
@@ -1893,8 +2055,10 @@ molecule_class_info_t::map_fill_from_cns_hkl(std::string cns_file_name,
 
       update_map(true);
       long T5 = 0; // glutGet(GLUT_ELAPSED_TIME);
-      std::cout << "INFO:: " << float(T5-T4)/1000.0 << " seconds for contour map\n";
-      std::cout << "INFO:: " << float(T5-T0)/1000.0 << " seconds in total\n";
+      // std::cout << "INFO:: " << float(T5-T4)/1000.0 << " seconds for contour map\n";
+      logger.log(log_t::INFO, float(T5-T4)/1000.0, "seconds for contour map");
+      // std::cout << "INFO:: " << float(T5-T0)/1000.0 << " seconds in total\n";
+      logger.log(log_t::INFO, float(T5-T0)/1000.0, "seconds in total");
       return 1;
    }
    catch (const clipper::Message_base &rte) {
@@ -1957,10 +2121,10 @@ molecule_class_info_t::get_refmac_params() const {
 
 
 void
-molecule_class_info_t::fix_anomalous_phases(clipper::HKL_data< clipper::datatypes::F_phi<float> > *fphidata) const {
+molecule_class_info_t::shift_90_anomalous_phases(clipper::HKL_data< clipper::datatypes::F_phi<float> > *fphidata) const {
 
    for (clipper::HKL_info::HKL_reference_index hri = fphidata->first(); !hri.last(); hri.next()) {
-      (*fphidata)[hri].shift_phase(-M_PI_2);
+      (*fphidata)[hri].shift_phase(+M_PI_2);
    }
 }
 
@@ -2240,9 +2404,11 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
    if (filename.find(".mrc.gz") != std::string::npos) map_file_type = CCP4;
 
    if (map_file_type == CCP4)
-      std::cout << "INFO:: map file type was determined to be CCP4 type\n";
+      // std::cout << "INFO:: map file type was determined to be CCP4 type\n";
+      logger.log(log_t::INFO, "map file type was determined to be CCP4 type");
    if (map_file_type == CNS)
-      std::cout << "INFO:: map file type was determined to be CNS type\n";
+      // std::cout << "INFO:: map file type was determined to be CNS type\n";
+      logger.log(log_t::INFO, "map file type was determined to be CNS type");
 
    bool bad_read = false; // so far
    bool em = false;
@@ -2250,42 +2416,51 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 
    if (map_file_type == CCP4) {
 
-      bool done = false;
-      if (coot::util::is_basic_em_map_file(filename)) {
+      int rr = int(coot::util::is_basic_em_map_file(filename));
+
+      coot::util::slurp_map_result_t done = coot::util::slurp_map_result_t::UNRESOLVED;
+
+      if (coot::util::is_basic_em_map_file(filename) == coot::util::slurp_map_result_t::IS_SLURPABLE_EM_MAP) {
          // fill xmap
          auto tp_1 = std::chrono::high_resolution_clock::now();
          bool check_only = false;
+
          done = coot::util::slurp_fill_xmap_from_map_file(filename, &xmap, check_only);
+         is_em_map_cached_flag = 1;
 
          auto tp_2 = std::chrono::high_resolution_clock::now();
          auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
-         std::cout << "INFO:: map read in " << d21 << " milliseconds" << std::endl;
+         // std::cout << "INFO:: map read in " << d21 << " milliseconds with status: "
+         //           << int(done) << std::endl;
+         logger.log(log_t::INFO, "map read in", d21, "milliseconds with status:", int(done));
 
          // Now set is_em_map_cached_flag and set the rotation centres.
          // I think that we only need set the is_em_map_cached_flag.
          //
-         if (done) {
+         if (done != coot::util::slurp_map_result_t::OK) {
             if (is_gzip) {
                em = true;
-               is_em_map_cached_flag = true; // who else gzip map files?
+               is_em_map_cached_flag = 1; // short int
                if (imol_no == 0) {
                   clipper::Cell c = xmap.cell();
                   coot::Cartesian m(0.5*c.descr().a(), 0.5*c.descr().b(), 0.5*c.descr().c());
                   graphics_info_t g;
-                  std::cout << "INFO:: setRotationCentre " << m << std::endl;
+                  // std::cout << "INFO:: setRotationCentre " << m << std::endl;
+                  logger.log(log_t::INFO, "setRotationCentre", m.x(), m.y(), m.z());
                   g.setRotationCentre(m);
                }
             } else {
                try {
                   clipper_map_file_wrapper file;
                   file.open_read(filename);
-                  set_is_em_map(file); // sets is_em_map_cached_flag
+                  set_is_em_map(file, filename); // sets is_em_map_cached_flag
                   em = is_em_map_cached_flag;
                   if (imol_no == 0) {
                      clipper::Cell c = file.cell();
                      coot::Cartesian m(0.5*c.descr().a(), 0.5*c.descr().b(), 0.5*c.descr().c());
                      graphics_info_t g;
-                     std::cout << "INFO:: setRotationCentre " << m << std::endl;
+                     // std::cout << "INFO:: setRotationCentre " << m << std::endl;
+                     logger.log(log_t::INFO, "setRotationCentre", m.x(), m.y(), m.z());
                      g.setRotationCentre(m);
                   }
                }
@@ -2297,15 +2472,15 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
          }
       }
 
-
-      if (! done) {
-         std::cout << "INFO:: attempting to read CCP4 map: " << filename << std::endl;
+      if (done != coot::util::slurp_map_result_t::OK) {
+         // std::cout << "INFO:: attempting to read CCP4 map: " << filename << std::endl;
+         logger.log(log_t::INFO, "attempting to read CCP4 map:", filename);
          // clipper::CCP4MAPfile file;
          clipper_map_file_wrapper file;
          try {
             file.open_read(filename);
 
-            em = set_is_em_map(file);
+            em = set_is_em_map(file, filename);
 
             bool use_xmap = true; // not an nxmap
             if (true) {
@@ -2334,7 +2509,8 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
                //
                std::cout << "=================== EM Map NXmap =================== " << std::endl;
                file.import_nxmap(nxmap);
-               std::cout << "INFO:: created NX Map with grid " << nxmap.grid().format() << std::endl;
+               // std::cout << "INFO:: created NX Map with grid " << nxmap.grid().format() << std::endl;
+               logger.log(log_t::INFO, "created NX Map with grid", nxmap.grid().format());
             }
          } catch (const clipper::Message_base &exc) {
             std::cout << "WARNING:: failed to open " << filename << std::endl;
@@ -2352,9 +2528,10 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
                coot::Cartesian m(0.5*c.descr().a(), 0.5*c.descr().b(), 0.5*c.descr().c());
                new_centre.first = true;
                new_centre.second = m;
-               std::cout << "INFO:: map appears to be EM map."<< std::endl;
+               // std::cout << "INFO:: map appears to be EM map."<< std::endl;
+               logger.log(log_t::INFO, "map appears to be an EM map");
             }
-            std::cout << "INFO:: closing CCP4 map: " << filename << std::endl;
+            // std::cout << "INFO:: closing CCP4 map file: " << filename << std::endl;
             file.close_read();
 
             if (new_centre.first) {
@@ -2364,8 +2541,10 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
          }
       }
 
+
    } else {
-      std::cout << "INFO:: attempting to read CNS map: " << filename << std::endl;
+      // std::cout << "INFO:: attempting to read CNS map: " << filename << std::endl;
+      logger.log(log_t::INFO, "attempting to read CNS map:", filename);
       clipper::CNSMAPfile file;
       file.open_read(filename);
       try {
@@ -2389,7 +2568,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
       mean_and_variance<float> mv = map_density_distribution(xmap, 20, true, ipz);
       auto tp_1 = std::chrono::high_resolution_clock::now();
       auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
-      std::cout << "INFO:: map_density_distribution() took " << d10 << " milliseconds" << std::endl;
+      std::cout << "DEBUG:: map_density_distribution() took " << d10 << " milliseconds" << std::endl;
 
       float mean = mv.mean;
       float var = mv.variance;
@@ -2411,16 +2590,27 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 
       set_initial_contour_level();
 
-      std::cout << "INFO:: ------  em " << em << " contour_level " << contour_level << std::endl;
+      // /std::cout << "INFO:: ------  em " << em << " contour_level " << contour_level << std::endl;
+      logger.log(log_t::INFO, logging::function_name_t(__FUNCTION__),
+                 "EM status: ", em, "contour_level", contour_level);
 
-      std::cout << "      Map extents: ..... "
-		<< xmap.grid_sampling().nu() << " "
-		<< xmap.grid_sampling().nv() << " "
-		<< xmap.grid_sampling().nw() << " " << std::endl;
-      std::cout << "      Map mean: ........ " << map_mean_ << std::endl;
-      std::cout << "      Map rmsd: ........ " << map_sigma_ << std::endl;
-      std::cout << "      Map maximum: ..... " << map_max_ << std::endl;
-      std::cout << "      Map minimum: ..... " << map_min_ << std::endl;
+      // std::cout << "      Map extents: ..... "
+      //   	<< xmap.grid_sampling().nu() << " "
+      //   	<< xmap.grid_sampling().nv() << " "
+      //   	<< xmap.grid_sampling().nw() << " " << std::endl;
+      // std::cout << "      Map mean: ........ " << map_mean_ << std::endl;
+      // std::cout << "      Map rmsd: ........ " << map_sigma_ << std::endl;
+      // std::cout << "      Map maximum: ..... " << map_max_ << std::endl;
+      // std::cout << "      Map minimum: ..... " << map_min_ << std::endl;
+
+      logger.log(log_t::INFO, "Map extents: ",
+                 xmap.grid_sampling().nu(),
+                 xmap.grid_sampling().nv(),
+                 xmap.grid_sampling().nw());
+      logger.log(log_t::INFO, "Map mean: ", map_mean_);
+      logger.log(log_t::INFO, "Map rmsd: ", map_sigma_);
+      logger.log(log_t::INFO, "Map maximum: ", map_max_);
+      logger.log(log_t::INFO, "Map minimum: ", map_min_);
 
       // save state strings
       // c.f. std::string sc = state_command("coot", "set-draw-hydrogens", command_args, il);
@@ -2436,8 +2626,10 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
    if (bad_read)
       stat = -1;
 
-   // std::cout << "&&&&&&&&&&&&&&& mc::read_ccp4_map() bad_read " << bad_read << std::endl;
-   // std::cout << "&&&&&&&&&&&&&&& mc::read_ccp4_map() returns stat " << stat << std::endl;
+   if (false)
+      std::cout << "mc::read_ccp4_map() with is_em_map_cached_flag "
+                << is_em_map_cached_flag << std::endl;
+
    return stat;
 }
 
@@ -2445,7 +2637,9 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 // NXmap, not the xmap)
 //
 bool
-molecule_class_info_t::set_is_em_map(const clipper_map_file_wrapper &file) {
+molecule_class_info_t::set_is_em_map(const clipper_map_file_wrapper &file,
+				     const std::string &file_name) {
+
 
    // Even if mapdump says that the spacegroup is 0, file.spacegroup()
    // will be "P1".  So this returns true for maps with spacegroup 0
@@ -2458,17 +2652,31 @@ molecule_class_info_t::set_is_em_map(const clipper_map_file_wrapper &file) {
 	  ((file.cell().descr().beta()  - M_PI/2) <  0.0001) &&
 	  ((file.cell().descr().gamma() - M_PI/2) > -0.0001) &&
 	  ((file.cell().descr().gamma() - M_PI/2) <  0.0001)) {
-	 if (file.starts_at_zero()) {
+
+#if 0 // 20250519-PE why did I need starts_at_zero() to be true? 901b738c98ee739b0788e868d4b9121800047668
+      // map clement/initial_map.ccp4 does not start at 0 and is an em map (fragment, I guess).
+         if (file.starts_at_zero()) {
 	    is_em_map_cached_flag = 1; // yes
 	 } else {
 	    is_em_map_cached_flag = 0;
 	 }
+#endif
+         is_em_map_cached_flag = true;
+
+
       } else {
 	 is_em_map_cached_flag = 0;
       }
    } else {
       is_em_map_cached_flag = 0;
    }
+
+   // now we check if we have a PANDDA:: map
+   bool pandda_status = coot::util::map_labels_contain_PANDDA(file_name);
+   if (pandda_status) {
+      is_em_map_cached_flag = false;
+   }
+
    return false; // not a useful return value, because flag can have 3 values
 }
 
@@ -2476,6 +2684,9 @@ bool
 molecule_class_info_t::is_EM_map() const {
 
    bool ret_is_em = false;
+
+   if (false)
+      std::cout << "debug:: is_em_map_cached_flag: " << is_em_map_cached_flag << std::endl;
 
    if (has_xmap()) {
       if (is_em_map_cached_flag == 1) { // -1 means unset
@@ -2499,7 +2710,7 @@ molecule_class_info_t::is_em_map_cached_state() {
 }
 
 // user-setting over-ride internal rules for P1&909090 means EM
-void 
+void
 molecule_class_info_t::set_map_has_symmetry(bool is_em_map) {
 
    is_em_map_cached_flag = is_em_map;
@@ -2530,6 +2741,8 @@ molecule_class_info_t::install_new_map(const clipper::Xmap<float> &map_in, std::
 
       float mean = mv.mean;
       float var = mv.variance;
+
+      std::cout << "debug:: in install_new_map() contour_level is " << contour_level << " from " << mean << " " << sqrt(var) << std::endl;
       contour_level  = nearest_step(mean + 1.5*sqrt(var), 0.05);
       update_map_in_display_control_widget();
 
@@ -2540,6 +2753,42 @@ molecule_class_info_t::install_new_map(const clipper::Xmap<float> &map_in, std::
       update_map(true);
    }
 }
+
+void
+molecule_class_info_t::install_new_map_with_contour_level(const clipper::Xmap<float> &map_in, std::string name_in, float contour_level_in,
+                                                          bool is_em_map_flag_in) {
+
+   xmap = map_in;
+   if (is_em_map_flag_in)
+      is_em_map_cached_flag = 1;
+   // the map name is filled by using set_name(std::string)
+   // sets name_ to name_in:
+   initialize_map_things_on_read_molecule(name_in, false, false, false); // not a diff_map
+
+   // 20240702-PE now we can install empty maps (which get quickly overwritten by sensible maps)
+   // (adding servalcat interface)
+   //
+   if (! xmap.is_null()) {
+
+      bool ipz = graphics_info_t::ignore_pseudo_zeros_for_map_stats;
+      bool write_output_flag = false;
+      mean_and_variance<float> mv = map_density_distribution(xmap, 40, write_output_flag, ipz);
+
+      float mean = mv.mean;
+      float var = mv.variance;
+
+      std::cout << "debug:: in install_new_map_with_contour_level() contour_level is " << contour_level << std::endl;
+      contour_level  = contour_level_in;
+      update_map_in_display_control_widget();
+
+      // fill class variables
+      map_mean_ = mv.mean;
+      map_sigma_ = sqrt(mv.variance);
+
+      update_map(true);
+   }
+}
+
 
 void
 molecule_class_info_t::set_mean_and_sigma(bool show_terminal_output, bool ignore_pseudo_zeroes) {
@@ -2564,8 +2813,9 @@ molecule_class_info_t::make_map_from_phs(std::string pdb_filename,
 
    int iret = -1; // default error return status
    //
-   std::cout << "INFO:: Make a map from " << phs_filename << " using "
-	     << pdb_filename << " for the cell and symmetry information " << std::endl;
+   // std::cout << "INFO:: Make a map from " << phs_filename << " using "
+   //          << pdb_filename << " for the cell and symmetry information " << std::endl;
+   logger.log(log_t::INFO, "Make a map from", phs_filename, "using", pdb_filename, "for the cell and symmetry information");
 
    atom_selection_container_t SelAtom = get_atom_selection(pdb_filename, false, true, false);
 
@@ -2799,7 +3049,8 @@ molecule_class_info_t::save_original_fphis_from_map() {
      if (! original_fphis_filled) {
          float mg = coot::util::max_gridding(xmap); // A/grid
          clipper::Resolution reso(2.0 * mg); // Angstroms
-         std::cout << "INFO:: save_original_fphis_from_map(): making data info" << std::endl;
+         // std::cout << "INFO:: save_original_fphis_from_map(): making data info" << std::endl;
+         logger.log(log_t::INFO, "save_original_fphis_from_map(): making data info");
          std::cout << "DEBUG:: save_original_fphis_from_map cell-i: " << xmap.cell().format() << std::endl;
          clipper::HKL_info hkl_info(xmap.spacegroup(), xmap.cell(), reso, true);
          clipper::HKL_sampling hkl_sampling(xmap.cell(), reso);
@@ -2822,7 +3073,8 @@ molecule_class_info_t::save_original_fphis_from_map() {
             if (cell_check_2.beta() > 0.0 && cell_check_2.beta() < 180)
                if (cell_check_2.gamma() > 0.0 && cell_check_2.gamma() < 180)
                   original_fphis_filled = true;
-         std::cout << "INFO:: stored original fphis from map" << std::endl;
+         // std::cout << "INFO:: stored original fphis from map" << std::endl;
+         logger.log(log_t::INFO, "stored original fphis from map");
       }
    }
 }
@@ -2864,8 +3116,10 @@ molecule_class_info_t::calculate_sfs_and_make_map(int imol_no_in,
    std::cout << "done iso fft..." << std::endl;
 
    // debug:: examine fphidata and myfsigf:
-   std::cout << "INFO:: myfsigf  has " <<  myfsigf.data_size() << " data" << std::endl;
-   std::cout << "INFO:: fphidata has " << fphidata.data_size() << " data" << std::endl;
+   // std::cout << "INFO:: myfsigf  has " <<  myfsigf.data_size() << " data" << std::endl;
+   logger.log(log_t::INFO, "myfsigf has", myfsigf.data_size(), "data");
+   // std::cout << "INFO:: fphidata has " << fphidata.data_size() << " data" << std::endl;
+   logger.log(log_t::INFO, "fphidata has", fphidata.data_size(), "data");
 
    if (0) { // debug
       float sum_fo = 0;
@@ -2913,9 +3167,11 @@ molecule_class_info_t::calculate_sfs_and_make_map(int imol_no_in,
        is_2fofc_type == molecule_map_type::TYPE_FO_FC) {
 
       if (is_2fofc_type == molecule_map_type::TYPE_2FO_FC)
-	 std::cout << "INFO:: calculating 2fofc map..." << std::endl;
+	 // std::cout << "INFO:: calculating 2fofc map..." << std::endl;
+	 logger.log(log_t::INFO, "calculating 2fofc map...");
       if (is_2fofc_type == molecule_map_type::TYPE_FO_FC)
-	 std::cout << "INFO:: calculating fofc map..." << std::endl;
+	 // std::cout << "INFO:: calculating fofc map..." << std::endl;
+	 logger.log(log_t::INFO, "calculating fofc map...");
 
       clipper::BasisFn_spline basis_f1f2( hkls, nprm, 2.0 );
       //  target_f1f2( fc, fo );
@@ -3144,9 +3400,10 @@ molecule_class_info_t::make_map_from_cif_sigmaa(int imol_no_in,
 	    std::cout << "WARNING:: Are you sure this file (" << cif_file_name
 		      << ") contains calculated structure factors?" << std::endl;
 	    std::cout << "WARNING:: No map calculated." << std::endl;
-	    std::cout << "INFO:: if you want to calculate structure factors from a"
-		      << " set of coordinates,  consider the function read_cif_data()"
-		      << std::endl;
+	    // std::cout << "INFO:: if you want to calculate structure factors from a"
+	    //           << " set of coordinates,  consider the function read_cif_data()"
+	    //           << std::endl;
+	    logger.log(log_t::INFO, "if you want to calculate structure factors from a set of coordinates, consider the function read_cif_data()");
 	 } else {
 
 	    std::string mol_name = cif_file_name;
@@ -3437,7 +3694,8 @@ molecule_class_info_t::make_map_from_mtz_by_calc_phases(int imol_no_in,
 
    clipper::CCP4MTZfile mtz;
 
-   std::cout << "INFO:: reading mtz file..." << mtz_file_name << std::endl;
+   // std::cout << "INFO:: reading mtz file..." << mtz_file_name << std::endl;
+   logger.log(log_t::INFO, "reading mtz file...", mtz_file_name);
    mtz.open_read(mtz_file_name);
 
    // make the data names for import:
@@ -3468,15 +3726,18 @@ molecule_class_info_t::make_map_from_phs(const clipper::Spacegroup &sg,
    clipper::PHSfile phs;
 
    if (! coot::file_exists(phs_filename)) {
-      std::cout << "INFO:: file " << phs_filename << " does not exit " << std::endl;
+      // std::cout << "INFO:: file " << phs_filename << " does not exit " << std::endl;
+      logger.log(log_t::INFO, "file", phs_filename, "does not exist");
       return -1;
    }
 
    try {
-      std::cout << "INFO:: reading phs file: " << phs_filename << std::endl;
+      // std::cout << "INFO:: reading phs file: " << phs_filename << std::endl;
+      logger.log(log_t::INFO, "reading phs file:", phs_filename);
       phs.open_read(phs_filename);
 
-      std::cout << "INFO:: phs: creating resolution" << std::endl;
+      // std::cout << "INFO:: phs: creating resolution" << std::endl;
+      logger.log(log_t::INFO, "phs: creating resolution");
       clipper::Resolution resolution = phs.resolution(cell);
       // mydata.init(sg, cell, resolution);
 
@@ -3486,9 +3747,11 @@ molecule_class_info_t::make_map_from_phs(const clipper::Spacegroup &sg,
       clipper::HKL_data<clipper::datatypes::Phi_fom<float> >  myphwt(mydata);
       clipper::HKL_data<clipper::datatypes::F_phi<float>   >  fphidata(mydata);
 
-      std::cout << "INFO:: phs: importing info" << std::endl;
+      // std::cout << "INFO:: phs: importing info" << std::endl;
+      logger.log(log_t::INFO, "phs: importing info");
       phs.import_hkl_info(mydata);
-      std::cout << "INFO:: phs: importing data" << std::endl;
+      // std::cout << "INFO:: phs: importing data" << std::endl;
+      logger.log(log_t::INFO, "phs: importing data");
       phs.import_hkl_data(myfsig);
       phs.import_hkl_data(myphwt);
 
@@ -3503,8 +3766,9 @@ molecule_class_info_t::make_map_from_phs(const clipper::Spacegroup &sg,
 		<< clipper::Util::rad2d(cell.descr().gamma()) << " "
 		<< single_quote(sg.symbol_hm()) << std::endl;
 
-      std::cout << "INFO:: phs: number of reflections: " << mydata.num_reflections()
-		<< "\n";
+      // std::cout << "INFO:: phs: number of reflections: " << mydata.num_reflections()
+      //           << "\n";
+      logger.log(log_t::INFO, "phs: number of reflections:", mydata.num_reflections());
 
       fphidata.update();
 
@@ -3605,7 +3869,8 @@ molecule_class_info_t::make_map_from_phs(const clipper::Spacegroup &sg,
    }
 
    catch (...) {
-      std::cout << "INFO:: problem reading phs file " << phs_filename << std::endl;
+      // std::cout << "INFO:: problem reading phs file " << phs_filename << std::endl;
+      logger.log(log_t::INFO, "problem reading phs file", phs_filename);
    }
 
   // as for 'normal' maps
@@ -4238,17 +4503,21 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
       trial_mol.transform(trial_results[i_trial].first, centre_pt);
       coot::minimol::molecule fitted_mol = rigid_body_fit(trial_mol, xmap_masked, map_sigma);
       float this_score = density_scoring_function(fitted_mol, atom_numbers, xmap_masked);
-      std::cout << "INFO:: Jiggle-fit: optimizing trial "
-		<< std::setw(3) << i_trial << ": prelim-score was "
-		<< std::setw(7) << trial_results[i_trial].second << " post-fit "
-		<< std::setw(5) << this_score;
+      // std::cout << "INFO:: Jiggle-fit: optimizing trial "
+      //           << std::setw(3) << i_trial << ": prelim-score was "
+      //           << std::setw(7) << trial_results[i_trial].second << " post-fit "
+      //           << std::setw(5) << this_score;
+      // if (this_score > best_score_so_far) { ... std::cout << " ***"; }
+      // std::cout << std::endl;
       if (this_score > best_score_so_far) {
          best_score_so_far = this_score;
-         if (this_score > initial_score) {
-            std::cout << " ***";
-         }
+         if (this_score > initial_score)
+            logger.log(log_t::INFO, "Jiggle-fit: optimizing trial", i_trial, ": prelim-score was", trial_results[i_trial].second, "post-fit", this_score, "***");
+         else
+            logger.log(log_t::INFO, "Jiggle-fit: optimizing trial", i_trial, ": prelim-score was", trial_results[i_trial].second, "post-fit", this_score);
+      } else {
+         logger.log(log_t::INFO, "Jiggle-fit: optimizing trial", i_trial, ": prelim-score was", trial_results[i_trial].second, "post-fit", this_score);
       }
-      std::cout << std::endl;
       post_fit_trial_results[i_trial].second = this_score;
    }
 #endif // HAVE_CXX_THREAD
@@ -4276,14 +4545,16 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
       best_molecule = fitted_mol;
 
       float this_score = density_scoring_function(fitted_mol, atom_numbers, xmap_masked);
-      std::cout << "INFO:: chose new molecule with score " << this_score << std::endl;
+      // std::cout << "INFO:: chose new molecule with score " << this_score << std::endl;
+      logger.log(log_t::INFO, "chose new molecule with score", this_score);
       best_score = this_score;
    }
 
    //
    if (bested) {
-      make_backup();
-      std::cout << "INFO:: Improved fit from " << initial_score << " to " << best_score << std::endl;
+      make_backup(__FUNCTION__);
+      // std::cout << "INFO:: Improved fit from " << initial_score << " to " << best_score << std::endl;
+      logger.log(log_t::INFO, "Improved fit from", initial_score, "to", best_score);
 
       v = best_score;
       if (! best_molecule.is_empty()) {
@@ -4653,7 +4924,8 @@ molecule_class_info_t::colour_map_using_map(const clipper::Xmap<float> &xmap, fl
                                               // (position_to_colour_using_other_map(co))
       other_map_for_colouring_p = &xmap;
 
-      std::cout << "debug:: in colour_map_using_map() other_map_for_colouring_p is set to " << other_map_for_colouring_p << std::endl;
+      std::cout << "debug:: in colour_map_using_map() other_map_for_colouring_p is set to "
+		<< other_map_for_colouring_p << std::endl;
       other_map_for_colouring_min_value = table_bin_start;
       other_map_for_colouring_max_value = table_bin_start + colours.size() * table_bin_size;
       other_map_for_colouring_colour_table = colours;
@@ -5069,7 +5341,7 @@ molecule_class_info_t::export_map_molecule_as_gltf(const std::string &file_name)
 bool
 molecule_class_info_t::export_model_molecule_as_gltf(const std::string &file_name) const {
 
-   std::cout << "DEBUG:: in m::export_model_molecule_as_gltf() " << meshes.size() << std::endl;
+   std::cout << "DEBUG:: in m::export_model_molecule_as_gltf() meshes.size(): " << meshes.size() << std::endl;
 
    bool status = true;
 
@@ -5085,7 +5357,8 @@ molecule_class_info_t::export_model_molecule_as_gltf(const std::string &file_nam
       // this needs to be completey reworked
       // molecule_as_mesh.export_to_glTF(file_name, use_binary);
       // FIXME
-      std::cout << "export_model_molecule_as_gltf() FIXME" << std::endl;
+      std::cout << "export_model_molecule_as_gltf() - export as instanced object: FIXME"
+                << std::endl;
    }
    return status;
 }

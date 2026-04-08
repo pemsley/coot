@@ -233,8 +233,10 @@ Instanced_Markup_Mesh::update_instancing_buffers(const std::vector<Instanced_Mar
    if (n_instances > max_n_instances)
       n_instances = max_n_instances;
 
-   glBindBuffer(GL_ARRAY_BUFFER, inst_attribs_buffer_id);
-   glBufferSubData(GL_ARRAY_BUFFER, 0, n_instances * sizeof(Instanced_Markup_Mesh_attrib_t), &(balls[0]));
+   if (n_instances > 0) {
+      glBindBuffer(GL_ARRAY_BUFFER, inst_attribs_buffer_id);
+      glBufferSubData(GL_ARRAY_BUFFER, 0, n_instances * sizeof(Instanced_Markup_Mesh_attrib_t), &(balls[0]));
+   }
 
 }
 

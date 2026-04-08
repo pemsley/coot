@@ -36,7 +36,11 @@ SOFTWARE.
 
 #include <algorithm> // all_of, find, for_each
 #include <cassert> // assert
+//#if __cplusplus >= 202302L // c++-20 - test doen't work (arch linux gcc 15.1.1 20250729)
+#include <version>
+//#else
 #include <ciso646> // and, not, or
+//#endif
 #include <cstddef> // nullptr_t, ptrdiff_t, size_t
 #include <functional> // hash, less
 #include <initializer_list> // initializer_list
@@ -12489,7 +12493,9 @@ class binary_writer
     static CharType to_char_type(std::uint8_t x) noexcept
     {
         static_assert(sizeof(std::uint8_t) == sizeof(CharType), "size of CharType must be equal to std::uint8_t");
-        static_assert(std::is_pod<CharType>::value, "CharType must be POD");
+        // static_assert(std::is_pod<CharType>::value, "CharType must be POD");
+        static_assert(std::is_standard_layout<CharType>::value, "CharType must be POD");
+        static_assert(std::is_trivial<CharType>::value, "CharType must be POD");
         CharType result;
         std::memcpy(&result, &x, sizeof(x));
         return result;

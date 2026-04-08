@@ -26,16 +26,20 @@
 #ifndef GRAPHICS_LINE_HH
 #define GRAPHICS_LINE_HH
 
-#include "Cartesian.h"
+#include "Cartesian.hh"
+#include <mmdb2/mmdb_manager.h> // for updating from an atom selection
 
 class graphics_line_t {
 public:
    enum cylinder_class_t { UNK, SINGLE, DOUBLE, TRIPLE, KEK_DOUBLE_BOND_INNER_BOND }; // so that double bonds can be drawn thinner
+   enum end_cap_shape_t { FLAT, ROUNDED };
                                                           // than single bonds (likewise triple)
    cylinder_class_t cylinder_class;
    coot::CartesianPair positions;
    bool has_begin_cap;
    bool has_end_cap;
+   end_cap_shape_t begin_cap_shape_type;
+   end_cap_shape_t end_cap_shape_type;
    // int residue_index;
    // restore this when finished
    // mmdb::Residue *residue_p; // the residue for the bond (maybe there should be 2 residues_ps? because
@@ -70,8 +74,13 @@ public:
       atom_index_1 = atom_index_1_in;
       atom_index_2 = atom_index_2_in;
       model_number = model_no_in;
+      begin_cap_shape_type = FLAT;
+      end_cap_shape_type = FLAT;
    }
-   graphics_line_t() { }
+   graphics_line_t() {}
+
+   void update(mmdb::Atom **atom_selection, int n_atoms);
+
 };
 
 #endif // GRAPHICS_LINE_HH

@@ -2,7 +2,7 @@
 
 lib_LTLIBRARIES=libcoot-validation-graphs.la
 
-AM_CPPFLAGS = -I$(top_srcdir) $(COOT_WINDOWS_CFLAGS) @GTK_CFLAGS@
+AM_CPPFLAGS = -I$(top_srcdir) $(MMDB_CXXFLAGS) $(CLIPPER_CXXFLAGS) $(BOOST_CPPFLAGS) $(COOT_WINDOWS_CFLAGS) @GTK_CFLAGS@
 
 
 pkginclude_HEADERS = \
@@ -38,7 +38,7 @@ libcoot_validation_graphs_la_LIBADD = \
    $(top_builddir)/coot-utils/libcoot-map-utils.la    \
    $(top_builddir)/analysis/libcoot-analysis.la	      \
    $(top_builddir)/utils/libcoot-utils.la             \
-   $(CLIPPER_LIBS) $(MMDB_LIBS) $(SQLITE3_LIBS) $(GSL_LIBS) $(RDKIT_LIBS) $(GTK_LIBS) -lpthread
+   $(CLIPPER_LIBS) $(MMDB_LIBS) $(GTK_LIBS) -lpthread
 
 libcoot_validation_graphs_la_LDFLAGS = $(SHARED_LDFLAGS)
 

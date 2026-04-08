@@ -95,12 +95,12 @@ coot::ligand::cluster_is_possible_water(const coot::map_point_cluster &mpc) cons
 }
 
 // Things above this volume limit are too bit to be waters.  What is that limit?
-// 
+//
 double
 coot::ligand::possible_water_volume_limit() const {
 
    return water_molecule_volume;
-} 
+}
 
 
 // In the case of waters, the search map is the masked map.
@@ -115,8 +115,8 @@ coot::ligand::move_atom_to_peak(const clipper::Coord_orth &a,
    clipper::Grad_map<float>  grad_map;
    clipper::Curv_map<float> curv_map;
    float shift_len = 1.0; // Angstroms
-   int n_cycle = 0; 
-   int n_cycle_max = 500; 
+   int n_cycle = 0;
+   int n_cycle_max = 500;
 
    while ((n_cycle < n_cycle_max) && (shift_len > 0.001)) { // Angstroms
 
@@ -186,23 +186,23 @@ coot::ligand::mean_and_variance_where_the_atoms_are(mmdb::Manager *mol) const {
       const clipper::Xmap<float> &xmap = xmap_pristine;
       int n_chains = model_p->GetNumberOfChains();
       for (int ichain=0; ichain<n_chains; ichain++) {
-	 mmdb::Chain *chain_p = model_p->GetChain(ichain);
-	 int nres = chain_p->GetNumberOfResidues();
-	 for (int ires=0; ires<nres; ires++) {
-	    mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-	    std::string rn(residue_p->GetResName());
-	    if (rn != "HOH") {
-	       int n_atoms = residue_p->GetNumberOfAtoms();
-	       for (int iat=0; iat<n_atoms; iat++) {
-		  mmdb::Atom *at = residue_p->GetAtom(iat);
-		  if (! at->isTer()) {
-		     std::string ele = at->element;
-		     if (ele != " H")
-			n_molecule_atoms++;
-		  }
-	       }
-	    }
-	 }
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         int nres = chain_p->GetNumberOfResidues();
+         for (int ires=0; ires<nres; ires++) {
+            mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+            std::string rn(residue_p->GetResName());
+            if (rn != "HOH") {
+               int n_atoms = residue_p->GetNumberOfAtoms();
+               for (int iat=0; iat<n_atoms; iat++) {
+                  mmdb::Atom *at = residue_p->GetAtom(iat);
+                  if (! at->isTer()) {
+                     std::string ele = at->element;
+                     if (ele != " H")
+                        n_molecule_atoms++;
+                  }
+               }
+            }
+         }
       }
 
       if (n_molecule_atoms > n_test_points) {
@@ -268,21 +268,19 @@ coot::ligand::mean_and_variance_where_the_atoms_are(mmdb::Manager *mol) const {
    return r;
 }
 
+#include "coot-utils/coot-map-utils.hh"
 
-coot::ligand::spherical_density_score_t
-coot::ligand::spherical_density_score(const clipper::Coord_orth &a,
-				      float mean_density_of_other_atoms) const {
+float
+coot::ligand::spherical_density_score_t::get_spherical_variance(const clipper::Coord_orth &atom_pos,
+                                                                const clipper::Xmap<float> &search_map,
+                                                                float mean_density_of_other_atoms) const {
 
    double step = 0.4;
-
-   const clipper::Xmap<float> &search_map = xmap_pristine;
 
    std::vector<int> n_samples = { 0, 30, 80, 150 };
    int n_total = 30 + 80 + 150;
 
-   std::vector<float> var(4,0);
-
-   float sum_for_scaling = 0.0;
+   std::vector<float> var(4, 0.0f); // var[] is not used
 
    for (int istep=1; istep<=3; istep++) {
       std::vector<clipper::Coord_orth> sphere_points = fibonacci_sphere(n_samples[istep]);
@@ -290,27 +288,36 @@ coot::ligand::spherical_density_score(const clipper::Coord_orth &a,
       double sum = 0;
 
       for (int i=0; i<n_samples[istep]; i++) {
-         clipper::Coord_orth pos = a + step * sphere_points[i];
-         float dv = density_at_point(pos, search_map);
+         clipper::Coord_orth pos = atom_pos + step * sphere_points[i];
+         float dv = util::density_at_point(search_map, pos);
          sum    += dv;
          sum_sq += dv * dv;
-         sum_for_scaling += dv;
       }
 
       float mean = sum/static_cast<float>(n_samples[istep]);
       var[istep] = sum_sq/static_cast<float>(n_samples[istep]) - mean * mean;
 
    }
-   float overall_mean = sum_for_scaling/static_cast<float>(n_total);
    float non_spherical = 0.0;
    for (int istep=1; istep<=3; istep++)
       non_spherical += 0.333 * sqrt(var[istep])/mean_density_of_other_atoms;
    // if (non_spherical < 0.0) non_spherical = 0.0;
    // if (non_spherical > 1.0) non_spherical = 1.0;
-   float sphericalness = 1.0 - non_spherical;
+   return non_spherical;
 
-   float dp = density_at_point(a, search_map);
-   return spherical_density_score_t(dp, non_spherical);
+}
+
+
+coot::ligand::spherical_density_score_t
+coot::ligand::spherical_density_score(const clipper::Coord_orth &atom_pos,
+				      float mean_density_of_other_atoms) const {
+
+   const clipper::Xmap<float> &search_map = xmap_pristine;
+   spherical_density_score_t sds;
+   float non_spherical = sds.get_spherical_variance(atom_pos, search_map, mean_density_of_other_atoms);
+   float dp = density_at_point(atom_pos, search_map);
+   sds = spherical_density_score_t(dp, non_spherical);
+   return sds;
 
 }
 
@@ -788,7 +795,7 @@ coot::ligand::flood2(float n_sigma) {
       clipper::CCP4MAPfile mapout;
       mapout.open_write("flood2-masked.map");
       mapout.export_xmap(xmap_masked);
-      mapout.close_write(); 
+      mapout.close_write();
    }
 
    std::vector<clipper::Coord_orth> water_list;
@@ -808,7 +815,7 @@ coot::ligand::flood2(float n_sigma) {
       coot::peak_search ps(xmap_masked);
       ps.set_max_closeness(0);
       std::vector<clipper::Coord_orth> peaks = ps.get_peaks_for_flooding(xmap_masked, n_sigma_crit);
-      
+
       if (debug) {
 	 for (unsigned int ipeak=0; ipeak<peaks.size(); ipeak++) {
 	    float d = density_at_point(peaks[ipeak], xmap_masked);
@@ -824,12 +831,15 @@ coot::ligand::flood2(float n_sigma) {
       }
       // mask new waters
       for (unsigned int iw=0; iw<peaks.size(); iw++) {
-	 if (! close_to_another(peaks[iw], water_list, map_atom_mask_radius)) {
-	    // change xmap_masked:
-	    mask_around_coord(peaks[iw], map_atom_mask_radius, &xmap_masked);
-	    water_list.push_back(peaks[iw]);
-	    n_added_waters++;
-	 }
+         // 20241217-PE Hmm - why do I want to not mask peaks that are close to
+         // aother peak in flood mode? I will try remving this test
+	 // if (! close_to_another(peaks[iw], water_list, map_atom_mask_radius)) {
+         // change xmap_masked:
+         // ... Hmm.. didn't make much difference (if any)
+         mask_around_coord(peaks[iw], map_atom_mask_radius, &xmap_masked);
+         water_list.push_back(peaks[iw]);
+         n_added_waters++;
+         // }
       }
    }
 
@@ -844,14 +854,15 @@ coot::ligand::flood2(float n_sigma) {
    }
 
    // move these waters to around protein:
-   // 
+   //
    std::vector <clipper::Coord_orth> sampled_protein_coords = make_sample_protein_coords();
    std::cout << "DEBUG:: in flood2() sampled_protein_coords() size is "
 	     << sampled_protein_coords.size() << std::endl;
 
-   std::vector<clipper::Coord_orth> moved_waters;   
+   std::vector<clipper::Coord_orth> moved_waters;
    if (sampled_protein_coords.size()) {
-      std::cout << "DEBUG:: moving dummy atoms around the protein.." << std::endl;
+      std::cout << "DEBUG:: moving " << water_list.size() << " dummy atoms to around the protein.."
+                << std::endl;
       moved_waters = move_waters_close_to_protein(water_list, sampled_protein_coords);
    } else {
       moved_waters = water_list; // unomved waters
@@ -882,7 +893,7 @@ coot::ligand::flood2(float n_sigma) {
       mol.write_file("post-filter.pdb", 12);
    }
 
-   std::cout << "INFO:: added " << n_added_waters << " waters to molecule\n";
+   std::cout << "INFO:: added " << n_added_waters << " dummy atoms to molecule\n";
    std::string ch = protein_atoms.unused_chain_id("W");
    // coot::minimol::molecule mol(water_list, "DUM", " DUM", ch);
    std::string ele = "NA";

@@ -55,7 +55,7 @@
 #include "coot-utils/cylinder.hh"
 #include "coot-utils/oct.hh"
 
-#include "coords/Bond_lines.h"
+#include "coords/Bond_lines.hh"
 
 #include "bond-colour-mode.hh"
 
@@ -106,6 +106,8 @@ Mesh::make_graphical_bonds_spherical_atoms_instanced_version(Shader *shader_p,
                                                              float bond_radius,
                                                              unsigned int num_subdivisions,
                                                              const std::vector<glm::vec4> &colour_table) {
+
+   return;
 
    // udd_handle_bonded_type can be NO_BOND, BONDED_WITH_STANDARD_ATOM_BOND, BONDED_WITH_BOND_TO_HYDROGEN
    // BONDED_WITH_HETATM_BOND.

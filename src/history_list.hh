@@ -53,7 +53,7 @@ namespace coot {
          read_history();
       }
       explicit command_history_t(xdg_t xdg) : index(0),
-                                              command_history_file_name(xdg.get_state_home().append(".coot_python_commands")) {
+                                              command_history_file_name(xdg.get_state_home().append(".coot_python_commands").string()) {
          read_history();
       }
 

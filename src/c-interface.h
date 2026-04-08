@@ -60,7 +60,7 @@
   But, we need that function to set the filename in mol_info, which
   is a c++ class.
 
-p  So we need to have this function external for c++ linking.
+  So we need to have this function external for c++ linking.
 
 */
 
@@ -69,7 +69,10 @@ p  So we need to have this function external for c++ linking.
 #ifdef __cplusplus
 #ifdef USE_GUILE
 #include <cstdio> /* for std::FILE in gmp.h for libguile.h */
-#include <libguile.h>		/* for SCM type (returned by safe_scheme_command) */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
+#include <libguile.h>
+#pragma GCC diagnostic pop
 #else
 #include <string> /* for std::string; included (sic!) in above for guile */
 #endif /*  USE_GUILE */
@@ -106,15 +109,17 @@ BEGIN_C_DECLS
 void try_load_scheme_extras_dir();
 #endif /* USE_GUILE */
 #ifdef USE_PYTHON
+
 void try_load_python_extras_dir();
 #endif /* USE_PYTHON */
 
 /* section Startup Functions */
 /*!  \name Startup Functions */
-/* \{ */
+/*! \{ */
 /*!  \brief tell coot that you prefer to run python scripts if/when
   there is an option to do so. */
 void set_prefer_python();
+
 /*! \brief the python-prefered mode.
 
 This is available so that the scripting functions know whether on not
@@ -125,16 +130,15 @@ which is used elsewhere to stop python functions adding to the gui,
 when guile-gtk functions have alread done so.  We should clean up this
 (rather obscure) interface at some stage.
 
-return 1 for python is prefered, 0 for not. */
+@return 1 for python is prefered, 0 for not. */
 int prefer_python();
 
-/* \} */
+/*! \} */
 
 /*  ------------------------------------------------------------------------ */
 /*                         File system Functions:                            */
 /*  ------------------------------------------------------------------------ */
 /*  File system Utility function: maybe there is a better place for it... */
-
 
 /*  Return like mkdir: mkdir returns zero on success, or -1 if an error */
 /*  occurred */
@@ -144,17 +148,7 @@ int prefer_python();
 
 /* section File System Functions */
 /*!  \name File System Functions */
-/* \{ */
-
-/*! \brief make a directory dir (if it doesn't exist) and return error code
-
-   If it can be created, create the directory dir, return the success status
-   like mkdir: mkdir
-
-   @return zero on success, or -1 if an  error  occurred.
-   If dir already exists as a directory, return 0 of course.
- */
-int make_directory_maybe(const char *dir);
+/*! \{ */
 
 /*! \brief Show Paths in Display Manager?
 
@@ -167,19 +161,22 @@ void set_show_paths_in_display_manager(int i);
 
    What is the internal flag?
 
-   @return 1 for "yes, display paths" , 0 for not
+   @return 1 for "yes, display paths", 0 for not
  */
 int show_paths_in_display_manager_state();
 
 /*! \brief add an extension to be treated as coordinate files
+   @param ext the extension to be added
 */
 void add_coordinates_glob_extension(const char *ext);
 
 /*! \brief add an extension to be treated as data (reflection) files
+   @param ext the extension to be added
 */
 void add_data_glob_extension(const char *ext);
 
 /*! \brief add an extension to be treated as geometry dictionary files
+   @param ext the extension to be added
 */
 void add_dictionary_glob_extension(const char *ext);
 
@@ -188,14 +185,17 @@ void add_dictionary_glob_extension(const char *ext);
 void add_map_glob_extension(const char *ext);
 
 /*! \brief remove an extension to be treated as coordinate files
+   @param ext the extension to be added
 */
 void remove_coordinates_glob_extension(const char *ext);
 
 /*! \brief remove an extension to be treated as data (reflection) files
+   @param ext the extension to be removed
 */
 void remove_data_glob_extension(const char *ext);
 
 /*! \brief remove an extension to be treated as geometry dictionary files
+   @param ext the extension to be removed
 */
 void remove_dictionary_glob_extension(const char *ext);
 
@@ -218,17 +218,14 @@ void unset_sticky_sort_by_date();
 set to 1 to pre-filter, [0 (off, non-pre-filtering) is the default */
 void set_filter_fileselection_filenames(int istate);
 
-
 /*! \brief, return the state of the above variable */
 int filter_fileselection_filenames_state();
 
 /*! \brief is the given file name suitable to be read as coordinates? */
 short int file_type_coords(const char *file_name);
 
-
 /*! \brief display the open coordinates dialog */
 void open_coords_dialog();
-
 
 /*! \brief this flag set chooser as default for windows, otherwise use
   selector 0 is selector 1 is chooser */
@@ -240,28 +237,37 @@ int file_chooser_selector_state();
 void set_file_chooser_overwrite(int istate);
 int file_chooser_overwrite_state();
 
-/* \brief show the export map GUI */
+/*! \brief show the export map GUI */
 void export_map_gui(short int export_map_fragment);
 
-/* \} */
+/*! \} */
 
 
 /*! \name Widget Utilities */
-/* \{ */
+/*! \{ */
 
 /*! \brief set the main window title.
 
 function added for Lothar Esser */
 void set_main_window_title(const char *s);
 
-/* \} */
+/*! \brief set the state of the validation graphs box
+ *
+ * By "docked" I mean, in the main window. The alternative
+ * is a floating dialog.
+ *
+ * @param state 0 is not docked, 1 is docked
+ */
+void set_validation_graphs_is_docked(short int state);
+
+/*! \} */
 
 /*  -------------------------------------------------------------------- */
 /*                   mtz and data handling utilities                     */
 /*  -------------------------------------------------------------------- */
 /* section MTZ and data handling utilities */
 /*! \name  MTZ and data handling utilities */
-/* \{ */
+/*! \{ */
 /* We try as .phs and .cif files first */
 
 /*! \brief given a filename, try to read it as a data file
@@ -269,14 +275,14 @@ void set_main_window_title(const char *s);
    We try as .phs and .cif files first */
 void manage_column_selector(const char *filename);
 
-/* \} */
+/*! \} */
 
 /*  -------------------------------------------------------------------- */
 /*                     Molecule Functions       :                        */
 /*  -------------------------------------------------------------------- */
 /* section Molecule Info Functions */
 /*! \name Molecule Info Functions */
-/* \{ */
+/*! \{ */
 
 /*! \brief the number of residues in chain chain_id and molecule number imol
   @return the number of residues
@@ -328,21 +334,35 @@ given molecule.
 */
 int n_models(int imol);
 
-/*! \brief  number of chains in molecule number imol
+/*! \brief get the number of chains in molecule number imol
 
-   @return the number of chains*/
+  @param imol is the molecule index
+  @return the number of chains
+*/
 int n_chains(int imol);
+
+#ifdef USE_PYTHON
+/*! \brief get the chain ids of molecule number imol
+
+  @param imol is the molecule index
+  @return a list of the the chain ids or False on failure
+*/
+PyObject *get_chain_ids_py(int imol);
+#endif
 
 /*! \brief is this a solvent chain? [Raw function]
 
    This is a raw interface function, you should generally not use
    this, but instead use (is-solvent-chain? imol chain-id)
 
+   This wraps the mmdb function isSolventChain().
+
+   @param imol is the molecule index
+   @param chain_id is the chain id (e.g. "A" or "B")
    @return -1 on error, 0 for no, 1 for is "a solvent chain".  We
    wouldn't want to be doing rotamer searches and the like on such a
    chain.
 
-   This wraps the mmdb function isSolventChain().
  */
 int is_solvent_chain_p(int imol, const char *chain_id);
 
@@ -409,9 +429,8 @@ PyObject *residue_centre_py(int imol, const char *chain_id, int resno, const cha
 #ifdef USE_GUILE
 SCM model_composition_statistics_scm(int imol);
 #endif
-#ifdef USE_PYTHON
+
 PyObject *model_composition_statistics_py(int imol);
-#endif
 #endif
 
 
@@ -427,6 +446,21 @@ void remarks_dialog(int imol);
 /*! \brief simply print secondary structure info to the
   terminal/console.  In future, this could/should return the info.  */
 void print_header_secondary_structure_info(int imol);
+
+/*! \brief get the secondary structure from the header
+ *
+ * @param imol the molecule index
+ * @return a dictionary of header info
+ * Returns: {'helices': [...], 'strands': [...]}
+ *
+ * Each helix dict contains:
+ *  serNum, helixID, initChainID, initSeqNum, endChainID, endSeqNum, length, comment
+ *
+ * Each strand dict contains:
+ *  SheetID, strandNo, initChainID, initSeqNum, endChainID, endSeqNum
+ */
+PyObject *get_header_secondary_structure_info(int imol);
+
 
 /*! \brief add secondary structure info to the
   internal representation of the model */
@@ -477,7 +511,7 @@ int exchange_chain_ids_for_seg_ids(int imol);
 void show_remarks_browswer();
 
 
-/* \} */
+/*! \} */
 
 /*  -------------------------------------------------------------------- */
 /*                     Library/Utility Functions:                        */
@@ -485,7 +519,7 @@ void show_remarks_browswer();
 
 /* section Library and Utility Functions */
 /*! \name Library and Utility Functions */
-/* \{ */
+/*! \{ */
 
 #ifdef __cplusplus
 
@@ -568,14 +602,14 @@ int first_unsaved_coords_imol();
   -1 on complete failure to write a file. */
 int mmcif_sfs_to_mtz(const char *cif_file_name, const char *mtz_file_name);
 
-/* \} */
+/*! \} */
 
 /*  -------------------------------------------------------------------- */
 /*                    More Library/Utility Functions:                    */
 /*  -------------------------------------------------------------------- */
 /* section Graphics Utility Functions */
 /*! \name Graphics Utility Functions */
-/* \{ */
+/*! \{ */
 
 /*! \brief set the bond lines to be antialiased */
 void set_do_anti_aliasing(int state);
@@ -616,6 +650,12 @@ short int python_at_prompt_at_startup_state();
    centre on last-read molecule with zoom 100. If we are there, then
    go to the previous molecule, if we are there, then go to the origin. */
 int reset_view();
+
+/*! \brief set the view rotation scale factor
+
+ Useful/necessary for high resolution displayed, where, without this factor
+ the view doesn't rotate enough */
+void set_view_rotation_scale_factor(float f);
 
 /*! \brief return the number of molecules (coordinates molecules and
   map molecules combined) that are currently in coot
@@ -781,11 +821,13 @@ int clear_and_update_model_molecule_from_file(int molecule_number,
 /* atom_selection_container_t  */
 /* make_atom_selection(int imol, const coot::minimol::molecule &mol);  */
 
-/*! \brief dump the current screen image to a file.  Format ppm
-
-You can use this, in conjunction with spinning and view moving functions to
-make movies */
-void screendump_image(const char *filename);
+/*! \brief dump the current screen image to a file.  Format tga
+*
+* make a copy of the screen image and write it to the file system
+*
+* You can use this, in conjunction with spinning and view moving functions to
+* make movies */
+void screendump_image(const char *tga_filename);
 
 /*! \brief give a warning dialog if density it too dark (blue) */
 void check_for_dark_blue_density();
@@ -825,7 +867,7 @@ float get_solid_density_surface_opacity(int imol);
 Default is 1 (on. */
 void set_flat_shading_for_solid_density_surface(short int state);
 
-/* \} */
+/*! \} */
 
 /*  -------------------------------------------------------------------- */
 /*                     Testing Interface:                                */
@@ -930,22 +972,12 @@ void set_model_fit_refine_dialog_stays_on_top(int istate);
 /*! \brief return the state model-fit-refine dialog stays on top */
 int model_fit_refine_dialog_stays_on_top_state();
 
-/* functions to dock the accept/reject dialog to the toolbar */
+/* Legacy functions for the accept/reject dialog docking - no longer functional but
+   retained for backwards compatibility with user startup scripts */
+/*! \brief set the accept/reject dialog docked state - no longer functional */
 void set_accept_reject_dialog_docked(int state);
-/*! \brief the accept/reject dialog docked state */
-int accept_reject_dialog_docked_state();
-
-/* functions to show/hide i.e. make sensitive the docked accept/reject toolbar */
-/*! \brief set the accept/reject dialog docked show state */
+/*! \brief set the accept/reject dialog docked show state - no longer functional */
 void set_accept_reject_dialog_docked_show(int state);
-/*! \brief what is the accept/reject dialog docked show state? */
-int accept_reject_dialog_docked_show_state();
-
-
-/* functions for the main toolbar style */
-void set_main_toolbar_style(int state);
-int main_toolbar_style_state();
-
 
 
 /*! \} */
@@ -955,7 +987,7 @@ int main_toolbar_style_state();
 /*  ----------------------------------------------------------------------- */
 /* section Mouse Buttons */
 /*! \name   Mouse Buttons */
-/* \{ */
+/*! \{ */
 
 /*! \brief quanta-like buttons
 
@@ -986,6 +1018,8 @@ positive blobs.  Useful function if bound to a key.
 The refinement map must be set.  (We can't check all maps because they
 are not (or may not be) on the same scale).
 
+Not useful for MCP. For interactive use only.
+
    @return 1 if successfully found a blob and moved there.
    return 0 if no move.
 */
@@ -998,12 +1032,15 @@ SCM select_atom_under_pointer_scm();
 #endif
 
 #ifdef USE_PYTHON
-/*! \brief return Python false or a list of molecule number and an atom spec  */
+/*! \brief return Python false or a list of molecule number and an atom spec
+ *
+ * Not useful for MCP. For interactive use only.
+*/
 PyObject *select_atom_under_pointer_py();
 #endif
 #endif /* __cplusplus */
 
-/* \} */
+/*! \} */
 
 /*  --------------------------------------------------------------------- */
 /*                      Cursor Functions:                                 */
@@ -1037,7 +1074,7 @@ void set_pick_cursor_index(int icursor_index);
 /*! \{ */
 
 /*! \brief display the Display Manager dialog */
-void show_select_map_dialog();
+void show_select_map_frame();
 /*! \brief Allow the changing of Model/Fit/Refine button label from
   "Rotate/Translate Zone" */
 void set_model_fit_refine_rotate_translate_zone_label(const char *txt);
@@ -1059,7 +1096,7 @@ int refinement_move_atoms_with_zero_occupancy_state();
 /*  --------------------------------------------------------------------- */
 /* section Backup Functions */
 /*! \name Backup Functions */
-/* \{ */
+/*! \{ */
 /* c-interface-build functions */
 
 /*! \brief make backup for molecule number imol */
@@ -1074,8 +1111,15 @@ void turn_on_backup(int imol);
  return 0 for backups off, 1 for backups on, -1 for unknown */
 int  backup_state(int imol);
 
-/*! \brief apply undo - the "Undo" button callback */
+/*! \brief apply undo - the "Undo" button callback
+ *
+ * undo the most recent modification on the model
+ * set in set_undo_molecule().
+ *
+ * @return 1 on succesful undo, 0 on failed to undo.
+ */
 int apply_undo();		/* "Undo" button callback */
+
 /*! \brief apply redo - the "Redo" button callback */
 int apply_redo();
 
@@ -1085,7 +1129,6 @@ void set_have_unsaved_changes(int imol);
 /*! \brief does molecule number imol have unsaved changes?
  @return -1 on bad imol, 0 on no unsaved changes, 1 on has unsaved changes */
 int have_unsaved_changes_p(int imol);
-
 
 /*! \brief set the molecule to which undo operations are done to
   molecule number imol */
@@ -1120,14 +1163,61 @@ int  backup_compress_files_state();
 /*! \brief set if backup files will be compressed or not using gzip */
 void  set_backup_compress_files(int state);
 
-/* \} */
+/*! \brief Make a backup for a model molecule
+ *
+ * @param imol the model molecule index
+ * @description a description that goes along with this back point
+ * @return the index of the backup, or -1 on failure
+ */
+int make_backup_checkpoint(int imol, const char *description);
+
+/*! \brief Restore molecule from backup
+ * 
+ * restore model @p imol to checkpoint backup @p backup_index
+ *
+ * @param imol the model molecule index
+ * @param backup_index the backup index to restore to
+ * @return the index of the backup, or -1 on failure
+ */
+int restore_to_backup_checkpoint(int imol, int backup_index);
+
+#ifdef USE_PYTHON
+/*! \brief Compare current model to backup
+ * 
+ * @param imol the model molecule index
+ * @param backup_index the backup index to restore to
+ * @return a Python dict, with 2 items, a "status" which is either "ok" 
+ *         or "error" or "bad-index". The other key is "moved-residues-list",
+ *         the value for which is a list of residue specs for residues
+ *         that have at least one atom in a different place (which might be empty).
+ */
+PyObject *compare_current_model_to_backup(int imol, int backup_index);
+#endif
+
+/*! \brief Print the history info
+ * 
+ */
+void print_backup_history_info(int imol);
+
+#ifdef USE_PYTHON
+/*! \brief Get backup info
+ * 
+ * @param imol the model molecule index
+ * @param backup_index the backup index to restore to
+ * @return a Python list of the given description (str)
+ *         and a timestamp (str).
+ */
+PyObject *get_backup_info(int imol, int backup_index);
+#endif
+
+/*! \} */
 
 /*  --------------------------------------------------------------------- */
 /*                         recover session:                               */
 /*  --------------------------------------------------------------------- */
 /* section Recover Session Function */
 /*! \name  Recover Session Function */
-/* \{ */
+/*! \{ */
 /*! \brief recover session
 
    After a crash, we provide this convenient interface to restore the
@@ -1137,14 +1227,14 @@ void  set_backup_compress_files(int state);
    need to remember which files you read in before the crash - should
    be improved.) */
 void recover_session();
-/* \} */
+/*! \} */
 
 /*  ---------------------------------------------------------------------- */
 /*                       map functions:                                    */
 /*  ---------------------------------------------------------------------- */
 /* section Map Functions */
 /*! \name  Map Functions */
-/* \{ */
+/*! \{ */
 
 /*! \brief fire up a GUI, which asks us which model molecule we want
   to calc phases from.  On "OK" button there, we call
@@ -1310,7 +1400,8 @@ int difference_map(int imol1, int imol2, float map_scale);
            are considered as maps without symmetry (i.e. EM maps).
            In some cases though P1 maps do/should have symmetry -
            and this is the means by you can tell Coot that.
-    @param state 1 turns on map symmetry
+    @param imol is the moleculle number to be acted on
+    @param state the desired state, a value of 1 turns on map symmetry
 */
 void set_map_has_symmetry(int imol, int state);
 
@@ -1386,13 +1477,29 @@ void set_diff_map_iso_level_increment_from_text(const char *text, int imol);
 /*! \brief sampling rate
 
 find the molecule for which the single map dialog applies and set
-    the contour level and redraw */
+    the contour level and redraw.
+    This is for use by a GUI callback - not for user use */
 void set_map_sampling_rate_text(const char *text);
 
-/*! \brief set the map sampling rate (default 1.5)
-
-Set to something like 2.0 or 2.5 for more finely sampled maps.  Useful
-for baton-building low resolution maps. */
+/*! \brief set the map sampling rate (default 1.8)
+ *
+ * set_map_sampling_rate(float r)
+ *
+ * Set the Shannon Limit multiplier for map sampling (default 1.8).
+ *
+ * The Shannon (Nyquist) sampling theorem requires that a map be sampled
+ * at least twice per resolution cycle (d_min/2) to faithfully represent
+ * all frequencies present. This parameter sets the multiplier above that
+ * theoretical minimum — so the default of 1.5 means maps are sampled at
+ * 1.5 × the Shannon limit (i.e., grid spacing = d_min / 3.0).
+ *
+ * Higher values (e.g. 2.0–2.5) produce more finely sampled maps, which
+ * can be useful for low-resolution baton-building or visual inspection,
+ * since they are more visually attractive-looking,
+ * at the cost of larger map files and slower computation.
+ *
+ * Set to something like 2.0 or 2.5 for more finely sampled maps.  Useful
+ * for baton-building low resolution maps. */
 void set_map_sampling_rate(float r);
 
 /* MOVE-ME to c-interface-gtk-widgets.h */
@@ -1584,7 +1691,10 @@ void set_display_intro_string(const char *str);
 /*! \brief return the extent of the box/radius of electron density contours */
 float get_map_radius();
 
-/*! \brief not everone likes coot's esoteric depth cueing system
+/*! \brief return the extent of the box/radius of electron density contours */
+float get_map_radius_em();
+
+/*! \brief not everyone likes coot's esoteric depth cueing system
 
   Pass an argument istate=1 to turn it off
 
@@ -1630,7 +1740,7 @@ float residue_density_fit_scale_factor();
   map. Return 0 for bad imol */
 float density_at_point(int imol_map, float x, float y, float z);
 
-/* \} */
+/*! \} */
 
 
 /*  ------------------------------------------------------------------------ */
@@ -1638,7 +1748,7 @@ float density_at_point(int imol_map, float x, float y, float z);
 /*  ------------------------------------------------------------------------ */
 /* section Parameters from map */
 /*! \name  Parameters from map */
-/* \{ */
+/*! \{ */
 
 /*! \brief return the mtz file that was use to generate the map
 
@@ -1759,7 +1869,7 @@ void set_write_conect_record_state(int state);
 /*  ------------------------------------------------------------------------ */
 /* section Info Dialog */
 /*! \name  Info Dialog */
-/* \{ */
+/*! \{ */
 
 /*! \brief create a dialog with information
 
@@ -1779,7 +1889,16 @@ This dialog is left-justified and can use markup such as angled bracketted tt or
 void info_dialog_with_markup(const char *txt);
 
 
-/* \} */
+/*! \brief created an ephemeral label in the graphics window
+ *
+ * the text stays on screen for about 2 sesconds.
+ *
+ * @param txt the text
+*/
+void ephemeral_overlay_label(const char *txt);
+
+
+/*! \} */
 
 
 /*  ------------------------------------------------------------------------ */
@@ -1787,7 +1906,7 @@ void info_dialog_with_markup(const char *txt);
 /*  ------------------------------------------------------------------------ */
 /* section Refmac Functions */
 /*! \name  Refmac Functions */
-/* \{ */
+/*! \{ */
 /*! \brief set counter for runs of refmac so that this can be used to
   construct a unique filename for new output */
 void set_refmac_counter(int imol, int refmac_count);
@@ -1820,14 +1939,14 @@ int keep_map_colour_after_refmac_state();
 /* refmac vresion testing, returns 1 for new refmac (>5.3) otherwise 0 */
 int refmac_runs_with_nolabels(void);
 
-/* \} */
+/*! \} */
 
 /*  --------------------------------------------------------------------- */
 /*                      symmetry                                          */
 /*  --------------------------------------------------------------------- */
 /* section Symmetry Functions */
 /*! \name Symmetry Functions */
-/* \{ */
+/*! \{ */
 char* get_text_for_symmetry_size_widget(); /* const gchar *text */
 
 /* MOVE-ME to c-interface-gtk-widgets.h */
@@ -2019,14 +2138,14 @@ When the coordinates for one (or some) symmetry operator are missing
 set to 2 by default.  */
 void set_symmetry_shift_search_size(int shift);
 
-/* \} */ /* end of symmetry functions */
+/*! \} */ /* end of symmetry functions */
 
 /*  ------------------------------------------------------------------- */
 /*                    file selection                                    */
 /*  ------------------------------------------------------------------- */
 /* section File Selection Functions */
 /*! \name File Selection Functions */
-/* \{ */ /* start of file selection functions */
+/*! \{ */ /* start of file selection functions */
 
 /* so that we can save/set the directory for future fileselections
    (i.e. the new fileselection will open in the directory that the
@@ -2048,7 +2167,7 @@ PyObject *save_coords_name_suggestion_py(int imol);
 #endif /*  USE_PYTHON */
 #endif /*  __cplusplus */
 
-/* \} */ /* end of file selection functions */
+/*! \} */ /* end of file selection functions */
 
 /*  -------------------------------------------------------------------- */
 /*                     history                                           */
@@ -2056,7 +2175,7 @@ PyObject *save_coords_name_suggestion_py(int imol);
 /* section History Functions */
 /*! \name  History Functions */
 
-/* \{ */ /* end of file selection functions */
+/*! \{ */ /* end of file selection functions */
 /* We don't want this exported to the scripting level interface,
    really... (that way lies madness, hehe). oh well... */
 
@@ -2079,14 +2198,20 @@ void set_console_display_commands_state(short int istate);
  */
 void set_console_display_commands_hilights(short int bold_flag, short int colour_flag, int colour_index);
 
-/* \} */
+/*! \} */
 
 /*  --------------------------------------------------------------------- */
 /*                  state (a graphics_info thing)                         */
 /*  --------------------------------------------------------------------- */
 /* info */
 /*! \name State Functions */
-/* \{ */
+/*! \{ */
+
+/*! \brief scale up graphics - now available in scripting */
+void scale_up_graphics();
+
+/*! \brief scale down graphics - now available in scripting */
+void scale_down_graphics();
 
 /*! \brief save the current state to the default filename */
 void save_state();
@@ -2134,27 +2259,26 @@ void run_state_file_py();		/* just do it */
 void run_state_file_maybe();	/* depending on the above state variables */
 
 
-/* \} */
+/*! \} */
 
 /*  -------------------------------------------------------------------- */
 /*                     virtual trackball                                 */
 /*  -------------------------------------------------------------------- */
 /* subsection Virtual Trackball */
 /*! \name The Virtual Trackball */
-/* \{ */
+/*! \{ */
 
 #define VT_FLAT 1
 #define VT_SPHERICAL 2
-/*! \brief How should the mouse move the view?
 
-mode=1 for "Flat", mode=2 for "Spherical Surface"  */
+//! @param mode 1 for "Flat", 2 for "Spherical Surface" 
+//!
 void vt_surface(int mode);
-/*! \brief return the mouse view status mode
 
-mode=1 for "Flat", mode=2 for "Spherical Surface"  */
+//! @return the status, mode=1 for "Flat", mode=2 for "Spherical Surface"
 int  vt_surface_status();
 
-/* \} */
+/*! \} */
 
 
 /*  --------------------------------------------------------------------- */
@@ -2162,39 +2286,40 @@ int  vt_surface_status();
 /*  --------------------------------------------------------------------- */
 /* section Clipping Functions */
 /*! \name  Clipping Functions */
-/* \{ */
+/*! \{ */
 
-/*! increase the *amount* of clipping, that is (independent of projection matrix)*/
+//! increase the amount of clipping, that is (independent of projection matrix)
 void increase_clipping_front();
 
-/*! increase the *amount* of clipping, that is (independent of projection matrix)*/
+//! increase the amount of clipping, that is (independent of projection matrix)
 void increase_clipping_back();
 
-/*! decrease the *amount* of clipping, that is (independent of projection matrix)*/
+//! decrease the amount of clipping, that is (independent of projection matrix)
 void decrease_clipping_front();
 
-/*! decrease the *amount* of clipping, that is (independent of projection matrix)*/
+//! decrease the amount of clipping, that is (independent of projection matrix)
 void decrease_clipping_back();
 
-/*! \brief set clipping plane back  - this goes in differnent directions for orthographics vs perspective */
-void set_clipping_back( float v);
-/*! \brief set clipping plane front - this goes in differnent directions for orthographics vs perspective  */
+//! set clipping plane back  - this goes in differnent directions for orthographics vs perspective 
+void set_clipping_back(float v);
+
+//! set clipping plane front - this goes in differnent directions for orthographics vs perspective  
 void set_clipping_front(float v);
 
-/*! \brief get clipping plane front */
+//! get clipping plane front 
 float get_clipping_plane_front();
 
-/*! \brief get clipping plane back */
+//! get clipping plane back 
 float get_clipping_plane_back();
 
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                         Unit Cell                                        */
 /*  ----------------------------------------------------------------------- */
 /* section Unit Cell interface */
 /*! \name  Unit Cell interface */
-/* \{ */
+/*! \{ */
 
 /*! \brief return the stage of show unit cell for molecule number imol */
 short int get_show_unit_cell(int imol);
@@ -2212,14 +2337,14 @@ void set_show_unit_cells_all(short int istate);
 void set_show_unit_cell(int imol, short int istate);
 
 void set_unit_cell_colour(float red, float green, float blue);
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                         Colour                                           */
 /*  ----------------------------------------------------------------------- */
 /* section Colour */
 /*! \name  Colour */
-/* \{ */
+/*! \{ */
 
 /* set the colour merge ratio (a fraction 0.0 to 1.0) */
 void set_symmetry_colour_merge(float v);
@@ -2258,11 +2383,11 @@ int get_colour_map_rotation_on_read_pdb_c_only_flag();
 /*! \brief set the symmetry colour base */
 void set_symmetry_colour(float r, float g, float b);
 
-/* \} */
+/*! \} */
 
 /*  Section Map colour*/
 /*! \name   Map colour*/
-/* \{ */
+/*! \{ */
 /*! \brief set the colour map rotation (hue change) for maps
 
    default: for maps is 14 degrees. */
@@ -2275,14 +2400,14 @@ void set_molecule_bonds_colour_map_rotation(int imol, float theta);
 
 /*! \brief Get the colour map rotation for molecule number imol */
 float get_molecule_bonds_colour_map_rotation(int imol);
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                         Anisotropic Atoms */
 /*  ----------------------------------------------------------------------- */
 /* section Anisotropic Atoms Interface */
 /*! \name  Anisotropic Atoms Interface */
-/* \{ */
+/*! \{ */
 /*  we use the text interface to this in callback.c rather */
 /*  than getting the float directly. */
 
@@ -2292,40 +2417,51 @@ float get_limit_aniso();           /* not a function of the molecule */
 /*! \brief get show the aniso limit */
 short int get_show_limit_aniso();  /* not a function of the molecule */
 
-/*! \brief return show-aniso-atoms state */
+/*! \brief return show-aniso-atoms state  - FIXME- per molecule */
 short int get_show_aniso();       /*  not a function of the molecule */
 
 /*! \brief set the aniso atom limit */
 void set_limit_aniso(short int state);
 
-/* MOVE-ME to c-interface-gtk-widgets.h */
-void set_aniso_limit_size_from_widget(const char *text);
-
-/*! \brief set show aniso atoms */
+/*! \brief does nothing */
 void set_show_aniso(int state);
 
-/* MOVE-ME to c-interface-gtk-widgets.h */
+/*! \brief set show aniso atoms */
+void set_show_aniso_atoms(int imol, int state);
+
+/*! \brief set show aniso atoms as ortep */
+void set_show_aniso_atoms_as_ortep(int imol, int state);
+
+/*! \brief set show aniso atoms as ortep */
+void set_show_aniso_atoms_as_empty(int imol, int state);
+
+/* DELETE-ME */
+void set_aniso_limit_size_from_widget(const char *text);
+
+/* DELETE-ME .h */
 char *get_text_for_aniso_limit_radius_entry();
 
-/*! \brief set aniso probability */
+/*! DELETE-ME */
 void set_aniso_probability(float f);
 
-/*! \brief get aniso probability */
+/*! DELETE-ME  */
 float get_aniso_probability();
 
-/* \} */
+/*! \} */
 
 /*  ---------------------------------------------------------------------- */
 /*                         Display Functions                               */
 /*  ---------------------------------------------------------------------- */
 /* section Display Functions */
 /*! \name  Display Functions */
-/* \{ */
+/*! \{ */
 /*  currently doesn't get seen when the window starts due to */
 /*  out-of-order issues. */
 
 /*! \brief set the window size */
 void   set_graphics_window_size(int x_size, int y_size);
+/*! \brief set the window size as gtk_widget (flag=1) or gtk_window (flag=0) */
+void   set_graphics_window_size_internal(int x_size, int y_size, int as_widget_flag);
 /*! \brief set the graphics window position */
 void   set_graphics_window_position(int x_pos, int y_pos);
 /*! \brief store the graphics window position */
@@ -2340,9 +2476,11 @@ void graphics_draw(); 	/* and wrapper interface to gtk_widget_draw(glarea)  */
 
 /*! \brief try to turn on Zalman stereo mode  */
 void zalman_stereo_mode();
-/*! \brief try to turn on stereo mode  */
+
 void hardware_stereo_mode();
 
+/*! \brief try to turn on stereo mode  */
+void hardware_stereo_mode();
 
 /*! \brief set the stereo mode (the relative view of the eyes)
 
@@ -2357,7 +2495,11 @@ void set_stereo_style(int mode);
 int  stereo_mode_state();
 /*! \brief try to turn on mono mode  */
 void mono_mode();
-/*! \brief turn on side bye side stereo mode */
+
+/*! \brief turn on side bye side stereo mode
+ *
+ * @param use_wall_eye_mode 1 mean wall-eyed, 0 means cross-eyed
+ * */
 void side_by_side_stereo_mode(short int use_wall_eye_mode);
 
 /* DTI stereo mode - undocumented, secret interface for testing, currently.
@@ -2365,10 +2507,12 @@ state should be 0 or 1. */
 /* when it works, call it dti_side_by_side_stereo_mode() */
 void set_dti_stereo_mode(short int state);
 
-/*! \brief how much should the eyes be separated in stereo mode?
+/*! \brief set the stereo angle
+ *
+ * @param angle: stereo angle in degrees - default is 6 degrees
+ * */
+void set_stereo_angle(float angle);
 
-   @param f the angular difference (in multiples of 4.5 degrees) */
-void set_hardware_stereo_angle_factor(float f);
 /*! \brief return the hardware stereo angle factor */
 float hardware_stereo_angle_factor_state();
 
@@ -2393,14 +2537,14 @@ void set_edit_chi_angles_dialog_position(int x_pos, int y_pos);
 /*! \brief set rotamer selection dialog position */
 void set_rotamer_selection_dialog_position(int x_pos, int y_pos);
 
-/* \} */
+/*! \} */
 
 /*  ---------------------------------------------------------------------- */
 /*                         Smooth "Scrolling" */
 /*  ---------------------------------------------------------------------- */
 /* section Smooth Scrolling */
 /*! \name  Smooth Scrolling */
-/* \{ */
+/*! \{ */
 
 /*! \brief set smooth scrolling
 
@@ -2431,7 +2575,7 @@ void  set_smooth_scroll_limit(float lim);
 
 char *get_text_for_smooth_scroll_limit();
 
-/* \} */
+/*! \} */
 
 
 /*  ---------------------------------------------------------------------- */
@@ -2439,7 +2583,7 @@ char *get_text_for_smooth_scroll_limit();
 /*  ---------------------------------------------------------------------- */
 /* section Font Parameters */
 /*! \name  Font Parameters */
-/* \{ */
+/*! \{ */
 
 /*! \brief set the font size
 
@@ -2458,14 +2602,14 @@ void set_font_colour(float red, float green, float blue);
 /*! \brief set use stroke characters */
 void set_use_stroke_characters(int state);
 
-/* \} */
+/*! \} */
 
 /*  ---------------------------------------------------------------------- */
 /*                         Rotation Centre                                 */
 /*  ---------------------------------------------------------------------- */
 /* section Rotation Centre */
 /*! \name  Rotation Centre */
-/* \{ */
+/*! \{ */
 
 /* 20220723-PE I agree with my comments from earlier - these should not be here */
 /* MOVE-ME to c-interface-gtk-widgets.h */
@@ -2473,8 +2617,17 @@ void set_rotation_centre_size_from_widget(const gchar *text); /* and redraw */
 /* MOVE-ME to c-interface-gtk-widgets.h */
 gchar *get_text_for_rotation_centre_cube_size();
 
-/*! \brief set rotoation centre marker size */
+/*! \brief set the rotation centre marker size */
 void set_rotation_centre_size(float f); /* and redraw (maybe) */
+
+/*! \brief set the rotation centre marker size */
+void set_user_defined_rotation_centre_crosshairs_size_scale_factor(float f);
+
+/*! \brief set rotation centre colour
+
+This is the colour for a dark background - if the background colour is not dark,
+then the cross-hair colour becomes the inverse colour */
+void set_rotation_centre_cross_hairs_colour(float r, float g, float b, float alpha);
 
 /*! \brief return the recentre-on-pdb state */
 short int recentre_on_read_pdb();
@@ -2505,7 +2658,7 @@ void set_go_to_ligand_n_atoms_limit(int n_atom_min);
 */
 void set_reorienting_next_residue_mode(int state);
 
-/* \} */
+/*! \} */
 
 /*  ---------------------------------------------------------------------- */
 /*                         orthogonal axes                                 */
@@ -2513,19 +2666,19 @@ void set_reorienting_next_residue_mode(int state);
 
 /* section Orthogonal Axes */
 /*! \name Orthogonal Axes */
-/* \{ */
+/*! \{ */
 /* Draw the axes in the top left?
 
 0 off, 1 on */
 void set_draw_axes(int i);
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  utility function                                        */
 /*  ----------------------------------------------------------------------- */
 /* section Atom Selection Utilities */
 /*! \name  Atom Selection Utilities */
-/* \{ */
+/*! \{ */
 
 #ifdef __cplusplus /* protection from use in callbacks.c, else compilation probs */
 #ifdef USE_PYTHON
@@ -2597,6 +2750,28 @@ void set_temperature_factors_for_atoms_in_residue_scm(int imol, SCM residue_spec
 #endif
 #endif
 
+#ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
+#ifdef USE_GUILE
+SCM get_residue_alt_confs_scm(int imol, const char *chain_id, int res_no, const char *ins_code);
+#endif
+#endif
+
+#ifdef __cplusplus /* protection from use in callbacks.c, else compilation probs */
+#ifdef USE_PYTHON
+/*! \brief Return either False (on failure) or a list of alt-conf strings (might be [""]) */
+PyObject *get_residue_alt_confs_py(int imol, const char *chain_id, int res_no, const char *ins_code);
+#endif
+#endif
+
+
+
+/*! \brief swap atom alt-confs */
+int swap_atom_alt_conf(int imol, const char *chain_id, int res_no, const char *ins_code,
+                       const char *atom_name, const char*alt_conf);
+
+/*! \brief swap atom alt-confs */
+int swap_residue_alt_confs(int imol, const char *chain_id, int res_no, const char *ins_code);
+
 /*! \brief set a numberical attibute to the atom with the given specifier.
 
 Attributes can be "x", "y","z", "B", "occ" and the attribute val is a floating point number*/
@@ -2621,14 +2796,14 @@ int set_atom_attributes_py(PyObject *attribute_expression_list);
 /*! \brief set the residue name of the specified residue */
 void set_residue_name(int imol, const char *chain_id, int res_no, const char *ins_code, const char *new_residue_name);
 
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                            skeletonization                               */
 /*  ----------------------------------------------------------------------- */
 /* section Skeletonization Interface */
 /*! \name  Skeletonization Interface */
-/* \{ */
+/*! \{ */
 void skel_greer_on();
 void skel_greer_off();
 
@@ -2678,14 +2853,14 @@ void set_skeleton_box_size_from_widget(const char *txt);
 /*! \brief the box size (in Angstroms) for which the skeleton is displayed */
 void set_skeleton_box_size(float f);
 
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                        save coordinates                                  */
 /*  ----------------------------------------------------------------------- */
 /* section Save Coordinates */
 /*! \name  Save Coordinates */
-/* \{ */
+/*! \{ */
 
 
 /*! \brief save coordinates of molecule number imol in filename
@@ -2702,14 +2877,14 @@ int save_molecule_number_from_option_menu();
    Sets the *save* molecule number */
 void set_save_molecule_number(int imol);
 
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                        .phs file reading                                 */
 /*  ----------------------------------------------------------------------- */
 /* section Read Phases File Functions */
 /*! \name  Read Phases File Functions */
-/* \{ */
+/*! \{ */
 
 /*! \brief read phs file use coords to get cell and symm to make map
 
@@ -2771,16 +2946,16 @@ graphics_store_phs_filename(const gchar *phs_filename);
 short int possible_cell_symm_for_phs_file();
 
 /* MOVE-ME to c-interface-gtk-widgets.h */
-gchar *get_text_for_phs_cell_chooser(int imol, char *field);
+gchar *get_text_for_phs_cell_chooser(int imol, const char *field);
 
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                                  Movement                                */
 /*  ----------------------------------------------------------------------- */
 /* section Graphics Move */
 /*! \name Graphics Move */
-/* \{ */
+/*! \{ */
 /*! \brief undo last move  */
 void undo_last_move(); /* suggested by Frank von Delft */
 
@@ -2803,14 +2978,14 @@ void transform_zone(int imol, const char *chain_id, int resno_start, int resno_e
 		    float m31, float m32, float m33,
 		    float x, float y, float z);
 
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                        go to atom widget                                 */
 /*  ----------------------------------------------------------------------- */
 /* section Go To Atom Widget Functions */
 /*! \name Go To Atom Widget Functions */
-/* \{ */
+/*! \{ */
 
 /*! \brief Post the Go To Atom Window */
 void post_go_to_atom_window();
@@ -2831,22 +3006,22 @@ char *go_to_atom_alt_conf();
 
 /*! \brief set the go to atom specification
 
-   It seems important for swig that the char * arguments are const
-   char *, not const gchar * (or else we get wrong type of argument
+   It seems important for swig that the `char *` arguments are `const
+   char *`, not `const gchar *` (or else we get wrong type of argument
    error on (say) "A"
 
-@return the success status of the go to.  0 for fail, 1 for success.
+   @return the success status of the go to.  0 for fail, 1 for success.
 */
 int set_go_to_atom_chain_residue_atom_name(const char *t1_chain_id, int iresno,
 					   const char *t3_atom_name);
 
 /*! \brief set the go to (full) atom specification
 
-   It seems important for swig that the char * arguments are const
-   char *, not const gchar * (or else we get wrong type of argument
+   It seems important for swig that the `char *` arguments are `const
+   char *`, not `const gchar *` (or else we get wrong type of argument
    error on (say) "A"
 
-@return the success status of the go to.  0 for fail, 1 for success.
+   @return the success status of the go to.  0 for fail, 1 for success.
 */
 int set_go_to_atom_chain_residue_atom_name_full(const char *chain_id,
 						int resno,
@@ -2874,7 +3049,7 @@ void update_go_to_atom_residue_list(int imol);
 
 /*  return an atom index */
 /*! \brief what is the atom index of the given atom? */
-int atom_spec_to_atom_index(int mol, char *chain, int resno, char *atom_name);
+int atom_spec_to_atom_index(int mol, const char *chain, int resno, const char *atom_name);
 
 /*! \brief what is the atom index of the given atom? */
 int full_atom_spec_to_atom_index(int imol, const char *chain, int resno,
@@ -2917,7 +3092,7 @@ void unset_go_to_atom_widget(); /* unstore the static go_to_atom_window */
 
 
 
-/* \} */
+/*! \} */
 
 
 /*  ----------------------------------------------------------------------- */
@@ -2973,7 +3148,7 @@ PyObject *glyco_tree_matched_residue_pairs_py(int imol_1, PyObject *res_spec_1, 
 /*  ----------------------------------------------------------------------- */
 /* section Map and Molecule Control */
 /*! \name Map and Molecule Control */
-/* \{ */
+/*! \{ */
 
 /*! \brief display the Display Constrol window  */
 void post_display_control_window();
@@ -3081,7 +3256,7 @@ PyObject *symmetry_operators_to_xHM_py(PyObject *symmetry_operators);
 #endif /* c++ */
 
 
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                         Merge Molecules                                  */
@@ -3191,7 +3366,7 @@ SCM change_chain_id_with_result_scm(int imol, const char *from_chain_id, const c
 PyObject *change_chain_id_with_result_py(int imol, const char *from_chain_id, const char *to_chain_id, short int use_res_range_flag, int from_resno, int to_resno);
 #endif /* USE_PYTHON */
 #endif  /* c++ */
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  scripting                                               */
@@ -3199,7 +3374,7 @@ PyObject *change_chain_id_with_result_py(int imol, const char *from_chain_id, co
 /* section Scripting Interface */
 
 /*! \name Scripting Interface */
-/* \{ */
+/*! \{ */
 
 /*! \brief Can we run probe (was the executable variable set
   properly?) (predicate).
@@ -3225,7 +3400,7 @@ void set_python_gui_loaded_flag();
 void set_found_coot_gui();
 void set_found_coot_python_gui();
 
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  Monomer                                                 */
@@ -3233,7 +3408,7 @@ void set_found_coot_python_gui();
 /* section monomers */
 
 /*! \name Monomer */
-/* \{ */
+/*! \{ */
 
 int get_monomer_for_molecule_by_index(int dict_idx, int imol_enc);
 
@@ -3299,14 +3474,14 @@ PyObject *comp_id_to_name_py(const char *comp_id);
 #endif /*__cplusplus */
 
 
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  regularize/refine                                       */
 /*  ----------------------------------------------------------------------- */
 /* section Regularization and Refinement */
 /*! \name  Regularization and Refinement */
-/* \{ */
+/*! \{ */
 
 void do_regularize(short int state); /* pass 0 for off (unclick togglebutton) */
 void do_refine(short int state);
@@ -3351,9 +3526,14 @@ void remove_omega_torsion_restriants();
 void set_refine_hydrogen_bonds(int state);
 
 
-/*! \brief set immediate replacement mode for refinement and
-  regularization.  You need this (call with istate=1) if you are
-  scripting refinement/regularization  */
+/*! \brief set immediate replacement mode for refinement and regularization
+ *
+ * This can enable synchronous refinement (with istate = 1).
+ * You need this (call with istate=1) if you are
+ * scripting refinement/regularization
+ *
+ * @param istate set the state of immediate-refinemnt 
+ * */
 void set_refinement_immediate_replacement(int istate);
 
 /*! \brief query the state of the immediate replacement mode */
@@ -3372,13 +3552,24 @@ void set_residue_selection_flash_frames_number(int i);
 
 /*! \brief accept the new positions of the regularized or refined residues
 
-    If you are scripting refinement and/or regularization, this is the
-    function that you need to call after refine-zone or regularize-zone.  */
+    If you are scripting refinement and/or regularization, this is not the
+    function that you need to call after refine-zone or regularize-zone.
+    If you are using Python, use accept_moving_atoms_py() and that will
+    provide a return value that may be of some use.
+*/
 void c_accept_moving_atoms();
 
-/*! \brief a hideous alias for the above  */
+/*! \brief a hideously-named alias for `c_accept_moving_atoms()`  */
 void accept_regularizement();
+
+/*! \brief clear up moving atoms 
+ */
 void clear_up_moving_atoms();	/* remove the molecule and bonds */
+
+/*! \brief remove just the bonds
+
+   A redraw is done.
+ */
 void clear_moving_atoms_object(); /* just get rid of just the bonds (redraw done here). */
 
 #ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
@@ -3418,9 +3609,25 @@ SCM regularize_residues_with_alt_conf_scm(int imol, SCM r, const char *alt_conf)
 #endif
 #ifdef USE_PYTHON
 /*! \brief refine the residues in the given residue spec list
+ *
+ * @param imol is the molecule index
+ * @param rl is a Python list of residue specs, where a residue spec is a list of
+ *  [`chain_id`, `res_no`, `ins_code`]
+ *
+ *  When using this function from scripting, make sure that
+ *  set_refinement_immediate_replacement(1) is called first.
+ *
+ *  @return False if restraints could not be set up, or a list of 3 elements on success:
+ *  - [0] info_text (string): refinement information text
+ *  - [1] progress (int): refinement progress indicator.
+ *          0: GSL_SUCCESS: means refinement was successfully completed
+ *         -2: GSL_CONTINUE: means refinement was successful, but didn't terminate (so more cycles needed)
+ *         27: GSL_ENOPROG: iteration is not making progress towards solution
+ *  - [2] lights (list or False): False if empty, otherwise a list of
+ *    [`name`, `label`, `value`] triples where `name` and `label` are strings
+ *    and `value` is a float  */
+PyObject *refine_residues_py(int imol, PyObject *rl);  /* presumes the alt_conf is "". */
 
-@return the refinement summary statistics  */
-PyObject *refine_residues_py(int imol, PyObject *r);  /* presumes the alt_conf is "". */
 PyObject *refine_residues_with_modes_with_alt_conf_py(int imol, PyObject *r, const char *alt_conf,
 						      PyObject *mode_1,
 						      PyObject *mode_2,
@@ -3621,7 +3828,13 @@ void set_show_chiral_volume_errors_dialog(short int istate);
 
 1 alpha helix restraints
 
-2 beta strand restraints */
+2 beta strand restraints.
+
+Call this before refine_residues_py() to maintain secondary structure
+geometry during real-space refinement. Reset to 0 after refinement to
+avoid affecting subsequent refinement operations.
+
+*/
 void set_secondary_structure_restraints_type(int itype);
 
 /*! \brief return the secondary structure restraints type */
@@ -3630,22 +3843,22 @@ int secondary_structure_restraints_type();
 /*! \brief the molecule number of the map used for refinement
 
    @return the map number, if it has been set or there is only one
-   map, return -1 on no map set (ambiguous) or no maps.
+   map, otherwise return -1 on no map set (ambiguous) or no maps.
 */
-
 int imol_refinement_map();	/* return -1 on no map */
 
 /*! \brief set the molecule number of the map to be used for
   refinement/fitting.
 
-   @return imol on success, -1 on failure*/
+  @return imol on success, -1 on failure
+*/
 int set_imol_refinement_map(int imol);	/* returns imol on success, otherwise -1 */
 
 /*! \brief Does the residue exist? (Raw function)
 
    @return 0 on not-exist, 1 on does exist.
 */
-int does_residue_exist_p(int imol, char *chain_id, int resno, char *inscode);
+int does_residue_exist_p(int imol, const char *chain_id, int resno, const char *inscode);
 
 /*! \brief delete the restraints for the given comp_id (i.e. residue name)
 
@@ -3751,13 +3964,13 @@ void generate_local_self_restraints_by_residues_py(int imol, PyObject *residue_s
 
 
 /*! \brief proSMART interpolated restraints for model morphing  */
-void write_interpolated_extra_restraints(int imol_1, int imol_2, int n_steps, char *file_name_stub);
+void write_interpolated_extra_restraints(int imol_1, int imol_2, int n_steps, const char *file_name_stub);
 
 /*! \brief proSMART interpolated restraints for model morphing and write interpolated model
 
 interpolation_mode is currently dummy - in due course I will addd torion angle interpolation.
 */
-void write_interpolated_models_and_extra_restraints(int imol_1, int imol_2, int n_steps, char *file_name_stub,
+void write_interpolated_models_and_extra_restraints(int imol_1, int imol_2, int n_steps, const char *file_name_stub,
 						    int interpolation_mode);
 
 void set_show_parallel_plane_restraints(int imol, int state);
@@ -3809,7 +4022,7 @@ void decrease_proportional_editing_radius();
 /*                  Restraints editor                                       */
 /*  ----------------------------------------------------------------------- */
 
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*               Simplex Refinement                                         */
@@ -3819,18 +4032,18 @@ void decrease_proportional_editing_radius();
 
 /*! \brief refine residue range using simplex optimization */
 void
-fit_residue_range_to_map_by_simplex(int res1, int res2, char *altloc, char *chain_id, int imol, int imol_for_map);
+fit_residue_range_to_map_by_simplex(int res1, int res2, const char *altloc, const char *chain_id, int imol, int imol_for_map);
 
 /*! \brief simply score the residue range fit to map */
 float
-score_residue_range_fit_to_map(int res1, int res2, char *altloc, char *chain_id, int imol, int imol_for_map);
+score_residue_range_fit_to_map(int res1, int res2, const char *altloc, const char *chain_id, int imol, int imol_for_map);
 /*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*               Nomenclature Errors                                        */
 /*  ----------------------------------------------------------------------- */
 /*! \name Nomenclature Errors */
-/* \{ */
+/*! \{ */
 /*! \brief fix nomenclature errors in molecule number imol
 
    @return the number of resides altered. */
@@ -3843,14 +4056,14 @@ int fix_nomenclature_errors(int imol);
   default is "prompt" */
 void set_nomenclature_errors_on_read(const char *mode);
 
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*               Atom info                                                  */
 /*  ----------------------------------------------------------------------- */
 /* section Atom Info Interface */
 /*! \name Atom Info  Interface */
-/* \{ */
+/*! \{ */
 
 /*! \brief output to the terminal the Atom Info for the give atom specs
  */
@@ -3859,14 +4072,14 @@ output_atom_info_as_text(int imol, const char *chain_id, int resno,
 			 const char *ins_code, const char *atname,
 			 const char *altconf);
 
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*               (Eleanor's) Residue info                                   */
 /*  ----------------------------------------------------------------------- */
 /* section Residue Info */
 /*! \name Residue Info */
-/* \{ */
+/*! \{ */
 /* Similar to above, we need only one click though. */
 void do_residue_info_dialog();
 
@@ -3879,6 +4092,10 @@ int residue_info_dialog_is_displayed();
 void output_residue_info_as_text(int atom_index, int imol); /* text version */
 /* functions that uses mmdb_manager functions/data types moved to graphics_info_t */
 
+/* ! show the distance labels
+ * */
+void set_show_distance_labels(short int state);
+
 void do_distance_define();
 void do_angle_define();
 void do_torsion_define();
@@ -3890,27 +4107,27 @@ void unset_residue_info_widget();
 void clear_measure_distances();
 void clear_last_measure_distance();
 
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*               GUI edit functions                                   */
 /*  ----------------------------------------------------------------------- */
 /* section Edit Fuctions */
 /*! \name Edit Fuctions */
-/* \{ */
+/*! \{ */
 
 void  do_edit_copy_molecule();
 void  do_edit_copy_fragment();
 void  do_edit_replace_fragment();
 
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  residue environment                                     */
 /*  ----------------------------------------------------------------------- */
 /* section Residue Environment Functions */
 /*! \name Residue Environment Functions */
-/* \{ */
+/*! \{ */
 /*! \brief show environment distances.  If state is 0, distances are
   turned off, otherwise distances are turned on. */
 void set_show_environment_distances(int state);
@@ -3937,7 +4154,8 @@ void label_neighbours();
 /*! \brief Label the atoms in the central residue */
 void label_atoms_in_residue();
 
-
+/*! \brief Label the atoms with their B-factors */
+void set_show_local_b_factors(short int state);
 
 /*! \brief Add a geometry distance between points in a given molecule
 
@@ -3954,7 +4172,7 @@ double add_atom_geometry_distance_py(int imol_1, PyObject *atom_spec_1, int imol
 #endif
 #endif /* __cplusplus */
 
-/* \} */
+/*! \} */
 
 
 /*  ----------------------------------------------------------------------- */
@@ -3962,7 +4180,7 @@ double add_atom_geometry_distance_py(int imol_1, PyObject *atom_spec_1, int imol
 /*  ----------------------------------------------------------------------- */
 /* section Pointer Position Function */
 /*! \name Pointer Position Function */
-/* \{ */
+/*! \{ */
 /*! \brief return the [x,y] position of the pointer in fractional coordinates.
 
 the origin is top-left.
@@ -3972,31 +4190,32 @@ may return false if pointer is not available */
 PyObject *get_pointer_position_frac_py();
 #endif // USE_PYTHON
 #endif	/* c++ */
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  pointer distances                                      */
 /*  ----------------------------------------------------------------------- */
 /* section Pointer Functions */
 /*! \name Pointer Functions */
-/* \{ */
+/*! \{ */
 /*! \brief turn on (or off) the pointer distance by passing 1 (or 0). */
 void set_show_pointer_distances(int istate);
 /*! \brief show the state of display of the  pointer distances  */
 int  show_pointer_distances_state();
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  zoom                                                    */
 /*  ----------------------------------------------------------------------- */
 /* section Zoom Functions */
 /*! \name Zoom Functions */
-/* \{ */
+/*! \{ */
 /*! \brief scale the view by f
 
+   Values outside the range 0.5 to 1.8 have no effect.
    external (scripting) interface (with redraw)
     @param f the smaller f, the bigger the zoom, typical value 1.3.
-    Values outside the range 0.5 to 1.8 are filtered out */
+    */
 void scale_zoom(float f);
 /* internal interface */
 void scale_zoom_internal(float f);
@@ -4015,13 +4234,13 @@ void set_smooth_scroll_zoom_limit(float f);
 /*! \brief set the zoom factor (absolute value) - maybe should be called set_zoom_factor() */
 void set_zoom(float f);
 
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  CNS data stuff                                          */
 /*  ----------------------------------------------------------------------- */
 /*! \name CNS Data Functions */
-/* \{ */
+/*! \{ */
 /*! \brief read CNS data (currently only a placeholder)  */
 int handle_cns_data_file(const char *filename, int imol);
 
@@ -4031,7 +4250,7 @@ a, b,c are in Angstroems.  alpha, beta, gamma are in degrees.  spg is
 the space group info, either ;-delimited symmetry operators or the
 space group name*/
 int handle_cns_data_file_with_cell(const char *filename, int imol, float a, float b, float c, float alpha, float beta, float gamma, const char *spg_info);
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  cif stuff                                               */
@@ -4039,7 +4258,7 @@ int handle_cns_data_file_with_cell(const char *filename, int imol, float a, floa
 /* section mmCIF Functions */
 /*! \name mmCIF Functions */
 /* dataset stuff */
-/* \{ */
+/*! \{ */
 int auto_read_cif_data_with_phases(const char *filename);
 int read_cif_data_with_phases_sigmaa(const char *filename);
 int read_cif_data_with_phases_diff_sigmaa(const char *filename);
@@ -4051,24 +4270,6 @@ int read_cif_data_with_phases_2fo_fc(const char *filename);
 int read_cif_data_with_phases_nfo_fc(const char *filename,
 				     int map_type);
 int read_cif_data_with_phases_fo_alpha_calc(const char *filename);
-
-
-/*                  cif (geometry) dictionary                            */
-/* \brief return the number of bonds read (> 0 can be treated as success) */
-int handle_cif_dictionary(const char *filename);
-/* \brief synonym for above.
-
-return the number of bonds read (> 0 can be treated as success) */
-int read_cif_dictionary(const char *filename);
-
-/* \brief return the number of bonds read (> 0 can be treated as success).
- Apply to the given molecule.
-
- imol_enc can be the model molecule number or
- IMOL_ENC_ANY = -999999, IMOL_ENC_AUTO = -999998, IMOL_ENC_UNSET = -999997
-
- */
-int handle_cif_dictionary_for_molecule(const char *filename, int imol_enc, short int new_molecule_from_dictionary_cif_checkbutton_state);
 
 int write_connectivity(const char* monomer_name, const char *filename);
 /*! \brief open the cif dictionary file selector dialog */
@@ -4096,13 +4297,13 @@ int read_small_molecule_data_cif(const char *file_name);
 int read_small_molecule_data_cif_and_make_map_using_coords(const char *file_name,
 							   int imol_coords);
 
-/* \} */
+/*! \} */
 /*  ------------------------------------------------------------------------ */
 /*                         Validation:                                       */
 /*  ------------------------------------------------------------------------ */
 /* section Validation Functions */
 /*! \name Validation Functions */
-/* \{ */
+/*! \{ */
 void deviant_geometry(int imol);
 short int is_valid_model_molecule(int imol);
 short int is_valid_map_molecule(int imol);
@@ -4119,7 +4320,7 @@ of the selected model (useful for maps with molecular symmetry).
 */
 void difference_map_peaks(int imol, int imol_coords, float level, float max_closeness, int do_positive_level_flag, int do_negative_level_flag, int around_model_only_flag);
 
-/* \brief set the max closeness (i.e. no smaller peaks can be within
+/*! \brief set the max closeness (i.e. no smaller peaks can be within
    max_closeness of a larger peak)
 
 In the GUI for difference map peaks, there is not a means to set the
@@ -4220,14 +4421,14 @@ void set_show_chiral_volume_outliers(int imol, int state);
    not the intermediate atoms (derived from restraints) */
 void set_show_chiral_volume_outliers(int imol, int state);
 
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  ramachandran plot                                       */
 /*  ----------------------------------------------------------------------- */
 /* section Ramachandran Plot Functions */
 /*! \name Ramachandran Plot Functions */
-/* \{ */
+/*! \{ */
 /* Note for optionmenu from the main window menubar, we should use
    code like this, rather than the map_colour/attach_scroll_wheel code
    (actually, they are mostly the same, differing only the container
@@ -4256,9 +4457,11 @@ int ramachandran_psi_axis_mode();
 
 void set_moving_atoms(double phi, double psi);
 
+/*! \brief this does the same as `accept_moving_atoms()`
+*/
 void accept_phi_psi_moving_atoms();
-void setup_edit_phi_psi(short int state);	/* a button callback */
 
+void setup_edit_phi_psi(short int state);	/* a button callback */
 
 /* no need to export this to scripting interface */
 void setup_dynamic_distances(short int state);
@@ -4271,13 +4474,13 @@ void ramachandran_plot_differences(int imol1, int imol2);
 /*! \brief  A chain-specific Kleywegt Plot. */
 void ramachandran_plot_differences_by_chain(int imol1, int imol2,
 					    const char *a_chain, const char *b_chain);
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*           sequence_view                                                  */
 /*  ----------------------------------------------------------------------- */
 /*! \name Sequence View Interface  */
-/* \{ */
+/*! \{ */
 /*! \brief display the sequence view dialog for molecule number imol */
 void sequence_view(int imol);
 
@@ -4287,7 +4490,9 @@ void do_sequence_view(int imol);
 /*!  \brief update the sequnce view current position highlight based on active atom */
 void update_sequence_view_current_position_highlight_from_active_atom();
 
-/* \} */
+void remove_sequence_view_from_sequence_view_box(int imol);
+
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*           rotate moving atoms peptide                                    */
@@ -4309,10 +4514,10 @@ void change_peptide_carbonyl_by_current_button_pos(int ix, int iy);
    exported interface */
 /* section Atom Labelling */
 /*! \name Atom Labelling */
-/* \{ */
+/*! \{ */
 /*  Note we have to search for " CA " etc */
-int    add_atom_label(int imol, char *chain_id, int iresno, char *atom_id);
-int remove_atom_label(int imol, char *chain_id, int iresno, char *atom_id);
+int    add_atom_label(int imol, const char *chain_id, int iresno, const char *atom_id);
+int remove_atom_label(int imol, const char *chain_id, int iresno, const char *atom_id);
 void remove_all_atom_labels();
 
 void set_label_on_recentre_flag(int i); /* 0 for off, 1 or on */
@@ -4329,7 +4534,7 @@ int brief_atom_labels_state();
 
 /*! \brief set if brief atom labels should have seg-ids also */
 void set_seg_ids_in_atom_labels(int istat);
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  scene rotation                                          */
@@ -4337,7 +4542,7 @@ void set_seg_ids_in_atom_labels(int istat);
 /* section Screen Rotation */
 /*! \name Screen Rotation */
 /* stepsize in degrees */
-/* \{ */
+/*! \{ */
 /*! \brief rotate view round y axis stepsize degrees for nstep such steps */
 void rotate_y_scene(int nsteps, float stepsize);
 /*! \brief rotate view round x axis stepsize degrees for nstep such steps */
@@ -4357,7 +4562,7 @@ void rotate_z_scene(int nsteps, float stepsize);
 void spin_zoom_trans(int axis, int nstep, float stepsize, float zoom_by,
 		     float x_rel, float y_rel, float z_rel);
 
-/* \} */
+/*! \} */
 
 
 /*  ----------------------------------------------------------------------- */
@@ -4365,14 +4570,14 @@ void spin_zoom_trans(int axis, int nstep, float stepsize, float zoom_by,
 /*  ----------------------------------------------------------------------- */
 /* section Screen Translation */
 /*! \name  Screen Translation */
-/* \{ */
+/*! \{ */
 /*! \brief translate rotation centre relative to screen axes for nsteps */
 void translate_scene_x(int nsteps);
 /*! \brief translate rotation centre relative to screen axes for nsteps */
 void translate_scene_y(int nsteps);
 /*! \brief translate rotation centre relative to screen axes for nsteps */
 void translate_scene_z(int nsteps);
-/* \} */
+/*! \} */
 
 
 /*  ----------------------------------------------------------------------- */
@@ -4380,7 +4585,7 @@ void translate_scene_z(int nsteps);
 /*  ----------------------------------------------------------------------- */
 /* section Views Interface */
 /*! \name Views Interface */
-/* \{ */
+/*! \{ */
 /*! \brief return the view number */
 int add_view_here(const char *view_name);
 /*! \brief return the view number */
@@ -4440,7 +4645,7 @@ void go_to_view_py(PyObject *view);
 
 /*! \brief Clear the view list */
 void clear_all_views();
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  movies                                                  */
@@ -4448,7 +4653,7 @@ void clear_all_views();
 /* movies */
 /* section Movies Interface */
 /*! \name Movies Interface */
-/* \{ */
+/*! \{ */
 void set_movie_file_name_prefix(const char *file_name);
 void set_movie_frame_number(int frame_number);
 #ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
@@ -4461,14 +4666,14 @@ PyObject *movie_file_name_prefix_py();
 #endif /* c++ */
 int movie_frame_number();
 void set_make_movie_mode(int make_movies_flag);
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  graphics background colour                              */
 /*  ----------------------------------------------------------------------- */
 /* section Background Colour */
 /*! \name Background Colour */
-/* \{ */
+/*! \{ */
 
 /*! \brief set the background colour
 
@@ -4483,14 +4688,14 @@ void redraw_background();
 @return 1 if the background is black (or nearly black),
 else return 0. */
 int  background_is_black_p();
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  ligand fitting stuff                                    */
 /*  ----------------------------------------------------------------------- */
 /* section Ligand Fitting Functions */
 /*! \name   Ligand Fitting Functions */
-/* \{ */
+/*! \{ */
 
 /*! \brief set the fraction of atoms which must be in positive density
   after a ligand fit */
@@ -4585,6 +4790,8 @@ void ligand_expert();
 */
 void do_find_ligands_dialog();
 
+#ifdef __cplusplus
+#ifdef USE_GUILE
 /*! \brief Overlap residue with "template"-based matching.
 
   Overlap the first residue in
@@ -4594,8 +4801,6 @@ void do_find_ligands_dialog();
 @return success status, False = failed to find residue in either
 imol_ligand or imo_ref.  If success, return the RT operator.
 */
-#ifdef __cplusplus
-#ifdef USE_GUILE
 SCM overlap_ligands(int imol_ligand, int imol_ref, const char *chain_id_ref, int resno_ref);
 SCM analyse_ligand_differences(int imol_ligand, int imol_ref, const char *chain_id_ref,
 			       int resno_ref);
@@ -4617,8 +4822,10 @@ PyObject *compare_ligand_atom_types_py(int imol_ligand, int imol_ref, const char
   closely as possible - where there would be an atom name clash, invent
   a new atom name.
  */
-void match_ligand_atom_names(int imol_ligand, const char *chain_id_ligand, int resno_ligand, const char *ins_code_ligand,
-			     int imol_reference, const char *chain_id_reference, int resno_reference, const char *ins_code_reference);
+void match_ligand_atom_names(int imol_ligand,
+			     const char *chain_id_ligand, int resno_ligand, const char *ins_code_ligand,
+			     int imol_reference, const char *chain_id_reference,
+			     int resno_reference, const char *ins_code_reference);
 
 /*! \brief Match ligand atom names to a reference ligand type (comp_id)
 
@@ -4667,14 +4874,14 @@ void flip_ligand(int imol, const char *chain_id, int resno);
 void jed_flip(int imol, const char *chain_id, int res_no, const char *ins_code, const char *atom_name, const char *alt_conf, short int invert_selection);
 
 
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  water fitting                                           */
 /*  ----------------------------------------------------------------------- */
 /* section Water Fitting Functions */
 /*! \name Water Fitting Functions */
-/* \{ */
+/*! \{ */
 
 /*! \brief create a dialog for water fitting */
 void show_create_find_waters_dialog();
@@ -4728,7 +4935,11 @@ void set_ligand_water_to_protein_distance_limits(float f1, float f2);
 void set_ligand_water_n_cycles(int i);
 void set_write_peaksearched_waters();
 
-/*! \brief find blobs  */
+/*! \brief find blobs
+ *
+ * Not useful for MCP. For interactive use only.
+ *
+ * */
 void execute_find_blobs(int imol_model, int imol_for_map, float cut_off, short int interactive_flag);
 
 /* there is also a c++ interface to find blobs, which returns a vector
@@ -4742,18 +4953,24 @@ If there is more than one atom in the specified resiue, don't do
 anything.
 
 If the given atom does not have an alt conf of "", don't do anything.
+
+ @param imol the index of the molecule
+ @param chain_id the chain id
+ @param res_no the residue number
+ @param ins_code the insertion code of the residue
+
  */
 void split_water(int imol, const char *chain_id, int res_no, const char *ins_code);
 
 
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  bond representation                                     */
 /*  ----------------------------------------------------------------------- */
 /* section Bond Representation */
 /*! \name Bond Representation */
-/* \{ */
+/*! \{ */
 
 /*! \brief set the default thickness for bonds (e.g. in ~/.coot)  */
 void set_default_bond_thickness(int t);
@@ -4808,6 +5025,54 @@ void set_draw_hydrogens(int imol, int istat);
 return -1 on bad imol.  */
 int draw_hydrogens_state(int imol);
 
+/*! \brief get hydrogen bonds
+ *
+ * \detailed
+ * For the returned value, an "atom" here looks like:
+ *
+ *    PyDict_SetItemString(at_py, "x", PyFloat_FromDouble(at->x));
+ *    PyDict_SetItemString(at_py, "y", PyFloat_FromDouble(at->y));
+ *    PyDict_SetItemString(at_py, "z", PyFloat_FromDouble(at->z));
+ *    PyDict_SetItemString(at_py, "charge",       PyFloat_FromDouble(at->charge));
+ *    PyDict_SetItemString(at_py, "occ",          PyFloat_FromDouble(at->occupancy));
+ *    PyDict_SetItemString(at_py, "b_iso",        PyFloat_FromDouble(at->tempFactor));
+ *    PyDict_SetItemString(at_py, "element",      myPyString_FromString(at->element));
+ *    PyDict_SetItemString(at_py, "name",         myPyString_FromString(at->name));
+ *    PyDict_SetItemString(at_py, "model",        PyFloat_FromDouble(at->GetModelNum()));
+ *    PyDict_SetItemString(at_py, "chain",        myPyString_FromString(at->GetChainID()));
+ *    PyDict_SetItemString(at_py, "altLoc",       myPyString_FromString(at->altLoc));
+ *    PyDict_SetItemString(at_py, "residue_name", myPyString_FromString(at->GetResidue()->GetResName()));
+ *
+ *    For the returned value, a hydrogen bond looks like this:
+ *
+ *    PyList_SetItem(l, 0, hb_hydrogen_py);       // an atom
+ *    PyList_SetItem(l, 1, donor_py);             // an atom
+ *    PyList_SetItem(l, 2, acceptor_py);          // an atom
+ *    PyList_SetItem(l, 3, donor_neigh_py);       // an atom, possibly None
+ *    PyList_SetItem(l, 4, acceptor_neigh_py);    // an atom, possibly None
+ *
+ *    PyList_SetItem(l, 5, PyFloat_FromDouble(h_bond.angle_1));
+ *    PyList_SetItem(l, 6, PyFloat_FromDouble(h_bond.angle_2));
+ *    PyList_SetItem(l, 7, PyFloat_FromDouble(h_bond.angle_3));
+ *    PyList_SetItem(l, 8, PyFloat_FromDouble(h_bond.dist));
+ *
+ *    PyList_SetItem(l,  9, PyBool_FromLong(h_bond.ligand_atom_is_donor));
+ *    PyList_SetItem(l, 10, PyBool_FromLong(h_bond.hydrogen_is_ligand_atom));
+ *    PyList_SetItem(l, 11, PyBool_FromLong(h_bond.bond_has_hydrogen_flag));
+ *
+ * @param imol the molecule index
+ * @param imol selection_1  the atom selection of the "from" atoms
+ * @param imol selection_2  the atom selection of the "to" atoms.
+ *              Note that often atom_selection_1 and atom_selection_2 are the same,
+ *              e.g. "//A"
+ * @param mcdonald_and_thornton_algoritnm use 0 if the model does not have hydrogen atoms
+                                          use 1 if the model has hydrogen atoms.
+ * @return the hydrogen bonds as a python list object, or False if
+ *         imol is not a valid model molecule
+ *
+ */
+PyObject *get_hydrogen_bonds_py(int imol, const char *selection_1, const char *selection_2, short int mcdonald_and_thornton_algoritnm);
+
 /*! \brief draw little coloured balls on atoms
 
 turn off with state = 0
@@ -4816,9 +5081,13 @@ turn on with state = 1 */
 void set_draw_stick_mode_atoms(int imol, short int state);
 
 /*! \brief set the state for drawing missing resiude loops
-
-For taking screenshots, we often don't want to see them.
-*/
+ *
+ * Used, for example, when taking screenshots, we often
+ * don't want to see them in such cases.
+ * Or maybe there's just too many of them to be useful
+ *
+ * @param state the draw state (0 for "off", 1 for "on")
+ */
 void set_draw_missing_residues_loops(short int state);
 
 /*! \brief draw molecule number imol as CAs */
@@ -4851,7 +5120,15 @@ void graphics_to_b_factor_cas_representation(int imol);
 void graphics_to_occupancy_representation(int imol);
 /*! \brief draw molecule number imol in CA+Ligands mode coloured by user-defined atom colours */
 void graphics_to_user_defined_atom_colours_representation(int imol);
-/*! \brief draw molecule number imol all atoms coloured by user-defined atom colours */
+/*! \brief draw molecule number imol all atoms coloured by user-defined atom colours
+ *
+ * Use this function after using set_user_defined_atom_colour_by_selection_py()
+ * and/or set_user_defined_atom_colour_py().
+ * When atom selection colouring has been created or updated, then calling this function
+ * actually forces the regeneration and drawing of the molecule with the new colour scheme.
+ *
+ * @param imol the molecule index
+ * */
 void graphics_to_user_defined_atom_colours_all_atoms_representation(int imol);
 /*! \brief what is the bond drawing state of molecule number imol  */
 int get_graphics_molecule_bond_type(int imol);
@@ -4968,14 +5245,14 @@ void calculate_hydrogen_bonds(int imol);
 
 void set_draw_hydrogen_bonds(int state);
 
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  dots display                                            */
 /*  ----------------------------------------------------------------------- */
 
 /*! \name Dots Representation */
-/* \{ */
+/*! \{ */
 /*! \brief display dotted surface
 
 return a generic objects handle (which can be used to remove later) */
@@ -5004,7 +5281,7 @@ void clear_dots_by_name(int imol, const char *dots_object_name);
 
 /*! \brief return the number of dots sets for molecule number imol */
 int n_dots_sets(int imol);
-/* \} */
+/*! \} */
 
 
 /*  ----------------------------------------------------------------------- */
@@ -5012,12 +5289,28 @@ int n_dots_sets(int imol);
 /*  ----------------------------------------------------------------------- */
 /* section Pep-flip Interface */
 /*! \name Pep-flip Interface */
-/* \{ */
+/*! \{ */
 void do_pepflip(short int state); /* sets up pepflip, ready for atom pick. */
-/*! \brief pepflip the given residue */
-/* the residue with CO, for scripting interface. */
+
+/*! \brief pepflip (flip the peptide) of the given residue
+ *
+ *  Rotate the the carbonyl C and O atom of this residue and the N of the
+ *  next residue around a vector between the two CA atoms by 180 degrees.
+ *  This is often a useful modelling operation to create a different hypothesis
+ *  about the orientation of the main-chain atoms - that can then be used
+ *  for refinement. This can sometimes allow the model to be removed from
+ *  local minima of backbone conformations.
+ *
+ *  @param imol is the index of the model molecule
+ *  @param chain_id is the chain-id
+ *  @param res_no is the residue number (the residue that has the C and O atoms)
+ *  @param inscode the insertion code (typically "")
+ *  @param altconf the altconf (typically "")
+ *
+ */
 void pepflip(int imol, const char *chain_id, int resno, const char *inscode,
 	     const char *altconf);
+
 int pepflip_intermediate_atoms();
 int pepflip_intermediate_atoms_other_peptide();
 
@@ -5029,14 +5322,14 @@ SCM pepflip_using_difference_map_scm(int imol_coords, int imol_difference_map, f
 PyObject *pepflip_using_difference_map_py(int imol_coords, int imol_difference_map, float n_sigma);
 #endif
 #endif
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  rigid body refinement                                   */
 /*  ----------------------------------------------------------------------- */
 /* section Rigid Body Refinement Interface */
 /*! \name Rigid Body Refinement Interface */
-/* \{ */
+/*! \{ */
 /* a gui-based interface: setup the rigid body refinement.*/
 void do_rigid_body_refine(short int state);	/* set up for atom picking */
 
@@ -5075,14 +5368,14 @@ void execute_rigid_body_refine(short int auto_range_flag); /* atom picking has h
  @param f in the range 0.0 -> 1.0 (default 0.75) */
 void set_rigid_body_fit_acceptable_fit_fraction(float f);
 
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  dynamic map                                             */
 /*  ----------------------------------------------------------------------- */
 /* section Dynamic Map */
 /*! \name Dynamic Map */
-/* \{ */
+/*! \{ */
 void   toggle_dynamic_map_display_size();
 void   toggle_dynamic_map_sampling();
 /* scripting interface: */
@@ -5094,14 +5387,14 @@ void set_dynamic_map_sampling_off();
 int get_dynamic_map_sampling();
 void set_dynamic_map_zoom_offset(int i);
 
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  build one residue by phi/psi search                     */
 /*  ----------------------------------------------------------------------- */
 /* section Add Terminal Residue Functions */
 /*! \name Add Terminal Residue Functions */
-/* \{ */
+/*! \{ */
 void do_add_terminal_residue(short int state);
 /*  execution of this is in graphics_info_t because it uses a mmdb::Residue */
 /*  in the interface and we can't have that in c-interface.h */
@@ -5122,12 +5415,33 @@ call with i=1 for immediate addtion */
 void set_add_terminal_residue_immediate_addition(int i);
 
 /*! \brief Add a terminal residue
+ 
+  Some text here that should be a detailed-description
 
-residue type can be "auto" and immediate_add is recommended to be 1.
-
-@return 0 on failure, 1 on success */
+   @param residue_type can be "auto" 
+   @param immediate_add is recommended to be 1.
+   @return 0 on failure, 1 on success
+*/
 int add_terminal_residue(int imol, const char *chain_id, int residue_number,
                           const char *residue_type, int immediate_add);
+
+/*! \brief Add a residue to a chain or at the end of a fragment
+
+  This can be used to fill a gap of one residue or to fill a gap
+  of multiple residues by being called several times. Probably
+  RSR refinement would be useful after each call to this function in
+  such a case.
+
+  @param imol the molecule index
+  @param chain_id the chain ID
+  @param residue_number the residue number (of the existing residue to attach to)
+  @param residue_type the type for new residue, can be "auto"
+  @param immediate_add is recommended to be 1
+
+   @return 0 on failure, 1 on success
+*/
+int add_residue_by_map_fit(int imol, const char *chain_id, int residue_number,
+                           const char *residue_type, int immediate_add);
 
 /*! \brief Add a terminal nucleotide
 
@@ -5138,8 +5452,13 @@ int add_nucleotide(int imol, const char *chain_id, int res_no);
 
 /*! \brief Add a terminal residue using given phi and psi angles
 
-
-@return the success status, 0 on failure, 1 on success
+  @param imol the molecule index
+  @param chain_id the chain ID
+  @param residue_number the residue number (of the existing residue to attach to
+  @param residue_type can be "auto"
+  @param phi is phi in degrees
+  @param psi is psi in degrees
+  @return the success status, 0 on failure, 1 on success
  */
 int add_terminal_residue_using_phi_psi(int imol, const char *chain_id, int res_no,
 				       const char *residue_type, float phi, float psi);
@@ -5161,7 +5480,7 @@ PyObject *find_terminal_residue_type_py(int imol, const char *chain_id, int resn
 #endif /* PYTHON */
 #endif /* c++ */
 
-/* \} */
+/*! \} */
 
 
 /*  ----------------------------------------------------------------------- */
@@ -5169,10 +5488,10 @@ PyObject *find_terminal_residue_type_py(int imol, const char *chain_id, int resn
 /*  ----------------------------------------------------------------------- */
 /* section Add A Residue Functions */
 /*! \name  Add A Residue Functions */
-/* \{ */
+/*! \{ */
 #ifdef __cplusplus
 
-/* \brief add a residue with atoms in scripting
+/*! \brief add a residue with atoms in scripting
 
   @return the number of atoms added
 */
@@ -5181,7 +5500,7 @@ int add_residue_with_atoms_py(int imol, PyObject *residue_spec, const std::strin
 #endif
 #endif /* c++ */
 
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  delete residue                                          */
@@ -5190,7 +5509,7 @@ int add_residue_with_atoms_py(int imol, PyObject *residue_spec, const std::strin
 /*! \name Delete Residues */
 /* in build */
 /* by graphics */
-/* \{ */
+/*! \{ */
 void delete_atom_by_atom_index(int imol, int index, short int do_delete_dialog);
 void delete_residue_by_atom_index(int imol, int index, short int do_delete_dialog);
 void delete_residue_hydrogens_by_atom_index(int imol, int index, short int do_delete_dialog);
@@ -5198,8 +5517,18 @@ void delete_residue_hydrogens_by_atom_index(int imol, int index, short int do_de
 /*! \brief delete residue range */
 void delete_residue_range(int imol, const char *chain_id, int resno_start, int end_resno);
 
-/*! \brief delete residue  */
-void delete_residue(int imol, const char *chain_id, int resno, const char *inscode);
+/*! \brief delete residue
+ *
+ * @param imol the molecule index
+ * @param chain_id the chain id
+ * @param res_no the residue number
+ * @param inscode the insertion code
+ *
+ * @return 0 on failure to delete, return 1 on residue successfully deleted
+ *
+ * */
+int delete_residue(int imol, const char *chain_id, int res_no, const char *inscode);
+
 /*! \brief delete residue with altconf  */
 void delete_residue_with_full_spec(int imol, int imodel, const char *chain_id, int resno, const char *inscode, const char *altloc);
 #ifdef __cplusplus
@@ -5256,7 +5585,7 @@ short int delete_item_mode_is_chain_p();
 void clear_pending_delete_item(); /* for when we cancel with picking an atom */
 
 
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  rotate/translate buttons                                */
@@ -5303,7 +5632,7 @@ int cis_trans_convert_intermediate_atoms();
 /* section Mainchain Building Functions */
 
 /*! \name Mainchain Building Functions */
-/* \{ */
+/*! \{ */
 void do_db_main(short int state);
 /*! \brief CA -> mainchain conversion
 
@@ -5324,27 +5653,27 @@ Both directions are built. This is the modern interface.
  */
 int db_mainchains_fragment(int imol, const char *chain_id, int res_no);
 
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  close molecule                                          */
 /*  ----------------------------------------------------------------------- */
 /* section Close Molecule Functions */
 /*! \name Close Molecule Functions */
-/* \{ */
+/*! \{ */
 
 /*! \brief close the molecule */
 void close_molecule(int imol);
 
 
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  rotamers                                                */
 /*  ----------------------------------------------------------------------- */
 /* section Rotamer Functions */
 /*! \name Rotamer Functions */
-/* \{ */
+/*! \{ */
 
 /* functions defined in c-interface-build */
 
@@ -5466,13 +5795,13 @@ PyObject *rotamer_graphs_py(int imol);
 #endif /* USE_PYTHON */
 #endif /* c++ */
 
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  180 degree flip                                         */
 /*  ----------------------------------------------------------------------- */
 /*! \name 180 Flip Side chain */
-/* \{ */
+/*! \{ */
 
 /*! \brief rotate 180 degrees around the last chi angle */
 void do_180_degree_side_chain_flip(int imol, const char* chain_id, int resno,
@@ -5484,14 +5813,14 @@ void setup_180_degree_flip(short int state);
 int side_chain_flip_180_intermediate_atoms();
 
 
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  mutate                                                  */
 /*  ----------------------------------------------------------------------- */
 /* section Mutate Functions */
 /*! \name Mutate Functions */
-/* \{ */
+/*! \{ */
 
 /* c-interface-build */
 void setup_mutate(short int state);
@@ -5527,7 +5856,7 @@ onto what is currently residue 21.  The mainchain numbering and atoms is not cha
 @return 0 for failure to nudge (becauese not all the residues were in the range)
         and 1 for success.
 */
-int nudge_residue_sequence(int imol, char *chain_id, int res_no_range_start, int res_no_range_end, int nudge_by, short int nudge_residue_numbers_also);
+int nudge_residue_sequence(int imol, const char *chain_id, int res_no_range_start, int res_no_range_end, int nudge_by, short int nudge_residue_numbers_also);
 
 /*! \brief Do you want Coot to automatically run a refinement after
   every mutate and autofit?
@@ -5550,17 +5879,22 @@ int rotamer_auto_fit_do_post_refine_state();
 
 /*! \brief an alternate interface to mutation of a singe residue.
 
- @return 1 on success, 0 on failure
+   This  function doesnt make backups, but `mutate()` does - CHECKME
+   Hence `mutate()` is for use as a "one-by-one" type and the following
+   2 by wrappers that muate either a residue range or a whole chain.
 
-  ires-ser is the serial number of the residue, not the seqnum
-  There 2 functions don't make backups, but mutate() does - CHECKME
-   Hence mutate() is for use as a "one-by-one" type and the following
-   2 by wrappers that muate either a residue range or a whole chain
+   @param ires_ser is the serial number of the residue, not the seqnum
+   @param chain_id is the chain-id
+   @param imol is the index of the model molecule
+   @param target_res_type is the single-letter-code for the target residue
 
    Note that the target_res_type is a char, not a string (or a char *).
    So from the scheme interface you'd use (for example) hash
-   backslash A for ALA.  */
+   backslash A for ALA.
 
+   @return 1 on success, 0 on failure
+
+*/
 int mutate_single_residue_by_serial_number(int ires_ser,
 					   const char *chain_id,
 					   int imol, char target_res_type);
@@ -5587,7 +5921,7 @@ void set_residue_type_chooser_stub_state(short int istat);
 void handle_residue_type_chooser_entry_chose_type(const char *entry_text, short int stub_mode);
 
 
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  alternate conformation                                  */
@@ -5671,7 +6005,9 @@ void set_pointer_atom_molecule(int imol);
 void set_baton_mode(short int i); /* Mouse movement moves the baton not the view? */
 /*! \brief draw the baton or not */
 int try_set_draw_baton(short int i); /* draw the baton or not */
-/*! \brief accept the baton tip position - a prime candidate for a key binding */
+/*! \brief accept the baton tip position
+
+  a prime candidate for a key binding */
 void accept_baton_position();	/* put an atom at the tip */
 /*! \brief move the baton tip position - another prime candidate for a key binding */
 void baton_tip_try_another();
@@ -5694,7 +6030,7 @@ void set_baton_build_params(int istart_resno, const char *chain_id, const char *
 /*  ----------------------------------------------------------------------- */
 /* section Post-Baton Functions */
 /* c-interface-build */
-/* \brief Reverse the direction of a the fragment of the clicked on
+/*! \brief Reverse the direction of a the fragment of the clicked on
    atom/residue.
 
     A fragment is a consecutive range of residues -
@@ -5735,7 +6071,7 @@ short int draw_crosshairs_state();
 /*  ----------------------------------------------------------------------- */
 /* section Edit Chi Angles */
 /*! \name  Edit Chi Angles */
-/* \{ */
+/*! \{ */
 /* c-interface-build functions */
 void setup_edit_chi_angles(short int state);
 
@@ -5773,14 +6109,14 @@ void toggle_torsion_general_reverse();
 
 void setup_residue_partial_alt_locs(short int state);
 
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  Backrub                                                 */
 /*  ----------------------------------------------------------------------- */
 /*! \name Backrubbing function */
 /*! \{ */
-/* \brief Do a back-rub rotamer search (with autoaccept).
+/*! \brief Do a back-rub rotamer search (with autoaccept).
 
 @return the success status, 0 for fail, 1 for successful fit.  */
 int backrub_rotamer(int imol, const char *chain_id, int res_no,
@@ -5961,7 +6297,7 @@ void pLDDT_to_b_factor(int imol);
 /*  ------------------------------------------------------------------------ */
 /* make the text input to external programs */
 /*! \name External Ray-Tracing */
-/* \{ */
+/*! \{ */
 
 /*! \brief create a r3d file for the current view */
 void raster3d(const char *rd3_filename);
@@ -5999,7 +6335,7 @@ void raster_screen_shot(); /* run raster3d or povray and guile */
 #ifdef USE_PYTHON
 void raster_screen_shot_py(); /* run raster3d or povray and python */
 #endif
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  citation notice                                         */
@@ -6011,18 +6347,30 @@ void citation_notice_off();
 /*  ----------------------------------------------------------------------- */
 /* section Superposition (SSM) */
 /*! \name Superposition (SSM) */
-/* \{ */
+/*! \{ */
 
 /*! \brief simple interface to superposition.
+ *
+ * @param imol1 the reference model index
+ * @param imol2 the index of the superposed molecule
 
-Superpose all residues of imol2 onto imol1.  imol1 is reference, we
-can either move imol2 or copy it to generate a new molecule depending
-on the vaule of move_imol2_flag (1 for copy 0 for move). */
+   Superpose all residues of imol2 onto imol1.  imol1 is reference, we
+   can either move imol2 or copy it to generate a new molecule depending
+   on the vaule of move_imol2_flag (1 for copy 0 for move). */
 void superpose(int imol1, int imol2, short int move_imol2_flag);
 
 
 /*! \brief chain-based interface to superposition.
-
+ *
+ * @param imol1 the reference model index
+ * @param imol2 the index of the superposed molecule
+ * @param chain_imol1 the chain_id of imol1
+ * @param chain_imol2 the chain_id of imol2
+ * @param chain_used_flag_imol1 should the chain-id be used for imol1 (1 for yes, 0 for no)
+ * @param chain_used_flag_imol2 should the chain-id be used for imol2 (1 for yes, 0 for no)
+ * @param move_imol2_coppy_flag flag to control if imol2 is
+ *        copied (1) or moved (0)
+ 
 Superpose the given chains of imol2 onto imol1.  imol1 is reference,
 we can either move imol2 or copy it to generate a new molecule
 depending on the vaule of move_imol2_flag (1 for move 0 for copy). */
@@ -6035,21 +6383,28 @@ void superpose_with_chain_selection(int imol1, int imol2,
 
 /*! \brief detailed interface to superposition.
 
-Superpose the given atom selection (specified by the mmdb atom
-selection strings) of imol2 onto imol1.  imol1 is reference, we can
-either move imol2 or copy it to generate a new molecule depending on
-the vaule of move_imol2_flag (1 for move 0 for copy).
+   Superpose the given atom selection (specified by the mmdb atom
+   selection strings) of imol2 onto imol1.  imol1 is reference, we can
+   either move imol2 or copy it to generate a new molecule depending on
+   the vaule of move_imol2_flag (1 for move 0 for copy).
 
-@return the index of the superposed molecule - which could either be a
-new molecule (if move_imol2_flag was 1) or the imol2 or -1 (signifying
-failure to do the SMM superposition).
+   @return the index of the superposed molecule - which could either be a
+   new molecule (if move_imol2_flag was 1) or the imol2 or -1 (signifying
+   failure to do the SSM superposition).
+ *
+ * @param imol1 the reference model index
+ * @param imol2 the index of the superposed molecule
+ * @param mmdb_atom_sel_str_1 the mmdb-format atom selection for imol1
+ * @param mmdb_atom_sel_str_2 the mmdb-format atom selection for imol2
+ * @param move_imol2_coppy_flag flag to control if imol2 is
+ *        copied (1) or moved (0)
 */
 int superpose_with_atom_selection(int imol1, int imol2,
 				  const char *mmdb_atom_sel_str_1,
 				  const char *mmdb_atom_sel_str_2,
 				  short int move_imol2_copy_flag);
 
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  NCS                                                     */
@@ -6057,7 +6412,7 @@ int superpose_with_atom_selection(int imol1, int imol2,
 /* section NCS */
 /*! \name NCS */
 
-/* \{ */
+/*! \{ */
 /*! \brief set drawing state of NCS ghosts for molecule number imol   */
 void set_draw_ncs_ghosts(int imol, int istate);
 /*! \brief return the drawing state of NCS ghosts for molecule number
@@ -6216,7 +6571,7 @@ PyObject *ncs_ghosts_py(int imol);
 
 #endif	/* __cplusplus */
 
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  Autobuild helices and strands                           */
@@ -6302,7 +6657,7 @@ int find_secondary_structure_local(
     short int use_strand, int strand_length, int strand_target,
     float radius );
 
-/* \} */
+/*! \} */
 
 
 /*  ----------------------------------------------------------------------- */
@@ -6321,7 +6676,7 @@ int find_secondary_structure_local(
 
 int find_nucleic_acids_local( float radius );
 
-/* \} */
+/*! \} */
 
 
 /*  ----------------------------------------------------------------------- */
@@ -6389,7 +6744,7 @@ set_axis_orientation_matrix_usage(int state);
 /* section RNA/DNA */
 /*! \name RNA/DNA */
 
-/* \{ */
+/*! \{ */
 /*!  \brief create a molecule of idea nucleotides
 
 use the given sequence (single letter code)
@@ -6441,14 +6796,14 @@ int watson_crick_pair_for_residue_range(int imol, const char * chain_id, int res
 void setup_base_pairing(int state);
 
 
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  sequence file (assignment)                              */
 /*  ----------------------------------------------------------------------- */
 /* section Sequence File (Assignment/Association) */
 /*! \name Sequence File (Assignment/Association) */
-/* \{ */
+/*! \{ */
 
 /*! \brief Print the sequence to the console of the given molecule */
 void print_sequence_chain(int imol, const char *chain_id);
@@ -6517,14 +6872,14 @@ and the empty list on no alignment mismatches.*/
 PyObject *alignment_mismatches_py(int imol);
 #endif /* USE_PYTHON */
 #endif /* C++ */
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  Surfaces                                                */
 /*  ----------------------------------------------------------------------- */
 /* section Surface Interface */
 /*! \name Surface Interface */
-/* \{ */
+/*! \{ */
 /*! \brief draw surface of molecule number imol
 
 if state = 1 draw the surface (normal representation goes away)
@@ -6548,6 +6903,17 @@ void do_clipped_surface_scm(int imol, SCM residue_specs);
 void do_clipped_surface_py(int imol, PyObject *residue_specs);
 #endif /*  USE_PYTHON */
 #endif	/* __cplusplus */
+
+/*! make molecular surface for given atom selection
+
+    per-chain functions can be added later */
+void make_molecular_surface(int imol, const char *selection_string);
+
+/*! make electrostatics surface for given atom selection
+
+  per-chain functions can be added later */
+void make_electrostatic_surface(int imol, const char *selection_string);
+
 void set_electrostatic_surface_charge_range(float v);
 float get_electrostatic_surface_charge_range();
 
@@ -6560,13 +6926,13 @@ void set_transparent_electrostatic_surface(int imol, float opacity);
 float get_electrostatic_surface_opacity(int imol);
 
 
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  FFfearing                                               */
 /*  ----------------------------------------------------------------------- */
 /*! \name FFFearing */
-/* \{ */
+/*! \{ */
 /*! \brief fffear search model in molecule number imol_model in map
    number imol_map */
 int fffear_search(int imol_model, int imol_map);
@@ -6574,14 +6940,14 @@ int fffear_search(int imol_model, int imol_map);
 void set_fffear_angular_resolution(float f);
 /*! \brief return the fffear angular resolution in degrees */
 float fffear_angular_resolution();
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  remote control                                          */
 /*  ----------------------------------------------------------------------- */
 /* section Remote Control */
 /*! \name Remote Control */
-/* \{ */
+/*! \{ */
 /*! \brief try to make socket listener */
 void make_socket_listener_maybe();
 void set_coot_listener_socket_state_internal(int sock_state);
@@ -6597,7 +6963,7 @@ int get_remote_control_port_number();
 
 /* tooltip */
 void set_tip_of_the_day_flag(int state);
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  Display lists                                           */
@@ -6614,14 +6980,14 @@ int display_lists_for_maps_state();
 
 /* update the maps to the current position - rarely needed */
 void update_maps();
-/* \} */
+/*! \} */
 
 
 /*  ----------------------------------------------------------------------- */
 /*                  Browser Help                                            */
 /*  ----------------------------------------------------------------------- */
 /*! \name Browser Interface */
-/* \{ */
+/*! \{ */
 /*! \brief try to open given url in Web browser */
 void browser_url(const char *url);
 /*! \brief set command to open the web browser,
@@ -6633,7 +6999,7 @@ void set_browser_interface(const char *browser);
 
 find words, construct a url and open it. */
 void handle_online_coot_search_request(const char *entry_text);
-/* \} */
+/*! \} */
 
 // #include "c-interface-generic-objects.h"
 
@@ -6642,7 +7008,7 @@ void handle_online_coot_search_request(const char *entry_text);
 /*                  Molprobity interface                                    */
 /*  ----------------------------------------------------------------------- */
 /*! \name Molprobity Interface */
-/* \{ */
+/*! \{ */
 /*! \brief pass a filename that contains molprobity's probe output in XtalView
 format */
 void handle_read_draw_probe_dots(const char *dots_file);
@@ -6697,14 +7063,14 @@ PyObject *user_mods_py(const char *file_name);
 #endif /* USE_PYTHON */
 #endif	/* c++ */
 
-/* \} */
+/*! \} */
 
 
 /*  ----------------------------------------------------------------------- */
 /*           Sharpen                                                        */
 /*  ----------------------------------------------------------------------- */
 /*! \name Map Sharpening Interface */
-/* \{ */
+/*! \{ */
 /*! \brief Sharpen map imol by b_factor (note (of course) that positive numbers
     blur the map).  */
 void sharpen(int imol, float b_factor);
@@ -6724,7 +7090,7 @@ float optimal_B_kurtosis(int imol);
 /*  ----------------------------------------------------------------------- */
 
 /*! \name Intermediate Atom Manipulation Interface */
-/* \{ */
+/*! \{ */
 #ifdef __cplusplus
 #ifdef USE_GUILE
 SCM drag_intermediate_atom_scm(SCM atom_spec, SCM position);
@@ -6744,14 +7110,14 @@ PyObject *add_target_position_restraint_for_intermediate_atom_py(PyObject *atom_
 PyObject *add_target_position_restraints_for_intermediate_atoms_py(PyObject *atom_spec_position_list);
 #endif
 #endif /* c++ */
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*           Fixed Atom Manipulation                                        */
 /*  ----------------------------------------------------------------------- */
 
 /*! \name Marking Fixed Atom Interface */
-/* \{ */
+/*! \{ */
 #ifdef __cplusplus
 #ifdef USE_GUILE
 SCM mark_atom_as_fixed_scm(int imol, SCM atom_spec, int state);
@@ -6772,23 +7138,23 @@ void clear_fixed_atoms_all();
 /* produce debugging output from problematic atom picking  */
 void set_debug_atom_picking(int istate);
 
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  Partial Charge                                          */
 /*  ----------------------------------------------------------------------- */
 /*! \name Partial Charges */
-/* \{ */
+/*! \{ */
 /*! \brief show the partial charges for the residue of the given specs
    (charges are read from the dictionary) */
 void show_partial_charge_info(int imol, const char *chain_id, int resno, const char *ins_code);
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  EM Interface                                            */
 /*  ----------------------------------------------------------------------- */
 /*! \name EM interface */
-/* \{ */
+/*! \{ */
 /*! \brief Scale the cell, for use with EM maps, where the cell needs
    to be adjusted.  Use like:  (scale-cell 2 1.012 1.012 1.012). Return error
    status, 1 means it worked, 0 means it did not work. */
@@ -6807,14 +7173,14 @@ void map_histogram(int imol_map);
 /*! \brief ignore pseudo-zeros when calculationg maps stats (default 1 = true) */
 void set_ignore_pseudo_zeros_for_map_stats(short int state);
 
-/* \} */
+/*! \} */
 
 
 /*  ----------------------------------------------------------------------- */
 /*                  CCP4i Interface                                         */
 /*  ----------------------------------------------------------------------- */
 /*! \name CCP4mg Interface */
-/* \{ */
+/*! \{ */
 #ifdef __cplusplus
 #ifdef USE_GUILE
 /*! \brief return a list of pairs of strings, the project names and
@@ -6836,13 +7202,13 @@ void set_add_ccp4i_projects_to_file_dialogs(short int state);
 /*! \brief write a ccp4mg picture description file */
 void write_ccp4mg_picture_description(const char *filename);
 
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  Dipoles                                                 */
 /*  ----------------------------------------------------------------------- */
 /*! \name Dipoles */
-/* \{ */
+/*! \{ */
 void delete_dipole(int imol, int dipole_number);
 #ifdef __cplusplus
 #ifdef USE_GUILE
@@ -6861,7 +7227,7 @@ PyObject *add_dipole_py(int imol, const char* chain_id, int res_no,
 PyObject *add_dipole_for_residues_py(int imol, PyObject *residue_specs);
 #endif /* USE_PYTHON */
 #endif /* c++ */
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  Patterson                                               */
@@ -6883,23 +7249,16 @@ int make_and_draw_patterson_using_intensities(const char *mtz_file_name,
 /*                  Laplacian                                               */
 /*  ----------------------------------------------------------------------- */
 /*! \name Aux functions */
-/* \{ */
+/*! \{ */
 /*! \brief Create the "Laplacian" (-ve second derivative) of the given map. */
 int laplacian (int imol);
-/* \} */
-
-/*  ----------------------------------------------------------------------- */
-/*                  Tips                                                    */
-/*  ----------------------------------------------------------------------- */
-/*! \name Tips Interface */
-/* \{ */
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  PKGDATADIR                                              */
 /*  ----------------------------------------------------------------------- */
 /*! \name PKGDATADIR */
-/* \{ */
+/*! \{ */
 #ifdef __cplusplus
 #ifdef USE_PYTHON
 PyObject *get_pkgdatadir_py();
@@ -6909,16 +7268,16 @@ PyObject *get_pkgdatadir_py();
 SCM get_pkgdatadir_scm();
 #endif
 #endif /*  __cplusplus */
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  SMILES                                                  */
 /*  ----------------------------------------------------------------------- */
 /*! \name SMILES */
-/* \{ */
+/*! \{ */
 /*! \brief display the SMILES string dialog */
 void do_smiles_gui();
-/* \} */
+/*! \} */
 /*  ----------------------------------------------------------------------- */
 /*                  Fun                                                     */
 /*  ----------------------------------------------------------------------- */
@@ -6929,17 +7288,17 @@ void do_tw();
 /*                  Phenix Support                                          */
 /*  ----------------------------------------------------------------------- */
 /*! \name PHENIX Support */
-/* \{ */
+/*! \{ */
 /*! \brief set the button label of the external Refinement program */
 void set_button_label_for_external_refinement(const char *button_label);
-/* \} */
+/*! \} */
 
 
 /*  ----------------------------------------------------------------------- */
 /*                  Text                                                    */
 /*  ----------------------------------------------------------------------- */
 /*! \name Graphics Text */
-/* \{ */
+/*! \{ */
 /*! \brief Put text at x,y,z
 
 @return a text handle
@@ -6955,19 +7314,19 @@ void edit_text(int text_handle, const char *new_text);
 /*! \brief return the closest text that is with r A of the given
   position.  If no text item is close, then return -1 */
 int text_index_near_position(float x, float y, float z, float r);
-/* \} */
+/*! \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  PISA Interface                                      */
 /*  ----------------------------------------------------------------------- */
 /*! \name PISA Interaction */
-/* \{ */
+/*! \{ */
 /*! \brief return the molecule number of the interacting
   residues. Return -1 if no new model was created. Old, not very useful. */
 int pisa_interaction(int imol_1, int imol_2);
 #ifdef __cplusplus
 #ifdef USE_GUILE
-/* \brief the scripting interface, called from parsing the PISA XML
+/*! \brief the scripting interface, called from parsing the PISA XML
    interface description
 
    An interface_description_scm is a record detailing the interface.
@@ -6992,7 +7351,7 @@ void add_pisa_interface_bond_scm(int imol_1, int imol_2, SCM pisa_bond_scm,
 void pisa_clear_interfaces();
 #endif /* USE_GUILE */
 #ifdef USE_PYTHON
-/* \brief the scripting interface, called from parsing the PISA XML
+/*! \brief the scripting interface, called from parsing the PISA XML
    interface description
 
    An interface_description_scm is a record detailing the interface.
@@ -7026,17 +7385,20 @@ void pisa_clear_interfaces();
 /*  ----------------------------------------------------------------------- */
 /*! \name Jiggle Fit */
 /*! \{ */
-/*!  \brief jiggle fit to the current refinment map.  return < -100 if
-  not possible, else return the new best fit for this residue.  */
+
+/*!  \brief jiggle fit to the current refinment map
+ *
+ * @return < -100 if not possible, else return the new best fit for this residue.  */
 float fit_to_map_by_random_jiggle(int imol, const char *chain_id, int resno, const char *ins_code,
                                   int n_trials, float jiggle_scale_factor);
 
 /*!  \brief jiggle fit the molecule to the current refinment map.  return < -100 if
   not possible, else return the new best fit for this molecule.  */
 float fit_molecule_to_map_by_random_jiggle(int imol, int n_trials, float jiggle_scale_factor);
-/*!  \brief jiggle fit the molecule to the current refinment map.  return < -100 if
-  not possible, else return the new best fit for this molecule - create a map that is blurred
-  by the given factor for fitting  */
+/*!  \brief jiggle fit the molecule to the current refinment map
+ * @return < -100 if
+ *  not possible, else return the new best fit for this molecule - create a map that is blurred
+ *  by the given factor for fitting  */
 float fit_molecule_to_map_by_random_jiggle_and_blur(int imol, int n_trials, float jiggle_scale_factor, float map_blur_factor);
 
 /*!  \brief jiggle fit the chain to the current refinment map.  return < -100 if
@@ -7046,8 +7408,19 @@ float fit_chain_to_map_by_random_jiggle(int imol, const char *chain_id, int n_tr
 /*!  \brief jiggle fit the chain to the current refinment map
  *
  * Use a map that is blurred by the give factor for fitting.
+ *
  * @return < -100 if not possible, else return the new best fit for this chain.  */
 float fit_chain_to_map_by_random_jiggle_and_blur(int imol, const char *chain_id, int n_trials, float jiggle_scale_factor, float map_blur_factor);
+
+/*! \brief Patterson overlap plus phased translationn function MR-like local fitting
+ *
+ * Use the imol_refinement map
+ *
+ * @param imol the molecule index
+ * @param n_top_rotations use only the top n_top_rotations rotation solutions
+ * @param n_top_translations use only the top n_top_translation translation solutions
+ * */
+void molecular_replacement_fit_about_screen_centre(int imol, int n_top_rotations, int n_top_translations);
 
 /*! \} */
 
@@ -7113,23 +7486,8 @@ void set_add_linked_residue_do_fit_and_refine(int state);
 /*  ----------------------------------------------------------------------- */
 /*! \name FLE-View */
 /*! \{ */
-void fle_view_internal(int imol, const char *chain_id, int res_no,
-		       const char *ins_code,
-		       int imol_ligand_fragment,
-		       const char *prodrg_output_flat_mol_file_name,
-		       const char *prodrg_output_flat_pdb_file_name,
-		       const char *prodrg_output_3d_pdb_file_name,
-		       const char *prodrg_output_dict_cif_file_name);
-/* for command-line operation */
-void fle_view_internal_to_png(int imol, const char *chain_id, int res_no,
-			      const char *ins_code,
-			      int imol_ligand_fragment,
-			      const char *prodrg_output_flat_mol_file_name,
-			      const char *prodrg_output_flat_pdb_file_name,
-			      const char *prodrg_output_3d_pdb_file_name,
-			      const char *prodrg_output_dict_cif_file_name,
-			      int output_to_png_file_flag,
-			      const char *png_file_name);
+
+void fle_view(int imol, const char *chain_id, int res_no, const char *ins_code, float dist_max);
 
 void fle_view_with_rdkit(int imol, const char *chain_id, int res_no, const char *ins_code, float residues_near_radius);
 void fle_view_with_rdkit_to_png(int imol, const char *chain_id, int res_no, const char *ins_code, float residues_near_radius, const char *png_file_name);
@@ -7195,7 +7553,16 @@ void set_visible_toolbar_multi_refine_cancel_button(short int state);
 /* button_type is one of "stop", "continue", "cancel"
    state is 1 for on, 0 for off. */
 void toolbar_multi_refine_button_set_sensitive(const char *button_type, short int state);
-/*! \brief load tutorial model and data  */
+
+/*! \brief load tutorial model and data
+ *
+ * Loads an example dataset - the sample is an RNase structure (model and maps) and is
+ * used for learning and testing.
+ *
+ * This is the standard Coot tutorial dataset for practicing model building
+ * and validation.
+ *
+ * */
 void load_tutorial_model_and_data();
 
 
@@ -7268,9 +7635,134 @@ void start_ligand_builder_gui();
 SCM all_molecule_rotamer_score(int imol);
 SCM all_molecule_ramachandran_score(int imol); /* a stub currently */
 #endif /* USE_GUILE */
+
 #ifdef USE_PYTHON
+/**
+ * @brief Compute rotamer score for an entire molecule and return result as a Python object.
+ *
+ * This wrapper computes the rotamer score information for molecule number @p imol
+ * and returns a Python list containing the numeric score and the number of
+ * rotamer-bearing residues.
+ *
+ * Parameters
+ * ----------
+ * @param imol
+ *     Model (molecule) index to analyze.
+ *
+ * Return value
+ * ------------
+ * Returns a NEW reference to a Python object. Two possible outcomes:
+ *
+ * - Success: a Python list of length 2 (PyList), with elements:
+ *     0 : float — overall rotamer score (PyFloat)
+ *     1 : int   — number of rotamer residues considered (PyLong)
+ *
+ * - Failure / invalid model index: Py_False (Python False).
+ *   The implementation INCREFs Py_False before returning, so the caller receives
+ *   a new reference in the failure case as well.
+ *
+ * Reference counting
+ * -----------------
+ * The returned PyObject* is a new reference. The caller is responsible for
+ * DECREFing it when finished.
+ *
+ * Notes
+ * -----
+ * - Callers should detect the failure case by testing with PyBool_Check (Py_False).
+ * - Ensure the Python GIL is held when calling this function from non-Python threads.
+ */
 PyObject *all_molecule_rotamer_score_py(int imol);
+#endif /* USE_PYTHON */
+
+#ifdef USE_PYTHON
+/**
+ * @brief Compute overall and per-residue Ramachandran statistics for a molecule and
+ *        return the results as a Python object.
+ *
+ * This wrapper gathers the Ramachandran score information computed for molecule
+ * number @p imol and returns a Python list with six elements describing the
+ * overall scores and per-residue details.
+ *
+ * Parameters
+ * ----------
+ * @param imol
+ *     Model (molecule) index to analyze.
+ *
+ * Return value
+ * ------------
+ * @return a NEW reference to a Python object. Two possible outcomes:
+ *
+ * - Success: a Python list of length 6 (PyList), with elements:
+ *     0 : float   — overall Ramachandran score (PyFloat)
+ *     1 : int     — number of residues considered (PyLong)
+ *     2 : float   — Ramachandran score restricted to non-secondary-structure residues (PyFloat)
+ *     3 : int     — number of residues used for the non-secondary-structure score (PyLong)
+ *     4 : int     — number of zero-score residues (PyLong)
+ *     5 : list    — info_by_residue: a list with one entry per residue (length == number of residues).
+ *                     Each entry is either:
+ *                       - a list of four items:
+ *                           [ phi_psi_list, residue_spec_py, residue_score, res_names_list ]
+ *                             * phi_psi_list: list of two floats [phi, psi]
+ *                             * residue_spec_py: Python representation of the residue spec (see residue_spec_to_py)
+ *                             * residue_score: float (PyFloat)
+ *                             * res_names_list: list of three strings [prev_res_name, this_res_name, next_res_name]
+ *                       - the integer -1 as a placeholder if per-residue info could not be computed for that index.
+ *
+ * - Failure / invalid model index: Py_False (Python False). The implementation INCREFs Py_False before returning,
+ *   so the caller receives a new reference in this case as well.
+ *
+ * Reference counting
+ * -----------------
+ * The returned PyObject* is a new reference. The caller is responsible for DECREFing it when finished.
+ *
+ * Notes
+ * -----
+ * - Callers should check the return with PyBool_Check to detect the failure case (Py_False).
+ * - Some per-residue entries may be -1 (an integer) if residue data was unavailable.
+ * - The function must be called with appropriate GIL handling if invoked from non-Python threads.
+ */
+
 PyObject *all_molecule_ramachandran_score_py(int imol); /* a stub currently */
+#endif /* USE_PYTHON */
+
+#ifdef USE_PYTHON
+/**
+ * @brief Return the Ramachandran region annotation for a molecule as a Python list.
+ *
+ * This wrapper returns per-residue region information computed for molecule @p imol.
+ * It queries the internal Ramachandran scoring machinery and returns a Python list
+ * of (residue_spec, region_int) pairs for residues that lie in the computed region.
+ *
+ * Parameters
+ * ----------
+ * @param imol
+ *     Model (molecule) index to query.
+ *
+ * Return value
+ * ------------
+ * Returns a NEW reference to a Python object. There are two possible outcomes:
+ *
+ * - Success: a Python list (PyList) of length N > 0, where each element is a 2-tuple:
+ *     ( residue_spec_py, region_code )
+ *     * residue_spec_py: Python representation of the residue spec (as produced by residue_spec_to_py).
+ *     * region_code: integer (PyLong) — the integer label associated with that residue's Ramachandran region
+ *       (as provided by the underlying rama score/region computation).
+ *
+ * - Failure / no region entries / invalid model index: Py_False (Python False).
+ *   The implementation INCREFs Py_False before returning, so the caller receives a new reference
+ *   in this case as well.
+ *
+ * Reference counting
+ * -----------------
+ * The returned PyObject* is a new reference. The caller is responsible for DECREFing it when finished.
+ *
+ * Notes
+ * -----
+ * - Callers should detect the failure/empty case by testing with PyBool_Check (Py_False).
+ * - The exact meaning of the integer region_code is defined by the internal Ramachandran scoring code;
+ *   consult the implementation or documentation for interpretation of region codes.
+ * - Ensure the Python GIL is held when calling this function from non-Python threads.
+ */
 PyObject *all_molecule_ramachandran_region_py(int imol);
 #endif /* USE_PYTHON */
 #endif /* __cplusplus */
@@ -7279,15 +7771,19 @@ PyObject *all_molecule_ramachandran_region_py(int imol);
 
 This is not guaranteed to generate the correct biological entity, but will bring together
 molecules (chains/domains) that are dispersed throughout the unit cell.
-  */
+
+@param imol the molecule index.
+*/
 void globularize(int imol);
 
+#ifdef __cplusplus
+#ifdef USE_GUILE
 /*!
 
     20100616 This doesn't get into the doxygen documentation for some
     reason I can't figure out.
 
-    \fn user_defined_click_scm(int n_clicks, SCM func);
+    \fn user_defined_click_py(int n_clicks, SCM func);
 
     \brief run a user defined function
 
@@ -7295,8 +7791,6 @@ void globularize(int imol);
       n_clicked atom picks.  func is called with a list of atom
       specifiers - with leading molecule number.
 */
-#ifdef __cplusplus
-#ifdef USE_GUILE
 void user_defined_click_scm(int n_clicks, SCM func);
 #endif
 #ifdef USE_PYTHON

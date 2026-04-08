@@ -49,12 +49,12 @@
 #include <string>
 
 #include <mmdb2/mmdb_manager.h>
-#include "coords/mmdb-extras.h"
-#include "coords/mmdb.hh"
-#include "coords/mmdb-crystal.h"
 
-#include "coords/Cartesian.h"
-#include "coords/Bond_lines.h"
+#include "coords/mmdb-extras.hh"
+#include "coords/mmdb.hh"
+#include "coords/mmdb-crystal.hh"
+#include "coords/Cartesian.hh"
+#include "coords/Bond_lines.hh"
 
 #include "graphics-info.h"
 
@@ -227,7 +227,7 @@ GtkWidget *wrapped_create_delete_item_dialog() {
 // move_molecule_here_big_molecules_checkbutton.
 //
 void
-fill_move_molecule_here_dialog(GtkWidget *w) {
+fill_move_molecule_here_frame(GtkWidget *w) {
 
    // // GtkWidget *option_menu  = lookup_widget(w, "move_molecule_here_optionmenu");
 
@@ -595,11 +595,11 @@ void recover_session() {
    int i_rec = 0;
    for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
       if (graphics_info_t::molecules[imol].has_model()) {
-	 coot::backup_file_info info =
-	    graphics_info_t::molecules[imol].recent_backup_file_info();
-	 if (info.status) {
+	 coot::backup_file_info_t info = graphics_info_t::molecules[imol].recent_backup_file_info();
 
-	    coot::backup_file_info *info_copy = new coot::backup_file_info;
+	 if (info.valid_status) {
+
+	    coot::backup_file_info_t *info_copy = new coot::backup_file_info_t;
 	    *info_copy = info;
 	    info_copy->imol = imol;
 
@@ -630,8 +630,8 @@ void recover_session() {
 //
 void execute_recover_session(GtkWidget *widget) {
 
-   coot::backup_file_info *info =
-      (coot::backup_file_info *) g_object_get_data(G_OBJECT(widget), "backup_file_info");
+   coot::backup_file_info_t *info =
+      (coot::backup_file_info_t *) g_object_get_data(G_OBJECT(widget), "backup_file_info");
 
    if (info) {
 
@@ -668,6 +668,9 @@ GtkWidget *wrapped_create_merge_molecules_dialog() {
 
    GCallback checkbox_callback_func = G_CALLBACK(nullptr);
 
+   graphics_info_t g;
+   g.clear_out_container(molecules_vbox);
+
    // the molecules vbox
    fill_vbox_with_coordinates_options(molecules_vbox, checkbox_callback_func);
 
@@ -681,8 +684,6 @@ GtkWidget *wrapped_create_merge_molecules_dialog() {
 	      }
       }
    }
-
-   graphics_info_t g;
 
    // 20220326-PE  this should be a member function of graphics_info_t and indeed should be
    // used in fill_combobox_with_model_molecule_options which wraps
@@ -1629,15 +1630,35 @@ wrapped_create_fast_ss_search_dialog() {
 /* ------------------------------------------------------------------------ */
 void do_edit_copy_molecule() {
 
-   std::string cmd = "import coot; import coot_gui; coot_gui.molecule_chooser_gui(\"Molecule to Copy...\", lambda imol: coot.copy_molecule(imol))";
-   safe_python_command(cmd);
+   auto get_molecule_vector = [] () {
+
+      graphics_info_t g;
+      std::vector<int> vec;
+      int n_mol = g.n_molecules();
+      for (int i=0; i<n_mol; i++) {
+	 if (g.is_valid_model_molecule(i))
+	    vec.push_back(i);
+	 if (g.is_valid_map_molecule(i))
+	    vec.push_back(i);
+      }
+      return vec;
+   };
+
+   GtkWidget *frame    = widget_from_builder("copy-molecule-frame");
+   GtkWidget *combobox = widget_from_builder("copy_molecule_comboboxtext");
+   gtk_widget_set_visible(frame, TRUE);
+   auto molecule_list = get_molecule_vector();
+   int imol_active = -1;
+   GCallback func = G_CALLBACK(nullptr); // we don't care until this dialog is read
+   graphics_info_t g;
+   g.fill_combobox_with_molecule_options(combobox, func, imol_active, molecule_list);
 
 }
 
 void  do_edit_copy_fragment() {
 
    graphics_info_t g;
-   GtkWidget *dialog = widget_from_builder("copy_fragment_dialog");
+   GtkWidget *frame = widget_from_builder("copy_fragment_frame");
    GtkWidget *vbox   = widget_from_builder("copy_fragment_vbox");
    int imol_active = g.get_active_atom().first;
 
@@ -1645,37 +1666,28 @@ void  do_edit_copy_fragment() {
    };
 
 
-#if (GTK_MAJOR_VERSION >= 4)
-
    GtkWidget *combobox_molecule = widget_from_builder("copy_fragment_combobox"); // its a GtkComboBoxText
    GCallback callback_func = G_CALLBACK(NULL); // combobox is only used when it's read on OK response
 
    // new_fill_combobox_with_coordinates_options() doesn't set the active item - I don't understand why.
    g.new_fill_combobox_with_coordinates_options(combobox_molecule, callback_func, imol_active);
-   g_object_set_data(G_OBJECT(dialog), "combobox", combobox_molecule); // for reading. 20220828-PE still needed?
-   set_transient_for_main_window(dialog);
-   gtk_widget_set_visible(dialog, TRUE);
+   g_object_set_data(G_OBJECT(frame), "combobox", combobox_molecule); // for reading. 20220828-PE still needed?
+   set_transient_for_main_window(frame);
+   gtk_widget_set_visible(frame, TRUE);
 
-#else
-   // For the moment keep this block for reference
-   // gtk_container_foreach(GTK_CONTAINER(vbox), my_delete_box_items, vbox);
-   // GtkWidget *combobox = gtk_combo_box_new();
-   // gtk_box_pack_start(GTK_BOX(vbox), combobox, FALSE, FALSE, 4);
-   // gtk_box_reorder_child(GTK_BOX(vbox), combobox, 1);
-   // GCallback callback_func = G_CALLBACK(NULL); // combobox is only used when it's read on OK response
-   // g.new_fill_combobox_with_coordinates_options(combobox, callback_func, imol);
-   // g_object_set_data(G_OBJECT(dialog), "combobox", combobox); // for reading
-   // gtk_widget_set_visible(combobox, TRUE);
-   // gtk_widget_set_visible(dialog, TRUE);
-
-#endif
-
-   // the dialog response callback for this is on_copy_fragment_dialog_response_gtkbuilder_callback()
+   // the dialog response callback for this is on_copy_fragment_dialog_response()
 
 }
 
 
-void  do_edit_replace_fragment() {
+// 20240930-PE remove the usage of scripting from this function
+// Make it an overlay
+void do_edit_replace_fragment() {
+
+   // Molecule Working     [molecule chooser] # needs updating
+   // Molecule Reference   [molecule chooser] # contains the fragment to be copied
+   // Atom Selection       [________________]
+   //                        Cancel   Replace
 
 
 #ifdef USE_PYTHON

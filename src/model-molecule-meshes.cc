@@ -25,11 +25,13 @@
  */
 
 // #include <glm/ext.hpp>
-#define GLM_ENABLE_EXPERIMENTAL // # for to_string()
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>  // to_string()
+
 #include "model-molecule-meshes.hh"
 #include "api/make-instanced-graphical-bonds.hh" // make_instanced_graphical_bonds_spherical_atoms() etc
 #include "generic-vertex.hh"
+#include "stereo-eye.hh"
 
 #include "graphics-info.h" // for get_residue - used for Rotamer markup.
 
@@ -85,31 +87,7 @@ model_molecule_meshes_t::draw_for_ssao(Shader *shader_for_meshes_p,
 
 
 void
-model_molecule_meshes_t::make_graphical_bonds(int imol, const graphical_bonds_container &bonds_box,
-                                              float atom_radius, float bond_radius,
-                                              int num_subdivisions, int n_slices, int n_stacks,
-                                              const std::vector<glm::vec4> &colour_table) {
-
-   // first clear the buffers of what we ready (might) have
-   instanced_meshes.clear();
-   simple_mesh.clear();
-   im.clear();
-
-   // api functions
-   coot::api_bond_colour_t dummy_bonds_box_type(coot::api_bond_colour_t::NORMAL_BONDS);
-
-   // std::cout << "calling make_instanced_graphical_bonds_spherical_atoms() with atom_radius " << atom_radius << std::endl;
-   // Atom radii are limited to 2.0
-   make_instanced_graphical_bonds_spherical_atoms(im, bonds_box, dummy_bonds_box_type, atom_radius, bond_radius,
-                                                  num_subdivisions, colour_table);
-   make_instanced_graphical_bonds_bonds(im, bonds_box, bond_radius, n_slices, n_stacks, colour_table);
-   make_graphical_bonds_cis_peptides(im.markup, bonds_box);
-   add_rotamer_dodecs(imol, bonds_box);
-   add_ramachandran_spheres(imol, bonds_box);
-
-   
-   // ===================================== now convert instancing.hh meshes to src style "Mesh"es =======================
-
+model_molecule_meshes_t::convert_and_fill_meshes(const coot::instanced_mesh_t &im) {
 
    for (unsigned int i_g=0; i_g<im.geom.size(); i_g++) {
       const coot::instanced_geometry_t &ig = im.geom[i_g];
@@ -184,6 +162,89 @@ model_molecule_meshes_t::make_graphical_bonds(int imol, const graphical_bonds_co
       simple_mesh.setup_buffers();
    }
 }
+
+void
+model_molecule_meshes_t::make_graphical_bonds(int imol, const graphical_bonds_container &bonds_box,
+                                              float atom_radius, float bond_radius,
+                                              bool show_atoms_as_aniso_flag,
+                                              float aniso_probability,
+                                              bool show_aniso_atoms_as_ortep_flag,
+                                              bool show_aniso_atoms_as_empty_flag,
+                                              int num_subdivisions, int n_slices, int n_stacks,
+                                              const std::vector<glm::vec4> &colour_table) {
+
+   //    std::cout << "DEBUG:: in model_molecule_meshes_t::make_graphical_bonds()) with show_aniso_atoms_as_ortep_flag "
+   // << show_aniso_atoms_as_ortep_flag << std::endl;
+
+   // who calls this function?
+
+   // first clear the buffers of what we ready (might) have
+   instanced_meshes.clear();
+   simple_mesh.clear();
+   im.clear();
+
+   // api functions
+   coot::api_bond_colour_t dummy_bonds_box_type(coot::api_bond_colour_t::NORMAL_BONDS);
+
+   // std::cout << "calling make_instanced_graphical_bonds_spherical_atoms() with atom_radius " << atom_radius << std::endl;
+   // Atom radii are limited to 2.0
+
+   // these are in api/coot-molecule-bonds-instanced
+   make_instanced_graphical_bonds_spherical_atoms(im, bonds_box, dummy_bonds_box_type, atom_radius, bond_radius,
+                                                  show_atoms_as_aniso_flag, aniso_probability,
+                                                  show_aniso_atoms_as_ortep_flag,
+                                                  show_aniso_atoms_as_empty_flag,
+                                                  num_subdivisions, colour_table);
+   make_instanced_graphical_bonds_bonds(im, bonds_box, bond_radius, n_slices, n_stacks, colour_table);
+   make_graphical_bonds_cis_peptides(im.markup, bonds_box);
+   add_rotamer_dodecs(imol, bonds_box);
+   add_ramachandran_spheres(imol, bonds_box);
+
+   // ===================================== now convert instancing.hh meshes to src style "Mesh"es =======================
+
+   convert_and_fill_meshes(im); // fill class data meshes
+
+}
+
+
+void
+model_molecule_meshes_t::make_symmetry_bonds(int imol,
+                                             const std::vector<std::pair<graphical_bonds_container, std::pair<symm_trans_t, Cell_Translation> > > &symmetry_bonds_box,
+                                             float atom_radius, float bond_radius,
+                                             int num_subdivisions, int n_slices, int n_stacks,
+                                             const std::vector<glm::vec4> &colour_table) {
+
+   auto debug_instancing_meshes = [] (const coot::instanced_mesh_t &im) {
+      std::cout << "im has " << im.geom.size() << " geoms" << std::endl;
+      for (unsigned int ig=0; ig<im.geom.size(); ig++) {
+         unsigned int n_A = im.geom[ig].instancing_data_A.size();
+         unsigned int n_B = im.geom[ig].instancing_data_B.size();
+         std::cout << "   geom " << ig << " has " << im.geom[ig].vertices.size() << " vertices and "
+                   << im.geom[ig].triangles.size() << " triangles "
+                   << n_A << " type A instances and " << n_B << " type B instances" << std::endl;
+      }
+   };
+
+   // each symmetry_bonds item the vector needs to be tested with:
+   // if (gbc.symmetry_has_been_created == 1)
+   // before looping through the colours
+
+   instanced_meshes.clear();
+   im.clear();
+   for (unsigned int i=0; i<symmetry_bonds_box.size(); i++) {
+      const std::pair<graphical_bonds_container, std::pair<symm_trans_t, Cell_Translation> > &s_box = symmetry_bonds_box[i];
+      const graphical_bonds_container &gbc = s_box.first;
+      if (gbc.symmetry_has_been_created == 1) {
+         make_instanced_graphical_symmetry_bonds_bonds(im, s_box, bond_radius, n_slices, n_stacks, colour_table);
+      } else {
+         // std::cout << "DEBUG:: skip this box" << std::endl;
+      }
+   }
+
+   // debug_instancing_meshes(im);
+   convert_and_fill_meshes(im); // fill class data meshes
+}
+
 
 mmdb::Residue *
 model_molecule_meshes_t::get_residue(int imol, const coot::residue_spec_t &spec) const {
@@ -391,6 +452,7 @@ model_molecule_meshes_t::make_bond_lines(const graphical_bonds_container &bonds_
 void
 model_molecule_meshes_t::draw(Shader *shader_mesh,
                               Shader *shader_for_instanced_mesh,
+                              stereo_eye_t eye,
                               const glm::mat4 &mvp,
                               const glm::mat4 &view_rotation_matrix,
                               const std::map<unsigned int, lights_info_t> &lights,
@@ -403,13 +465,14 @@ model_molecule_meshes_t::draw(Shader *shader_mesh,
 
    bool transferred_colour_is_instanced = true;
    glm::vec3 dummy_rc(0,0,0);
-   draw_instances(shader_for_instanced_mesh, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog, transferred_colour_is_instanced);
-   draw_simple(shader_mesh, mvp, view_rotation_matrix, lights, eye_position, dummy_rc, opacity, background_colour, gl_lines_mode, do_depth_fog, show_just_shadows);
+   draw_instances(shader_for_instanced_mesh, eye, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog, transferred_colour_is_instanced);
+   draw_simple(shader_mesh, eye, mvp, view_rotation_matrix, lights, eye_position, dummy_rc, opacity, background_colour, gl_lines_mode, do_depth_fog, show_just_shadows);
 
 }
 
 void
 model_molecule_meshes_t::draw_instances(Shader *shader_for_instanced_meshes_p,
+                                        stereo_eye_t eye,
                                         const glm::mat4 &mvp,
                                         const glm::mat4 &view_rotation_matrix,
                                         const std::map<unsigned int, lights_info_t> &lights,
@@ -432,7 +495,7 @@ model_molecule_meshes_t::draw_instances(Shader *shader_for_instanced_meshes_p,
          std::cout << "   calling mesh.draw_instanced() \"" << mesh.name << "\" with shader "
                    << "\"" << shader_for_instanced_meshes_p->name << "\"" << std::endl;
       int pass_type = graphics_info_t::PASS_TYPE_WITH_SHADOWS; // is this right?
-      mesh.draw_instanced(pass_type, shader_for_instanced_meshes_p, mvp, view_rotation_matrix, lights, eye_position, background_colour,
+      mesh.draw_instanced(pass_type, shader_for_instanced_meshes_p, eye, mvp, view_rotation_matrix, lights, eye_position, background_colour,
                           do_depth_fog, transferred_colour_is_instanced,
                           do_pulse, do_rotate_z, pulsing_amplitude, pulsing_frequency,
                           pulsing_phase_distribution, z_rotation_angle);
@@ -443,6 +506,7 @@ model_molecule_meshes_t::draw_instances(Shader *shader_for_instanced_meshes_p,
 // the (previous) Mesh draw function (simple here means simple mesh, not lines)
 void
 model_molecule_meshes_t::draw_simple(Shader *shader,
+                                     stereo_eye_t eye,
                                      const glm::mat4 &mvp,
                                      const glm::mat4 &view_rotation_matrix,
                                      const std::map<unsigned int, lights_info_t> &lights,
@@ -455,7 +519,7 @@ model_molecule_meshes_t::draw_simple(Shader *shader,
                                      bool show_just_shadows) {
 
    // std::cout << "model_molecule_meshes_t::draw_simple()" << std::endl;
-   simple_mesh.draw(shader, mvp, view_rotation_matrix, lights, eye_position, rotation_centre,
+   simple_mesh.draw(shader, eye, mvp, view_rotation_matrix, lights, eye_position, rotation_centre,
                     opacity, background_colour, gl_lines_mode, do_depth_fog, show_just_shadows);
 }
 

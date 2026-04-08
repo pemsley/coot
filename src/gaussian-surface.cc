@@ -60,6 +60,20 @@ void set_gaussian_surface_chain_colour_mode(short int mode) {
    graphics_info_t::gaussian_surface_chain_colour_mode = mode;
 }
 
+//! \brief set the opacity for a given molecule's gaussian_surface
+//!
+//! @param imol the molecule index
+//! @param opacity between 0. and 1.0
+void set_gaussian_surface_opacity(int imol, float opacity) {
+
+   graphics_info_t g;
+   if (g.is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].gaussian_surface_opacity = opacity;
+      g.graphics_draw();
+   }
+}
+
+
 #include "c-interface.h" // for first_coords_imol();
 
 void show_gaussian_surface_overlay() {
@@ -108,6 +122,7 @@ int gaussian_surface(int imol) {
 
       graphics_info_t g;
       coot::colour_holder ch(0.66, 0.44, 0.44);
+      float opacity = graphics_info_t::molecules[imol].gaussian_surface_opacity;
 
       if (colour_by_ncs_ghost) {
          for (const auto &ghost : gi) {
@@ -124,6 +139,7 @@ int gaussian_surface(int imol) {
          ch.rotate_by(0.22 * i_ch);
       }
       glm::vec4 col = colour_holder_to_glm(ch);
+      if (opacity != 1.0f) col.a = opacity;
 
       coot::gaussian_surface_t gauss_surf(mol, chain_id);
       coot::simple_mesh_t smesh = gauss_surf.get_surface();

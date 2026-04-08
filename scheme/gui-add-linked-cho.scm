@@ -462,7 +462,7 @@
 
   (using-active-atom
    (let ((glyco-id (glyco-tree-residue-id aa-imol aa-res-spec)))
-     
+
      ;; debug
      ;; (format #t "gui-add-linked-cho-dialog-vbox-set-rotation-centre-hook: glyco-id: ~s~%" glyco-id)
      ;; if it was an ASP create a level-0 glyco-id for that (glyco-tree-residue-id doesn't

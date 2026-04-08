@@ -46,8 +46,10 @@
 #include "read-phs.h"
 #include "gtk-manual.h"
 #include "c-interface-refine.h"
+#include "cc-interface.hh" // 20250310-PE for set_use_primary_mouse_button_for_view_rotation()
 #include "utils/coot-utils.hh"
 
+#include "graphics-info.h" // for grab focus
 #include "widget-from-builder.hh"
 
 // this from callbacks.h (which I don't want to include here)
@@ -139,11 +141,13 @@ on_preferences_reset_button_clicked    (GtkButton       *button,
 }
 
 extern "C" G_MODULE_EXPORT
-void
-on_preferences_destroy                 (GtkWidget       *object,
-                                        gpointer         user_data)
-{
-  clear_preferences();
+gboolean
+on_preferences_close_request(GtkWidget       *dialog,
+                             gpointer         user_data) {
+   gtk_widget_set_visible(dialog, FALSE);
+   graphics_info_t g;
+   g.graphics_grab_focus();
+   return TRUE; // has been handled - no need to find another handler.
 }
 
 void set_use_trackpad(short int state); // or #include cc-interface.hh
@@ -154,10 +158,12 @@ on_preferences_view_rotation_left_mouse_checkbutton_toggled(GtkCheckButton *chec
                                                             gpointer         user_data) {
    if (gtk_check_button_get_active(checkbutton)) {
       preferences_internal_change_value_int(PREFERENCES_VIEW_ROTATION_MOUSE_BUTTON, 1);
-      set_use_trackpad(1);
+      // set_use_trackpad(1);
+      set_use_primary_mouse_button_for_view_rotation(1);
    } else {
       preferences_internal_change_value_int(PREFERENCES_VIEW_ROTATION_MOUSE_BUTTON, 0);
-      set_use_trackpad(0);
+      // set_use_trackpad(0);
+      set_use_primary_mouse_button_for_view_rotation(0);
    }
 }
 
@@ -778,107 +784,6 @@ on_preferences_file_sort_by_date_off_radiobutton_toggled
 
 }
 
-extern "C" G_MODULE_EXPORT
-void
-on_preferences_dialog_accept_docked_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-   // GtkWidget *hbox             = lookup_widget(GTK_WIDGET(togglebutton), "preferences_dialog_accept_docked_hbox");
-   // GtkWidget *show_checkbutton = lookup_widget(GTK_WIDGET(togglebutton), "preferences_dialog_accept_docked_show_radiobutton");
-   // GtkWidget *hide_checkbutton = lookup_widget(GTK_WIDGET(togglebutton), "preferences_dialog_accept_docked_hide_radiobutton");
-   GtkWidget *hbox             = widget_from_preferences_builder("preferences_dialog_accept_docked_hbox");
-   GtkWidget *show_checkbutton = widget_from_preferences_builder("preferences_dialog_accept_docked_show_radiobutton");
-   GtkWidget *hide_checkbutton = widget_from_preferences_builder("preferences_dialog_accept_docked_hide_radiobutton");
-   if (gtk_toggle_button_get_active(togglebutton)) {
-      preferences_internal_change_value_int(PREFERENCES_ACCEPT_DIALOG_DOCKED, 1);
-      set_accept_reject_dialog_docked(1);
-      /* shall update the hbox */
-      if (accept_reject_dialog_docked_show_state() == 1) {
-         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(show_checkbutton), TRUE);
-      } else {
-         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(hide_checkbutton), TRUE);
-      }
-      gtk_widget_set_visible(hbox, TRUE);
-   }
-
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_preferences_dialog_accept_detouched_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-   // GtkWidget *hbox = lookup_widget(GTK_WIDGET(togglebutton), "preferences_dialog_accept_docked_hbox");
-   GtkWidget *hbox = widget_from_preferences_builder("preferences_dialog_accept_docked_hbox");
-   if (gtk_toggle_button_get_active(togglebutton)) {
-      preferences_internal_change_value_int(PREFERENCES_ACCEPT_DIALOG_DOCKED, 0);
-      set_accept_reject_dialog_docked(0);
-      /* shall update the hbox */
-      if (accept_reject_dialog_docked_show_state() == 1) {
-         set_accept_reject_dialog_docked_show(0);
-      }
-      gtk_widget_set_visible(hbox, FALSE);
-   }
-
-}
-
-extern "C" G_MODULE_EXPORT
-void
-on_preferences_dialog_accept_docked_show_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    preferences_internal_change_value_int(PREFERENCES_ACCEPT_DIALOG_DOCKED_SHOW, 1);
-    set_accept_reject_dialog_docked_show(1);
-  }
-
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_preferences_dialog_accept_docked_hide_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    preferences_internal_change_value_int(PREFERENCES_ACCEPT_DIALOG_DOCKED_SHOW, 0);
-    set_accept_reject_dialog_docked_show(0);
-  }
-
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_preferences_dialog_accept_on_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    preferences_internal_change_value_int(PREFERENCES_IMMEDIATE_REPLACEMENT, 0);
-    set_refinement_immediate_replacement(0);
-  }
-
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_preferences_dialog_accept_off_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    preferences_internal_change_value_int(PREFERENCES_IMMEDIATE_REPLACEMENT, 1);
-    set_refinement_immediate_replacement(1);
-  }
-
-}
 
 
 extern "C" G_MODULE_EXPORT
@@ -1259,45 +1164,6 @@ on_preferences_main_toolbar_left_radiobutton_toggled
 
 }
 
-
-extern "C" G_MODULE_EXPORT
-void
-on_preferences_main_toolbar_style_icons_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    preferences_internal_change_value_int(PREFERENCES_MAIN_TOOLBAR_STYLE, 1);
-    set_main_toolbar_style(1);
-  }
-
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_preferences_main_toolbar_style_both_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    preferences_internal_change_value_int(PREFERENCES_MAIN_TOOLBAR_STYLE, 2);
-    set_main_toolbar_style(2);
-  }
-
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_preferences_main_toolbar_style_text_radiobutton_toggled(GtkToggleButton *togglebutton,
-                                                           gpointer         user_data) {
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    preferences_internal_change_value_int(PREFERENCES_MAIN_TOOLBAR_STYLE, 3);
-    set_main_toolbar_style(3);
-  }
-
-}
 
 extern "C" G_MODULE_EXPORT
 void

@@ -1,36 +1,460 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright 2014 Paul Emsley <pemsley at mrc dash lmb dot cam dot ac dot uk> -->
+<!-- Copyright 2014-2024 Paul Emsley <pemsley@mrc-lmb.cam.ac.uk> -->
 <component type="desktop">
- <id>org.emsley.coot</id>
- <metadata_license>GFDL-1.3</metadata_license>
- <project_license>GPL-2.0+ and GPL-3.0+ and LGPL-3.0+</project_license>
- <name>Coot</name>
- <summary>Macromolecular model builder</summary>
- <description>
-  <p>
-     Coot is a powerful macromolecular model-building tool for
-     analysing X-ray data and models (i.e. proteins, ligands, RNA and
-     DNA).  There are many tools for model manipulation and building,
-     such as minimization, molecular superposition, fragment
-     rotation/translations, rotamer-fitting, de novo building and
-     refinement.
-  </p>
-  <p>
-     Coot is used by scientists using X-ray crystallography for
-     analysis of proteins, electron density maps, protein interactions
-     and drug design.
-  </p>
- </description>
- <screenshots>
-  <screenshot type="default">
-    <image type="source">http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/screenshots/other/coot-viagra-1.png</image>
-    <caption>Coot is typically used to view protein models and electron density</caption>
-  </screenshot>
-  <screenshot>
-    <image type="source">http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/screenshots/other/coot-ligand-builder.png</image>
-    <caption>Coot can be used to convert from 2D ligands to 3D and from 3D to 2D</caption>
-  </screenshot>
- </screenshots>
- <url type="homepage">http://www2.mrc-lmb.cam.ac.uk/Personal/pemsley/coot/</url>
- <updatecontact>pemsley _at_ mrc dash lmb.cam.ac.uk</updatecontact>
+  <id>io.github.pemsley.coot</id>
+  <launchable type="desktop-id">io.github.pemsley.coot.desktop</launchable>
+  <metadata_license>GFDL-1.3</metadata_license>
+  <project_license>GPL-2.0+ and GPL-3.0+ and LGPL-3.0+</project_license>
+  <name>Coot</name>
+  <summary>Macromolecular model builder</summary>
+  <description>
+    <p>
+      Coot is a powerful macromolecular model-building tool for
+      analysing X-ray data and models (i.e. proteins, ligands, RNA and
+      DNA). There are many tools for model manipulation and building,
+      such as minimization, molecular superposition, fragment
+      rotation/translations, rotamer-fitting, de novo building and
+      refinement.
+    </p>
+    <p>
+      Coot is used by scientists using X-ray crystallography or cryo-EM for
+      analysis of proteins, electron density maps, protein interactions
+      and drug design.
+    </p>
+  </description>
+  <screenshots>
+    <screenshot type="default">
+      <image type="source">
+        https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/screenshots/coot1/coot1_1.PNG</image>
+      <caption>Coot is typically used to view protein models and electron density</caption>
+    </screenshot>
+    <screenshot>
+      <image type="source">
+        https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/screenshots/coot1/coot1_2.png</image>
+    </screenshot>
+    <screenshot>
+      <image type="source">
+        https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/screenshots/coot1/coot1_12.png</image>
+    </screenshot>
+  </screenshots>
+  <branding>
+    <color type="primary" scheme_preference="light">#dcc9c7</color>
+    <color type="primary" scheme_preference="dark">#79170a</color>
+  </branding>
+  <url type="homepage">https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/</url>
+  <url type="faq">https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/docs/coot-faq.html</url>
+  <url type="help">https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/docs</url>
+  <url type="vcs-browser">https://github.com/pemsley/coot</url>
+  <url type="bugtracker">https://github.com/pemsley/coot/issues</url>
+  <developer id="io.github.pemsley">
+    <name>Paul Emsley</name>
+  </developer>
+  <update_contact>pemsley_AT_mrc-lmb.cam.ac.uk</update_contact>
+  <content_rating type="oars-1.1" />
+  <releases>
+
+    <release version="1.2" date="2026-03-31">
+      <description>
+        <ul>
+          <li> o FEATURE: Side-by-side stereo mode (cross-eye and wall-eye) with
+                          configurable stereo angle</li>
+          <li> o FEATURE: High-resolution screenshots now work for both basic and
+                          fancy rendering modes</li>
+          <li> o FEATURE: Material properties added to instanced-object shaders</li>
+          <li> o FEATURE: Anisotropic thermal ellipsoid "empty" representation
+                          with multi-ring display</li>
+          <li> o FEATURE: Gaussian surface opacity control</li>
+          <li> o FEATURE: Bond smoothness toggle</li>
+          <li> o FEATURE: Shadows for "other meshes" (generic display objects)</li>
+          <li> o FEATURE: Single-model view for CA+Ligands representation with
+                          colour-by-dictionary-and-chain</li>
+          <li> o FEATURE: Distance labels display can now be toggled with
+                          set_show_distance_labels()</li>
+          <li> o FEATURE: scale_up_graphics() and scale_down_graphics() now
+                          added to the API</li>
+          <li> o CHANGE:  Improved default secondary structure colours</li>
+          <li> o CHANGE:  Rainbow ribbons are less bright</li>
+          <li> o CHANGE:  Aniso probability scale now goes to 0.99</li>
+          <li> o CHANGE:  Ribbon coils restored with radius multiplier for spline
+                          representation</li>
+          <li> o CHANGE:  End-caps added for worm representations</li>
+          <li> o CHANGE:  Max SSAO kernel samples doubled to 512</li>
+          <li> o CHANGE:  Reduced step size for front clipping plane changes</li>
+          <li> o CHANGE:  Don't include hydrogen atoms in Local B-factor display</li>
+          <li> o CHANGE:  x-ray Sharpen/Blur Map slider now displays the value</li>
+          <li> o CHANGE:  Difference map peaks now shows closest atom not position</li>
+          <li> o BUG-FIX: Now the Recover Session works as expected [Kevin Jude]</li>
+          <li> o BUG-FIX: Fix the rotation jump after panning</li>
+          <li> o BUG-FIX: Fix peptide straggle-bond when displaying alt-confs</li>
+          <li> o BUG-FIX: Fix texture indexing in TextureMesh</li>
+          <li> o BUG-FIX: Fix framebuffer rendering with transparency</li>
+          <li> o BUG-FIX: Fix the map colour button in single-map properties dialog</li>
+          <li> o BUG-FIX: Fix ribbon surface normal computation and spline frame
+                          orthonormality [Martin Noble]</li>
+          <li> o FEATURE: Post-Translational Modifications (PTMs) can now be
+                          applied to residues, with a database of common PTMs</li>
+          <li> o FEATURE: Improved jiggle-fitting for Local Fitting in Cryo-EM</li>
+          <li> o FEATURE: Add Residue by Map Fit function</li>
+          <li> o FEATURE: Ephemeral overlay labels for transient annotations</li>
+          <li> o FEATURE: Key-binding R for Refine with auto-accept</li>
+          <li> o FEATURE: Key-binding Ctrl-E for Python scripting entry</li>
+          <li> o FEATURE: Mutate-and-auto-fit improvements</li>
+          <li> o BUG-FIX: Fix self-deadlock in make_moving_atoms_graphics_object()
+                          for CA bond mode</li>
+          <li> o BUG-FIX: Fix single-strand test in ideal nucleic acid builder</li>
+          <li> o BUG-FIX: Fix PHE/TYR nomenclature error side chain atom swapping</li>
+          <li> o FEATURE: Phenix .geo file validation for bonds, angles, chirals
+                          and non-bonded contacts with colour-coded display</li>
+          <li> o FEATURE: Validation graphs can now be undocked [Jakub Smulski]</li>
+          <li> o FEATURE: Rotamer probability now shown in validation graph</li>
+          <li> o FEATURE: Refinement results mini-statistics (bond and angle
+                          distortions) returned from refinement</li>
+          <li> o FEATURE: Atom geometry distortion info now includes atom specs</li>
+          <li> o CHANGE:  Molecule mesh display control toggles relocated</li>
+          <li> o BUG-FIX: Fix rotamer probability in validation graph model list
+                          refresh</li>
+          <li> o FEATURE: Ligand Builder (Lhasa) added to the Ligand menu</li>
+          <li> o FEATURE: Fetch Ligand Restraints Dictionary callback added</li>
+          <li> o FEATURE: Pyrogen integration via RDKit mol pickle base64 API</li>
+          <li> o FEATURE: Curlew extension download and install function</li>
+          <li> o CHANGE:  Ligand fitting dialog is now scrollable</li>
+          <li> o BUG-FIX: Fix the bond-order combobox default in acedrg link dialog</li>
+          <li> o BUG-FIX: Fix Lhasa molecule centering [Jakub Smulski]</li>
+          <li> o BUG-FIX: Fix RDKit stereochemistry handling and isomeric SMILES
+                          output [Jakub Smulski]</li>
+          <li> o FEATURE: NetCDF support for reading AMBER trajectories</li>
+          <li> o FEATURE: Slurpable maps recognized as EM maps</li>
+          <li> o CHANGE:  Improved map-based occlusions</li>
+          <li> o FEATURE: JSON-RPC server, MCP Bridge and Skills for Agentic Coot</li>
+          <li> o FEATURE: RPC server menu item added</li>
+          <li> o FEATURE: Python API function documentation improvements across
+                          the board</li>
+          <li> o FEATURE: coot_ping() function for connectivity testing</li>
+          <li> o FEATURE: get_function_descriptions() added to the bridge</li>
+          <li> o FEATURE: Shift-click on an atom shows atom info in the status bar</li>
+          <li> o FEATURE: "Delete all water" menu item</li>
+          <li> o FEATURE: EM Placement dialog with Phaser integration</li>
+          <li> o FEATURE: Git commit hash and build date shown in About dialog</li>
+          <li> o FEATURE: Improved "Recover Session" dialog</li>
+          <li> o FEATURE: Generic Display Objects dialog now shows button state</li>
+          <li> o FEATURE: Interesting places JSON file reading with atom-spec
+                          parsing</li>
+          <li> o CHANGE:  Copy Fragment combobox now sets the active item</li>
+          <li> o CHANGE:  Don't include hydrogen atoms in Local B-factor display</li>
+          <li> o CHANGE:  Sharpen/Blur Map slider now displays the value</li>
+          <li> o CHANGE:  Difference Map Peaks now shows closest atom</li>
+          <li> o BUG-FIX: Fix validation graph combobox g_warning()</li>
+          <li> o BUG-FIX: Better handling for unknown monomer types in PTM dialog</li>
+          <li> o BUG-FIX: Remove duplicate entries from PTM combobox</li>
+          <li> o BUG-FIX: Fix Copy Fragment combobox active item</li>
+          <li> o NEW FUNCTION: get_molecule_diameter()</li>
+          <li> o NEW FUNCTION: get_torsions_for_residues_in_chain()</li>
+          <li> o NEW FUNCTION: get_hydrogen_bonds_py() - pythonic hydrogen bond info</li>
+          <li> o NEW FUNCTION: set_residue_properties()</li>
+          <li> o NEW FUNCTION: get_computed_acedrg_atom_types()</li>
+          <li> o NEW FUNCTION: pyrogen_from_rdkit_mol_pickle_base64()</li>
+          <li> o NEW FUNCTION: get_rdkit_mol_pickle_base64() with pickling options</li>
+          <li> o NEW FUNCTION: add_residue_by_map_fit()</li>
+        </ul>
+      </description>
+    </release>
+
+    <release version="1.1.20" date="2025-11-29">
+      <description>
+        <ul>
+
+          <li> o FEATURE: "New Residue Type" now available in Add Other
+                           Solvents dialog</li>
+
+          <li> o FEATURE: key-binding for Triple-Refine AA (H)</li>
+
+          <li> o FEATURE: key-binding for Undo Symmetry View (Shift V)</li>
+
+          <li> o FEATURE: key-binding for Keyboard Mutate (Shift-M)</li>
+
+          <li> o FEATURE: now Open Dialogs track the latest used directory</li>
+
+          <li> o FEATURE: "Unhappy Atom" markup added</li>
+
+          <li> o FEATURE: Add keyboard mutate</li>
+
+          <li> o FEATURE: Add user-defined type to "Add Other Solvent Molecule"
+                          dialog</li>
+
+          <li> o FEATURE: on initial startup, Coot will ask if left-mouse
+          should be used for view rotation</li>
+
+          <li> o FEATURE: (Multi) Pick Delete Atom added</li>
+
+          <li> o FEATURE: Bad Non-bonded contact markers now have dashed lines
+                          between the atoms</li>
+
+          <li> o FEATURE: The space group info is now displayed in log on reading
+                          a coordinates file</li>
+
+          <li> o FEATURE: Now configuration with --sound works</li>
+
+          <li> o FEATURE: Other types of Carbohydrate added (back)</li>
+
+          <li> o FEATURE: server mode turned into JSON RPC server</li>
+
+          <li> o CHANGE:  XDG is used for the download of COD entries</li>
+
+          <li> o CHANGE:  Update the "No Unmodelled Blobs" dialog</li>
+
+          <li> o CHANGE:  Update the url for AlphaFold models to v6</li>
+
+          <li> o CHANGE:  User-feedback when trying to rotate unselected chi angle
+                          improved</li>
+
+          <li> o CHANGE:  Cross-hairs have fixed size, not relative size - the
+                          size is configurable in Preferences</li>
+
+          <li> o CHANGE:  "Environment Distances" is now a transient [Oliver Clarke]</li>
+
+          <li> o CHANGE:  CA Label now follow the residue on "Space" repositioning</li>
+
+          <li> o CHANGE:  Recentre on new fragment on "Copy Fragment"</li>
+
+          <li> o CHANGE:  Overlay notification on B-factor and Occupancy updated</li>
+
+          <li> o CHANGE:  B-factor and Occupancy modification now has an overlay
+                          notifier</li>
+
+          <li> o BUG-FIX: "Undo molecule" dialog operation fixed</li>
+
+          <li> o BUG-FIX: Display Control dialog is only displayed on restart
+                          if it was displayed on session save</li>
+
+          <li> o BUG-FIX: fix control of display control dialog in the
+                          state script</li>
+
+          <li> o BUG-FIX: fix missing protein-ligand interactions for FLEV
+                          [thanks Lan Guan]</li>
+
+          <li> o BUG-FIX: set_molecule_name() function for models fixed</li>
+
+          <li> o BUG-FIX: one can now no longer pick/drag undisplayed intermediate
+                          hydrogen atoms [thanks Oliver Clarke]</li>
+
+          <li> o BUG-FIX: the "No Unmodelled blobs" dialog tided up</li>
+
+          <li> o BUG-FIX: get-monomer dialog activate now closes the drop-down.</li>
+
+          <li> o BUG-FIX: undisplay "Get monomer" frame on entry activate</li>
+
+          <li> o NEW FUNCTION: get_mmrrcc()</li>
+
+          <li> o NEW FUNCTION: get_residue_pucker_info() function added</li>
+
+        </ul>
+      </description>
+    </release>
+
+    <release version="1.1.19" date="2025-10-07">
+      <description>
+        <ul>
+           <li> o FEATURE: Double-click to label symmetry atoms</li>
+           <li> o FEATURE: drag-and-drop import for local-file-system files</li>
+           <li> o CHANGE:  user-defined-clicks added back</li>
+           <li> o CHANGE:  Assign and Associate Sequence menu items functions now added back</li>
+           <li> o CHANGE:  Improve the scrolling of the map contour level when the
+                  nominated map is not displayed</li>
+           <li> o BUG-FIX: Menu items with targets don't work on macOS (I don't know why).
+            The targets have been removed, so these menu items should now
+            work again (e.g. Fetch and Mutate menu items)</li>
+        </ul>
+      </description>
+    </release>
+    <release version="1.1.18" date="2025-08-01">
+      <description>
+        <ul>
+           <li> o FEATURE: Ctrl-F keybinding added to smooth the bonds </li>
+           <li> o FEATURE: Multi-select for opening maps </li>
+           <li> o FEATURE: "Side-chain 180°" button now does syn/anti flip for nucleotides </li>
+           <li> o FEATURE: "Split Water" added to Modelling menu </li>
+           <li> o CHANGE:  "Copy Fragment" has become an overlay </li>
+           <li> o CHANGE:  "Move Molecule Here" has become an overlay </li>
+           <li> o CHANGE:  Generic Display Objects can now have translation gizmos </li>
+           <li> o CHANGE:  layla now has relocatable directory support </li>
+           <li> o CHANGE:  Monomer-library look-up reworked</li>
+           <li> o BUG-FIX: Removed bug in parsing external torsion restraints </li>
+           <li> o BUG-FIX: Curlew has moved to use XDG Base Directory specs </li>
+        </ul>
+      </description>
+    </release>
+    <release version="1.1.17" date="2025-06-14">
+      <description>
+        <ul>
+          <li> o BUG-FIX: Save symmetry coordinates is fixed </li>
+          <li> o BUG-FIX: Colour-by-B-factor colours are fixed </li>
+          <li> o BUG-FIX: Place atom at pointer fixed </li>
+          <li> o BUG-FIX: Optional Gemmi usage restored </li>
+        </ul>
+      </description>
+    </release>
+    <release version="1.1.16" date="2025-06-04">
+      <description>
+        <ul>
+          <li> o FEATURE: Local B-factor display </li>
+          <li> o FEATURE: Built-in logging (started) - view it by clicking the "Log" button</li>
+          <li> o FEATURE: Full doxygen documentation transfered to chapi nanobind functions</li>
+          <li> o FEATURE: Anisotropic probability radius scaling (thank ClAuS Flensburg)</li>
+          <li> o CHANGE: For packagers: Now a commonly-used fragment of the monomer library
+            is bundled with Coot. Unknown monomers are now downloaded from GitHub
+            and cached using XDG Base Directory Specification</li>
+          <li> o CHANGE:  For packagers: Now the reference structures are bundled
+            with the source code (and installed) - no longer do they need
+            to be a separate dependency</li>
+          <li> o CHANGE:  If a map has a PANDDA:: or APPLY-SYMMETRY:: label then Coot now
+            properly handles that (turns off "is-EM-map" status)</li>
+          <li> o CHANGE:  Atoms with Zero Occupancy results now moved into the
+            main window</li>
+          <li> o CHANGE:  Boron atoms are now pinky-beige - like Jmol</li>
+          <li> o BUG-FIX: Fix crash on adding an atom [Clément Bousquet]</li>
+          <li> o BUG-FIX: Symmetry atoms are now clickable for distances and labels</li>
+          <li> o BUG-FIX: Fix the non-drawn clashes post model update</li>
+          <li> o BUG-FIX: "Add Other Solvent Molecules" dialog has been depythonized
+            and now will work on macOS</li>
+          <li> o BUG-FIX: "Copy Molecule" dialog has been depythonized and is now an
+            overlay and now will work on macOS</li>
+          <li> o BUG-FIX: Fix the problem of focus-grab when using Tutorial Model &amp; Data</li>
+          <li> o BUG-FIX: Fix the "Close" button in the Restraints Editor</li>
+        </ul>
+      </description>
+    </release>
+    <release version="1.1.15" date="2025-06-04">
+      <description>
+        <ul>
+          <li> o FEATURE: Drag and drop (partial - it works from the file browser,</li>
+            but not from CCP4i2)
+          <li> o FEATURE: set_use_vertex_gradients_for_map_normals() added to the Coot API</li>
+          <li> o CHANGE:  Fixed atoms are now draggable</li>
+          <li> o CHANGE:  max-closeness is no longer used to filter peaks in map_peaks_py()</li>
+          <li> o CHANGE:  Backtick for selection now also shows the residue range
+            (if set)</li>
+          <li> o BUG-FIX: Track-pad zooming fixed</li>
+          <li> o BUG-FIX: Residue Info dialog buttons now on the right hand side</li>
+          <li> o BUG-FIX: Fix and Unfix atom now work as expected</li>
+          <li> o BUG-FIX: Remove erroneous "No ligands Found" dialog when ligand fitting</li>
+          <li> o BUG-FIX: Select Map for Fitting dialog now behaves has expected
+            on reopen</li>
+          <li> o BUG-FIX: Merge Molecules dialog now behaves has expected on reopen</li>
+          <li> o BUG-FIX: Choose a better contour level for masked maps</li>
+        </ul>
+      </description>
+    </release>
+    <release version="1.1.14" date="2025-03-16">
+      <description>
+        <ul>
+          <li>FEATURE: Clark and Labute-like 2D-ligand environment view in Coot,
+             Moorhen and chapi.</li>
+          <li>FEATURE: Symmetry represented as solid model (no longer just lines)</li>
+          <li>FEATURE: new chapi functions: `is_nucleic_acid()` and `delete_all_carbohydrate()`</li>
+          <li>FEATURE: PAE Plots on downloading Alphafold models.</li>
+          <li>FEATURE: 3D symmetry.</li>
+          <li>CHANGE: Setting the primary mouse button for view rotation enables
+             secondary mouse button for zoom (like Old Coot).</li>
+          <li>CHANGE: chapi modules name now changed to coot_headless_api
+          so that the molecules_container object can be called
+          chapi.</li>
+          <li>CHANGE: Alphafold downloads are now XDG Base Directory compliant.</li>
+          <li>BUG-FIX: NCS Jumping has been fixed -  Bernhard Lohkamp.</li>
+          <li>BUG-FIX: unwritable XDG cache dir now longer causes a crash
+             [Jordan Dialpuri].</li>
+          <li>BUG-FIX: Shader for drawing ribbons.</li>
+          <li>BUG-FIX: About and Preferences dialogs can now be properly closed.</li>
+          <li>BUG-FIX: Texture handling for bad NBC markers updated [Fixes crash].</li>
+        </ul>
+      </description>
+    </release>
+    <release version="1.1.13" date="2025-02-24">
+      <description>
+        <ul>
+          <li>FEATURE: New chapi functions added: `get_svg_for_2d_ligand_environment_view()`, `get_HOLE()`, and `scale_map()`. Additionally, nucleic acids now work with `add_terminal_residue()` and sticks and dishy bases are not drawn for atoms not in selection.</li>
+          <li>FEATURE: Non-drawn maps are not recontoured on view translation; they now wait until the map is displayed. [Elegant-Land-8008]</li>
+          <li>FUNCTION-RESTORED: When "Spacing" along a chain, the CA label follows.</li>
+          <li>FUNCTION-RESTORED: SSM dialog now works.</li>
+          <li>FUNCTION-RESTORED: NCS Ghosts dialog now works.</li>
+          <li>BUG-FIX: Missing shader for instanced geometry for SSAO added back.</li>
+          <li>COMPILATION: Issue for `graphics_info_t::scale_up_graphics` has been resolved.</li>
+        </ul>
+      </description>
+    </release>
+    <release version="1.1.12" date="2025-02-11">
+      <description>
+        <ul>
+          <li>TERMINAL OUTPUT: Increased diagnostic output on startup to help troubleshoot graphics
+            and Python issues across diverse operating systems, drivers, and Python versions.</li>
+          <li>FEATURE: New chapi functions added: `add_terminal_residue_directly()`,
+            `copy_molecule()`, `flood()`, `get_validation_vs_dictionary_for_selection()`,
+            `servalcat_refine_xray()`, `get_torsion()`, `change_alt_locs()`,
+            `split_residue_using_map()`, `get_missing_residue_ranges()`, `get_mutation_info()`, and
+            `set_temperature_factor_using_cid()` (see Pythonic and C++ API documentation).</li>
+          <li>FEATURE: New Coot API functions added: `set_new_non_drawn_bonds()` and
+            `add_new_non_draw_bonds()`.</li>
+          <li>FEATURE: Graphics viewport scaling added.</li>
+          <li>FEATURE: Acedrg link interface added.</li>
+          <li>FEATURE: HOLE interface restored.</li>
+          <li>FEATURE: Transform map by LSQ model fit restored.</li>
+          <li>BUG-FIX: '--code &lt;accession-code&gt;' now functions correctly following the XDG
+            Directory Protocol update.</li>
+          <li>BUG-FIX: Resolved the no-recentre-view issue in the coordinate file open dialog.</li>
+          <li>BUG-FIX: Contact dots for ligands now correctly display ligand donor to water hydrogen
+            bonds.</li>
+          <li>BUG-FIX: Disabled refinement using a CCD dictionary (thanks to Lorenzo Masso).</li>
+          <li>BUG-FIX: Correct shader usage implemented for surfaces in "Plain" mode.</li>
+          <li>BUG-FIX: LSQ Fit dialog functionality restored.</li>
+          <li>BUG-FIX: Prevented CYS with hydrogen atoms from forming spurious disulfide bonds
+            (thanks to Jordan Dialpuri).</li>
+          <li>BUG-FIX: End-of-chain TER atom removal on adding a new terminal residue fixed.</li>
+          <li>BUG-FIX: Dark mode icons now display correctly in Layla.</li>
+          <li>BUG-FIX: Startup window width increased on macOS for better usability.</li>
+          <li>BUG-FIX: Global Phasing column labels (F_early-late) now auto-read.</li>
+          <li>BUG-FIX: Hydrogen atom deletion in Layla now works properly.</li>
+          <li>CHANGE: Framebuffer usage reduced/removed in --opengl-es mode.</li>
+          <li>CHANGE: Module menus now depthonized.</li>
+          <li>CHANGE: Overlay added for the Cryo-EM "Flip Hand" tool.</li>
+          <li>CHANGE: Pythonic startup process updated for improved performance.</li>
+          <li>KNOWN BUG: Ramachandran Plot display issues persist on some macOS systems.</li>
+        </ul>
+      </description>
+    </release>
+    <release version="1.1.11" date="2024-12-12">
+      <description>
+        <ul>
+          <li>FEATURE: One can now dynamically edit SMILES in layla.</li>
+          <li>FEATURE: Anisotropic atom representation [thanks to Global Phasing].</li>
+          <li>FEATURE: Better linking across sequence gaps in RNA and DNA.</li>
+          <li>FEATURE: Electrostatic representation [Stuart McNicholas].</li>
+          <li>FEATURE: Acedrg atom types are now parsed from dictionaries.</li>
+          <li>FEATURE: Function `partition_map_by_chain()` added.</li>
+          <li>OTHER: Various non-user-visible changes for Flatpak compatibility.</li>
+        </ul>
+      </description>
+    </release>
+    <release version="1.1.10" date="2024-07-21">
+      <description>
+        <ul>
+          <li>FEATURE: Noughties-physics - add a refinement/atom manipulation mode so that Coot
+            behaves like it used to up to (and including) version 0.8.x:
+            `coot.set_refine_use_noughties_physics()`.</li>
+          <li>FEATURE: Layla now displays QED Scores for molecules.</li>
+          <li>FEATURE: `read_coordinates()` added to the Coot.</li>
+          <li>FEATURE: Cryo-EM servalcat use added to the Coot API.</li>
+          <li>CHANGE: Network download files now follow the XDG Base Directory Protocol.</li>
+          <li>CHANGE: HUD Ramachandran Plot is now pickable.</li>
+          <li>CHANGE: Ligands with no dictionary are drawn with bonds in "Colour by Chain" mode.</li>
+          <li>CHANGE: Python requests is no longer a dependency.</li>
+          <li>BUG-FIX: Scroll wheel indicator in the Display Manager now correctly updates on use of
+            a key-binding to change the scrollable map.</li>
+          <li>BUG-FIX: Ugly least-squares fit dialog has been modernized.</li>
+          <li>BUG-FIX: Fix the callback actions for the "Display Hydrogen Atoms" in the Bonds
+            control dialog.</li>
+          <li>BUG-FIX: Rework the calculation of `pkg_data_dir()` - particularly in the case of
+            relocatable binaries.</li>
+        </ul>
+      </description>
+    </release>
+  </releases>
 </component>

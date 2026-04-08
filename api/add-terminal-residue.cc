@@ -24,7 +24,7 @@
 #include <iostream>
 #include "add-terminal-residue.hh"
 
-#include "coords/mmdb-extras.h"
+#include "coords/mmdb-extras.hh"
 #include "coot-utils/coot-coord-utils.hh"
 #include "ligand/residue_by_phi_psi.hh"
 
@@ -97,7 +97,7 @@ coot::remove_TER_internal(mmdb::Manager *mol, mmdb::Residue *residue_p) {
       for (int i=0; i<n_residue_atoms; i++) {
          if (residue_atoms[i]->isTer()) {
             residue_p->DeleteAtom(i);
-            deleted = 1;
+            deleted = true;
          }
       }
    }

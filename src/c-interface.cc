@@ -25,6 +25,18 @@
 // $Rev: 1458 $
 
 // Load the head if it hasn't been included.
+#include <cerrno>
+#include <cstddef>
+#include <exception>
+#include <stdexcept>
+#include <utility>
+#include "coords/phenix-geo.hh"
+#include "geometry/protein-geometry.hh"
+#include <glib.h>
+#include <gtk/gtk.h>
+#include <gtk/gtkshortcut.h>
+#include "mmdb2/mmdb_selmngr.h"
+#include "pytypedefs.h"
 #ifdef USE_PYTHON
 #ifndef PYTHONH
 #define PYTHONH
@@ -41,6 +53,9 @@
 #include <fstream>
 #include <algorithm>
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/string_cast.hpp>
+
 #if !defined(_MSC_VER)
 #include <glob.h> // for globbing.  Needed here?
 #endif
@@ -51,11 +66,17 @@
 #include "guile-fixups.h"
 #endif // USE_GUILE
 
+#ifdef USE_GUILE
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
+#endif
+
 #ifdef USE_PYTHON
 #include "c-interface-python.hh"
 #endif // USE_PYTHON
 
 #include "compat/sleep-fixups.h"
+#include "coot-utils/gl-matrix.h"
 
 // Here we used to define GTK_ENABLE_BROKEN if defined(WINDOWS_MINGW)
 // Now we don't want to enable broken stuff.  That is not the way.
@@ -87,14 +108,15 @@
 #include <string>
 
 #include <mmdb2/mmdb_manager.h>
-#include "coords/mmdb-extras.h"
+#include "coords/mmdb-extras.hh"
 #include "coords/mmdb.hh"
-#include "coords/mmdb-crystal.h"
-#include "coords/Cartesian.h"
-#include "coords/Bond_lines.h"
+#include "coords/mmdb-crystal.hh"
+#include "coords/Cartesian.hh"
+#include "coords/Bond_lines.hh"
 
 #include "utils/coot-utils.hh"
 #include "coot-utils/coot-map-utils.hh"
+#include "coot-utils/read-amber-trajectory.hh"
 #include "coot-database.hh"
 #include "coot-fileselections.h"
 
@@ -116,6 +138,7 @@
 
 #include "testing.hh"
 
+#include "coot-utils/coot-h-bonds.hh"
 
 #include "positioned-widgets.h"
 
@@ -126,9 +149,16 @@
 #include "read-molecule.hh" // now with std::string args
 
 #include "widget-from-builder.hh"
+#include "gtk-manual.hh"
 #include "glarea_tick_function.hh"
 
 #include "validation-graphs/sequence-view-widget.hh"
+
+#include "json.hpp"
+using json = nlohmann::json;
+
+#include "utils/logging.hh"
+extern logging logger;
 
 // This is (already) in git-revision-count.cc
 //
@@ -816,7 +846,8 @@ int handle_read_draw_molecule_with_recentre(const std::string &filename,
 							  bw, bonds_box_type, true);
 
       if (istat == 1) {
-	 std::cout << "Molecule " << imol << " read successfully\n";
+	 // std::cout << "Molecule " << imol << " read successfully\n";
+         logger.log(log_t::INFO, "Molecule ", imol, " read successfully");
 
 	 // we do this somewhat awkward in and out thing with the
 	 // molecule, because I don't want to (or am not able to) pass a
@@ -830,8 +861,12 @@ int handle_read_draw_molecule_with_recentre(const std::string &filename,
 	 // algorithm.
 
 
-	 std::vector<std::string> types_with_no_dictionary =
+	 std::vector<std::string> types_with_no_dictionary;
+         const coot::protein_geometry *geom_p = g.Geom_p();
+         if (g.Geom_p())
 	    g.molecules[imol].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
+         else
+            std::cout << "ERROR:: handle_read_draw_molecule_with_recentre() Geom_p() returns null" << std::endl;
 
 	 int first_n_types_with_no_dictionary = types_with_no_dictionary.size();
 
@@ -847,7 +882,8 @@ int handle_read_draw_molecule_with_recentre(const std::string &filename,
 	    g.cif_dictionary_read_number++;
 	 }
 
-	 types_with_no_dictionary = g.molecules[imol].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
+         if (geom_p)
+	    types_with_no_dictionary = g.molecules[imol].no_dictionary_for_residue_type_as_yet(*geom_p);
 
 	 if (types_with_no_dictionary.size()) {
 	    if (g.Geom_p()->try_load_ccp4srs_description(types_with_no_dictionary))
@@ -863,8 +899,9 @@ int handle_read_draw_molecule_with_recentre(const std::string &filename,
 
 	 if (graphics_info_t::nomenclature_errors_mode == coot::PROMPT) {
 	    // Now, did that PDB file contain nomenclature errors?
-	    std::vector<std::pair<std::string,coot::residue_spec_t> > nomenclature_errors =
-	       g.molecules[imol].list_nomenclature_errors(g.Geom_p());
+	    std::vector<std::pair<std::string,coot::residue_spec_t> > nomenclature_errors;
+            if (geom_p)
+               nomenclature_errors = g.molecules[imol].list_nomenclature_errors(geom_p);
 	    // gui function checks use_graphics_interface_flag
 	    if (nomenclature_errors.size())
 	       show_fix_nomenclature_errors_gui(imol, nomenclature_errors);
@@ -939,6 +976,54 @@ int read_pdb(const std::string &filename) {
 /*! \brief read coordinates from filename */
 int read_coordinates(const std::string &filename) {
    return handle_read_draw_molecule(filename);
+}
+
+int read_coordinates_as_string(const std::string &file_contents, const std::string &molecule_name) {
+
+#if !defined _MSC_VER
+   pid_t pid = getpid();
+#else
+   DWORD pid = GetCurrentProcessId();
+#endif
+   std::string pid_str = std::to_string(pid);
+   std::string fn("tmp-");
+   fn += pid_str;
+   fn += ".pdb";
+   std::ofstream f(fn);
+   f << file_contents;
+   f.close();
+   int imol = read_coordinates(fn);
+   if (is_valid_model_molecule(imol))
+      set_molecule_name(imol, molecule_name.c_str());
+   return imol;
+}
+
+
+int read_amber_trajectory(int imol_coords,
+                          const std::string &trajectory_file_name,
+                          int start_frame,
+                          int end_frame,
+                          int stride) {
+
+   int imol = -1;
+   graphics_info_t g;
+
+   if (!is_valid_model_molecule(imol_coords)) {
+      std::cout << "WARNING:: read_amber_trajectory: invalid topology molecule " << imol_coords << std::endl;
+      return -1;
+   }
+
+   mmdb::Manager *topology_mol = g.molecules[imol_coords].atom_sel.mol;
+   mmdb::Manager *traj_mol = coot::read_amber_trajectory(topology_mol, trajectory_file_name,
+                                                         start_frame, end_frame, stride);
+   if (traj_mol) {
+      imol = g.create_molecule();
+      atom_selection_container_t asc = make_asc(traj_mol);
+      std::string name = trajectory_file_name + "_trajectory";
+      g.molecules[imol].install_model(imol, asc, g.Geom_p(), name, 1);
+   }
+
+   return imol;
 }
 
 
@@ -1141,7 +1226,8 @@ void zalman_stereo_mode() {
 	    short int try_hardware_stereo_flag = 5;
 	    GtkWidget *glarea = gl_extras(vbox, try_hardware_stereo_flag);
 	    if (glarea) {
-	       std::cout << "INFO:: switch to zalman_stereo_mode succeeded\n";
+	       // std::cout << "INFO:: switch to zalman_stereo_mode succeeded\n";
+	       logger.log(log_t::INFO, "switch to zalman_stereo_mode succeeded");
 	       if (graphics_info_t::idle_function_spin_rock_token) {
 		  toggle_idle_spin_function(); // turn it off;
 	       }
@@ -1174,9 +1260,14 @@ void mono_mode() {
 	 int previous_mode = graphics_info_t::display_mode;
          // GtkWidget *gl_widget = lookup_widget(graphics_info_t::get_main_window(), "window1");
          GtkWidget *gl_widget = graphics_info_t::glareas[0];
-         int x_size = gtk_widget_get_allocated_width(gl_widget);
-         int y_size = gtk_widget_get_allocated_height(gl_widget);
+         // int x_size = gtk_widget_get_allocated_width(gl_widget);
+         // int y_size = gtk_widget_get_allocated_height(gl_widget);
+         GtkAllocation allocation;
+         gtk_widget_get_allocation(graphics_info_t::glareas[0], &allocation);
+         int x_size = allocation.width;
+         int y_size = allocation.height;
 	 graphics_info_t::display_mode = coot::MONO_MODE;
+         graphics_info_t::graphics_draw();
          GtkWidget *gl_area = graphics_info_t::glareas[0];
 	 // GtkWidget *vbox = lookup_widget(gl_area, "main_window_vbox");
 	 GtkWidget *vbox = widget_from_builder("main_window_vbox");
@@ -1187,7 +1278,8 @@ void mono_mode() {
 	    short int try_hardware_stereo_flag = 0;
 	    GtkWidget *glarea = gl_extras(vbox, try_hardware_stereo_flag);
 	    if (glarea) {
-	       std::cout << "INFO:: switch to mono_mode succeeded\n";
+	       // std::cout << "INFO:: switch to mono_mode succeeded\n";
+	       logger.log(log_t::INFO, "switch to mono_mode succeeded");
 	       if (graphics_info_t::idle_function_spin_rock_token) {
 		  toggle_idle_spin_function(); // turn it off;
 	       }
@@ -1340,17 +1432,18 @@ void set_stereo_style(int mode) {
 
    if (mode == 0)
       graphics_info_t::stereo_style_2010 = true;
-   else 
+   else
       graphics_info_t::stereo_style_2010 = false;
 
    graphics_draw();
 }
-   
-
 
 void set_hardware_stereo_angle_factor(float f) {
-   graphics_info_t::hardware_stereo_angle_factor = f;
-   std::string cmd = "set-hardware-stereo-angle-factor";
+}
+
+void set_stereo_angle(float f) {
+   graphics_info_t::stereo_angle = f;
+   std::string cmd = "set-stereo-angle";
    std::vector<coot::command_arg_t> args;
    args.push_back(f);
    add_to_history_typed(cmd, args);
@@ -1359,7 +1452,7 @@ void set_hardware_stereo_angle_factor(float f) {
 
 float hardware_stereo_angle_factor_state() {
    add_to_history_simple("hardware-stereo-angle-factor-state");
-   return graphics_info_t::hardware_stereo_angle_factor;
+   return 0;
 }
 
 void set_model_display_radius(int state, float radius) {
@@ -1717,6 +1810,19 @@ void info_dialog_with_markup(const char *txt) {
 }
 
 
+/*! \brief created an ephemeral label in the graphics window
+ *
+ * the text stays on screen for about 2 sesconds.
+ *
+ * @param txt the text
+*/
+void ephemeral_overlay_label(const char *txt) {
+
+   graphics_info_t::ephemeral_overlay_label(std::string(txt));
+}
+
+
+
 void
 set_main_window_title(const char *s) {
 
@@ -1737,6 +1843,19 @@ set_main_window_title(const char *s) {
       }
    }
 }
+
+
+/*! \brief set the state of the validation graphs box
+ *
+ * By "docked" I mean, in the main window. The alternative
+ * is a floating dialog.
+ *
+ * @param state 0 is not docked, 1 is docked
+ */
+void set_validation_graphs_is_docked(short int state) {
+   graphics_info_t::validation_graphs_is_docked = state;
+}
+
 
 
 
@@ -1937,8 +2056,10 @@ float density_score_residue(int imol, const char *chain_id, int res_no, const ch
             r->GetAtomTable(residue_atoms, n_residue_atoms);
             for (int iat=0; iat<n_residue_atoms; iat++) {
                mmdb::Atom *at = residue_atoms[iat];
-               float d_at = density_at_point(imol_map, at->x, at->y, at->z);
-               v += d_at * at->occupancy;
+               if (!at->isTer()) {
+                  float d_at = density_at_point(imol_map, at->x, at->y, at->z);
+                  v += d_at * at->occupancy;
+                }
             }
          }
       }
@@ -2102,7 +2223,7 @@ void set_map_radius_em(float radius) {
    for (int ii=0; ii<g.n_molecules(); ii++)
       g.molecules[ii].update_map(true);
    graphics_draw();
-   std::string cmd = "set-radius-em";
+   std::string cmd = "set-map-radius-em";
    std::vector<coot::command_arg_t> args;
    args.push_back(radius);
    add_to_history_typed(cmd, args);
@@ -2148,6 +2269,12 @@ float get_map_radius() {
   return ret;
 }
 
+
+/*! \brief return the extent of the box/radius of electron density contours */
+float get_map_radius_em() {
+  float ret = graphics_info_t::box_radius_em;
+  return ret;
+}
 
 
 void set_display_intro_string(const char *str) {
@@ -2369,6 +2496,132 @@ void set_draw_hydrogens(int imol, int istate) {
    add_to_history_typed(cmd, args);
 }
 
+/* ! \brief get hydrogen bonds
+ *
+ * @param imol the molecule index
+ * @return the hydrogen bonds as a python object
+ *
+ */
+PyObject *get_hydrogen_bonds_py(int imol, const char *cid_sel_1, const char *cid_sel_2, short int mcdonald_and_thornton) {
+
+#if 0
+
+   // copy the attributes of atom_in into m_at
+   auto mmdb_atom_to_python_atom = [] (mmdb::Atom *atom_in) {
+
+      if (atom_in) { // can be null (strange).
+
+         m_at.serial = atom_in->serNum;
+         m_at.x       =             atom_in->x;
+         m_at.y       =             atom_in->y;
+         m_at.z       =             atom_in->z;
+         m_at.charge  =             atom_in->charge;
+         m_at.occ     =             atom_in->occupancy;
+         m_at.b_iso   =             atom_in->tempFactor;
+         m_at.element = std::string(atom_in->element);
+         m_at.name    = std::string(atom_in->name);
+         m_at.model   =             atom_in->GetModelNum();
+         m_at.chain   = std::string(atom_in->GetChainID());
+         m_at.res_no  =             atom_in->GetSeqNum();
+         m_at.altLoc  = std::string(atom_in->altLoc);
+         m_at.residue_name = std::string(atom_in->GetResidue()->name);
+      }
+   };
+#endif
+
+   auto python_atom_to_mmdb_atom = [] (mmdb::Atom *at) {
+
+      PyObject *at_py = PyDict_New();
+      PyDict_SetItemString(at_py, "x", PyFloat_FromDouble(at->x));
+      PyDict_SetItemString(at_py, "y", PyFloat_FromDouble(at->y));
+      PyDict_SetItemString(at_py, "z", PyFloat_FromDouble(at->z));
+
+      PyDict_SetItemString(at_py, "charge",       PyFloat_FromDouble(at->charge));
+      PyDict_SetItemString(at_py, "occ",          PyFloat_FromDouble(at->occupancy));
+      PyDict_SetItemString(at_py, "b_iso",        PyFloat_FromDouble(at->tempFactor));
+      PyDict_SetItemString(at_py, "element",      myPyString_FromString(at->element));
+      PyDict_SetItemString(at_py, "name",         myPyString_FromString(at->name));
+      PyDict_SetItemString(at_py, "model",        PyFloat_FromDouble(at->GetModelNum()));
+      PyDict_SetItemString(at_py, "chain",        myPyString_FromString(at->GetChainID()));
+      PyDict_SetItemString(at_py, "altLoc",       myPyString_FromString(at->altLoc));
+      PyDict_SetItemString(at_py, "residue_name", myPyString_FromString(at->GetResidue()->GetResName()));
+
+      return at_py;
+   };
+
+   auto make_h_bond_py = [python_atom_to_mmdb_atom] (coot::h_bond &h_bond) {
+
+      PyObject *l = PyList_New(12);
+
+      PyObject *hb_hydrogen_py    = Py_None;
+      PyObject *donor_py          = Py_None;
+      PyObject *acceptor_py       = Py_None;
+      PyObject *donor_neigh_py    = Py_None;
+      PyObject *acceptor_neigh_py = Py_None;
+
+      if (h_bond.hb_hydrogen)    hb_hydrogen_py    = python_atom_to_mmdb_atom(h_bond.hb_hydrogen);
+      if (h_bond.donor)          donor_py          = python_atom_to_mmdb_atom(h_bond.donor);
+      if (h_bond.acceptor)       acceptor_py       = python_atom_to_mmdb_atom(h_bond.acceptor);
+      if (h_bond.donor_neigh)    donor_neigh_py    = python_atom_to_mmdb_atom(h_bond.donor_neigh);
+      if (h_bond.acceptor_neigh) acceptor_neigh_py = python_atom_to_mmdb_atom(h_bond.acceptor_neigh);
+
+      PyList_SetItem(l, 0, hb_hydrogen_py);
+      PyList_SetItem(l, 1, donor_py);
+      PyList_SetItem(l, 2, acceptor_py);
+      PyList_SetItem(l, 3, donor_neigh_py);
+      PyList_SetItem(l, 4, acceptor_neigh_py);
+
+      PyList_SetItem(l, 5, PyFloat_FromDouble(h_bond.angle_1));
+      PyList_SetItem(l, 6, PyFloat_FromDouble(h_bond.angle_2));
+      PyList_SetItem(l, 7, PyFloat_FromDouble(h_bond.angle_3));
+      PyList_SetItem(l, 8, PyFloat_FromDouble(h_bond.dist));
+
+      PyList_SetItem(l,  9, PyBool_FromLong(h_bond.ligand_atom_is_donor));
+      PyList_SetItem(l, 10, PyBool_FromLong(h_bond.hydrogen_is_ligand_atom));
+      PyList_SetItem(l, 11, PyBool_FromLong(h_bond.bond_has_hydrogen_flag));
+
+      return l;
+   };
+
+   PyObject *r = Py_False;
+
+   if (is_valid_model_molecule(imol)) {
+      mmdb::realtype max_dist = 3.8; // pass this
+      bool debug = false;
+
+      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      coot::h_bonds hb;
+      int SelHnd_all = mol->NewSelection(); // d
+      int SelHnd_lig = mol->NewSelection(); // d
+      mol->Select(SelHnd_all, mmdb::STYPE_ATOM, cid_sel_1, mmdb::SKEY_NEW);
+      mol->Select(SelHnd_lig, mmdb::STYPE_ATOM, cid_sel_2, mmdb::SKEY_NEW);
+
+      std::vector<coot::h_bond> hbonds;
+
+      coot::protein_geometry geom = *graphics_info_t::Geom_p();
+      if (mcdonald_and_thornton)
+         hbonds = hb.get_mcdonald_and_thornton(SelHnd_lig, SelHnd_all, mol, geom, max_dist);
+      else
+         hbonds = hb.get(SelHnd_lig, SelHnd_all, mol, geom, imol);
+
+      r = PyList_New(hbonds.size());
+      for(unsigned ib=0;ib<hbonds.size();ib++) {
+         PyObject *h_bond_py = make_h_bond_py(hbonds[ib]);
+         PyList_SetItem(r, ib, h_bond_py);
+      }
+
+      mol->DeleteSelection(SelHnd_lig);
+      mol->DeleteSelection(SelHnd_all);
+
+   }
+
+   if (PyBool_Check(r))
+      Py_INCREF(r);
+   return r;
+
+}
+
+
 /*! \brief draw little coloured balls on atoms
 
 turn off with state = 0
@@ -2452,6 +2705,7 @@ get_map_colour(int imol) {
          colour.red   *= 65535;
          colour.green *= 65535;
          colour.blue  *= 65535;
+         colour.alpha *= 65535;
       }
    }
    std::string cmd = "get-map-colour";
@@ -2974,8 +3228,11 @@ float get_molecule_bonds_colour_map_rotation(int imol) {
 
 void  set_molecule_bonds_colour_map_rotation(int imol, float f) {
 
-   if (is_valid_model_molecule(imol))
+   if (is_valid_model_molecule(imol)) {
       graphics_info_t::molecules[imol].bonds_colour_map_rotation = f;
+      graphics_info_t::molecules[imol].make_bonds_type_checked();
+      graphics_draw();
+   }
    std::string cmd = "set-molecule-bonds-colour-map-rotation";
    std::vector<coot::command_arg_t> args;
    args.push_back(imol);
@@ -3216,10 +3473,37 @@ get_show_aniso() {
 
 void
 set_show_aniso(int state) {
+   logger.log(log_t::WARNING, logging::function_name_t(__FUNCTION__), "don't use this");
+}
 
-   graphics_info_t::show_aniso_atoms_flag = state;
+/*! \brief set show aniso atoms */
+void set_show_aniso_atoms(int imol, int state) {
+
+   if (is_valid_model_molecule(imol)) {
+      bool st = state;
+      graphics_info_t::molecules[imol].set_show_atoms_as_aniso(st);
+   }
    graphics_draw();
 }
+
+/*! \brief set show aniso atoms as ortep */
+void set_show_aniso_atoms_as_ortep(int imol, int state) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].set_show_aniso_atoms_as_ortep(state);
+   }
+   graphics_draw();
+}
+
+/*! \brief set show aniso atoms as ortep */
+void set_show_aniso_atoms_as_empty(int imol, int state) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].set_show_aniso_atoms_as_empty(state);
+   }
+   graphics_draw();
+}
+
 
 char *get_text_for_aniso_limit_radius_entry() {
    char *text;
@@ -3268,7 +3552,7 @@ void set_default_bond_thickness(int t) {
 
 }
 
-/*! \brief set the default represenation type (default 1).*/
+/*! \brief set the default representation type (default 1).*/
 void set_default_representation_type(int type) {
    graphics_info_t g;
    g.default_bonds_box_type = type;
@@ -3603,10 +3887,10 @@ int dots(int imol,
    int idots = -1;
    if (is_valid_model_molecule(imol)) {
       if (atom_selection_str) {
-	 // the colour is handled internally to make_dots - there the
-	 // state of molecule dots colour (see set_dots_colour()
-	 // below) is checked.
-	 idots = graphics_info_t::molecules[imol].make_dots(std::string(atom_selection_str),
+         // the colour is handled internally to make_dots - there the
+         // state of molecule dots colour (see set_dots_colour()
+         // below) is checked.
+         idots = graphics_info_t::molecules[imol].make_dots(std::string(atom_selection_str),
 							    dots_name,
 							    dot_density,
 							    sphere_size_scale);
@@ -3662,7 +3946,8 @@ int n_dots_sets(int imol) {
    if ((imol >= 0) && (imol < graphics_info_t::n_molecules())) {
       r = graphics_info_t::molecules[imol].n_dots_sets();
    } else {
-      std::cout << "WARNING:: Bad molecule number: " << imol << std::endl;
+      // std::cout << "WARNING:: Bad molecule number: " << imol << std::endl;
+      logger.log(log_t::WARNING, "Bad molecule number:", imol);
    }
    return r;
 }
@@ -3829,20 +4114,40 @@ void set_rotation_centre_size_from_widget(const gchar *text) {
    float val;
    graphics_info_t g;
 
-   val = atof(text); 
-   if ((val > 1000) || (val < 0)) { 
+   val = atof(text);
+   if ((val > 1000) || (val < 0)) {
       std::cout << "Invalid cube size: " << text << ". Assuming 1.0A" << std::endl;
       val = 1.0;
-   } 
-   g.rotation_centre_cube_size = val; 
+   }
+   g.user_defined_rotation_centre_crosshairs_size_scale_factor = val;
    graphics_draw();
 }
 
 void set_rotation_centre_size(float f) {
    graphics_info_t g;
-   g.rotation_centre_cube_size = f;
+   // g.rotation_centre_cube_size = f;
+   g.user_defined_rotation_centre_crosshairs_size_scale_factor = f;
    graphics_draw();
 }
+
+void set_user_defined_rotation_centre_crosshairs_size_scale_factor(float f) {
+   graphics_info_t g;
+   g.user_defined_rotation_centre_crosshairs_size_scale_factor = f;
+   graphics_draw();
+}
+
+/*! \brief set rotation centre colour
+
+This is the colour for a dark background - if the background colour is not dark,
+then the cross-hair colour becomes the inverse colour */
+void set_rotation_centre_cross_hairs_colour(float r, float g, float b, float alpha) {
+
+   glm::vec4 c(r,g,b,alpha);
+   graphics_info_t gg;
+   gg.set_rotation_centre_cross_hairs_colour(c);
+   graphics_draw();
+}
+
 
 gchar *get_text_for_rotation_centre_cube_size() {
 
@@ -3850,7 +4155,7 @@ gchar *get_text_for_rotation_centre_cube_size() {
    graphics_info_t g;
 
    text = (char *)  malloc (100);
-   snprintf(text, 90, "%-6.3f", g.rotation_centre_cube_size);
+   snprintf(text, 90, "%-6.3f", g.user_defined_rotation_centre_crosshairs_size_scale_factor);
    return text;
 }
 
@@ -3990,7 +4295,7 @@ int min_resno_in_chain(int imol, const char *chain_id) {
    return res_no_min;
 
 }
-   
+
 /*! \brief return the maximum residue number for imol chain chain_id */
 int max_resno_in_chain(int imol, const char *chain_id) {
 
@@ -4021,7 +4326,7 @@ float median_temperature_factor(int imol) {
                                                      low_cut_flag,
                                                      high_cut_flag);
    } else {
-      std::cout << "WARNING:: no such molecule as " << imol << "\n";
+      logger.log(log_t::WARNING, "No such molecule number:", imol);
    }
    return median;
 }
@@ -4042,10 +4347,11 @@ float average_temperature_factor(int imol) {
 						     low_cut_flag,
 						     high_cut_flag);
       } else {
-	 std::cout << "WARNING:: molecule " << imol << " has no model\n";
+	 // std::cout << "WARNING:: molecule " << imol << " has no model\n";
+         logger.log(log_t::WARNING, "Molecule:", imol, "has no model");
       }
    } else {
-      std::cout << "WARNING:: no such molecule as " << imol << "\n";
+      logger.log(log_t::WARNING, "No such molecule as:", imol);
    }
    return av;
 }
@@ -4065,7 +4371,8 @@ float standard_deviation_temperature_factor(int imol) {
 							     low_cut_flag,
 							     high_cut_flag);
    } else {
-      std::cout << "WARNING:: molecule " << imol << " is not a valid model\n";
+      // std::cout << "WARNING:: molecule " << imol << " is not a valid model\n";
+      logger.log(log_t::WARNING, "Molecule:", imol, "is not a valid model");
    }
    return av;
 }
@@ -4154,7 +4461,6 @@ void set_debug_atom_picking(int istate) {
 }
 
 
-#include "gl-matrix.h"
 void print_view_matrix() { 		/* print the view matrix */
 
    graphics_info_t g;
@@ -4208,6 +4514,82 @@ void set_view_quaternion(float i, float j, float k, float l) {
 }
 
 
+
+/*! \brief Set the view
+ *
+ * the view is a JSON string of a dict of the orientation quaternion, the zoom and the rotation centre.
+ *
+ * @param view_as_json the view parameter as a JSON string
+ * */
+void set_view_from_json(const std::string &view_as_json) {
+
+   try {
+      json j = json::parse(view_as_json);
+      json j_rc   = j["rotation-centre"];
+      json j_quat = j["quaternion"];
+      json j_zoom = j["zoom"];
+      if (j_rc.is_array()) {
+         if (j_quat.is_array()) {
+            if (j_zoom.is_number_float()) {
+               float zoom = j_zoom;
+               unsigned int rc_size = j_rc.size();
+               if (rc_size == 3) {
+                  float rc_0 = j_rc[0];
+                  float rc_1 = j_rc[1];
+                  float rc_2 = j_rc[2];
+                  coot::Cartesian rc(rc_0, rc_1, rc_2);
+                  unsigned int quat_size = j_quat.size();
+                  if (quat_size == 4) {
+                     float quat_0 = j_quat[0];
+                     float quat_1 = j_quat[1];
+                     float quat_2 = j_quat[2];
+                     float quat_3 = j_quat[3];
+                     glm::quat q(quat_0, quat_1, quat_2, quat_3);
+                     graphics_info_t::set_view(q, rc, zoom);
+                  }
+               }
+            }
+         }
+      }
+   }
+   catch(const nlohmann::detail::type_error &e) {
+      std::cout << "ERROR:: " << e.what() << std::endl;
+   }
+   catch(const nlohmann::detail::parse_error &e) {
+      std::cout << "ERROR:: " << e.what() << std::endl;
+   }
+
+}
+
+/*! \brief get the view
+ *
+ * the view is a JSON string of a dict of the orientation quaternion, the zoom and the rotation centre.
+ *
+ * */
+std::string get_view_as_json() {
+
+   json j_rc = json::array();
+   auto rc = graphics_info_t::get_rotation_centre();
+   j_rc.push_back(rc.x);
+   j_rc.push_back(rc.y);
+   j_rc.push_back(rc.z);
+   json j_quat = json::array();
+   glm::quat quat = graphics_info_t::view_quaternion;
+   j_quat.push_back(quat[3]); // 2026-03-10-PE, weird, eh?
+   j_quat.push_back(quat[0]);
+   j_quat.push_back(quat[1]);
+   j_quat.push_back(quat[2]);
+   json j_zoom = graphics_info_t::zoom;
+
+   json j;
+   j["zoom"] = j_zoom;
+   j["rotation-centre"] = j_rc;
+   j["quaternion"] = j_quat;
+
+   std::string js = j.dump(2);
+
+   return js;
+}
 
 /* Return 1 if we moved to a molecule centre, else go to origin and
    return 0. */
@@ -4306,6 +4688,18 @@ int reset_view() {
 }
 
 
+/*! \brief set the view rotation scale factor
+
+ Useful/necessary for high resolution displayed, where, without this factor
+ the view doesn't rotate enough */
+void set_view_rotation_scale_factor(float f) {
+
+   graphics_info_t::view_rotation_per_pixel_scale_factor = f;
+
+}
+
+
+
 
 // ------------------------------------------------------
 //                   Skeleton
@@ -4381,13 +4775,6 @@ void test_fragment() {
    g.rotamer_graphs(0);
 }
 
-// we redefine TRUE here somewhere...
-// #include <gdk/gdkglconfig.h>
-// #include <gtk/gtkgl.h>
-// #include <gdk/x11/gdkglx.h>
-// #include <gdk/x11/gdkglglxext.h>
-
-
 int write_connectivity(const char *monomer_name, const char *filename) {
 
    graphics_info_t g;
@@ -4401,7 +4788,8 @@ void screendump_image(const char *filename) {
    graphics_draw();
 
    int istatus = graphics_info_t::screendump_image(filename);
-   std::cout << "INFO:: screendump_image status " << istatus << std::endl;
+   // std::cout << "INFO:: screendump_image status " << istatus << std::endl;
+   logger.log(log_t::INFO, "screendump_image status", istatus);
    if (istatus == 1) {
       std::string s = "Screendump image ";
       s += filename;
@@ -4941,7 +5329,7 @@ short int possible_cell_symm_for_phs_file() {
 
 // return a string to each of the cell parameters in molecule imol.
 //
-gchar *get_text_for_phs_cell_chooser(int imol, char *field) {
+gchar *get_text_for_phs_cell_chooser(int imol, const char *field) {
 
    // we first look in atomseletion
 
@@ -5179,24 +5567,24 @@ int set_go_to_atom_chain_residue_atom_name_strings(const char *t1, const char *t
 
 
 int
-goto_next_atom_maybe_new(GtkWidget *goto_atom_window) {
+goto_next_atom_maybe_new() {
 
 //    int it2 = atoi(t2);
 //    return goto_near_atom_maybe(t1, it2, t3, res_entry, +1);
 
    graphics_info_t g;
-   return g.intelligent_next_atom_centring(goto_atom_window);
+   return g.intelligent_next_atom_centring();
 
 }
 
 int
-goto_previous_atom_maybe_new(GtkWidget *goto_atom_window) {
+goto_previous_atom_maybe_new() {
 
 //    int it2 = atoi(t2);
 //    return goto_near_atom_maybe(t1, it2, t3, res_entry, +1);
 
    graphics_info_t g;
-   return g.intelligent_previous_atom_centring(goto_atom_window);
+   return g.intelligent_previous_atom_centring();
 }
 
 
@@ -5265,7 +5653,7 @@ void graphics_to_ca_representation(int imol) {
    graphics_info_t g;
    if (is_valid_model_molecule(imol)) {
       bool force_rebonding = false;
-      std::cout << "calling ca_representation() for imol " << imol << std::endl;
+      // std::cout << "calling ca_representation() for imol " << imol << std::endl;
       g.molecules[imol].ca_representation(force_rebonding);
    } else {
       std::cout << "WARNING:: no such valid molecule " << imol
@@ -5574,7 +5962,7 @@ set_b_factor_bonds_scale_factor(int imol, float f) {
    return r;
 }
 
-void graphics_to_phenix_geo_representation(int imol, int mode, const coot::phenix_geo_bonds &g) {
+void graphics_to_phenix_geo_representation(int imol, int mode, const coot::phenix_geo::phenix_geometry &g) {
 
    if (is_valid_model_molecule(imol)) {
       graphics_info_t::molecules[imol].update_bonds_using_phenix_geo(g);
@@ -5586,9 +5974,29 @@ void graphics_to_phenix_geo_representation(int imol, int mode, const coot::pheni
 void graphics_to_phenix_geo_representation(int imol, int mode,
 					   const std::string &geo_file_name) {
 
-   coot::phenix_geo_bonds pgb(geo_file_name);
-   graphics_to_phenix_geo_representation(imol, mode, pgb);
+   coot::phenix_geo::phenix_geometry pg;
+   pg.parse(geo_file_name);
+   graphics_to_phenix_geo_representation(imol, mode, pg);
 
+}
+
+void phenix_geo_validation_buttons(int imol,
+                                   const coot::phenix_geo::phenix_geometry &pg,
+                                   double residual_cutoff);
+
+//! \brief validate using phenix geo bonds
+//!
+//! Typically this would be called shortly after
+//!
+//! @param imol
+void validate_using_phenix_geo_bonds(int imol, const std::string &geo_file_name) {
+
+   if (is_valid_model_molecule(imol)) {
+      coot::phenix_geo::phenix_geometry pg;
+      pg.parse(geo_file_name);
+      float residual_criterion = 4.4;
+      phenix_geo_validation_buttons(imol, pg, residual_criterion);
+   }
 }
 
 /*  Not today
@@ -5623,12 +6031,12 @@ void set_skeletonization_level_from_widget(const char *txt) {
 
    tmp = atof(txt);
 
-   if (tmp > 0.0 &&  tmp < 9999.9) { 
-      g.skeleton_level = tmp; 
+   if (tmp > 0.0 &&  tmp < 9999.9) {
+      g.skeleton_level = tmp;
    } else {
       std::cout << "Cannot interpret " << txt << " using 0.2 instead" << std::endl;
-      g.skeleton_level = 0.2; 
-   } 
+      g.skeleton_level = 0.2;
+   }
 
    for (int imol=0; imol<g.n_molecules(); imol++) {
       if (g.molecules[imol].has_xmap() &&
@@ -5655,10 +6063,10 @@ void set_skeleton_box_size_from_widget(const char *txt) {
 
    tmp = atof(txt);
 
-   if (tmp > 0.0 &&  tmp < 9999.9) { 
+   if (tmp > 0.0 &&  tmp < 9999.9) {
       g.skeleton_box_radius = tmp;
-   } else { 
-      
+   } else {
+
       std::cout << "Cannot interpret " << txt << " using 0.2 instead" << std::endl;
       g.skeleton_box_radius = 0.2;
    }
@@ -5909,22 +6317,19 @@ set_display_control_button_state(int imol, const std::string &button_type, int s
 
          GtkWidget *item_widget = gtk_widget_get_first_child(display_control_vbox);
          while (item_widget) {
-            GtkWidget *child_0 = gtk_widget_get_first_child(item_widget);
-            GtkWidget *child_1 = gtk_widget_get_next_sibling(child_0);
-            GtkWidget *child_2 = gtk_widget_get_next_sibling(child_1);
-            GtkWidget *child_3 = gtk_widget_get_next_sibling(child_2);
-            GtkWidget *display_check_button = child_2;
-            GtkWidget *active_check_button  = child_3;
-            // std::cout << "child_2 " << child_2 << " child_3 " << child_3 << std::endl;
             int imol_widget = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item_widget), "imol"));
             if (imol_widget == imol) {
-               if (button_type == "Displayed") {
-                  // actually I need only set the state if the state is not the current
-                  // state of the check button.
-                  gtk_check_button_set_active(GTK_CHECK_BUTTON(display_check_button), state);
-               }
-               if (button_type == "Active") {
-                  gtk_check_button_set_active(GTK_CHECK_BUTTON(active_check_button), state);
+               // item_widget is a mol_vbox, the hbox with controls is its first child
+               GtkWidget *hbox = gtk_widget_get_first_child(item_widget);
+               if (hbox) {
+                  GtkWidget *display_check_button = GTK_WIDGET(g_object_get_data(G_OBJECT(hbox), "display_check_button"));
+                  GtkWidget *active_check_button  = GTK_WIDGET(g_object_get_data(G_OBJECT(hbox), "active_check_button"));
+                  if (button_type == "Displayed" && display_check_button) {
+                     gtk_check_button_set_active(GTK_CHECK_BUTTON(display_check_button), state);
+                  }
+                  if (button_type == "Active" && active_check_button) {
+                     gtk_check_button_set_active(GTK_CHECK_BUTTON(active_check_button), state);
+                  }
                }
             }
             item_widget = gtk_widget_get_next_sibling(item_widget);
@@ -6074,7 +6479,8 @@ void display_only_active() {
 
    std::pair<bool, std::pair<int, coot::atom_spec_t> > aa = active_atom_spec();
 
-   std::cout << "INFO:: display_only_active()" << aa.first << " " << aa.second.first << " " << aa.second.second << std::endl;
+   // std::cout << "INFO:: display_only_active()" << aa.first << " " << aa.second.first << " " << aa.second.second << std::endl;
+   logger.log(log_t::INFO, "display_only_active()", aa.first, aa.second.first, aa.second.second.format());
 
    if (aa.first) {
       int imol_active = aa.second.first;
@@ -6153,7 +6559,8 @@ show_spacegroup(int imol) {
 
    if (is_valid_model_molecule(imol) || is_valid_map_molecule(imol)) {
       std::string spg = graphics_info_t::molecules[imol].show_spacegroup();
-      std::cout << "INFO:: spacegroup: " << spg << std::endl;
+      // std::cout << "INFO:: spacegroup: " << spg << std::endl;
+      logger.log(log_t::INFO, "spacegroup:", spg);
       unsigned int l = spg.length();
       char *s = new char[l+1];
       strncpy(s, spg.c_str(), l+1);
@@ -6296,7 +6703,7 @@ scale_zoom_internal(float f) {
    graphics_info_t g;
    if (f > 0.0)
       if (f < 1.8)
-         if (f > 0.5)
+         if (f >= 0.5)
             g.zoom *= f;
 
 }
@@ -6471,7 +6878,7 @@ void set_refinement_overall_weight_from_text(const char *t) {
       graphics_info_t::geometry_vs_map_weight = v;
       graphics_info_t g;
       g.poke_the_refinement();
-      
+
    } else {
       std::cout << "WARNING:: in set_refinement_overall_weight_from_text() t null " << std::endl;
    }
@@ -6479,7 +6886,7 @@ void set_refinement_overall_weight_from_text(const char *t) {
 }
 
 void set_refinement_torsion_weight_from_text(int idx, const char *t) {
-   
+
    graphics_info_t g;
    float v = coot::util::string_to_float(t);
    graphics_info_t::refine_params_dialog_torsions_weight_combox_position = idx;
@@ -6611,6 +7018,316 @@ int pyrun_simple_string(const char *python_command) {
 
 #ifdef USE_PYTHON
 
+/**
+ * Alternative version that extracts a return value from multi-line code.
+ * Wraps the code to capture the last expression's value.
+ *
+ * @param code Python code to execute
+ * @return PyObject* result (new reference), or NULL on error
+ */
+std::pair<PyObject*, std::string>
+execute_python_code_with_result_internal_old(const std::string &code) {
+
+   std::string error_message;
+   PyObject* result = NULL;
+
+   // Get __main__ namespace
+   PyObject* main_module = PyImport_AddModule("__main__");
+   if (!main_module) {
+      std::cerr << "ERROR: Failed to get __main__ module" << std::endl;
+      return std::make_pair(result, error_message);
+   }
+
+   PyObject* global_dict = PyModule_GetDict(main_module);
+   if (!global_dict) {
+      std::cerr << "ERROR: Failed to get __main__ dictionary" << std::endl;
+      return std::make_pair(result, error_message);
+   }
+
+   // Try as simple expression first
+   result = PyRun_String(code.c_str(), Py_eval_input, global_dict, global_dict);
+   if (result) {
+      return std::make_pair(result, error_message);
+   }
+
+   PyErr_Clear();
+
+   // For multi-line code, we need to handle it differently
+   // Execute the code
+   PyObject* exec_result = PyRun_String(code.c_str(), Py_file_input, global_dict, global_dict);
+
+   if (!exec_result) {
+        std::cerr << "ERROR: Python execution failed:" << std::endl;
+        if (PyErr_Occurred()) {
+           PyObject *ptype, *pvalue, *ptraceback;
+           PyErr_Fetch(&ptype, &pvalue, &ptraceback);
+           if (pvalue) {
+              PyObject* str_obj = PyObject_Str(pvalue);
+              if (str_obj) {
+                 const char* str = PyUnicode_AsUTF8(str_obj);
+                 if (str) {
+                     error_message = str;
+                 }
+                 Py_DECREF(str_obj);
+               }
+           }
+
+           Py_XDECREF(ptype);
+           Py_XDECREF(pvalue);
+           Py_XDECREF(ptraceback);
+           PyErr_Print();
+        }
+        return std::make_pair(result, error_message);
+   }
+
+   Py_DECREF(exec_result);  // This is typically Py_None
+
+    // Look for a special variable '__result__' that the code may have set
+    // Or just return None to indicate successful execution
+    PyObject* stored_result = PyDict_GetItemString(global_dict, "__result__");
+    if (stored_result) {
+        Py_INCREF(stored_result);  // GetItemString returns borrowed reference
+        return std::make_pair(stored_result, error_message);
+    }
+
+    // No specific result - return None to indicate success
+    // Py_RETURN_NONE;
+    return std::make_pair(Py_None, error_message);
+}
+
+#include "python-results-container.hh"
+
+execute_python_results_container_t execute_python_code_with_result_internal(const std::string &code) {
+
+   // Try as simple (one-line) expression
+
+   execute_python_results_container_t rc;
+   // Get __main__ namespace
+   PyObject* main_module = PyImport_AddModule("__main__");
+   if (!main_module) {
+      std::cerr << "ERROR: Failed to get __main__ module" << std::endl;
+      rc.error_message = "Failed to get __main__ module";
+      return rc;
+   }
+   PyObject* global_dict = PyModule_GetDict(main_module);
+   if (!global_dict) {
+      // std::cerr << "ERROR: Failed to get __main__ dictionary" << std::endl;
+      // return std::make_pair(result, error_message);
+      std::cerr << "ERROR: Failed to get __main__ dictionary" << std::endl;
+      rc.error_message = "Failed to get __main__ dictionary";
+      return rc;
+   }
+   // capture stdout - start
+   // Save original stdout and redirect to StringIO
+   PyRun_SimpleString("import sys, io");
+   PyRun_SimpleString("__original_stdout__ = sys.stdout");
+   PyRun_SimpleString("__stdout_capture__ = io.StringIO()");
+   PyRun_SimpleString("sys.stdout = __stdout_capture__");
+   // capture stdout - end
+
+   PyObject *exec_result = PyRun_String(code.c_str(), Py_eval_input, global_dict, global_dict);
+   rc.result = exec_result;
+   if (exec_result) {
+      // get captured output
+      PyObject* stdout_obj = PyDict_GetItemString(global_dict, "__stdout_capture__");
+      if (stdout_obj) {
+         PyObject* captured = PyObject_CallMethod(stdout_obj, "getvalue", NULL);
+         if (captured) {
+            const char* output_str = PyUnicode_AsUTF8(captured);
+            if (output_str && strlen(output_str) > 0) {
+               std::cout << output_str;  // Print to terminal
+               rc.stdout = output_str;
+            }
+            Py_DECREF(captured);
+         }
+      }
+      // Restore stdout
+      PyRun_SimpleString("sys.stdout = __original_stdout__");
+
+   } else {
+      std::cerr << "ERROR: execute_python_code_with_result_internal(): Python execution failed" << std::endl;
+      // Import traceback module and format the exception
+      PyObject *ptype, *pvalue, *ptraceback;
+      PyErr_Fetch(&ptype, &pvalue, &ptraceback);
+
+      std::cerr << "DEBUG: ptype=" << (ptype ? "NOT NULL" : "NULL") << std::endl;
+      std::cerr << "DEBUG: pvalue=" << (pvalue ? "NOT NULL" : "NULL") << std::endl;
+      std::cerr << "DEBUG: ptraceback=" << (ptraceback ? "NOT NULL" : "NULL") << std::endl;
+
+      // Always use fallback path - simpler and more robust
+      if (pvalue) {
+         std::cerr << "DEBUG: Converting pvalue to string" << std::endl;
+         PyObject* str_obj = PyObject_Str(pvalue);
+         if (str_obj) {
+            const char* str = PyUnicode_AsUTF8(str_obj);
+            if (str) {
+               rc.error_message = std::string(str);
+               std::cerr << "DEBUG: rc.error_message set to: " << rc.error_message << std::endl;
+            } else {
+               rc.error_message = "Python error occurred but could not retrieve error message";
+               std::cerr << "DEBUG: PyUnicode_AsUTF8 failed" << std::endl;
+            }
+            Py_DECREF(str_obj);
+         } else {
+            rc.error_message = "Python error occurred but PyObject_Str failed";
+            std::cerr << "DEBUG: PyObject_Str failed" << std::endl;
+         }
+      } else {
+         rc.error_message = "Python error occurred but no exception value available";
+         std::cerr << "DEBUG: No pvalue" << std::endl;
+      }
+
+      // ALWAYS clean up the error objects
+      Py_XDECREF(ptype);
+      Py_XDECREF(pvalue);
+      Py_XDECREF(ptraceback);
+
+      // Restore stdout even on error path
+      PyRun_SimpleString("sys.stdout = __original_stdout__");
+      PyErr_Clear();
+   }
+   return rc;
+}
+
+execute_python_results_container_t execute_python_multiline_code_with_result_internal(const std::string &code) {
+
+   execute_python_results_container_t rc;
+
+   // Get __main__ namespace
+   PyObject* main_module = PyImport_AddModule("__main__");
+   if (!main_module) {
+      std::cerr << "ERROR: Failed to get __main__ module" << std::endl;
+      rc.error_message = "Failed to get __main__ module";
+      return rc;
+   }
+   PyObject* global_dict = PyModule_GetDict(main_module);
+   if (!global_dict) {
+      // std::cerr << "ERROR: Failed to get __main__ dictionary" << std::endl;
+      // return std::make_pair(result, error_message);
+      std::cerr << "ERROR: Failed to get __main__ dictionary" << std::endl;
+      rc.error_message = "Failed to get __main__ dictionary";
+      return rc;
+   }
+
+   // capture stdout - start
+   // Save original stdout and redirect to StringIO
+   PyRun_SimpleString("import sys, io");
+   PyRun_SimpleString("__original_stdout__ = sys.stdout");
+   PyRun_SimpleString("__stdout_capture__ = io.StringIO()");
+   PyRun_SimpleString("sys.stdout = __stdout_capture__");
+   // capture stdout - end
+
+   PyObject *exec_result = PyRun_String(code.c_str(), Py_file_input, global_dict, global_dict);
+   std::cout << "DEBUG:: ------------ exec_result " << exec_result << std::endl;
+   if (exec_result) {
+      rc.result = exec_result;
+      // get captured output
+      PyObject* stdout_obj = PyDict_GetItemString(global_dict, "__stdout_capture__");
+      if (stdout_obj) {
+         PyObject* captured = PyObject_CallMethod(stdout_obj, "getvalue", NULL);
+         if (captured) {
+            const char* output_str = PyUnicode_AsUTF8(captured);
+            if (output_str && strlen(output_str) > 0) {
+               std::cout << output_str;  // Print to terminal
+               rc.stdout = output_str;
+            }
+            Py_DECREF(captured);
+         }
+      }
+      // Restore stdout
+      PyRun_SimpleString("sys.stdout = __original_stdout__");
+
+   } else {
+
+      std::cerr << "ERROR: execute_python_multiline_code_with_result_internal(): Python execution failed" << std::endl;
+
+      // Import traceback module and format the exception
+      PyObject *ptype, *pvalue, *ptraceback;
+      // PyErr_Fetch() consumes the error.
+      PyErr_Fetch(&ptype, &pvalue, &ptraceback); // 2026-01-11-PE use PyErr_GetRaisedException() in future
+      PyObject* traceback_module = PyImport_ImportModule("traceback");
+      if (traceback_module && ptraceback) {
+         PyObject* format_exception = PyObject_GetAttrString(traceback_module, "format_exception");
+         if (format_exception) {
+             PyObject* formatted = PyObject_CallFunctionObjArgs(format_exception, ptype, pvalue, ptraceback, NULL);
+             if (formatted && PyList_Check(formatted)) {
+                 // Join all traceback lines into single string
+                 std::string full_traceback;
+                 Py_ssize_t size = PyList_Size(formatted);
+                 for (Py_ssize_t i = 0; i < size; i++) {
+                     PyObject* line = PyList_GetItem(formatted, i);
+                     const char* line_str = PyUnicode_AsUTF8(line);
+                     if (line_str) {
+                         full_traceback += line_str;
+                     }
+                 }
+                 rc.error_message = full_traceback;
+             }
+             Py_XDECREF(formatted);
+             Py_DECREF(format_exception);
+         }
+         Py_DECREF(traceback_module);
+
+      } else {
+         // Fallback to simple error message if traceback unavailable
+         if (pvalue) {
+            PyObject* str_obj = PyObject_Str(pvalue);
+            if (str_obj) {
+               const char* str = PyUnicode_AsUTF8(str_obj);
+               if (str) {
+                   rc.error_message = str;
+               }
+               Py_DECREF(str_obj);
+            }
+         }
+
+         Py_XDECREF(ptype);
+         Py_XDECREF(pvalue);
+         Py_XDECREF(ptraceback);
+      }
+      return rc;
+   }
+
+   // **GET CAPTURED OUTPUT (for multi-line case too)**
+   PyObject* stdout_obj = PyDict_GetItemString(global_dict, "__stdout_capture__");
+   if (stdout_obj) {
+      PyObject* captured = PyObject_CallMethod(stdout_obj, "getvalue", NULL);
+      if (captured) {
+         const char* output_str = PyUnicode_AsUTF8(captured);
+         if (output_str && strlen(output_str) > 0) {
+            std::cout << output_str;  // Print to terminal
+            // You could also save to a file here if needed
+            rc.stdout = output_str;
+         }
+         Py_DECREF(captured);
+      }
+   }
+   // Restore stdout
+   PyRun_SimpleString("sys.stdout = __original_stdout__");
+
+   // Look for a special variable '__result__' that the code may have set
+   PyObject* stored_result = PyDict_GetItemString(global_dict, "__result__");
+   if (stored_result) {
+        Py_INCREF(stored_result);
+        // return std::make_pair(stored_result, error_message);
+        rc.result = stored_result;
+        return rc;
+   }
+
+   // return std::make_pair(Py_None, error_message);
+   rc.result = Py_None;
+   return rc;
+}
+
+
+PyObject* execute_python_code_with_result(const std::string &code) {
+
+   // std::pair<PyObject *, std::string> r = execute_python_code_with_result_internal(code);
+   execute_python_results_container_t r = execute_python_code_with_result_internal(code);
+   return r.result;
+}
+
+
 // BL says:: let's have a python command with can receive return values
 // we need to pass the script file containing the funcn and the funcn itself
 // returns a PyObject which can then be used further
@@ -6640,32 +7357,36 @@ PyObject *safe_python_command_with_return(const std::string &python_cmd) {
 
       std::cout << "running command: " << command << std::endl;
       PyObject* source_code = Py_CompileString(command.c_str(), "adhoc", Py_eval_input);
-      PyObject* func = PyFunction_New(source_code, d);
-      result = PyObject_CallObject(func, PyTuple_New(0));
-      std::cout << "--------------- in safe_python_command_with_return() result at: " << result << std::endl;
-      if (result) {
-         if(!PyUnicode_Check(result)) {
-             std::cout << "--------------- in safe_python_command_with_return() result is probably not a string." << std::endl;
+      if (source_code) {
+         PyObject* func = PyFunction_New(source_code, d);
+         result = PyObject_CallObject(func, PyTuple_New(0));
+         std::cout << "--------------- in safe_python_command_with_return() result at: " << result << std::endl;
+         if (result) {
+            if(!PyUnicode_Check(result)) {
+                std::cout << "--------------- in safe_python_command_with_return() result is probably not a string." << std::endl;
+            }
+            PyObject* displayed = display_python(result);
+            PyObject* as_string = PyUnicode_AsUTF8String(displayed);
+            std::cout << "--------------- in safe_python_command_with_return() result: "
+                      << PyBytes_AS_STRING(as_string) << std::endl;
+            Py_XDECREF(displayed);
+            Py_XDECREF(as_string);
          }
-         PyObject* displayed = display_python(result);
-         PyObject* as_string = PyUnicode_AsUTF8String(displayed);
-         std::cout << "--------------- in safe_python_command_with_return() result: "
-                   << PyBytes_AS_STRING(as_string) << std::endl;
-         Py_XDECREF(displayed);
-         Py_XDECREF(as_string);
-      }
-      else {
-         std::cout << "--------------- in safe_python_command_with_return() result was null" << std::endl;
-         if(PyErr_Occurred()) {
-            std::cout << "--------------- in safe_python_command_with_return() Printing Python exception:" << std::endl;
-            PyErr_Print();
+         else {
+            std::cout << "--------------- in safe_python_command_with_return() result was null" << std::endl;
+            if(PyErr_Occurred()) {
+               std::cout << "--------------- in safe_python_command_with_return() Printing Python exception:" << std::endl;
+               PyErr_Print();
+            }
          }
-      }
 
-      // debugging
-      // PyRun_String("import coot; print(dir(coot))", Py_file_input, d, d);
-      Py_XDECREF(func);
-      Py_XDECREF(source_code);
+         // debugging
+         // PyRun_String("import coot; print(dir(coot))", Py_file_input, d, d);
+         Py_XDECREF(func);
+         Py_XDECREF(source_code);
+      } else {
+         std::cout << "DEBUG:: in safe_python_command_with_return, null source_code" << std::endl;
+      }
    } else {
       std::cout << "ERROR:: Hopeless failure: module for __main__ is null" << std::endl;
    }
@@ -6781,18 +7502,14 @@ SCM residue_spec_to_scm(const coot::residue_spec_t &res) {
 // residues-matching-criteria [return-val, chain-id, resno, ins-code]
 // This is a library function really.  There should be somewhere else to put it.
 // It doesn't need expression at the scripting level.
-// return a null list on problem
 PyObject *residue_spec_to_py(const coot::residue_spec_t &res) {
-   PyObject *r;
-   r = PyList_New(4);
 
-//    std::cout <<  "py_residue on: " << res.chain << " " << res.resno << " "
-// 	     << res.insertion_code  << std::endl;
-   Py_XINCREF(Py_True); // warning: dereferencing type-punned pointer will break strict-aliasing rules
-   PyList_SetItem(r, 0, Py_True);
-   PyList_SetItem(r, 1, myPyString_FromString(res.chain_id.c_str()));
-   PyList_SetItem(r, 2, PyLong_FromLong(res.res_no));
-   PyList_SetItem(r, 3, myPyString_FromString(res.ins_code.c_str()));
+   // 20251216-PE this no longer prefixes a True
+   PyObject *r = PyList_New(3);
+
+   PyList_SetItem(r, 0, myPyString_FromString(res.chain_id.c_str()));
+   PyList_SetItem(r, 1, PyLong_FromLong(res.res_no));
+   PyList_SetItem(r, 2, myPyString_FromString(res.ins_code.c_str()));
 
    return r;
 }
@@ -7085,6 +7802,10 @@ void post_scheme_scripting_window() {
 
 }
 
+#include "network-get.hh"
+// this needs a header?
+// mode 1 means "mtz" and 0 means coords
+void network_get_accession_code_entity(const std::string &text, int mode);
 
 /* called from c-inner-main */
 // If you edit this again, move it to graphics_info_t.
@@ -7097,8 +7818,9 @@ run_command_line_scripts() {
                 << std::endl;
 
    if (graphics_info_t::command_line_scripts.size()) {
-      std::cout << "INFO:: There are " << graphics_info_t::command_line_scripts.size()
-		<< " command line scripts to run\n";
+      // std::cout << "INFO:: There are " << graphics_info_t::command_line_scripts.size()
+      //          << " command line scripts to run\n";
+      logger.log(log_t::INFO, "There are", graphics_info_t::command_line_scripts.size(), "command line scripts to run");
       for (unsigned int i=0; i<graphics_info_t::command_line_scripts.size(); i++)
 	 std::cout << "    " << graphics_info_t::command_line_scripts[i].c_str()
 		   << std::endl;
@@ -7113,38 +7835,25 @@ run_command_line_scripts() {
    }
 
    // --------- commands ------------
-   
+
    for (unsigned int i=0; i<graphics_info_t::command_line_commands.commands.size(); i++)
       if (graphics_info_t::command_line_commands.is_python)
          safe_python_command(graphics_info_t::command_line_commands.commands[i].c_str());
       else
          safe_scheme_command(graphics_info_t::command_line_commands.commands[i].c_str());
 
-    for (unsigned int i=0; i<graphics_info_t::command_line_commands.commands.size(); i++)
-       if (graphics_info_t::command_line_commands.is_python)
-	  safe_python_command(graphics_info_t::command_line_commands.commands[i].c_str());
-       else
-	  safe_scheme_command(graphics_info_t::command_line_commands.commands[i].c_str());
-
    graphics_info_t g;
    for (unsigned int i=0; i<graphics_info_t::command_line_accession_codes.size(); i++) {
-      std::cout << "run_command_line_scripts(): get accession code "
-                << graphics_info_t::command_line_accession_codes[i] << std::endl;
-      std::vector<std::string> c;
-      c.push_back("get_ebi.get-eds-pdb-and-mtz");
-      c.push_back(single_quote(graphics_info_t::command_line_accession_codes[i]));
-
-#ifdef USE_GUILE
-       std::string sc = g.state_command(c, graphics_info_t::USE_SCM_STATE_COMMANDS);
-       safe_scheme_command(sc.c_str());
-#else
-#ifdef USE_PYTHON
-      std::string pc = g.state_command(c, graphics_info_t::USE_PYTHON_STATE_COMMANDS);
-      safe_python_command("import get_ebi");
-      safe_python_command(pc.c_str());
-#endif
-#endif
+      const std::string &code = g.command_line_accession_codes[i];
+      std::cout << "run_command_line_scripts(): get accession code " << code << std::endl;
+      network_get_accession_code_entity(code, 0); // mode 0 means "not mtz"
+      network_get_accession_code_entity(code, 1); // mtz mode
    }
+
+   // clear so that a second call (e.g. from a second realize) does not re-run
+   graphics_info_t::command_line_scripts.clear();
+   graphics_info_t::command_line_commands.commands.clear();
+   graphics_info_t::command_line_accession_codes.clear();
 }
 
 void run_update_self_maybe() { // called when --update-self given at command line
@@ -7182,7 +7891,7 @@ void set_found_coot_gui() {
    graphics_info_t g;
 #ifdef USE_GUILE
    std::cout << "Coot Scheme Scripting GUI code found and loaded." << std::endl;
-   g.guile_gui_loaded_flag = TRUE; 
+   g.guile_gui_loaded_flag = TRUE;
 #endif // USE_GUILE
 }
 
@@ -7197,7 +7906,7 @@ void set_found_coot_python_gui() {
 }
 
 // return an atom index
-int atom_spec_to_atom_index(int imol, char *chain, int resno, char *atom_name) {
+int atom_spec_to_atom_index(int imol, const char *chain, int resno, const char *atom_name) {
    graphics_info_t g;
    if (imol < graphics_n_molecules())
       return g.molecules[imol].atom_spec_to_atom_index(chain, resno, atom_name);
@@ -7577,7 +8286,7 @@ void print_sequence_chain_general(int imol, const char *chain_id,
 
       std::string full_seq;
       if (pir_format) {
-         std::string n = graphics_info_t::molecules[imol].name_sans_extension(0); 
+         std::string n = graphics_info_t::molecules[imol].name_sans_extension(0);
          full_seq = ">P1;";
          full_seq += n;
          full_seq += " ";
@@ -7586,7 +8295,7 @@ void print_sequence_chain_general(int imol, const char *chain_id,
          full_seq += seq;
          full_seq += "\n*\n";
       } else {
-         std::string n = graphics_info_t::molecules[imol].name_sans_extension(0); 
+         std::string n = graphics_info_t::molecules[imol].name_sans_extension(0);
          full_seq = "> ";
          full_seq += n;
          full_seq += " ";
@@ -7643,6 +8352,8 @@ void sequence_view(int imol) {
          auto click_function = +[] (CootSequenceView* self, int imol, const coot::residue_spec_t &spec, gpointer userdata) {
             graphics_info_t g;
             g.go_to_residue(imol, spec);
+            update_go_to_atom_from_current_position();
+            g.graphics_grab_focus();
          };
          g_signal_connect(sv, "residue-clicked", G_CALLBACK(click_function), nullptr);
       }
@@ -7705,6 +8416,29 @@ void sequence_view(int imol) {
       if (current_height < natural_size) {
          gtk_widget_set_size_request(vbox, -1, natural_size);
       }
+   }
+}
+
+void remove_sequence_view_from_sequence_view_box(int imol) {
+
+   if (graphics_info_t::use_graphics_interface_flag) {
+      GtkWidget *vbox = widget_from_builder("main_window_sequence_view_box");
+      if (!vbox) return;
+
+      GtkWidget *item_widget = gtk_widget_get_first_child(vbox);
+      int n_children = 0;
+      while (item_widget) {
+         n_children++;
+         GtkWidget *w = item_widget;
+         item_widget = gtk_widget_get_next_sibling(item_widget);
+         int imol_overlay = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(w), "imol"));
+         if (imol_overlay == imol) {
+            gtk_box_remove(GTK_BOX(vbox), w);
+            n_children--;
+         }
+      }
+      if (n_children == 0)
+         gtk_widget_set_visible(vbox, FALSE);
    }
 }
 
@@ -7819,13 +8553,15 @@ int read_cif_data(const char *filename, int imol_coordinates) {
       // link itself.
       //
       if (status != 0 || !S_ISREG (s.st_mode)) {
-	 std::cout << "INFO:: Error reading " << filename << std::endl;
+	 // std::cout << "INFO:: Error reading " << filename << std::endl;
+	 logger.log(log_t::INFO, "Error reading " + std::string(filename));
 	 if (S_ISDIR(s.st_mode)) {
 	    std::cout << filename << " is a directory." << std::endl;
 	 }
 	 return -1; // which is status in an error
       } else {
-	 std::cout << "INFO:: Reading cif file: " << filename << std::endl;
+	 // std::cout << "INFO:: Reading cif file: " << filename << std::endl;
+	 logger.log(log_t::INFO, "Reading cif file: " + std::string(filename));
 	 graphics_info_t g;
 	 int imol = g.create_molecule();
 	 int istat =
@@ -7875,7 +8611,8 @@ int read_cif_data_2fofc_map(const char *filename, int imol_coordinates) {
 
       if (is_valid_model_molecule(imol_coordinates)) {
 
-	 std::cout << "INFO:: Reading cif file: " << filename << std::endl;
+	 // std::cout << "INFO:: Reading cif file: " << filename << std::endl;
+	 logger.log(log_t::INFO, "Reading cif file: " + std::string(filename));
 
 	 graphics_info_t g;
 
@@ -7922,7 +8659,7 @@ int read_cif_data_fofc_map(const char *filename, int imol_coordinates) {
       }
       return -1; // which is status in an error
    } else {
-      
+
       std::cout << "Reading cif file: " << filename << std::endl;
 
       graphics_info_t g;
@@ -8122,7 +8859,7 @@ void import_all_refmac_cifs() {
 /*  ----------------------------------------------------------------------- */
 /* The guts happens in molecule_class_info_t, here is just the
    exported interface */
-int add_atom_label(int imol, char *chain_id, int iresno, char *atom_id) {
+int add_atom_label(int imol, const char *chain_id, int iresno, const char *atom_id) {
 
    int i = 0;
    if (is_valid_model_molecule(imol)) {
@@ -8132,7 +8869,7 @@ int add_atom_label(int imol, char *chain_id, int iresno, char *atom_id) {
    return i;
 }
 
-int remove_atom_label(int imol, char *chain_id, int iresno, char *atom_id) {
+int remove_atom_label(int imol, const char *chain_id, int iresno, const char *atom_id) {
    graphics_info_t g;
    return g.molecules[imol].remove_atom_label(chain_id, iresno, atom_id);
 }
@@ -8336,11 +9073,6 @@ int background_is_black_p() {
 //
 // if it already exists as a dir, return 0 of course.
 //
-int
-make_directory_maybe(const char *dir) {
-   return coot::util::create_directory(std::string(dir));
-}
-
 
 void add_coordinates_glob_extension(const char *ext) {
 
@@ -8653,70 +9385,14 @@ void handle_online_coot_search_request(const char *entry_text) {
 /*  ----------------------------------------------------------------------- */
 /* section Remote Control */
 
-// called by c_inner_main() if we have guile
-void make_socket_listener_maybe() {
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <unistd.h>
+#include <cstring>
+#include <iostream>
+#include <fcntl.h>
 
-   std::vector<std::string> cmd;
-
-   if (graphics_info_t::try_port_listener) {
-      cmd.push_back("open-coot-listener-socket");
-      cmd.push_back(graphics_info_t::int_to_string(graphics_info_t::remote_control_port_number));
-      cmd.push_back(single_quote(graphics_info_t::remote_control_hostname));
-
-      // This is not a static function, perhaps it should be:
-      graphics_info_t g;
-#ifdef USE_GUILE
-      std::string scm_command = g.state_command(cmd, coot::STATE_SCM);
-
-      safe_scheme_command(scm_command);
-#else
-#ifdef USE_PYTHON
-      std::string python_command = g.state_command(cmd, coot::STATE_PYTHON);
-
-      safe_python_command(python_command);
-#endif // USE_PYTHON
-#endif // USE_GUILE
-      if (graphics_info_t::coot_socket_listener_idle_function_token == -1) {
-	 if (graphics_info_t::listener_socket_have_good_socket_state) {
-	    GSourceFunc f = coot_socket_listener_idle_func;
-	    graphics_info_t::coot_socket_listener_idle_function_token =
-	       g_idle_add(f, NULL);
-	 }
-      }
-   }
-}
-
-void set_coot_listener_socket_state_internal(int sock_state) {
-   graphics_info_t::listener_socket_have_good_socket_state = sock_state;
-}
-
-void set_remote_control_port(int port_number) {
-  graphics_info_t::remote_control_port_number = port_number;
-}
-
-int get_remote_control_port_number() {
-  return graphics_info_t::remote_control_port_number;
-}
-
-gint coot_socket_listener_idle_func(gpointer data) {
-
-#ifdef USE_GUILE
-   std::cout << "DEBUG:: running socket idle function" << std::endl;
-   if (graphics_info_t::listener_socket_have_good_socket_state) {
-      std::cout << "DEBUG:: running guile function" << std::endl;
-      safe_scheme_command("(coot-listener-idle-function-proc)");
-   }
-#else
-#ifdef USE_PYTHON
-   //   std::cout << "DEBUG:: running socket idle function" << std::endl;
-   if (graphics_info_t::listener_socket_have_good_socket_state) {
-      //std::cout << "DEBUG:: running python function" << std::endl;
-      safe_python_command("coot_listener_idle_function_proc()");
-   }
-#endif // USE_PYTHON
-#endif // USE_GUILE
-   return 1;
-}
 
 /* tooltips */
 void
@@ -8734,21 +9410,69 @@ set_tip_of_the_day_flag (int state) {
 /*  ----------------------------------------------------------------------- */
 void do_surface(int imol, int state) {
 
-   float colour_scale = graphics_info_t::electrostatic_surface_charge_range; // 0.5, by default
+}
+
+#include "c-interface-generic-objects.h"
+#include "api/coot-molecule.hh"
+
+/* per-chain functions can be added later */
+void make_generic_surface(int imol, const char *selection_str, int mode) {
+
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
-      graphics_info_t::molecules[imol].make_surface(state, *g.Geom_p(), colour_scale);
+      float col_scale = g.electrostatic_surface_charge_range;
+      std::string selection_string(selection_str);
+      // use api!
+      coot::molecule_t cm(g.molecules[imol].atom_sel, 0, "");
+      //  coot::simple_mesh_t smesh = cm.get_molecular_representation_mesh(selection_string, "ByOwnPotential", "Chains", 0);
+      coot::simple_mesh_t smesh;
+      std::string type = "";
+
+      if (mode == 1) smesh = cm.get_molecular_representation_mesh(selection_string, "ByOwnPotential", "MolecularSurface", 0);
+      if (mode == 2) smesh = cm.get_molecular_representation_mesh(selection_string, "Chains", "MolecularSurface", 0);
+
+      if (mode == 1) type = "Electrostatic";
+      if (mode == 2) type = "Molecular";
+
+      g.attach_buffers();
+      // do I need this vertex type conversion? Yes
+      std::vector<s_generic_vertex> vertices(smesh.vertices.size());
+      for (unsigned int i = 0; i < smesh.vertices.size(); i++) {
+         vertices[i] = s_generic_vertex(smesh.vertices[i].pos,
+                                        smesh.vertices[i].normal,
+                                        smesh.vertices[i].color);
+      }
+      std::string object_name = type + " Surface " + std::to_string(imol) +
+         std::string(" ") + std::string(selection_string);
+      int obj_mesh = new_generic_object_number(object_name);
+      meshed_generic_display_object &obj = g.generic_display_objects[obj_mesh];
+      obj.imol = imol;
+      obj.mesh.name = object_name;
+      obj.mesh.set_draw_mesh_state(true);
+      obj.mesh.import(vertices, smesh.triangles);
+      obj.mesh.set_material_specularity(0.7, 128);
+      obj.mesh.setup_buffers();
+
+      update_display_control_mesh_toggles(imol);
       graphics_draw();
    }
+}
+/* per-chain functions can be added later */
+void make_molecular_surface(int imol, const char *selection_str) {
+
+   make_generic_surface(imol, selection_str, 2);
+}
+
+/* per-chain functions can be added later */
+void make_electrostatic_surface(int imol, const char *selection_str) {
+
+   make_generic_surface(imol, selection_str, 1);
 }
 
 int molecule_is_drawn_as_surface_int(int imol) {
 
-   int r = 0;
-   if (is_valid_model_molecule(imol)) {
-      r = graphics_info_t::molecules[imol].molecule_is_drawn_as_surface();
-   }
-   return r;
+   // useless function now - remove it.
+   return 1;
 }
 
 
@@ -9469,8 +10193,14 @@ void load_tutorial_model_and_data() {
       std::cout << "--------- imol_diff_map: " << imol_diff_map << std::endl;
    }
 
-   graphics_info_t g;
-   g.graphics_grab_focus();
+   // 2025-03-26-PE not all GLibs have g_idle_add_once() at the moment
+   // gint idle = g_idle_add_once((GSourceOnceFunc)g.graphics_grab_focus, NULL);
+   auto callback = +[] (gpointer data) {
+     graphics_info_t g;
+     g.graphics_grab_focus();
+     return gboolean(FALSE);
+   };
+   gint idle = g_idle_add(callback, NULL);
 
 }
 

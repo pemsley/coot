@@ -41,6 +41,7 @@
 #include "c-interface-sequence.hh"
 #include "c-interface-refine.h"
 #include "read-molecule.hh"
+#include "file-system-utils.hh"
 #include "cc-interface.hh"
 #include "cc-interface-image.hh"
 #include "cc-interface-scripting.hh"
@@ -49,6 +50,7 @@
 #include "c-interface-generic-objects.h"
 #include "generic-display-objects-c.h"
 #include "manipulation-modes.hh"
+#include "network-get.hh"
 #include "rotamer-search-modes.hh"
 #include "lbg-interface.hh"
 #include "sdf-interface.hh"
@@ -59,16 +61,19 @@
 #include "globularize.hh"
 #include "curlew.hh"
 #include "validation.hh"
-#include "cfc.hh"
+#include "pythonic-cfc.hh"
 #include "rsr-functions.hh"
 #include "cc-interface-user-defined-atom-colours.hh"
 #include "cc-interface-alignment.hh"
+#include "cc-interface-graphics.hh"
 #include "init_coot_as_python_module.hh"
 #include "curl-utils.hh"
+#include "cfc-2025.hh"
 #include "M2T-interface.hh"
 #ifdef USE_MOLECULES_TO_TRIANGLES
 #include "cc-interface-molecular-representation.hh"
 #endif // USE_MOLECULES_TO_TRIANGLES
+#include "nef.hh"
 %}
 
 
@@ -82,16 +87,31 @@ namespace std {
 %template(IntVector) vector<int>;
 %template(vector_atom_spec)      vector<coot::atom_spec_t>;
 %template(vector_mtz_type_label) vector<coot::mtz_type_label>;
+%template(pair_string_string)    pair<std::string, std::string>;
+%template(vector_pair_string_string) vector<std::pair<std::string, std::string> >;
 }
 
 %init %{
   init_coot_as_python_module();
 %}
 
-%feature("autodoc", "3"); // add doc string for Intellisense (hopefully)
+// %feature("autodoc", "1"); // add doc string for Intellisense (hopefully)
+%feature("autodoc", "1"); // add type hints hopefully
+
 // If the following line is enabled, then the comments extracted
 // using -doxygen on the command line are lost.
 // %feature("docstring");
+// 2025-12-14-PE because, I guess, %feature("docstring") needs to be
+// specified for each function!
+
+// 2025-12-15-PE modern method
+%include "coot_cc_interface_docs.i"
+%include "coot_c_interface_docs.i"
+%include "coot_rsr_functions_docs.i"
+%include "coot_network_functions_docs.i"
+%include "coot_read_molecule_functions_docs.i"
+%include "coot_cc_interface_user_defined_atom_colours.i"
+%include "coot_cc_interface_molecular_representation.i"
 
 #include "globjects.h"  //includes gtk/gtk.h
 #include "coot-utils/coot-coord-utils.hh"
@@ -107,11 +127,10 @@ namespace std {
 %include "c-interface-preferences.h"
 %include "c-interface-refine.hh"
 %include "cc-interface-ncs.hh"
-#ifdef USE_MOLECULES_TO_TRIANGLES
 %include "cc-interface-molecular-representation.hh"
-#endif // USE_MOLECULES_TO_TRIANGLES
 %include "cc-interface.hh"
 %include "read-molecule.hh"
+%include "file-system-utils.hh"
 %include "cc-interface-image.hh"
 %include "cc-interface-scripting.hh"
 %include "c-interface-database.hh"
@@ -124,6 +143,7 @@ namespace std {
 %include "c-interface-generic-objects.h"
 %include "cmtz-interface.hh"
 %include "manipulation-modes.hh"
+%include "network-get.hh"
 %include "rotamer-search-modes.hh"
 %include "lbg-interface.hh"
 %include "sdf-interface.hh"
@@ -135,13 +155,16 @@ namespace std {
 %include "curlew.hh"
 %include "validation.hh"
 %include "generic-display-objects-c.h"
-%include "cfc.hh"
+%include "pythonic-cfc.hh"
 %include "rsr-functions.hh"
 %include "cc-interface-user-defined-atom-colours.hh"
 %include "../coords/phenix-geo.hh"
 %include "curl-utils.hh"
 %include "M2T-interface.hh"
 %include "cc-interface-alignment.hh"
+%include "cc-interface-graphics.hh"
+%include "cfc-2025.hh"
+%include "nef.hh"
 
 // # ignore some functions with c++ objects
 %ignore rigid_body_fit_with_residue_range();

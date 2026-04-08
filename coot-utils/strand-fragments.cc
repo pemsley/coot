@@ -76,7 +76,7 @@ coot::mol_to_5_residue_strand_fragments(mmdb::Manager *mol) {
                      }
                   }
                }
-	            if (ca_frag.size() == 5) {
+                    if (ca_frag.size() == 5) {
                   v.push_back(ca_frag);
                   mc_v.push_back(mc_frag);
                }

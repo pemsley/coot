@@ -29,6 +29,7 @@
 
 // #define THIS_IS_HMT
 
+#include <optional>
 #include <chrono>
 
 #include "generic-vertex.hh"
@@ -43,6 +44,8 @@
 #include "molecular-triangles-mesh.hh"
 #include "simple-distance-object.hh"
 #include "extra-distance-restraint-markup.hh"
+#include "stereo-eye.hh"
+
 
 #ifdef USE_ASSIMP
 #include <assimp/scene.h>
@@ -51,7 +54,7 @@
 #ifdef THIS_IS_HMT
 #else
 #include "coords/graphical-bonds-container.hh"
-#include "coords/mmdb-crystal.h"
+#include "coords/mmdb-crystal.hh"
 #endif
 
 class Mesh {
@@ -76,6 +79,7 @@ class Mesh {
    unsigned int particle_draw_count;
    void init();
    bool draw_this_mesh;
+   static std::pair<float, float> get_stereo_x_scale_and_offset(stereo_eye_t eye);
 #if USE_ASSIMP
    aiScene generate_scene() const;
 #endif
@@ -105,6 +109,7 @@ public:
    unsigned int type; // from molecular triangles object type
    std::chrono::time_point<std::chrono::system_clock>  time_constructed;
    bool is_headless; // i.e. don't try to use OpenGL calls because we've been imported into python, blender or jupyter.
+   bool mesh_is_semi_transparent;
    static std::string  _(int ierr);
 
    // Mesh() { init(); }
@@ -123,18 +128,23 @@ public:
    bool debug_mode; // setable from the outside, rather than me editing the draw() function
    void debug() const;
    void debug_to_file() const;
+   //! the resets the vao
    void delete_gl_buffers();
+   //! this resets the vao if delete_gl_buffers_also is true
    void clear(bool delete_gl_buffers_also = false) {
       if (delete_gl_buffers_also)
          delete_gl_buffers();
       is_instanced = false;
       is_instanced_colours = false;
       is_instanced_with_rts_matrix = false;
+      n_instances = 0;
+      n_instances_allocated = 0;
       vertices.clear();
       triangles.clear();
       lines_vertex_indices.clear();
       use_blending = false;
       normals_are_setup = false;
+      // vao = VAO_NOT_SET;
    }
    bool empty() const { return (vertices.size() == 0); }
    void close();
@@ -171,6 +181,7 @@ public:
    // can be considered as "draw_self()"
    // if drawing with lines, set the glLineWidth before this draw call.
    void draw(Shader *shader,
+             stereo_eye_t eye,
              const glm::mat4 &mvp,
              const glm::mat4 &view_rotation_matrix,
              const std::map<unsigned int, lights_info_t> &lights,
@@ -222,6 +233,7 @@ public:
    // 7 instance rot-trans-4
    void draw_instanced(int pass_type,
                        Shader *shader,
+                       stereo_eye_t eye,
                        const glm::mat4 &mvp,
                        const glm::mat4 &view_rotation_matrix,
                        const std::map<unsigned int, lights_info_t> &lights,
@@ -454,6 +466,8 @@ public:
    void apply_transformation(const glm::mat4 &m);  // transform the positions in the vertices
    void invert_normals(); // flip normals
    void calculate_normals(); // and set the GL buffers
+   std::optional<glm::vec3> get_centre_of_mesh() const;
+   std::optional<float> get_radius_of_gyration() const;
    std::vector<std::pair<int, map_triangle_t> >  map_triangle_centres;
    glm::vec3 previous_eye_position; // for testing if we need to sort the triangles
    void sort_map_triangles(const glm::vec3 &eye_position);

@@ -1,0 +1,84 @@
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+NH2 NH2 "AMINO GROUP" NON-POLYMER 4 1 .
+
+data_comp_NH2
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.alt_atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+NH2 N   N   N N33 0 10.097 8.960 -7.822
+NH2 HN1 HN1 H H   0 10.995 8.960 -7.822
+NH2 HN2 HN2 H H   0 9.648  9.738 -7.822
+NH2 H   H   H H   0 9.648  8.182 -7.822
+
+loop_
+_chem_comp_acedrg.comp_id
+_chem_comp_acedrg.atom_id
+_chem_comp_acedrg.atom_type
+NH2 N   N(H)3
+NH2 HN1 H(NHH)
+NH2 HN2 H(NHH)
+NH2 H   H(NHH)
+
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.value_order
+_chem_comp_bond.pdbx_aromatic_flag
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+NH2 N HN1 SINGLE n 1.018 0.0520 0.898 0.0200
+NH2 N HN2 SINGLE n 1.018 0.0520 0.898 0.0200
+NH2 N H   SINGLE n 1.018 0.0520 0.898 0.0200
+
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+NH2 HN1 N HN2 107.512 3.00
+NH2 HN1 N H   107.512 3.00
+NH2 HN2 N H   107.512 3.00
+
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+NH2 SMILES           ACDLabs              10.04 N
+NH2 InChI            InChI                1.06  InChI=1S/H3N/h1H3
+NH2 InChIKey         InChI                1.06  QGZKDVFQNNGYKY-UHFFFAOYSA-N
+NH2 SMILES_CANONICAL CACTVS               3.385 "[NH2]"
+NH2 SMILES           CACTVS               3.385 "[NH2]"
+NH2 SMILES_CANONICAL "OpenEye OEToolkits" 2.0.7 "[NH2]"
+NH2 SMILES           "OpenEye OEToolkits" 2.0.7 "[NH2]"
+
+loop_
+_acedrg_chem_comp_descriptor.comp_id
+_acedrg_chem_comp_descriptor.program_name
+_acedrg_chem_comp_descriptor.program_version
+_acedrg_chem_comp_descriptor.type
+NH2 acedrg          285       "dictionary generator"
+NH2 acedrg_database 12        "data source"
+NH2 rdkit           2019.09.1 "Chemoinformatics tool"
+NH2 servalcat       0.4.57    'optimization tool'

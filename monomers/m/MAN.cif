@@ -1,0 +1,211 @@
+# /home/mihaela/Downloads/acedrg243/MAN_unimodal.cif
+# modified by Privateer
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+MAN      MAN 'ALPHA-D-MANNOSE                     ' pyranose           24  12 .
+
+data_comp_MAN
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+MAN C1 C CH1 0 99.646 -29.090 24.205
+MAN C2 C CH1 0 101.110 -29.241 24.626
+MAN C3 C CH1 0 102.073 -28.552 23.660
+MAN C4 C CH1 0 101.787 -28.958 22.221
+MAN C5 C CH1 0 100.318 -28.700 21.878
+MAN C6 C CH2 0 99.944 -29.177 20.492
+MAN O1 O OH1 0 99.156 -27.809 24.498
+MAN O2 O OH1 0 101.423 -30.625 24.763
+MAN O3 O OH1 0 103.421 -28.875 24.003
+MAN O4 O OH1 0 102.621 -28.217 21.331
+MAN O5 O O2 0 99.466 -29.412 22.812
+MAN O6 O OH1 0 98.549 -29.013 20.235
+MAN H1 H H 0 99.116 -29.740 24.731
+MAN H2 H H 0 101.201 -28.814 25.511
+MAN H3 H H 0 101.954 -27.572 23.740
+MAN H4 H H 0 101.978 -29.920 22.116
+MAN H5 H H 0 100.138 -27.731 21.948
+MAN H61 H H 0 100.180 -30.123 20.401
+MAN H62 H H 0 100.454 -28.670 19.826
+MAN HO1 H H 0 99.670 -27.211 24.197
+MAN HO2 H H 0 102.182 -30.702 25.117
+MAN HO3 H H 0 103.939 -28.370 23.574
+MAN HO4 H H 0 102.470 -27.392 21.406
+MAN HO6 H H 0 98.352 -28.189 20.257
+
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+MAN C1 C2 SINGLE n 1.516 0.0200 1.516 0.0200
+MAN C1 O1 SINGLE n 1.392 0.0200 1.392 0.0200
+MAN C1 O5 SINGLE n 1.431 0.0165 1.431 0.0165
+MAN C2 C3 SINGLE n 1.519 0.0200 1.519 0.0200
+MAN C2 O2 SINGLE n 1.425 0.0112 1.425 0.0112
+MAN C3 C4 SINGLE n 1.520 0.0158 1.520 0.0158
+MAN C3 O3 SINGLE n 1.427 0.0138 1.427 0.0138
+MAN C4 C5 SINGLE n 1.524 0.0200 1.524 0.0200
+MAN C4 O4 SINGLE n 1.425 0.0176 1.425 0.0176
+MAN C5 C6 SINGLE n 1.511 0.0142 1.511 0.0142
+MAN C5 O5 SINGLE n 1.440 0.0195 1.440 0.0195
+MAN C6 O6 SINGLE n 1.426 0.0200 1.426 0.0200
+MAN C1 H1 SINGLE n 1.089 0.0100 0.990 0.0200
+MAN C2 H2 SINGLE n 1.089 0.0100 0.987 0.0140
+MAN C3 H3 SINGLE n 1.089 0.0100 0.991 0.0121
+MAN C4 H4 SINGLE n 1.089 0.0100 0.986 0.0131
+MAN C5 H5 SINGLE n 1.089 0.0100 0.988 0.0182
+MAN C6 H61 SINGLE n 1.089 0.0100 0.980 0.0184
+MAN C6 H62 SINGLE n 1.089 0.0100 0.980 0.0184
+MAN O1 HO1 SINGLE n 0.970 0.0120 0.846 0.0200
+MAN O2 HO2 SINGLE n 0.970 0.0120 0.841 0.0200
+MAN O3 HO3 SINGLE n 0.970 0.0120 0.841 0.0200
+MAN O4 HO4 SINGLE n 0.970 0.0120 0.841 0.0200
+MAN O6 HO6 SINGLE n 0.970 0.0120 0.848 0.0200
+
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+MAN C2 C1 O1 109.304 2.75
+MAN C2 C1 O5 110.495 2.07
+MAN C2 C1 H1 109.287 1.97
+MAN O1 C1 O5 110.093 3.00
+MAN O1 C1 H1 108.897 1.73
+MAN O5 C1 H1 108.645 1.60
+MAN C1 C2 C3 111.543 1.84
+MAN C1 C2 O2 109.956 1.70
+MAN C1 C2 H2 107.431 2.02
+MAN C3 C2 O2 111.053 2.62
+MAN C3 C2 H2 108.505 1.50
+MAN O2 C2 H2 108.551 1.50
+MAN C2 C3 C4 110.687 1.67
+MAN C2 C3 O3 109.587 2.09
+MAN C2 C3 H3 108.712 1.50
+MAN C4 C3 O3 110.243 1.88
+MAN C4 C3 H3 108.653 1.50
+MAN O3 C3 H3 108.767 1.50
+MAN C3 C4 C5 110.272 1.76
+MAN C3 C4 O4 110.101 1.97
+MAN C3 C4 H4 109.032 1.50
+MAN C5 C4 O4 109.072 2.07
+MAN C5 C4 H4 109.223 1.50
+MAN O4 C4 H4 109.194 1.50
+MAN C4 C5 C6 112.996 1.59
+MAN C4 C5 O5 109.140 1.86
+MAN C4 C5 H5 108.960 1.50
+MAN C6 C5 O5 106.879 1.50
+MAN C6 C5 H5 109.269 1.50
+MAN O5 C5 H5 109.134 1.50
+MAN C5 C6 O6 111.299 2.09
+MAN C5 C6 H61 109.363 1.50
+MAN C5 C6 H62 109.363 1.50
+MAN O6 C6 H61 109.265 1.50
+MAN O6 C6 H62 109.265 1.50
+MAN H61 C6 H62 108.155 1.50
+MAN C1 O1 HO1 108.606 2.51
+MAN C2 O2 HO2 109.126 2.06
+MAN C3 O3 HO3 108.895 2.41
+MAN C4 O4 HO4 109.564 3.00
+MAN C1 O5 C5 113.507 1.73
+MAN C6 O6 HO6 109.472 2.41
+
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+MAN tors_24 C2 C1 O1 HO1 50.983486 10.0 3
+MAN tors_23 O5 C1 O1 HO1 -73.925949 10.0 3
+MAN tors_22 H1 C1 O1 HO1 168.643814 10.0 3
+MAN tors_21 C1 C2 O2 HO2 -170.544846 10.0 3
+MAN tors_20 C3 C2 O2 HO2 64.513573 10.0 3
+MAN tors_19 H2 C2 O2 HO2 -54.279713 10.0 3
+MAN tors_18 C2 C3 O3 HO3 -168.277832 10.0 3
+MAN tors_17 C4 C3 O3 HO3 69.066528 10.0 3
+MAN tors_16 H3 C3 O3 HO3 -49.597984 10.0 3
+MAN tors_15 C3 C4 O4 HO4 -60.737900 10.0 3
+MAN tors_14 C5 C4 O4 HO4 60.616947 10.0 3
+MAN tors_13 H4 C4 O4 HO4 179.877060 10.0 3
+MAN tors_12 C4 C5 C6 O6 175.755936 10.0 3
+MAN tors_11 C4 C5 C6 H61 54.732586 10.0 3
+MAN tors_10 C4 C5 C6 H62 -63.427494 10.0 3
+MAN tors_9 O5 C5 C6 O6 55.092422 10.0 3
+MAN tors_8 O5 C5 C6 H61 -65.930931 10.0 3
+MAN tors_7 O5 C5 C6 H62 175.908997 10.0 3
+MAN tors_6 H5 C5 C6 O6 -62.892609 10.0 3
+MAN tors_5 H5 C5 C6 H61 176.084045 10.0 3
+MAN tors_4 H5 C5 C6 H62 57.923965 10.0 3
+MAN tors_3 C5 C6 O6 HO6 63.068165 10.0 3
+MAN tors_2 H61 C6 O6 HO6 -175.890747 10.0 3
+MAN tors_1 H62 C6 O6 HO6 -57.895977 10.0 3
+MAN ring_1 C5 O5 C1 C2 -53.681667 3.0 1
+MAN ring_2 O5 C1 C2 C3 48.384090 3.0 1
+MAN ring_3 C1 C2 C3 C4 -50.224220 3.0 1
+MAN ring_4 C2 C3 C4 C5 54.215084 3.0 1
+MAN ring_5 C3 C4 C5 O5 -56.747200 3.0 1
+MAN ring_6 C4 C5 O5 C1 58.120335 3.0 1
+
+loop_
+_chem_comp_chir.comp_id
+_chem_comp_chir.id
+_chem_comp_chir.atom_id_centre
+_chem_comp_chir.atom_id_1
+_chem_comp_chir.atom_id_2
+_chem_comp_chir.atom_id_3
+_chem_comp_chir.volume_sign
+MAN chir_1 C1 O5 O1 C2 positive
+MAN chir_2 C2 O2 C1 C3 positive
+MAN chir_3 C3 O3 C2 C4 positive
+MAN chir_4 C4 O4 C5 C3 positive
+MAN chir_5 C5 O5 C4 C6 negative
+
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+MAN SMILES ACDLabs 10.04 OC1C(O)C(OC(O)C1O)CO
+MAN SMILES_CANONICAL CACTVS 3.341 OC[C@H]1O[C@H](O)[C@@H](O)[C@@H](O)[C@@H]1O
+MAN SMILES CACTVS 3.341 OC[CH]1O[CH](O)[CH](O)[CH](O)[CH]1O
+MAN SMILES_CANONICAL "OpenEye OEToolkits" 1.5.0 C([C@@H]1[C@H]([C@@H]([C@@H]([C@H](O1)O)O)O)O)O
+MAN SMILES "OpenEye OEToolkits" 1.5.0 C(C1C(C(C(C(O1)O)O)O)O)O
+MAN InChI InChI 1.03 InChI=1S/C6H12O6/c7-1-2-3(8)4(9)5(10)6(11)12-2/h2-11H,1H2/t2-,3-,4+,5+,6+/m1/s1
+MAN InChIKey InChI 1.03 WQZGKKKJIJFFOK-PQMKYFCFSA-N
+
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+MAN acedrg 243 "dictionary generator"
+MAN acedrg_database 11 "data source"
+MAN rdkit 2017.03.2 "Chemoinformatics tool"
+MAN refmac5 5.8.0238 "optimization tool"

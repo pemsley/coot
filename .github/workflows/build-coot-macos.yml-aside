@@ -1,0 +1,118 @@
+name: Coot CI Homebrew macOS
+
+on:
+  push:
+
+jobs:
+
+  build-coot-for-macos:
+
+    runs-on: macos-latest
+
+    steps:
+
+    - name: Which brew?
+      run:  which brew
+
+    - name: Setup homebrew
+      id:   setup-homebrew
+      uses: Homebrew/actions/setup-homebrew@master
+
+    - name: cache macos libcootapi build homebrew
+      id: coot-macos-homebrew
+      uses: actions/cache@v4
+      with:
+        path: /opt/homebrew
+        key:  coot-macos-build-homebrew-cache
+
+    - name: turn on brew analytics
+      run:  brew analytics on
+
+    - name: brew update
+      run:  |
+        brew update
+        brew upgrade
+
+    - name: Fix Homebrew symlinks
+      run:  |
+        brew unlink gettext || true
+        brew link --overwrite gettext || true
+
+    - name: Install Coot dependencies in Homebrew
+      run:  >
+         brew install boost boost-python3 brewsci/bio/clipper4coot
+         brewsci/bio/raster3d brewsci/bio/ssm brewsci/bio/gemmi
+         dwarfutils gsl rdkit pygobject3 gtk4 glm automake
+         py3cairo pygobject3 swig
+
+    - uses: actions/checkout@v4
+
+    - name: Set fftw for future use
+      run: echo "fftw_prefix=/opt/homebrew/Cellar/clipper4coot/2.1.20180802_3/fftw2" >> $GITHUB_ENV
+
+    - name: autogen
+      id: autogen-step
+      run: bash autogen-mac.sh
+
+    - name: configure it
+      id: configation-step
+      run: >
+         ./configure
+         SHELL=/bin/bash
+         PYTHON=python3
+         COOT_BUILD_INFO_STRING="Compiled with a GitHub action"
+         --prefix="$HOME/coot"
+         --enable-silent-rules
+         --with-fftw-prefix=$fftw_prefix
+         --with-glm=/opt/homebrew
+         --with-boost=/opt/homebrew
+         --with-boost-libdir=/opt/homebrew/lib
+         --with-rdkit-prefix=/opt/homebrew
+         --with-guile
+
+    - name: compile it 1
+      id: compile-step-1
+      run: |
+        make -j 4 -C auxil
+        make -j 4 -C compat
+        make -j 4 -C utils
+        make -j 4 -C protein_db
+        make -j 4 -C mini-mol
+        make -j 4 -C geometry
+        make -j 4 -C lidia-core
+        make -j 4 -C coot-utils
+        make -j 4 -C angles
+        make -j 4 -C ccp4mg-utils
+        make -j 4 -C db-main
+        make -j 4 -C analysis
+        make -j 4 -C cootaneer
+        make -j 4 -C ideal
+        make -j 4 -C ligand
+        make -j 4 -C coords
+        make -j 4 -C density-contour
+        make -j 4 -C skeleton
+        make -j 4 -C high-res
+        make -j 4 -C build
+        make -j 4 -C MoleculesToTriangles
+        make -j 4 -C pli
+        make -j 4 -C greg-tests
+        make -j 4 -C cootilus
+        make -j 4 -C pyrogen
+
+    - name: compile it 2
+      id: compile-step-2
+      run: make -j 4
+
+    - name: what has been made
+      id: have-a-goosey
+      run: ls . src
+
+    - name: install it
+      id: installation-step
+      run: make install
+
+    - name: interal tests
+      id: internal-tests
+      run: ./src/MacCoot --self-test
+
+

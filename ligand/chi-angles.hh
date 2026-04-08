@@ -23,8 +23,7 @@
 #define CHI_ANGLES_HH
 
 #include "geometry/protein-geometry.hh"
-#include "coot-utils/coot-coord-utils.hh"
-
+#include "geometry/residue-and-atom-specs.hh"
 #include "monomer-utils.hh"
 
 namespace coot {
@@ -92,29 +91,29 @@ namespace coot {
 		     float chi_4_com);
 
       enum rotamer_t { RICHARDSON_ROTAMER, DUNBRACK_ROTAMER};
-      
+
       float P_r1234() const { return p_r1234; }
       float Probability_rich() const { return p_r1234; }
       const float & operator[](int i) const;
-      float Chi1() const { return chi1; } 
-      float Chi2() const { return chi2; } 
-      float Chi3() const { return chi3; } 
+      float Chi1() const { return chi1; }
+      float Chi2() const { return chi2; }
+      float Chi3() const { return chi3; }
       float Chi4() const { return chi4; }
       // start at ichi == 1 (not zero indexed)
       float get_chi(int ichi) const {
-	 if (ichi == 1) return chi1;
-	 else
-	    if (ichi == 2) return chi2;
-	    else
-	       if (ichi == 3) return chi3;
-	       else
-		  if (ichi == 4) return chi4;
-		  else return -999; }
-	 
+         if (ichi == 1) return chi1;
+         else
+            if (ichi == 2) return chi2;
+            else
+               if (ichi == 3) return chi3;
+               else
+                  if (ichi == 4) return chi4;
+                  else return -999;
+      }
 
       int N_chi() const { return chi_vec.size(); }
       std::string rotamer_name() const {return name;} // richardson rotamer name (m, tt, p-90)
-      
+
       short int has_chi2_p() const { return sig_chi2 > 0.0; };
       short int has_chi3_p() const { return sig_chi3 > 0.0; };
       short int has_chi4_p() const { return sig_chi4 > 0.0; };
@@ -138,7 +137,7 @@ namespace coot {
 
    // a dunbrack_rotamer is a typed container of simple rotamers,
    // i.e. it is the set of all (e.g.) ARG rotamers.
-   // 
+   //
    class dunbrack_rotamer : public monomer_utils {
 
       std::string residue_type;
@@ -147,7 +146,7 @@ namespace coot {
    public:
       dunbrack_rotamer(const std::string &restype,
 		       const simple_rotamer &rot);
-      
+
       void add_simple_rotamer(const simple_rotamer &rot);
       std::string Type() const { return residue_type; }
       int n_rotamers() const { return rotamers.size(); }
@@ -159,7 +158,6 @@ namespace coot {
    };
 
 
-   
    class chi_angles {
 
    protected:
@@ -293,7 +291,7 @@ namespace coot {
       // 
       // return status and the new angle.
       std::pair<short int, float> change_by(int ichi, double diff,
-			  const std::vector<std::vector<int> > &contact_indices);
+					    const std::vector<std::vector<int> > &contact_indices);
       std::pair<short int, float> change_by(int ichi, double diff,
 					    coot::protein_geometry* geom_p);
       std::pair<short int, float> change_by(int imol,

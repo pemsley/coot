@@ -78,7 +78,7 @@ namespace coot {
       std::vector<int> get_neighbours_of_vertex(int this_vertex) const;
       std::vector<int> get_neighbours_of_vertex_excluding_path(int this_vertex,
 							       const std::vector<int> &path) const;
-      void add_path_maybe(std::vector<int> circular_path);
+      void add_path_maybe(const std::vector<int> &circular_path);
       std::vector<std::vector<int> > rings; // converted from ints to string in ring_list()
       std::vector<std::vector<std::string> > indexes_to_names(const std::vector<std::vector<int> > &filtered_rings) const;
       bool

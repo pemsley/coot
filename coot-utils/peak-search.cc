@@ -28,6 +28,10 @@
 #include "peak-search.hh"
 #include "clipper/core/map_interp.h"
 
+#include "utils/logging.hh"
+extern logging logger;
+
+
 coot::peak_search::peak_search(const clipper::Xmap<float> &xmap) { 
    //                                float n_sigma_in) { 
 
@@ -65,7 +69,7 @@ coot::peak_search::get_peaks(const clipper::Xmap<float> &xmap,
 
    peak_search_0(xmap, &marked_map, n_sigma);
 
-   for (ix = marked_map.first(); !ix.last(); ix.next())  { 
+   for (ix = marked_map.first(); !ix.last(); ix.next())  {
       if (marked_map[ix] == 2) {
          // why do I move peak pos to grid?
          r.push_back(move_grid_to_peak(xmap, ix.coord()));
@@ -75,7 +79,7 @@ coot::peak_search::get_peaks(const clipper::Xmap<float> &xmap,
    return r;
 }
 
-std::vector<clipper::Coord_orth> 
+std::vector<clipper::Coord_orth>
 coot::peak_search::get_peaks_for_flooding(const clipper::Xmap<float> &xmap,
                                           float n_sigma) {
 
@@ -88,7 +92,7 @@ coot::peak_search::get_peaks_for_flooding(const clipper::Xmap<float> &xmap,
 
    peak_search_for_flooding(xmap, &marked_map, n_sigma);
 
-   for (ix = marked_map.first(); !ix.last(); ix.next())  { 
+   for (ix = marked_map.first(); !ix.last(); ix.next())  {
       if (marked_map[ix] == 2) {
          r.push_back(move_grid_to_peak(xmap, ix.coord()));
       }
@@ -110,7 +114,7 @@ coot::peak_search::get_peak_map_indices(const clipper::Xmap<float> &xmap,
 
    peak_search_0(xmap, &marked_map, n_sigma);
 
-   for (ix = marked_map.first(); !ix.last(); ix.next())  { 
+   for (ix = marked_map.first(); !ix.last(); ix.next())  {
       if (marked_map[ix] == 2) {
          std::cout << "Peak at " << ix.coord().format() << " " << xmap[ix] << std::endl;
          v.push_back(std::pair<clipper::Xmap<float>::Map_reference_index, float> (ix, xmap[ix]));
@@ -118,10 +122,12 @@ coot::peak_search::get_peak_map_indices(const clipper::Xmap<float> &xmap,
    }
    std::sort(v.begin(), v.end(), compare_ps_peaks_mri);
 
-   // debuggin
-   if (v.size() > 4) {
-      for (int i=0; i<4; i++)
-         std::cout << v[i].first.coord().format() << " " << v[i].second << " \n";
+   // debugging
+   if (false) {
+      if (v.size() > 4) {
+         for (int i=0; i<4; i++)
+            std::cout << v[i].first.coord().format() << " " << v[i].second << " \n";
+      }
    }
 
    return v;
@@ -166,7 +172,7 @@ coot::peak_search::get_minima_grid_points(const clipper::Xmap<float> &xmap,
 
    peak_search_0_minima(xmap, &marked_map);
 
-   for (ix = marked_map.first(); !ix.last(); ix.next())  { 
+   for (ix = marked_map.first(); !ix.last(); ix.next())  {
       if (marked_map[ix] == 2) {
           v.push_back(std::pair<clipper::Coord_grid, float> (ix.coord(), xmap[ix]));
       }
@@ -202,12 +208,13 @@ coot::peak_search::peak_search_0(const clipper::Xmap<float> &xmap,
    int is_peak;
    float v;
    float cut_off = map_rms * n_sigma;
-   short int IN_CLUSTER = 3; 
+   short int IN_CLUSTER = 3;
 
+   // 20241217-PE I need to come back to this to diagnose what is going in in flood2().
    if (false)
       std::cout << "debug:: peak_search_0():: map rms: " << map_rms << ", peak cut-off: "
                 << cut_off << "\n";
-   
+
 //    std::cout << "There are " << neighb.size() << " neighbours\n";
 //    for (int i=0; i<neighb.size(); i++) {
 //       std::cout << i << " " << neighb[i].format() << "\n";
@@ -541,9 +548,13 @@ coot::peak_search::get_peaks(const clipper::Xmap<float> &xmap,
    only_around_protein_flag = false;
 
    if (true) {
-      std::cout << "in get_peaks do_positive_levels_flag   " << do_positive_levels_flag << std::endl;
-      std::cout << "in get_peaks also_negative_levels_flag " << also_negative_levels_flag << std::endl;
-      std::cout << "in get_peaks only_around_protein_flag  " << only_around_protein_flag << std::endl;
+      // std::cout << "in get_peaks do_positive_levels_flag   " << do_positive_levels_flag << std::endl;
+      // std::cout << "in get_peaks also_negative_levels_flag " << also_negative_levels_flag << std::endl;
+      // std::cout << "in get_peaks only_around_protein_flag  " << only_around_protein_flag << std::endl;
+      logger.log(log_t::INFO, logging::function_name_t("get_peaks"), "do_positive_levels_flag",
+                 std::to_string(do_positive_levels_flag));
+      logger.log(log_t::INFO, logging::function_name_t("get_peaks"), "also_negative_levels_flag",
+                 std::to_string(also_negative_levels_flag));
    }
 
    std::vector<std::pair<clipper::Coord_orth, float> > peaks =
@@ -553,14 +564,15 @@ coot::peak_search::get_peaks(const clipper::Xmap<float> &xmap,
 
    std::vector<clipper::Coord_orth> sampled_protein_coords = make_sample_protein_coords(mol);
 
-   std::cout << "in get_peaks() sampled_protein_coords size " << sampled_protein_coords.size()
-             << std::endl;
-
+   if (false)
+      std::cout << "DEBUG:: xin get_peaks() sampled_protein_coords size " << sampled_protein_coords.size()
+                << std::endl;
 
    if (only_around_protein_flag) {
 
       sampled_protein_coords = sample_all_atoms();
-      std::cout << "sampled_protein_coords size is " << sampled_protein_coords.size() << std::endl;
+      if (false)
+         std::cout << "DEBUG:: sampled_protein_coords size is " << sampled_protein_coords.size() << std::endl;
 
       double max_dist_close_enough = 3.8; // 4.0 maybe a bit too much, actually!
       double max_dist = 4.0; // 20231004-PE for 1bl8
@@ -585,8 +597,10 @@ coot::peak_search::get_peaks(const clipper::Xmap<float> &xmap,
          }
       }
 
-      std::cout << "INFO:: n_peaks outside of contact with protein (and thus ignored): "
-                << n_outside << " and " << n_inside << " inside " << std::endl;
+      // std::cout << "INFO:: n_peaks outside of contact with protein (and thus ignored): "
+      // << n_outside << " and " << n_inside << " inside " << std::endl;
+      logger.log(log_t::INFO, {"n_peaks outside of contact with protein (and thus ignored):",
+                               std::to_string(n_outside), "and", std::to_string(n_inside), "inside"});
 
    } else {
 

@@ -40,7 +40,7 @@ pkginclude_HEADERS = ligand.hh residue_by_phi_psi.hh wligand.hh monomer-utils.hh
 	side-chain-densities.hh tube-finder.hh smith-waterman.hh side-chain.hh \
 	new-residue-by-3-phi-psi.hh refine-isolated-chain.hh libres-tracer.hh \
 	dSFMT.h dSFMT-params.h dSFMT-params19937.h dSFMT-common.h scored-node.hh \
-        rama-rsr-extend-fragments.hh
+        rama-rsr-extend-fragments.hh molecular-replacement.hh
 
 pkgincludedir = $(includedir)/coot/ligand
 
@@ -51,7 +51,8 @@ libcoot_ligand_la_SOURCES = ligand.cc ligand-extras.cc  residue_by_phi_psi.cc \
 	torsion-general.cc rotamer-tables.cc primitive-chi-angles.cc dipole.cc\
         base-pairing.cc backrub-rotamer.cc trace.cc trace-2.cc multi-peptide.cc \
         ligands-db.cc joining-residues.cc ligand-score-card.cc side-chain-densities.cc \
-	tube-finder.cc smith-waterman.cc side-chain.cc refine-isolated-chain.cc 
+	tube-finder.cc smith-waterman.cc side-chain.cc refine-isolated-chain.cc \
+	molecular-replacement.cc
 
 # chi-angles, monomer-utils, rotamer torsion-general use coot::Cartesian
 # from libcoot-coords
@@ -72,7 +73,7 @@ libcoot_ligand_la_LIBADD = \
    $(top_builddir)/coot-utils/libcoot-map-utils.la    \
    $(top_builddir)/analysis/libcoot-analysis.la	      \
    $(top_builddir)/utils/libcoot-utils.la             \
-   $(CLIPPER_LIBS) $(MMDB_LIBS) $(SQLITE3_LIBS) $(gsl_LIBS) $(RDKIT_LIBS) -lpthread
+   $(CLIPPER_LIBS) $(MMDB_LIBS) $(SQLITE3_LIBS) $(gsl_LIBS) -lpthread
 
 libcoot_ligand_la_LDFLAGS = $(SHARED_LDFLAGS)
 
@@ -181,8 +182,7 @@ coot_make_ligands_db_LDADD = ./libcoot-ligand.la \
         $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la       \
         $(top_builddir)/analysis/libcoot-analysis.la	   \
-	$(top_builddir)/compat/libcoot-compat.la           \
-        $(RDKIT_LIBS)
+	$(top_builddir)/compat/libcoot-compat.la
 
 coot_identify_protein_bin_SOURCES = identify-protein.cc
 
@@ -311,7 +311,6 @@ coot_findligand_bin_LDADD = \
         $(top_builddir)/analysis/libcoot-analysis.la	   \
 	$(top_builddir)/compat/libcoot-compat.la           \
         $(GLOB_LIBS) \
-        $(RDKIT_LIBS) \
 	$(CLIPPER_LIBS) $(MMDB_LIBS) $(gsl_LIBS)
 
 # 	$(top_builddir)/coords/libcoot-coords.la
@@ -333,7 +332,6 @@ coot_findwaters_bin_LDADD = \
         $(top_builddir)/analysis/libcoot-analysis.la	   \
 	$(top_builddir)/compat/libcoot-compat.la           \
         $(GLOB_LIBS) \
-        $(RDKIT_LIBS) \
 	$(CLIPPER_LIBS) $(MMDB_LIBS) $(gsl_LIBS)
 
 #testwlig_LDADD = -L. -lcoot-ligand      \

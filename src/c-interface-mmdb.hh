@@ -25,13 +25,17 @@
 #include <deque>
 #include <mmdb2/mmdb_manager.h>
 
-#ifdef __cplusplus
 #ifdef USE_GUILE
-#include <libguile.h>	
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
+#include <libguile.h>
+#pragma GCC diagnostic pop
+
 
 // return 0 on failure.  An atom with an atom name of "" and element
 // of "" is converted to a Ter atom.
-// 
+//
 mmdb::Manager *
 mmdb_manager_from_scheme_expression(SCM molecule_expression);
 SCM display_scm(SCM o);
@@ -42,8 +46,7 @@ SCM display_scm(SCM o);
 mmdb::Manager * mmdb_manager_from_python_expression(PyObject *molecule_expression);
 std::deque<mmdb::Model *> mmdb_models_from_python_expression(PyObject *molecule_expression);
 #endif // PYTHON
-#endif 
 
-// Delete the CONECT records from the MMDBManager? Depending on 
+// Delete the CONECT records from the MMDBManager? Depending on
 // write_conect_records_flag
 void mmdb_manager_delete_conect(mmdb::Manager *mol);

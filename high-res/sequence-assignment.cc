@@ -23,9 +23,9 @@
 #include <stdio.h>
 #include <math.h>
 
-#include "coords/Cartesian.h"
-#include "coords/mmdb-extras.h"
-#include "coords/mmdb-crystal.h" // for atom_selection_container_t usage
+#include "coords/Cartesian.hh"
+#include "coords/mmdb-extras.hh"
+#include "coords/mmdb-crystal.hh" // for atom_selection_container_t usage
 
 #include "utils/coot-utils.hh"
 #include "coot-utils/coot-coord-utils.hh"
@@ -195,56 +195,55 @@ coot::sequence_assignment::side_chain_score_t::add_fasta_sequence(const std::str
    std::string seq;
 
    int nchars = seq_in.length();
-   short int found_greater = 0;
-   short int found_newline = 0;
+   bool found_greater = false;
+   bool found_newline = false;
    std::string t;
 
    for (int i=0; i<nchars; i++) {
 
-      //       std::cout << "checking character: " << seq_in[i] << std::endl;
+      std::cout << "checking character: " << seq_in[i] << std::endl;
 
       if (found_newline && found_greater) {
-	 t = toupper(seq_in[i]);
-	 if (is_fasta_aa(t)) {
-	    // std::cout << "adding character: " << seq_in[i] << std::endl;
-	    seq += t;
-	 }
+         t = toupper(seq_in[i]);
+         if (is_fasta_aa(t)) {
+            std::cout << "adding character: " << seq_in[i] << std::endl;
+            seq += t;
+         }
       }
       if (seq_in[i] == '>') {
-	 // std::cout << "DEBUG:: " << seq_in[i] << " is > (greater than)\n";
-	 found_greater = 1;
+         std::cout << "DEBUG:: " << seq_in[i] << " is > (greater than)\n";
+         found_greater = true;
       }
-      if (seq_in[i] == '\n') { 
-	 if (found_greater) {
-	    // std::cout << "DEBUG:: " << seq_in[i] << " is carriage return\n";
-	    found_newline = 1;
-	 }
+      if (seq_in[i] == '\n') {
+         if (found_greater) {
+            std::cout << "DEBUG:: " << seq_in[i] << " is carriage return\n";
+            found_newline = true;
+         }
       }
    }
-   
-   if (seq.length() > 0) { 
-      std::cout << "storing sequence: " << seq << " for chain id: "
-		<< sequence_chain_id_in << std::endl;
-      input_sequence.push_back(std::pair<std::string, std::string> (sequence_chain_id_in,seq));   
-      // make sequence_as_indices from input_sequence:
-      // sequence_as_indices.push_back(std::pair<std::string, std::vector<int> > (sequence_chain_id_in, convert_seq_to_indices(seq)));
-      sequence_infos.push_back(coot::sequence_assignment::sequence_info_t(sequence_chain_id_in, convert_seq_to_indices(seq)));
-				    
+
+   if (seq.length() > 0) {
+      std::cout << "debug:: coot::sequence_assignment::side_chain_score_t::add_fasta_sequence() "
+                << "storing sequence: " << seq << " for chain id: "
+                << sequence_chain_id_in << std::endl;
+      input_sequence.push_back(std::pair<std::string, std::string> (sequence_chain_id_in,seq));
+      coot::sequence_assignment::sequence_info_t si(sequence_chain_id_in, convert_seq_to_indices(seq));
+      sequence_infos.push_back(si);
    } else {
-      std::cout << "WARNING:: no sequence found or improper fasta sequence format\n";
+      std::cout << "WARNING:: high-res: no sequence found or improper fasta sequence format\n";
    }
 }
 
- 
+
 // Note vector can return 1000 on unfound residue type.
-// 
+//
 std::vector<coot::sequence_assignment::side_chain_name_index>
-coot::sequence_assignment::side_chain_score_t::convert_seq_to_indices(const std::string &seq) const { 
+coot::sequence_assignment::side_chain_score_t::convert_seq_to_indices(const std::string &seq) const {
 
    std::vector<coot::sequence_assignment::side_chain_name_index> r;
    std::string w = "WARNING:: The following codes were not comprehensible:\n";
    int incomprehensible = 0;
-   
+
    for (unsigned int i=0; i<seq.length(); i++) {
 
       std::string s = seq.substr(i,1);
@@ -545,7 +544,7 @@ coot::sequence_assignment::side_chain_score_t::generate_scores(mmdb::Manager *mo
    mark_unassigned_residues(); // uses mol
 
    float pr_cut = 0.1; 
-   std::vector<residue_range_t> urv = find_unassigned_regions(pr_cut);
+   std::vector<high_res_residue_range_t> urv = find_unassigned_regions(pr_cut);
    std::cout << "There were " << urv.size() << " unassigned regions\n";
    
       
@@ -687,10 +686,10 @@ coot::sequence_assignment::side_chain_score_t::cache_standard_residues() {
 // Mark up the input structure as unassigned.  Use Residue UDD to do
 // the assignment.
 // 
-std::vector<coot::residue_range_t>
+std::vector<coot::high_res_residue_range_t>
 coot::sequence_assignment::side_chain_score_t::find_unassigned_regions(float pr_cut) { 
 
-   std::vector<coot::residue_range_t> v;
+   std::vector<coot::high_res_residue_range_t> v;
    int istate; // for UDD data reading
 
    int n_models = mol->GetNumberOfModels();
@@ -739,7 +738,7 @@ coot::sequence_assignment::side_chain_score_t::find_unassigned_regions(float pr_
 		     // a range...
 		     if (in_ala_range_flag == 1) {
 			if (previous_residue) { 
-			   v.push_back(coot::residue_range_t(chain_id,
+			   v.push_back(coot::high_res_residue_range_t(chain_id,
 							     start_resno,
 							     previous_residue->seqNum));
 			   in_ala_range_flag = 0;
@@ -757,7 +756,7 @@ coot::sequence_assignment::side_chain_score_t::find_unassigned_regions(float pr_
 	    // range? If so, use previous_residue to push back a range info
 	    if (in_ala_range_flag)
 	       if (previous_residue)
-		  v.push_back(coot::residue_range_t(chain_id,
+		  v.push_back(coot::high_res_residue_range_t(chain_id,
 						    start_resno,
 						    previous_residue->seqNum));
 	 }
@@ -874,7 +873,7 @@ coot::sequence_assignment::side_chain_score_t::mark_unassigned_residues() {
 // returned sequences: 1 to 39 and 51 to 100.
 // 
 std::vector<coot::sequence_assignment::sequence_range_t>
-coot::sequence_assignment::side_chain_score_t::find_unassigned_sequence(const coot::residue_range_t &a_residue_range) const {
+coot::sequence_assignment::side_chain_score_t::find_unassigned_sequence(const coot::high_res_residue_range_t &a_residue_range) const {
    
    float v_crit = 0.1;
    unsigned int required_range_size = a_residue_range.length();
@@ -932,7 +931,7 @@ void
 coot::sequence_assignment::side_chain_score_t::test_residue_range_marking() {
 
    std::cout << "in test_residue_range_marking" << std::endl;
-   std::vector<coot::residue_range_t> v = find_unassigned_regions(0.1);
+   std::vector<coot::high_res_residue_range_t> v = find_unassigned_regions(0.1);
 
    std::cout << "There were " << v.size() << " unassigned regions:\n";
    for (unsigned int i=0; i<v.size(); i++) {
@@ -941,7 +940,7 @@ coot::sequence_assignment::side_chain_score_t::test_residue_range_marking() {
 		<< v[i].end_resno << std::endl;
    }
 
-   coot::residue_range_t rr("A", 20, 30);
+   coot::high_res_residue_range_t rr("A", 20, 30);
 
    // assign some sequence: that is apply some high proproability to
    // some sequence_infos data.

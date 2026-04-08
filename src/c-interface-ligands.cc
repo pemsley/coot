@@ -19,6 +19,10 @@
  * write to the Free Software Foundation, Inc., 51 Franklin Street,  02110-1301, USA
  */
 
+#include "coot-utils/atom-selection-container.hh"
+#include "coot-utils/cfc.hh"
+#include "geometry/protein-geometry.hh"
+#include "mmdb2/mmdb_atom.h"
 #ifdef USE_PYTHON
 #include <Python.h>  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #include "python-3-interface.hh"
@@ -42,11 +46,15 @@
 #include <string>
 
 #include <mmdb2/mmdb_manager.h>
-#include "coords/mmdb-extras.h"
+
+#include "coords/mmdb-extras.hh"
 #include "coords/mmdb.hh"
-#include "coords/mmdb-crystal.h"
+#include "coords/mmdb-crystal.hh"
 
 #include "coot-utils/read-sm-cif.hh"
+#include "coot-utils/coot-coord-utils.hh"
+#include "coot-utils/peak-search.hh"
+#include "coot-utils/coot-h-bonds.hh"
 
 #include "graphics-info.h"
 #include "c-interface.h"
@@ -54,24 +62,25 @@
 #include "c-interface-gtk-widgets.h"
 #include "cc-interface.hh"
 #include "cc-interface-scripting.hh"
-#include "coot-utils/coot-coord-utils.hh"
-#include "coot-utils/peak-search.hh"
-#include "coot-utils/coot-h-bonds.hh"
 
 // #include "coot-compare-residues.hh"
 
 #include "ligand/wligand.hh"
 
 #include "c-interface-ligands-swig.hh"
+
 #include "guile-fixups.h"
 
-#include "get-monomer.hh"
-
-
-#ifdef HAVE_GOOCANVAS
-#include <goocanvas.h>
-#include "lbg/wmolecule.hh"
+// for all of this file:
+#ifdef USE_GUILE
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
 #endif
+
+#include "utils/logging.hh"
+extern logging logger;
+
+#include "get-monomer.hh"
 
 #include "c-interface-bonds.hh"
 
@@ -136,7 +145,8 @@ go_to_ligand_inner() {
 	    s += coot::util::int_to_string(pp.second.first);
 	    s += ".";
 	    add_status_bar_text(s.c_str());
-            std::cout << "INFO:: status bar text: " << s << std::endl;
+            // std::cout << "INFO:: status bar text: " << s << std::endl;
+            logger.log(log_t::INFO, "status bar text:", s);
 	 } else {
 	    if (new_centre.type == coot::NO_LIGANDS) {
 	       std::string s = "No ligand (hetgroup) found in this molecule (#";
@@ -241,8 +251,9 @@ match_ligand_torsions(int imol_ligand, int imol_ref, const char *chain_id_ref, i
 		  } else {
 		     // normal case
 		     int n_rotated = g.molecules[imol_ligand].match_torsions(res_ref, tr, *g.Geom_p());
-		     std::cout << "INFO:: rotated " << n_rotated << " torsions in matching torsions"
-			       << std::endl;
+		     // std::cout << "INFO:: rotated " << n_rotated << " torsions in matching torsions"
+		     //            << std::endl;
+		     logger.log(log_t::INFO, "rotated", n_rotated, "torsions in matching torsions");
 		  }
 	       }
 	       graphics_draw();
@@ -823,10 +834,13 @@ ligand_search_install_wiggly_ligands() {
 
    for(unsigned int i=0; i<ligands.size(); i++) {
 
-      std::cout << "INFO:: ligand number " << i << " is molecule number "
-		          << g.find_ligand_ligand_mols()[i].first << "  "
-		          << " with wiggly flag: "
-		          << g.find_ligand_ligand_mols()[i].second << std::endl;
+      // std::cout << "INFO:: ligand number " << i << " is molecule number "
+      //               << g.find_ligand_ligand_mols()[i].first << "  "
+      //               << " with wiggly flag: "
+      //               << g.find_ligand_ligand_mols()[i].second << std::endl;
+      logger.log(log_t::INFO, "ligand number", i, "is molecule number",
+                 g.find_ligand_ligand_mols()[i].first, "with wiggly flag:",
+                 g.find_ligand_ligand_mols()[i].second);
 
       if (ligands[i].second) {
 	      // argh (i).
@@ -1125,6 +1139,152 @@ std::vector<int> ligand_search_make_conformers_internal() {
    return mol_list;
 }
 
+#include "lidia-core/rdkit-interface.hh"
+#include "utils/base64-encode-decode.hh"
+
+// Prevents preprocessor substitution of `VERSION` in `MolPickler.h`
+#ifndef RD_MOLPICKLE_H
+
+#ifdef VERSION
+#define __COOT_VERSION_VALUE VERSION
+#undef VERSION
+#endif
+
+#include <GraphMol/MolPickler.h>
+
+#ifdef __COOT_VERSION_VALUE
+#define VERSION __COOT_VERSION_VALUE
+#undef __COOT_VERSION_VALUE
+#endif
+
+#endif //RD_MOLPICKLE_H
+
+
+#ifdef USE_PYTHON
+//! \brief get an rdkit molecule as a pickled string
+//!
+//! @param imol the index of the molecule
+//! @param residue spec the residue specifier, e..g ['A', 11, ""]
+//! @return pickled string. Return empty string on failure.
+std::string get_rdkit_mol_base64_from_molecule(int imol, PyObject *residue_spec_py) {
+
+   // test removing pickle stuff from this function.
+
+   // std::cout << "DEBUG:: in get_rdkit_mol_pickle_base64_from_molecule() --- start ---" << std::endl;
+
+   std::string pickle_string;
+   coot::residue_spec_t rs = residue_spec_from_py(residue_spec_py);
+   if (is_valid_model_molecule(imol)) {
+      // std::cout << "DEBUG:: in get_rdkit_mol_pickle_base64_from_molecule() A " << std::endl;
+      graphics_info_t g;
+      mmdb::Residue *r = graphics_info_t::molecules[imol].get_residue(rs);
+      std::string residue_name = r->GetResName();
+      int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
+      std::pair<bool, coot::dictionary_residue_restraints_t> rp = g.Geom_p()->get_monomer_restraints(residue_name, imol_enc);
+      // std::cout << "DEBUG:: in get_rdkit_mol_pickle_base64_from_molecule() B " << r << std::endl;
+      if (r) {
+         const auto &dict = rp.second;
+         RDKIT_GRAPHMOL_EXPORT RDKit::MolPickler mp;
+         RDKit::RWMol mol = coot::rdkit_mol(r, dict);
+         // std::cout << "DEBUG:: in get_rdkit_mol_pickle_base64_from_molecule() C " << mol.getNumAtoms() << std::endl;
+         if (mol.getNumAtoms() > 0) {
+            // std::cout << "DEBUG:: in get_rdkit_mol_pickle_base64_from_molecule() D " << std::endl;
+            unsigned int flags = RDKit::PicklerOps::AtomProps; // yay, this works for atom names.
+            mp.pickleMol(mol, pickle_string, flags);
+            pickle_string = moorhen_base64::base64_encode((const unsigned char*)pickle_string.c_str(), pickle_string.size());
+
+            // debug
+            if (false) {
+               std::ofstream f("test-mol.pickle");
+               f << pickle_string;
+               f.close();
+            }
+         }
+      }
+   }
+   // std::cout << "DEBUG:: in get_rdkit_mol_pickle_base64_from_molecule() len pickle_string is " << pickle_string.length() << std::endl;
+   return pickle_string; // this is RDKit binary representation encoded with base64. Not a normal python picked object.
+}
+#endif
+
+int restraints_from_rdkit_mol_base64(const std::string &rdkit_mol_binary_base64, PyObject *atom_name_list_py,
+                                     const std::string &comp_id) {
+
+   int status = 0;
+   std::string binary = moorhen_base64::base64_decode(rdkit_mol_binary_base64);
+   RDKit::ROMol mol_ro(binary);
+   RDKit::RWMol mol(mol_ro);
+   coot::set_energy_lib_atom_types(&mol);
+   long n_atoms = mol.getNumAtoms(); // for type match
+   unsigned int conf_id = 0;
+   std::vector<std::string> atom_name_list;
+   if (PyList_Check(atom_name_list_py)) {
+      long len_atom_name_list = PyObject_Length(atom_name_list_py);
+      if (n_atoms == len_atom_name_list) {
+         // shove the atom names into the rdkit mol atoms:
+         for (long i=0; i<n_atoms; i++) {
+            RDKit::Atom *atom_ptr = mol.getAtomWithIdx(i);
+            PyObject *an_py = PyList_GetItem(atom_name_list_py, i);
+            std::string atom_name_from_list = myPyString_AsString(an_py);
+            atom_ptr->setProp("name", atom_name_from_list);
+            // std::cout << "DEBUG:: in restraints_from_rdkit_mol_base64 atom " << i << " set name " << atom_name_from_list << std::endl;
+         }
+      }
+   }
+   std::optional<coot::dictionary_residue_restraints_t> restraints = coot::dictionary_from_rdkit_mol(mol, conf_id, comp_id);
+   if (restraints) {
+      int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
+      graphics_info_t::Geom_p()->add(imol_enc, restraints.value());
+      restraints.value().write_cif("test.cif");
+      status = 1;
+   }
+   return status;
+}
+
+//! \brief and back the other way - import an RDKit mol
+//!
+//! @return the index of the new molecule - or -1 on failure
+int molecule_from_rdkit_mol_base64(const std::string &rdkit_mol_binary_base64, PyObject *atom_name_list_py, const std::string &comp_id) {
+
+   int imol = -1;
+
+   try {
+      std::string binary = moorhen_base64::base64_decode(rdkit_mol_binary_base64);
+      RDKit::ROMol mol(binary);
+      long n_atoms = mol.getNumAtoms(); // for type match
+      if (n_atoms > 0) {
+
+         std::vector<std::string> atom_name_list;
+         if (PyList_Check(atom_name_list_py)) {
+            long len_atom_name_list = PyObject_Length(atom_name_list_py);
+            if (n_atoms == len_atom_name_list) {
+               // shove the atom names into the rdkit mol atoms:
+               for (long i=0; i<n_atoms; i++) {
+                  RDKit::Atom *atom_ptr = mol.getAtomWithIdx(i);
+                  PyObject *an_py = PyList_GetItem(atom_name_list_py, i);
+                  std::string atom_name_from_list = myPyString_AsString(an_py);
+                  atom_ptr->setProp("name", atom_name_from_list);
+               }
+               unsigned int conf_id = 0;
+               std::string mol_name = "RDKit Molecule";
+               mmdb::Residue *r = coot::residue_from_rdkit_mol(mol, conf_id, comp_id);
+               mmdb::Manager *mmol = coot::util::create_mmdbmanager_from_residue(r);
+               if (mmol) {
+                  imol = graphics_info_t::create_molecule();
+                  atom_selection_container_t asc = make_asc(mmol);
+                  graphics_info_t::molecules[imol].install_model(imol, asc, graphics_info_t::Geom_p(), mol_name, 1);
+                  graphics_info_t::graphics_draw();
+               }
+            }
+         }
+      }
+   }
+   catch (const std::runtime_error &rte) {
+      std::cout << "WARNING:: molecule_from_rdkit_mol_base64() error " << rte.what() << std::endl;
+   }
+   return imol;
+}
+
 /*! \brief make conformers of the ligand search molecules, each in its
   own molecule.
 
@@ -1321,7 +1481,8 @@ int mask_map_by_molecule(int map_mol_no, int coord_mol_no, short int invert_flag
 	       lig.mask_map(g.molecules[coord_mol_no].atom_sel.mol, selectionhandle, invert_flag);
 	       g.molecules[coord_mol_no].atom_sel.mol->DeleteSelection(selectionhandle);
 	       imol_new_map = g.create_molecule();
-	       std::cout << "INFO:: Creating masked  map in molecule number " << imol_new_map << std::endl;
+	       // std::cout << "INFO:: Creating masked  map in molecule number " << imol_new_map << std::endl;
+	       logger.log(log_t::INFO, "Creating masked map in molecule number", imol_new_map);
 	       bool is_em_map_flag = g.molecules[map_mol_no].is_EM_map();
 	       std::string old_name = g.molecules[map_mol_no].get_name();
 	       std::string new_name = "Masked Map from " + old_name;
@@ -1356,7 +1517,8 @@ mask_map_by_atom_selection(int map_mol_no, int coords_mol_no, const char *mmdb_a
 	 std::string name = g.molecules[map_mol_no].name_;
 	 std::string new_name = name + " Masked Map";
 	 bool is_em_map_flag = g.molecules[map_mol_no].is_EM_map();
-	 g.molecules[imol_new_map].install_new_map(lig.masked_map(), new_name, is_em_map_flag);
+         float contour_level = 0.99f * g.molecules[map_mol_no].get_contour_level();
+         g.molecules[imol_new_map].install_new_map_with_contour_level(lig.masked_map(), new_name, contour_level, is_em_map_flag);
 	 graphics_draw();
       } else {
 	 std::cout << "No model molecule in " << coords_mol_no << std::endl;
@@ -1412,6 +1574,11 @@ std::vector<std::pair<std::string, std::string> > monomer_lib_3_letter_codes_mat
 int
 handle_make_monomer_search(const char *text, GtkWidget *viewport) {
 
+   unsigned int image_size = 128;
+#if __APPLE__
+   // image_size = 450;
+#endif
+
    int stat = 0;
    std::string t(text);
    GtkWidget *vbox_current = widget_from_builder("monomer_search_results_vbox");
@@ -1423,7 +1590,7 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
    std::vector<std::pair<std::string, std::string> > v =
       monomer_lib_3_letter_codes_matching(t, allow_minimal_descriptions_flag);
 
-   if (true)
+   if (false)
       std::cout << "DEBUG::  " << " found " << v.size() << " matching molecules "
 		<< " using string :" << t << ":"
 		<< std::endl;
@@ -1439,15 +1606,19 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
       const std::string &tlc           = v[i].first;
       const std::string &molecule_name = v[i].second;
       std::string *s = new std::string(tlc); // memory leak
-      GtkWidget *wp = get_image_widget_for_comp_id(tlc, coot::protein_geometry::IMOL_ENC_ANY);
+      GtkWidget *wp = get_image_widget_for_comp_id(tlc, coot::protein_geometry::IMOL_ENC_ANY, image_size);
       if (wp) {
          GtkWidget *button_for_image = gtk_button_new();
          gtk_button_set_child(GTK_BUTTON(button_for_image), wp);
-         gtk_widget_set_size_request(wp, 150, 150);
-         gtk_widget_set_hexpand(wp, TRUE);
-         gtk_widget_set_vexpand(wp, TRUE);
+         // gtk_widget_set_size_request(wp, image_size, image_size);
+         // gtk_widget_set_hexpand(wp, TRUE);
+         // gtk_widget_set_vexpand(wp, TRUE);
+         gtk_image_set_pixel_size(GTK_IMAGE(wp), image_size); // Example: request 64 logical pixels
          gtk_grid_attach(GTK_GRID(grid), button_for_image, 0, i, 1, 1);
          g_signal_connect(G_OBJECT(button_for_image), "clicked", G_CALLBACK(on_monomer_lib_search_results_button_press), s);
+      } else {
+         // 20251211-PE too noisy. Many tlc don't have dictionaries
+         // logger.log(log_t::WARNING, "failed to get image widget for", tlc);
       }
       std::string button_label = tlc + std::string(": ") + molecule_name;
       GtkWidget *button_for_label = gtk_button_new();
@@ -1812,7 +1983,8 @@ int auto_load_dictionary(const char *comp_id) {
    int r = 0;
    if (comp_id) {
       std::string s = comp_id;
-      if (g.Geom_p()->have_dictionary_for_residue_type_no_dynamic_add(s)) {
+      int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
+      if (g.Geom_p()->have_dictionary_for_residue_type_no_dynamic_add(s, imol_enc)) {
 	 r = 2;
       } else {
 	 int status = g.Geom_p()->try_dynamic_add(s, g.cif_dictionary_read_number);
@@ -2045,31 +2217,6 @@ std::vector<std::string>
 topological_equivalence_chiral_centres(const std::string &residue_type) {
 
    std::vector<std::string> centres;
-#ifdef HAVE_GOOCANVAS
-
-   graphics_info_t g;
-
-   int imol = 0; // dummy
-   std::pair<bool, coot::dictionary_residue_restraints_t> p =
-      g.Geom_p()->get_monomer_restraints(residue_type, imol);
-
-   if (p.first) {
-
-      const coot::dictionary_residue_restraints_t &restraints = p.second;
-      lig_build::molfile_molecule_t mm(restraints); // makes dummy atoms
-      widgeted_molecule_t wm(mm, NULL); // we have the atom names already.
-      topological_equivalence_t top_eq(wm.atoms, wm.bonds);
-      centres = top_eq.chiral_centres();
-
-      std::cout << "-------- chiral centres by topology analysis -----------"
-		<< std::endl;
-      for (unsigned int ic=0; ic<centres.size(); ic++) {
-	 std::cout << "     " << ic << "  " << centres[ic] << std::endl;
-      }
-      std::cout << "-------------------" << std::endl;
-   }
-
-#endif // HAVE_GOOCANVAS
    return centres;
 }
 
@@ -2358,54 +2505,6 @@ void set_multi_residue_torsion_reverse_mode(short int mode) {
 }
 
 
-/* ------------------------------------------------------------------------- */
-/*                      prodrg import function                               */
-/* ------------------------------------------------------------------------- */
-// the function passed to lbg, which is called when a new
-// prodrg-in.mdl file has been made.  We no longer have a timeout
-// function waiting for prodrg-in.mdl to be updated/written.
-//
-void prodrg_import_function(std::string file_name, std::string comp_id) {
-
-   std::string func_name = "import-from-3d-generator-from-mdl";
-   std::vector<coot::command_arg_t> args;
-   args.push_back(single_quote(file_name));
-   args.push_back(single_quote(comp_id));
-   coot::scripting_function(func_name, args);
-}
-
-
-/* ------------------------------------------------------------------------- */
-/*                       SBase import function                               */
-/* ------------------------------------------------------------------------- */
-// the function passed to lbg, so that it calls it when a new
-// SBase comp_id is required.  We no longer have a timeout
-// function waiting for prodrg-in.mdl to be updated/written.
-//
-void sbase_import_function(std::string comp_id) {
-
-   bool done = false;
-#ifdef USE_PYTHON
-   if (graphics_info_t::prefer_python) {
-      std::string s = "get_sbase_monomer_and_overlay(";
-      s += single_quote(comp_id);
-      s += ")";
-      safe_python_command(s);
-      done = true;
-   }
-#endif
-
-#ifdef USE_GUILE
-   if (! done) {
-      std::string s = "(get-ccp4srs-monomer-and-overlay ";
-      s += single_quote(comp_id);
-      s += ")";
-      safe_scheme_command(s);
-   }
-#endif
-
-}
-
 
 // return a spec for the first residue with the given type.
 // test the returned spec for unset_p().
@@ -2462,7 +2561,6 @@ SCM get_residue_by_type_scm(int imol, const std::string &residue_type) {
 #endif
 
 
-#ifdef USE_PYTHON
 PyObject *get_residue_by_type_py(int imol, const std::string &residue_type) {
 
    PyObject *r = Py_False;
@@ -2475,7 +2573,55 @@ PyObject *get_residue_by_type_py(int imol, const std::string &residue_type) {
 
    return r;
 }
-#endif
+
+//! get the residue name of the specified residue
+//!
+//! @param imol the molecule index
+//! @param residue_spec_py the residue spec
+//! @return
+std::string get_residue_name_py(int imol, PyObject *residue_spec_py) {
+
+   std::string r;
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t res_spec = residue_spec_from_py(residue_spec_py);
+      r = graphics_info_t::molecules[imol].get_residue_name(res_spec);
+   }
+   return r;
+
+}
+
+//! as above, but for use by callback
+std::string get_residue_name(int imol, coot::residue_spec_t &res_spec) {
+
+   std::string r;
+   if (is_valid_model_molecule(imol)) {
+      r = graphics_info_t::molecules[imol].get_residue_name(res_spec);
+   }
+   return r;
+}
+
+//! use by callback
+bool is_N_terminus(int imol, coot::residue_spec_t &res_spec) {
+
+  bool status = false;
+  if (is_valid_model_molecule(imol)) {
+     status = graphics_info_t::molecules[imol].is_N_terminus(res_spec);
+
+  }
+  return status;
+}
+
+//! use by callback
+bool is_C_terminus(int imol, coot::residue_spec_t &res_spec) {
+
+  bool status = false;
+  if (is_valid_model_molecule(imol)) {
+     status = graphics_info_t::molecules[imol].is_C_terminus(res_spec);
+  }
+  return status;
+}
+
+
 
 
 #ifdef USE_GUILE
@@ -3271,8 +3417,9 @@ add_dictionary_from_residue(int imol, std::string chain_id, int res_no, std::str
 	 mmdb::Manager *mol = coot::util::create_mmdbmanager_from_residue(residue_p);
 	 if (mol) {
 	    coot::dictionary_residue_restraints_t d(mol);
-	    std::cout << "INFO:: replacing restraints for type \""
-		      << d.residue_info.comp_id << "\"" << std::endl;
+	    // std::cout << "INFO:: replacing restraints for type \""
+	    //           << d.residue_info.comp_id << "\"" << std::endl;
+	    logger.log(log_t::INFO, "replacing restraints for type", "\"" + d.residue_info.comp_id + "\"");
 	    int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
 	    g.Geom_p()->replace_monomer_restraints(d.residue_info.comp_id, imol_enc, d);
 
@@ -3480,7 +3627,7 @@ double get_ligand_percentile(std::string metric_name, double metric_value, short
 
 
 void
-coot_contact_dots_for_ligand_instancing_version(int imol, coot::residue_spec_t &res_spec) {
+coot_contact_dots_for_ligand_instancing_version(int imol, const coot::residue_spec_t &res_spec) {
 
 
 #if 0 // 20210911-PE - goodbye ball clashes.
@@ -3540,10 +3687,10 @@ coot_contact_dots_for_ligand_instancing_version(int imol, coot::residue_spec_t &
                                                return colour_map.find(c)->second;
                                             };
       std::vector<mmdb::Residue *> neighbs = coot::residues_near_residue(residue_p, mol, 5);
-      coot::atom_overlaps_container_t overlaps(residue_p, neighbs, mol, g.Geom_p(), 0.5, 0.25);
+      coot::atom_overlaps_container_t overlaps(residue_p, neighbs, mol, imol, g.Geom_p(), 0.5, 0.25);
       float cdd = graphics_info_t::contact_dots_density;
 
-      coot::atom_overlaps_dots_container_t c = overlaps.contact_dots_for_ligand(cdd);
+      coot::atom_overlaps_dots_container_t c = overlaps.contact_dots_for_ligand(cdd * 2.0f);
 
       gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
       std::string molecule_name_stub = "Molecule " + coot::util::int_to_string(imol) + ": Ligand Contact Dots ";
@@ -3592,7 +3739,7 @@ coot_contact_dots_for_ligand_instancing_version(int imol, coot::residue_spec_t &
 }
 
 void
-coot_contact_dots_for_ligand_internal(int imol, coot::residue_spec_t &res_spec) {
+coot_contact_dots_for_ligand_internal(int imol, const coot::residue_spec_t &res_spec) {
 
    graphics_info_t g;
    mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
@@ -3601,7 +3748,7 @@ coot_contact_dots_for_ligand_internal(int imol, coot::residue_spec_t &res_spec) 
       std::cout << "Can't find residue" << res_spec << std::endl;
    } else {
       std::vector<mmdb::Residue *> neighbs = coot::residues_near_residue(residue_p, mol, 5);
-      coot::atom_overlaps_container_t overlaps(residue_p, neighbs, mol, g.Geom_p(), 0.5, 0.25);
+      coot::atom_overlaps_container_t overlaps(residue_p, neighbs, mol, imol, g.Geom_p(), 0.5, 0.25);
       coot::atom_overlaps_dots_container_t c = overlaps.contact_dots_for_ligand();
       std::cout << "------------- coot_contact_dots_for_ligand_internal(): score " << c.score() << std::endl;
 
@@ -3724,6 +3871,10 @@ void coot_add_hydrogen_atoms(int imol) {
       g.molecules[imol].reduce(g.Geom_p());
       graphics_draw();
    }
+}
+
+void add_hydrogen_atoms(int imol) {
+   coot_add_hydrogen_atoms(imol);
 }
 
 void coot_reduce(int imol) {
@@ -3974,7 +4125,8 @@ int make_masked_maps_split_by_chain(int imol, int imol_map) {
          lig.import_map_from(g.molecules[imol_map].xmap);
          float contour_level = g.molecules[imol_map].get_contour_level();
          std::vector<std::pair<std::string, clipper::Xmap<float> > > maps = lig.make_masked_maps_split_by_chain(mol);
-         std::cout << "INFO:: made " << maps.size() << " masked maps" << std::endl;
+         // std::cout << "INFO:: made " << maps.size() << " masked maps" << std::endl;
+         logger.log(log_t::INFO, "made", maps.size(), "masked maps");
          bool is_em_flag = g.molecules[imol_map].is_EM_map();
          for(unsigned int i=0; i<maps.size(); i++) {
             std::string map_name =maps[i].first;
@@ -4009,3 +4161,103 @@ void smiles_to_simple_3d(const std::string &smiles) {
    PyObject *r2 = safe_python_command_with_return(sc);
 
 }
+
+#include "curl-utils.hh"
+#include "geometry/residue-and-atom-specs.hh"
+#include "utils/subprocess.hpp"
+
+/* ------------------------------------------------------------------------- */
+/*                      Acedrg for dictionary                                */
+/* ------------------------------------------------------------------------- */
+
+int get_pdbe_cif_for_comp_id(const std::string &comp_id) {
+   int status =-1;
+   xdg_t xdg;
+   std::filesystem::path user_data_dir = xdg.get_data_home();
+   std::filesystem::path cif_file_path = user_data_dir / std::string(comp_id + ".cif");
+   if (std::filesystem::exists(cif_file_path)) {
+      // std::cout << "INFO:: found " << cif_file_path << std::endl;
+      logger.log(log_t::INFO, "found " + cif_file_path.string());
+   } else {
+      std::string url = "https://www.ebi.ac.uk/pdbe/static/files/pdbechem_v2/" + comp_id + ".cif";
+      // std::cout << "INFO:: downloading " << url << " "  << cif_file_path << std::endl;
+      logger.log(log_t::INFO, "downloading", url, cif_file_path.string());
+      status = coot_get_url(url, cif_file_path.string());
+   }
+   return status;
+}
+
+bool graphics_info_t::acedrg_running = false; // set the static on startup
+
+void run_acedrg_for_ccd_dict_async(const std::string &residue_name,
+                                    const std::string &cif_file_path) {
+
+   auto run_acedrg_func = [] (const std::string &residue_name,
+                              const std::string &cif_file_path) {
+      std::vector<std::string> cmd_list =
+      {"acedrg", "-r", residue_name, "--noGeoOpt", "--coords", "-c", cif_file_path};
+      try {
+         graphics_info_t::acedrg_running = true;
+         subprocess::OutBuffer obuf = subprocess::check_output(cmd_list);
+         graphics_info_t::acedrg_running = false;
+      }
+      catch (const subprocess::CalledProcessError &e) {
+         std::cout << "WARNING::" << e.what() << std::endl;
+         graphics_info_t::acedrg_running = false; // reset
+      }
+   };
+
+   auto check_it = +[] () {
+      std::cout << "check !!!!! " << graphics_info_t::acedrg_running << std::endl;
+
+      if (graphics_info_t::acedrg_running) {
+         return (gboolean)G_SOURCE_CONTINUE;
+      } else{
+         GtkWidget *w = widget_from_builder("acedrg_running_frame");
+         if (w)
+            gtk_widget_set_visible(w, FALSE);
+         // where is the Acedrg output?
+         std::string acedrg_output_file_name = "AcedrgOut.cif";
+         if (std::filesystem::exists(acedrg_output_file_name)) {
+            read_cif_dictionary(acedrg_output_file_name);
+         }
+         return (gboolean)G_SOURCE_REMOVE;
+      }
+   };
+
+   if (!graphics_info_t::acedrg_running) {
+      std::thread thread(run_acedrg_func, residue_name, cif_file_path);
+      thread.detach();
+      GSourceFunc f = GSourceFunc(check_it);
+      g_timeout_add(1000, f, nullptr);
+      GtkWidget *w = widget_from_builder("acedrg_running_frame");
+      if (w)
+         gtk_widget_set_visible(w, TRUE);
+      else
+         std::cout << "ERROR:: can't find acedrg_running_frame" << std::endl;
+   } else {
+      // std::cout << "INFO:: acedrg is already running" << std::endl;
+      logger.log(log_t::INFO, "acedrg is already running");
+   }
+
+}
+
+void make_acedrg_dictionary_via_CCD_dictionary(int imol, const coot::residue_spec_t &spec) {
+
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Residue *residue_p = graphics_info_t::molecules[imol].get_residue(spec);
+      if (residue_p) {
+         std::string residue_name = residue_p->GetResName();
+         int status = get_pdbe_cif_for_comp_id(residue_name);
+         if (status == CURLE_OK) {
+            xdg_t xdg;
+            std::filesystem::path user_data_dir = xdg.get_data_home();
+            std::filesystem::path cif_file_path = user_data_dir / std::string(residue_name + ".cif");
+            run_acedrg_for_ccd_dict_async(residue_name, cif_file_path.string());
+         }
+      }
+   }
+
+}
+
+

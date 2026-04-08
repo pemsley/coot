@@ -23,7 +23,7 @@
 
 #include "ideal/simple-restraint.hh"
 #include "coot-utils/coot-map-utils.hh"
-#include "coords/mmdb-crystal.h"
+#include "coords/mmdb-crystal.hh"
 
 #include "testing.hh"
 #include "testing-data.hh"

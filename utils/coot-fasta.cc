@@ -174,22 +174,22 @@ coot::fasta::fasta(const std::string &combined_string) { // decomposition happen
    } else {
       sequence = "";
       name = "";
-      std::cout << "WARNING:: no sequence found or improper fasta sequence format\n";
+      std::cout << "WARNING:: fasta::fasta() no sequence found or improper fasta sequence format\n";
    }
 }
 
 bool
-coot::fasta::is_fasta_aa(const std::string &a) const { 
+coot::fasta::is_fasta_aa(const std::string &a) const {
 
    short int r = 0;
-   
-   if (a == "A" || a == "G" ) { 
+
+   if (a == "A" || a == "G" ) {
       r = 1;
-   } else { 
-      if (a == "B" 
+   } else {
+      if (a == "B"
 	  || a == "C" || a == "D" || a == "E" || a == "F" || a == "H" || a == "I"
-	  || a == "K" || a == "L" || a == "M" || a == "N" || a == "P" || a == "Q" 
-	  || a == "R" || a == "S" || a == "T" || a == "U" || a == "V" || a == "W" 
+	  || a == "K" || a == "L" || a == "M" || a == "N" || a == "P" || a == "Q"
+	  || a == "R" || a == "S" || a == "T" || a == "U" || a == "V" || a == "W"
 	  || a == "Y" || a == "Z" || a == "X" || a == "*" || a == "-") {
 	 r = 1;
       }
@@ -205,7 +205,7 @@ coot::fasta_multi::read(const std::string &file_name) {
       if (f) {
 	 std::vector<std::string> lines;
 	 std::string line;
-	 while (std::getline(f, line)) { 
+	 while (std::getline(f, line)) {
 	    lines.push_back(line);
 	 }
 	 if (lines.size()) {
@@ -249,4 +249,25 @@ coot::fasta_multi::read(const std::string &file_name) {
    } else {
       std::cout << "File not found: " << file_name << std::endl;
    }
+}
+
+
+std::pair<bool, std::string>
+coot::fasta_multi::get_fasta_for_name(const std::string &chain_id) const {
+
+   std::pair<bool, std::string> p(false, "");
+
+   if (false)
+      std::cout << "debug in get_fasta_for_name() given chain_id " << chain_id
+		<< " there are " << sequences.size() << " sequences"
+		<< std::endl;
+
+   for(const auto &seq : sequences) {
+      if (seq.name == chain_id) {
+	 p.first = true;
+	 p.second = seq.sequence;
+	 break;
+      }
+   }
+   return p;
 }

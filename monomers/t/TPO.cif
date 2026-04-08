@@ -1,0 +1,176 @@
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+TPO TPO PHOSPHOTHREONINE peptide 20 12 .
+
+data_comp_TPO
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+TPO N N NT3 1 22.076 2.003 -14.711
+TPO CA C CH1 0 22.425 2.965 -13.626
+TPO CB C CH1 0 21.269 3.940 -13.347
+TPO CG2 C CH3 0 21.657 5.085 -12.435
+TPO OG1 O O2 0 20.834 4.502 -14.633
+TPO P P P 0 19.273 4.664 -15.015
+TPO O1P O O 0 19.240 5.516 -16.270
+TPO O2P O OP -1 18.756 3.256 -15.245
+TPO O3P O OP -1 18.624 5.343 -13.824
+TPO C C C 0 22.812 2.204 -12.351
+TPO O O O 0 21.984 1.384 -11.907
+TPO OXT O OC -1 23.927 2.462 -11.855
+TPO H H H 0 22.300 1.152 -14.470
+TPO H2 H H 0 22.529 2.219 -15.472
+TPO H3 H H 0 21.181 2.032 -14.885
+TPO HA H H 0 23.206 3.484 -13.927
+TPO HB H H 0 20.524 3.434 -12.938
+TPO HG21 H H 0 22.627 5.153 -12.385
+TPO HG22 H H 0 21.299 4.923 -11.544
+TPO HG23 H H 0 21.292 5.919 -12.782
+
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+TPO N CA SINGLE n 1.488 0.0100 1.488 0.0100
+TPO CA CB SINGLE n 1.535 0.0100 1.535 0.0100
+TPO CA C SINGLE n 1.533 0.0100 1.533 0.0100
+TPO CB CG2 SINGLE n 1.511 0.0109 1.511 0.0109
+TPO CB OG1 SINGLE n 1.467 0.0151 1.467 0.0151
+TPO OG1 P SINGLE n 1.614 0.0178 1.614 0.0178
+TPO P O1P DOUBLE n 1.517 0.0192 1.517 0.0192
+TPO P O2P SINGLE n 1.517 0.0192 1.517 0.0192
+TPO P O3P SINGLE n 1.517 0.0192 1.517 0.0192
+TPO C O DOUBLE n 1.247 0.0187 1.247 0.0187
+TPO C OXT SINGLE n 1.247 0.0187 1.247 0.0187
+TPO N H SINGLE n 1.036 0.0160 0.911 0.0200
+TPO N H2 SINGLE n 1.036 0.0160 0.911 0.0200
+TPO N H3 SINGLE n 1.036 0.0160 0.911 0.0200
+TPO CA HA SINGLE n 1.089 0.0100 0.985 0.0200
+TPO CB HB SINGLE n 1.089 0.0100 0.989 0.0161
+TPO CG2 HG21 SINGLE n 1.089 0.0100 0.974 0.0145
+TPO CG2 HG22 SINGLE n 1.089 0.0100 0.974 0.0145
+TPO CG2 HG23 SINGLE n 1.089 0.0100 0.974 0.0145
+
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+TPO CA N H 109.889 1.50
+TPO CA N H2 109.889 1.50
+TPO CA N H3 109.889 1.50
+TPO H N H2 109.028 2.41
+TPO H N H3 109.028 2.41
+TPO H2 N H3 109.028 2.41
+TPO N CA CB 111.007 1.50
+TPO N CA C 109.414 1.50
+TPO N CA HA 108.031 1.50
+TPO CB CA C 111.511 2.91
+TPO CB CA HA 108.678 1.50
+TPO C CA HA 108.600 1.50
+TPO CA CB CG2 112.548 1.50
+TPO CA CB OG1 107.605 2.20
+TPO CA CB HB 108.492 1.50
+TPO CG2 CB OG1 107.625 1.78
+TPO CG2 CB HB 109.344 1.50
+TPO OG1 CB HB 109.315 1.50
+TPO CB CG2 HG21 109.508 1.50
+TPO CB CG2 HG22 109.508 1.50
+TPO CB CG2 HG23 109.508 1.50
+TPO HG21 CG2 HG22 109.425 1.50
+TPO HG21 CG2 HG23 109.425 1.50
+TPO HG22 CG2 HG23 109.425 1.50
+TPO CB OG1 P 121.496 2.55
+TPO OG1 P O1P 105.808 2.07
+TPO OG1 P O2P 105.808 2.07
+TPO OG1 P O3P 105.808 2.07
+TPO O1P P O2P 112.864 1.69
+TPO O1P P O3P 112.864 1.69
+TPO O2P P O3P 112.864 1.69
+TPO CA C O 117.003 1.50
+TPO CA C OXT 117.003 1.50
+TPO O C OXT 125.994 1.50
+
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+TPO chi1 N CA CB CG2 180.000 10.0 3
+TPO hh1 CA CB CG2 HG23 180.000 10.0 3
+TPO sp3_sp3_1 CB CA N H 180.000 10.0 3
+TPO sp3_sp3_28 CA CB OG1 P 180.000 10.0 3
+TPO sp2_sp3_1 O C CA N 0.000 10.0 6
+TPO sp3_sp3_31 CB OG1 P O3P 180.000 10.0 3
+
+loop_
+_chem_comp_chir.comp_id
+_chem_comp_chir.id
+_chem_comp_chir.atom_id_centre
+_chem_comp_chir.atom_id_1
+_chem_comp_chir.atom_id_2
+_chem_comp_chir.atom_id_3
+_chem_comp_chir.volume_sign
+TPO chir_1 CA N C CB positive
+TPO chir_2 CB OG1 CA CG2 negative
+TPO chir_3 P OG1 O2P O3P both
+
+loop_
+_chem_comp_plane_atom.comp_id
+_chem_comp_plane_atom.plane_id
+_chem_comp_plane_atom.atom_id
+_chem_comp_plane_atom.dist_esd
+TPO plan-1 C 0.020
+TPO plan-1 CA 0.020
+TPO plan-1 O 0.020
+TPO plan-1 OXT 0.020
+
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+TPO SMILES ACDLabs 10.04 O=P(O)(O)OC(C(N)C(=O)O)C
+TPO SMILES_CANONICAL CACTVS 3.341 C[C@@H](O[P](O)(O)=O)[C@H](N)C(O)=O
+TPO SMILES CACTVS 3.341 C[CH](O[P](O)(O)=O)[CH](N)C(O)=O
+TPO SMILES_CANONICAL "OpenEye OEToolkits" 1.5.0 C[C@H]([C@@H](C(=O)O)N)OP(=O)(O)O
+TPO SMILES "OpenEye OEToolkits" 1.5.0 CC(C(C(=O)O)N)OP(=O)(O)O
+TPO InChI InChI 1.03 InChI=1S/C4H10NO6P/c1-2(3(5)4(6)7)11-12(8,9)10/h2-3H,5H2,1H3,(H,6,7)(H2,8,9,10)/t2-,3+/m1/s1
+TPO InChIKey InChI 1.03 USRGIUJOYOXOQJ-GBXIJSLDSA-N
+
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+TPO acedrg 243 "dictionary generator"
+TPO acedrg_database 11 "data source"
+TPO rdkit 2017.03.2 "Chemoinformatics tool"
+TPO refmac5 5.8.0238 "optimization tool"

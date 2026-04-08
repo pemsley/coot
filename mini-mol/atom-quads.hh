@@ -82,6 +82,20 @@ namespace coot {
 	 } 
       } 
       double torsion(mmdb::Residue *residue) const;
+      // for logging:
+      std::string format() const {
+	 std::string o;
+	 o += "(";
+	 o += atom_name(0);
+	 o += " ";
+	 o += atom_name(1);
+	 o += " ";
+	 o += atom_name(2);
+	 o += " ";
+	 o += atom_name(3);
+	 o += ")";
+	 return o;
+      }
       friend std::ostream& operator<<(std::ostream &o, const atom_name_quad &q);
    };
    std::ostream& operator<<(std::ostream &o, const atom_name_quad &q);

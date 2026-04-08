@@ -71,13 +71,13 @@ coot::smcif::get_cell(mmdb::mmcif::PData data) const {
 
    if (! ierr) {
       if (false)
-         std::cout << "make cell from " 
-                   << cell_a << " " 
-                   << cell_b << " " 
-                   << cell_c << " " 
-                   << cell_alpha << " " 
-                   << cell_beta  << " " 
-                   << cell_gamma << " " 
+         std::cout << "make cell from "
+                   << cell_a << " "
+                   << cell_b << " "
+                   << cell_c << " "
+                   << cell_alpha << " "
+                   << cell_beta  << " "
+                   << cell_gamma << " "
                    << std::endl;
       std::vector<std::string> a_v     = coot::util::split_string_no_blanks(cell_a, "(");
       std::vector<std::string> b_v     = coot::util::split_string_no_blanks(cell_b, "(");
@@ -98,15 +98,15 @@ coot::smcif::get_cell(mmdb::mmcif::PData data) const {
                                      clipper::Util::d2rad(gamma));
       cell.init(cell_descr);
    } else {
-      std::string mess = "failed to get cell";
+      std::string mess = "smcif: failed to get cell";
       throw std::runtime_error(mess);
-   } 
+   }
    // Oh dear, we are returning an empty cell, maybe sometimes
    return cell; // shouldn't happen because we throw an exception in the other path.
 }
 
 
-// 
+//
 std::pair<bool,clipper::Spacegroup>
 coot::smcif::get_space_group(const std::vector<std::string> &symm_strings) const {
 
@@ -401,11 +401,23 @@ coot::smcif::read_sm_cif(const std::string &file_name) const {
          clipper::Cell cell = get_cell(data);
          std::cout << "INFO:: got cell from cif: " << cell.format() << std::endl;
 
-         std::vector<std::string> symm_strings;
-         const char *loopTag1[2] = { "_symmetry_equiv_pos_as_xyz",
-                                     ""};
+         // 8107610.cif uses _space_group_symop_operation_xyz for symmetry
+         // It is from shelx and it would be good to extract the data and
+         // make a map in such cases.
 
-         mmdb::mmcif::PLoop loop = data->FindLoop(loopTag1);
+         std::vector<std::string> symm_strings;
+         const char *loopTag1[2] = { "_symmetry_equiv_pos_as_xyz", ""};
+         const char *loopTag2[2] = { "_space_group_symop_operation_xyz", ""};
+
+         mmdb::mmcif::PLoop loop;
+         loop = data->FindLoop(loopTag2);
+         if (loop) {
+            std::cout << "Found loopTag2" << std::endl;
+         } else {
+            std::cout << "Failed to find loopTag2" << std::endl;
+         }
+
+         loop = data->FindLoop(loopTag1);
          if (loop) {
             int ll = loop->GetLoopLength();
             if (ll > 0) { 
@@ -546,7 +558,7 @@ coot::smcif::get_resolution(const clipper::Cell &cell,
 }
 
 
-std::pair<bool,clipper::Spacegroup> 
+std::pair<bool,clipper::Spacegroup>
 coot::smcif::get_space_group(const std::string &file_name) const {
 
    std::pair<bool,clipper::Spacegroup> s;
@@ -569,7 +581,7 @@ coot::smcif::get_space_group(const std::string &file_name) const {
       if (!s.first) {
          mmdb::pstr S = NULL;
          ierr = data->GetString(S, "", "_symmetry_space_group_name_H-Mxx");
-         if (! ierr) { 
+         if (! ierr) {
             std::string space_group_symbol = S;
             clipper::Spgr_descr spgd(space_group_symbol);
             s.first = true;
@@ -959,7 +971,7 @@ coot::smcif::get_space_group(mmdb::mmcif::Data *data, const std::string &symm_ta
    if (structure) {
       std::cout << "Hoooray! " << symm_tag << std::endl;
    } else {
-      std::cout << "Failed to get structure from " << symm_tag << std::endl;
+      std::cout << " smcif: Failed to get structure from " << symm_tag << std::endl;
    } 
    
    return std::pair<bool, clipper::Spacegroup> (state, spg);

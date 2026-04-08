@@ -41,13 +41,8 @@
 #include "skeleton/graphical_skel.h"
 #include "coot-utils/xmap-stats.hh"
 
-#ifdef HAVE_GOOCANVAS
-#include "goograph/goograph.hh"
-#endif
-
 #include "c-interface-mmdb.hh"
 #include "c-interface-python.hh"
-
 
 #include "graphics-info.h"
 #include "cc-interface.hh"
@@ -60,6 +55,15 @@
 #include "analysis/stats.hh"
 
 #include "read-molecule.hh" // 20230621-PE now with std::string args
+
+// for all of this file:
+#ifdef USE_GUILE
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
+#endif
+
+#include "utils/logging.hh"
+extern logging logger;
 
 
 /*  ------------------------------------------------------------------------ */
@@ -336,10 +340,10 @@ int keep_map_colour_after_refmac_state() {
 }
 
 
-void show_select_map_dialog() {
+void show_select_map_frame() {
    graphics_info_t g;
-   g.show_select_map_dialog();
-   add_to_history_simple("show-select-map-dialog");
+   g.show_select_map_frame();
+   add_to_history_simple("show-select-map-frame");
 }
 
 int read_mtz(const char *mtz_file_name,
@@ -398,7 +402,8 @@ int make_and_draw_map(const char* mtz_file_name,
          command_strings.push_back(graphics_info_t::int_to_string(is_diff_map));
          add_to_history(command_strings);
 
-         std::cout << "INFO:: making map from mtz filename " << mtz_file_name << std::endl;
+         // std::cout << "INFO:: making map from mtz filename " << mtz_file_name << std::endl;
+         logger.log(log_t::INFO, std::string("Making map from mtz filename"), mtz_file_name);
          imol = g.create_molecule();
          std::string cwd = coot::util::current_working_dir();
          g.molecules[imol].map_fill_from_mtz(std::string(mtz_file_name),
@@ -534,9 +539,11 @@ int make_and_draw_map_with_reso_with_refmac_params(const char *mtz_file_name,
 
       std::string mtz_file_name_str = mtz_file_name;
 
-      std::cout << "INFO:: making " << map_type << " map from MTZ filename "
-                << mtz_file_name_str << " using " << f_col << " "
-                << phi_col << std::endl;
+      // std::cout << "INFO:: making " << map_type << " map from MTZ filename "
+      //           << mtz_file_name_str << " using " << f_col << " "
+      //           << phi_col << std::endl;
+      logger.log(log_t::INFO, logging::function_name_t("make_and_draw_map_with_reso_with_refmac_params"),
+            std::vector<logging::ltw> {"making", map_type, "map from MTZ filename", mtz_file_name_str, "using", f_col, phi_col});
 
       if (valid_labels(mtz_file_name, f_col, phi_col, weight_col, use_weights)) {
          std::string weight_col_str("");
@@ -673,7 +680,6 @@ void stop_updating_molecule(int imol) {
 std::vector<int> auto_read_make_and_draw_maps(const char *mtz_file_name) {
 
    std::vector<int> imol_vec;
-   int imol = -1;
 
    if (! coot::file_exists(mtz_file_name)) {
       std::cout << "WARNING:: file " << mtz_file_name << " does not exist" << std::endl;
@@ -724,6 +730,10 @@ std::vector<int> auto_read_make_and_draw_maps_from_mtz(const std::string &mtz_fi
                                           const coot::mtz_column_types_info_t &mtz_col_types,
                                           bool is_diff) {
 
+      if (false)
+         std::cout << "::::::::::::::::::::::::: read_mtz_local() " << f << " " << phi
+                   << " " << is_diff << std::endl;
+
       std::string fobs_col;
       std::string sig_fobs_col;
       std::string r_free_col;
@@ -754,8 +764,9 @@ std::vector<int> auto_read_make_and_draw_maps_from_mtz(const std::string &mtz_fi
          }
       }
 
-      // std::cout << "debug:: in read_mtz_local() fobs and sig_fobs_col and r_free_cols "
-      //           << fobs_col << " " << sig_fobs_col << " " << r_free_col << std::endl;
+      short int is_anom = 0;
+
+      // if (f == "FAN") is_anom = 1;
 
       int imol = make_and_draw_map_with_reso_with_refmac_params(mtz_file_name.c_str(),
                                                                 f.c_str(),
@@ -768,7 +779,7 @@ std::vector<int> auto_read_make_and_draw_maps_from_mtz(const std::string &mtz_fi
                                                                 sig_fobs_col.c_str(),    //   const char *sigfobs_col,
                                                                 r_free_col.c_str(),    //   const char *r_free_col,
                                                                 hrp,   //   short int sensible_f_free_col,
-                                                                0,     //   short int is_anomalous_flag,
+                                                                is_anom, //   short int is_anomalous_flag,
                                                                 0,     //   short int use_reso_limits,
                                                                 0,     //   float low_reso_limit,
                                                                 0);    //   float high_reso_limit
@@ -776,8 +787,6 @@ std::vector<int> auto_read_make_and_draw_maps_from_mtz(const std::string &mtz_fi
       return imol;
    };
 
-   int imol1 = -1;
-   int imol2 = -1;
    graphics_info_t g;
 
    std::vector<coot::mtz_column_trials_info_t> auto_mtz_pairs;
@@ -790,7 +799,7 @@ std::vector<int> auto_read_make_and_draw_maps_from_mtz(const std::string &mtz_fi
    auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("FDM",          "PHIDM",     false));
    auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("FAN",          "PHAN",      true));
    auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("F_ano",        "PHI_ano",   true));
-   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("F_early-Flate","PHI_early-late", true));
+   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("F_early-late", "PHI_early-late", true));
 
    for (unsigned int i=0; i<g.user_defined_auto_mtz_pairs.size(); i++)
       auto_mtz_pairs.push_back(g.user_defined_auto_mtz_pairs[i]);
@@ -1019,11 +1028,9 @@ void set_map_has_symmetry(int imol, int state) {
       if (state) is_em_map = false;
       // graphics_info_t::molecules[imol].is_em_map_cached_flag = is_em_map;
       graphics_info_t::molecules[imol].set_map_has_symmetry(is_em_map);
+      graphics_draw();
    }
-
 }
-
-
 
 
 
@@ -1805,8 +1812,9 @@ int transform_map_raw(int imol,
       // clipper::RTop_orth rtop_inv = rtop.inverse();
       clipper::Coord_orth pt(pt1, pt2, pt3);
 
-      std::cout << "INFO:: in transforming map around target point "
-                << pt.format() << std::endl;
+      // std::cout << "INFO:: in transforming map around target point "
+      //           << pt.format() << std::endl;
+      logger.log(log_t::INFO, "in transforming map around target point", pt.format());
 
       clipper::Spgr_descr sg_descr(ref_space_group);
       clipper::Spacegroup new_space_group(sg_descr);
@@ -2207,7 +2215,7 @@ PyObject *positron_pathway(PyObject *map_molecule_list_py, PyObject *pathway_poi
 //! \{
 //! \brief Make a variance map, based on the grid of the first map.
 //!
-int make_variance_map(std::vector<int> map_molecule_number_vec) {
+int make_variance_map(const std::vector<int> &map_molecule_number_vec) {
 
    int imol_map = -1;
 
@@ -3011,9 +3019,11 @@ PyObject *amplitude_vs_resolution_py(int imol_map) {
       r = PyList_New(data.size());
       for (std::size_t i=0; i<data.size(); i++) {
          PyObject *o = PyList_New(3);
-         PyList_SetItem(o, 0, PyFloat_FromDouble(data[i].get_average_fsqrd()));
+         // std::cout << "set o " << data[i].get_average_fsqrd() << std::endl;
+         PyList_SetItem(o, 0, PyFloat_FromDouble(data[i].get_invresolsq()));
          PyList_SetItem(o, 1, PyLong_FromLong(data[i].count));
-         PyList_SetItem(o, 2, PyFloat_FromDouble(data[i].get_invresolsq()));
+         PyList_SetItem(o, 2, PyFloat_FromDouble(data[i].get_average_fsqrd()));
+         PyList_SetItem(r, i, o);
       }
    }
 
@@ -3299,6 +3309,20 @@ int analyse_map_point_density_change_py(PyObject *map_number_list_py, int imol_m
    }
 }
 #endif
+
+// use (or not) vertex gradients for the specified map
+void set_use_vertex_gradients_for_map_normals(int imol, int state) {
+
+   if (is_valid_map_molecule(imol)) {
+      graphics_info_t::molecules[imol].set_use_vertex_gradients_for_map_normals(state);
+      graphics_info_t::graphics_draw();
+   }
+}
+
+//! the map should be displayed and not a difference map
+void set_use_vertex_gradients_for_map_normals_for_latest_map() {
+   use_vertex_gradients_for_map_normals_for_latest_map();
+}
 
 //! the map should be displayed and not a difference map
 void use_vertex_gradients_for_map_normals_for_latest_map() {

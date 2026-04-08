@@ -1,4 +1,56 @@
 
+2026-04-01  Paul Emsley  <pemsley at mrc dash lmb dot cam ac dot uk>
+
+	* Release 1.20
+
+2025-12-23  Paul Emsley  <pemsley at mrc dash lmb dot cam ac dot uk>
+
+	* Release 1.1.20
+
+2025-10-07  Paul Emsley  <pemsley at mrc dash lmb dot cam ac dot uk>
+
+	* Release 1.1.19
+
+2025-08-01  Paul Emsley  <pemsley at mrc dash lmb dot cam ac dot uk>
+
+	* Release 1.1.18
+
+2025-06-16  Paul Emsley  <pemsley at mrc dash lmb dot cam ac dot uk>
+
+	* Release 1.1.17
+
+2025-06-04  Paul Emsley  <pemsley at mrc dash lmb dot cam ac dot uk>
+
+	* Release 1.1.16
+
+2025-03-30  Paul Emsley  <pemsley at mrc dash lmb dot cam ac dot uk>
+
+	* Release 1.1.15
+
+2025-03-16  Paul Emsley  <pemsley at mrc dash lmb dot cam ac dot uk>
+
+	* Release 1.1.14
+
+2025-02-23  Paul Emsley  <pemsley at mrc dash lmb dot cam ac dot uk>
+
+	* Release 1.1.13
+
+2025-02-09  Paul Emsley  <pemsley at mrc dash lmb dot cam ac dot uk>
+
+	* Release 1.1.12
+
+2024-12-11  Paul Emsley  <pemsley at mrc dash lmb dot cam ac dot uk>
+
+	* Release 1.1.11
+
+2024-07-20  Paul Emsley  <pemsley at mrc dash lmb dot cam ac dot uk>
+
+	* Release 1.1.10
+
+2024-06-11  Paul Emsley  <pemsley at mrc dash lmb dot cam ac dot uk>
+
+	* Release 1.1.09
+
 2024-04-22  Paul Emsley  <pemsley at mrc dash lmb dot cam ac dot uk>
 
 	* Release 1.1.08
@@ -267,7 +319,7 @@
 	change_chain_id_with_residue_range_helper_insert_or_add() the
 	target_residue should simply be a residue that will appear in the
 	pdb file before the inserted residue.
- 
+
 2007-05-18  Paul Emsley  <emsley@ysbl.york.ac.uk>
 
 	* src/c-interface.cc: (hardware_stereo_mode): kill off the
@@ -771,7 +823,7 @@
 	* src/c-interface-waters.cc (renumber_waters): function added
 
 	* src/molecule-class-info-other.cc (renumber_waters): function
-	added. 
+	added.
 
 	* src/c-interface.cc: (auto_read_make_and_draw_maps): if "FWT",
 	"DELFWT" column labels fail, try "2FOFCWT" and "FOFCWT" also.
@@ -779,7 +831,7 @@
 	* src/rama_plot.cc: created function phi_psi_pair_helper_t
 	make_phi_psi_pair() which is the engine for making phi/psi pairs
 	from 2 chains.  Uses new utility function std::pair<short int,
-	coot::phi_psi_t> get_phi_psi().  
+	coot::phi_psi_t> get_phi_psi().
 
 	The GUI menu item has been renamed to "Kleywegt Plot" as per
 	conversation with George Sheldrick.

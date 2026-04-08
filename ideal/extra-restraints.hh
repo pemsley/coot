@@ -27,11 +27,12 @@
 #include "parallel-planes.hh"
 
 namespace coot {
-   
+
    class extra_restraints_t {
 
       bool matches_bond_template_p(const std::vector<std::string> &words) const;
       bool matches_angle_template_p(const std::vector<std::string> &words) const;
+      bool matches_torsion_template_p(const std::vector<std::string> &words) const;
 
    public:
 
@@ -42,6 +43,7 @@ namespace coot {
 	 atom_spec_t atom_2;
 	 double bond_dist;
 	 double esd;
+         int type; // for distinguishing between harmonic restraints or GM restraints.
 	 extra_bond_restraint_t() {}
 	 extra_bond_restraint_t(const atom_spec_t &a1, const atom_spec_t &a2, double d, double e) : atom_1(a1), atom_2(a2) {
 	    bond_dist = d;
@@ -169,7 +171,7 @@ namespace coot {
       std::vector<extra_target_position_restraint_t> target_position_restraints;
       std::vector<parallel_planes_t> parallel_plane_restraints;
 
-      void read_refmac_extra_restraints(const std::string &file_name);
+      int read_refmac_extra_restraints(const std::string &file_name);
 
       bool has_restraints() const {
 	 if (bond_restraints.size() > 0)

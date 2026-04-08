@@ -39,13 +39,13 @@ namespace coot {
       mmdb::Atom *at_2;
       double spring_constant;
       elastic_network_item_t(mmdb::Atom *at1, mmdb::Atom *at2, double c) {
-	 at_1 = at1;
-	 at_2 = at2;
-	 spring_constant = c;
+         at_1 = at1;
+         at_2 = at2;
+         spring_constant = c;
       }
       elastic_network_item_t() {
-	 at_1 = NULL;
-	 at_2 = NULL;
+         at_1 = NULL;
+         at_2 = NULL;
       }
    };
    
@@ -54,9 +54,9 @@ namespace coot {
    public:
       elastic_network_model_t() {}
       elastic_network_model_t(mmdb::Manager *mol, int atom_selection_handle,
-			      mmdb::realtype min_dist,
-			      mmdb::realtype max_dist,
-			      unsigned int max_n_distances);
+                              mmdb::realtype min_dist,
+                              mmdb::realtype max_dist,
+                              unsigned int max_n_distances);
    };
 
    void test_elastic();

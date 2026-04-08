@@ -3,9 +3,75 @@
 #include "coot-utils/atom-selection-container.hh"
 #include "molecules-container.hh"
 
+#include "utils/logging.hh"
+extern logging logger;
+
+
+//! Copy the molecule
+//!
+//! @param imol the specified molecule
+//! @return the new molecule number
+int
+molecules_container_t::copy_molecule(int imol) {
+
+   int imol_new = -1;
+   if (is_valid_model_molecule(imol)) {
+      imol_new = molecules.size();
+      mmdb::Manager *mol = coot::util::copy_molecule(molecules[imol].atom_sel.mol);
+      atom_selection_container_t asc = make_asc(mol);
+      std::string new_name = "copy-of-molecule-" + std::to_string(imol);
+      molecules.push_back(coot::molecule_t(asc, imol_new, new_name));
+   }
+
+   if (is_valid_map_molecule(imol)) {
+      imol_new = molecules.size();
+      std::string new_name = "copy-of-molecule-" + std::to_string(imol);
+      const clipper::Xmap<float> &xmap = molecules[imol].xmap;
+      bool is_em = molecules[imol].is_EM_map();
+      molecules.push_back(coot::molecule_t(new_name, imol_new, xmap, is_em));
+   }
+   return imol_new;
+}
+
+
+
 //! return the new molecule number (or -1 on no atoms selected)
 int
 molecules_container_t::copy_fragment_using_cid(int imol, const std::string &multi_cids) {
+
+   auto debug_model = [] (mmdb::Model *model_p, const std::string &tag) {
+
+      int n_atoms = 0;
+      if (model_p) {
+         std::cout << tag << " model_p: " << model_p << std::endl;
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            std::cout << tag << "   chain_p: " << chain_p << std::endl;
+            int n_res = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<n_res; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               std::cout << tag << "      residue_p: " << residue_p << std::endl;
+               if (residue_p) {
+                  int n_atoms = residue_p->GetNumberOfAtoms();
+                  for (int iat=0; iat<n_atoms; iat++) {
+                     mmdb::Atom *at = residue_p->GetAtom(iat);
+                     if (at) {
+                        std::cout << tag << "         at: " << at << " " << coot::atom_spec_t(at) << std::endl;
+                        if (! at->isTer()) {
+                           n_atoms++;
+                        }
+                     } else {
+                        std::cout << tag << "         at " << " was null " <<  iat
+                                  << " of " << n_atoms << std::endl;
+                     }
+                  }
+               }
+            }
+         }
+      }
+      std::cout << "n_atoms in model_p " << model_p << " " << n_atoms << std::endl;
+   };
 
    int imol_new = -1;
    if (is_valid_model_molecule(imol)) {
@@ -16,7 +82,19 @@ molecules_container_t::copy_fragment_using_cid(int imol, const std::string &mult
          for (const auto &cid : v)
             mol->Select(selHnd, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_OR);
       // replace_fragment() uses UDDOldAtomIndexHandle for fast indexing.
+
+#if 0 // 20260129-PE so that we can see this sort of code for next time we are debugging models
+      if (true) {
+         for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+            mmdb::Model *model_p = mol->GetModel(imod);
+            std::string tag = "copy_fragment_using_cid_MODEL_" + std::to_string(imod);
+            debug_model(model_p, tag);
+         }
+      }
+#endif
+
       mmdb::Manager *new_manager = coot::util::create_mmdbmanager_from_atom_selection(mol, selHnd);
+
       if (new_manager) {
          int transfer_atom_index_handle = new_manager->GetUDDHandle(mmdb::UDR_ATOM, "transfer atom index");
 
@@ -28,14 +106,15 @@ molecules_container_t::copy_fragment_using_cid(int imol, const std::string &mult
          std::string new_name = "copy-fragment-from-molecule-" + std::to_string(imol);
          molecules.push_back(coot::molecule_t(asc, imol_new, new_name));
          if (false)
-            std::cout << "debug:: in mc::copy_fragment_using_cid(): the UDDOldAtomIndexHandle for molecule " << imol_new
-                      << " is " << molecules[imol_new].atom_sel.UDDOldAtomIndexHandle << std::endl;
+            std::cout << "debug:: in mc::copy_fragment_using_cid(): the UDDOldAtomIndexHandle for molecule "
+                      << imol_new << " is " << molecules[imol_new].atom_sel.UDDOldAtomIndexHandle << std::endl;
 
       }
       mol->DeleteSelection(selHnd);
    } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
+
    return imol_new;
 }
 
@@ -208,11 +287,16 @@ molecules_container_t::cis_trans_convert(int imol, const std::string &atom_cid) 
 
    int status = 0;
    mmdb::Manager *standard_residues_mol = standard_residues_asc.mol;
-   if (is_valid_model_molecule(imol)) {
-      status = molecules[imol].cis_trans_conversion(atom_cid, standard_residues_mol);
-      set_updating_maps_need_an_update(imol);
+   if (standard_residues_mol) {
+      if (is_valid_model_molecule(imol)) {
+         status = molecules[imol].cis_trans_conversion(atom_cid, standard_residues_mol);
+         set_updating_maps_need_an_update(imol);
+      } else {
+         std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+      }
    } else {
-      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+      logger.log(log_t::ERROR, logging::function_name_t("mc::cis_trans_convert"),
+                 "Null standard_residues_asc.mol");
    }
    return status;
 
@@ -425,7 +509,17 @@ molecules_container_t::minimize_energy(int imol, const std::string &atom_selecti
                                         refinement_is_quiet, &geom);
       std::string mode = "COLOUR-BY-CHAIN-AND-DICTIONARY";
       bool draw_hydrogen_atoms_flag = true; // use data member as we do for draw_missing_residue_loops_flag?
-      im = molecules[imol].get_bonds_mesh_instanced(mode, &geom, true, 0.12, 1.4, 1,
+      unsigned int smoothness_factor = 1;
+      bool show_atoms_as_aniso_flag = false;
+      bool show_aniso_atoms_as_ortep = false;
+      bool show_aniso_atoms_as_empty = false;
+      float aniso_probability = 0.5f;
+      im = molecules[imol].get_bonds_mesh_instanced(mode, &geom, true, 0.12, 1.4,
+                                                    show_atoms_as_aniso_flag,
+                                                    aniso_probability,
+                                                    show_aniso_atoms_as_ortep,
+                                                    show_aniso_atoms_as_empty,
+                                                    smoothness_factor,
                                                     draw_hydrogen_atoms_flag, draw_missing_residue_loops_flag);
 
    } else {
@@ -436,6 +530,39 @@ molecules_container_t::minimize_energy(int imol, const std::string &atom_selecti
    return std::make_pair(status, im);;
 
 }
+
+//! @param imol is the model molecule index
+//! @param atom_selection_cid is the selection CID e.g. "//A/15" (residue 15 of chain A)
+//! @param n_cycles is the number of refinement cycles. If you pass n_cycles = 100 (or some such) then you can
+//!         get the mesh for the partially optimized ligand/residues
+//! @param do_rama_plot_restraints is the flag for the usage of Ramachandran plot restraints
+//! @param rama_plot_weight is the flag to set the Ramachandran plot restraints weight
+//! @param do_torsion_restraints is the flag for the usage of torsion restraints
+//! @param torsion_weight is the flag to set the torsion restraints weight
+//! @param refinement_is_quiet is used to reduce the amount of diagnostic text written to the output
+//!
+//! @return the function value at termination
+float
+molecules_container_t::minimize(int imol, const std::string &atom_selection_cid,
+                                int n_cycles,
+                                bool do_rama_plot_restraints, float rama_plot_weight,
+                                bool do_torsion_restraints, float torsion_weight, bool refinement_is_quiet) {
+
+   int status = 0;
+   coot::instanced_mesh_t im;
+   if (is_valid_model_molecule(imol)) {
+      status = molecules[imol].minimize(atom_selection_cid, n_cycles,
+                                        do_rama_plot_restraints, rama_plot_weight,
+                                        do_torsion_restraints, torsion_weight,
+                                        refinement_is_quiet, &geom);
+
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+
+   return status; // this is the wrong return value.
+}
+
 
 
 coot::graph_match_info_t
@@ -660,6 +787,7 @@ molecules_container_t::get_dictionary_conformers(const std::string &comp_id, int
       for (unsigned int i=0; i<confs.size(); i++) {
          mmdb::Residue *res = confs[i];
          mmdb::Manager *mol = coot::util::create_mmdbmanager_from_residue(res);
+         // std::cout << "conf " << i  << " mol: " << mol << std::endl;
          std::string name = comp_id + "-conf-" + std::to_string(i);
          atom_selection_container_t asc = make_asc(mol);
          int imol_no = molecules.size();
@@ -668,6 +796,12 @@ molecules_container_t::get_dictionary_conformers(const std::string &comp_id, int
       }
       for (unsigned int i=0; i<confs.size(); i++)
          delete confs[i];
+   }
+   if (false) {
+      std::cout << "mol_indices:" << std::endl;
+      for (unsigned int i=0; i<mol_indices.size(); i++) {
+         std::cout << "       " << mol_indices[i] << std::endl;
+      }
    }
    return mol_indices;
 }
@@ -688,4 +822,109 @@ molecules_container_t::replace_residue(int imol, const std::string &residue_cid,
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
    // return status
+}
+
+
+//! Rotate atoms around torsion
+//!
+//! the bond is presumed to be between atom-2 and atom-3. Atom-1 and atom-4 are
+//! used to define the absolute torsion angle.
+//!
+//! @return status 1 if successful, 0 if not.
+int
+molecules_container_t::rotate_around_bond(int imol, const std::string &residue_cid,
+                                          const std::string &atom_name_1,
+                                          const std::string &atom_name_2,
+                                          const std::string &atom_name_3,
+                                          const std::string &atom_name_4,
+                                          double torsion_angle) {
+
+   std::string alt_conf = "";
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      coot::atom_name_quad quad(atom_name_1, atom_name_2, atom_name_3, atom_name_4);
+      status = molecules[imol].rotate_around_bond(residue_cid, alt_conf, quad, torsion_angle, geom);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol
+                << std::endl;
+   }
+   return status;
+}
+
+
+
+
+//! change the alt confs
+//!
+//! @param change_mode is either "residue", "side-chain" or a comma-separated atom-name
+//! pairs (e.g "N,CA") - you can (of course) specify just one atom: "N".
+// @return the success status (1 is done, 0 means failed to do)
+int
+molecules_container_t::change_alt_locs(int imol, const std::string &cid, const std::string &change_mode) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      status = molecules[imol].change_alt_locs(cid, change_mode);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return status;
+}
+
+
+coot::instanced_mesh_t
+molecules_container_t::get_HOLE(int imol,
+                                float start_pos_x, float start_pos_y, float start_pos_z,
+                                float end_pos_x, float end_pos_y, float end_pos_z) const {
+
+   coot::instanced_mesh_t m;
+   if (is_valid_model_molecule(imol)) {
+      clipper::Coord_orth start_pos(start_pos_x, start_pos_y, start_pos_z);
+      clipper::Coord_orth end_pos(end_pos_x, end_pos_y, end_pos_z);
+      m = molecules[imol].get_HOLE(start_pos, end_pos, geom);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return m;
+
+}
+
+//! Get SVG for 2d ligand environment view (FLEV)
+//!
+//! The caller should make sure that the dictionary for the ligand has been loaded - this
+//! function won't do that. It will add hydrogen atoms if needed.
+//!
+//! @param imol is the model molecule index
+//! @param residue_cid is the cid for the residue
+std::string
+molecules_container_t::get_svg_for_2d_ligand_environment_view(int imol,
+                                                              const std::string &residue_cid,
+                                                              bool add_key) {
+   float radius = 4.2; // pass this
+   std::string s;
+   if (is_valid_model_molecule(imol)) {
+      s = molecules[imol].get_svg_for_2d_ligand_environment_view(residue_cid, &geom, add_key);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return s;
+}
+
+
+
+//! delete all carbohydrate
+//!
+//! @param imol is the model molecule index
+//!
+//! @return true on successful deletion, return false on no deletion.
+bool
+molecules_container_t::delete_all_carbohydrate(int imol) {
+
+   bool status = false;
+   if (is_valid_model_molecule(imol)) {
+      status = molecules[imol].delete_all_carbohydrate();
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return status;
 }

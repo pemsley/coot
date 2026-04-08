@@ -53,6 +53,8 @@
 
 #include "read-molecule.hh" // now with std::string args
 
+#include "gphl-screen.hh"
+
 
 extern "C"
 void
@@ -60,7 +62,7 @@ handle_command_line_data_argc_argv(int argc, char **argv) {
 
    command_line_data cld = parse_command_line(argc, argv);
    handle_command_line_data(cld);
-} 
+}
 
 
 extern "C"
@@ -107,6 +109,12 @@ handle_command_line_data(command_line_data cld) {
       graphics_info_t::command_line_accession_codes.push_back(cld.accession_codes[i]);
    }
 
+   if (cld.show_ccp4i2_save_button) {
+      GtkWidget *button = widget_from_builder("ccp4i2-save-button");
+      if (button) {
+         gtk_widget_set_visible(button, TRUE);
+      }
+   }
 
    if (cld.em_mode) {
       graphics_info_t::box_radius_xray = graphics_info_t::box_radius_em;
@@ -149,29 +157,55 @@ handle_command_line_data(command_line_data cld) {
 
    // auto-datasets
 
-   for (unsigned int i=0; i< cld.auto_datasets.size(); i++) { 
-      auto_read_make_and_draw_maps(cld.auto_datasets[i].c_str()); 
+   for (unsigned int i=0; i< cld.auto_datasets.size(); i++) {
+      auto_read_make_and_draw_maps(cld.auto_datasets[i].c_str());
    }
 
    // maps
 
-   for (unsigned int i=0; i< cld.maps.size(); i++) { 
+   for (unsigned int i=0; i< cld.maps.size(); i++) {
       handle_read_ccp4_map(cld.maps[i], 0); // not difference map
    }
 
    // emdb codes
-   for (unsigned int i=0; i< cld.emdb_codes.size(); i++) { 
+   for (unsigned int i=0; i< cld.emdb_codes.size(); i++) {
       handle_read_emdb_data(cld.emdb_codes[i]); // not difference map
    }
 
    // cif dictionaries
-   
-   for (unsigned int i=0; i< cld.dictionaries.size(); i++) {
-      read_cif_dictionary(cld.dictionaries[i].c_str());
-   }
 
-   for (unsigned int i=0; i<cld.comp_ids.size(); i++) { 
-      get_monomer(cld.comp_ids[i].c_str());
+   auto handle_cif_dictionaries = [] (const std::vector<std::string> &dictionaries, bool read_if_not_found) {
+      graphics_info_t g;
+      for (unsigned int i=0; i< dictionaries.size(); i++) {
+         std::vector<std::pair<int, std::string> > monomers_pre  = g.Geom_p()->get_monomer_names();
+         std::string file_name = dictionaries[i];
+         read_cif_dictionary(file_name);
+         std::vector<std::pair<int, std::string> > monomers_post = g.Geom_p()->get_monomer_names();
+
+         if (monomers_post.size() > monomers_pre.size()) {
+            for (unsigned int i=0; i<monomers_post.size(); i++) {
+               const auto &mi = monomers_post[i].second;
+               bool found = false;
+               for (unsigned int j=0; j<monomers_pre.size(); j++) {
+                  const auto &mj = monomers_pre[j].second;
+                  if (mj == mi) { found = true; break; }
+               }
+               if (! found) {
+                  if (read_if_not_found)
+                     get_monomer(mi);
+               }
+            }
+         }
+      }
+   };
+
+   // cif dictionaries
+   handle_cif_dictionaries(cld.dictionaries, false);
+
+   handle_cif_dictionaries(cld.dictionaries_with_mol, true);
+
+   for (unsigned int i=0; i<cld.comp_ids.size(); i++) {
+      get_monomer(cld.comp_ids[i]);
    }
 
    // ccp4 project directory given?
@@ -191,13 +225,17 @@ handle_command_line_data(command_line_data cld) {
    if (cld.disable_state_script_writing)
       graphics_info_t::disable_state_script_writing = 1;
 
+   if (cld.open_buster_output_files)
+      open_buster_output_files();
+
    //
-   if (cld.try_listener) { 
+   if (cld.try_listener) {
       std::cout << "INFO:: setting port and host "
 		<< cld.port << " " << cld.hostname << std::endl;
       graphics_info_t::try_port_listener = 1;
       graphics_info_t::remote_control_port_number = cld.port;
       graphics_info_t::remote_control_hostname = cld.hostname;
+      make_socket_listener_maybe();
    }
 
    // more settings for small screen

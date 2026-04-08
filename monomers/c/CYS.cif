@@ -1,0 +1,188 @@
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+CYS CYS CYSTEINE peptide 14 7 .
+
+data_comp_CYS
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+CYS N N NT3 1 22.713 13.517 37.695
+CYS CA C CH1 0 22.373 13.685 39.137
+CYS C C C 0 22.022 15.153 39.440
+CYS O O O 0 22.838 16.024 39.065
+CYS CB C CH2 0 23.514 13.225 40.038
+CYS SG S SH1 0 25.070 14.106 39.742
+CYS OXT O OC -1 20.945 15.370 40.038
+CYS H H H 0 23.605 13.433 37.588
+CYS H2 H H 0 22.430 14.227 37.214
+CYS H3 H H 0 22.308 12.777 37.375
+CYS HA H H 0 21.577 13.127 39.328
+CYS HB3 H H 0 23.668 12.265 39.898
+CYS HB2 H H 0 23.255 13.357 40.977
+CYS HG H HSH1 0 25.737 13.537 40.579
+
+loop_
+_chem_comp_tree.comp_id
+_chem_comp_tree.atom_id
+_chem_comp_tree.atom_back
+_chem_comp_tree.atom_forward
+_chem_comp_tree.connect_type
+CYS N n/a CA START
+CYS H N . .
+CYS H2 N . .
+CYS H3 N . .
+CYS CA N C .
+CYS HA CA . .
+CYS CB CA SG .
+CYS HB3 CB . .
+CYS HB2 CB . .
+CYS SG CB . .
+CYS HG SG . .
+CYS C CA . END
+CYS O C . .
+CYS OXT C . .
+
+loop_
+_chem_comp_acedrg.comp_id
+_chem_comp_acedrg.atom_id
+_chem_comp_acedrg.atom_type
+CYS N N(CCCH)(H)3
+CYS CA C(CHHS)(NH3)(COO)(H)
+CYS C C(CCHN)(O)2
+CYS O O(CCO)
+CYS CB C(CCHN)(SH)(H)2
+CYS SG S(CCHH)(H)
+CYS OXT O(CCO)
+CYS H H(NCHH)
+CYS H2 H(NCHH)
+CYS H3 H(NCHH)
+CYS HA H(CCCN)
+CYS HB3 H(CCHS)
+CYS HB2 H(CCHS)
+CYS HG H(SC)
+
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+CYS N CA SINGLE n 1.487 0.0100 1.487 0.0100
+CYS CA C SINGLE n 1.538 0.0113 1.538 0.0113
+CYS CA CB SINGLE n 1.524 0.0100 1.524 0.0100
+CYS C O DOUBLE n 1.251 0.0183 1.251 0.0183
+CYS C OXT SINGLE n 1.251 0.0183 1.251 0.0183
+CYS CB SG SINGLE n 1.812 0.0101 1.812 0.0101
+CYS N H SINGLE n 1.018 0.0520 0.902 0.0102
+CYS N H2 SINGLE n 1.018 0.0520 0.902 0.0102
+CYS N H3 SINGLE n 1.018 0.0520 0.902 0.0102
+CYS CA HA SINGLE n 1.092 0.0100 0.991 0.0200
+CYS CB HB3 SINGLE n 1.092 0.0100 0.983 0.0131
+CYS CB HB2 SINGLE n 1.092 0.0100 0.983 0.0131
+CYS SG HG SINGLE n 1.338 0.0100 1.212 0.0200
+
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+CYS CA N H 109.684 2.12
+CYS CA N H2 109.684 2.12
+CYS CA N H3 109.684 2.12
+CYS H N H2 109.032 3.00
+CYS H N H3 109.032 3.00
+CYS H2 N H3 109.032 3.00
+CYS N CA C 109.504 1.50
+CYS N CA CB 110.927 1.50
+CYS N CA HA 107.886 1.50
+CYS C CA CB 110.126 3.00
+CYS C CA HA 108.362 1.50
+CYS CB CA HA 108.525 2.42
+CYS CA C O 117.126 1.50
+CYS CA C OXT 117.126 1.50
+CYS O C OXT 125.747 1.50
+CYS CA CB SG 113.492 1.50
+CYS CA CB HB3 109.109 1.50
+CYS CA CB HB2 109.109 1.50
+CYS SG CB HB3 108.513 1.50
+CYS SG CB HB2 108.513 1.50
+CYS HB3 CB HB2 107.963 1.50
+CYS CB SG HG 97.543 3.00
+
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+CYS chi1 N CA CB SG -60.000 10.0 3
+CYS chi2 CA CB SG HG 180.000 10.0 3
+CYS sp3_sp3_1 C CA N H 180.000 10.0 3
+CYS sp2_sp3_1 O C CA N 0.000 10.0 6
+
+loop_
+_chem_comp_chir.comp_id
+_chem_comp_chir.id
+_chem_comp_chir.atom_id_centre
+_chem_comp_chir.atom_id_1
+_chem_comp_chir.atom_id_2
+_chem_comp_chir.atom_id_3
+_chem_comp_chir.volume_sign
+CYS chir_1 CA N CB C negative
+
+loop_
+_chem_comp_plane_atom.comp_id
+_chem_comp_plane_atom.plane_id
+_chem_comp_plane_atom.atom_id
+_chem_comp_plane_atom.dist_esd
+CYS plan-1 C 0.020
+CYS plan-1 CA 0.020
+CYS plan-1 O 0.020
+CYS plan-1 OXT 0.020
+
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+CYS SMILES ACDLabs 10.04 O=C(O)C(N)CS
+CYS SMILES_CANONICAL CACTVS 3.341 N[C@@H](CS)C(O)=O
+CYS SMILES CACTVS 3.341 N[CH](CS)C(O)=O
+CYS SMILES_CANONICAL "OpenEye OEToolkits" 1.5.0 C([C@@H](C(=O)O)N)S
+CYS SMILES "OpenEye OEToolkits" 1.5.0 C(C(C(=O)O)N)S
+CYS InChI InChI 1.03 InChI=1S/C3H7NO2S/c4-2(1-7)3(5)6/h2,7H,1,4H2,(H,5,6)/t2-/m0/s1
+CYS InChIKey InChI 1.03 XUJNEKJLAYXESH-REOHCLBHSA-N
+
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+CYS acedrg 278 "dictionary generator"
+CYS acedrg_database 12 "data source"
+CYS rdkit 2019.09.1 "Chemoinformatics tool"
+CYS refmac5 5.8.0419 "optimization tool"

@@ -33,8 +33,8 @@
 #endif // HAVE_VECTOR
 
 
-#include "coords/Cartesian.h"
-#include "gl-matrix.h"
+#include "coords/Cartesian.hh"
+#include "coot-utils/gl-matrix.h"
 
 #include "old-generic-display-object.hh"
 #include "meshed-generic-display-object.hh"
@@ -43,7 +43,7 @@
 
 #include "coot-colour.hh"
 
-namespace coot { 
+namespace coot {
 // info class for raster3d/povray
 
    //

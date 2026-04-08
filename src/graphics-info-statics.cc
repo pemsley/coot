@@ -35,6 +35,9 @@
 
 #if !defined WINDOWS_MINGW
 
+int graphics_info_t::scale_down_graphics = 1;
+int graphics_info_t::scale_up_graphics = 1;
+
 #ifdef USE_GUILE
 #ifdef USE_GUILE_GTK
 bool graphics_info_t::prefer_python = 0; // prefer python scripts when
@@ -55,8 +58,6 @@ bool graphics_info_t::prefer_python = 0;
 bool graphics_info_t::scm_boot_guile_booted = false; // false until my_wrap_scm_boot_guile() has been run
 #endif
 
-
-
 #else // USE_GUILE test (no guile path)
 #ifdef USE_PYTHON
 bool graphics_info_t::prefer_python = 1; // Python, not guile
@@ -68,7 +69,10 @@ bool graphics_info_t::prefer_python = 0; // no GUILE or PYTHON
 bool graphics_info_t::prefer_python = 1; // Default: yes in Windows
 #endif // windows test
 
-bool graphics_info_t::using_trackpad = false;
+bool graphics_info_t::graphics_is_gl_es = false;
+
+// bool graphics_info_t::using_trackpad = false;
+bool graphics_info_t::use_primary_mouse_for_view_rotation_flag = false;
 
 bool graphics_info_t::use_gemmi = false;
 short int graphics_info_t::python_at_prompt_flag = 0;
@@ -81,7 +85,7 @@ coot::command_line_commands_t graphics_info_t::command_line_commands;
 std::vector<std::string> graphics_info_t::command_line_accession_codes;
 
 std::vector<coot::lsq_range_match_info_t> *graphics_info_t::lsq_matchers;
-std::vector<coot::old_generic_text_object_t> *graphics_info_t::generic_texts_p = 0;
+std::vector<coot::generic_text_object_t> graphics_info_t::generic_texts;
 std::vector<coot::view_info_t> graphics_info_t::views;
 bool graphics_info_t::do_expose_swap_buffers_flag = 1;
 
@@ -94,11 +98,16 @@ std::vector<std::pair<std::string, clipper::Xmap<float> > > graphics_info_t::map
 int graphics_info_t::map_partition_results_state = 0; // inactive
 std::string graphics_info_t::map_partition_results_state_string; // "Done A Chain" etc.
 
+// logging
+unsigned int graphics_info_t::logging_line_index = 0;
+
 
 //WII
 #ifdef WII_INTERFACE_WIIUSE
 wiimote** graphics_info_t::wiimotes = NULL;
 #endif
+
+float graphics_info_t::view_rotation_per_pixel_scale_factor = 1.0;
 
 // Views
 float graphics_info_t::views_play_speed = 10.0;
@@ -124,8 +133,8 @@ lsq_dialog_values_t graphics_info_t::lsq_dialog_values;
 
 
 // side by side stereo?
-short int graphics_info_t::in_side_by_side_stereo_mode = 0;
-short int graphics_info_t::in_wall_eyed_side_by_side_stereo_mode = 0;
+bool graphics_info_t::in_side_by_side_stereo_mode = false;
+bool graphics_info_t::in_wall_eyed_side_by_side_stereo_mode = false;
 
 // display list for maps?
 short int graphics_info_t::display_lists_for_maps_flag = 0;
@@ -137,6 +146,8 @@ bool graphics_info_t::cryo_EM_refinement_flag = false;
 double graphics_info_t::geman_mcclure_alpha = 1; // soft, (20180230-PE was 2, too soft, I think)
 double graphics_info_t::lennard_jones_epsilon = 2.0; // 20181008-PE less soft than 0.5
 double graphics_info_t::log_cosh_target_distance_scale_factor = 2000.0;
+
+bool graphics_info_t::draw_distance_labels_user_control = true;
 
 // accept/reject
 GtkWidget *graphics_info_t::accept_reject_dialog = 0;
@@ -193,6 +204,9 @@ float  graphics_info_t::rotation_centre_z = 0.0;
 // float  graphics_info_t::old_rotation_centre_y = 0.0;
 // float  graphics_info_t::old_rotation_centre_z = 0.0;
 coot::Cartesian graphics_info_t::old_rotation_centre(0,0,0);
+clipper::Coord_orth graphics_info_t::hole_start = clipper::Coord_orth(0,0,0);
+clipper::Coord_orth graphics_info_t::hole_end   = clipper::Coord_orth(0,0,0);
+
 float  graphics_info_t::zoom                = 100;
 int    graphics_info_t::smooth_scroll       =   1; // flag: default is ..
 int    graphics_info_t::smooth_scroll_n_steps =  20;
@@ -203,7 +217,8 @@ short int graphics_info_t::smooth_scroll_on = 0;
 int    graphics_info_t::smooth_scroll_current_step = 0;
 coot::Cartesian graphics_info_t::smooth_scroll_delta;
 int    graphics_info_t::mouse_just_cliked     = 0;
-float  graphics_info_t::rotation_centre_cube_size = 0.1; // Angstroems
+float  graphics_info_t::user_defined_rotation_centre_crosshairs_size_scale_factor = 0.05;
+glm::vec4 graphics_info_t::rotation_centre_cross_hairs_colour = glm::vec4(0.8, 0.8, 0.8, 1.0);
 short int graphics_info_t::quanta_like_zoom_flag = 0;
 int    graphics_info_t::go_to_ligand_animate_view_n_steps = 50;
 
@@ -427,7 +442,11 @@ int graphics_info_t::undo_molecule = -1;
 
 // backup filenames
 bool graphics_info_t::unpathed_backup_file_names_flag = 0;
+#ifdef WINDOWS_MINGW
+bool graphics_info_t::decoloned_backup_file_names_flag = 1;
+#else
 bool graphics_info_t::decoloned_backup_file_names_flag = 0;
+#endif
 
 // backup compress files (default: compress)
 int graphics_info_t::backup_compress_files_flag = 1;
@@ -538,7 +557,7 @@ float graphics_info_t::map_sampling_rate = 2.5;
 short int graphics_info_t::show_aniso_atoms_flag = 0; // initially don't show.
 short int graphics_info_t::show_aniso_atoms_radius_flag = 0;
 float     graphics_info_t::show_aniso_atoms_radius = 12.0;
-float     graphics_info_t::show_aniso_atoms_probability = 50.0;
+float     graphics_info_t::show_aniso_atoms_probability = 0.5; // 20250602-PE 0.0 to 1.10 now
 
 // initialise the molecule (scene) rotation axis statics.
 //
@@ -734,6 +753,12 @@ meshed_generic_display_object graphics_info_t::mesh_for_pointer_distances("mesh-
 std::vector<atom_label_info_t> graphics_info_t::labels_for_pointer_distances;
 
 int graphics_info_t::show_origin_marker_flag = 1;
+
+translation_gizmo_t graphics_info_t::translation_gizmo; // axes with cones at the centre of an object.
+                                                        // This thing should be clickable
+Mesh graphics_info_t::translation_gizmo_mesh = Mesh("translation gizmo");
+bool graphics_info_t::translation_gizmo_is_being_dragged = false;
+translation_gizmo_t::pick_info_t graphics_info_t::translation_gizmo_axis_dragged = translation_gizmo_t::pick_info_t::NONE;
 
 //
 float graphics_info_t::geometry_vs_map_weight = 60.0;
@@ -1261,8 +1286,7 @@ bool      graphics_info_t::do_flat_shading_for_solid_density_surface = 1;
 
 // stereo?
 int graphics_info_t::display_mode = coot::MONO_MODE;
-float graphics_info_t::hardware_stereo_angle_factor = 1.0;
-graphics_info_t::stereo_eye_t graphics_info_t::which_eye = graphics_info_t::FRONT_EYE;
+float graphics_info_t::stereo_angle = 6.0;
 
 // remote controlled coot
 int graphics_info_t::try_port_listener = 0;
@@ -1395,6 +1419,8 @@ std::pair<bool, float> graphics_info_t::model_display_radius = std::pair<bool, f
 // Chemical Feature Clusters, cfc
 GtkWidget *graphics_info_t::cfc_dialog = NULL;
 
+cfc_gui_t graphics_info_t::cfc_gui;
+
 bool graphics_info_t::coot_is_a_python_module = true;
 
 bool graphics_info_t::residue_type_selection_was_user_picked_residue_range = false;
@@ -1459,7 +1485,8 @@ framebuffer graphics_info_t::blur_x_framebuffer;
 framebuffer graphics_info_t::blur_y_framebuffer;
 framebuffer graphics_info_t::combine_textures_using_depth_framebuffer;
 framebuffer graphics_info_t::blur_framebuffer; // 2020
-unsigned int graphics_info_t::framebuffer_scale = 1; // on supersampling by default.
+unsigned int graphics_info_t::framebuffer_scale = 1; // no supersampling by default.
+GLuint graphics_info_t::screendump_target_framebuffer = 0;
 
 bool graphics_info_t::perspective_projection_flag = false;
 float graphics_info_t::perspective_fov = 26.0; // was 30.0
@@ -1474,6 +1501,7 @@ Shader graphics_info_t::shader_for_map_caps;
 Shader graphics_info_t::shader_for_models;
 Shader graphics_info_t::shader_for_model_as_meshes;
 Shader graphics_info_t::shader_for_moleculestotriangles;
+Shader graphics_info_t::shader_for_moleculestotriangles_with_shadows;
 Shader graphics_info_t::shader_for_symmetry_atoms_bond_lines;
 Shader graphics_info_t::shader_for_central_cube;
 Shader graphics_info_t::shader_for_origin_cube;
@@ -1591,6 +1619,8 @@ bool graphics_info_t::draw_missing_loops_flag = true;
 
 bool graphics_info_t::sequence_view_is_docked_flag = true;
 
+bool graphics_info_t::validation_graphs_is_docked = true;
+GtkWidget *graphics_info_t::validation_graphs_undocked_window = nullptr;
 
 int graphics_info_t::tick_function_id = -1; // unset
 bool graphics_info_t::do_tick_particles = false;
@@ -1627,8 +1657,8 @@ LinesMesh graphics_info_t::lines_mesh_for_boids_box;
 Mesh graphics_info_t::mesh_for_hydrogen_bonds = Mesh("mesh for hydrogen bonds");
 
 LinesMesh graphics_info_t::lines_mesh_for_identification_pulse;
-LinesMesh graphics_info_t::lines_mesh_for_delete_item_pulse;
-std::vector<glm::vec3> graphics_info_t::delete_item_pulse_centres;
+LinesMesh graphics_info_t::lines_mesh_for_generic_pulse;
+std::vector<glm::vec3> graphics_info_t::generic_pulse_centres;
 
 LinesMesh graphics_info_t::lines_mesh_for_hud_lines;
 LinesMesh graphics_info_t::lines_mesh_for_pull_restraint_neighbour_displacement_max_radius_ring;
@@ -1650,6 +1680,11 @@ std::vector<glm::vec3> graphics_info_t::happy_face_residue_marker_starting_posit
 TextureMesh graphics_info_t::tmesh_for_bad_nbc_atom_pair_markers = TextureMesh("tmesh-for-angry-diego");
 Texture graphics_info_t::texture_for_bad_nbc_atom_pair_markers;
 std::vector<glm::vec3> graphics_info_t::bad_nbc_atom_pair_marker_positions;
+
+Mesh graphics_info_t::bad_nbc_atom_pair_dashed_line = Mesh("bad nbc atom_pair dashed line instanced mesh");
+
+TextureMesh graphics_info_t::tmesh_for_unhappy_atom_markers = TextureMesh("tmesh-unhappy-atom-outliers");
+Texture graphics_info_t::texture_for_unhappy_atom_markers;
 
 TextureMesh graphics_info_t::tmesh_for_chiral_volume_outlier_markers = TextureMesh("tmesh-chiral-volume-outliers");
 Texture graphics_info_t::texture_for_chiral_volume_outlier_markers;
@@ -1704,7 +1739,7 @@ double graphics_info_t::torsion_restraints_weight = 1.0;
 bool graphics_info_t::use_harmonic_approximation_for_NBCs = false;
 
 bool graphics_info_t::draw_hud_colour_bar_flag = false;
-std::vector<coot::colour_holder> graphics_info_t::user_defined_colours; // initially empty
+std::vector<std::pair<unsigned int, coot::colour_holder> > graphics_info_t::user_defined_colours; // initially empty
 
 unsigned int graphics_info_t::bond_smoothness_factor = 1; // changes num_subdivisions and n_slices
 
@@ -1831,5 +1866,10 @@ std::vector<coot::positron_metadata_t> graphics_info_t::positron_metadata;
 bool graphics_info_t::tomo_picker_flag = false;
 graphics_info_t::tomo_view_info_t graphics_info_t::tomo_view_info;
 
+coot::inchikey_store_t graphics_info_t::inchikey_store;
+coot::ptm_database_t graphics_info_t::ptm_database;
+
 std::pair<bool, std::string> graphics_info_t::servalcat_fofc    = std::pair<bool, std::string> (false, "");
 std::pair<bool, std::string> graphics_info_t::servalcat_refine  = std::pair<bool, std::string> (false, "");
+
+std::string graphics_info_t::current_alt_conf = "";

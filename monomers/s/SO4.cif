@@ -1,0 +1,86 @@
+#
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+SO4     SO4      "SULFATE ION"     NON-POLYMER     5     5     .     
+#
+data_comp_SO4
+#
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+SO4     S       S       S3      0       16.537      34.975      5.493       
+SO4     O1      O       O       0       17.831      34.952      4.866       
+SO4     O2      O       O       0       16.570      35.855      6.629       
+SO4     O3      O       OS      -1      15.557      35.444      4.551       
+SO4     O4      O       OS      -1      16.190      33.647      5.924       
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+SO4           S          O1      DOUBLE       n     1.438  0.0156     1.438  0.0156
+SO4           S          O2      DOUBLE       n     1.438  0.0156     1.438  0.0156
+SO4           S          O3      SINGLE       n     1.438  0.0156     1.438  0.0156
+SO4           S          O4      SINGLE       n     1.438  0.0156     1.438  0.0156
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+SO4          O1           S          O2     109.467    1.50
+SO4          O1           S          O3     109.467    1.50
+SO4          O1           S          O4     109.467    1.50
+SO4          O2           S          O3     109.467    1.50
+SO4          O2           S          O4     109.467    1.50
+SO4          O3           S          O4     109.467    1.50
+loop_
+_chem_comp_chir.comp_id
+_chem_comp_chir.id
+_chem_comp_chir.atom_id_centre
+_chem_comp_chir.atom_id_1
+_chem_comp_chir.atom_id_2
+_chem_comp_chir.atom_id_3
+_chem_comp_chir.volume_sign
+SO4    chir_1    S    O1    O2    O3    both
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+SO4           SMILES              ACDLabs 10.04                         "[O-]S([O-])(=O)=O"
+SO4 SMILES_CANONICAL               CACTVS 3.341                       "[O-][S]([O-])(=O)=O"
+SO4           SMILES               CACTVS 3.341                       "[O-][S]([O-])(=O)=O"
+SO4 SMILES_CANONICAL "OpenEye OEToolkits" 1.5.0                         "[O-]S(=O)(=O)[O-]"
+SO4           SMILES "OpenEye OEToolkits" 1.5.0                         "[O-]S(=O)(=O)[O-]"
+SO4            InChI                InChI  1.03 InChI=1S/H2O4S/c1-5(2,3)4/h(H2,1,2,3,4)/p-2
+SO4         InChIKey                InChI  1.03                 QAOWNCQODCNURD-UHFFFAOYSA-L
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+SO4 acedrg               243         "dictionary generator"                  
+SO4 acedrg_database      11          "data source"                           
+SO4 rdkit                2017.03.2   "Chemoinformatics tool"
+SO4 refmac5              5.8.0238    "optimization tool"                     

@@ -20,7 +20,8 @@ libMoleculesToTrianglesCXXClasses_la_SOURCES=AtomPropertyRampColorRule.cpp	 \
 	VertexColorNormalPrimitive.cpp CylindersPrimitive.cpp  \
 	oglPolyhedron.cpp MolecularRepresentationInstance.cpp Quaternion.cpp	 \
 	Vector2.cpp Vector3.cpp lfit.c DishyBase.cpp            \
-        FlatFanPrimitive.cpp
+        FlatFanPrimitive.cpp \
+	tubes.cc
 
 # I want pkg-config/configure to make MMDB_CPPFLAGS, not MMDB_CFLAGS (but, after some reading,
 # I don't think that's how pkg-config works - oh well).
@@ -37,9 +38,11 @@ libMoleculesToTrianglesCXXClasses_la_CPPFLAGS=$(AM_CPPFLAGS) \
 # -lclipper-ccp4 -lclipper-core  -lrfftw -lfftw -lccp4c -lmmdb2 \
 # $(GL_LIBS) $(GLU_LIBS)
 
-libMoleculesToTrianglesCXXClasses_la_LIBADD=$(MoleculesToTrianglesCXXSurface_LIBS) \
-				            $(top_builddir)/MoleculesToTriangles/CXXSurface/libMoleculesToTrianglesCXXSurface.la                        \
-   $(CLIPPER_LIBS) $(MMDB_LIBS) $(GL_LIBS)
+libMoleculesToTrianglesCXXClasses_la_LIBADD = \
+	$(MoleculesToTrianglesCXXSurface_LIBS) \
+	$(top_builddir)/MoleculesToTriangles/CXXSurface/libMoleculesToTrianglesCXXSurface.la \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
+	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GL_LIBS)
 
 # otherincludedir = $(includedir)/MoleculesToTriangles/CXXClasses
 # otherincludedir = $(top_srcdir)/MoleculesToTriangles/CXXClasses
@@ -59,7 +62,7 @@ include_HEADERS = Quaternion.hpp Vector.hpp Vector2.hpp Vector3.hpp \
    CompoundSelection.h		PositionedEntity.h			lfit.h                          \
    CylinderPoint.h		Renderer.h				oglPolyhedron.h                 \
    CylindersPrimitive.h		RendererGL.h                            RendererGLSL.hpp                \
-   DishyBase.h                  FlatFanPrimitive.h
+   DishyBase.h                  FlatFanPrimitive.h                      tubes.hh
 
 # PointLight.hpp: $(top_srcdir)/PointLight.frag $(top_srcdir)/PointLight.vert $(top_srcdir)/ShaderPacker.py
 # python $(top_srcdir)/ShaderPacker.py PointLight $(top_srcdir)

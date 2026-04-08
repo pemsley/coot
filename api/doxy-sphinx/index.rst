@@ -36,7 +36,6 @@ may be *something* there that could usefully be declared as public.
 .. doxygenfile:: molecules-container.hh
    :project: libcootapi
 
-
 Mesh Objects
 ============
 
@@ -133,6 +132,8 @@ Structure Factors
 
 .. doxygenfile:: coot-utils/sfcalc-genmap.hh
       :project: libcootapi
+
+
 
 
 Indices and tables

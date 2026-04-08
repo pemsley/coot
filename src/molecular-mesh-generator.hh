@@ -89,6 +89,17 @@ public:
       fill_atom_positions();
       update_mats_and_colours();
    }
+
+   // This exists so that we can send over the information about the use-picked range-pair (for highlighting)
+   class range_t {
+   public:
+      range_t() : is_valid(false) {};
+      range_t(const std::string &c, int r1, int r2) : is_valid(true), chain_id(c), resno_start(r1), resno_end(r2) {};
+      bool is_valid;
+      std::string chain_id;
+      int resno_start;
+      int resno_end;
+   };
    std::chrono::time_point<std::chrono::high_resolution_clock> t_previous;
    std::chrono::time_point<std::chrono::high_resolution_clock> t_start;
    std::vector<glm::vec3> atom_positions;
@@ -149,12 +160,13 @@ public:
                                                    mmdb::Residue *residue_p,
                                                    const coot::protein_geometry *geom_in,
                                                    int bond_width,
+                                                   range_t range,
                                                    int selection_mode);
 
 
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
    get_molecular_triangles_mesh_for_ribbon_with_user_defined_residue_colours(mmdb::Manager *mol, mmdb::Chain *chain_p,
-                                                                             const std::vector<coot::colour_holder> &user_defined_colours,
+                                                                             const std::vector<std::pair<unsigned int, coot::colour_holder> > &user_defined_colours,
                                                                              int secondary_structure_usage_flag,
                                                                              const std::vector<std::pair<std::string, float> > &M2T_float_params,
                                                                              const std::vector<std::pair<std::string, int> > &M2T_int_params);

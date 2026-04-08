@@ -27,21 +27,56 @@
 
 #ifdef USE_MOLECULES_TO_TRIANGLES
 #ifdef USE_PYTHON
+#include <Python.h>
+
+#include <string>
 
 // Martin's Triangles
 
-// e.g. 0, "//C", "RampChainsScheme", "Ribbon"
-int add_molecular_representation_py(int imol, PyObject *atom_selection_py, PyObject *ColorScheme_py, PyObject *style_py);
+//! \brief add a molecular representation, e.g. Ribbon diagram or surface
+//!
+//! e.g. 0, "//C", "RampChainsScheme", "Ribbon"
+//!
+//! @param imol the molecule index
+//! @param atom_selection_py the atom-selection in mmdb-style CID
+//! @param ColorScheme_py colour-scheme-name, e.g. "colorRampChainsScheme" or "Chain" or "colorBySecondaryScheme"
+//! @param style_py the representation style, e.g. "Ribbon" or "MolecularSurface"
+//! @param secondary_structure_usage_type  0 (USE_HEADER) i.e. use the secondary structure defined in the header (if any),
+//                                         1 (DONT_USE) or
+//                                         2 (CALC_SECONDARY_STRUCTURE)
+//                                         the DONT_USE case will give a worm-like backbone representation
+//! @return -1 on failure, the representation index on success
+int add_molecular_representation_py(int imol, PyObject *atom_selection_py, PyObject *ColorScheme_py, PyObject *style_py,
+                                    int secondary_structure_usage_type);
 #endif // USE_PYTHON
 
 #ifdef USE_GUILE
 int add_molecular_representation_scm(int imol, SCM atom_selection_scm, SCM ColorScheme_scm, SCM style_scm);
 #endif // USE_GUILE
 
-// not dependent on scm or python
+//! \brief add ribbon representation with user-defined colours
+//!
+//! not dependent on scm or python
+//!
+//! "worm" / "tube" / "backbone trace" → add_ribbon_representation_with_user_defined_colours(..., 1)
+//!
+//! ribbon with secondary structure" → add_ribbon_representation_with_user_defined_colours(..., 2)
+//!
+//! @param imol the molecule index
+//! @param name the name to appear in the display control widget
+//! @param secondary_structure_usage_type  0 (USE_HEADER) i.e. use the secondary structure defined in the header (if any),
+//                                         1 (DONT_USE) or
+//                                         2 (CALC_SECONDARY_STRUCTURE)
+//                                         the DONT_USE case will give a worm-like backbone representation
+//! @return will be -1 - the return value currently has no meaning.
+//!
+int add_ribbon_representation_with_user_defined_colours(int imol, const std::string &name,
+                                                        int secondary_structure_usage_type);
 
-int add_ribbon_representation_with_user_defined_colours(int imol, const std::string &name);
-
+//! \brief remove molecular representation
+//!
+//! @param imol the molecule index
+//! @param rep_no the representation-index
 void remove_molecular_representation(int imol, int rep_no);
 
 #endif // USE_MOLECULES_TO_TRIANGLES

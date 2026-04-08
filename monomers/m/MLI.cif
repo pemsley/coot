@@ -1,0 +1,116 @@
+#
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+MLI     MLI      "MALONATE ION"     NON-POLYMER     9     7     .     
+#
+data_comp_MLI
+#
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+MLI     C1      C       CH2     0       27.338      49.646      60.340      
+MLI     C2      C       C       0       27.193      50.643      59.195      
+MLI     C3      C       C       0       28.362      50.066      61.389      
+MLI     O6      O       O       0       26.770      51.782      59.462      
+MLI     O7      O       OC      -1      27.505      50.270      58.050      
+MLI     O8      O       O       0       27.949      50.375      62.522      
+MLI     O9      O       OC      -1      29.562      50.079      61.063      
+MLI     H11     H       H       0       27.604      48.783      59.971      
+MLI     H12     H       H       0       26.470      49.538      60.773      
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+MLI          C1          C2      SINGLE       n     1.525  0.0126     1.525  0.0126
+MLI          C1          C3      SINGLE       n     1.525  0.0126     1.525  0.0126
+MLI          C2          O6      DOUBLE       n     1.244  0.0200     1.244  0.0200
+MLI          C2          O7      SINGLE       n     1.244  0.0200     1.244  0.0200
+MLI          C3          O8      DOUBLE       n     1.244  0.0200     1.244  0.0200
+MLI          C3          O9      SINGLE       n     1.244  0.0200     1.244  0.0200
+MLI          C1         H11      SINGLE       n     1.089  0.0100     0.976  0.0200
+MLI          C1         H12      SINGLE       n     1.089  0.0100     0.976  0.0200
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+MLI          C2          C1          C3     111.575    3.00
+MLI          C2          C1         H11     108.218    1.50
+MLI          C2          C1         H12     108.218    1.50
+MLI          C3          C1         H11     108.218    1.50
+MLI          C3          C1         H12     108.218    1.50
+MLI         H11          C1         H12     107.458    1.90
+MLI          C1          C2          O6     118.071    1.50
+MLI          C1          C2          O7     118.071    1.50
+MLI          O6          C2          O7     123.858    1.50
+MLI          C1          C3          O8     118.071    1.50
+MLI          C1          C3          O9     118.071    1.50
+MLI          O8          C3          O9     123.858    1.50
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+MLI             sp2_sp3_2          O6          C2          C1          C3     120.000    10.0     6
+MLI             sp2_sp3_8          O8          C3          C1          C2     120.000    10.0     6
+loop_
+_chem_comp_plane_atom.comp_id
+_chem_comp_plane_atom.plane_id
+_chem_comp_plane_atom.atom_id
+_chem_comp_plane_atom.dist_esd
+MLI    plan-1          C1   0.020
+MLI    plan-1          C2   0.020
+MLI    plan-1          O6   0.020
+MLI    plan-1          O7   0.020
+MLI    plan-2          C1   0.020
+MLI    plan-2          C3   0.020
+MLI    plan-2          O8   0.020
+MLI    plan-2          O9   0.020
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+MLI           SMILES              ACDLabs 10.04                                  "[O-]C(=O)CC([O-])=O"
+MLI SMILES_CANONICAL               CACTVS 3.341                                  "[O-]C(=O)CC([O-])=O"
+MLI           SMILES               CACTVS 3.341                                  "[O-]C(=O)CC([O-])=O"
+MLI SMILES_CANONICAL "OpenEye OEToolkits" 1.5.0                                  C(C(=O)[O-])C(=O)[O-]
+MLI           SMILES "OpenEye OEToolkits" 1.5.0                                  C(C(=O)[O-])C(=O)[O-]
+MLI            InChI                InChI  1.03 InChI=1S/C3H4O4/c4-2(5)1-3(6)7/h1H2,(H,4,5)(H,6,7)/p-2
+MLI         InChIKey                InChI  1.03                            OFOBLEOULBTSOW-UHFFFAOYSA-L
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+MLI acedrg               243         "dictionary generator"                  
+MLI acedrg_database      11          "data source"                           
+MLI rdkit                2017.03.2   "Chemoinformatics tool"
+MLI refmac5              5.8.0238    "optimization tool"                     

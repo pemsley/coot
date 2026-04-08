@@ -23,13 +23,17 @@
  * See http://www.gnu.org/licenses/
  *
  */
-#include <map>
 #include <gtk/gtk.h>
 #include "graphics-info.h"
 #include "c-interface-gtk-widgets.h"
 #include "setup-gui-components.hh"
+#include "gtk/gtkshortcut.h"
 #include "utils/coot-utils.hh"
 #include "widget-from-builder.hh"
+
+#ifdef HAVE_VTE
+#include "vte.hh"
+#endif
 
 // this function is both defined and implemented here.
 // No other files should ever need it.
@@ -49,7 +53,7 @@ inline GMenu* menu_from_builder(const std::string& m_name) {
 void
 add_typed_menu_to_mutate_menubutton(const std::string &action_type, const std::string &residue_type) {
 
-   // should I (do I need to) remove the menu model that is already attachedk to the menu button?
+   // should I (do I need to) remove the menu model that is already attached to the menu button?
 
    if (action_type == "AUTOFIT") {
       GtkWidget *mutate_menubutton = widget_from_builder("mutate_and_autofit_menubutton");
@@ -178,6 +182,8 @@ void setup_get_monomer() {
    GtkWidget* entry = widget_from_builder("get_monomer_entry");
    g_signal_connect(entry,"activate",G_CALLBACK(+[](GtkEntry* entry, gpointer user_data){
       handle_get_monomer_code(GTK_WIDGET(entry));
+      GtkWidget *frame = widget_from_builder("get_monomer_frame");
+      gtk_widget_set_visible(frame, FALSE);
    }),NULL);
    setup_generic_hide_on_escape_controller(entry,frame);
 }
@@ -197,7 +203,7 @@ void attach_css_style_class_to_overlays() {
    GtkWidget* overlay = widget_from_builder("main_window_graphics_overlay");
    GtkWidget* to_skip = widget_from_builder("main_window_graphics_hbox");
    for (GtkWidget* child = gtk_widget_get_first_child(overlay);
-       child != nullptr; 
+       child != nullptr;
        child = gtk_widget_get_next_sibling(child)) {
        if (child != to_skip)
           set_transparency_on_widget(child);
@@ -234,66 +240,73 @@ add_python_scripting_entry_completion(GtkWidget *entry) {
 
    // Get the module object for the `coot` module.
    PyObject *module = PyImport_ImportModule("coot");
-   // Get the dictionary object for the `coot` module.
-   PyObject *dict = PyModule_GetDict(module);
-   // Iterate over the keys and values in the dictionary.
-   while (PyDict_Next(dict, &pos, &key, &value)) {
-      // Do something interesting with the key and value.
-      // printf("Key: %s, Value: %s\n", PyUnicode_AsUTF8AndSize(key, NULL), PyUnicode_AsUTF8AndSize(value, NULL));
-      std::string key_c = std::string("coot.") +  (PyUnicode_AsUTF8AndSize(key, NULL));
-      module_coot_completions.push_back(key_c);
-   }
-   Py_DECREF(module);
-   // Get the module object for the `sys` module.
-   module = PyImport_ImportModule("coot_utils");
 
+   // this protects against crash on looking up the dictionary
+   // when module is null
    if (module) {
-      if (false)
-         std::cout << "INFO:: add_python_scripting_entry_completion() coot_utils imported successfully" << std::endl;
+      // Get the dictionary object for the `coot` module.
+      PyObject *dict = PyModule_GetDict(module);
+      // Iterate over the keys and values in the dictionary.
+      while (PyDict_Next(dict, &pos, &key, &value)) {
+	 // Do something interesting with the key and value.
+	 // printf("Key: %s, Value: %s\n", PyUnicode_AsUTF8AndSize(key, NULL), PyUnicode_AsUTF8AndSize(value, NULL));
+	 std::string key_c = std::string("coot.") +  (PyUnicode_AsUTF8AndSize(key, NULL));
+	 module_coot_completions.push_back(key_c);
+      }
+      Py_DECREF(module);
+      // Get the module object for the `sys` module.
+      module = PyImport_ImportModule("coot_utils");
+
+      if (module) {
+	 if (false)
+	    std::cout << "INFO:: add_python_scripting_entry_completion() coot_utils imported successfully" << std::endl;
+      } else {
+	 std::cout << "ERROR:: add_python_scripting_entry_completion() coot_utils import failure" << std::endl;
+	 if (PyErr_Occurred())
+	    PyErr_PrintEx(0);
+	 return;
+      }
+
+      // Get the dictionary object for the `sys` module.
+      dict = PyModule_GetDict(module);
+      // Iterate over the keys and values in the dictionary.
+      while (PyDict_Next(dict, &pos, &key, &value)) {
+	 // Do something interesting with the key and value.
+	 // printf("Key: %s, Value: %s\n", PyUnicode_AsUTF8AndSize(key, NULL), PyUnicode_AsUTF8AndSize(value, NULL));
+	 std::string key_c = std::string("coot_utils.") +  (PyUnicode_AsUTF8AndSize(key, NULL));
+	 module_coot_utils_completions.push_back(key_c);
+      }
+      Py_DECREF(module);
+
+      // command history
+      std::vector<std::string> chv = g.command_history.commands;
+
+      chv = g.command_history.unique_commands(); // there *were* unique already
+
+      if (false) chv.clear(); // 20230516-PE while testing.
+
+      // add together the completions
+      completions.push_back("import coot");
+      completions.push_back("import coot_utils");
+      completions.insert(completions.end(), chv.begin(),                           chv.end());
+      completions.insert(completions.end(), module_coot_completions.begin(),       module_coot_completions.end());
+      completions.insert(completions.end(), module_coot_utils_completions.begin(), module_coot_utils_completions.end());
+
+      // maybe only once!
+      GtkListStore *store = gtk_list_store_new(1, G_TYPE_STRING);
+      GtkTreeIter iter;
+
+      for (unsigned int i=0; i<completions.size(); i++) {
+	 gtk_list_store_append( store, &iter );
+	 std::string c = completions[i];
+	 // std::cout << "adding to gtk-completion: " << c << std::endl;
+	 gtk_list_store_set( store, &iter, 0, c.c_str(), -1 );
+      }
+
+      gtk_entry_completion_set_model(completion, GTK_TREE_MODEL(store));
    } else {
-      std::cout << "ERROR:: add_python_scripting_entry_completion() coot_utils import failure" << std::endl;
-      if (PyErr_Occurred())
-         PyErr_PrintEx(0);
-      return;
+      std::cout << "ERROR:: in add_python_scripting_entry_completion() no module named 'coot'" << std::endl;
    }
-
-   // Get the dictionary object for the `sys` module.
-   dict = PyModule_GetDict(module);
-  // Iterate over the keys and values in the dictionary.
-   while (PyDict_Next(dict, &pos, &key, &value)) {
-      // Do something interesting with the key and value.
-      // printf("Key: %s, Value: %s\n", PyUnicode_AsUTF8AndSize(key, NULL), PyUnicode_AsUTF8AndSize(value, NULL));
-      std::string key_c = std::string("coot_utils.") +  (PyUnicode_AsUTF8AndSize(key, NULL));
-      module_coot_utils_completions.push_back(key_c);
-   }
-   Py_DECREF(module);
-
-   // command history
-   std::vector<std::string> chv = g.command_history.commands;
-
-   chv = g.command_history.unique_commands(); // there *were* unique already
-
-   if (false) chv.clear(); // 20230516-PE while testing.
-
-   // add together the completions
-   completions.push_back("import coot");
-   completions.push_back("import coot_utils");
-   completions.insert(completions.end(), chv.begin(),                           chv.end());
-   completions.insert(completions.end(), module_coot_completions.begin(),       module_coot_completions.end());
-   completions.insert(completions.end(), module_coot_utils_completions.begin(), module_coot_utils_completions.end());
-
-   // maybe only once!
-   GtkListStore *store = gtk_list_store_new(1, G_TYPE_STRING);
-   GtkTreeIter iter;
-
-   for (unsigned int i=0; i<completions.size(); i++) {
-      gtk_list_store_append( store, &iter );
-      std::string c = completions[i];
-      // std::cout << "adding to gtk-completion: " << c << std::endl;
-      gtk_list_store_set( store, &iter, 0, c.c_str(), -1 );
-   }
-
-   gtk_entry_completion_set_model(completion, GTK_TREE_MODEL(store));
 
 }
 
@@ -310,7 +323,9 @@ on_python_scripting_entry_key_pressed(GtkEventControllerKey *controller,
    gboolean handled = TRUE;
    bool control_is_pressed = (modifiers & GDK_CONTROL_MASK);
 
-   std::cout << "on_python_scripting_entry_key_pressed() keyval: " << keyval << " keycode: " << keycode << std::endl;
+   if (false)
+      std::cout << "on_python_scripting_entry_key_pressed() keyval: " << keyval
+                << " keycode: " << keycode << std::endl;
 
    switch(keyval) {
       case GDK_KEY_Up: {
@@ -339,6 +354,13 @@ on_python_scripting_entry_key_pressed(GtkEventControllerKey *controller,
          };
          g_idle_add(func, NULL);
          break;
+      }
+      case GDK_KEY_e: {
+         if (control_is_pressed) {
+            std::cout << "handle ctrl-e" << std::endl;
+            int length = gtk_entry_get_text_length(GTK_ENTRY(entry));
+            gtk_editable_set_position(GTK_EDITABLE(entry), length);
+         }
       }
       default: {
          handled = FALSE;
@@ -436,10 +458,12 @@ void set_vertical_toolbar_internal_alignment() {
          GtkWidget* parent_widget = gtk_widget_get_parent(target);
          if(!GTK_IS_BOX(parent_widget)) {
             if(GTK_IS_BOX(target)) {
+#if GTK_MINOR_VERSION < 14 // 20241001-PE so that I don't see this when using fatal warnings
                g_warning("set_vertical_toolbar_internal_alignment: Toolbar item %p of type %s: "
                "The parent widget that wraps %s::child is not a GtkBox but a %s. "
                "%s::child however is a GtkBox. Attempt will be made to align it. It might not work.",
                child,G_OBJECT_TYPE_NAME(child),G_OBJECT_TYPE_NAME(child),G_OBJECT_TYPE_NAME(parent_widget),G_OBJECT_TYPE_NAME(child));
+#endif
                parent_widget = target;
             } else {
                g_warning("set_vertical_toolbar_internal_alignment: Skippping toolbar item %p of type %s: "
@@ -474,9 +498,13 @@ void setup_tomo_widgets() {
 
 void setup_preferences() {
 
+	// This stuff is no longer in preferences - perhaps they should be but they are not today,
+	// so #ifdef out the code.
+
    // 20230627-PE put this in setup-gui-components - it should only happen once.
    // 20240916-PE done!
    {
+#if 0
       // fill the bond combobox
       GtkComboBoxText *combobox = GTK_COMBO_BOX_TEXT(widget_from_preferences_builder("preferences_bond_width_combobox"));
       if (combobox) {
@@ -487,6 +515,9 @@ void setup_preferences() {
       } else {
          std::cout << "ERROR:: failed to find preferences_bond_width_combobox " << std::endl;
       }
+#endif
+
+#if 0
       // fill the font combobox
       combobox = GTK_COMBO_BOX_TEXT(widget_from_preferences_builder("preferences_font_size_combobox"));
       // 20230926-PE there was a crash here - maybe combobox was not looked up correctly.
@@ -502,8 +533,26 @@ void setup_preferences() {
       } else {
          std::cout << "ERROR:: failed to find preferences_font_size_combobox" << std::endl;
       }
+#endif
    }
+}
 
+void setup_aniso_hscale() {
+
+   GtkWidget *scale = widget_from_builder("aniso_probability_hscale");
+   GtkAdjustment *adjustment = gtk_range_get_adjustment(GTK_RANGE(scale));
+   if (adjustment) {
+      gtk_adjustment_set_lower(adjustment, 0.0);
+      gtk_adjustment_set_upper(adjustment, 0.99);
+      gtk_adjustment_set_step_increment(adjustment, 1.0);
+      gtk_adjustment_set_page_increment(adjustment, 5.0);
+      gtk_adjustment_set_page_size(adjustment, 0.0);
+      gtk_adjustment_set_value(adjustment, 0.5f);
+      gtk_scale_set_draw_value(GTK_SCALE(scale), TRUE);
+      gtk_scale_set_digits(GTK_SCALE(scale), 2);
+      gtk_scale_add_mark(GTK_SCALE(scale), 0.0,  GTK_POS_BOTTOM, "0.00");
+      gtk_scale_add_mark(GTK_SCALE(scale), 0.99, GTK_POS_BOTTOM, "0.99");
+   }
 }
 
 void setup_gui_components() {
@@ -515,11 +564,16 @@ void setup_gui_components() {
    setup_ramachandran_plot_chooser_dialog();
    setup_get_monomer();
    setup_accession_code_frame();
+#ifdef HAVE_VTE
+   setup_python_vte_terminal();
+#else
    setup_python_scripting_entry();
+#endif
    setup_curlew_banner();
    setup_tomo_widgets();
    setup_preferences();
    attach_css_style_class_to_overlays();
    set_vertical_toolbar_internal_alignment();
+   setup_aniso_hscale();
    g_info("Done initializing UI components.");
 }

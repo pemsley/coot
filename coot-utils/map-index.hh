@@ -37,7 +37,7 @@ namespace coot {
       int index() const { return index_; }
       bool is_assigned() const { return (index_ != UNASSIGNED); }
       bool operator==(const map_index_t &ti) const {
-	 return (ti.index() == index_);
+         return (ti.index() == index_);
       }
    };
 

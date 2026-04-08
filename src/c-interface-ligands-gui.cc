@@ -20,6 +20,7 @@
  * write to the Free Software Foundation, Inc., 51 Franklin Street,  02110-1301, USA
  */
 
+#include "gtk/gtk.h"
 #if defined (USE_PYTHON)
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
@@ -47,9 +48,9 @@
 #include <string>
 
 #include <mmdb2/mmdb_manager.h>
-#include "coords/mmdb-extras.h"
+#include "coords/mmdb-extras.hh"
 #include "coords/mmdb.hh"
-#include "coords/mmdb-crystal.h"
+#include "coords/mmdb-crystal.hh"
 
 #include "graphics-info.h"
 #include "c-interface.h"
@@ -69,6 +70,11 @@
 #include "widget-from-builder.hh"
 
 #include "guile-fixups.h"
+#ifdef USE_GUILE
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
+#endif // USE_GUILE
+
 #include "layla/layla_embedded.hpp"
 
 void clear_out_container(GtkWidget *vbox);  // in c-interface.cc
@@ -489,7 +495,7 @@ int fill_ligands_dialog_ligands_bits(GtkWidget *find_ligand_dialog) {
 }
 
 
-
+// return 0
 int execute_get_mols_ligand_search(GtkWidget *button) {
 
    // 20220313-PE new version - in this version, instead
@@ -607,7 +613,7 @@ int execute_get_mols_ligand_search(GtkWidget *button) {
 
          // OK, let's go
 
-	      execute_ligand_search();
+         execute_ligand_search();
 
       } else {
 
@@ -1361,3 +1367,22 @@ PyObject *get_ligand_distortion_summary_info_py(int imol, PyObject *residue_spec
 }
 #endif
 
+void
+show_acedrg_link_interface_overlay() {
+
+   GtkWidget *w = widget_from_builder("acedrg_link_interface_frame");
+   gtk_widget_set_visible(w, TRUE);
+
+   GtkWidget *cb = widget_from_builder("acedrg_link_bond_order_combobox");
+   if (cb) {
+      // setting this in the ui file doesn't seem to work
+      gtk_combo_box_set_active(GTK_COMBO_BOX(cb), 0);
+   }
+
+   // This doesn't work and it's too much effort to get right
+   // GtkWidget *frame_1 = widget_from_builder("acedrg_link_bond_order_frame");
+   // GtkStyleContext *sc = gtk_widget_get_style_context(frame_1);
+   // std::cout << "gtk_style_context_add_class to " << sc << std::endl;
+   // gtk_style_context_add_class(sc, "bold");
+
+}

@@ -1,0 +1,306 @@
+#
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+ANP     ANP      "PHOSPHOAMINOPHOSPHONIC ACID-ADENYLATE ESTER"     NON-POLYMER     44     31     .     
+#
+data_comp_ANP
+#
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+ANP     PG      P       P       0       18.671      1.250       29.605      
+ANP     O1G     O       O       0       19.027      -0.204      29.774      
+ANP     O2G     O       OP      -1      19.799      1.954       28.901      
+ANP     O3G     O       OP      -1      17.429      1.353       28.762      
+ANP     PB      P       P       0       17.631      1.272       32.336      
+ANP     O1B     O       O       0       16.138      1.404       32.210      
+ANP     O2B     O       OP      -1      18.204      -0.075      32.680      
+ANP     N3B     N       NT1     0       18.408      1.942       31.062      
+ANP     PA      P       P       0       18.939      1.960       34.869      
+ANP     O1A     O       O       0       18.281      0.904       35.694      
+ANP     O2A     O       OP      -1      20.350      1.739       34.433      
+ANP     O3A     O       O2      0       18.040      2.217       33.564      
+ANP     "O5'"   O       O2      0       18.831      3.372       35.626      
+ANP     "C5'"   C       CH2     0       19.124      4.594       34.898      
+ANP     "C4'"   C       CH1     0       19.430      5.710       35.868      
+ANP     "O4'"   O       O2      0       18.392      5.796       36.875      
+ANP     "C3'"   C       CH1     0       20.711      5.568       36.694      
+ANP     "O3'"   O       OH1     0       21.861      5.926       35.937      
+ANP     "C2'"   C       CH1     0       20.430      6.536       37.847      
+ANP     "O2'"   O       OH1     0       20.761      7.872       37.533      
+ANP     "C1'"   C       CH1     0       18.921      6.377       38.048      
+ANP     N9      N       NT      0       18.577      5.535       39.200      
+ANP     C8      C       CR15    0       18.309      4.182       39.226      
+ANP     N7      N       NRD5    0       18.043      3.743       40.435      
+ANP     C5      C       CR56    0       18.146      4.864       41.250      
+ANP     C6      C       CR6     0       17.980      5.058       42.638      
+ANP     N6      N       NH2     0       17.661      4.085       43.487      
+ANP     N1      N       NRD6    0       18.158      6.315       43.123      
+ANP     C2      C       CR16    0       18.480      7.295       42.262      
+ANP     N3      N       NRD6    0       18.661      7.228       40.942      
+ANP     C4      C       CR56    0       18.477      5.971       40.494      
+ANP     HNB1    H       H       0       18.874      2.615       31.234      
+ANP     "H5'1"  H       H       0       18.347      4.845       34.340      
+ANP     "H5'2"  H       H       0       19.902      4.452       34.303      
+ANP     "H4'"   H       H       0       19.458      6.553       35.367      
+ANP     "H3'"   H       H       0       20.799      4.640       37.035      
+ANP     "HO3'"  H       H       0       22.537      5.928       36.452      
+ANP     "H2'"   H       H       0       20.920      6.251       38.664      
+ANP     "HO2'"  H       H       0       20.827      8.319       38.252      
+ANP     "H1'"   H       H       0       18.523      7.268       38.178      
+ANP     H8      H       H       0       18.309      3.624       38.467      
+ANP     HN61    H       H       0       17.993      4.089       44.299      
+ANP     HN62    H       H       0       17.120      3.444       43.230      
+ANP     H2      H       H       0       18.594      8.151       42.645      
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+ANP          PG         O1G      DOUBLE       n     1.508  0.0200     1.508  0.0200
+ANP          PG         O2G      SINGLE       n     1.508  0.0200     1.508  0.0200
+ANP          PG         O3G      SINGLE       n     1.508  0.0200     1.508  0.0200
+ANP          PG         N3B      SINGLE       n     1.634  0.0168     1.634  0.0168
+ANP          PB         O1B      DOUBLE       n     1.504  0.0123     1.504  0.0123
+ANP          PB         O2B      SINGLE       n     1.504  0.0123     1.504  0.0123
+ANP          PB         N3B      SINGLE       n     1.635  0.0169     1.635  0.0169
+ANP          PB         O3A      SINGLE       n     1.603  0.0146     1.603  0.0146
+ANP          PA         O1A      DOUBLE       n     1.493  0.0122     1.493  0.0122
+ANP          PA         O2A      SINGLE       n     1.493  0.0122     1.493  0.0122
+ANP          PA         O3A      SINGLE       n     1.604  0.0133     1.604  0.0133
+ANP          PA       "O5'"      SINGLE       n     1.604  0.0133     1.604  0.0133
+ANP       "O5'"       "C5'"      SINGLE       n     1.450  0.0166     1.450  0.0166
+ANP       "C5'"       "C4'"      SINGLE       n     1.509  0.0100     1.509  0.0100
+ANP       "C4'"       "O4'"      SINGLE       n     1.451  0.0100     1.451  0.0100
+ANP       "C4'"       "C3'"      SINGLE       n     1.535  0.0100     1.535  0.0100
+ANP       "O4'"       "C1'"      SINGLE       n     1.409  0.0100     1.409  0.0100
+ANP       "C3'"       "O3'"      SINGLE       n     1.422  0.0100     1.422  0.0100
+ANP       "C3'"       "C2'"      SINGLE       n     1.531  0.0100     1.531  0.0100
+ANP       "C2'"       "O2'"      SINGLE       n     1.411  0.0100     1.411  0.0100
+ANP       "C2'"       "C1'"      SINGLE       n     1.525  0.0100     1.525  0.0100
+ANP       "C1'"          N9      SINGLE       n     1.458  0.0200     1.458  0.0200
+ANP          N9          C8      SINGLE       y     1.372  0.0200     1.372  0.0200
+ANP          N9          C4      SINGLE       y     1.372  0.0100     1.372  0.0100
+ANP          C8          N7      DOUBLE       y     1.310  0.0100     1.310  0.0100
+ANP          N7          C5      SINGLE       y     1.388  0.0100     1.388  0.0100
+ANP          C5          C6      SINGLE       y     1.408  0.0100     1.408  0.0100
+ANP          C5          C4      DOUBLE       y     1.381  0.0100     1.381  0.0100
+ANP          C6          N6      SINGLE       n     1.330  0.0100     1.330  0.0100
+ANP          C6          N1      DOUBLE       y     1.354  0.0100     1.354  0.0100
+ANP          N1          C2      SINGLE       y     1.339  0.0100     1.339  0.0100
+ANP          C2          N3      DOUBLE       y     1.330  0.0100     1.330  0.0100
+ANP          N3          C4      SINGLE       y     1.343  0.0100     1.343  0.0100
+ANP         N3B        HNB1      SINGLE       n     1.036  0.0160     0.836  0.0200
+ANP       "C5'"      "H5'1"      SINGLE       n     1.089  0.0100     0.989  0.0200
+ANP       "C5'"      "H5'2"      SINGLE       n     1.089  0.0100     0.989  0.0200
+ANP       "C4'"       "H4'"      SINGLE       n     1.089  0.0100     0.981  0.0200
+ANP       "C3'"       "H3'"      SINGLE       n     1.089  0.0100     0.992  0.0200
+ANP       "O3'"      "HO3'"      SINGLE       n     0.970  0.0120     0.849  0.0200
+ANP       "C2'"       "H2'"      SINGLE       n     1.089  0.0100     0.994  0.0200
+ANP       "O2'"      "HO2'"      SINGLE       n     0.970  0.0120     0.849  0.0200
+ANP       "C1'"       "H1'"      SINGLE       n     1.089  0.0100     0.984  0.0200
+ANP          C8          H8      SINGLE       n     1.082  0.0130     0.942  0.0170
+ANP          N6        HN61      SINGLE       n     1.016  0.0100     0.877  0.0200
+ANP          N6        HN62      SINGLE       n     1.016  0.0100     0.877  0.0200
+ANP          C2          H2      SINGLE       n     1.082  0.0130     0.945  0.0200
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+ANP         O1G          PG         O2G     111.149    3.00
+ANP         O1G          PG         O3G     111.149    3.00
+ANP         O1G          PG         N3B     113.406    3.00
+ANP         O2G          PG         O3G     111.149    3.00
+ANP         O2G          PG         N3B     113.406    3.00
+ANP         O3G          PG         N3B     113.406    3.00
+ANP         O1B          PB         O2B     118.893    1.50
+ANP         O1B          PB         N3B     113.406    3.00
+ANP         O1B          PB         O3A     106.011    3.00
+ANP         O2B          PB         N3B     113.406    3.00
+ANP         O2B          PB         O3A     106.011    3.00
+ANP         N3B          PB         O3A     104.521    3.00
+ANP          PG         N3B          PB     126.472    2.99
+ANP          PG         N3B        HNB1     115.833    3.00
+ANP          PB         N3B        HNB1     115.833    3.00
+ANP         O1A          PA         O2A     118.411    2.35
+ANP         O1A          PA         O3A     108.570    2.41
+ANP         O1A          PA       "O5'"     109.410    1.50
+ANP         O2A          PA         O3A     108.570    2.41
+ANP         O2A          PA       "O5'"     109.410    1.50
+ANP         O3A          PA       "O5'"     101.065    1.97
+ANP          PB         O3A          PA     132.584    3.00
+ANP          PA       "O5'"       "C5'"     118.553    2.41
+ANP       "O5'"       "C5'"       "C4'"     109.342    1.50
+ANP       "O5'"       "C5'"      "H5'1"     109.845    1.50
+ANP       "O5'"       "C5'"      "H5'2"     109.845    1.50
+ANP       "C4'"       "C5'"      "H5'1"     109.624    1.50
+ANP       "C4'"       "C5'"      "H5'2"     109.624    1.50
+ANP      "H5'1"       "C5'"      "H5'2"     108.472    1.50
+ANP       "C5'"       "C4'"       "O4'"     109.123    1.50
+ANP       "C5'"       "C4'"       "C3'"     116.008    1.52
+ANP       "C5'"       "C4'"       "H4'"     108.268    1.50
+ANP       "O4'"       "C4'"       "C3'"     105.388    1.50
+ANP       "O4'"       "C4'"       "H4'"     108.947    1.50
+ANP       "C3'"       "C4'"       "H4'"     109.363    1.86
+ANP       "C4'"       "O4'"       "C1'"     109.903    1.50
+ANP       "C4'"       "C3'"       "O3'"     111.281    2.46
+ANP       "C4'"       "C3'"       "C2'"     102.602    1.50
+ANP       "C4'"       "C3'"       "H3'"     110.452    2.54
+ANP       "O3'"       "C3'"       "C2'"     111.581    2.83
+ANP       "O3'"       "C3'"       "H3'"     110.380    1.67
+ANP       "C2'"       "C3'"       "H3'"     110.504    1.75
+ANP       "C3'"       "O3'"      "HO3'"     108.744    3.00
+ANP       "C3'"       "C2'"       "O2'"     112.782    2.45
+ANP       "C3'"       "C2'"       "C1'"     101.239    1.50
+ANP       "C3'"       "C2'"       "H2'"     110.596    1.51
+ANP       "O2'"       "C2'"       "C1'"     111.715    2.69
+ANP       "O2'"       "C2'"       "H2'"     110.448    1.97
+ANP       "C1'"       "C2'"       "H2'"     110.636    1.70
+ANP       "C2'"       "O2'"      "HO2'"     109.103    2.13
+ANP       "O4'"       "C1'"       "C2'"     106.047    1.50
+ANP       "O4'"       "C1'"          N9     108.167    1.51
+ANP       "O4'"       "C1'"       "H1'"     109.807    1.50
+ANP       "C2'"       "C1'"          N9     113.752    2.20
+ANP       "C2'"       "C1'"       "H1'"     109.015    1.50
+ANP          N9       "C1'"       "H1'"     109.246    1.50
+ANP       "C1'"          N9          C8     126.078    2.46
+ANP       "C1'"          N9          C4     125.158    1.54
+ANP          C8          N9          C4     107.594    1.50
+ANP          N9          C8          N7     112.130    1.94
+ANP          N9          C8          H8     124.701    2.19
+ANP          N7          C8          H8     123.170    1.50
+ANP          C8          N7          C5     103.927    1.50
+ANP          N7          C5          C6     132.145    1.50
+ANP          N7          C5          C4     110.588    1.50
+ANP          C6          C5          C4     117.267    1.50
+ANP          C5          C6          N6     123.792    1.50
+ANP          C5          C6          N1     117.409    1.50
+ANP          N6          C6          N1     118.799    1.50
+ANP          C6          N6        HN61     119.723    1.50
+ANP          C6          N6        HN62     119.723    1.50
+ANP        HN61          N6        HN62     120.554    1.88
+ANP          C6          N1          C2     118.521    1.50
+ANP          N1          C2          N3     129.332    1.50
+ANP          N1          C2          H2     115.313    1.50
+ANP          N3          C2          H2     115.355    1.50
+ANP          C2          N3          C4     110.982    1.50
+ANP          N9          C4          C5     107.666    1.69
+ANP          N9          C4          N3     125.845    1.50
+ANP          C5          C4          N3     126.489    1.50
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+ANP            sp3_sp3_27          PB         N3B          PG         O1G      60.000    10.0     3
+ANP            sp3_sp3_46       "C4'"       "C5'"       "O5'"          PA     180.000    10.0     3
+ANP            sp3_sp3_49       "O4'"       "C4'"       "C5'"       "O5'"     180.000    10.0     3
+ANP             sp3_sp3_2       "C5'"       "C4'"       "O4'"       "C1'"     -60.000    10.0     3
+ANP            sp3_sp3_62       "O3'"       "C3'"       "C4'"       "C5'"     180.000    10.0     3
+ANP             sp3_sp3_4       "C2'"       "C1'"       "O4'"       "C4'"     -60.000    10.0     3
+ANP            sp3_sp3_67       "C4'"       "C3'"       "O3'"      "HO3'"     180.000    10.0     3
+ANP            sp3_sp3_20       "O2'"       "C2'"       "C3'"       "O3'"     -60.000    10.0     3
+ANP            sp3_sp3_70       "C3'"       "C2'"       "O2'"      "HO2'"     180.000    10.0     3
+ANP             sp3_sp3_8       "O4'"       "C1'"       "C2'"       "O2'"     180.000    10.0     3
+ANP             sp2_sp3_1          C8          N9       "C1'"       "O4'"     150.000    10.0     6
+ANP              const_14          N7          C8          N9       "C1'"     180.000    10.0     2
+ANP              const_26          C5          C4          N9       "C1'"     180.000    10.0     2
+ANP              const_17          N9          C8          N7          C5       0.000    10.0     2
+ANP              const_20          C6          C5          N7          C8     180.000    10.0     2
+ANP       const_sp2_sp2_4          N7          C5          C6          N6       0.000     5.0     2
+ANP              const_21          N9          C4          C5          N7       0.000    10.0     2
+ANP             sp2_sp2_1          C5          C6          N6        HN61     180.000     5.0     2
+ANP       const_sp2_sp2_6          N6          C6          N1          C2     180.000     5.0     2
+ANP       const_sp2_sp2_7          N3          C2          N1          C6       0.000     5.0     2
+ANP       const_sp2_sp2_9          N1          C2          N3          C4       0.000     5.0     2
+ANP              const_12          N9          C4          N3          C2     180.000    10.0     2
+ANP            sp3_sp3_37          PA         O3A          PB         O1B     180.000    10.0     3
+ANP            sp3_sp3_36          PG         N3B          PB         O1B     -60.000    10.0     3
+ANP            sp3_sp3_42          PB         O3A          PA         O1A      60.000    10.0     3
+ANP            sp3_sp3_45       "C5'"       "O5'"          PA         O1A      60.000    10.0     3
+loop_
+_chem_comp_chir.comp_id
+_chem_comp_chir.id
+_chem_comp_chir.atom_id_centre
+_chem_comp_chir.atom_id_1
+_chem_comp_chir.atom_id_2
+_chem_comp_chir.atom_id_3
+_chem_comp_chir.volume_sign
+ANP    chir_1    PG    O2G    O3G    O1G    both
+ANP    chir_2    PB    O3A    O2B    O1B    both
+ANP    chir_3    PA    O3A    "O5'"    O2A    both
+ANP    chir_4    "C4'"    "O4'"    "C3'"    "C5'"    negative
+ANP    chir_5    "C3'"    "O3'"    "C4'"    "C2'"    positive
+ANP    chir_6    "C2'"    "O2'"    "C1'"    "C3'"    negative
+ANP    chir_7    "C1'"    "O4'"    N9    "C2'"    negative
+ANP    chir_8    N3B    PB    PG    HNB1    both
+loop_
+_chem_comp_plane_atom.comp_id
+_chem_comp_plane_atom.plane_id
+_chem_comp_plane_atom.atom_id
+_chem_comp_plane_atom.dist_esd
+ANP    plan-1       "C1'"   0.020
+ANP    plan-1          C2   0.020
+ANP    plan-1          C4   0.020
+ANP    plan-1          C5   0.020
+ANP    plan-1          C6   0.020
+ANP    plan-1          C8   0.020
+ANP    plan-1          H2   0.020
+ANP    plan-1          H8   0.020
+ANP    plan-1          N1   0.020
+ANP    plan-1          N3   0.020
+ANP    plan-1          N6   0.020
+ANP    plan-1          N7   0.020
+ANP    plan-1          N9   0.020
+ANP    plan-2          C6   0.020
+ANP    plan-2        HN61   0.020
+ANP    plan-2        HN62   0.020
+ANP    plan-2          N6   0.020
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+ANP           SMILES              ACDLabs 12.01                                                                                                                                                 O=P(O)(O)NP(=O)(O)OP(=O)(O)OCC3OC(n2cnc1c(ncnc12)N)C(O)C3O
+ANP SMILES_CANONICAL               CACTVS 3.370                                                                                                                         Nc1ncnc2n(cnc12)[C@@H]3O[C@H](CO[P](O)(=O)O[P](O)(=O)N[P](O)(O)=O)[C@@H](O)[C@H]3O
+ANP           SMILES               CACTVS 3.370                                                                                                                               Nc1ncnc2n(cnc12)[CH]3O[CH](CO[P](O)(=O)O[P](O)(=O)N[P](O)(O)=O)[CH](O)[CH]3O
+ANP SMILES_CANONICAL "OpenEye OEToolkits" 1.7.0                                                                                                                  c1nc(c2c(n1)n(cn2)[C@H]3[C@@H]([C@@H]([C@H](O3)CO[P@](=O)(O)O[P@@](=O)(NP(=O)(O)O)O)O)O)N
+ANP           SMILES "OpenEye OEToolkits" 1.7.0                                                                                                                                           c1nc(c2c(n1)n(cn2)C3C(C(C(O3)COP(=O)(O)OP(=O)(NP(=O)(O)O)O)O)O)N
+ANP            InChI                InChI  1.03 InChI=1S/C10H17N6O12P3/c11-8-5-9(13-2-12-8)16(3-14-5)10-7(18)6(17)4(27-10)1-26-31(24,25)28-30(22,23)15-29(19,20)21/h2-4,6-7,10,17-18H,1H2,(H,24,25)(H2,11,12,13)(H4,15,19,20,21,22,23)/t4-,6-,7-,10-/m1/s1
+ANP         InChIKey                InChI  1.03                                                                                                                                                                                PVKSNHVPLWYQGJ-KQYNXXCUSA-N
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+ANP acedrg               243         "dictionary generator"                  
+ANP acedrg_database      11          "data source"                           
+ANP rdkit                2017.03.2   "Chemoinformatics tool"
+ANP refmac5              5.8.0238    "optimization tool"                     

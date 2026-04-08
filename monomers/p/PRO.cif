@@ -1,0 +1,216 @@
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+PRO PRO PROLINE P-peptide 17 8 .
+
+data_comp_PRO
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.alt_atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+PRO N   N   N NT2 1  39.160 37.649 83.026
+PRO CA  CA  C CH1 0  38.550 38.680 82.125
+PRO C   C   C C   0  37.155 39.077 82.602
+PRO O   O   O O   0  36.450 38.196 83.146
+PRO CB  CB  C CH2 0  38.553 38.007 80.756
+PRO CG  CG  C CH2 0  38.265 36.558 81.098
+PRO CD  CD  C CH2 0  38.934 36.298 82.416
+PRO OXT OXT O OC  -1 36.821 40.268 82.409
+PRO H   H   H H   0  40.054 37.806 83.097
+PRO H2  H2  H H   0  38.800 37.681 83.862
+PRO HA  HA  H H   0  39.125 39.473 82.102
+PRO HB3 HB3 H H   0  39.422 38.100 80.320
+PRO HB2 HB2 H H   0  37.858 38.378 80.178
+PRO HG3 HG3 H H   0  38.625 35.964 80.410
+PRO HG2 HG2 H H   0  37.302 36.406 81.169
+PRO HD3 HD3 H H   0  38.363 35.755 82.994
+PRO HD2 HD2 H H   0  39.785 35.835 82.289
+
+loop_
+_chem_comp_tree.comp_id
+_chem_comp_tree.atom_id
+_chem_comp_tree.atom_back
+_chem_comp_tree.atom_forward
+_chem_comp_tree.connect_type
+PRO N   n/a CA  START
+PRO CA  N   C   .
+PRO HA  CA  .   .
+PRO CB  CA  CG  .
+PRO HB3 CB  .   .
+PRO HB2 CB  .   .
+PRO CG  CB  CD  .
+PRO HG3 CG  .   .
+PRO HG2 CG  .   .
+PRO CD  CG  HD2 .
+PRO HD3 CD  .   .
+PRO HD2 CD  .   .
+PRO C   CA  .   END
+PRO O   C   .   .
+PRO OXT C   .   .
+PRO H   N   .   .
+PRO H2  N   .   .
+PRO CD  N   .   ADD
+
+loop_
+_chem_comp_acedrg.comp_id
+_chem_comp_acedrg.atom_id
+_chem_comp_acedrg.atom_type
+PRO N   N[5](C[5]C[5]CH)(C[5]C[5]HH)(H)2{4|H<1>}
+PRO CA  C[5](C[5]C[5]HH)(N[5]C[5]HH)(COO)(H){4|H<1>}
+PRO C   C(C[5]C[5]N[5]H)(O)2
+PRO O   O(CC[5]O)
+PRO CB  C[5](C[5]C[5]HH)(C[5]N[5]CH)(H)2{4|H<1>}
+PRO CG  C[5](C[5]C[5]HH)(C[5]N[5]HH)(H)2{1|C<3>,3|H<1>}
+PRO CD  C[5](C[5]C[5]HH)(N[5]C[5]HH)(H)2{1|C<3>,3|H<1>}
+PRO OXT O(CC[5]O)
+PRO H   H(N[5]C[5]2H)
+PRO H2  H(N[5]C[5]2H)
+PRO HA  H(C[5]C[5]N[5]C)
+PRO HB3 H(C[5]C[5]2H)
+PRO HB2 H(C[5]C[5]2H)
+PRO HG3 H(C[5]C[5]2H)
+PRO HG2 H(C[5]C[5]2H)
+PRO HD3 H(C[5]C[5]N[5]H)
+PRO HD2 H(C[5]C[5]N[5]H)
+
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.value_order
+_chem_comp_bond.pdbx_aromatic_flag
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+PRO N  CA  SINGLE n 1.496 0.0142 1.496 0.0142
+PRO N  CD  SINGLE n 1.499 0.0135 1.499 0.0135
+PRO CA C   SINGLE n 1.525 0.0103 1.525 0.0103
+PRO CA CB  SINGLE n 1.526 0.0157 1.526 0.0157
+PRO C  O   DOUBLE n 1.252 0.0117 1.252 0.0117
+PRO C  OXT SINGLE n 1.252 0.0117 1.252 0.0117
+PRO CB CG  SINGLE n 1.516 0.0179 1.516 0.0179
+PRO CG CD  SINGLE n 1.497 0.0200 1.497 0.0200
+PRO N  H   SINGLE n 1.018 0.0520 0.910 0.0200
+PRO N  H2  SINGLE n 1.018 0.0520 0.910 0.0200
+PRO CA HA  SINGLE n 1.092 0.0100 0.980 0.0200
+PRO CB HB3 SINGLE n 1.092 0.0100 0.977 0.0145
+PRO CB HB2 SINGLE n 1.092 0.0100 0.977 0.0145
+PRO CG HG3 SINGLE n 1.092 0.0100 0.978 0.0181
+PRO CG HG2 SINGLE n 1.092 0.0100 0.978 0.0181
+PRO CD HD3 SINGLE n 1.092 0.0100 0.977 0.0199
+PRO CD HD2 SINGLE n 1.092 0.0100 0.977 0.0199
+
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+PRO CA  N  CD  107.978 1.50
+PRO CA  N  H   109.889 3.00
+PRO CA  N  H2  109.889 3.00
+PRO CD  N  H   110.257 3.00
+PRO CD  N  H2  110.257 3.00
+PRO H   N  H2  108.772 3.00
+PRO N   CA C   110.397 1.50
+PRO N   CA CB  103.994 1.50
+PRO N   CA HA  109.579 1.50
+PRO C   CA CB  113.159 3.00
+PRO C   CA HA  109.687 1.50
+PRO CB  CA HA  109.910 1.89
+PRO CA  C  O   116.979 3.00
+PRO CA  C  OXT 116.979 3.00
+PRO O   C  OXT 126.043 1.52
+PRO CA  CB CG  101.701 3.00
+PRO CA  CB HB3 110.865 1.50
+PRO CA  CB HB2 110.865 1.50
+PRO CG  CB HB3 110.891 1.59
+PRO CG  CB HB2 110.891 1.59
+PRO HB3 CB HB2 108.880 2.25
+PRO CB  CG CD  105.541 3.00
+PRO CB  CG HG3 110.897 1.50
+PRO CB  CG HG2 110.897 1.50
+PRO CD  CG HG3 110.621 1.50
+PRO CD  CG HG2 110.621 1.50
+PRO HG3 CG HG2 108.871 1.50
+PRO N   CD CG  104.386 2.30
+PRO N   CD HD3 110.569 1.50
+PRO N   CD HD2 110.569 1.50
+PRO CG  CD HD3 111.131 1.62
+PRO CG  CD HD2 111.131 1.62
+PRO HD3 CD HD2 109.116 1.50
+
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+PRO chi1       N  CA CB CG -60.000 10.0 3
+PRO chi2       CA CB CG CD 180.000 10.0 3
+PRO sp3_sp3_1  CB CA N  CD 60.000  10.0 3
+PRO sp3_sp3_28 N  CD CG CB -60.000 10.0 3
+PRO sp3_sp3_37 CG CD N  CA 180.000 10.0 3
+PRO sp2_sp3_1  O  C  CA N  0.000   10.0 6
+
+loop_
+_chem_comp_chir.comp_id
+_chem_comp_chir.id
+_chem_comp_chir.atom_id_centre
+_chem_comp_chir.atom_id_1
+_chem_comp_chir.atom_id_2
+_chem_comp_chir.atom_id_3
+_chem_comp_chir.volume_sign
+PRO chir_1 CA N C CB positive
+
+loop_
+_chem_comp_plane_atom.comp_id
+_chem_comp_plane_atom.plane_id
+_chem_comp_plane_atom.atom_id
+_chem_comp_plane_atom.dist_esd
+PRO plan-1 C   0.020
+PRO plan-1 CA  0.020
+PRO plan-1 O   0.020
+PRO plan-1 OXT 0.020
+
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+PRO SMILES           ACDLabs              10.04 "O=C(O)C1NCCC1"
+PRO SMILES_CANONICAL CACTVS               3.341 "OC(=O)[C@@H]1CCCN1"
+PRO SMILES           CACTVS               3.341 "OC(=O)[CH]1CCCN1"
+PRO SMILES_CANONICAL "OpenEye OEToolkits" 1.5.0 "C1C[C@H](NC1)C(=O)O"
+PRO SMILES           "OpenEye OEToolkits" 1.5.0 "C1CC(NC1)C(=O)O"
+PRO InChI            InChI                1.03  "InChI=1S/C5H9NO2/c7-5(8)4-2-1-3-6-4/h4,6H,1-3H2,(H,7,8)/t4-/m0/s1"
+PRO InChIKey         InChI                1.03  ONIBWKKTOPOVIA-BYPYZUCNSA-N
+
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+PRO acedrg          281       "dictionary generator"
+PRO acedrg_database 12        "data source"
+PRO rdkit           2019.09.1 "Chemoinformatics tool"
+PRO refmac5         5.8.0419  "optimization tool"

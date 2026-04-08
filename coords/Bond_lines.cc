@@ -30,21 +30,24 @@
 #include <set>
 #include <iterator>
 
-#include "Cartesian.h"
+#include "Cartesian.hh"
 #include <mmdb2/mmdb_manager.h>
-#include "mmdb-extras.h"
+#include "mmdb-extras.hh"
 #include "mmdb.hh"
-#include "mmdb-crystal.h"  // should be merged with extras
+#include "mmdb-crystal.hh"  // should be merged with extras
 
 #include "geometry/lbg-graph.hh"  // aromatic ring systems
 #include "geometry/mol-utils.hh"
 #include "utils/coot-utils.hh" // for int_to_string
 
-#include "Bond_lines.h"
+#include "Bond_lines.hh"
 #include "coot-utils/coot-coord-utils.hh"
 
 #include "geometry/protein-donor-acceptors.hh"
 #include "loop-path.hh"
+
+#include "utils/logging.hh"
+extern logging logger;
 
 static std::string b_factor_bonds_scale_handle_name = "B-factor-bonds-scale";
 
@@ -107,6 +110,16 @@ Bond_lines_container::init() {
 }
 
 
+void
+Bond_lines::update(mmdb::Atom **atom_selection, int n_atoms) {
+
+   for (auto &bond : points) // "points" doesn't seem to be a good name
+      bond.update(atom_selection, n_atoms);
+}
+
+
+// Constructor A
+//
 // We arrange things like this because the other constructor now uses
 // construct_from_asc() too.
 //
@@ -123,6 +136,9 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
                                            ) {
    // teehee
    // std::cout << "################################## yes this constructor A ###########################" << std::endl;
+
+   if (false)
+      std::cout << "DEBUG:: constructor A was called" << std::endl;
 
    init();
    do_disulfide_bonds_flag = do_disulphide_bonds_in;
@@ -178,16 +194,19 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 
 
    if (false) {
-      std::cout << "############# Bond_lines_container::Bond_lines_container() A "
+      std::cout << "############# Bond_lines_container::Bond_lines_container() B "
                 << SelAtom.mol << " " << no_bonds_to_these_atoms.size() << std::endl;
       std::cout << "   no_bonds_to_these_atoms set size: " << no_bonds_to_these_atoms.size() << std::endl;
       std::cout << "--------------------- no bonds to these atoms ------------------"  << std::endl;
       std::set<int>::const_iterator it;
       for(it=no_bonds_to_these_atoms.begin(); it!=no_bonds_to_these_atoms.end(); it++) {
          mmdb::Atom *at = SelAtom.atom_selection[*it];
-         std::cout << "   Bond_lines_container constructor A " << *it << " " << coot::atom_spec_t(at) << std::endl;
+         std::cout << "   Bond_lines_container constructor B: " << *it << " " << coot::atom_spec_t(at) << std::endl;
       }
    }
+
+   if (false)
+      std::cout << "DEBUG:: constructor B was passed model_number " << model_number << std::endl;
 
    do_disulfide_bonds_flag = do_disulphide_bonds_in;
    do_bonds_to_hydrogens = do_bonds_to_hydrogens_in;
@@ -244,7 +263,8 @@ Bond_lines_container::Bond_lines_container(atom_selection_container_t SelAtom,
    n_atoms_in_atom_selection = SelAtom.n_selected_atoms;
    int model_number = 0; // all models
    bool do_rama_markup = false;
-   construct_from_asc(SelAtom, imol, 0.01, max_dist, coot::COLOUR_BY_ATOM_TYPE, 0, model_number, do_rama_markup);
+   construct_from_asc(SelAtom, imol, 0.01, max_dist, coot::COLOUR_BY_ATOM_TYPE, 0, model_number,
+                      do_rama_markup);
 }
 
 
@@ -264,7 +284,8 @@ Bond_lines_container::Bond_lines_container(atom_selection_container_t SelAtom,
    int model_number = 0; // all models
    bool do_rama_markup = false;
    n_atoms_in_atom_selection = SelAtom.n_selected_atoms;
-   construct_from_asc(SelAtom, imol, min_dist, max_dist, coot::COLOUR_BY_ATOM_TYPE, 0, model_number, do_rama_markup);
+   construct_from_asc(SelAtom, imol, min_dist, max_dist, coot::COLOUR_BY_ATOM_TYPE, 0, model_number,
+                      do_rama_markup);
 }
 
 // geom_in can be null.
@@ -293,7 +314,8 @@ Bond_lines_container::Bond_lines_container(atom_selection_container_t asc,
    // 0 is is_from_symmetry_flag
    int model_number = 0; // all models
    bool do_rama_markup = false;
-   construct_from_asc(asc, imol, 0.01, 1.9, coot::COLOUR_BY_ATOM_TYPE, 0, model_number, do_rama_markup);
+   construct_from_asc(asc, imol, 0.01, 1.9, coot::COLOUR_BY_ATOM_TYPE, 0, model_number,
+                      do_rama_markup);
 }
 
 
@@ -301,9 +323,9 @@ Bond_lines_container::Bond_lines_container(atom_selection_container_t asc,
 // all-atom user-define colouring too
 //
 Bond_lines_container::Bond_lines_container(const atom_selection_container_t &SelAtom,
-                                                                    int imol,
+                                           int imol,
                                            const coot::protein_geometry *protein_geom,
-                                                                    Bond_lines_container::bond_representation_type br_type) {
+                                           Bond_lines_container::bond_representation_type br_type) {
 
    // std::cout << "*************************** Bond_lines_container() constructor with geom and type " << br_type << std::endl;
 
@@ -322,15 +344,18 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
    int model_number = 0; // all models
    bool do_rama_markup = false;
    if (br_type == Bond_lines_container::COLOUR_BY_OCCUPANCY) {
-      construct_from_asc(SelAtom, imol, 0.01, max_dist, coot::COLOUR_BY_OCCUPANCY, 0, model_number, do_rama_markup);
+      construct_from_asc(SelAtom, imol, 0.01, max_dist, coot::COLOUR_BY_OCCUPANCY, 0, model_number,
+                         do_rama_markup);
    } else {
       if (br_type == Bond_lines_container::COLOUR_BY_B_FACTOR) {
          set_b_factor_colours(SelAtom.mol);
               try_set_b_factor_scale(SelAtom.mol);
-              construct_from_asc(SelAtom, imol, 0.01, max_dist, coot::COLOUR_BY_B_FACTOR, 0, model_number, do_rama_markup);
+              construct_from_asc(SelAtom, imol, 0.01, max_dist, coot::COLOUR_BY_B_FACTOR, 0, model_number,
+                                 do_rama_markup);
       } else {
               if (br_type == Bond_lines_container::COLOUR_BY_USER_DEFINED_COLOURS) {
-                 construct_from_asc(SelAtom, imol, 0.01, max_dist, coot::COLOUR_BY_USER_DEFINED_COLOURS, 0, model_number, do_rama_markup);
+                 construct_from_asc(SelAtom, imol, 0.01, max_dist, coot::COLOUR_BY_USER_DEFINED_COLOURS, 0,
+                                    model_number, do_rama_markup);
          }
       }
    }
@@ -1586,22 +1611,20 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, m
                                              int udd_atom_index_handle,
                                              int udd_user_defined_atom_colour_index_handle) {
 
-   // std::cout << "################## add_bonds_het_residues --- start ---" << std::endl;
-
    coot::my_atom_colour_map_t atom_colour_map;
    atom_colour_map.fill_chain_id_map(atom_sel); // 20230206-PE should be the same "algorithm" as is
                                                 // used in fill_default_colour_rules()
                                                 // so that M2T ribbons have the same colours, by default
                                                 // add Coot does in colour-by-chain-and-dictionary mode.
 
-   if (het_residues.size()) {
+   if (! het_residues.empty()) {
       for (unsigned int ires=0; ires<het_residues.size(); ires++) {
          if (het_residues[ires].first) {
             std::string res_name = het_residues[ires].second->GetResName();
             std::pair<bool, coot::dictionary_residue_restraints_t> restraints =
                geom->get_monomer_restraints_at_least_minimal(res_name, imol);
 
-            if (false)
+            if (false) // debugging
                if (res_name != "HOH")
                   std::cout << "          ============== Considering bonding HET residue: "
                             << coot::residue_spec_t(het_residues[ires].second) << " "
@@ -1621,7 +1644,7 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, m
                   std::string atom_name_2 = restraints.second.bond_restraint[ib].atom_id_2_4c();
                   std::string bt = restraints.second.bond_restraint[ib].type();
 
-                  bool added_bond = 0;
+                  bool added_bond = false;
                   for (int iat=0; iat<n_atoms; iat++) {
                      std::string residue_atom_name_1(residue_atoms[iat]->name);
                      if (atom_name_1 == residue_atom_name_1) {
@@ -1643,9 +1666,10 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, m
                                  residue_atoms[iat]->GetUDData(udd_atom_index_handle, iat_1_atom_index);
                                  residue_atoms[jat]->GetUDData(udd_atom_index_handle, iat_2_atom_index);
 
-                                 // std::cout << "making bond between :" << residue_atoms[iat]->name
-                                 // << ": and :" << residue_atoms[jat]->name << ": "
-                                 // << bt << std::endl;
+                                 if (false)
+                                    std::cout << "making bond between :" << residue_atoms[iat]->name
+                                              << ": and :" << residue_atoms[jat]->name << ": "
+                                              << bt << std::endl;
 
                                  std::string element_1 = residue_atoms[iat]->element;
                                  std::string element_2 = residue_atoms[jat]->element;
@@ -1753,7 +1777,7 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, m
                                     residue_atoms[iat]->PutUDData(udd_bond_handle, graphical_bonds_container::BONDED_WITH_HETATM_BOND);
                                     residue_atoms[jat]->PutUDData(udd_bond_handle, graphical_bonds_container::BONDED_WITH_HETATM_BOND);
                                  }
-                                 added_bond = 1;
+                                 added_bond = true;
                                  // break; // nope! if this is in place: "" - "" is OK
                                  //                                      "A" - "A" is OK
                                  //                                      "A" - "B" is rejected as should be
@@ -1944,10 +1968,11 @@ Bond_lines_container::construct_from_model_links(mmdb::Model *model_p,
                                                  int udd_user_defined_atom_colour_index_handle,
                                                  int atom_colour_type) {
 
-   if (false) { // debugging
+   if (false) { // debugging: show the model
       // udd_atom_index_handle is -1 for intermediate atoms
       std::cout << "in construct_from_model_links() udd_atom_index_handle is " << udd_atom_index_handle
                 << "\n";
+
       if (model_p) {
          int n_chains = model_p->GetNumberOfChains();
          for (int ichain=0; ichain<n_chains; ichain++) {
@@ -1960,7 +1985,7 @@ Bond_lines_container::construct_from_model_links(mmdb::Model *model_p,
                   mmdb::Atom *at = residue_p->GetAtom(iat);
                   int atom_index = -1;
                   int udd_status = at->GetUDData(udd_atom_index_handle, atom_index);
-                  std::cout << "  in construct_from_model_links()"
+                  std::cout << "  in construct_from_model_links() "
                             << coot::atom_spec_t(at) << " " << udd_status << " " << atom_index << "\n";
                }
             }
@@ -1978,6 +2003,8 @@ Bond_lines_container::construct_from_model_links(mmdb::Model *model_p,
    if (model_p) {
 
       int n_links = model_p->GetNumberOfLinks();
+      if (false)
+         std::cout << "debug:: in construct_from_model_links() n_links: " << n_links << std::endl;
       if (n_links > 0) {
          for (int i_link=1; i_link<=n_links; i_link++) {
             mmdb::Link *link = model_p->GetLink(i_link);
@@ -2013,7 +2040,6 @@ Bond_lines_container::add_link_bond(mmdb::Model *model_p,
       std::cout << "calling add_link_bond with LINK "
                 << "\"" << link->chainID1 << "\""
                 << " "  << link->seqNum1   << " "
-                << "\"" << link->seqNum1  << "\""
                 << "\"" << link->atName1  << "\""
                 << " to "
                 << "\"" << link->chainID2 << "\""
@@ -2032,7 +2058,7 @@ Bond_lines_container::add_link_bond(mmdb::Model *model_p,
                                     mmdb::LinkR *linkr) {
 
    // Missing LINKR bond is due to incorrect placement of atom names in the LINKR card
-   if (0)
+   if (false)
       std::cout << "calling add_link_bond_templ with LINKR "
                 << "\"" << linkr->chainID1 << "\""
                 << " "  << linkr->seqNum1   << " "
@@ -2186,6 +2212,17 @@ Bond_lines_container::add_link_bond_templ(mmdb::Model *model_p, int udd_atom_ind
          col = atom_colour(atom_2, atom_colour_type, udd_user_defined_atom_colour_index_handle);
          add_dashed_bond(col, bond_mid_point, pos_2, HALF_BOND_SECOND_ATOM, graphics_line_t::SINGLE, model_number, atom_index_1, atom_index_2);
       }
+   } else {
+#if 0
+      // 20251219-PE because all of the links are copied, we often find that some links are not in the selection
+      // for the sphere refinement. We don't want to hear that. Ideally, we'd not even get here in such cases.
+      if (! atom_1)
+         std::cout << "debug:: in add_link_bond_templ() failed to find atom-1 "
+                   << "\"" << link->chainID1 << "\" " << link->seqNum1 << " \"" << link->atName1 << "\"" << std::endl;
+      if (! atom_2)
+         std::cout << "debug:: in add_link_bond_templ() failed to find atom-2 "
+                   << "\"" << link->chainID2 << "\" " << link->seqNum2 << " \"" << link->atName2 << "\"" << std::endl;
+#endif
    }
 }
 
@@ -2261,8 +2298,11 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
                                          short int is_from_symmetry_flag,
                                          bool draw_missing_loops_flag,
                                          int model_number,
-                                         bool do_rama_markup,
-                                         bool do_rota_markup) {
+                                         bool do_rama_markup, // default false
+                                         bool do_rota_markup) { // default false
+
+   if (false)
+      std::cout << "DEBUG:: construct_from_asc() was called with model_number " << model_number << std::endl;
 
    // initialize each colour in the Bond_lines_container
    //
@@ -2347,7 +2387,11 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
       have_udd_atoms = 0;
    } else {
       for (int i=0; i<SelAtom.n_selected_atoms; i++) {
-         SelAtom.atom_selection[i]->PutUDData(udd_found_bond_handle, graphical_bonds_container::NO_BOND);
+	 mmdb::Atom *at = SelAtom.atom_selection[i];
+	 if (at)
+	    at->PutUDData(udd_found_bond_handle, graphical_bonds_container::NO_BOND);
+	 else
+	    logger.log(log_t::ERROR, logging::function_name_t("construct_from_asc"), "Bad atom!", i);
       }
    }
 
@@ -2371,9 +2415,12 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
    std::vector<coot::model_bond_atom_info_t> atom_stuff_vec(n_models+1);
 
    for (int i=0; i<SelAtom.n_selected_atoms; i++) {
-      imodel = SelAtom.atom_selection[i]->GetModelNum();
-      if ((imodel <= n_models) && (imodel > 0)) {
-         atom_stuff_vec[imodel].add_atom(SelAtom.atom_selection[i]);
+      mmdb::Atom *at = SelAtom.atom_selection[i];
+      if (at) {
+	 imodel = at->GetModelNum();
+	 if ((imodel <= n_models) && (imodel > 0)) {
+	    atom_stuff_vec[imodel].add_atom(SelAtom.atom_selection[i]);
+	 }
       }
    }
 
@@ -2503,8 +2550,10 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
                         }
                      }
                   } else {
-                     std::cout << "INFO:: trapped atom without residue in non-bonded atom check: "
-                               << non_Hydrogen_atoms[i] << std::endl;
+                     // std::cout << "INFO:: trapped atom without residue in non-bonded atom check: "
+                     //           << non_Hydrogen_atoms[i] << std::endl;
+                     logger.log(log_t::INFO, "trapped atom without residue in non-bonded atom check:",
+                                coot::atom_spec_t(non_Hydrogen_atoms[i]).format());
                   }
                }
             } else {
@@ -2591,7 +2640,7 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
       // std::cout << "........... add_rotamer_goodness_spots() " << std::endl;
       add_rotamer_goodness_markup(SelAtom);
    }
-   add_atom_centres(imol, SelAtom, atom_colour_type);
+   add_atom_centres(imol, SelAtom, atom_colour_type, model_number);
    add_cis_peptide_markup(SelAtom, model_number);
 }
 
@@ -3273,6 +3322,7 @@ Bond_lines_container::addSymmetry(const atom_selection_container_t &SelAtom,
 
    graphical_bonds_container gbc;
    bool do_rama_markup = false;
+   bool show_atoms_as_aniso_flag = false;
    do_sticks_for_waters = true;
 
    if (symmetry_as_ca_flag == 1) {
@@ -3326,7 +3376,8 @@ Bond_lines_container::addSymmetry(const atom_selection_container_t &SelAtom,
 
                   int model_number = 0; // all models
                   construct_from_asc(Contact_Sel, imol, 0.01, 1.95,
-                                     coot::COLOUR_BY_ATOM_TYPE, 1, model_number, do_rama_markup);
+                                     coot::COLOUR_BY_ATOM_TYPE, 1, model_number,
+                                     show_atoms_as_aniso_flag, do_rama_markup);
                   gbc = make_graphical_symmetry_bonds();
 
                   // Now give back the atom_selection, (but not the atoms
@@ -3454,6 +3505,7 @@ Bond_lines_container::addSymmetry_with_mmdb(const atom_selection_container_t &Se
 
    graphical_bonds_container gbc;
    bool do_rama_markup = false;
+   bool show_atoms_as_aniso_flag = false;
 
    if (symmetry_as_ca_flag == 1) {
       gbc = addSymmetry_calphas(SelAtom, point, symm_distance, symm_trans);
@@ -3506,7 +3558,8 @@ Bond_lines_container::addSymmetry_with_mmdb(const atom_selection_container_t &Se
 
                int model_number = 0; // all models
                construct_from_asc(Contact_Sel, imol, 0.01, 1.95,
-                                  coot::COLOUR_BY_ATOM_TYPE, 1, model_number, do_rama_markup);
+                                  coot::COLOUR_BY_ATOM_TYPE, 1, model_number,
+                                  show_atoms_as_aniso_flag, do_rama_markup);
                gbc = make_graphical_symmetry_bonds();
 
                // Now give back the atom_selection, (but not the atoms
@@ -4493,6 +4546,8 @@ Bond_lines_container::addBond(int colour_index,
       if (n_atoms_in_atom_selection > 0)
          return;
 
+#if 0 // 2026-02-22-PE I dont think this is right!
+      // I think we want to duck out if *either* of the atoms are in the non-bonds-to-these-atoms set
    // duck out if both of these atoms are in the no-bonds to these atoms set
    //
    if (no_bonds_to_these_atoms.find(atom_index_1) != no_bonds_to_these_atoms.end()) {
@@ -4503,6 +4558,11 @@ Bond_lines_container::addBond(int colour_index,
               return;
       }
    }
+#endif
+
+   // 2026-02-22 new logic
+   if (no_bonds_to_these_atoms.find(atom_index_1) != no_bonds_to_these_atoms.end()) return;
+   if (no_bonds_to_these_atoms.find(atom_index_2) != no_bonds_to_these_atoms.end()) return;
 
    if (false)
       if (no_bonds_to_these_atoms.size() > 0)
@@ -4836,17 +4896,17 @@ Bond_lines_container::do_Ca_loop(int imod, int ires, int nres,
 
                // Are C of previous and N of next close as in a peptide bond?
                // Then we don't want to draw a loop
-               {
+               if (loop_is_possible) {
                   bool C_and_N_are_close = false;
                   mmdb::Atom *C_prev = residue_prev->GetAtom(" C  ");
-                  mmdb::Atom *N_this = residue_this->GetAtom(" N  ");
                   if (C_prev) {
+                     mmdb::Atom *N_this = residue_this->GetAtom(" N  ");
                      if (N_this) {
                         float dist_sqrd =
                            (C_prev->x - N_this->x) * (C_prev->x - N_this->x) +
                            (C_prev->y - N_this->y) * (C_prev->y - N_this->y) +
                            (C_prev->z - N_this->z) * (C_prev->z - N_this->z);
-                        if (dist_sqrd < 2.5)
+                        if (dist_sqrd < 2.5 * 2.5)
                            C_and_N_are_close = true;
                      }
                   }
@@ -4854,6 +4914,25 @@ Bond_lines_container::do_Ca_loop(int imod, int ires, int nres,
                      loop_is_possible = false;
                }
 
+               // Are P of previous and O3' of prev close as in a phosphodiester?
+               // Then we don't want to draw a loop
+               if (loop_is_possible) {
+                  bool P_and_O3prime_are_close = false;
+                  mmdb::Atom *O3prime_prev = residue_prev->GetAtom(" O3'");
+                  if (O3prime_prev) {
+                     mmdb::Atom *P_this = residue_this->GetAtom(" P  ");
+                     if (P_this) {
+                        float dist_sqrd =
+                           (O3prime_prev->x - P_this->x) * (O3prime_prev->x - P_this->x) +
+                           (O3prime_prev->y - P_this->y) * (O3prime_prev->y - P_this->y) +
+                           (O3prime_prev->z - P_this->z) * (O3prime_prev->z - P_this->z);
+                        if (dist_sqrd < 2.5 * 2.5) // c.f 1.6 * 1.6
+                           P_and_O3prime_are_close = true;
+                     }
+                  }
+                  if (P_and_O3prime_are_close)
+                     loop_is_possible = false;
+               }
 
                if (loop_is_possible) {
 
@@ -4907,7 +4986,8 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
                                                 coot::my_atom_colour_map_t atom_colour_map,
                                                 float min_dist, float max_dist,
                                                 bool draw_missing_loops_flag,
-                                                int bond_colour_type) {
+                                                int bond_colour_type,
+                                                int model_number) {
 
 
    graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
@@ -4956,7 +5036,8 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
    for (int i=0; i<SelAtom.n_selected_atoms; i++)
       SelAtom.atom_selection[i]->PutUDData(udd_has_bond_handle, 0);
 
-   int udd_user_defined_atom_colour_index_handle = SelAtom.mol->GetUDDHandle(mmdb::UDR_ATOM, "user-defined-atom-colour-index");
+   int udd_user_defined_atom_colour_index_handle = SelAtom.mol->GetUDDHandle(mmdb::UDR_ATOM,
+                                                                             "user-defined-atom-colour-index");
 
    auto get_atom_colour_index = [udd_user_defined_atom_colour_index_handle] (mmdb:: Atom *at,
                                                                              const std::string &chain_id,
@@ -4970,8 +5051,10 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
    };
 
    auto new_style_nucleotide_backbone_chain_rep = [this, get_atom_colour_index] (int imod,  mmdb::Chain *chain_p,
-                                                          int n_atoms_prev, mmdb::Residue *residue_prev, int n_atoms_this, mmdb::Residue *residue_this,
-                                                          const std::string &res_name_1, const std::string &res_name_2,
+                                                                                 int n_atoms_prev, mmdb::Residue *residue_prev,
+                                                                                 int n_atoms_this, mmdb::Residue *residue_this,
+                                                                                 const std::string &res_name_1,
+                                                                                 const std::string &res_name_2,
                                                           int udd_atom_index_handle, int bond_colour_type,
                                                           int atom_colours_udd,
                                                           coot::my_atom_colour_map_t &atom_colour_map, // reference
@@ -5210,7 +5293,18 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
       }
    };
 
-   for(int imod = 1; imod<=SelAtom.mol->GetNumberOfModels(); imod++) {
+   // default to all models
+   int n_models = SelAtom.mol->GetNumberOfModels();
+   int imod_start = 1;
+   int imod_end = n_models;
+   if (model_number != 0) {
+      if (model_number <= n_models) {
+         imod_start = model_number;
+         imod_end   = model_number;
+      }
+   }
+
+   for(int imod = imod_start; imod<=imod_end; imod++) {
       mmdb::Model *model_p = SelAtom.mol->GetModel(imod);
       if (model_p) {
          int nchains = model_p->GetNumberOfChains();
@@ -5288,7 +5382,7 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 
    int udd_status;
    int udd_value;
-   for(int imod = 1; imod<=SelAtom.mol->GetNumberOfModels(); imod++) {
+   for(int imod = imod_start; imod<=imod_end; imod++) {
       mmdb::Model *model_p = SelAtom.mol->GetModel(imod);
       if (model_p) {
          mmdb::Chain *chain_p;
@@ -5586,14 +5680,18 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
                                           if (element == " I") {
                                              return DARK_VIOLET;
                                           } else {
-                                             if (element == "MG" || element == "BE" || element == "CA" || element == "SR" || element == "BA") {
-                                                return DARK_GREEN_BOND;
+                                             if (element == " B") {
+                                                return BORON_PINK;
                                              } else {
-                                                if (element == "FE") {
-                                                   return DARK_ORANGE_BOND;
+                                                if (element == "MG" || element == "BE" || element == "CA" || element == "SR" || element == "BA") {
+                                                   return DARK_GREEN_BOND;
                                                 } else {
-                                                   if (element == "LI" || element == "NA" || element == " K" || element == "RB" || element == "CS" || element == "FR") {
-                                                      return VIOLET;
+                                                   if (element == "FE") {
+                                                      return DARK_ORANGE_BOND;
+                                                   } else {
+                                                      if (element == "LI" || element == "NA" || element == " K" || element == "RB" || element == "CS" || element == "FR") {
+                                                         return VIOLET;
+                                                      }
                                                    }
                                                 }
                                              }
@@ -5654,14 +5752,18 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
                                              if (element == " I") {
                                                 return DARK_VIOLET;
                                              } else {
-                                                if (element == "MG" || element == "BE" || element == "CA" || element == "SR" || element == "BA") {
-                                                   return DARK_GREEN_BOND;
+                                                if (element == " B") {
+                                                   return BORON_PINK;
                                                 } else {
-                                                   if (element == "FE") {
-                                                      return DARK_ORANGE_BOND;
+                                                   if (element == "MG" || element == "BE" || element == "CA" || element == "SR" || element == "BA") {
+                                                      return DARK_GREEN_BOND;
                                                    } else {
-                                                      if (element == "LI" || element == "NA" || element == " K" || element == "RB" || element == "CS" || element == "FR") {
-                                                         return VIOLET;
+                                                      if (element == "FE") {
+                                                         return DARK_ORANGE_BOND;
+                                                      } else {
+                                                         if (element == "LI" || element == "NA" || element == " K" || element == "RB" || element == "CS" || element == "FR") {
+                                                            return VIOLET;
+                                                         }
                                                       }
                                                    }
                                                 }
@@ -5767,8 +5869,9 @@ Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAto
                                                coot::protein_geometry *pg,
                                                float min_dist,
                                                float max_dist,
-                      bool draw_missing_loops_flag,
-                                               bool do_bonds_to_hydrogens_in) {
+                                               bool draw_missing_loops_flag,
+                                               bool do_bonds_to_hydrogens_in,
+                                               int model_number) {
 
    do_bonds_to_hydrogens = do_bonds_to_hydrogens_in;
    if (pg) {
@@ -5777,7 +5880,7 @@ Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAto
    }
    //do_Ca_plus_ligands_bonds(SelAtom, min_dist, max_dist, coot::COLOUR_BY_ATOM_TYPE);
    do_Ca_plus_ligands_bonds(SelAtom, imol, pg, min_dist, max_dist, draw_missing_loops_flag,
-                            coot::COLOUR_BY_CHAIN, do_bonds_to_hydrogens);
+                            coot::COLOUR_BY_CHAIN, do_bonds_to_hydrogens, model_number);
 }
 
 void
@@ -5787,7 +5890,8 @@ Bond_lines_container::do_Ca_plus_ligands_and_sidechains_bonds(atom_selection_con
                                                               float min_dist_ca, float max_dist_ca,
                                                               float min_dist, float max_dist,
                                                               bool draw_missing_loops_flag,
-                                                              bool do_bonds_to_hydrogens_in) {
+                                                              bool do_bonds_to_hydrogens_in,
+                                                              int model_number) {
 
    do_bonds_to_hydrogens = do_bonds_to_hydrogens_in;
    if (pg) {
@@ -5798,7 +5902,8 @@ Bond_lines_container::do_Ca_plus_ligands_and_sidechains_bonds(atom_selection_con
    do_Ca_plus_ligands_and_sidechains_bonds(SelAtom, imol,
                                            pg, min_dist_ca, max_dist_ca, min_dist, max_dist,
                                            draw_missing_loops_flag,
-                                           coot::COLOUR_BY_CHAIN, do_bonds_to_hydrogens);
+                                           coot::COLOUR_BY_CHAIN, do_bonds_to_hydrogens,
+                                           model_number);
 }
 
 void
@@ -5809,7 +5914,8 @@ Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAto
                                                float max_dist,
                                                bool draw_missing_loops_flag,
                                                int atom_colour_type,
-                                               bool do_bonds_to_hydrogens_in) {
+                                               bool do_bonds_to_hydrogens_in,
+                                               int model_number) {
 
     if (false)
        std::cout << "---- in do_Ca_plus_ligands_bonds with atom_colour_type "
@@ -5821,85 +5927,98 @@ Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAto
    }
 
    do_bonds_to_hydrogens = do_bonds_to_hydrogens_in;
-   mmdb::Model *model_p = SelAtom.mol->GetModel(1);
    if (pg) {
       geom = pg;
       have_dictionary = true;
    }
 
-   int udd_user_defined_atom_colour_index_handle = SelAtom.mol->GetUDDHandle(mmdb::UDR_ATOM, "user-defined-atom-colour-index");
+   int udd_user_defined_atom_colour_index_handle = SelAtom.mol->GetUDDHandle(mmdb::UDR_ATOM,
+                                                                             "user-defined-atom-colour-index");
 
-   if (model_p) {
-      try_set_b_factor_scale(SelAtom.mol);
-      int istat;
-      // udd_has_ca_handle = SelAtom.mol->RegisterUDInteger (mmdb::UDR_RESIDUE, "has CA");
-      if (udd_has_ca_handle == -1) {
-         udd_has_ca_handle = SelAtom.mol->RegisterUDInteger (mmdb::UDR_RESIDUE, "has CA");
+   int n_models = SelAtom.mol->GetNumberOfModels();
+   int imodel_start = 1;
+   int imodel_end = n_models;
+   if (model_number != 0) {
+      if (model_number <= n_models) {
+         imodel_start = model_number;
+         imodel_end   = model_number;
       }
+   }
 
-      int nchains = model_p->GetNumberOfChains();
-      for (int ichain=0; ichain<nchains; ichain++) {
-         mmdb::Chain *chain_p = model_p->GetChain(ichain);
-         int nres = chain_p->GetNumberOfResidues();
-         for (int ires=0; ires<nres; ires++) {
-            mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-            if (residue_p) {
-               istat = residue_p->PutUDData(udd_has_ca_handle, 0);
-               if (istat == mmdb::UDDATA_WrongUDRType) {
-                  std::cout << "ERROR:: mmdb:UDDATA_WrongUDRType in do_Ca_plus_ligands_bonds "
-                            << coot::residue_spec_t(residue_p) << " " << udd_has_ca_handle
-                            << std::endl;
+   for (int imodel=imodel_start; imodel<=imodel_end; imodel++) {
+      mmdb::Model *model_p = SelAtom.mol->GetModel(imodel);
+      if (model_p) {
+         try_set_b_factor_scale(SelAtom.mol);
+         int istat;
+         // udd_has_ca_handle = SelAtom.mol->RegisterUDInteger (mmdb::UDR_RESIDUE, "has CA");
+         if (udd_has_ca_handle == -1) {
+            udd_has_ca_handle = SelAtom.mol->RegisterUDInteger (mmdb::UDR_RESIDUE, "has CA");
+         }
+
+         int nchains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<nchains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int nres = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<nres; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               if (residue_p) {
+                  istat = residue_p->PutUDData(udd_has_ca_handle, 0);
+                  if (istat == mmdb::UDDATA_WrongUDRType) {
+                     std::cout << "ERROR:: mmdb:UDDATA_WrongUDRType in do_Ca_plus_ligands_bonds "
+                               << coot::residue_spec_t(residue_p) << " " << udd_has_ca_handle
+                               << std::endl;
+                  }
                }
             }
          }
-      }
 
-      coot::my_atom_colour_map_t acm;
-      acm.fill_chain_id_map(SelAtom);
-      do_Ca_or_P_bonds_internal(SelAtom, " CA ", acm, min_dist, max_dist, draw_missing_loops_flag,
-                                atom_colour_type);
+         coot::my_atom_colour_map_t acm;
+         acm.fill_chain_id_map(SelAtom);
+         do_Ca_or_P_bonds_internal(SelAtom, " CA ", acm, min_dist, max_dist, draw_missing_loops_flag,
+                                   atom_colour_type, model_number);
 
-      // do_Ca_plus_ligands_bonds has set udd_has_ca_handle on
-      // residues that have CAs.  Now let's run through the residues
-      // again looking for residues that don't have this handle set.
-      // We should do normal bonds for those residues (if they aren't
-      // water, of course).
-      //
-      // Try to bond by dictionary, if not, fall back to previous
-      // (add_ligand_bonds()) method. We use a cache of residue names
-      // to know if this resiudue type has a dictionary or not.
+         // do_Ca_plus_ligands_bonds has set udd_has_ca_handle on
+         // residues that have CAs.  Now let's run through the residues
+         // again looking for residues that don't have this handle set.
+         // We should do normal bonds for those residues (if they aren't
+         // water, of course).
+         //
+         // Try to bond by dictionary, if not, fall back to previous
+         // (add_ligand_bonds()) method. We use a cache of residue names
+         // to know if this resiudue type has a dictionary or not.
 
-      std::vector<mmdb::Atom *> ligand_atoms;
-      std::vector<std::pair<bool, mmdb::Residue *> > het_residues;
-      for (int ichain=0; ichain<nchains; ichain++) {
-         mmdb::Chain *chain_p = model_p->GetChain(ichain);
-         int nres = chain_p->GetNumberOfResidues();
-         int ic;
-         for (int ires=0; ires<nres; ires++) {
-            mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-            if (residue_p) {
-               if (residue_p->GetUDData(udd_has_ca_handle, ic) == mmdb::UDDATA_Ok) {
-                  if (ic == 0) {
-                     // Residue was not rendered as CA, needs normal bonds
-                     std::string resname(residue_p->name);
-                     if (resname != "WAT" && resname != "HOH") {
+         std::vector<mmdb::Atom *> ligand_atoms;
+         std::vector<std::pair<bool, mmdb::Residue *> > het_residues;
+         for (int ichain=0; ichain<nchains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int nres = chain_p->GetNumberOfResidues();
+            int ic;
+            for (int ires=0; ires<nres; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               if (residue_p) {
+                  if (residue_p->GetUDData(udd_has_ca_handle, ic) == mmdb::UDDATA_Ok) {
+                     if (ic == 0) {
+                        // Residue was not rendered as CA, needs normal bonds
+                        std::string resname(residue_p->name);
+                        if (resname != "WAT" && resname != "HOH") {
 
-                        // can we do this residue by dictionary?
-                        bool done_by_dict = false; // initially
-                        if (have_dictionary) {
-                           if (geom->have_at_least_minimal_dictionary_for_residue_type(resname, imol)) {
-                              het_residues.push_back(std::pair<bool, mmdb::Residue *>(true, residue_p));
-                              done_by_dict = true;
-                           } else {
-                              std::cout << "Not even minimal for " << resname << std::endl;
+                           // can we do this residue by dictionary?
+                           bool done_by_dict = false; // initially
+                           if (have_dictionary) {
+                              if (geom->have_at_least_minimal_dictionary_for_residue_type(resname, imol)) {
+                                 het_residues.push_back(std::pair<bool, mmdb::Residue *>(true, residue_p));
+                                 done_by_dict = true;
+                              } else {
+                                 std::cout << "Not even minimal for " << resname << std::endl;
+                              }
                            }
-                        }
 
-                        if (! done_by_dict) {
-                           // old method
-                           int natoms = residue_p->GetNumberOfAtoms();
-                           for (int iat=0; iat<natoms; iat++) {
-                              ligand_atoms.push_back(residue_p->GetAtom(iat));
+                           if (! done_by_dict) {
+                              // old method
+                              int natoms = residue_p->GetNumberOfAtoms();
+                              for (int iat=0; iat<natoms; iat++) {
+                                 ligand_atoms.push_back(residue_p->GetAtom(iat));
+                              }
                            }
                         }
                      }
@@ -5907,26 +6026,27 @@ Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAto
                }
             }
          }
-      }
 
-      int het_atoms_colour_type = coot::COLOUR_BY_RAINBOW;
+         int het_atoms_colour_type = coot::COLOUR_BY_RAINBOW;
 
-      if (atom_colour_type == coot::COLOUR_BY_USER_DEFINED_COLOURS)
-         het_atoms_colour_type = coot::COLOUR_BY_USER_DEFINED_COLOURS;
+         if (atom_colour_type == coot::COLOUR_BY_USER_DEFINED_COLOURS)
+            het_atoms_colour_type = coot::COLOUR_BY_USER_DEFINED_COLOURS;
 
-      bool have_udd_atoms = false;
-      int udd_bond_handle = -1;
-      int udd_atom_index_handle = SelAtom.UDDAtomIndexHandle;
-      add_bonds_het_residues(het_residues, SelAtom, imol, het_atoms_colour_type, have_udd_atoms, udd_bond_handle, udd_atom_index_handle,
-                             udd_user_defined_atom_colour_index_handle);
+         bool have_udd_atoms = false;
+         int udd_bond_handle = -1;
+         int udd_atom_index_handle = SelAtom.UDDAtomIndexHandle;
+         add_bonds_het_residues(het_residues, SelAtom, imol, het_atoms_colour_type,
+                                have_udd_atoms, udd_bond_handle, udd_atom_index_handle,
+                                udd_user_defined_atom_colour_index_handle);
 
-      if (ligand_atoms.size() > 0) {
-         mmdb::PAtom *ligand_atoms_selection = new mmdb::PAtom[ligand_atoms.size()];
-         for(unsigned int iat=0; iat<ligand_atoms.size(); iat++) {
-            ligand_atoms_selection[iat] = ligand_atoms[iat];
+         if (! ligand_atoms.empty()) {
+            mmdb::PAtom *ligand_atoms_selection = new mmdb::PAtom[ligand_atoms.size()];
+            for(unsigned int iat=0; iat<ligand_atoms.size(); iat++) {
+               ligand_atoms_selection[iat] = ligand_atoms[iat];
+            }
+            add_ligand_bonds(SelAtom, imol, ligand_atoms_selection, ligand_atoms.size());
+            delete [] ligand_atoms_selection;
          }
-         add_ligand_bonds(SelAtom, imol, ligand_atoms_selection, ligand_atoms.size());
-         delete [] ligand_atoms_selection;
       }
    }
 
@@ -5940,9 +6060,11 @@ Bond_lines_container::do_Ca_plus_ligands_and_sidechains_bonds(atom_selection_con
                                                               float min_dist, float max_dist,
                                                               bool draw_missing_loops_flag,
                                                               int atom_colour_type,
-                                                              bool do_bonds_to_hydrogens_in) {
+                                                              bool do_bonds_to_hydrogens_in,
+                                                              int model_number) {
 
    bool do_rama_markup = false;
+   bool show_atoms_as_aniso_flag = false;
 
    if (! SelAtom.mol) {
       std::cout << "ERROR:: Caught null mol in do_Ca_plus_ligands_and_sidechains_bonds()"
@@ -5952,7 +6074,7 @@ Bond_lines_container::do_Ca_plus_ligands_and_sidechains_bonds(atom_selection_con
 
    // first do Ca plus ligand
    do_Ca_plus_ligands_bonds(SelAtom, imol, pg, min_dist_ca, max_dist_ca, draw_missing_loops_flag,
-                            atom_colour_type, do_bonds_to_hydrogens_in);
+                            atom_colour_type, do_bonds_to_hydrogens_in, model_number);
 
    // now do normal bonds for CA+sidechain
    // mmmh are the distances correct!?
@@ -5987,11 +6109,9 @@ Bond_lines_container::do_Ca_plus_ligands_and_sidechains_bonds(atom_selection_con
 
    asc.mol->GetSelIndex(asc.SelectionHandle, asc.atom_selection, asc.n_selected_atoms);
 
-   int model_number = 0; // all models
-
-   short int symm_flag = 0;
    // for these side chain atoms
-   do_colour_by_chain_bonds(asc, true, imol, do_bonds_to_hydrogens_in, draw_missing_loops_flag, 0, false, do_rama_markup);
+   do_colour_by_chain_bonds(asc, true, imol, do_bonds_to_hydrogens_in,
+                            draw_missing_loops_flag, 0, false, do_rama_markup, model_number);
    asc.mol->DeleteSelection(asc.SelectionHandle);
 
 }
@@ -6003,6 +6123,7 @@ Bond_lines_container::do_normal_bonds_no_water(const atom_selection_container_t 
 
    atom_selection_container_t asc = asc_in;
    bool do_rama_markup = false;
+   bool show_atoms_as_aniso_flag = false;
 
    // Now make a new atom selection that excludes WAT and HOH by using mmdb::SKEY_XOR
    int newSelectionHandle = asc.mol->NewSelection();
@@ -6024,7 +6145,8 @@ Bond_lines_container::do_normal_bonds_no_water(const atom_selection_container_t 
    asc.mol->GetSelIndex(asc.SelectionHandle, asc.atom_selection, asc.n_selected_atoms);
    // std::cout << "after water selection: n_selected_atoms: " << asc.n_selected_atoms << std::endl;
    int model_number = 0; // all models
-   construct_from_asc(asc, imol, min_dist, max_dist, coot::COLOUR_BY_ATOM_TYPE, 0, model_number, do_rama_markup);
+   construct_from_asc(asc, imol, min_dist, max_dist, coot::COLOUR_BY_ATOM_TYPE, 0, model_number,
+                      show_atoms_as_aniso_flag, do_rama_markup);
    asc.mol->DeleteSelection(asc.SelectionHandle);
 }
 
@@ -6043,7 +6165,9 @@ Bond_lines_container::add_ligand_bonds(const atom_selection_container_t &SelAtom
    // << " ligand atoms" << std::endl;
    int model_number = 0; // all models
    bool do_rama_markup = false;
-   construct_from_asc(asc, imol, 0.01, 1.9, coot::COLOUR_BY_ATOM_TYPE, 0, model_number, do_rama_markup);
+   bool show_atoms_as_aniso_flag = false;
+   construct_from_asc(asc, imol, 0.01, 1.9, coot::COLOUR_BY_ATOM_TYPE, 0, model_number,
+                      show_atoms_as_aniso_flag, do_rama_markup);
 
    return ibond;
 
@@ -6063,7 +6187,9 @@ Bond_lines_container::do_colour_sec_struct_bonds(const atom_selection_container_
       }
       int model_number = 0; // all models
       bool do_rama_markup = false;
-      construct_from_asc(asc, imol, 0.01, 1.9, coot::COLOUR_BY_SEC_STRUCT, 0, model_number, do_rama_markup);
+      bool show_atoms_as_aniso_flag = false;
+      construct_from_asc(asc, imol, 0.01, 1.9, coot::COLOUR_BY_SEC_STRUCT, 0, model_number,
+                         show_atoms_as_aniso_flag, do_rama_markup);
    }
 }
 
@@ -6134,7 +6260,8 @@ Bond_lines_container::do_symmetry_Ca_bonds(atom_selection_container_t SelAtom,
                              contact, ncontacts,
                              0, &my_matt, i_contact_group);
 
-   std::cout << "INFO:: Found " << ncontacts/2 << " Ca-Ca links" << std::endl;
+   // std::cout << "INFO:: Found " << ncontacts/2 << " Ca-Ca links" << std::endl;
+   logger.log(log_t::INFO, "Found", ncontacts/2, "Ca-Ca links");
 
    if (ncontacts > 0) {
       for (int i=0; i< ncontacts; i++) {
@@ -6771,7 +6898,8 @@ Bond_lines_container::add_residue_monomer_bonds(const std::map<std::string, std:
                                                        udd_user_defined_atom_colour_index_handle,
                                                        restraints.bond_restraint);
                                     } else {
-                                       addBond(col, p1, p2, graphics_line_t::SINGLE, model_number, iat_1_atom_index, iat_2_atom_index);
+                                       addBond(col, p1, p2, graphics_line_t::SINGLE, model_number,
+                                               iat_1_atom_index, iat_2_atom_index, false, false);
                                     }
                                  }
                               }
@@ -6823,10 +6951,13 @@ Bond_lines_container::bond_by_distance(const atom_selection_container_t &asc, in
 void
 Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds_carbons_only(const atom_selection_container_t &asc,
                                                                               int imol,
+                                                                              int model_number,
                                                                               int draw_hydrogens_flag,
                                                                               bool draw_missing_loops_flag,
                                                                               bool do_goodsell_colour_mode,
                                                                               bool do_rotamer_markup) {
+
+   bool make_stars = false;
 
    //  timer here.
 
@@ -6837,14 +6968,18 @@ Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds_carbons_only(co
 
    // std::cout << "in do_colour_by_dictionary_and_by_chain_bonds_carbons_only() " << std::endl;
 
-   // std::cout << "in do_colour_by_dictionary_and_by_chain_bonds_carbons_only non-drawn bonds size " 
+   // std::cout << "in do_colour_by_dictionary_and_by_chain_bonds_carbons_only non-drawn bonds size "
    //           << no_bonds_to_these_atoms.size() << std::endl;
 
    coot::my_atom_colour_map_t atom_colour_map; // colour map for chain indexing
    atom_colour_map.fill_chain_id_map(asc);
+
    int n_chains = 0;
    std::map<std::string, std::vector<mmdb::Residue *> > residue_monomer_map;
-   for(int imod = 1; imod<=asc.mol->GetNumberOfModels(); imod++) {
+   for (int imod = 1; imod<=asc.mol->GetNumberOfModels(); imod++) {
+      if (model_number != 0)
+         if (imod != model_number)
+            continue;
       mmdb::Model *model_p = asc.mol->GetModel(imod);
       if (model_p) {
          n_chains = model_p->GetNumberOfChains();
@@ -6860,7 +6995,9 @@ Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds_carbons_only(co
       }
    }
    // resize the bonds vector now that we know the number of bonds
-   bonds.resize(50+n_chains);
+   int bonds_size = bonds.size(); // change type
+   if (bonds_size < (50+n_chains))
+      bonds.resize(50+n_chains);
 
    int udd_atom_index_handle = asc.UDDAtomIndexHandle;
    int atom_colour_type = coot::COLOUR_BY_CHAIN_C_ONLY;
@@ -6868,7 +7005,8 @@ Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds_carbons_only(co
 
    int udd_user_defined_atom_colour_index_handle = asc.mol->GetUDDHandle(mmdb::UDR_ATOM, "user-defined-atom-colour-index");
 
-   //std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@ here with udd_user_defined_atom_colour_index_handle " << udd_user_defined_atom_colour_index_handle
+   // std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@ here with udd_user_defined_atom_colour_index_handle "
+   // << udd_user_defined_atom_colour_index_handle
    // << std::endl;
 
    if (false) {
@@ -6928,13 +7066,19 @@ Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds_carbons_only(co
       atom_colour_type = coot::COLOUR_BY_CHAIN_GOODSELL;
 
    for(int imod = 1; imod<=asc.mol->GetNumberOfModels(); imod++) {
+
+      if (imod != model_number)
+         if (model_number != 0)
+            continue;
+
       add_residue_monomer_bonds(residue_monomer_map, imol, imod,
                                 atom_colour_type, &atom_colour_map, udd_atom_index_handle, udd_bond_handle,
                                 udd_user_defined_atom_colour_index_handle,
                                 draw_hydrogens_flag, do_goodsell_colour_mode);
    }
 
-   add_polymer_bonds(asc, atom_colour_type, &atom_colour_map,  // draw_missing_loops_flag not used here
+   std::cout << "DEBUG::do_colour_by_dictionary_and_by_chain_bonds_carbons_only() calling add_polymer_bonds()" << std::endl;
+   add_polymer_bonds(asc, model_number, atom_colour_type, &atom_colour_map,  // draw_missing_loops_flag not used here
                      draw_hydrogens_flag, do_goodsell_colour_mode);
 
    int udd_fixed_during_refinement_handle = asc.mol->GetUDDHandle(mmdb::UDR_ATOM, "FixedDuringRefinement");
@@ -6962,22 +7106,24 @@ Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds_carbons_only(co
             int model_number = residue_p->GetModelNum();
 
             // extract this to own function
-            {
-               // std::cout << "making stars for " << at << std::endl;
+            if (make_stars) {
+               //  std::cout << "making stars for " << at << " " << coot::atom_spec_t(at) << std::endl;
                float star_size = 0.3;
                coot::Cartesian small_vec_x(star_size, 0.0, 0.0);
                coot::Cartesian small_vec_y(0.0, star_size, 0.0);
-               coot::Cartesian small_vec_z(0.0, 0.0, -star_size);
+               coot::Cartesian small_vec_z(0.0, 0.0, star_size);
                int col = atom_colour(at, atom_colour_type, udd_user_defined_atom_colour_index_handle, &atom_colour_map);
                coot::Cartesian atom_pos(at->x, at->y, at->z);
 
                int iat_1 = -1;
                int udd_status_1 = at->GetUDData(udd_atom_index_handle, iat_1);
 
-               graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
-               addBond(col, atom_pos+small_vec_x, atom_pos-small_vec_x, cc, model_number, iat_1, iat_1, true, true);
-               addBond(col, atom_pos+small_vec_y, atom_pos-small_vec_y, cc, model_number, iat_1, iat_1, true, true);
-               addBond(col, atom_pos+small_vec_z, atom_pos-small_vec_z, cc, model_number, iat_1, iat_1, true, true);
+               if (udd_status_1 == mmdb::UDDATA_Ok) {
+                  graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
+                  addBond(col, atom_pos+small_vec_x, atom_pos-small_vec_x, cc, model_number, iat_1, iat_1, true, true);
+                  addBond(col, atom_pos+small_vec_y, atom_pos-small_vec_y, cc, model_number, iat_1, iat_1, true, true);
+                  addBond(col, atom_pos+small_vec_z, atom_pos-small_vec_z, cc, model_number, iat_1, iat_1, true, true);
+               }
             }
          }
       }
@@ -6986,7 +7132,8 @@ Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds_carbons_only(co
    for(int imod = 1; imod<=asc.mol->GetNumberOfModels(); imod++) {
       do_disulphide_bonds(asc, imod);
       add_cis_peptide_markup(asc, imod);
-      construct_from_model_links(asc.mol->GetModel(imod), udd_atom_index_handle, udd_user_defined_atom_colour_index_handle, atom_colour_type);
+      construct_from_model_links(asc.mol->GetModel(imod), udd_atom_index_handle,
+                                 udd_user_defined_atom_colour_index_handle, atom_colour_type);
    }
 
    add_zero_occ_spots(asc);
@@ -6998,24 +7145,28 @@ Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds_carbons_only(co
    if (do_goodsell_colour_mode)
       atom_colour_type = coot::COLOUR_BY_CHAIN_GOODSELL;
 
-   add_atom_centres(imol, asc, atom_colour_type, &atom_colour_map);
+   add_atom_centres(imol, asc, atom_colour_type, model_number, &atom_colour_map);
 
 }
 
 void
 Bond_lines_container::add_polymer_bonds(const atom_selection_container_t &asc,
+                                        int model_number,
                                         int atom_colour_type,
                                         coot::my_atom_colour_map_t *atom_colour_map_p,
                                         int draw_hydrogens_flag,
                                         bool do_goodsell_colour_mode) {
 
-   add_peptide_bonds(       asc, atom_colour_type, atom_colour_map_p, draw_hydrogens_flag, do_goodsell_colour_mode);
-   add_phosphodiester_bonds(asc, atom_colour_type, atom_colour_map_p, draw_hydrogens_flag, do_goodsell_colour_mode);
-   add_carbohydrate_bonds(  asc, atom_colour_type, atom_colour_map_p, draw_hydrogens_flag, do_goodsell_colour_mode);
+   std::cout << "DEBUG:: add_polymer_bonds() " << model_number << std::endl;
+
+   add_peptide_bonds(       asc, model_number, atom_colour_type, atom_colour_map_p, draw_hydrogens_flag, do_goodsell_colour_mode);
+   add_phosphodiester_bonds(asc, model_number, atom_colour_type, atom_colour_map_p, draw_hydrogens_flag, do_goodsell_colour_mode);
+   add_carbohydrate_bonds(  asc, model_number, atom_colour_type, atom_colour_map_p, draw_hydrogens_flag, do_goodsell_colour_mode);
 }
 
 void
 Bond_lines_container::add_polymer_bonds_generic(const atom_selection_container_t &asc,
+                                                int model_number,
                                                 int atom_colour_type,
                                                 coot::my_atom_colour_map_t *atom_colour_map_p,
                                                 int draw_hydrogens_flag,
@@ -7023,6 +7174,9 @@ Bond_lines_container::add_polymer_bonds_generic(const atom_selection_container_t
                                                 const std::string &res_2_atom_name, // in "res2"
                                                 bool allow_het_group_linking,
                                                 bool do_goodsell_colour_mode) {
+   if (false)
+      std::cout << "DEBUG:: in add_polymer_bonds_generic(): with no_bonds_to_these_atoms size "
+                << no_bonds_to_these_atoms.size() << std::endl;
 
    int udd_user_defined_atom_colour_index_handle = asc.mol->GetUDDHandle(mmdb::UDR_ATOM, "user-defined-atom-colour-index");
 
@@ -7030,6 +7184,9 @@ Bond_lines_container::add_polymer_bonds_generic(const atom_selection_container_t
    // which allows linking (of carbohydrates). In that case, we need a distance sanity check.
 
    for(int imod = 1; imod<=asc.mol->GetNumberOfModels(); imod++) {
+      if (model_number != 0)
+         if (imod != model_number)
+            continue;
       mmdb::Model *model_p = asc.mol->GetModel(imod);
       if (model_p) {
          int n_chains = model_p->GetNumberOfChains();
@@ -7108,6 +7265,7 @@ Bond_lines_container::add_polymer_bonds_generic(const atom_selection_container_t
 
 void
 Bond_lines_container::add_peptide_bonds(const atom_selection_container_t &asc,
+                                        int model_number,
                                         int atom_colour_type,
                                         coot::my_atom_colour_map_t *atom_colour_map_p,
                                         int draw_hydrogens_flag,
@@ -7116,7 +7274,7 @@ Bond_lines_container::add_peptide_bonds(const atom_selection_container_t &asc,
    bool allow_het_group_linking = true; // 20240519-PE was false. Thierry Fischmann Marc Elsliger complained.
                                         // In the same week - even though this code was written 4 years ago.
                                         // Funny.
-   add_polymer_bonds_generic(asc, atom_colour_type, atom_colour_map_p,
+   add_polymer_bonds_generic(asc, model_number, atom_colour_type, atom_colour_map_p,
                              draw_hydrogens_flag, " C  ", " N  ", allow_het_group_linking,
                              do_goodsell_colour_mode);
 
@@ -7124,30 +7282,32 @@ Bond_lines_container::add_peptide_bonds(const atom_selection_container_t &asc,
 
 void
 Bond_lines_container::add_phosphodiester_bonds(const atom_selection_container_t &asc,
+                                               int model_number,
                                                int atom_colour_type,
                                                coot::my_atom_colour_map_t *atom_colour_map_p,
                                                int draw_hydrogens_flag,
                                                bool do_goodsell_colour_mode) {
 
-   add_polymer_bonds_generic(asc, atom_colour_type, atom_colour_map_p,
+   add_polymer_bonds_generic(asc, model_number, atom_colour_type, atom_colour_map_p,
                              draw_hydrogens_flag, " O3'", " P  ", false, do_goodsell_colour_mode);
 
 }
 
 void
 Bond_lines_container::add_carbohydrate_bonds(const atom_selection_container_t &asc,
+                                             int model_number,
                                              int atom_colour_type,
                                              coot::my_atom_colour_map_t *atom_colour_map_p,
                                              int draw_hydrogens_flag,
                                              bool do_goodsell_colour_mode) {
 
    bool gm = do_goodsell_colour_mode;
-   add_polymer_bonds_generic(asc, atom_colour_type, atom_colour_map_p, draw_hydrogens_flag, " O1 ", " C1 ", true, gm);
-   add_polymer_bonds_generic(asc, atom_colour_type, atom_colour_map_p, draw_hydrogens_flag, " O2 ", " C1 ", true, gm);
-   add_polymer_bonds_generic(asc, atom_colour_type, atom_colour_map_p, draw_hydrogens_flag, " O3 ", " C1 ", true, gm);
-   add_polymer_bonds_generic(asc, atom_colour_type, atom_colour_map_p, draw_hydrogens_flag, " O4 ", " C1 ", true, gm);
-   add_polymer_bonds_generic(asc, atom_colour_type, atom_colour_map_p, draw_hydrogens_flag, " O5 ", " C1 ", true, gm);
-   add_polymer_bonds_generic(asc, atom_colour_type, atom_colour_map_p, draw_hydrogens_flag, " O6 ", " C1 ", true, gm);
+   add_polymer_bonds_generic(asc, model_number, atom_colour_type, atom_colour_map_p, draw_hydrogens_flag, " O1 ", " C1 ", true, gm);
+   add_polymer_bonds_generic(asc, model_number, atom_colour_type, atom_colour_map_p, draw_hydrogens_flag, " O2 ", " C1 ", true, gm);
+   add_polymer_bonds_generic(asc, model_number, atom_colour_type, atom_colour_map_p, draw_hydrogens_flag, " O3 ", " C1 ", true, gm);
+   add_polymer_bonds_generic(asc, model_number, atom_colour_type, atom_colour_map_p, draw_hydrogens_flag, " O4 ", " C1 ", true, gm);
+   add_polymer_bonds_generic(asc, model_number, atom_colour_type, atom_colour_map_p, draw_hydrogens_flag, " O5 ", " C1 ", true, gm);
+   add_polymer_bonds_generic(asc, model_number, atom_colour_type, atom_colour_map_p, draw_hydrogens_flag, " O6 ", " C1 ", true, gm);
 
 }
 
@@ -7169,6 +7329,7 @@ Bond_lines_container::do_colour_by_hydrophobic_side_chains(const atom_selection_
 void
 Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds(const atom_selection_container_t &asc,
                                                                  int imol,
+                                                                 int imodel,
                                                                  int draw_hydrogens_flag,
                                                                  bool draw_missing_loops_flag,
                                                                  short int change_c_only_flag,
@@ -7176,13 +7337,13 @@ Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds(const atom_sele
                                                                  bool do_rotamer_markup) {
 
    if (change_c_only_flag) {
-      do_colour_by_dictionary_and_by_chain_bonds_carbons_only(asc, imol,
+      do_colour_by_dictionary_and_by_chain_bonds_carbons_only(asc, imol, imodel,
                                                               draw_hydrogens_flag, draw_missing_loops_flag,
                                                               do_goodsell_colour_mode, do_rotamer_markup);
    } else {
       bool use_asc_atom_selection_flag = true; // 20220226-PE I don't know
-      do_colour_by_chain_bonds(asc, use_asc_atom_selection_flag, imol, draw_hydrogens_flag, draw_missing_loops_flag,
-                               false, false, do_rotamer_markup);
+      do_colour_by_chain_bonds(asc, use_asc_atom_selection_flag, imol, draw_hydrogens_flag,
+                               draw_missing_loops_flag, false, false, do_rotamer_markup);
    }
 }
 
@@ -7204,10 +7365,12 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
                                                bool draw_missing_loops_flag,
                                                short int change_c_only_flag,
                                                bool do_goodsell_colour_mode,
-                                               bool do_ramachandran_markup) {
+                                               bool do_ramachandran_markup,
+                                               int model_number) {
 
-   // std::cout << "............. in do_colour_by_chain_bonds() " << do_goodsell_colour_mode << " "
-   //           << change_c_only_flag << std::endl;
+   if (false)
+      std::cout << "............. in do_colour_by_chain_bonds() goodsell: " << do_goodsell_colour_mode
+                << " change_c_only: " << change_c_only_flag << " model_number " << model_number << std::endl;
 
    coot::my_atom_colour_map_t atom_colour_map;
    atom_colour_map.fill_chain_id_map(asc);
@@ -7215,6 +7378,7 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
    if (change_c_only_flag) {
       do_colour_by_dictionary_and_by_chain_bonds(asc,
                                                  imol,
+                                                 model_number,
                                                  draw_hydrogens_flag,
                                                  draw_missing_loops_flag,
                                                  change_c_only_flag,
@@ -7244,6 +7408,8 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
          return;
       }
    }
+
+   std::cout << "DEBUG:: ****************************************************************************************** got here A" << std::endl;
 
    // OK, now we are on the "single-colour per chain" path
 
@@ -7275,7 +7441,28 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
 
    int udd_user_defined_atom_colour_index_handle = asc.mol->GetUDDHandle(mmdb::UDR_ATOM, "user-defined-atom-colour-index");
 
+   // default to all models:
+   // int imodel_start = 1;
+   // int imodel_end = n_models;
+   // override if we were passed a specific model_number
+   // if (model_number != 0) {
+   //    if (model_number <= n_models) {
+   //       imodel_start = model_number;
+   //       imodel_end   = model_number;
+   //    }
+   // }
+
+   std::cout << "DEBUG:: ****************************************************************************************** got here B" << std::endl;
+
    for (int imodel=1; imodel<=n_models; imodel++) {
+
+      std::cout << "DEBUG:: looping iwth imodel " << imodel << std::endl;
+
+      if (imodel != model_number)
+         if (model_number != 0)
+            continue;
+
+      std::cout << "DEBUG:: ... actually doing with model " << imodel << std::endl;
 
       mmdb::PPAtom atom_selection = 0;
       int n_selected_atoms = 0;
@@ -7442,8 +7629,10 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
                         }
                      }
                   } else {
-                     std::cout << "INFO:: trapped atom without residue in non-bonded atom check: "
-                               << atom_selection[i] << std::endl;
+                     // std::cout << "INFO:: trapped atom without residue in non-bonded atom check: "
+                     //           << atom_selection[i] << std::endl;
+                     logger.log(log_t::INFO, "trapped atom without residue in non-bonded atom check:",
+                                coot::atom_spec_t(atom_selection[i]).format());
                   }
                }
             }
@@ -7485,8 +7674,7 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
    int atom_colour_type = coot::COLOUR_BY_CHAIN;
    if (do_goodsell_colour_mode)
       atom_colour_type = coot::COLOUR_BY_CHAIN_GOODSELL;
-   add_atom_centres(imol, asc, atom_colour_type, &atom_colour_map);
-   int model_number = 0; // for all cis peptide markup (hmm, this function should be pass a model number?)
+   add_atom_centres(imol, asc, atom_colour_type, model_number, &atom_colour_map);
    add_cis_peptide_markup(asc, model_number);
 }
 
@@ -7731,8 +7919,10 @@ Bond_lines_container::do_colour_by_chain_bonds_carbons_only(const atom_selection
                         }
                      }
                   } else {
-                     std::cout << "INFO:: trapped atom without residue in non-bonded atom check: "
-                               << atom_selection[i] << std::endl;
+                     // std::cout << "INFO:: trapped atom without residue in non-bonded atom check: "
+                     //           << atom_selection[i] << std::endl;
+                     logger.log(log_t::INFO, "trapped atom without residue in non-bonded atom check:",
+                                coot::atom_spec_t(atom_selection[i]).format());
                   }
                }
             }
@@ -7789,7 +7979,8 @@ Bond_lines_container::do_colour_by_chain_bonds_carbons_only(const atom_selection
    // atom_colour_type == coot::COLOUR_BY_CHAIN_GOODSELL;
 
    // std::cout << "DEBUG:: in " << __FUNCTION__ << " with atom_colour_type " << _(atom_colour_type) << std::endl;
-   add_atom_centres(imol, asc, atom_colour_type, &atom_colour_map);
+   int model_number = 0; // all models for colour-by-chain
+   add_atom_centres(imol, asc, atom_colour_type, model_number, &atom_colour_map);
 
    int udd_fixed_during_refinement_handle = asc.mol->GetUDDHandle(mmdb::UDR_ATOM, "FixedDuringRefinement");
    if (draw_missing_loops_flag)
@@ -8301,7 +8492,8 @@ Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container
    add_zero_occ_spots(asc);
    add_deuterium_spots(asc);
    int atom_colour_type = coot::COLOUR_BY_MOLECULE;
-   add_atom_centres(imol, asc, atom_colour_type, nullptr);
+   int model_number = 0; // all models for colour-by-molecule
+   add_atom_centres(imol, asc, atom_colour_type, model_number, nullptr);
 }
 
 
@@ -8467,6 +8659,7 @@ void
 Bond_lines_container::add_atom_centres(int imol,
                                        const atom_selection_container_t &SelAtom,
                                        int atom_colour_type,
+                                       int model_number,
                                        coot::my_atom_colour_map_t *atom_colour_map_p) {
 
    // 20230224-PE we want atoms in ligands with no dictionary to be bigger
@@ -8493,6 +8686,13 @@ Bond_lines_container::add_atom_centres(int imol,
    for (int i=0; i<SelAtom.n_selected_atoms; i++) {
 
       mmdb::Atom *at = SelAtom.atom_selection[i];
+
+      // Filter by model number if specified (model_number != 0)
+      if (model_number != 0) {
+         int atom_model = at->GetModelNum();
+         if (atom_model != model_number)
+            continue;
+      }
       int idx = -1;
       at->GetUDData(SelAtom.UDDAtomIndexHandle, idx);
       // std::cout << "at " << at << "  idx: " << idx << std::endl;
@@ -8551,7 +8751,14 @@ Bond_lines_container::add_atom_centres(int imol,
             // because the add_bond function doesn't take a "thin" flag
             // (thinning is only currently done by bond colour)
             //
-            if (std::string(at->residue->GetResName()) == "HOH") gbai.is_water = true;
+	    mmdb::Residue *r = at->residue;
+	    if (r) {
+	       const char *rn = r->GetResName();
+	       if (rn) {
+		  std::string res_name = r->GetResName();
+		  if (res_name == "HOH") gbai.is_water = true;
+	       }
+	    }
             if (is_H_flag) gbai.is_hydrogen_atom = true;
             gbai.atom_p = at;
             if (atom_colour_type == coot::COLOUR_BY_B_FACTOR)
@@ -8776,7 +8983,7 @@ graphical_bonds_container::add_atom_centres(const std::vector<graphical_bonds_at
 
    if (false) {
       for (int i=0; i<col_idx_max; i++)
-         std::cout << "    col " << i << " has " << consolidated_atom_centres[i].num_points << std::endl;
+         std::cout << "in add_atom_centres():  col " << i << " has " << consolidated_atom_centres[i].num_points << std::endl;
    }
 
 }
@@ -8826,3 +9033,16 @@ Bond_lines_container::get_user_defined_col_index(mmdb::Atom *at, int udd_handle)
    return r;
 
 }
+
+// lightweight update the bonds without recalculating the bonding. make_graphical_bonds() will
+// still be needed for now.
+void
+Bond_lines_container::update(mmdb::Atom **atom_selection, int n_atoms) {
+
+   for (auto &coloured_bonds : bonds)
+      coloured_bonds.update(atom_selection, n_atoms);
+
+   for (auto &ac : atom_centres)
+      ac.update(atom_selection, n_atoms);
+}
+

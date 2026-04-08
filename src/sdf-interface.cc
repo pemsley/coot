@@ -117,7 +117,7 @@ bool residue_to_mdl_file_for_mogul(int imol, const char *chain_id,
 
 	    coot::mogulify_mol(rdkm); // convert difficult functional groups to mogul query
 	                              // format (changes reference).
-	    
+
 	    // this can throw an exception too.
 	    bool kekulize = false;
 	    RDKit::MolToMolFile(rdkm, mdl_file_name, includeStereo, confId, kekulize);
@@ -147,14 +147,14 @@ bool show_feats(int imol, const char *chain_id, int res_no, const char *ins_code
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
-   bool success = false; 
+   bool success = false;
    graphics_info_t g;
    if (g.is_valid_model_molecule(imol)) {
       mmdb::Residue *residue_p =
 	 graphics_info_t::molecules[imol].get_residue(chain_id, res_no, ins_code);
       if (! residue_p) {
 	 std::cout << "Residue not found in molecule " << imol << std::endl;
-      } else { 
+      } else {
 	 try {
 	    // this can throw an exception
 	    RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, imol, *g.Geom_p());
@@ -269,7 +269,7 @@ int import_rdkit_mol_from_smiles(const std::string &smiles_str, const std::strin
 // ------------------------------------------------------------------------------------------
 
 // ---------------------------------- internal - no public access -----------------
-// 
+//
 void chemical_features::show(int imol, const RDKit::ROMol &rdkm, std::string name) {
 
    graphics_info_t g;
@@ -295,6 +295,7 @@ void chemical_features::show(int imol, const RDKit::ROMol &rdkm, std::string nam
       clipper::Coord_orth centre(pos.x, pos.y, pos.z);
       meshed_generic_display_object::sphere_t sphere(centre, 0.4); // was 0.5 20230616-PE
       std::string family = sp.get()->getFamily();
+
       coot::colour_holder col;
       if (family == "Hydrophobe")
 	 col = coot::colour_holder(0.4, 0.6, 0.4);
@@ -303,9 +304,9 @@ void chemical_features::show(int imol, const RDKit::ROMol &rdkm, std::string nam
       if (family == "Aromatic")
 	 col = coot::colour_holder(0.6, 0.6, 0.3);
       if (family == "Donor")
-	 col = coot::colour_holder(0.2, 0.6, 0.7);
+	 col = coot::colour_holder(0.3, 0.3, 0.9);
       if (family == "Acceptor")
-	 col = coot::colour_holder(0.7, 0.2, 0.7);
+	 col = coot::colour_holder(0.8, 0.2, 0.6);
       if (family == "PosIonizable")
 	 col = coot::colour_holder(0.2, 0.2, 0.7);
       if (family == "NegIonizable")
@@ -313,14 +314,16 @@ void chemical_features::show(int imol, const RDKit::ROMol &rdkm, std::string nam
 
       sphere.col = colour_holder_to_glm(col);
 
+      // std::cout << "............ family: " << family << " col " << col << std::endl;
+
       // make the lumped sphere be smaller for aesthetic reasons (more
       // easily distinguished)
-      // 
+      //
       if (family == "LumpedHydrophobe")
 	 sphere.radius = 0.32; // was 0.38;
 
       // don't show a sphere for an aromatic - but do for everything else.
-      // 
+      //
       if (family != "Aromatic")
          features_obj.add_sphere(sphere);
 
@@ -358,7 +361,7 @@ void chemical_features::show(int imol, const RDKit::ROMol &rdkm, std::string nam
 	 if (normal.first) {
 	    clipper::Coord_orth p1(centre + 1.3 * normal.second);
 	    clipper::Coord_orth p2(centre - 1.3 * normal.second);
-	    
+
             float r_1 =   1.0f;
             if (sp.get()->getNumAtoms() == 5) r_1 = 0.8f;
  	    meshed_generic_display_object::torus_t torus_1(p1, normal.second, r_1, 0.2);
@@ -387,7 +390,7 @@ void chemical_features::show(int imol, const RDKit::ROMol &rdkm, std::string nam
    features_obj.mesh.setup(material);
    set_display_generic_object(new_obj_idx, 1);
    graphics_draw();
-   
+
    set_display_generic_object(new_obj_idx, 1);
    graphics_draw();
 }

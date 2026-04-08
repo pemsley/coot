@@ -31,8 +31,10 @@
 #include <algorithm>
 #include <set>
 #include <rdkit/GraphMol/Depictor/RDDepictor.h>
+#include <rdkit/GraphMol/Chirality.h>
 #include <rdkit/GraphMol/Substruct/SubstructMatch.h>
 #include <rdkit/Geometry/point.h>
+#include <GraphMol/Chirality.h>
 #include <rdkit/GraphMol/MolOps.h>
 #include <rdkit/GraphMol/Conformer.h>
 #include <rdkit/GraphMol/CoordGen.h>
@@ -53,6 +55,8 @@ const float CanvasMolecule::ATOM_HITBOX_RADIUS = 12.f;
 const float CanvasMolecule::BOND_LINE_SEPARATION = 0.3f;
 const float CanvasMolecule::BOND_DISTANCE_BOUNDARY = 10.f;
 const float CanvasMolecule::BASE_SCALE_FACTOR = 30.f;
+// 33.75 degrees
+const float CanvasMolecule::VERTICAL_SUPERATOM_ANGLE_THRESHOLD = 11.f/48.f * M_PI;
 
 const char* coot::ligand_editor_canvas::display_mode_to_string(DisplayMode mode) noexcept {
     switch (mode) {
@@ -81,20 +85,12 @@ std::optional<DisplayMode> coot::ligand_editor_canvas::display_mode_from_string(
     }
 }
 
-float CanvasMolecule::get_scale() const noexcept {
-    return BASE_SCALE_FACTOR * this->canvas_scale;
-}
-
-void CanvasMolecule::set_canvas_scale(float scale) {
-    this->canvas_scale = scale;
-}
-
 void CanvasMolecule::set_coordgen_enabled(bool value) noexcept {
     this->use_coordgen = value;
 }
 
-CanvasMolecule::MaybeAtomOrBond CanvasMolecule::resolve_click(int x, int y) const noexcept {
-    float scale = this->get_scale();
+CanvasMolecule::MaybeAtomOrBond CanvasMolecule::resolve_click(int x, int y, float canvas_scale) const noexcept {
+    float scale = BASE_SCALE_FACTOR * canvas_scale;
     auto x_offset = this->x_canvas_translation * scale;
     auto y_offset = this->y_canvas_translation * scale;
     // atoms first 
@@ -138,29 +134,29 @@ CanvasMolecule::MaybeAtomOrBond CanvasMolecule::resolve_click(int x, int y) cons
     return std::nullopt;
 }
 
-void CanvasMolecule::apply_canvas_translation(int delta_x, int delta_y) noexcept {
-    float scale = this->get_scale();
+void CanvasMolecule::apply_canvas_translation(int delta_x, int delta_y, float canvas_scale) noexcept {
+    float scale = BASE_SCALE_FACTOR * canvas_scale;
     this->x_canvas_translation += (float) delta_x / scale;
     this->y_canvas_translation += (float) delta_y / scale;
 }
 
-std::pair<float,float> CanvasMolecule::get_on_screen_coords(float x, float y) const noexcept {
-    float scale = this->get_scale();
-    auto x_offset = this->x_canvas_translation * scale;
-    auto y_offset = this->y_canvas_translation * scale;
+std::pair<float,float> CanvasMolecule::get_on_screen_coords(float x, float y, const std::pair<int, int>& viewport_offset, float canvas_scale) const noexcept {
+    float scale = BASE_SCALE_FACTOR * canvas_scale;
+    auto x_offset = this->x_canvas_translation * scale - viewport_offset.first;
+    auto y_offset = this->y_canvas_translation * scale - viewport_offset.second;
     return std::make_pair(x * scale + x_offset, y * scale + y_offset);
 }
 
-std::optional<std::pair<float,float>> CanvasMolecule::get_on_screen_coords_of_atom(unsigned int atom_idx) const noexcept {
+std::optional<std::pair<float,float>> CanvasMolecule::get_on_screen_coords_of_atom(unsigned int atom_idx, const std::pair<int, int>& viewport_offset, float canvas_scale) const noexcept {
     if(this->atoms.size() <= atom_idx) {
         return std::nullopt;
     }
     const Atom& a = this->atoms[atom_idx];
-    return this->get_on_screen_coords(a.x, a.y);
+    return this->get_on_screen_coords(a.x, a.y, viewport_offset, canvas_scale);
 }
 
-graphene_rect_t CanvasMolecule::get_on_screen_bounding_rect() const noexcept {
-    float scale = this->get_scale();
+graphene_rect_t CanvasMolecule::get_on_screen_bounding_rect(const std::pair<int, int>& viewport_offset, float canvas_scale) const noexcept {
+    float scale = BASE_SCALE_FACTOR * canvas_scale;
     auto x_offset = this->x_canvas_translation * scale;
     auto y_offset = this->y_canvas_translation * scale;
     graphene_rect_t ret;
@@ -337,7 +333,8 @@ CanvasMolecule::AtomColor CanvasMolecule::atom_color_from_rdkit(const RDKit::Ato
 
 CanvasMolecule::Atom::Appendix::Appendix() noexcept 
     :charge(0),
-    reversed(false) {
+    reversed(false),
+    vertical(false) {
     
 }
 
@@ -367,14 +364,13 @@ float CanvasMolecule::Bond::get_length() const noexcept {
     return std::sqrt(std::pow(bond_vector_x,2.f) + std::pow(bond_vector_y,2.f));
 }
 
-void CanvasMolecule::draw(impl::Renderer& ren, DisplayMode display_mode) const noexcept {
-    impl::MoleculeRenderContext renctx(*this, ren, display_mode);
+void CanvasMolecule::draw(impl::Renderer& ren, DisplayMode display_mode, const std::pair<int, int>& viewport_offset, float canvas_scale) const noexcept {
+    impl::MoleculeRenderContext renctx(*this, ren, display_mode, viewport_offset, canvas_scale);
     renctx.draw_atoms();
     renctx.draw_bonds();
 }
 
 CanvasMolecule::CanvasMolecule(std::shared_ptr<RDKit::RWMol> rdkit_mol, bool allow_invalid_mol, bool use_coordgen) {
-    this->canvas_scale = 1.0f;
     this->use_coordgen = use_coordgen;
     this->rdkit_molecule = std::move(rdkit_mol);
     this->cached_atom_coordinate_map = std::nullopt;
@@ -440,18 +436,20 @@ CanvasMolecule::BondGeometry CanvasMolecule::bond_geometry_from_rdkit(RDKit::Bon
             return BondGeometry::Unspecified;
         }
         case RDKit::Bond::BEGINWEDGE:{
-            return BondGeometry::WedgeTowardsSecond;
-        }
-        case RDKit::Bond::BEGINDASH:{
-            return BondGeometry::DashedTowardsSecond;
-        }
-        case RDKit::Bond::ENDDOWNRIGHT:{
             // todo: make sure that this makes sense
             return BondGeometry::WedgeTowardsFirst;
         }
-        case RDKit::Bond::ENDUPRIGHT:{
+        case RDKit::Bond::BEGINDASH:{
             // todo: make sure that this makes sense
             return BondGeometry::DashedTowardsFirst;
+        }
+        case RDKit::Bond::ENDDOWNRIGHT:{
+            // todo: make sure that this makes sense
+            return BondGeometry::WedgeTowardsSecond;
+        }
+        case RDKit::Bond::ENDUPRIGHT:{
+            // todo: make sure that this makes sense
+            return BondGeometry::DashedTowardsSecond;
         }
     }
 }
@@ -490,16 +488,20 @@ RDKit::Bond::BondDir CanvasMolecule::bond_geometry_to_rdkit(BondGeometry geom) n
             return RDKit::Bond::BondDir::UNKNOWN;
         }
         case BondGeometry::WedgeTowardsFirst: {
-            return RDKit::Bond::BondDir::ENDDOWNRIGHT;
-        }
-        case BondGeometry::WedgeTowardsSecond: {
+            // todo: make sure that this makes sense
             return RDKit::Bond::BondDir::BEGINWEDGE;
         }
+        case BondGeometry::WedgeTowardsSecond: {
+            // todo: make sure that this makes sense
+            return RDKit::Bond::BondDir::ENDDOWNRIGHT;
+        }
         case BondGeometry::DashedTowardsFirst: {
-            return RDKit::Bond::BondDir::ENDUPRIGHT;
+            // todo: make sure that this makes sense
+            return RDKit::Bond::BondDir::BEGINDASH;
         }
         case BondGeometry::DashedTowardsSecond: {
-            return RDKit::Bond::BondDir::BEGINDASH;
+            // todo: make sure that this makes sense
+            return RDKit::Bond::BondDir::ENDUPRIGHT;
         }
     }
 }
@@ -521,7 +523,7 @@ RDKit::Bond::BondType CanvasMolecule::bond_type_to_rdkit(CanvasMolecule::BondTyp
 }
 
 
-RDGeom::INT_POINT2D_MAP CanvasMolecule::compute_molecule_geometry() const {
+RDGeom::INT_POINT2D_MAP CanvasMolecule::compute_molecule_geometry(bool omit_stereochemistry) const {
     // The following code is heavily based on RDKit documentation.
 
     const RDGeom::INT_POINT2D_MAP* previous_coordinate_map = nullptr;
@@ -587,6 +589,13 @@ RDGeom::INT_POINT2D_MAP CanvasMolecule::compute_molecule_geometry() const {
     RDGeom::INT_POINT2D_MAP coordinate_map;
 
     RDKit::Conformer& conf = this->rdkit_molecule->getConformer(conformer_id);
+
+    if(!omit_stereochemistry) {
+        // I think this what needs to be called to assign bond directions (wedges and dashes) based on
+        // some internal RDKit stereochemistry representation.
+        RDKit::Chirality::wedgeMolBonds(*this->rdkit_molecule, &conf);
+    }
+
     for(auto mv: matchVect) {
         RDGeom::Point3D pt3 = conf.getAtomPos( mv.first );
         RDGeom::Point2D pt2( pt3.x , pt3.y );
@@ -666,7 +675,9 @@ void CanvasMolecule::process_alignment_in_rings() {
             auto& atom = this->atoms.at(atom_one_idx);
             if (atom.appendix.has_value()) {
                 bool should_reverse = atom.x < ring_center_x;
-                atom.appendix->reversed = should_reverse;
+                if(!atom.appendix->vertical) {
+                    atom.appendix->reversed = should_reverse;
+                }
             }
             i++;
             j++;
@@ -833,8 +844,8 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
 
         // Bond pointers to be stored in the `bond_map`
         std::vector<std::shared_ptr<Bond>> bonds_to_be_cached;
-        // Used to determine if the 'appendix' should be 'reversed'
-        std::optional<float> x_coordinate_of_bonded_atom;
+        // Used to determine if the 'appendix' should be 'reversed' or 'vertical'
+        std::optional<std::vector<std::pair<float,float>>> coordinates_of_bonded_atoms;
 
         for (const auto& bond: boost::make_iterator_range(this->rdkit_molecule->getAtomBonds(rdkit_atom))) {
             // Based on `getAtomBonds` documentation.
@@ -846,7 +857,11 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
             const auto* the_other_atom =  this->rdkit_molecule->getAtomWithIdx(the_other_atom_idx);
             if(the_other_atom->getSymbol() != "H") {
                 surrounding_non_hydrogen_count++;
-                x_coordinate_of_bonded_atom = coordinate_map.at(the_other_atom_idx).x;
+                if(coordinates_of_bonded_atoms.has_value()) {
+                    coordinates_of_bonded_atoms->push_back(std::make_pair(coordinate_map.at(the_other_atom_idx).x, coordinate_map.at(the_other_atom_idx).y));
+                } else {
+                    coordinates_of_bonded_atoms = std::vector<std::pair<float,float>>({std::make_pair(coordinate_map.at(the_other_atom_idx).x, coordinate_map.at(the_other_atom_idx).y)});
+                }
             } 
             // else {
             //     g_warning("Skipping explicit hydrogen bound to atom with idx=%u!",canvas_atom.idx);
@@ -900,20 +915,61 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
         }
 
         bool terminus = (surrounding_non_hydrogen_count < 2);
-        if (canvas_atom.symbol != "H" && (canvas_atom.symbol != "C" || terminus)) {
-            //todo: oxygens I guess?
-            if(surrounding_hydrogen_count > 0) {
-                Atom::Appendix ap = canvas_atom.appendix.value_or(Atom::Appendix());
-                ap.superatoms = "H";
-                if(surrounding_hydrogen_count > 1) {
-                    ap.superatoms += std::to_string(surrounding_hydrogen_count);
-                }
-                if(terminus && x_coordinate_of_bonded_atom.has_value()) {
-                    float diff = x_coordinate_of_bonded_atom.value() - canvas_atom.x;
-                    ap.reversed = diff > 0.2;
-                }
-                canvas_atom.appendix = ap;
+        bool in_an_a_corner = (surrounding_non_hydrogen_count == 2);
+        // If this is something which has hydrogens to be drawn
+        if (canvas_atom.symbol != "H" && (canvas_atom.symbol != "C" || terminus) && surrounding_hydrogen_count > 0) {
+            Atom::Appendix ap = canvas_atom.appendix.value_or(Atom::Appendix());
+            ap.superatoms = "H";
+            if(surrounding_hydrogen_count > 1) {
+                ap.superatoms += std::to_string(surrounding_hydrogen_count);
             }
+
+            if(coordinates_of_bonded_atoms.has_value()) {
+                const auto& coords = coordinates_of_bonded_atoms.value();
+                if(terminus) {
+                    if(coords.size() != 1) {
+                        throw std::runtime_error("Internal error: A terminus should have exactly one non-hydrogen neighbor.");
+                    }
+                    auto [x_coordinate_of_bonded_atom, _y_coordinate_of_bonded_atom] = coords.front();
+                    float x_diff = x_coordinate_of_bonded_atom - canvas_atom.x;
+                    ap.reversed = x_diff > 0.2;
+                }
+                else if(in_an_a_corner) {
+                    if(coords.size() != 2) {
+                        throw std::runtime_error("Internal error: An atom in a corner should have exactly two non-hydrogen neighbors.");
+                    }
+                    auto [x1, y1] = coords.front();
+                    auto [x2, y2] = coords.back();
+                    float x_diff_1 = x1 - canvas_atom.x;
+                    float y_diff_1 = y1 - canvas_atom.y;
+                    float x_diff_2 = x2 - canvas_atom.x;
+                    float y_diff_2 = y2 - canvas_atom.y;
+
+                    // Normalize vectors
+                    float len_1 = std::sqrt(x_diff_1 * x_diff_1 + y_diff_1 * y_diff_1);
+                    float len_2 = std::sqrt(x_diff_2 * x_diff_2 + y_diff_2 * y_diff_2);
+                    x_diff_1 /= len_1;
+                    y_diff_1 /= len_1;
+                    x_diff_2 /= len_2;
+                    y_diff_2 /= len_2;
+
+                    float mid_x = x_diff_1 + x_diff_2;
+                    float mid_y = y_diff_1 + y_diff_2;
+
+                    float alpha = std::atan(mid_y / mid_x);
+                    ap.vertical = std::abs(alpha) > M_PI_2 - CanvasMolecule::VERTICAL_SUPERATOM_ANGLE_THRESHOLD;
+
+                    if(ap.vertical) {
+                        if(mid_y > 0) {
+                            ap.reversed = true;
+                        }
+                    } else {
+                        ap.reversed = mid_x > 0.2;
+                    }
+                    // g_info("Mid vect=(%f,%f) Alpha=%f Vertical=%i Reversed=%i", mid_x, mid_y, alpha / (M_PI * 2) * 360, ap.vertical, ap.reversed);
+                }
+            }
+            canvas_atom.appendix = ap;
         }
 
         auto setup_potential_centered_double_bond = [&] (const unsigned int &atom_idx) {
@@ -955,7 +1011,7 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
     this->shorten_double_bonds();
 }
 
-void CanvasMolecule::lower_from_rdkit(bool sanitize_after, bool with_qed) {
+void CanvasMolecule::lower_from_rdkit(bool sanitize_after, bool with_qed, bool omit_stereochemistry_processing) {
 
     // 2. Do the lowering
 
@@ -971,7 +1027,7 @@ void CanvasMolecule::lower_from_rdkit(bool sanitize_after, bool with_qed) {
     }
 
     /// 2.1 Compute geometry
-    auto geometry = this->compute_molecule_geometry();
+    auto geometry = this->compute_molecule_geometry(omit_stereochemistry_processing);
 
     // 2.2 Build internal repr
     this->build_internal_molecule_representation(geometry);

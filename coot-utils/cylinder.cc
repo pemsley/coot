@@ -133,6 +133,9 @@ cylinder::init(const std::pair<glm::vec3, glm::vec3> &pos_pair,
          coot::api::vnc_vertex &v = vertices[idx];
          v.color = basic_colour;
          v.pos = glm::vec3(ori * p_1);
+         if (false)
+            std::cout << "in cylinder: i_stack " << i_stack << " i_slice " << i_slice << " z_this: " << z_this
+                      << " v.pos.z " << v.pos.z << " start " << glm::to_string(start) << std::endl;
          v.pos += start;
          v.normal = ori * p_n;
          idx++;
@@ -163,6 +166,14 @@ cylinder::init(const std::pair<glm::vec3, glm::vec3> &pos_pair,
       }
    }
    // std::cout << "Finished cylinder constructor" << std::endl;
+}
+
+void
+cylinder::init_unit(unsigned int n_slices) {
+
+   glm::vec4 col(0.5, 0.5, 0.5, 1.0);
+   std::pair<glm::vec3, glm::vec3> p(glm::vec3(0,0,1), glm::vec3(0,0,0));
+   init(p, 1.0, 1.0, 1.0, col, n_slices, 2);
 }
 
 
@@ -652,3 +663,44 @@ cylinder::crenulations() {
       triangles.push_back(g_triangle(idx_offset_origin, idx_this, idx_next));
    }
 }
+
+//
+// angle in radians.
+glm::vec3
+cylinder::rotate_around_vector(const glm::vec3 &direction,
+                     const glm::vec3 &position,
+                     const glm::vec3 &origin_shift,
+                     double angle) {
+
+   glm::vec3 unit_vec = glm::normalize(direction);
+
+   double l = unit_vec[0];
+   double m = unit_vec[1];
+   double n = unit_vec[2];
+
+   double ll = l*l;
+   double mm = m*m;
+   double nn = n*n;
+   double cosk = cos(angle);
+   double sink = sin(angle);
+   double I_cosk = 1.0 - cosk;
+
+   // The Rotation matrix angle w about vector with direction cosines l,m,n.
+   //
+   // ( l**2+(m**2+n**2)cos k     lm(1-cos k)-nsin k        nl(1-cos k)+msin k   )
+   // ( lm(1-cos k)+nsin k        m**2+(l**2+n**2)cos k     mn(1-cos k)-lsin k   )
+   // ( nl(1-cos k)-msin k        mn(1-cos k)+lsin k        n*2+(l**2+m**2)cos k )
+   //
+   // (Amore documentation) Thanks for that pointer EJD :).
+
+   glm::mat3 r(ll+(mm+nn)*cosk,    l*m*I_cosk-n*sink,  n*l*I_cosk+m*sink,
+               l*m*I_cosk+n*sink,  mm+(ll+nn)*cosk,    m*n*I_cosk-l*sink,
+               n*l*I_cosk-m*sink,  m*n*I_cosk+l*sink,  nn+(ll+mm)*cosk );
+
+   glm::vec3 p1 = position - origin_shift;
+   glm::vec3 p2 = r * p1;
+   glm::vec3 p3 = p2 + origin_shift;
+   return p3;
+
+}
+

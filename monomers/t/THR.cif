@@ -1,0 +1,208 @@
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+THR THR THREONINE peptide 17 8 .
+
+data_comp_THR
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+THR N N NT3 1 36.284 31.964 31.738
+THR CA C CH1 0 35.016 31.199 31.745
+THR C C C 0 34.952 30.333 30.501
+THR O O O 0 35.086 30.909 29.398
+THR CB C CH1 0 33.833 32.166 31.829
+THR OG1 O OH1 0 34.044 32.962 32.993
+THR CG2 C CH3 0 32.493 31.457 31.927
+THR OXT O OC -1 34.770 29.107 30.668
+THR H H H 0 36.319 32.492 31.007
+THR H2 H H 0 36.984 31.395 31.731
+THR H3 H H 0 36.331 32.480 32.477
+THR HA H H 0 35.006 30.619 32.537
+THR HB H H 0 33.830 32.749 31.033
+THR HG1 H H 0 34.002 32.475 33.707
+THR HG21 H H 0 32.588 30.657 32.470
+THR HG22 H H 0 32.191 31.210 31.037
+THR HG23 H H 0 31.841 32.050 32.336
+
+loop_
+_chem_comp_tree.comp_id
+_chem_comp_tree.atom_id
+_chem_comp_tree.atom_back
+_chem_comp_tree.atom_forward
+_chem_comp_tree.connect_type
+THR N n/a CA START
+THR H N . .
+THR H2 N . .
+THR H3 N . .
+THR CA N C .
+THR HA CA . .
+THR CB CA CG2 .
+THR HB CB . .
+THR OG1 CB HG1 .
+THR HG1 OG1 . .
+THR CG2 CB HG23 .
+THR HG21 CG2 . .
+THR HG22 CG2 . .
+THR HG23 CG2 . .
+THR C CA . END
+THR O C . .
+THR OXT C . .
+
+loop_
+_chem_comp_acedrg.comp_id
+_chem_comp_acedrg.atom_id
+_chem_comp_acedrg.atom_type
+THR N N(CCCH)(H)3
+THR CA C(CCHO)(NH3)(COO)(H)
+THR C C(CCHN)(O)2
+THR O O(CCO)
+THR CB C(CCHN)(CH3)(OH)(H)
+THR OG1 O(CCCH)(H)
+THR CG2 C(CCHO)(H)3
+THR OXT O(CCO)
+THR H H(NCHH)
+THR H2 H(NCHH)
+THR H3 H(NCHH)
+THR HA H(CCCN)
+THR HB H(CCCO)
+THR HG1 H(OC)
+THR HG21 H(CCHH)
+THR HG22 H(CCHH)
+THR HG23 H(CCHH)
+
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+THR N CA SINGLE n 1.480 0.0122 1.480 0.0122
+THR CA C SINGLE n 1.515 0.0129 1.515 0.0129
+THR CA CB SINGLE n 1.528 0.0100 1.528 0.0100
+THR C O DOUBLE n 1.251 0.0183 1.251 0.0183
+THR C OXT SINGLE n 1.251 0.0183 1.251 0.0183
+THR CB OG1 SINGLE n 1.424 0.0100 1.424 0.0100
+THR CB CG2 SINGLE n 1.518 0.0100 1.518 0.0100
+THR N H SINGLE n 1.018 0.0520 0.902 0.0102
+THR N H2 SINGLE n 1.018 0.0520 0.902 0.0102
+THR N H3 SINGLE n 1.018 0.0520 0.902 0.0102
+THR CA HA SINGLE n 1.092 0.0100 0.982 0.0200
+THR CB HB SINGLE n 1.092 0.0100 0.987 0.0100
+THR OG1 HG1 SINGLE n 0.972 0.0180 0.864 0.0200
+THR CG2 HG21 SINGLE n 1.092 0.0100 0.972 0.0156
+THR CG2 HG22 SINGLE n 1.092 0.0100 0.972 0.0156
+THR CG2 HG23 SINGLE n 1.092 0.0100 0.972 0.0156
+
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+THR CA N H 109.577 1.50
+THR CA N H2 109.577 1.50
+THR CA N H3 109.577 1.50
+THR H N H2 109.032 3.00
+THR H N H3 109.032 3.00
+THR H2 N H3 109.032 3.00
+THR N CA C 109.121 1.50
+THR N CA CB 109.645 1.84
+THR N CA HA 108.639 1.50
+THR C CA CB 111.778 1.58
+THR C CA HA 109.055 1.50
+THR CB CA HA 108.870 1.50
+THR CA C O 117.098 1.50
+THR CA C OXT 117.098 1.50
+THR O C OXT 125.804 1.50
+THR CA CB OG1 105.245 3.00
+THR CA CB CG2 112.544 1.50
+THR CA CB HB 109.595 2.39
+THR OG1 CB CG2 109.974 3.00
+THR OG1 CB HB 109.323 1.86
+THR CG2 CB HB 109.170 2.61
+THR CB OG1 HG1 109.544 3.00
+THR CB CG2 HG21 109.532 1.50
+THR CB CG2 HG22 109.532 1.50
+THR CB CG2 HG23 109.532 1.50
+THR HG21 CG2 HG22 109.425 1.50
+THR HG21 CG2 HG23 109.425 1.50
+THR HG22 CG2 HG23 109.425 1.50
+
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+THR chi1 N CA CB CG2 -60.000 10.0 3
+THR hh1 CA CB OG1 HG1 -60.000 10.0 3
+THR hh2 CA CB CG2 HG23 -60.000 10.0 3
+THR sp3_sp3_1 C CA N H 180.000 10.0 3
+THR sp2_sp3_1 O C CA N 0.000 10.0 6
+
+loop_
+_chem_comp_chir.comp_id
+_chem_comp_chir.id
+_chem_comp_chir.atom_id_centre
+_chem_comp_chir.atom_id_1
+_chem_comp_chir.atom_id_2
+_chem_comp_chir.atom_id_3
+_chem_comp_chir.volume_sign
+THR chir_1 CA N C CB positive
+THR chir_2 CB OG1 CA CG2 negative
+
+loop_
+_chem_comp_plane_atom.comp_id
+_chem_comp_plane_atom.plane_id
+_chem_comp_plane_atom.atom_id
+_chem_comp_plane_atom.dist_esd
+THR plan-1 C 0.020
+THR plan-1 CA 0.020
+THR plan-1 O 0.020
+THR plan-1 OXT 0.020
+
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+THR SMILES ACDLabs 10.04 O=C(O)C(N)C(O)C
+THR SMILES_CANONICAL CACTVS 3.341 C[C@@H](O)[C@H](N)C(O)=O
+THR SMILES CACTVS 3.341 C[CH](O)[CH](N)C(O)=O
+THR SMILES_CANONICAL "OpenEye OEToolkits" 1.5.0 C[C@H]([C@@H](C(=O)O)N)O
+THR SMILES "OpenEye OEToolkits" 1.5.0 CC(C(C(=O)O)N)O
+THR InChI InChI 1.03 InChI=1S/C4H9NO3/c1-2(6)3(5)4(7)8/h2-3,6H,5H2,1H3,(H,7,8)/t2-,3+/m1/s1
+THR InChIKey InChI 1.03 AYFVYJQAPQTCCC-GBXIJSLDSA-N
+
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+THR acedrg 278 "dictionary generator"
+THR acedrg_database 12 "data source"
+THR rdkit 2019.09.1 "Chemoinformatics tool"
+THR refmac5 5.8.0419 "optimization tool"

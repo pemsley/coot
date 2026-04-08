@@ -27,9 +27,9 @@
 
 #include <gtk/gtk.h>
 
-#include "cfc.hh"
+#include "pythonic-cfc.hh"
 
-namespace cfc {
+namespace pythonic_cfc {
    
    GtkWidget *wrapped_create_cfc_dialog(extracted_cluster_info_from_python extracted_cluster_info);
    void on_cfc_site_button_clicked(GtkButton *button, gpointer user_data);

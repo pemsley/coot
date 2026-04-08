@@ -63,7 +63,12 @@ namespace coot {
       public:
 	 float density_at_position;
 	 float non_spherical_score;
+	 spherical_density_score_t() : density_at_position(0.0), non_spherical_score(0.0) {}
 	 spherical_density_score_t(float f, float n) : density_at_position(f), non_spherical_score(n) {}
+         // 20250912-PE not "sphericity" for the record
+         float get_spherical_variance(const clipper::Coord_orth &atom_pos,
+                                      const clipper::Xmap<float> &search_map,
+                                      float mean_density_of_other_atoms) const;
       };
 
    private:

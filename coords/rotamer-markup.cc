@@ -28,9 +28,9 @@
 
 #include "utils/coot-utils.hh"
 #include "utils/split-indices.hh"
-#include "mmdb-extras.h"
-#include "mmdb-crystal.h"
-#include "Bond_lines.h"
+#include "mmdb-extras.hh"
+#include "mmdb-crystal.hh"
+#include "Bond_lines.hh"
 
 #include "ligand/rotamer.hh" // do we have the directory hierachy correct?
 

@@ -21,6 +21,7 @@
  * Fifth Floor, Boston, MA, 02110-1301, USA.
  */
 
+#include "geometry/residue-and-atom-specs.hh"
 #include "validation-graphs/validation-graphs.hh"
 #include "widget-from-builder.hh"
 #ifdef USE_PYTHON
@@ -47,13 +48,6 @@
 
 #include <mmdb2/mmdb_manager.h>
 
-#include "coords/mmdb-extras.h"
-#include "coords/mmdb.hh"
-#include "coords/mmdb-crystal.h"
-#include "coords/Cartesian.h"
-#include "coords/Bond_lines.h"
-
-#include "clipper/core/map_utils.h" // Map_stats
 #include "skeleton/graphical_skel.h"
 
 
@@ -61,14 +55,11 @@
 #include "interface.h"
 
 #include "molecule-class-info.h"
-// #include "rama_plot.hh"
 #include "skeleton/BuildCas.h"
 
 
-#include "gl-matrix.h" // for baton rotation
 #include "analysis/bfkurt.hh"
 
-#include "globjects.h"
 #ifdef USE_DUNBRACK_ROTAMERS
 #include "ligand/dunbrack.hh"
 #else
@@ -77,12 +68,11 @@
 #include "ligand/ligand.hh"
 
 #include "coot-utils/coot-map-utils.hh"
-#include "geometry-graphs.hh"
 
 
 void graphics_info_t::refresh_validation_graph_model_list() {
 
-   g_debug("refresh_validation_graph_model_list() called.");
+   // g_debug("refresh_validation_graph_model_list() called.");
 
    // std::cout << "-------------- refresh_validation_graph_model_list ------- " << std::endl;
 
@@ -99,7 +89,7 @@ void graphics_info_t::refresh_validation_graph_model_list() {
       if (graphics_info_t::molecules[i].has_model()) {
          std::string label = graphics_info_t::molecules[i].dotted_chopped_name();
          GtkTreeIter iter;
-         std::cout << "----- refresh_validation_graph_model_list adding label " << label << std::endl;
+         // std::cout << "----- refresh_validation_graph_model_list adding label " << label << std::endl;
          gtk_list_store_append(validation_graph_model_list, &iter);
          gtk_list_store_set(validation_graph_model_list, &iter, 0, label.c_str(), 1, i, -1);
          if (idx_active  == -1)
@@ -116,9 +106,9 @@ void graphics_info_t::refresh_validation_graph_model_list() {
 
    if (idx_active != -1) {
       if (!is_valid_model_molecule(active_validation_graph_model_idx)) {
-         std::cout << "TODO:: in refresh_validation_graph_model_list() Destroy graphs for model "
-                   << active_validation_graph_model_idx << " here..." << std::endl;
-         // destroy_validation_graph(coot::validation_graph_type type);
+         if (false)
+            std::cout << "TODO:: in refresh_validation_graph_model_list() Destroy graphs for model "
+                      << active_validation_graph_model_idx << " here..." << std::endl;
       }
    }
 }
@@ -158,7 +148,8 @@ void graphics_info_t::refresh_ramachandran_plot_model_list() {
 
    // what is this - I mean, who calls it/when does it run? Is this an old method now that we have rama_plot_boxes?
 
-   std::cout << "----------------------- refresh_ramachandran_plot_model_list --------- " << std::endl;
+   // noise
+   // std::cout << "----------------------- refresh_ramachandran_plot_model_list --------- " << std::endl;
 
    auto fn = +[] (GtkTreeModel* model, GtkTreePath* path, GtkTreeIter* iter, gpointer data) {
       GtkListStore* list = GTK_LIST_STORE(model);
@@ -171,13 +162,12 @@ void graphics_info_t::refresh_ramachandran_plot_model_list() {
       if (graphics_info_t::molecules[i].has_model()) {
          std::string label = graphics_info_t::molecules[i].dotted_chopped_name();
          GtkTreeIter iter;
-         std::cout << "----- refresh_ramachandran_plot_model_list adding label " << label << std::endl;
+         // std::cout << "----- refresh_ramachandran_plot_model_list adding label " << label << std::endl;
          gtk_list_store_append(ramachandran_plot_model_list, &iter);
          gtk_list_store_set(ramachandran_plot_model_list, &iter, 0, label.c_str(), 1, i, -1);
       }
    }
-
-   std::cout << "----------------------- done refresh_ramachandran_plot_model_list --------- " << std::endl;
+   // std::cout << "----------------------- done refresh_ramachandran_plot_model_list --------- " << std::endl;
 }
 
 // TODO: we're not using tabs right now. Do we ever intend to do so?
@@ -213,29 +203,75 @@ void graphics_info_t::refresh_ramachandran_plot_model_list() {
 // 	}
 // }
 
+GtkWidget* get_undocked_validation_graph_box() {
+
+   GtkWidget *window = graphics_info_t::validation_graphs_undocked_window;
+   if (!window) {
+      window = gtk_window_new();
+      gtk_window_set_title(GTK_WINDOW(window), "Coot: Validation Graphs");
+      gtk_window_set_default_size(GTK_WINDOW(window), 800, 300);
+      GtkWidget *sw = gtk_scrolled_window_new();
+      gtk_widget_set_hexpand(sw, TRUE);
+      gtk_widget_set_vexpand(sw, TRUE);
+      GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
+      gtk_widget_set_hexpand(box, TRUE);
+      gtk_widget_set_vexpand(box, TRUE);
+      gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(sw), box);
+      gtk_window_set_child(GTK_WINDOW(window), sw);
+      g_object_set_data(G_OBJECT(window), "validation_graph_box", box);
+      // hide rather than destroy on close
+      g_signal_connect(window, "close-request", G_CALLBACK(+[](GtkWindow *w, gpointer) -> gboolean {
+         gtk_widget_set_visible(GTK_WIDGET(w), FALSE);
+         return TRUE; // prevent destruction
+      }), nullptr);
+      graphics_info_t::validation_graphs_undocked_window = window;
+   }
+   return GTK_WIDGET(g_object_get_data(G_OBJECT(window), "validation_graph_box"));
+}
+
 void insert_validation_graph(GtkWidget* graph) {
 
-   GtkWidget* target_box = widget_from_builder("main_window_validation_graph_box");
-   if(! gtk_widget_get_first_child(target_box)) {
-      // Empty validation_graph_box means that we need to make the validation_graph_frame visible first
-      GtkWidget* frame = widget_from_builder("main_window_validation_graph_frame");
-      gtk_widget_set_visible(frame, TRUE);
+   if (graphics_info_t::validation_graphs_is_docked) {
+      GtkWidget* target_box = widget_from_builder("main_window_validation_graph_box");
+      if(! gtk_widget_get_first_child(target_box)) {
+         // Empty validation_graph_box means that we need to make the validation_graph_frame visible first
+         GtkWidget* frame = widget_from_builder("main_window_validation_graph_frame");
+         gtk_widget_set_visible(frame, TRUE);
+      }
+      gtk_box_append(GTK_BOX(target_box), graph);
+   } else {
+      GtkWidget *box = get_undocked_validation_graph_box();
+      gtk_box_append(GTK_BOX(box), graph);
+      GtkWidget *window = graphics_info_t::validation_graphs_undocked_window;
+      gtk_widget_set_visible(window, TRUE);
    }
-   //g_debug("Inserting %p to the validation graph box.",graph);
-   gtk_box_append(GTK_BOX(target_box), graph);
-
 }
 
 void remove_validation_graph(GtkWidget* graph) {
 
-   // 20230424-PE we move this to the box in the paned in the main window
-   GtkWidget* target_box = widget_from_builder("main_window_validation_graph_box");
-   //g_debug("Removing %p from the validation graph box.",graph);
-   gtk_box_remove(GTK_BOX(target_box), graph);
-   if (! gtk_widget_get_first_child(target_box)) {
-      // If the validation_graph_box is empty now, we need to make the validation_graph_frame invisible
-      GtkWidget* frame = widget_from_builder("main_window_validation_graph_frame");
-      gtk_widget_set_visible(frame, FALSE);
+   GtkWidget *parent_box = gtk_widget_get_parent(graph);
+   if (! parent_box) {
+      g_warning("remove_validation_graph(): graph widget has no parent");
+      return;
+   }
+
+   GtkWidget *docked_box = widget_from_builder("main_window_validation_graph_box");
+
+   if (parent_box == docked_box) {
+      gtk_box_remove(GTK_BOX(docked_box), graph);
+      if (! gtk_widget_get_first_child(docked_box)) {
+         GtkWidget* frame = widget_from_builder("main_window_validation_graph_frame");
+         gtk_widget_set_visible(frame, FALSE);
+      }
+   } else {
+      GtkWidget *window = graphics_info_t::validation_graphs_undocked_window;
+      gtk_box_remove(GTK_BOX(parent_box), graph);
+      if (window && ! gtk_widget_get_first_child(parent_box)) {
+         gtk_widget_set_visible(window, FALSE);
+      }
+      if (! window) {
+         g_warning("remove_validation_graph(): graph was in an undocked box but validation_graphs_undocked_window is null");
+      }
    }
 }
 
@@ -411,29 +447,33 @@ get_validation_data_for_rotamer_analysis(int imol) {
          mmdb::Residue *residue_p = SelResidues[ir];
          coot::residue_spec_t res_spec(residue_p);
          res_spec.int_user_data = imol;
-         mmdb::PAtom *residue_atoms=0;
-         int n_residue_atoms;
+         mmdb::Atom **residue_atoms = 0;
+         int n_residue_atoms = 0;
          residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
 
          // double residue_density_score = coot::util::map_score(residue_atoms, n_residue_atoms, xmap, 1);
 
          if (n_residue_atoms > 5) {
 
-            std::string res_name = residue_p->GetResName();
-            if (true) {
+            // std::string res_name = residue_p->GetResName();
+            // coot::rotamer rot(residue_p);
+            // coot::rotamer_probability_info_t rpi = rot.probability_of_this_rotamer();
 
-               coot::rotamer rot(residue_p);
-               coot::rotamer_probability_info_t rpi = rot.probability_of_this_rotamer();
-               double prob = rpi.probability * 0.01; // to range 0->1
+            // 2026-03-02-PE - new style
+            const std::string alt_conf;
+            float rotamer_lowest_probability = 0.01;
+            graphics_info_t g;
+            coot::rotamer_probability_info_t d_score = g.get_rotamer_probability(residue_p, alt_conf, mol, rotamer_lowest_probability, 1);
+            float prob = d_score.probability;
+            // std::cout << "probs " << coot::residue_spec_t(residue_p) << " :  " << prob << " " << d_score.probability << std::endl;
 
-               std::string l = "Chain ID: " + res_spec.chain_id+"     Residue number: " + std::to_string(res_spec.res_no);
-               std::string atom_name = coot::util::intelligent_this_residue_mmdb_atom(residue_p)->GetAtomName();
-               const std::string &chain_id = res_spec.chain_id;
-               int this_resno = res_spec.res_no;
-               coot::atom_spec_t atom_spec(chain_id, this_resno, res_spec.ins_code, atom_name, "");
-               coot::residue_validation_information_t rvi(res_spec, atom_spec, prob, l);
-               vi.add_residue_validation_information(rvi, chain_id);
-            }
+            std::string l = "Chain ID: " + res_spec.chain_id+"     Residue number: " + std::to_string(res_spec.res_no);
+            std::string atom_name = coot::util::intelligent_this_residue_mmdb_atom(residue_p)->GetAtomName();
+            const std::string &chain_id = res_spec.chain_id;
+            int this_resno = res_spec.res_no;
+            coot::atom_spec_t atom_spec(chain_id, this_resno, res_spec.ins_code, atom_name, "");
+            coot::residue_validation_information_t rvi(res_spec, atom_spec, prob, l);
+            vi.add_residue_validation_information(rvi, chain_id);
          }
       }
       mol->DeleteSelection(selHnd);
@@ -568,6 +608,52 @@ graphics_info_t::get_validation_data_for_geometry_analysis(int imol) {
 }
 
 coot::validation_information_t
+get_validation_data_for_ncs_analysis(int imol) {
+
+   coot::validation_information_t vi;
+   vi.name = "NCS Differences";
+   vi.type = coot::graph_data_type::UNSET;
+
+   graphics_info_t g;
+   if (! g.is_valid_model_molecule(imol)) return vi;
+
+   std::pair<bool, std::string> master_info = g.molecules[imol].first_ncs_master_chain_id();
+   if (! master_info.first) return vi;
+
+   std::string master_chain_id = master_info.second;
+   float main_chain_weight = 1.0;
+   coot::ncs_differences_t diff = g.molecules[imol].ncs_chain_differences(master_chain_id, main_chain_weight);
+
+   for (unsigned int i=0; i<diff.diffs.size(); i++) {
+      const coot::ncs_chain_difference_t &chain_diff = diff.diffs[i];
+      coot::chain_validation_information_t cvi(chain_diff.peer_chain_id);
+      cvi.name = chain_diff.peer_chain_id + " vs " + master_chain_id;
+      for (unsigned int j=0; j<chain_diff.residue_info.size(); j++) {
+         const coot::ncs_residue_info_t &ri = chain_diff.residue_info[j];
+         if (ri.filled) {
+            coot::residue_spec_t res_spec(chain_diff.peer_chain_id, ri.resno, ri.inscode);
+            res_spec.int_user_data = imol;
+            mmdb::Atom *at = g.molecules[imol].atom_intelligent(chain_diff.peer_chain_id, ri.resno, ri.inscode);
+            std::string atom_name = " CA ";
+            std::string altconf = "";
+            if (at) {
+               atom_name = at->name;
+               altconf = at->altLoc;
+            }
+            coot::atom_spec_t atom_spec(chain_diff.peer_chain_id, ri.resno, ri.inscode, atom_name, altconf);
+            std::string res_label = std::to_string(ri.resno) + chain_diff.peer_chain_id;
+            coot::residue_validation_information_t rvi(res_spec, atom_spec, ri.mean_diff, res_label);
+            cvi.add_residue_validation_information(rvi);
+         }
+      }
+      vi.cviv.push_back(cvi);
+   }
+
+   vi.set_min_max();
+   return vi;
+}
+
+coot::validation_information_t
 get_validation_data(int imol, coot::validation_graph_type type) {
 
    graphics_info_t g;
@@ -589,6 +675,8 @@ get_validation_data(int imol, coot::validation_graph_type type) {
       vi = get_validation_data_for_peptide_omega_analysis(imol);
    if (type == coot::validation_graph_type::geometry)
       vi = g.get_validation_data_for_geometry_analysis(imol);
+   if (type == coot::validation_graph_type::ncs)
+      vi = get_validation_data_for_ncs_analysis(imol);
 
    return vi;
 
@@ -600,10 +688,11 @@ get_validation_data(int imol, coot::validation_graph_type type) {
 void
 graphics_info_t::create_validation_graph(int imol, coot::validation_graph_type type) {
 
-   std::cout << "Yes! create_validation_graph() for " << imol << " type: "
-             << coot::validation_graph_type_to_human_name(type) << std::endl;
+   if (false)
+      std::cout << "debug:: create_validation_graph(): for " << imol << " type: "
+                << coot::validation_graph_type_to_human_name(type) << std::endl;
 
-   if (imol != -1) {
+   if (is_valid_model_molecule(imol)) {
       // 1. instantiate the validation graph
       CootValidationGraph *cvg = coot_validation_graph_new();
       GtkWidget *this_is_the_graph = GTK_WIDGET(cvg);
@@ -927,7 +1016,10 @@ graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving
 void
 graphics_info_t::update_ramachandran_plot(int imol) {
 
-   std::cout << "update_ramachandran_plot() " << imol << " FIXME? " << std::endl;
+   // a noise annoys
+   //
+   if (false)
+      std::cout << "debug:: update_ramachandran_plot() " << imol << " does nothing - FIXME? " << std::endl;
 }
 
 #include "dynamic-validation.hh"
@@ -936,12 +1028,18 @@ void
 graphics_info_t::update_validation(int imol_changed_model) {
 
    // 20230910-PE, well, we only want to update the validation if it was already being displayed.
+   // 20250202-PE so the caller sets the visibility of validation_boxes_vbox to true.
 
    if (! use_graphics_interface_flag) return;
 
+   bool do_dynamic_validation = false;
+   GtkWidget* vbox_dv = widget_from_builder("validation_boxes_vbox");
+   if (gtk_widget_get_visible(vbox_dv)) do_dynamic_validation = true;
+
    update_validation_graphs(imol_changed_model);
    update_ramachandran_plot(imol_changed_model);
-   update_dynamic_validation_for_molecule(imol_changed_model); // maybe.
+   if (do_dynamic_validation)
+      update_dynamic_validation_for_molecule(imol_changed_model); // maybe.
 
    if (coot_all_atom_contact_dots_are_begin_displayed_for(imol_changed_model)) {
       mmdb::Manager *mol = molecules[imol_changed_model].atom_sel.mol;
@@ -957,10 +1055,12 @@ graphics_info_t::update_validation_graphs(int imol_changed_model) {
    // imol has change (e.g. a rotamer or RSR) and now I want to update the graphs
    // for that molecule if they are displayed.
 
-   g_debug("update_validation() called");
-   g_warning("Reimplement update_validation(). "
-             "The function should iterate over the std::map holding validation data for each active graph "
-             "and recompute it, then trigger a redraw.");
+   if (false) {
+      g_debug("update_validation() called");
+      g_warning("Reimplement update_validation(). "
+                "The function should iterate over the std::map holding validation data for each active graph "
+                "and recompute it, then trigger a redraw.");
+   }
 
    // 20230527-PE maybe this is the right wasy to do it. But I think that I have done it a different way for now.
    //
@@ -976,14 +1076,6 @@ graphics_info_t::update_validation_graphs(int imol_changed_model) {
          coot_validation_graph_set_validation_information(cvg, vip);
       }
    }
-
-// #ifdef HAVE_GOOCANVAS
-//    update_ramachandran_plot(imol);
-//    // now update the geometry graphs, so get the asc
-//    atom_selection_container_t u_asc = molecules[imol].atom_sel;
-//    update_geometry_graphs(u_asc, imol);
-// #endif
-
 }
 
 

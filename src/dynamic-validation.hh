@@ -26,6 +26,8 @@
 #ifndef DYNAMIC_VALIDATION_DIALOG_HH
 #define DYNAMIC_VALIDATION_DIALOG_HH
 
+#include "coords/phenix-geo.hh"
+
 void dynamic_validation_internal(int imol, int imol_map);
 
 void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol);
@@ -33,5 +35,9 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol);
 void update_dynamic_validation();
 
 void update_dynamic_validation_for_molecule(int imol);
+
+void phenix_geo_validation_buttons(int imol,
+                                   const coot::phenix_geo::phenix_geometry &pg,
+                                   double residual_cutoff);
 
 #endif // DYNAMIC_VALIDATION_DIALOG_HH

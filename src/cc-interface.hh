@@ -23,6 +23,7 @@
 #ifndef CC_INTERFACE_HH
 #define CC_INTERFACE_HH
 
+#include "geometry/residue-and-atom-specs.hh"
 #ifdef USE_PYTHON
 #include "Python.h"
 #endif
@@ -31,7 +32,10 @@
 #include <optional>
 
 #ifdef USE_GUILE
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
 #include <libguile.h>
+#pragma GCC diagnostic pop
 #endif // USE_GUILE
 
 #include "utils/coot-utils.hh"
@@ -41,8 +45,8 @@
 #include "ligand/dipole.hh"
 #include "high-res/sequence-assignment.hh" // for residue_range_t
 
-#include "coords/mmdb-extras.h"
-#include "coords/mmdb-crystal.h"
+#include "coords/mmdb-extras.hh"
+#include "coords/mmdb-crystal.hh"
 
 #include "pli/flev-annotations.hh" // animated ligand interactions
 #include "named-rotamer-score.hh"
@@ -93,24 +97,66 @@ namespace coot {
 
 }
 
+//! \brief Get the Git commit hash of the Coot build
+//!
+//! Returns the Git commit identifier for the version of Coot currently running.
+//! Useful for bug reports and version tracking.
+//!
+//! \return String containing the Git commit hash (e.g., "a3f2c1d")
+//!
+//! Example:
+//! \code{.cpp}
+//! std::string commit = git_commit();
+//! std::cout << "Coot version: commit " << commit << std::endl;
+//! \endcode
 std::string git_commit();
 
+//! \brief Filter files by glob pattern
+//!
+//! Returns a list of files in the specified directory that match the given
+//! glob pattern, useful for file selection dialogs.
+//!
+//! @param pre_directory Directory path to search
+//! @param data_type Type of data to filter (specific values TBD)
+//!
+//! @return Vector of filename strings matching the criteria
 std::vector<std::string> filtered_by_glob(const std::string &pre_directory, int data_type);
-/*  Return 1 if search appears in list, 0 if not) */
+
+
+//! \brief Check if a string exists in a vector
+//!
+//! Searches for an exact match of the search string in the provided list.
+//!
+//! @param search String to search for
+//! @param list Vector of strings to search within
+//!
+//! @return 1 if found, 0 if not found
+//!
+//! Example:
+//! \code{.cpp}
+//! std::vector<std::string> chains = {"A", "B", "C"};
+//! if (string_member("B", chains)) {
+//!     std::cout << "Chain B exists" << std::endl;
+//! }
+//! \endcode
 short int string_member(const std::string &search, const std::vector<std::string> &list);
+
+//! \brief Compare two strings
+//!
+//! Performs string comparison for sorting purposes.
+//!
+//! @param a First string
+//! @param b Second string
+//!
+//! @return true if a < b in lexicographic order
+//!
+//! \note Useful as a comparator function for std::sort
 bool compare_strings(const std::string &a, const std::string &b);
 
 /*
 std::string pre_directory_file_selection(GtkWidget *sort_button);
 void filelist_into_fileselection_clist(GtkWidget *fileselection, const std::vector<std::string> &v);
 */
-
-// 20220723-PE these functions should not be in this header! - Move them to a widget header
-// MOVE-ME!
-GtkWidget *wrapped_nothing_bad_dialog(const std::string &label);
-
-std::pair<short int, float> float_from_entry(GtkWidget *entry);
-std::pair<short int, int>   int_from_entry(GtkWidget *entry);
 
 // These widget declarations don't belong in this file.
 // void
@@ -119,11 +165,6 @@ std::pair<short int, int>   int_from_entry(GtkWidget *entry);
 // 						     const std::string &menu_name,
 // 						     const std::string &sub_menu_name);
 
-// To be used to (typically) get the menu item text label from chain
-// option menus (rather than the ugly/broken casting of
-// GtkPositionType data.  A wrapper to a static graphics_info_t
-// function.
-std::string menu_item_label(GtkWidget *menu_item);
 
 // CaBLAM
 std::vector<std::pair<coot::residue_spec_t, double> >
@@ -132,25 +173,123 @@ add_cablam_markup(int imol, const std::string &cablam_file_name);
 SCM add_cablam_markup_scm(int imol, const std::string &cablam_log_file_name);
 #endif
 #ifdef USE_PYTHON
+//! \brief Add CaBLAM validation markup (Python interface)
+//!
+//! Reads CaBLAM output and adds colored markup to the model showing
+//! backbone validation results.
+//!
+//! @param imol Model molecule number  
+//! @param cablam_log_file_name Path to CaBLAM output file
+//!
+//! @return PyObject* - List of tuples [(residue_spec, score), ...]
+//!         where residue_spec is [chain_id, resno, ins_code]
+//!         and score is the CaBLAM validation score
+//!
+//! Example usage:
+//! \code{.py}
+//! # Read CaBLAM results and add markup
+//! results = add_cablam_markup_py(1, "cablam_results.txt")
+//!
+//! # Find worst CaBLAM outliers
+//! outliers = [r for r in results if r[1] < 0.5]
+//! print(f"Found {len(outliers)} CaBLAM outliers")
+//!
+//! for (chain, resno, ins), score in outliers:
+//!     print(f"  {chain} {resno}: score = {score:.3f}")
+//! \endcode
 PyObject *add_cablam_markup_py(int imol, const std::string &cablam_log_file_name);
 #endif
+
+/*  ---------------------------------------------------------------------- */
+/*                       key bindings :                                    */
+/*  ---------------------------------------------------------------------- */
+//! \name Key Bindings
+//! \{
+void print_key_bindings();
+//! \}
+
 
 /*  ---------------------------------------------------------------------- */
 /*                       go to atom   :                                    */
 /*  ---------------------------------------------------------------------- */
 
+// not for export
 void set_rotation_centre(const clipper::Coord_orth &pos);
 
 #ifdef USE_GUILE
 //
-// Pass the current values, return new values
+//! \brief Navigate to the next atom in the sequence (Guile interface)
+//!
+//! Given the current atom position, return the specification for the next atom
+//! in the sequence. This traverses atoms in order: within a residue, then to
+//! the next residue, then to the next chain.
+//!
+//! @param chain_id Current chain identifier
+//! @param resno Current residue number
+//! @param ins_code Current insertion code
+//! @param atom_name Current atom name
+//!
+//! @return SCM - List containing the next atom specification [chain_id, resno, ins_code, atom_name]
+//!
+//! \note Returns the current position if already at the last atom
+//!
+//! Example usage:
+//! \code{.scm}
+//! (define next-atom (goto-next-atom-maybe "A" 42 "" "CA"))
+//! ;; next-atom will be something like ("A" 42 "" "C") or ("A" 43 "" "N")
+//! \endcode
 SCM goto_next_atom_maybe_scm(const char *chain_id, int resno, const char *ins_code, const char *atom_name);
+
+//! \brief Navigate to the previous atom in the sequence (Guile interface)
+//!
+//! Given the current atom position, return the specification for the previous atom
+//! in the sequence. This traverses atoms in reverse order: within a residue, then to
+//! the previous residue, then to the previous chain.
+//!
+//! @param chain_id Current chain identifier
+//! @param resno Current residue number
+//! @param ins_code Current insertion code
+//! @param atom_name Current atom name
+//!
+//! @return SCM - List containing the previous atom specification [chain_id, resno, ins_code, atom_name]
+//!
+//! \note Returns the current position if already at the first atom
 SCM goto_prev_atom_maybe_scm(const char *chain_id, int resno, const char *ins_code, const char *atom_name);
 #endif
 
 #ifdef USE_PYTHON
-
+//! \brief Navigate to the next atom in the sequence (Python interface)
+//!
+//! Given the current atom position, return the specification for the next atom
+//! in the sequence. Useful for iterating through atoms programmatically.
+//!
+//! @param chain_id Current chain identifier
+//! @param resno Current residue number
+//! @param ins_code Current insertion code (use "" if none)
+//! @param atom_name Current atom name
+//!
+//! @return PyObject* - List [chain_id, resno, ins_code, atom_name] for next atom
+//!
+//! Example usage:
+//! \code{.py}
+//! # Navigate forward through atoms
+//! current = ["A", 42, "", "CA"]
+//! next_atom = goto_next_atom_maybe_py(*current)
+//! print(f"Next atom: {next_atom}")
+//! \endcode
 PyObject *goto_next_atom_maybe_py(const char *chain_id, int resno, const char *ins_code, const char *atom_name);
+
+//! \brief Navigate to the previous atom in the sequence (Python interface)
+//!
+//! Given the current atom position, return the specification for the previous atom.
+//! Useful for iterating backwards through atoms programmatically.
+//!
+//! @param chain_id Current chain identifier
+//! @param resno Current residue number
+//! @param ins_code Current insertion code (use "" if none)
+//! @param atom_name Current atom name
+//!
+//! @return PyObject* - List [chain_id, resno, ins_code, atom_name] for previous atom
 PyObject *goto_prev_atom_maybe_py(const char *chain_id, int resno, const char *ins_code, const char *atom_name);
 #endif
 
@@ -173,7 +312,24 @@ int set_go_to_atom_from_atom_spec_py(PyObject *residue_spec);
 //
 std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom_spec();
 #ifdef USE_PYTHON
-// return a tuple of (Py_Bool (number, atom_spec))
+//! \brief Get the currently active atom (Python interface)
+//!
+//! Returns the atom specification for the atom at the current rotation center.
+//!
+//! @return PyObject* - Tuple (found, (molecule_number, atom_spec)) where:
+//!         - found: Boolean indicating if an atom exists at center
+//!         - molecule_number: Integer molecule ID
+//!         - atom_spec: List [chain_id, resno, ins_code, atom_name, alt_conf]
+//!
+//! Example usage:
+//! \code{.py}
+//! found, (imol, atom_spec) = active_atom_spec_py()
+//! if found:
+//!     chain, resno, ins, atom, alt = atom_spec
+//!     print(f"Active: {chain} {resno} {atom} in molecule {imol}")
+//! else:
+//!     print("No active atom")
+//! \endcode
 PyObject *active_atom_spec_py();
 #endif // USE_PYTHON
 
@@ -185,7 +341,7 @@ PyObject *active_atom_spec_py();
 //
 #ifdef USE_GUILE
 
-//! \name  More Symmetry Functions
+//! \name More Scheme Symmetry Functions
 //! \{
 
 //! \brief return the symmetry of the imolth molecule
@@ -194,22 +350,47 @@ PyObject *active_atom_spec_py();
 //!   given molecule. If imol is a not a valid molecule, return an empty
 //!   list.*/
 SCM get_symmetry(int imol);
+//! \}
 #endif // USE_GUILE
 
 #ifdef USE_PYTHON
-// return a python object as a list (or some other python container)
+//! \name More Python Symmetry Functions
+//! \{
+
+//! \brief return the symmetry of the imolth molecule
+//!
+//!   Return as a list of strings the symmetry operators of the
+//!   given molecule. If imol is a not a valid molecule, return an empty
+//!   list.*/
+//! @return a python object as a list (or some other python container)
 PyObject *get_symmetry_py(int imol);
+//! \}
+
 #endif // USE_PYTHON
+
+//! \name More Symmetry Functions
+//! \{
 
 //! \brief return 1 if this residue clashes with the symmetry-related
 //!  atoms of the same molecule.
 //!
-//! 0 means that it did not clash,
+//! @param imol the molecule index
+//! @param chain_id the chain id
+//! @param res_no the residue number
+//! @param ins_code the insertion code
+//! @param clash_dist the clash distance cut-off - typically 3.6 Angstroms
+//!
+//! @return 0 means that it did not clash,
 //! -1 means that the residue or molecule could not be found or that there
 //!    was no cell and symmetry.
 int clashes_with_symmetry(int imol, const char *chain_id, int res_no, const char *ins_code,
                           float clash_dist);
 
+//! Add molecular symmetry
+//!
+//! You will need to know how to expand your point group molecular symmetry
+//! to a set of 3x3 matrices. Call this function for every matrix.
+//! @param imol the molecule index
 void add_molecular_symmetry(int imol,
                             double r_00, double r_01, double r_02,
                             double r_10, double r_11, double r_12,
@@ -218,10 +399,20 @@ void add_molecular_symmetry(int imol,
                             double about_origin_y,
                             double about_origin_z);
 
+//! Add molecular symmetry from MTRIX records from file
+//!
+//! Often molecular symmetry is descibed using MTRIX card in a PDB file header.
+//! Use this function to extract and apply such molecular symmmetry
 int add_molecular_symmetry_from_mtrix_from_file(int imol, const std::string &file_name);
 
+//! Add molecular symmetry
+//!
+//! This is a convenience function for the above - where you don't need to
+//! specify the PDB file name.
+//!
+//! @param imol the molecule index
+//! @return 1 on success and 0 on failure
 int add_molecular_symmetry_from_mtrix_from_self_file(int imol);
-
 
 //! \}
 
@@ -244,7 +435,14 @@ std::vector<int> auto_read_make_and_draw_maps_from_mtz(const std::string &file_n
 std::vector<int> auto_read_make_and_draw_maps_from_cns(const std::string &file_name);
 
 
-/*! \brief does the mtz file have the columms that we want it to have? */
+//! \brief does the mtz file have the columms that we want it to have?
+//!
+//! @param mtz_file_name the mtz file name
+//! @param f_col desired f_col
+//! @param phi_col desired phi_col
+//! @param weight_col desired weight col
+//! @param mtz_file_name use_weights_flag specifies if the weight_col
+//!        flay should be used/is interesting
 int valid_labels(const std::string &mtz_file_name, const std::string &f_col,
 		 const std::string &phi_col,
 		 const std::string &weight_col,
@@ -263,6 +461,8 @@ void add_map_scroll_wheel_mol_menu_item(int imol,
 //!
 //! blurred maps are generated by using a positive value of b_factor.
 //!
+//! @param imol the molecule index
+//! @param b_factor is the B-factor to blur by (positive numbers blur)
 //! @return the index of the map created by applying a b-factor
 //!        to the given map. Return -1 on failure.
 int sharpen_blur_map(int imol_map, float b_factor);
@@ -273,6 +473,8 @@ int sharpen_blur_map(int imol_map, float b_factor);
 //!
 //! blurred maps are generated by using a positive value of b_factor.
 //!
+//! @param imol the molecule index
+//! @param b_factor is the B-factor to blur by (positive numbers blur)
 //! @return the index of the map created by applying a b-factor
 //!        to the given map. Return -1 on failure.
 int sharpen_blur_map_with_resampling(int imol_map, float b_factor, float resample_factor);
@@ -293,14 +495,24 @@ void multi_sharpen_blur_map_scm(int imol_map, SCM b_factors_list);
 //!
 //! blurred maps are generated by using a positive value of b_factor.
 //!
+//! @param imol the molecule index
+//! @param b_factor_lisst is a list of B-factor to blur by (positive numbers blur)
 void multi_sharpen_blur_map_py(int imol_map, PyObject *b_factors_list);
 #endif
 
 #ifdef USE_PYTHON
+//! amplitude vs resolution data for graph
+//!
+//! @param imol the molecule index
+//! @return a list of list of lists, for each item in the list the resolution is the 0th element (in reciprocal Angstroms squared)
+//!  and the count is the element index 1 and the amplitude is in element index 2.
 PyObject *amplitude_vs_resolution_py(int mol_map);
 #endif
 
 #ifdef USE_GUILE
+//! amplitude vs resolution data for graph
+//! @param imol the molecule index
+//! @return a list of list pairs, resolution is the first element (in reciprocal Angstroms squared) and the amplitude is in the second element.
 SCM amplitude_vs_resolution_scm(int mol_map);
 #endif
 
@@ -311,17 +523,25 @@ SCM amplitude_vs_resolution_scm(int mol_map);
 int flip_hand(int imol_map);
 
 #ifndef SWIG
-//! \brief test function for analysis of multiple map
+//! test function for analysis of multiple map
 int analyse_map_point_density_change(const std::vector<int> &map_number_list, int imol_map_mask);
 #endif
 
 #ifdef USE_PYTHON
+//! I don't know what this does
+//!
+//! Looks interesting though
+//! @param map_number_list a list of map numbers
+//! @param imol_map_mask the molecule index for the mask
+//! @return 0 on failure, 1 on success
 int analyse_map_point_density_change_py(PyObject *map_number_list, int imol_map_mask);
 #endif
 
 //! \brief Go to the centre of the molecule - for Cryo-EM Molecules
 //!
-//!        and recontour at a sensible value.
+//! and recontour at a sensible value.
+//!
+//! @param imol the molecule index
 void go_to_map_molecule_centre(int imol_map);
 
 //! \brief b-factor from map
@@ -334,11 +554,11 @@ void go_to_map_molecule_centre(int imol_map);
 float b_factor_from_map(int imol_map);
 
 
+#ifdef USE_GUILE
 //! \brief return the colour triple of the imolth map
 //!
 //! (e.g.: (list 0.4 0.6 0.8). If invalid imol return scheme false.
 //!
-#ifdef USE_GUILE
 SCM map_colour_components(int imol);
 #endif // GUILE
 
@@ -346,17 +566,28 @@ SCM map_colour_components(int imol);
 //! \brief return the colour triple of the imolth map
 //
 //! e.g.: [0.4, 0.6, 0.8]. If invalid imol return Py_False.
-//
+//!
+//! @param imol the molecule index
+//! @return the colour triple of the imolth map
 PyObject *map_colour_components_py(int imol);
 #endif // PYTHON
 
-/*! \brief read a CCP4 map or a CNS map (despite the name). */
+//! \brief read a CCP4 map or a CNS map (despite the name)
+//!
+//! @param filename is the file name
+//! @param is_diff_map_flag is either 0 or 1 denoting if this is a
+//!        difference map
+//! @return the molecule index of the new map. Return -1 on failure
 int read_ccp4_map(const std::string &filename, int is_diff_map_flag);
 
-/*! \brief same function as above - old name for the function. Deleted from the API at some stage */
+//! \brief same function as above - old name for the function. Deleted from the API at some stage
+//! @param filename is the file name
+//! @param is_diff_map_flag is either 0 or 1 denoting if this is a
+//!        difference map
+//! @return the molecule index of the new map. Return -1 on failure
 int handle_read_ccp4_map(const std::string &filename, int is_diff_map_flag);
 
-/*! \brief this reads a EMDB bundle - I don't think they exist any more */
+//! \brief this reads a EMDB bundle - I don't think they exist any more
 int handle_read_emdb_data(const std::string &dir_name);
 
 void show_map_partition_by_chain_dialog();
@@ -367,8 +598,20 @@ std::vector<int> map_partition_by_chain(int imol_map, int imol_model);
 //! Use the function for use in the GUI (non-blocking, no results returned)
 void map_partition_by_chain_threaded(int imol_map, int imol_model);
 
+//! use (or not) vertex gradients for the specified map
+//!
+//! vertex gradients make the map look smoother but are slower
+//! to calculate
+//!
+//! @param imol the molecule index
+//! @param state 0 for no, 1 for yes
+void set_use_vertex_gradients_for_map_normals(int imol, int state);
+
 //! the map should be displayed and not a difference map
 void use_vertex_gradients_for_map_normals_for_latest_map();
+
+//! alias for the above (more canonical naming)
+void set_use_vertex_gradients_for_map_normals_for_latest_map();
 
 
 //! \}
@@ -389,7 +632,11 @@ void regen_map_internal(int imol_map, const std::vector<std::pair<int, float> > 
 int make_weighted_map_simple_internal(const std::vector<std::pair<int, float> > &weighted_map_indices);
 #endif
 
-// maybe we need to spefify_other things like the colour table.
+//! \brief colour map by other map
+//!
+//! maybe we need to spefify_other things like the colour table.
+//! @param imol_map the molecule index
+//! @param imol_map_used_for_colouring is the other map index
 void
 colour_map_by_other_map(int imol_map, int imol_map_used_for_colouring);
 
@@ -459,6 +706,19 @@ void servalcat_refine(int imol_model,
                       const std::string &half_map_1, const std::string &half_map_2,
                       const std::string &mask_map, float resolution);
 
+//! run acedrg link
+void
+run_acedrg_link_generation(const std::string &acedrg_link_command);
+
+//! run generic process - doesn't work at the moment - on_completion_args
+//! is wrongly interpretted.
+void add_toolbar_subprocess_button(const std::string &button_label,
+                                   const std::string &subprocess_command,
+                                   PyObject *arg_list,
+                                   PyObject *on_completion_function,
+                                   PyObject *on_completion_args);
+
+
 /*  ------------------------------------------------------------------------ */
 /*                             Add an Atom                                   */
 /*  ------------------------------------------------------------------------ */
@@ -477,6 +737,24 @@ void add_an_atom(const std::string &element);
 #ifdef USE_PYTHON
 void nudge_the_temperature_factors_py(int imol, PyObject *residue_spec_py, float amount);
 #endif
+
+//! \brief convert AlphaFold pLDDT to crystallographic B-factors
+//!
+//! AlphaFold models store pLDDT confidence scores (0-100) in the
+//! B-factor column. This function converts them to crystallographic
+//! B-factors using the Hiranuma et al. (2021) formula:
+//!
+//!   RMSD = 1.5 * exp(4 * (0.7 - pLDDT/100))
+//!
+//!   B = (8 * pi^2 / 3) * RMSD^2
+//!
+//! After conversion, high-confidence regions (pLDDT ~90) get
+//! B-factors of ~8 A^2, while low-confidence regions (pLDDT ~50)
+//! get B-factors of ~440 A^2.
+//!
+//! @param imol is the molecule index of the AlphaFold model
+void hiranuma_inversion(int imol);
+
 //! \}
 
 
@@ -607,10 +885,42 @@ std::pair<int, std::vector<merge_molecule_results_info_t> > merge_molecules_by_v
 /*  ----------------------------------------------------------------------- */
 //! \name Dictionary Functions
 //! \{
+
+/*                  cif (geometry) dictionary                            */
+/* \brief return the number of bonds read (> 0 can be treated as success) */
+int handle_cif_dictionary(const std::string &filename);
+/* \brief synonym for above.
+
+return the number of bonds read (> 0 can be treated as success) */
+int read_cif_dictionary(const std::string &filename);
+
+/* \brief return the number of bonds read (> 0 can be treated as success).
+ Apply to the given molecule.
+
+ imol_enc can be the model molecule number or
+ IMOL_ENC_ANY = -999999, IMOL_ENC_AUTO = -999998, IMOL_ENC_UNSET = -999997
+
+ */
+int handle_cif_dictionary_for_molecule(const std::string &filename, int imol_enc, short int new_molecule_from_dictionary_cif_checkbutton_state);
+
+//! dictionary entries
 std::vector<std::string> dictionary_entries();
+
+//! debug dictionary information
 void debug_dictionary();
-// this can throw an exception
+
+//! get types in molecule
+//!
+//! @param imol the molecule index
+//! @return a vector of residue types
+std::vector<std::string> get_types_in_molecule(int imol);
+
+//! Get the SMILES for the given residue type
+//!
+//! @param comp_id is the residue type
+//! @return the SMILES string
 std::string SMILES_for_comp_id(const std::string &comp_id);
+
 /*! \brief return a list of all the dictionaries read */
 #ifdef USE_GUILE
 SCM dictionaries_read();
@@ -624,7 +934,14 @@ SCM SMILES_for_comp_id_scm(const std::string &comp_id);
 PyObject *dictionaries_read_py();
 PyObject *cif_file_for_comp_id_py(const std::string &comp_id);
 PyObject *dictionary_entries_py();
+
+//! Get the SMILES for the given residue type
+//
+//! @param comp_id is the residue type
+//! @return the SMILES string or False on failure to find the
+//!         residue type or SMILES string
 PyObject *SMILES_for_comp_id_py(const std::string &comp_id);
+
 #endif // PYTHON
 //! \}
 
@@ -632,9 +949,10 @@ PyObject *SMILES_for_comp_id_py(const std::string &comp_id);
 /*  ----------------------------------------------------------------------- */
 /*                         Restraints                                       */
 /*  ----------------------------------------------------------------------- */
-#ifdef USE_GUILE
 //! \name  Restraints Interface
 /// \{
+
+#ifdef USE_GUILE
 //! \brief return the monomer restraints for the given monomer_type,
 //!       return scheme false on "restraints for monomer not found"
 SCM monomer_restraints(const char *monomer_type);
@@ -659,8 +977,6 @@ void show_restraints_editor_by_index(int menu_item_index);
 
 /*! \brief write cif restraints for monomer */
 void write_restraints_cif_dictionary(std::string monomer_type, std::string file_name);
-
-
 
 //! \}
 
@@ -744,9 +1060,7 @@ PyObject *residue_spec_make_triple_py(PyObject *residue_spec_py);
 coot::residue_spec_t residue_spec_from_scm(SCM residue_in);
 #endif
 
-#ifdef USE_PYTHON
 coot::residue_spec_t residue_spec_from_py(PyObject *residue_in);
-#endif
 
 // return a spec for the first residue with the given type.
 // test the returned spec for unset_p().
@@ -755,28 +1069,78 @@ coot::residue_spec_t get_residue_by_type(int imol, const std::string &residue_ty
 
 std::vector<coot::residue_spec_t> get_residue_specs_in_mol(int imol, const std::string &residue_type);
 
-#ifdef USE_PYTHON
 // Always returns a list
 PyObject *get_residue_specs_in_mol_py(int imol, const std::string &residue_type);
-#endif
 
 #ifdef USE_GUILE
 // return a residue spec or scheme false
 SCM get_residue_by_type_scm(int, const std::string &residue_type);
 #endif
-#ifdef USE_PYTHON
-// return a residue spec or Python False.
-PyObject *get_residue_by_type_py(int, const std::string &residue_type);
-#endif
+
+//! get residue by type
+//!
+//! Find the first residue of the given type in the molecule
+//!
+//! @param imol the molecule index
+//! @param residue_type the residue type requested
+//! @return a residue spec or Python False.
+PyObject *get_residue_by_type_py(int imol, const std::string &residue_type);
+
+//! get the residue name of the specified residue
+//!
+//! @param imol the molecule index
+//! @param residue_spec_py the residue spec
+//! @return the residue name or blank on failure
+std::string get_residue_name_py(int imol, PyObject *residue_spec_py);
+
+//! as above, but for use by callback
+std::string get_residue_name(int imol, coot::residue_spec_t &res_spec);
+
+//! use by callback
+bool is_N_terminus(int imol, coot::residue_spec_t &res_spec);
+
+//! use by callback
+bool is_C_terminus(int imol, coot::residue_spec_t &res_spec);
 
 
 /*  ----------------------------------------------------------------------- */
 /*               Atom info                                                  */
 /*  ----------------------------------------------------------------------- */
 
-#ifdef USE_GUILE
 //! \name Atom Information functions
 //! \{
+
+#ifdef USE_GUILE
+//! \brief output atom info in a scheme list for use in scripting
+//!
+//! in this format (list occ temp-factor element x y z).  Return empty
+//! list if atom not found. */
+SCM atom_info_string_scm(int imol, const char *chain_id, int resno,
+                         const char *ins_code, const char *atname,
+                         const char *altconf);
+SCM molecule_to_pdb_string_scm(int imol);
+#endif // USE_GUILE
+
+/*! \brief return the rename from a residue serial number
+
+   @return blank ("") on failure. */
+std::string resname_from_serial_number(int imol, const char *chain_id, int serial_num);
+
+//! \brief return the residue name of the specified residue
+std::string residue_name(int imol, const std::string &chain_id, int resno, const std::string &ins_code);
+
+//! \brief return the serial number of the specified residue
+//!
+//! @return -1 on failure to find the residue
+
+/*  ----------------------------------------------------------------------- */
+/*               Atom info                                                  */
+/*  ----------------------------------------------------------------------- */
+
+//! \name Atom Information functions
+//! \{
+
+#ifdef USE_GUILE
 //! \brief output atom info in a scheme list for use in scripting
 //!
 //! in this format (list occ temp-factor element x y z).  Return empty
@@ -939,16 +1303,60 @@ PyObject *atom_info_string_py(int imol, const char *chain_id, int resno,
 //! Return the molecule as a PDB string
 PyObject *molecule_to_pdb_string_py(int imol);
 
-//! \brief
-//! Return a list of atom info for each atom in the specified residue:
-//
-//! output is like this:
-//! [
-//!     [[atom-name,alt-conf]
-//!      [occ,temp_fact,element]
-//!      [x,y,z]]]
+//! \brief Get detailed atom information for a residue (Python interface)
 //!
+//! Returns per-atom information including coordinates, occupancy, B-factor,
+//! and element for all atoms in the specified residue. Useful for inspecting
+//! residue completeness and identifying missing atoms.
+//!
+//! @param imol Model molecule index
+//! @param chain_id Chain identifier (e.g., "A")
+//! @param resno Residue number
+//! @param ins_code Insertion code (use "" if none)
+//!
+//! @return PyObject* - A list of atom information, one entry per atom:
+//!   \code
+//!   [
+//!     [[atom_name, alt_conf], [occupancy, b_factor, element, seg_id], [x, y, z], atom_index],
+//!     ...
+//!   ]
+//!   \endcode
+//!   - \c atom_name (str): Atom name (e.g., " CA ", " SG ")
+//!   - \c alt_conf (str): Alternate conformation identifier ("" if none)
+//!   - \c occupancy (float): Atom occupancy (0.0-1.0)
+//!   - \c b_factor (float or list of [b_iso, B11, B22, B33, B12, B13, B23]): Temperature factor
+//!   - \c element (str): Element symbol (e.g., " C", " N", " S")
+//!   - \c x, \c y, \c z (float): Cartesian coordinates in Ångstroms
+//!   - \c atom_index (int): Internal atom index
+//!
+//! Example usage:
+//! \code{.py}
+//! # Check if a CYS residue has all expected atoms
+//! atoms = coot.residue_info_py(0, "A", 72, "")
+//! atom_names = [a[0][0].strip() for a in atoms]
+//! print(f"Atoms present: {atom_names}")
+//!
+//! expected_cys = ['N', 'CA', 'CB', 'SG', 'C', 'O']
+//! missing = [a for a in expected_cys if a not in atom_names]
+//! if missing:
+//!     print(f"Missing atoms: {missing}")
+//!
+//! # Get B-factors for all atoms
+//! for atom in atoms:
+//!     name = atom[0][0].strip()
+//!     b_factor = atom[1][1]
+//!     print(f"{name}: B={b_factor:.2f}")
+//! \endcode
 PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char *ins_code);
+
+//! \brief get the residue name
+//!
+//! @param imol Model molecule index
+//! @param chain_id Chain identifier (e.g., "A")
+//! @param resno Residue number
+//! @param ins_code Insertion code (use "" if none)
+//! @return residue name string or blank string on failure
+//!
 PyObject *residue_name_py(int imol, const char* chain_id, int resno, const char *ins_code);
 
 // the expanded form of this is in c-interface.h
@@ -991,7 +1399,7 @@ PyObject *active_residue_py();
 
 //! \brief return the spec of the closest displayed atom
 //!
-//! Return a list of [imol, chain-id, resno, ins-code, atom-name,
+//! @return a list of [imol, chain-id, resno, ins-code, atom-name,
 //! alt-conf, [x, y, z]] for atom that is closest to the screen
 //! centre in the given molecule (unlike active-residue, potential CA
 //! substition is not performed).  If there is no atom, or if imol is
@@ -1000,18 +1408,19 @@ PyObject *active_residue_py();
 PyObject *closest_atom_simple_py();
 
 //! \brief return closest atom in imolth molecule
-//
-//! Return a list of [imol, chain-id, resno, ins-code, atom-name,
-//! alt-conf, [x, y, z]] for atom that is closest to the screen
+//!
+//! @param imol is the molecule index
+//! @return a list of [imol, chain-id, resno, ins-code, atom-name,
+//! alt-conf, [x, y, z]] for the atom that is closest to the screen
 //! centre in the given molecule (unlike active-residue, no account is
-//! taken of the displayed state of the molecule).  If there is no
+//! taken of the displayed state of the imol molecule).  If there is no
 //! atom, or if imol is not a valid model molecule, return False.
 //
 PyObject *closest_atom_py(int imol);
 
 //! \brief return the specs of the closest atom to the centre of the screen
 //!
-//! Return a list of (list imol chain-id resno ins-code atom-name
+//! @return a list of (list imol chain-id resno ins-code atom-name
 //! alt-conf (list x y z)) for atom that is closest to the screen
 //! for displayed molecules. If there is no atom, return scheme false.
 //! Don't choose the CA of the residue if there is a CA in the residue
@@ -1019,19 +1428,32 @@ PyObject *closest_atom_py(int imol);
 PyObject *closest_atom_raw_py();
 
 
-//! \brief
-// Return residue specs for residues that have atoms that are
-// closer than radius Angstroems to any atom in the residue
-// specified by residue_in.
+//! \brief get the residues near a specified residue
+//!
+//! This is useful to select the residues for "Sphere" refinement.
+//!
+//! @param imol is the molecule index
+//! @param residue_in is a residue spec [chain_id, res_no, insertion_code]
+//! @param radius is the cut-off distance atoms of the surrounding residues
+//!        if they are to be included in the residue selection.
+//! @return a list of residue specs for residues that have atoms that are
+//! closer than radius Angstroems to any atom in the residue
+//! specified by residue_in.
 //
-PyObject *residues_near_residue_py(int imol, PyObject *residue_in, float radius);
+PyObject *residues_near_residue_py(int imol, PyObject *residue_spec_in, float radius);
 
-//! \brief
-// Return residue specs for residues that have atoms that are
-// closer than radius Angstroems to any atom in the residues
-// specified by residues_in.
+//! \brief get the residues near a specified list of residues
+//!
+//! @param imol is the molecule index
+//! @param residues_in is a list of residue specs each of which is
+//!        [chain_id, res_no, insertion_code]
+//! @param radius is the cut-off distance atoms of the surrounding residues
+//!        if they are to be included in the residue selection.
+//! @return a list of residue specs for residues that have atoms that are
+//! closer than radius Angstroems to any atom in the residue
+//! specified by the input residue spec list.
 //
-PyObject *residues_near_residues_py(int imol, PyObject *residues_in, float radius);
+PyObject *residues_near_residues_py(int imol, PyObject *residues_specs_in, float radius);
 
 //! \brief
 //! Return residue specs for residues that have atoms that are
@@ -1047,11 +1469,20 @@ void label_closest_atoms_in_neighbour_residues_py(int imol, PyObject *residue_sp
 //
 PyObject *get_bonds_representation(int imol);
 
+//! \brief replace any current non-drawn bonds with these - and regen bonds
+void set_new_non_drawn_bonds(int imol, const std::string &cid);
+
+//! \brief add to non-drawn bonds - and regen bonds
+void add_to_non_drawn_bonds(int imol, const std::string &cid);
+
+//! \brief clear the non-drawn bonds - force regen bonds to restore all
+void clear_non_drawn_bonds(int imol);
+
 //! \brief return a Python object for the radii of the atoms in the dictionary
 //
 PyObject *get_dictionary_radii();
 
-//! \brief return a Python object for the representation of bump and hydrogen bonds of
+//! \brief return a Python object for the representation of bump and hydrogen bonds oft
 //          the specified residue
 PyObject *get_environment_distances_representation_py(int imol, PyObject *residue_spec_py);
 
@@ -1097,10 +1528,14 @@ PyObject *all_residues_with_serial_numbers_py(int imol);
 #endif
 
 
+#ifdef SWIG
+#else
+
 //! \brief
 //! regularize the given residues
 //!
 void regularize_residues(int imol, const std::vector<coot::residue_spec_t> &residues);
+#endif
 
 //! presumes that imol_Refinement_Map has been set
 std::string mtz_file_name(int imol);
@@ -1156,6 +1591,41 @@ bool get_cryo_em_refinement();
 SCM accept_moving_atoms_scm();
 #endif
 #ifdef USE_PYTHON
+//! Accept moving atoms
+//!
+//! \brief Accept refined/regularized atoms into the main molecule (Python interface)
+//!
+//! When scripting refinement with set_refinement_immediate_replacement(1),
+//! call this function after refinement operations to ensure atoms are
+//! committed. While immediate replacement mode should handle this
+//! automatically, calling accept_moving_atoms_py() ensures reliable
+//! synchronization.
+//!
+//! \return PyObject* with one of:
+//!   - \c Py_False if no restraints were found (nothing to accept)
+//!   - A Python list \c [info_text, progress, lights] on success:
+//!     - \c info_text (str): Usually empty string
+//!     - \c progress (int): GSL minimization status
+//!       - 0 = GSL_SUCCESS (converged)
+//!       - -2 = GSL_CONTINUE
+//!       - 27 = GSL_ENOPROG (no progress)
+//!     - \c lights (list): Refinement statistics as [[name, label, value], ...]
+//!       - \c name (str): Restraint type (e.g., "Bonds", "Angles", 
+//!         "Trans_peptide", "Planes", "Non-bonded", "Chirals")
+//!       - \c label (str): Formatted string (e.g., "Bonds: 0.625")
+//!       - \c value (float): Distortion value (lower is better)
+//!
+//! Example usage:
+//! \code{.py}
+//! coot.set_refinement_immediate_replacement(1)
+//! coot.refine_residues_py(0, [["A", 42, ""]])
+//! result = coot.accept_moving_atoms_py()
+//!
+//! if result:
+//!     info, progress, lights = result
+//!     for name, label, value in lights:
+//!         print(f"{name}: {value:.3f}")
+//! \endcode
 PyObject *accept_moving_atoms_py();
 #endif
 
@@ -1177,7 +1647,7 @@ bool get_regenerate_bonds_needs_make_bonds_type_checked_state();
 //! \brief
 //! return 0 on fail to refine (no sensible place to put atoms) and 1
 //! on fitting happened.
-int rigid_body_fit_with_residue_ranges(int imol, const std::vector<coot::residue_range_t> &ranges);
+int rigid_body_fit_with_residue_ranges(int imol, const std::vector<coot::high_res_residue_range_t> &ranges);
 
 // Model morphing (average the atom shift by using shifts of the
 // atoms within shift_average_radius A of the central residue).
@@ -1219,8 +1689,209 @@ find_blobs(int imol_model, int imol_map, float cut_off_density_level);
 //! \brief find blobs
 SCM find_blobs_scm(int imol_model, int imol_map, float cut_off_density_level);
 #endif
+
 #ifdef USE_PYTHON
-PyObject *find_blobs_py(int imol_model, int imol_map, float cut_off_density_level);
+//! @brief Find regions of unmodeled electron density ("blobs") in a map
+//! 
+//! Identifies regions of significant electron density that are not explained by the current
+//! atomic model. This is essential for discovering missing features such as waters, ligands,
+//! alternative conformations, metal ions, or missing residues during structure validation
+//! and refinement.
+//! 
+//! The function masks out density already explained by the model atoms, then searches for
+//! contiguous regions of density above the specified sigma threshold. Each blob is 
+//! characterized by its center position and an integrated volume/score representing the
+//! strength of the feature.
+//! 
+//! @param imol_model  The model molecule index. Density explained by atoms in this model
+//!                    will be masked out (excluded) from the search. Must be a valid model
+//!                    molecule.
+//! 
+//! @param imol_map    The map molecule index to search for unmodeled density. This is 
+//!                    typically a difference map (mFo-DFc) for most sensitive detection,
+//!                    but can also be a regular map (2mFo-DFc). Must be a valid map molecule.
+//! 
+//! @param cut_off_sigma  The sigma threshold for blob detection (in units of map sigma).
+//!                       Typical values:
+//!                       - 3.5σ: Standard threshold for significant features in difference maps
+//!                       - 2.5σ: More sensitive, finds weaker features (more false positives)
+//!                       - 4.5σ: Conservative, only strong features (fewer false positives)
+//!                       - 1.0σ: For regular maps (2mFo-DFc), lower threshold appropriate
+//! 
+//! @return PyObject* - Returns a Python list of blobs, or Py_False on error.
+//! 
+//! Return format (on success):
+//! @code{.py}
+//! [
+//!   [[x1, y1, z1], volume1],  # First blob: [position_list, score]
+//!   [[x2, y2, z2], volume2],  # Second blob
+//!   ...
+//! ]
+//! @endcode
+//! 
+//! Each blob is represented as a 2-element list:
+//! - Element 0: Position as [x, y, z] list (coordinates in Ångströms, orthogonal space)
+//! - Element 1: Volume/score as float (integrated density strength)
+//! 
+//! Return value (on error):
+//! - Py_False if imol_model is not a valid model molecule
+//! - Py_False if imol_map is not a valid map molecule
+//! 
+//! @section interpretation Interpreting Results
+//! 
+//! Blob Score Interpretation (for difference maps at 3σ):
+//! - **>50**: Large feature - likely missing ligand, cofactor, metal with waters, or several residues
+//! - **10-50**: Medium feature - likely 1-3 water molecules or alternative conformation
+//! - **3-10**: Small feature - likely single water or weak alternative conformation
+//! - **<3**: Very weak feature - may be noise or very weak partial occupancy
+//! 
+//! Map Type Considerations:
+//! - **Difference maps (mFo-DFc)**: Most sensitive for finding missing features
+//!   - Positive blobs (>3σ): Missing atoms/features that should be added
+//!   - Negative blobs (<-3σ): Incorrectly modeled atoms that should be removed/moved
+//! - **Regular maps (2mFo-DFc)**: Less sensitive to model bias
+//!   - Good for finding larger missing features
+//!   - Use lower sigma threshold (0.5-1.5σ)
+//! 
+//! @section algorithm Algorithm Details
+//! 
+//! The blob detection algorithm:
+//! 1. Imports the map specified by imol_map
+//! 2. Masks the map using atoms from imol_model with a 1.9Å radius
+//! 3. Waters can be optionally excluded from masking (controlled by find_ligand_mask_waters_flag)
+//! 4. Searches for contiguous density regions above cut_off_sigma threshold
+//! 5. Calculates center position and integrated volume for each blob
+//! 6. Returns blobs sorted by significance
+//! 
+//! @section example Example Usage
+//! 
+//! @code{.py}
+//! # Find blobs in difference map at 3 sigma
+//! blobs = coot.find_blobs_py(
+//!     imol_model=0,              # protein model
+//!     imol_map=2,                # difference map (mFo-DFc)
+//!     cut_off_sigma=3.0          # standard threshold
+//! )
+//! 
+//! if blobs:
+//!     print(f"Found {len(blobs)} blobs")
+//!     
+//!     # Process by size
+//!     for position, score in blobs:
+//!         x, y, z = position
+//!         if score > 50:
+//!             print(f"Large blob at ({x:.2f}, {y:.2f}, {z:.2f}) - "
+//!                   f"score: {score:.2f} - likely ligand/metal")
+//!         elif score > 10:
+//!             print(f"Medium blob at ({x:.2f}, {y:.2f}, {z:.2f}) - "
+//!                   f"score: {score:.2f} - likely waters")
+//!         else:
+//!             print(f"Small blob at ({x:.2f}, {y:.2f}, {z:.2f}) - "
+//!                   f"score: {score:.2f} - check carefully")
+//! 
+//! # Sort blobs by score to prioritize investigation
+//! sorted_blobs = sorted(blobs, key=lambda x: x[1], reverse=True)
+//! 
+//! # Investigate top 5 blobs
+//! for position, score in sorted_blobs[:5]:
+//!     x, y, z = position
+//!     print(f"Priority blob: ({x:.2f}, {y:.2f}, {z:.2f}) score: {score:.2f}")
+//!     # Navigate to this position in Coot to inspect visually
+//!     coot.set_rotation_centre(x, y, z)
+//! @endcode
+//! 
+//! @section advanced_usage Advanced Usage Patterns
+//! 
+//! Finding waters to place:
+//! @code{.py}
+//! blobs = coot.find_blobs_py(0, 2, 3.0)
+//! for position, score in blobs:
+//!     if 5 < score < 30:  # Typical water blob size
+//!         x, y, z = position
+//!         # Check hydrogen bonding potential before placing water
+//!         # Could use coot.place_typed_atom_at_pointer("HOH")
+//! @endcode
+//! 
+//! Finding large missing features:
+//! @code{.py}
+//! blobs = coot.find_blobs_py(0, 2, 3.0)
+//! large_features = [(pos, score) for pos, score in blobs if score > 100]
+//! for position, score in large_features:
+//!     print(f"Large unmodeled density at {position}")
+//!     print(f"  -> Check for missing residues, ligands, or nucleotides")
+//! @endcode
+//! 
+//! Comparing difference map vs regular map:
+//! @code{.py}
+//! # Difference map - sensitive to model errors
+//! diff_blobs = coot.find_blobs_py(0, 2, 3.0)  # mFo-DFc at 3σ
+//! 
+//! # Regular map - less model-biased
+//! regular_blobs = coot.find_blobs_py(0, 1, 1.0)  # 2mFo-DFc at 1σ
+//! 
+//! # Features in both maps are high confidence
+//! @endcode
+//! 
+//! @section validation Integration with Validation Workflows
+//! 
+//! Blob detection should be performed as part of comprehensive structure validation
+//! alongside:
+//! - Ramachandran analysis (local backbone geometry)
+//! - Rotamer analysis (side-chain conformations)
+//! - Atom overlap detection (packing problems)
+//! - Density correlation analysis (model-to-map fit)
+//! 
+//! Complete validation example:
+//! @code{.py}
+//! # 1. Check model fit to map
+//! rama = coot.all_molecule_ramachandran_score_py(0)
+//! rotamers = coot.rotamer_graphs_py(0)
+//! 
+//! # 2. Check for packing problems
+//! overlaps = coot.molecule_atom_overlaps_py(0, 30)
+//! 
+//! # 3. Find missing features (THIS FUNCTION)
+//! blobs = coot.find_blobs_py(0, 2, 3.0)
+//! 
+//! # All three perspectives needed for complete validation
+//! @endcode
+//! 
+//! @section notes Important Notes
+//! 
+//! - The returned blob positions are suitable for navigation with coot.set_rotation_centre()
+//! - Blob scores are not directly comparable between different maps or molecules
+//! - Very large blobs may indicate systematic problems (e.g., missing domains)
+//! - Blob detection is computationally inexpensive and should be run routinely
+//! - Results are affected by the find_ligand_mask_waters_flag global setting
+//! - The masking radius is fixed at 1.9Å (reasonable for most cases)
+//! 
+//! @section see_also Related Functions
+//! 
+//! @see set_find_waters_sigma_cut_off() - Set default sigma for water finding
+//! @see execute_find_waters_real() - Automated water placement
+//! @see place_typed_atom_at_pointer() - Place atoms at blob positions
+//! @see set_rotation_centre() - Navigate to blob positions
+//! @see molecule_atom_overlaps_py() - Check for steric clashes
+//! @see map_to_model_correlation_stats_per_residue_range_py() - Check model fit
+//! 
+//! @section references References
+//! 
+//! The blob detection algorithm is part of the ligand finding machinery in Coot.
+//! For methodology details, see:
+//! - Emsley & Cowtan (2004) Acta Cryst. D60, 2126-2132
+//! - "Coot: model-building tools for molecular graphics"
+//! 
+//! @warning This function requires valid model and map molecules. Always check
+//!          validity with is_valid_model_molecule() and is_valid_map_molecule()
+//!          if molecule indices are not guaranteed.
+//! 
+//! @since This function has been available in Coot for many versions. The return
+//!        format (list of [position, score] pairs) has been stable.
+//! 
+//! @note Reference counting: The returned PyObject is a new reference. The caller
+//!       is responsible for DECREFing when finished. Py_False is properly INCREF'd
+//!       before return on failure paths.
+PyObject *find_blobs_py(int imol_model, int imol_map, float cut_off_sigma_density_level);
 #endif
 
 //! B-factor distribution histogram
@@ -1255,7 +1926,7 @@ PyObject *water_chain_py(int imol);
 
 
 /*  ----------------------------------------------------------------------- */
-/*                  intrface utils                                          */
+/*                  interface utils                                          */
 /*  ----------------------------------------------------------------------- */
 //! \name Interface Utils
 //! \{
@@ -1265,6 +1936,12 @@ PyObject *water_chain_py(int imol);
   use this to put info for the user in the statusbar (less intrusive
   than popup). */
 void add_status_bar_text(const std::string &s);
+
+//! set the logging level
+//!
+//! @param level is either "LOW" or "HIGH" or "DEBUGGING"
+void set_logging_level(const std::string &level);//!
+
 
 //! \}
 
@@ -1291,7 +1968,7 @@ print_glyco_tree(int imol, const std::string &chain_id, int resno, const std::st
 //!
 //!  @return the molecule number of the new map.  Return -1 if unable to
 //!   make a variance map.
-int make_variance_map(std::vector<int> map_molecule_number_vec);
+int make_variance_map(const std::vector<int> &map_molecule_number_vec);
 #ifdef USE_GUILE
 int make_variance_map_scm(SCM map_molecule_number_list);
 #endif
@@ -1328,21 +2005,31 @@ SCM CG_spin_search_scm(int imol_model, int imol_map);
 #endif
 
 #ifdef USE_PYTHON
-//! \brief for the given residue, spin the atoms in moving_atom_list...
+//! for the given residue, spin the atoms in moving_atom_list...
 //!
 //!   around the bond defined by direction_atoms_list looking for the best
 //!   fit to density of imom_map map of the first atom in
 //!   moving_atom_list.  Works (only) with atoms in altconf ""
 void spin_search_py(int imol_map, int imol, const char *chain_id, int resno, const char *ins_code, PyObject *direction_atoms_list, PyObject *moving_atoms_list);
-//! \brief Spin N and CB (and the rest of the side chain if extant)
+
+//! Spin N and CB (and the rest of the side chain if extant)
 //!
 //!  Sometime on N-terminal addition, then N ends up pointing the wrong way.
 //!  The allows us to (more or less) interchange the positions of the CB and the N.
 //!  angle is in degrees.
 //!
+//! @param imol is the index of the model molecule
+//! @param residue_spec is the specifier for the residue
+//! @param angle is the rotation angle, in degrees, typically 120.
 void spin_N_py(int imol, PyObject *residue_spec, float angle);
 
-//! \brief Spin search the density based on possible positions of CG of a side-chain
+//! Spin search the density based on possible positions of CG of a side-chain
+//!
+//! @param imol_model is the index of the model molecule
+//! @param imol_map is the index of the map molecule
+//! @return either False (in the case of a failure) or a list of pairs of
+//!         residue specifers and score - for each spinnable residue
+//!         in the model.
 PyObject *CG_spin_search_py(int imol_model, int imol_map);
 
 #endif
@@ -1355,10 +2042,6 @@ PyObject *CG_spin_search_py(int imol_model, int imol_map);
 /*  ----------------------------------------------------------------------- */
 std::vector<std::pair<std::string, std::string> > monomer_lib_3_letter_codes_matching(const std::string &search_string, short int allow_minimal_descriptions_flag);
 
-// 20220723-PE These functions should not be here. Move this functions to a widget header.
-//             MOVE-ME!
-void on_monomer_lib_search_results_button_press (GtkButton *button, gpointer user_data);
-void on_monomer_lib_sbase_molecule_button_press (GtkButton *button, gpointer user_data);
 
 /*  ----------------------------------------------------------------------- */
 /*                  mutate                                                  */
@@ -1367,15 +2050,19 @@ void on_monomer_lib_sbase_molecule_button_press (GtkButton *button, gpointer use
 int mutate_residue_range(int imol, const std::string &chain_id, int res_no_start, int res_no_end, const std::string &target_sequence);
 
 int mutate_internal(int ires, const char *chain_id,
-                    int imol, std::string &target_res_type);
+                    int imol, const std::string &target_res_type);
 /* a function for multimutate to make a backup and set
    have_unsaved_changes_flag themselves */
 
 //! \brief mutate active residue to single letter code slc
 void mutate_active_residue_to_single_letter_code(const std::string &slc);
 
-//! \brief show keyboard mutate dialog
-void show_keyboard_mutate_dialog();
+//! \brief show keyboard mutate frame
+void show_keyboard_mutate_frame();
+
+//! mutate by overlap
+int mutate_by_overlap(int imol, const std::string &chain_id, int res_no, const std::string &new_type);
+
 
 /*  ----------------------------------------------------------------------- */
 /*                  ligands                                                 */
@@ -1388,26 +2075,61 @@ overlap_ligands_internal(int imol_ligand, int imol_ref, const char *chain_id_ref
 //! is generated.
 void do_smiles_to_simple_3d_overlay_frame();
 
+//! \brief get residues in the specified chain
+//!
+//! @param imol the molecule index
+//! @param chain_id the specified chain-id
+//!
+//! @return a python list of residue specs for the residues in the given chain
+PyObject *get_residues_in_chain_py(int imol, const std::string &chain_id);
+
+//! does the specfied residue exist?
+//!
+//! @param imol the molecule index
+//! @param spec is the residue spec to test for existance
+//! @return 0 for no, 1 for yes, -1 for error
+int residue_exists_py(int imol, PyObject *residue_spec_py);
 
 /*  ----------------------------------------------------------------------- */
 /*                  conformers (part of ligand search)                      */
 /*  ----------------------------------------------------------------------- */
 
-#ifdef USE_GUILE
-/*! \brief make conformers of the ligand search molecules, each in its
-  own molecule.
-
-Don't search the density.
+//! \brief make conformers of the ligand search molecules, each in its
+//!  own molecule.
 
 //! \name Extra Ligand Functions
 //! \{
 
-Return a list of new molecule numbers */
+#ifdef USE_GUILE
+
+//! make conformations
+//!
+//! as if for a ligand search
+//!
+//! Don't search the density.
+//!
+//! @return a list of new molecule numbers
 SCM ligand_search_make_conformers_scm();
 #endif
 
 #ifdef USE_PYTHON
 PyObject *ligand_search_make_conformers_py();
+
+//! \brief get an rdkit molecule as a pickled string
+//!
+//! @param imol the index of the molecule
+//! @param residue spec the residue specifier, e..g ['A', 11, ""]
+//! @return pickled string. Return empty string on failure.
+std::string get_rdkit_mol_base64_from_molecule(int imol, PyObject *residue_spec);
+
+//! \brief and back the other way - import an RDKit mol in base64-encoded binary format
+//!
+//! @return the index of the new molecule - or -1 on failure
+int molecule_from_rdkit_mol_base64(const std::string &rdkit_mol, PyObject *atom_name_list, const std::string &comp_id);
+
+// make minimal restraints from mol (bonds and atoms)
+int restraints_from_rdkit_mol_base64(const std::string &rdkit_mol_binary_base64, PyObject *atom_name_list_py, const std::string &comp_id);
+
 #endif
 
 std::vector<int> ligand_search_make_conformers_internal();
@@ -1425,9 +2147,10 @@ void add_animated_ligand_interaction(int imol, const pli::fle_ligand_bond_t &lb)
 /*  ----------------------------------------------------------------------- */
 int cootaneer_internal(int imol_map, int imol_model, const coot::atom_spec_t &atom_spec);
 
-#ifdef USE_GUILE
 //! \name Dock Sidechains
 //! \{
+
+#ifdef USE_GUILE
 //! \brief cootaneer (i.e. assign sidechains onto mainchain model)
 //!
 //! atom_in_fragment_atom_spec is any atom spec in the fragment that should be
@@ -1438,6 +2161,12 @@ int cootaneer(int imol_map, int imol_model, SCM atom_in_fragment_atom_spec);
 #endif
 
 #ifdef USE_PYTHON
+//! \brief cootaneer (i.e. assign sidechains onto mainchain model)
+//!
+//! atom_in_fragment_atom_spec is any atom spec in the fragment that should be
+//! assigned with sidechains.
+//!
+//! @return the success status (0 is fail).
 int cootaneer_py(int imol_map, int imol_model, PyObject *atom_in_fragment_atom_spec);
 #endif
 
@@ -1502,24 +2231,12 @@ void set_display_control_button_state(int imol, const std::string &button_type, 
 void fullscreen();
 void unfullscreen();
 
-//! set the flag for use of trackpad - this moves around the mouse bindings internally.
+//! Use left-mouse for view rotation
 void set_use_trackpad(short int state);
 
-//! this is an alias for the above (at the moment).
-void set_use_primary_mouse_button_for_rotation(short int state);
+//! this is an alias for the above
+void set_use_primary_mouse_button_for_view_rotation(short int state);
 
-/*  ----------------------------------------------------------------------- */
-/*                  Abstraction of New molecule by symmetry functions       */
-/*  ----------------------------------------------------------------------- */
-
-mmdb::Manager *new_molecule_by_symmetry_matrix_from_molecule(mmdb::Manager *mol,
-                                                            double m11, double m12, double m13,
-                                                            double m21, double m22, double m23,
-                                                            double m31, double m32, double m33,
-                                                            double tx, double ty, double tz,
-                                                            int pre_shift_to_origin_na,
-                                                            int pre_shift_to_origin_nb,
-                                                            int pre_shift_to_origin_nc);
 
 
 /*  ----------------------------------------------------------------------- */
@@ -1547,7 +2264,13 @@ void fetch_and_superpose_alphafold_models(int imol);
 //! \brief return the model number
 int fetch_alphafold_model_for_uniprot_id(const std::string &uniprot_id);
 
-//! \brief Loads up map frmo emdb
+//! \brief Loads up map from emdb
+//!
+//! This is an asynchronous function and wil trigger a download subthread
+//! and return immediately.
+//!
+//! @param emd_accession_code the EMDB accession code
+//!
 void fetch_emdb_map(const std::string &emd_accession_code);
 
 //! \brief return the COD entry, return a molecule index
@@ -1572,7 +2295,16 @@ topological_equivalence_chiral_centres(const std::string &residue_type);
 /*  ----------------------------------------------------------------------- */
 /*                  New Screendump                                          */
 /*  ----------------------------------------------------------------------- */
+
+/*! \brief - "save image" / "export image" / "screenshot" / "take a picture" → screendump_image()
+ *
+ * This is the same thing as screendump_image()
+ *
+ */
 void screendump_tga(const std::string &file_name);
+
+/*! \brief set the framebuffer scale factor
+ */
 void set_framebuffer_scale_factor(unsigned int sf);
 
 /*  ----------------------------------------------------------------------- */
@@ -1656,13 +2388,21 @@ void reload_model_shader();
 //! \brief
 void set_atom_radius_scale_factor(int imol, float scale_factor);
 
-//! \brief set use fancy lighting (default 1 = true);
+//! \brief set use fancy rendering lighting
+//!
+//! Turn on framebuffer effects
+//!
+//! @param state where 1 mean turn on and 0 means turn off.
 void set_use_fancy_lighting(short int state);
 
 //! \brief set use simple lines for model molecule
+//!
+//! @param state where 1 mean turn on and 0 means turn off.
 void set_use_simple_lines_for_model_molecules(short int state);
 
 //! \brief
+//!
+//! @param state where 1 mean turn on and 0 means turn off.
 void set_fresnel_colour(int imol, float red, float green, float blue, float opacity);
 
 //! \brief
@@ -1675,6 +2415,8 @@ void set_use_depth_blur(short int state);
 void set_focus_blur_strength(float st);
 
 //! \brief set shadow stren
+//!
+//! @param s is the shadow strength between 0 and 1.
 void set_shadow_strength(float s);
 
 //! \brief set the shadow resolution (1,2,3,4)
@@ -1687,12 +2429,25 @@ void set_shadow_box_size(float size);
 void set_ssao_kernel_n_samples(unsigned int n_samples);
 
 //! \brief set SSAO strength
+//!
+//! screen-space ambient occlusionn
+//!
+//! @param strength is the SSAO strength between 0 and 1.
 void set_ssao_strength(float strength);
 
-//! \brief set SSAO strength
+//! \brief set SSAO radius
+//!
+//! screen-space ambient occlusionn
+//! Doesn't do much. Not worth adjusting
+//!
+//! @param radius is the SSAO radius.
 void set_ssao_radius(float radius);
 
 //! \brief set SSAO bias
+//!
+//! screen-space ambient occlusionn
+//! Doesn't do much. Not worth adjusting
+//!
 void set_ssao_bias(float bias);
 
 //! \brief set SSAO blur size (0, 1, or 2)
@@ -1714,7 +2469,16 @@ void set_effects_shader_brightness(float f);
 void set_effects_shader_gamma(float f);
 
 //! \brief set bond smoothness (default 1 (not smooth))
+//!
+//! Use `fac` 3 for screenshots
+//!
+//! @param fac (1: course, 2: smooth, 3: fine)
 void set_bond_smoothness_factor(unsigned int fac);
+
+//! \brief increase bond smoothness
+//!
+//! and if it's currently at 3, reset back to 1
+void toggle_bond_smoothness_factor();
 
 //! \brief set the draw state of the Ramachandran plot display during Real Space Refinement
 void set_draw_gl_ramachandran_plot_during_refinement(short int state);
@@ -1729,45 +2493,25 @@ void set_draw_background_image(bool state);
 void read_test_gltf_models();
 
 //! \brief load a gltf model
-void load_gltf_model(const std::string &gltf_file_name);
+//!
+//! If the gltf
+//! files does not exist, an empty model will be created
+//!
+//! @param gltf_file_name is the name of the gltf file to load
+//! @return the model index of the loaded model.
+int load_gltf_model(const std::string &gltf_file_name);
+
+//! \brief set the model animation parameters
+void set_model_animation_parameters(unsigned int model_index, float amplitude, float wave_numer, float freq);
+
+//! \brief enable/disable the model animation (on or off)
+void set_model_animation_state(unsigned int model_index, bool state);
 
 //! \brief load a gltf model
 void scale_model(unsigned int model_index, float scale_factor);
 
 //! \brief reset the frame buffers
 void reset_framebuffers();
-
-
-/*  ----------------------------------------------------------------------- */
-/*                  Pisa internal                                           */
-/*  ----------------------------------------------------------------------- */
-clipper::Coord_orth
-make_complementary_dotted_surfaces(int imol_1, int imol_2,
-                                   std::vector<coot::residue_spec_t> &r1,
-                                   std::vector<coot::residue_spec_t> &r2);
-#ifdef USE_GUILE
-std::vector<coot::residue_spec_t>
-residue_records_list_scm_to_residue_specs(SCM mol_1_residue_records,
-                                          const std::string &chain_id);
-SCM symbol_value_from_record(SCM record_1, const std::string &symbol);
-#endif
-#ifdef USE_PYTHON
-std::vector<coot::residue_spec_t>
-residue_records_list_py_to_residue_specs(PyObject *mol_1_residue_records,
-                                         const std::string &chain_id);
-//PyObject *symbol_value_from_record(PyObject *record_1, const std::string &symbol);
-#endif
-
-void
-add_generic_object_bond(int imol1, int imol2,
-                        const coot::atom_spec_t &atom_spec_1,
-                        const coot::atom_spec_t &atom_spec_2,
-                        int generic_object_number,
-                        const std::string &colour);
-
-void
-pisa_interfaces_display_only(int imol_1, int imol_2, clipper::Coord_orth centre_pt);
-std::string untangle_mmdb_chain_id_string(const std::string &mmdb_chain_id_in);
 
 
 /*  ----------------------------------------------------------------------- */
@@ -1787,11 +2531,39 @@ std::vector<coot::named_rotamer_score> score_rotamers(int imol,
                                                       float lowest_probability);
 
 #ifdef USE_GUILE
-//! \brief return the scores of the rotamers for this residue.
-//
-// The density fit score is for side-chain atoms.
-// return a list (possibly empty).
-//
+//! \brief Score rotamers for a residue (Guile interface)
+//!
+//! Returns a list of possible rotamer conformations with their scores.
+//! Each rotamer is scored based on rotamer library probability and
+//! (optionally) density fit.
+//!
+//! @param imol Model molecule number
+//! @param chain_id Chain identifier
+//! @param res_no Residue number
+//! @param ins_code Insertion code
+//! @param alt_conf Alternate conformation
+//! @param imol_map Map for density scoring (-1 to skip)
+//! @param clash_flag 1 to check clashes, 0 to skip
+//! @param lowest_probability Minimum probability threshold (0.0-1.0)
+//!
+//! @return SCM - List of rotamer descriptions, each containing rotamer name,
+//!         probability, and density score. Empty list if residue not found
+//!         or no rotamers above threshold.
+//!
+//! \note The density score is only meaningful if imol_map is a valid map
+//!
+//! Example usage:
+//! \code{.scm}
+//! ;; Score rotamers for LEU 42 in chain A
+//! (define rotamers (score-rotamers-scm 1 "A" 42 "" "" 2 1 0.01))
+//! (for-each
+//!   (lambda (rot)
+//!     (format #t "Rotamer: ~a, Probability: ~a, Fit: ~a~%"
+//!             (list-ref rot 0)  ; name
+//!             (list-ref rot 1)  ; probability
+//!             (list-ref rot 2))) ; density fit
+//!   rotamers)
+//! \endcode
 SCM score_rotamers_scm(int imol,
                        const char *chain_id,
                        int res_no,
@@ -1803,7 +2575,57 @@ SCM score_rotamers_scm(int imol,
 #endif
 
 #ifdef USE_PYTHON
-// return a list (possibly empty)
+//! \brief Score all rotamers for a residue (Python interface)
+//!
+//! **USEFUL FOR FIXING BAD ROTAMERS**
+//!
+//! Evaluates all possible rotamer conformations and returns them with scores.
+//! This is the function to call before using auto_fit_best_rotamer.
+//!
+//! @param imol Model molecule number
+//! @param chain_id Chain identifier
+//! @param res_no Residue number
+//! @param ins_code Insertion code (use "" if none)
+//! @param alt_conf Alternate conformation (use "" for default)
+//! @param imol_map Map molecule for density scoring (use -1 to ignore density)
+//! @param clash_flag 1 to check for clashes with other atoms, 0 to skip
+//! @param lowest_probability Filter: only return rotamers above this probability
+//!
+//! @return PyObject* - List of rotamer dictionaries, each containing:
+//!         - 'name': Rotamer name (e.g., "mt-85")
+//!         - 'probability': Rotamer library probability (0.0-1.0)
+//!         - 'density_score': Fit to density (if map provided)
+//!         - 'richardson_name': Rotamer name in Richardson notation
+//!         Empty list if no suitable rotamers found.
+//!
+//! \note Rotamers are ranked by combined probability and density fit
+//! \note Use clash_flag=1 to avoid rotamers that clash with nearby atoms
+//!
+//! Example usage:
+//! \code{.py}
+//! # Score rotamers for LEU 42, considering density and clashes
+//! rotamers = score_rotamers_py(
+//!     imol=1,
+//!     chain_id="A",
+//!     res_no=42,
+//!     ins_code="",
+//!     alt_conf="",
+//!     imol_map=2,           # Use map 2 for density scoring
+//!     clash_flag=1,         # Check for clashes
+//!     lowest_probability=0.01  # Only show rotamers >1% probability
+//! )
+//!
+//! print(f"Found {len(rotamers)} possible rotamers")
+//! for rot in rotamers:
+//!     print(f"{rot['name']}: "
+//!           f"prob={rot['probability']:.1%}, "
+//!           f"fit={rot['density_score']:.3f}")
+//!
+//! # The best rotamer is typically first in the list
+//! if rotamers:
+//!     best = rotamers[0]
+//!     print(f"Best rotamer: {best['name']}")
+//! \endcode
 PyObject *score_rotamers_py(int imol,
                             const char *chain_id,
                             int res_no,
@@ -1843,9 +2665,26 @@ protein_db_loop_specs_to_atom_selection_string(const std::vector<coot::residue_s
 #ifdef USE_GUILE
 SCM protein_db_loops_scm(int imol_coords, SCM residues_specs, int imol_map, int nfrags, bool preserve_residue_names);
 #endif
+
 #ifdef USE_PYTHON
+//! \brief Cowtan's protein_db loops
+//!
+//! return in the first pair, the imol of the new molecule generated
+//! from an atom selection of the imol_coords for the residue selection
+//! of the loop and the molecule number of the consolidated solutions
+//! (displayed in purple).  and the second of the outer pair, there is
+//! vector of molecule indices for each of the candidate loops.
+//!
+//! Use this to create hypotheses about where the atoms of the missing
+//! residues could be. Often the top/first solution is the best one.
+//! This fragment will then need to be patched back into molecule
+//! imol_coords using copy_fragment().
+//!
+//! return -1 in the first of the pair on failure
+//!
 PyObject *protein_db_loops_py(int imol_coords, PyObject *residues_specs, int imol_map, int nfrags, bool preserve_residue_names);
 #endif
+
 /* \} */
 
 
@@ -1868,15 +2707,6 @@ void hole(int imol,
           int n_runs, bool show_probe_radius_graph_flag,
           std::string export_surface_dots_file_name);
 
-
-// GUI stuff - Move these functions to a widget header
-// 20220723-PE MOVE-ME!
-void probe_radius_graph_close_callback( GtkWidget *button, GtkWidget *dialog);
-
-// 20230521-PE restore these when I understand how to make a graph in GTK4.
-// void show_hole_probe_radius_graph(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length);
-// void show_hole_probe_radius_graph_basic(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length);
-// void show_hole_probe_radius_graph_goocanvas(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length);
 
 /* ------------------------------------------------------------------------- */
 /*                      Gaussian Surface                                     */
@@ -1909,7 +2739,19 @@ void set_gaussian_surface_fft_b_factor(float f);
 //!         that, in this mode, chains with the same sequence have the same colour
 void set_gaussian_surface_chain_colour_mode(short int mode);
 
+//! \brief set the opacity for a given molecule's gaussian_surface
+//!
+//! @param imol the molecule index
+//! @param opacity between 0. and 1.0
+void set_gaussian_surface_opacity(int imol, float opacity);
+
 void show_gaussian_surface_overlay();
+
+
+/* ------------------------------------------------------------------------- */
+/*                      Acedrg for dictionary                                */
+/* ------------------------------------------------------------------------- */
+void make_acedrg_dictionary_via_CCD_dictionary(int imol, const coot::residue_spec_t &spec);
 
 /* ------------------------------------------------------------------------- */
 /*                      LINKs                                                */
@@ -1917,7 +2759,7 @@ void show_gaussian_surface_overlay();
 
 //! \brief make a link between the specified atoms
 void
-make_link(int imol, coot::atom_spec_t &spec_1, coot::atom_spec_t &spec_2,
+make_link(int imol, const coot::atom_spec_t &spec_1, const coot::atom_spec_t &spec_2,
           const std::string &link_name, float length);
 #ifdef USE_GUILE
 void make_link_scm(int imol, SCM spec_1, SCM spec_2, const std::string&link_name, float length);
@@ -1934,6 +2776,7 @@ void make_link_py(int imol, PyObject *spec_1, PyObject *spec_2, const std::strin
 PyObject *link_info_py(int imol);
 #endif
 
+void show_acedrg_link_interface_overlay();
 
 /* ------------------------------------------------------------------------- */
 /*                      Drag and drop                                        */
@@ -2026,6 +2869,16 @@ SCM map_to_model_correlation_scm(int imol,
                                  SCM neighb_residue_specs,
                                  unsigned short int atom_mask_mode,
                                  int imol_map);
+
+//! \brief Map-to-model correlation statistics (Guile interface)
+//!
+//! @param imol Model molecule number
+//! @param residue_specs Scheme list of residue specs
+//! @param neighb_residue_specs Scheme list of neighboring residue specs
+//! @param atom_mask_mode Controls which atoms to include
+//! @param imol_map Map molecule number
+//!
+//! @return SCM - Association list with statistics
 SCM map_to_model_correlation_stats_scm(int imol,
                                        SCM residue_specs,
                                        SCM neighb_residue_specs,
@@ -2034,34 +2887,182 @@ SCM map_to_model_correlation_stats_scm(int imol,
 #endif
 
 #ifdef USE_PYTHON
+//! \brief Calculate map-to-model correlation (Python interface)
+//!
+//! Python wrapper for map_to_model_correlation. Evaluates the fit of specific
+//! residues to the electron density map.
+//!
+//! @param imol Model molecule number
+//! @param residue_specs Python list of residue specs [[chain_id, resno, ins_code], ...]
+//! @param neighb_residue_specs Python list of neighboring residue specs to exclude
+//! @param atom_mask_mode Controls which atoms to include (see atom_mask_mode values above)
+//! @param imol_map Map molecule number
+//!
+//! @return PyObject* - correlation coefficient as a Python float
+//!
+//! \note Use atom_mask_mode=2 to evaluate side-chain fit specifically
+//!
+//! Example usage:
+//! \code{.py}
+//! # Evaluate side-chain fit for residues 40-44
+//! residue_specs = [['A', res_no, ''] for res_no in range(40, 45)]
+//! correlation = map_to_model_correlation_py(
+//!     imol=1,
+//!     residue_specs=residue_specs,
+//!     neighb_residue_specs=[],
+//!     atom_mask_mode=2,  # Side-chain atoms only
+//!     imol_map=2
+//! )
+//! print(f"Side-chain correlation: {correlation}")
+//! \endcode
 PyObject *map_to_model_correlation_py(int imol,
                                       PyObject *residue_specs,
                                       PyObject *neighb_residue_specs,
                                       unsigned short int atom_mask_mode,
                                       int imol_map);
+
+//! \brief Get map-to-model correlation statistics (Python interface)
+//!
+//! Returns detailed statistics about the correlation between model and map,
+//! including mean, standard deviation, and range.
+//!
+//! @param imol Model molecule number
+//! @param residue_specs Python list of residue specs
+//! @param neighb_residue_specs Python list of neighboring residue specs
+//! @param atom_mask_mode Controls which atoms to include
+//! @param imol_map Map molecule number
+//!
+//! @return PyObject* - Dictionary with statistics:
+//!         - 'mean': Mean correlation
+//!         - 'std_dev': Standard deviation
+//!         - 'min': Minimum correlation
+//!         - 'max': Maximum correlation
+//!
+//! Example usage:
+//! \code{.py}
+//! stats = map_to_model_correlation_stats_py(1, residues, [], 0, 2)
+//! print(f"Mean: {stats['mean']:.3f}")
+//! print(f"Std Dev: {stats['std_dev']:.3f}")
+//! print(f"Range: {stats['min']:.3f} to {stats['max']:.3f}")
+//! \endcode
 PyObject *map_to_model_correlation_stats_py(int imol,
                                       PyObject *residue_specs,
                                       PyObject *neighb_residue_specs,
                                       unsigned short int atom_mask_mode,
                                       int imol_map);
 
+//! \brief Get density statistics per residue range (Python interface)
+//!
+//! **PRIMARY FUNCTION FOR FINDING POORLY-FITTED RESIDUES**
+//!
+//! This is the main function to use when asked "Which side chain is worst fitting to density?"
+//! It analyzes correlation statistics for all residues in a chain and returns comprehensive
+//! data for both all-atom and side-chain-only analysis.
+//!
+//! @param imol Model molecule number
+//! @param chain_id Chain identifier (e.g., "A", "B")
+//! @param imol_map Map molecule number
+//! @param n_residue_per_residue_range Number of residues per analysis window:
+//!        - Use 1 for per-residue statistics (most common)
+//!        - Use 3 for smoothed statistics over 3-residue windows
+//! @param exclude_backbone_NOC_flag Whether to exclude backbone N, O, C atoms:
+//!        - 0: Include all atoms (for overall fit assessment)
+//!        - 1: Exclude N, O, C (for side-chain-focused analysis)
+//!
+//! @return PyObject* - List of two lists (first is all_atom_stats, second is sidechain_stats):
+//!         Each list contains a residue_spec [chain_id, res_no, ins_code]  and correlation_stats containing:
+//!         - n_points: Number of grid points
+//!         - correlation: Correlation coefficient
+//!
+//! If the residue does not have a side-chain then the number of grid points is 0 and the
+//! correlation is nan.
+//!
+//! \note This function analyzes the ENTIRE chain at once, making it very efficient
+//! \note Returns both all-atom and side-chain statistics in one call
+//! \note Use the side-chain statistics to identify problem side chains specifically
+//!
+//! Example usage - Find worst-fitting side chain:
+//! \code{.py}
+//! # Get correlation statistics for all residues in chain A
+//! all_atom_stats, sidechain_stats = map_to_model_correlation_stats_per_residue_range_py(
+//!     imol=1,              # Model molecule
+//!     chain_id="A",        # Chain A
+//!     imol_map=2,          # Map molecule
+//!     n_residue_per_residue_range=1,  # Per-residue (not averaged)
+//!     exclude_NOC_flag=0   # Include all atoms
+//! )
+//!
+//! # Find worst-fitting side chain
+//! worst_residue = min(sidechain_stats.items(), key=lambda x: x[1][1])
+//!
+//! chain_id, resno, ins_code = worst_residue[0]
+//! correlation = worst_residue[1][1]
+//!
+//! print(f"Worst side chain: {chain_id} {resno}, correlation = {correlation:.3f}")
+//!
+//! # Center on worst residue
+//! set_go_to_atom_chain_residue_atom_name(chain_id, resno, 'CA')
+//! \endcode
+//!
+//! Example usage - Compare main-chain vs side-chain fit:
+//! \code{.py}
+//! all_atom, sidechain = map_to_model_correlation_stats_per_residue_range_py(
+//!     1, "A", 2, 1, 0
+//! )
+//!
+//! for residue_spec in all_atom.keys():
+//!     all_corr = all_atom[residue_spec]['correlation']
+//!     side_corr = sidechain[residue_spec]['correlation']
+//!
+//!     if all_corr > 0.7 and side_corr < 0.5:
+//!         print(f"Residue {residue_spec}: Good backbone, poor sidechain")
+//! \endcode
 PyObject *
 map_to_model_correlation_stats_per_residue_range_py(int imol,
                                                     const std::string &chain_id,
                                                     int imol_map,
                                                     unsigned int n_residue_per_residue_range,
-                                                    short int exclude_NOC_flag);
+                                                    short int exclude_mainchain_NOC_flag);
 
 #endif
 
+// Map to Model Correlation Functions - Enhanced Doxygen Documentation
+// 
+// These functions assess how well a molecular model fits into electron density maps.
+// Essential for model validation and identifying poorly-fitted regions.
+
+//! \name Map to Model Correlation
+//! \{
+
+//! \brief Calculate the correlation between a map and model for specific residues
+//!
+//! This function calculates the map-to-model correlation for specified residues,
+//! excluding grid points that overlap with neighboring residues.
+//!
+//! @param imol Model molecule number
+//! @param residue_specs Vector of residue specifications to evaluate
+//! @param neigh_residue_specs Vector of neighboring residues whose grid points should be excluded
+//! @param atom_mask_mode Controls which atoms are included in the calculation:
+//!        - 0: All atoms
+//!        - 1: Main-chain atoms if standard amino acid, else all atoms
+//!        - 2: Side-chain atoms if standard amino acid, else all atoms
+//!        - 3: Side-chain atoms excluding CB if standard amino acid, else all atoms
+//!        - 4: Main-chain atoms if standard amino acid, else nothing
+//!        - 5: Side-chain atoms if standard amino acid, else nothing
+//!        - 10: Atom radius dependent on B-factor
+//! @param imol_map Map molecule number to correlate against
+//! 
+//! @return Correlation coefficient (float) between model and map
+//!
+//! \note Use this after refinement to evaluate if the fit improved
+//!
+//! Example:
+//! \code{.cpp}
+//! std::vector<coot::residue_spec_t> residues = {{chain_id, 40, ""}, {chain_id, 41, ""}};
+//! std::vector<coot::residue_spec_t> neighbors;
+//! float corr = map_to_model_correlation(1, residues, neighbors, 2, 2);
+//! \endcode
 //! \brief atom-mask-mode is as follows:
-// 0: all-atoms
-// 1: main-chain atoms if is standard amino-acid, else all atoms
-// 2: side-chain atoms if is standard amino-acid, else all atoms
-// 3: side-chain atoms-excluding CB if is standard amino-acid, else all atoms
-// 4: main-chain atoms if is standard amino-acid, else nothing
-// 5: side-chain atoms if is standard amino-acid, else nothing
-// 10: atom radius is dependent atom atom B-factor
 float
 map_to_model_correlation(int imol,
                          const std::vector<coot::residue_spec_t> &residue_specs,
@@ -2069,16 +3070,32 @@ map_to_model_correlation(int imol,
                          unsigned short int atom_mask_mode,
                          int imol_map);
 
-//! \brief map to model density correlation stats
+//! \brief Get detailed statistics for map-to-model correlation
 //!
-//! \brief atom-mask-mode is as follows:
-// 0: all-atoms
-// 1: main-chain atoms if is standard amino-acid, else all atoms
-// 2: side-chain atoms if is standard amino-acid, else all atoms
-// 3: side-chain atoms-excluding CB if is standard amino-acid, else all atoms
-// 4: main-chain atoms if is standard amino-acid, else nothing
-// 5: side-chain atoms if is standard amino-acid, else nothing
-//
+//! Returns comprehensive statistics including mean, standard deviation, minimum,
+//! and maximum correlation values for the specified residues.
+//!
+//! @param imol Model molecule number
+//! @param residue_specs Vector of residue specifications to evaluate
+//! @param neigh_residue_specs Vector of neighboring residues to exclude from grid
+//! @param atom_mask_mode Controls which atoms are included (see atom_mask_mode values)
+//! @param imol_map Map molecule number
+//!
+//! @return coot::util::density_correlation_stats_info_t containing:
+//!         - mean correlation
+//!         - standard deviation
+//!         - minimum correlation
+//!         - maximum correlation
+//!         - number of residues evaluated
+//!
+//! \note Useful for getting overall quality metrics for a region
+//!
+//! Example:
+//! \code{.cpp}
+//! auto stats = map_to_model_correlation_stats(1, residues, neighbors, 0, 2);
+//! std::cout << "Mean correlation: " << stats.mean << std::endl;
+//! std::cout << "Std dev: " << stats.std_dev << std::endl;
+//! \endcode
 coot::util::density_correlation_stats_info_t
 map_to_model_correlation_stats(int imol,
                                const std::vector<coot::residue_spec_t> &residue_specs,
@@ -2087,22 +3104,61 @@ map_to_model_correlation_stats(int imol,
                                int imol_map);
 #ifndef SWIG
 
-//! \brief map to model density correlation, reported per residue
+//! \brief Get map-to-model correlation per residue
 //!
-//! \brief atom-mask-mode is as follows:
-// 0: all-atoms
-// 1: main-chain atoms if is standard amino-acid, else all atoms
-// 2: side-chain atoms if is standard amino-acid, else all atoms
-// 3: side-chain atoms-excluding CB if is standard amino-acid, else all atoms
-// 4: main-chain atoms if is standard amino-acid, else nothing
-// 5: side-chain atoms if is standard amino-acid, else nothing
-//
+//! Returns individual correlation values for each specified residue.
+//! Useful for identifying which specific residues fit poorly.
+//!
+//! @param imol Model molecule number
+//! @param specs Vector of residue specifications
+//! @param atom_mask_mode Controls which atoms to include
+//! @param imol_map Map molecule number
+//!
+//! @return Vector of pairs: (residue_spec, correlation_value)
+//!
+//! \note The correlation values can be sorted to find worst-fitting residues
+//!
+//! Example:
+//! \code{.cpp}
+//! auto correlations = map_to_model_correlation_per_residue(1, specs, 0, 2);
+//! // Sort by correlation (lowest first)
+//! std::sort(correlations.begin(), correlations.end(),
+//!           [](const auto &a, const auto &b) { return a.second < b.second; });
+//! // First element is now the worst-fitting residue
+//! std::cout << "Worst residue: " << correlations[0].first 
+//!           << " correlation: " << correlations[0].second << std::endl;
+//! \endcode
 std::vector<std::pair<coot::residue_spec_t,float> >
 map_to_model_correlation_per_residue(int imol, const std::vector<coot::residue_spec_t> &specs,
                                      unsigned short int atom_mask_mode,
                                      int imol_map);
 
-//! \brief map to model density statistics, reported per residue
+//! \brief Get detailed density statistics per residue
+//!
+//! Returns comprehensive density statistics for each residue including
+//! correlation, mean, standard deviation, and other metrics.
+//!
+//! @param imol Model molecule number
+//! @param residue_specs Vector of residue specifications
+//! @param atom_mask_mode Controls which atoms to include
+//! @param atom_radius_for_masking Radius around atoms for masking (typically 1.5 Å)
+//! @param imol_map Map molecule number
+//!
+//! @return Map of residue_spec to density_stats_info_t containing detailed statistics
+//!
+//! \note Provides more detailed information than correlation alone
+//!
+//! Example:
+//! \code{.cpp}
+//! auto stats_map = map_to_model_correlation_stats_per_residue(
+//!     1, specs, 0, 1.5, 2
+//! );
+//! for (const auto &pair : stats_map) {
+//!     std::cout << pair.first << ": "
+//!               << "corr=" << pair.second.correlation << ", "
+//!               << "mean=" << pair.second.mean_density << std::endl;
+//! }
+//! \endcode
 std::map<coot::residue_spec_t, coot::util::density_stats_info_t>
 map_to_model_correlation_stats_per_residue(int imol,
                                            const std::vector<coot::residue_spec_t> &residue_specs,
@@ -2110,10 +3166,38 @@ map_to_model_correlation_stats_per_residue(int imol,
                                            float atom_radius_for_masking,
                                            int imol_map);
 
-//! \brief map to model density statistics, reported per residue, the middle residue
-//!        of a range of residues
+//! \brief Get density statistics per residue range
 //!
-//! @return the all-atom stats first and side chains stats second
+//! Analyzes correlation statistics for residue ranges (windows) along a chain.
+//! The middle residue of each range represents the statistics for that window.
+//!
+//! @param imol Model molecule number
+//! @param chain_id Chain identifier (e.g., "A", "B")
+//! @param imol_map Map molecule number
+//! @param n_residue_per_residue_range Number of residues per analysis window (typically 1 for per-residue)
+//! @param exclude_NOC_flag Whether to exclude backbone N, O, C atoms (1=yes, 0=no)
+//!
+//! @return Pair of maps:
+//!         - first: All-atom statistics per residue
+//!         - second: Side-chain-only statistics per residue
+//!
+//! \note This is the primary function for comprehensive chain-wide validation
+//! \note Use n_residue_per_residue_range=1 for per-residue statistics
+//! \note Use n_residue_per_residue_range=3 for smoothed statistics
+//!
+//! Example:
+//! \code{.cpp}
+//! auto [all_atom_stats, sidechain_stats] =
+//!     map_to_model_correlation_stats_per_residue_range(1, "A", 2, 1, 0);
+//!
+//! // Find worst-fitting residue (all atoms)
+//! auto worst = std::min_element(
+//!     all_atom_stats.begin(), all_atom_stats.end(),
+//!     [](const auto &a, const auto &b) {
+//!         return a.second.correlation < b.second.correlation;
+//!     }
+//! );
+//! \endcode
 std::pair<std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t>,
           std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> >
 map_to_model_correlation_stats_per_residue_range(int imol, const std::string &chain_id, int imol_map,
@@ -2123,13 +3207,28 @@ map_to_model_correlation_stats_per_residue_range(int imol, const std::string &ch
 #endif // not for swigging.
 
 #ifdef USE_GUILE
-//! \brief map to model correlation
+//! \brief Map-to-model correlation per residue (Guile interface)
+//!
+//! @param imol Model molecule number
+//! @param residue_specs Scheme list of residue specs
+//! @param atom_mask_mode Controls which atoms to include
+//! @param imol_map Map molecule number
+//!
+//! @return SCM - List of pairs: ((residue-spec correlation) ...)
 SCM
 map_to_model_correlation_per_residue_scm(int imol, SCM residue_specs,
                                          unsigned short int atom_mask_mode,
                                          int imol_map);
 
-//! \brief map to model stats
+//! \brief Map-to-model correlation stats per residue (Guile interface)
+//!
+//! @param imol Model molecule number
+//! @param residue_specs_scm Scheme list of residue specs
+//! @param atom_mask_mode Controls which atoms to include
+//! @param atom_radius_for_masking Radius for atom masking
+//! @param imol_map Map molecule number
+//!
+//! @return SCM - Association list mapping residue specs to stats
 SCM
 map_to_model_correlation_stats_per_residue_scm(int imol,
                                                SCM residue_specs_scm,
@@ -2160,9 +3259,42 @@ SCM qq_plot_map_and_model_scm(int imol,
 #endif
 
 #ifdef USE_PYTHON
+//! \brief Get map-to-model correlation per residue (Python interface)
+//!
+//! Returns correlation values individually for each specified residue.
+//! Essential for identifying which specific residues have poor density fit.
+//!
+//! @param imol Model molecule number
+//! @param residue_specs Python list of residue specs
+//! @param atom_mask_mode Controls which atoms to include
+//! @param imol_map Map molecule number
+//!
+//! @return PyObject* - List of tuples: [(residue_spec, correlation), ...]
+//!
+//! \note Sort the results to find worst-fitting residues
+//!
+//! Example usage:
+//! \code{.py}
+//! # Get all residues in chain A
+//! residues = get_residues_in_chain_py(1, "A")
+//!
+//! # Get per-residue correlations
+//! correlations = map_to_model_correlation_per_residue_py(
+//!     imol=1,
+//!     residue_specs=residues,
+//!     atom_mask_mode=0,  # All atoms
+//!     imol_map=2
+//! )
+//!
+//! # Find worst 10 residues
+//! worst_10 = sorted(correlations, key=lambda x: x[1])[:10]
+//! for spec, corr in worst_10:
+//!     print(f"Residue {spec}: correlation = {corr:.3f}")
+//! \endcode
 PyObject *map_to_model_correlation_per_residue_py(int imol, PyObject *residue_specs,
                                                   unsigned short int atom_mask_mode,
                                                   int imol_map);
+
 PyObject *qq_plot_map_and_model_py(int imol,
                               PyObject *residue_specs_py,
                               PyObject *neigh_residue_specs_py,
@@ -2172,30 +3304,210 @@ PyObject *qq_plot_map_and_model_py(int imol,
 
 #ifdef __cplusplus
 #ifdef USE_GUILE
+//! \brief Calculate density score for a residue (Guile interface)
+//!
+//! Computes a numerical score indicating how well a residue fits into
+//! the electron density map. Higher scores indicate better fit.
+//!
+//! @param imol Model molecule number
+//! @param residue_spec Scheme list [chain_id, resno, ins_code]
+//! @param imol_map Map molecule number
+//!
+//! @return Float score (typically 0.0 to 1.0+, higher is better)
+//!
+//! \note This uses a simplified scoring compared to map_to_model_correlation
+//! \note Useful for quick assessment but map_to_model_correlation_* functions
+//!       provide more detailed analysis
+//!
+//! Example usage:
+//! \code{.scm}
+//! (define score (density-score-residue-scm 1 '("A" 42 "") 2))
+//! (format #t "Density score: ~a~%" score)
+//! \endcode
 float density_score_residue_scm(int imol, SCM residue_spec, int imol_map);
 #endif
 #ifdef USE_PYTHON
+
+//! \brief Calculate density score for a residue (Python interface)
+//!
+//! Computes how well a residue fits into the electron density map.
+//! This is a simpler alternative to the more comprehensive
+//! map_to_model_correlation functions.
+//!
+//! @param imol Model molecule number
+//! @param residue_spec Python list [chain_id, resno, ins_code]
+//! @param imol_map Map molecule number
+//!
+//! @return Float score - higher values indicate better fit to density
+//!
+//! \note For comprehensive density validation, use
+//!       map_to_model_correlation_stats_per_residue_range_py() instead
+//!
+//! Example usage:
+//! \code{.py}
+//! # Score a single residue
+//! score = density_score_residue_py(1, ["A", 42, ""], 2)
+//! print(f"Density fit score: {score:.3f}")
+//!
+//! # Find residues with poor density fit
+//! for resno in range(1, 100):
+//!     score = density_score_residue_py(1, ["A", resno, ""], 2)
+//!     if score < 0.5:
+//!         print(f"Poor fit: A {resno}, score = {score:.3f}")
+//! \endcode
 float density_score_residue_py(int imol, PyObject *residue_spec, int imol_map);
 #endif
 #endif
 
-/*! \brief simple density score for given residue (over-ridden by scripting function) */
+//! \brief Simple density score for given residue (C++ interface)
+//!
+//! Calculates a basic density fit score for the specified residue.
+//! This function provides a quick assessment of how well atoms fit density.
+//!
+//! @param imol Model molecule number
+//! @param chain_id Chain identifier
+//! @param res_no Residue number
+//! @param ins_code Insertion code (use "" if none)
+//! @param imol_map Map molecule number to score against
+//!
+//! @return Float score indicating density fit quality (higher is better)
+//!
+//! \note This is a simplified scoring function. For detailed validation
+//!       including correlation statistics, use map_to_model_correlation
+//!       functions instead.
+//!
+//! Example:
+//! \code{.cpp}
+//! float score = density_score_residue(1, "A", 42, "", 2);
+//! if (score < 0.5) {
+//!     std::cout << "Residue A 42 has poor density fit: " << score << std::endl;
+//! }
+//! \endcode
 float density_score_residue(int imol, const char *chain_id, int res_no, const char *ins_code, int imol_map);
 
 
 #ifdef USE_GUILE
-/*! \brief return sigma for the given map.  Return scheme False if not
-  a valid map molecule number. */
+//! \brief Get the mean value of a map (Guile interface)
+//!
+//! Returns the mean (average) density value across all grid points in the map.
+//!
+//! @param imol Map molecule number
+//!
+//! @return SCM - Mean value as a number, or #f if imol is not a valid map
+//!
+//! \note Useful for understanding map scale and detecting data problems
+//!
+//! Example usage:
+//! \code{.scm}
+//! (define mean (map-mean-scm 2))
+//! (format #t "Map mean: ~a~%" mean)
+//! \endcode
 SCM map_mean_scm(int imol);
+//! \brief Get the standard deviation (sigma) of a map (Guile interface)
+//!
+//! Returns the standard deviation of density values in the map.
+//! This is the "sigma" used for contouring at "N sigma" levels.
+//!
+//! @param imol Map molecule number
+//!
+//! @return SCM - Standard deviation as a number, or #f if invalid map
+//!
+//! \note The contouring level "1.5 sigma" means 1.5 times this value above the mean
+//!
+//! Example usage:
+//! \code{.scm}
+//! (define sigma (map-sigma-scm 2))
+//! (format #t "Contour at 1.5 sigma = ~a~%" (* 1.5 sigma))
+//! \endcode
 SCM map_sigma_scm(int imol);
-/*! \brief return either scheme false on non-a-map or list (mean, standard-deviation, skew, kurtosis) */
+
+//! \brief Get comprehensive map statistics (Guile interface)
+//!
+//! Returns detailed statistical measures for the map including mean,
+//! standard deviation, skew, and kurtosis.
+//!
+//! @param imol Map molecule number
+//!
+//! @return SCM - List (mean std-dev skew kurtosis) or #f if invalid map
+//!
+//! \note Skew and kurtosis help identify if the map has unusual distributions
+//!       that might indicate problems with the data
+//!
+//! Example usage:
+//! \code{.scm}
+//! (define stats (map-statistics-scm 2))
+//! (if stats
+//!     (let ((mean (list-ref stats 0))
+//!           (sigma (list-ref stats 1))
+//!           (skew (list-ref stats 2))
+//!           (kurtosis (list-ref stats 3)))
+//!       (format #t "Mean: ~a, Sigma: ~a, Skew: ~a, Kurtosis: ~a~%"
+//!               mean sigma skew kurtosis)))
+//! \endcode
 SCM map_statistics_scm(int imol);
 #endif
+
 #ifdef USE_PYTHON
-/*! \brief return sigma for the given map.  Return Python False if not
-  a valid map molecule number. */
+//! \brief Get the mean value of a map (Python interface)
+//!
+//! Returns the mean (average) density value for all grid points in the map.
+//!
+//! @param imol Map molecule number
+//!
+//! @return PyObject* - Float mean value, or False if imol is not a valid map
+//!
+//! Example usage:
+//! \code{.py}
+//! mean = map_mean_py(2)
+//! if mean is not False:
+//!     print(f"Map mean: {mean}")
+//! \endcode
 PyObject *map_mean_py(int imol);
+//! \brief Get the standard deviation (sigma) of a map (Python interface)
+//!
+//! Returns the standard deviation of density values. This is the "sigma"
+//! value used when you set contouring to "1.5 sigma".
+//!
+//! @param imol Map molecule number
+//!
+//! @return PyObject* - Float sigma value, or False if invalid map
+//!
+//! Example usage:
+//! \code{.py}
+//! sigma = map_sigma_py(2)
+//! if sigma is not False:
+//!     print(f"1.5 sigma contour level: {1.5 * sigma}")
+//! \endcode
 PyObject *map_sigma_py(int imol);
+//! \brief Get comprehensive map statistics (Python interface)
+//!
+//! Returns detailed statistical information about the map distribution.
+//!
+//! @param imol Map molecule number
+//!
+//! @return PyObject* - List [mean, std_dev, skew, kurtosis] or False if invalid
+//!         - mean: Average density value
+//!         - std_dev: Standard deviation (sigma)
+//!         - skew: Asymmetry of the distribution
+//!         - kurtosis: "Tailedness" of the distribution
+//!
+//! \note Normal distributions have skew≈0 and kurtosis≈3
+//! \note Large deviations may indicate data problems
+//!
+//! Example usage:
+//! \code{.py}
+//! stats = map_statistics_py(2)
+//! if stats is not False:
+//!     mean, sigma, skew, kurtosis = stats
+//!     print(f"Map statistics:")
+//!     print(f"  Mean: {mean:.3f}")
+//!     print(f"  Sigma: {sigma:.3f}")
+//!     print(f"  Skew: {skew:.3f}")
+//!     print(f"  Kurtosis: {kurtosis:.3f}")
+//!
+//!     if abs(skew) > 1.0:
+//!         print("  Warning: Unusual skew detected")
+//! \endcode
 PyObject *map_statistics_py(int imol);
 #endif /*USE_PYTHON */
 
@@ -2236,41 +3548,21 @@ void register_interesting_positions_list_py(PyObject *pos_list);
 /*                      all-molecule atom overlaps                           */
 /* ------------------------------------------------------------------------- */
 #ifdef USE_PYTHON
-PyObject *molecule_atom_overlaps_py(int imol);
+//! \brief get the atom overlaps for the molecule
+//!
+//! @param imol the molecule index
+//! @param n_max_pairs the maximum number of atom pairs to return. Typically this
+//!        should be 20 or 30. Use -1 (with caution!) to get all of the
+//!        (poteentially thousands) of atom overlaps.
+//! @return a list of dictionaries with contact information.
+//!        The list is sorted by largest overlap first.
+//!        Return False on failure.
+//!
+PyObject *molecule_atom_overlaps_py(int imol, int n_max_pairs);
 #endif // USE_PYTHON
 #ifdef USE_GUILE
 SCM molecule_atom_overlaps_scm(int imol);
 #endif // USE_GUILE
-
-/* ------------------------------------------------------------------------- */
-/*                      prodrg import function                               */
-/* ------------------------------------------------------------------------- */
-
-// 20230916-PE Kill this
-//
-//! \brief import given mdl file into prodrg or other 3d generation program
-//!
-//! the function passed to lbg, so that it calls it when a new
-//! prodrg-in.mdl file has been made.  We no longer have a timeout
-//! function waiting for prodrg-in.mdl to be updated/written.
-//
-void prodrg_import_function(std::string file_name, std::string comp_id);
-
-
-
-/* ------------------------------------------------------------------------- */
-/*                       SBase import function                               */
-/* ------------------------------------------------------------------------- */
-
-// 20230916-PE Kill this
-//
-//! \brief import molecule from CCP4 SRS (or SBase, as it used to be called).
-//!
-//! the function passed to lbg, so that it calls it when a new
-//! SBase comp_id is required.  We no longer have a timeout
-//! function waiting for prodrg-in.mdl to be updated/written.
-//
-void sbase_import_function(std::string comp_id);
 
 /* ------------------------------------------------------------------------- */
 /*                       Alignment functions (now C++)                       */
@@ -2318,12 +3610,29 @@ void simple_text_dialog(const std::string &dialog_title, const std::string &text
 /*  ----------------------------------------------------------------------- */
 /*                  Phenix Functions                                        */
 /*  ----------------------------------------------------------------------- */
-//! \brief phenix GEO bonds representation
+
+//!  phenix GEO bonds representation
+//!
+//! This function is not for scripting
 void graphics_to_phenix_geo_representation(int imol, int mode,
-                                           const coot::phenix_geo_bonds &g);
-//! \brief phenix GEO bonds representation, read from file
+                                           const coot::phenix_geo::phenix_geometry &g);
+
+//! \brief phenix GEO bonds representation, read GEO info from file
+//!
+//! @param imol the molecule index
+//! @param mode current unused, so use 0
+//! @param geo_file_name is the file name of the phenix_geo file
 void graphics_to_phenix_geo_representation(int imol, int mode,
                                            const std::string &geo_file_name);
+
+//! \brief validate using phenix geo bonds
+//!
+//! Typically this would be called shortly after
+//! graphics_to_phenix_geo_representation()
+//!
+//! @param imol the molecule index
+//! @param geo_file_name is the file name of the phenix_geo file
+void validate_using_phenix_geo_bonds(int imol, const std::string &geo_file_name);
 
 /*  ----------------------------------------------------------------------- */
 /*                  Client/Server                                        */
@@ -2384,16 +3693,26 @@ clipper::Spacegroup py_symop_strings_to_space_group(PyObject *symop_string_list)
 //! \brief enable or diable sounds (coot needs to have been compiled with sounds of course)
 void set_use_sounds(bool state);
 
-//! no sounds
+//! \brief turn off sounds and particles and textures
 void curmudgeon_mode();
 
+//! easter egg 2023
 void halloween();
+
+void display_svg_from_file_in_a_dialog(const std::string &file_name);
+
+void display_svg_from_string_in_a_dialog(const std::string &string, const std::string &title);
+
+void display_pae_from_file_in_a_dialog(int imol, const std::string &file_name);
+
+void read_interesting_places_json_file(const std::string &file_name);
 
 //! return the section index (the middle section currently)
 int setup_tomo_slider(int imol);
 void tomo_section_view(int imol, int axis_id);
 void set_tomo_section_view_section(int imol, int section_index);
 
+//! set tomo picker is active
 void set_tomo_picker_mode_is_active(short int state);
 
 #ifdef USE_PYTHON
@@ -2416,6 +3735,11 @@ PyObject *positron_pathway(PyObject *map_molecule_list_py, PyObject *pathway_poi
 void positron_plot_py(const std::string &fn_z_csv, const std::string &fn_s_csv,
                       PyObject *base_map_index_list);
 #endif
+
+#ifdef USE_PYTHON
+PyObject *global_phasing_screen(int imol, PyObject *screen_dict);
+#endif
+
 
 #ifdef SWIG
 #else

@@ -2,7 +2,7 @@
 #define COOT_ATOM_HH
 
 #include <string>
-#include "coords/Cartesian.h"
+#include "coords/Cartesian.hh"
 
 namespace coot {
 

@@ -66,7 +66,10 @@
 #ifdef __cplusplus
 #ifdef USE_GUILE
 #include <cstdio> /* for std::FILE in gmp.h for libguile.h */
-#include <libguile.h>		/* for SCM type (returned by safe_scheme_command) */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
+#include <libguile.h>
+#pragma GCC diagnostic pop
 #else
 #include <string> /* for std::string; included (sic!) in above for guile */
 #endif /*  USE_GUILE */
@@ -397,8 +400,8 @@ void save_molecule_coords_combobox_changed(GtkWidget *combobox, gpointer data);
 GtkWidget *wrapped_create_goto_atom_window();
 void fill_go_to_atom_window(GtkWidget *widget);
 
-int goto_next_atom_maybe_new(GtkWidget *window);
-int goto_previous_atom_maybe_new(GtkWidget *window);
+int goto_next_atom_maybe_new();
+int goto_previous_atom_maybe_new();
 
 /* used by keypress (return) callbacks */
 
@@ -563,7 +566,7 @@ void clear_restraints_editor_by_dialog(GtkWidget *dialog); /* close button press
 GtkWidget *wrapped_create_move_molecule_here_dialog();
 void move_molecule_here_by_widget(); /* no widget */
 int move_molecule_to_screen_centre_internal(int imol);
-void fill_move_molecule_here_dialog(GtkWidget *w);
+void fill_move_molecule_here_frame(GtkWidget *w);
 
 /* } */
 
@@ -789,7 +792,7 @@ void execute_superpose(GtkWidget *w);
 GtkWidget *wrapped_create_superpose_dialog(); /* used by callback */
 /*void fill_superpose_option_menu_with_chain_options(GtkWidget *chain_optionmenu,
   int is_reference_structure_flag); */
-void fill_superpose_combobox_with_chain_options(GtkWidget *combobox, int is_ref_flag);
+void fill_superpose_combobox_with_chain_options(int imol_active, int is_ref_flag);
 void update_lsq_dialog_store_values(GtkWidget *w);
 
 
@@ -890,6 +893,6 @@ void handle_phs_cell_choice_ok_button_clicked(GtkWidget *button);
 /* handle_read_ccp4_map is now a .hh/c++ interface function, so give the callback an internal c function */
 int handle_read_ccp4_map_internal(const char *fn, int is_difference_map);
 
-#endif /* C_INTERFACE_GTK_WIDGETS_H */
-
 END_C_DECLS
+
+#endif /* C_INTERFACE_GTK_WIDGETS_H */

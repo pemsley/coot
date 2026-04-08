@@ -30,7 +30,10 @@
 #include <iostream>
 #include <cstddef> // needed for gmp.h I think.
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
 #include <libguile.h>
+#pragma GCC diagnostic pop
 #include <glib.h>
 #include <gtk/gtk.h>
 

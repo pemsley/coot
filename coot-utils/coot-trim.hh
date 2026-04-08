@@ -30,10 +30,10 @@ namespace coot {
       // return the number of trimmed atoms
       int
       trim_molecule_by_map(mmdb::Manager *mol,
-			   const clipper::Xmap<float> &xmap,
-			   float map_level,
-			   short int remove_or_zero_occ_flag,
-			   short int waters_only_flag);
+                           const clipper::Xmap<float> &xmap,
+                           float map_level,
+                           short int remove_or_zero_occ_flag,
+                           short int waters_only_flag);
 
    }
 

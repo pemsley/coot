@@ -38,7 +38,10 @@
 
 #ifdef USE_GUILE
 #include <cstdio> /* for std::FILE in gmp.h for libguile.h */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
 #include <libguile.h>
+#pragma GCC diagnostic pop
 #endif
 
 class keyboard_key_t {
@@ -134,6 +137,14 @@ public:
 #endif
    }
    gboolean run() const;
+   static std::string type_to_string(binding_type t) {
+      std::string s = "unset";
+      if (t == NONE)     s = "NONE";
+      if (t == SCHEME)   s = "SCHEME";
+      if (t == PYTHON)   s = "PYTHON";
+      if (t == BUILT_IN) s = "BUILT_IN";
+      return s;
+   }
 };
 
 #endif // KEY_BINDINGS_HH

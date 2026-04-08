@@ -7,6 +7,8 @@
 
 int test_multiligands_lig_bonding(molecules_container_t &mc);
 int test_import_ligands_with_same_name(molecules_container_t &mc);
+int test_get_torsion(molecules_container_t &mc);
 
 #endif // COOT_API_LUCREZIA_TESTS_HH
+
 

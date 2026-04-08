@@ -182,10 +182,22 @@ HUDTextureMesh::setup_buffers() {
 void
 HUDTextureMesh::update_instancing_buffer_data(const std::vector<glm::vec2> &new_positions) {
 
+   // 20241028-PE Crash in this function reported by @jianghaizhu on github
+   // https://github.com/pemsley/coot/issues/161
+   // Hopefully this eary return will fix the problem.
+   if (new_positions.empty()) {
+      n_instances = 0;
+      return;
+   }
+
    GLenum err = glGetError();
    if (err)
       std::cout << "GL ERROR:: HUDTextureMesh::update_instancing_buffer_data() --start-- err "
                 << err << std::endl;
+
+   if (false)
+      std::cout << "========================= in update_instancing_buffer_data() n_instances_max "
+                << n_instances_max << " new_positions size: " << new_positions.size() << std::endl;
 
    unsigned int n_phi_psis = new_positions.size();
    if (n_phi_psis > n_instances_max)

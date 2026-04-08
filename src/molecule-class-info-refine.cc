@@ -27,9 +27,9 @@
 
 // these are needed to compile molecule-compile-info.h:
 //
-#include "coords/Cartesian.h"
-#include "coords/mmdb-extras.h"
-#include "coords/mmdb-crystal.h"
+#include "coords/Cartesian.hh"
+#include "coords/mmdb-extras.hh"
+#include "coords/mmdb-crystal.hh"
 
 // morphing
 #include "coot-utils/coot-coord-utils.hh"
@@ -230,9 +230,11 @@ molecule_class_info_t::add_refmac_extra_restraints(const std::string &file_name)
    r.read_refmac_extra_restraints(file_name);
    extra_restraints.add_restraints(r);
    std::cout << "INFO:: add_refmac_extra_restraints(): have "
-	     << extra_restraints.bond_restraints.size() << " bond restraints " << std::endl;
+	     << extra_restraints.bond_restraints.size() << " extra bond restraints " << std::endl;
    std::cout << "INFO:: add_refmac_extra_restraints(): have "
-	     << extra_restraints.angle_restraints.size() << " angle restraints " << std::endl;
+	     << extra_restraints.angle_restraints.size() << " extra angle restraints " << std::endl;
+   std::cout << "INFO:: add_refmac_extra_restraints(): have "
+	     << extra_restraints.torsion_restraints.size() << " extraa torsion restraints " << std::endl;
    update_extra_restraints_representation();
 }
 
@@ -999,7 +1001,7 @@ molecule_class_info_t::morph_fit_residues(std::vector<std::pair<mmdb::Residue *,
    // std::cout << "rtop_map.size(): " << rtop_map.size() << std::endl;
    if (rtop_map.size()) {
       success = 1;
-      make_backup();
+      make_backup(__FUNCTION__);
 
       // get the "key" residues, for use to find the peptide_C_N_pairs
       std::vector<mmdb::Residue *> residues_vec;
@@ -1374,7 +1376,7 @@ molecule_class_info_t::morph_fit_by_secondary_structure_elements(const std::stri
       mmdb::Model *model_p = atom_sel.mol->GetModel(imodel);
       if (model_p) {
 
-	 make_backup();
+	 make_backup(__FUNCTION__);
 	 bool model_changed = true;
 
 	 int nhelix = model_p->GetNumberOfHelices();
@@ -1687,7 +1689,7 @@ void
 molecule_class_info_t::shiftfield_b_factor_refinement(const clipper::HKL_data<clipper::data32::F_sigF> &fobs,
                                                       const clipper::HKL_data<clipper::data32::Flag> &free) {
    if (atom_sel.mol) {
-      make_backup();
+      make_backup(__FUNCTION__);
       int n_cycles = 3;
       coot::shift_field_b_factor_refinement(fobs, free, atom_sel.mol, n_cycles);
    }
@@ -1699,7 +1701,7 @@ molecule_class_info_t::shiftfield_xyz_factor_refinement(const clipper::HKL_data<
                                                         const clipper::HKL_data<clipper::data32::Flag> &free) {
 
    if (atom_sel.mol) {
-      make_backup();
+      make_backup(__FUNCTION__);
       coot::shift_field_xyz_refinement(fobs, free, atom_sel.mol, 2.0);
    }
 }

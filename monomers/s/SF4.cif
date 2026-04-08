@@ -1,0 +1,83 @@
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+SF4 SF4 "IRON/SULFUR CLUSTER" NON-POLYMER 4 0 .
+
+data_comp_SF4
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.alt_atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+SF4 FE1 FE1 FE FE 0.00  40.983 0.161 22.643
+SF4 FE2 FE2 FE FE 0.00  39.717 2.289 22.751
+SF4 FE3 FE3 FE FE 0.00  41.979 2.137 23.752
+SF4 FE4 FE4 FE FE 0.00  41.705 2.107 21.289
+SF4 S1  S1  S  S  -2.00 41.263 3.940 22.554
+SF4 S2  S2  S  S  -2.00 43.171 0.751 22.389
+SF4 S3  S3  S  S  -2.00 39.769 0.971 20.891
+SF4 S4  S4  S  S  -2.00 40.187 1.021 24.587
+
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+SF4 FE1 S2 SING 2.28 0.04 2.28 0.04
+SF4 FE1 S3 SING 2.28 0.04 2.28 0.04
+SF4 FE1 S4 SING 2.27 0.04 2.27 0.04
+SF4 FE2 S1 SING 2.27 0.04 2.27 0.04
+SF4 FE2 S3 SING 2.28 0.04 2.28 0.04
+SF4 FE2 S4 SING 2.28 0.04 2.28 0.04
+SF4 FE3 S1 SING 2.28 0.04 2.28 0.04
+SF4 FE3 S2 SING 2.28 0.04 2.28 0.04
+SF4 FE3 S4 SING 2.27 0.04 2.27 0.04
+SF4 FE4 S1 SING 2.27 0.04 2.27 0.04
+SF4 FE4 S2 SING 2.28 0.04 2.28 0.04
+SF4 FE4 S3 SING 2.28 0.04 2.28 0.04
+
+loop_
+_acedrg_chem_comp_descriptor.comp_id
+_acedrg_chem_comp_descriptor.program_name
+_acedrg_chem_comp_descriptor.program_version
+_acedrg_chem_comp_descriptor.type
+SF4 acedrg            311       'dictionary generator'
+SF4 'acedrg_database' 12        'data source'
+SF4 rdkit             2019.09.1 'Chemoinformatics tool'
+SF4 metalCoord        0.1.63    'metal coordination analysis'
+SF4 servalcat         0.4.93    'optimization tool'
+
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+SF4 S3 FE1 S4 109.5 7.61
+SF4 S3 FE1 S2 109.5 7.61
+SF4 S4 FE1 S2 109.5 7.61
+SF4 S3 FE2 S1 109.5 7.61
+SF4 S3 FE2 S4 109.5 7.61
+SF4 S1 FE2 S4 109.5 7.61
+SF4 S1 FE3 S4 109.5 7.61
+SF4 S1 FE3 S2 109.5 7.61
+SF4 S4 FE3 S2 109.5 7.61
+SF4 S3 FE4 S1 109.5 7.61
+SF4 S3 FE4 S2 109.5 7.61
+SF4 S1 FE4 S2 109.5 7.61

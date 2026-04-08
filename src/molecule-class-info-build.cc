@@ -26,15 +26,17 @@
 #include "compat/coot-sysdep.h"
 
 // include files needed to include molecule-class-info.h correctly. Useful.
-#include <mmdb2/mmdb_manager.h> 
-#include "coords/Cartesian.h"
-#include "coords/mmdb-extras.h"
-#include "coords/mmdb-crystal.h"
+#include <mmdb2/mmdb_manager.h>
+
+#include "coords/Cartesian.hh"
+#include "coords/mmdb-extras.hh"
+#include "coords/mmdb-crystal.hh"
 
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot-utils/reduce.hh"
-#include "molecule-class-info.h"
 #include "coot-utils/reduce.hh"
+
+#include "molecule-class-info.h"
 
 
 std::vector<ProteinDB::Chain>
@@ -130,7 +132,7 @@ molecule_class_info_t::add_hydrogens_from_file(const std::string &reduce_pdb_out
 
    std::cout << "adding hydrogens from PDB file " << reduce_pdb_out << std::endl;
 
-   make_backup();
+   make_backup(__FUNCTION__);
    bool added = 0;
    atom_selection_container_t asc = get_atom_selection(reduce_pdb_out, false, true, true);
    if (asc.read_success) { 
@@ -212,7 +214,7 @@ molecule_class_info_t::add_hydrogens_from_file(const std::string &reduce_pdb_out
 void
 molecule_class_info_t::add_hydrogen_atoms_to_residue(const coot::residue_spec_t &rs) {
 
-   make_backup();
+   make_backup(__FUNCTION__);
    mmdb::Residue *residue_this_p = get_residue(rs);
    mmdb::Residue *residue_prev_p = coot::util::get_previous_residue(rs, atom_sel.mol);
 
@@ -234,13 +236,13 @@ molecule_class_info_t::make_link(const coot::atom_spec_t &spec_1, const coot::at
 
    // 2014: link_name and length are not part curently of a mmdb::Link.
    // Perhaps they should not be passed then?
-   
+
    mmdb::Atom *at_1 = get_atom(spec_1);
    mmdb::Atom *at_2 = get_atom(spec_2);
 
    if (! at_1) {
       std::cout << "WARNING:: atom " << spec_1 << " not found - abandoning LINK addition " << std::endl;
-   } else { 
+   } else {
       if (! at_2) {
 	 std::cout << "WARNING:: atom " << spec_1 << " not found - abandoning LINK addition " << std::endl;
       } else {
@@ -255,10 +257,10 @@ molecule_class_info_t::make_link(const coot::atom_spec_t &spec_1, const coot::at
 
 	 } else {
 
-	    make_backup();
+	    make_backup(__FUNCTION__);
 
 	    mmdb::Manager *mol = atom_sel.mol;
-	 
+
             mmdb::Link *link = new mmdb::Link; // sym ids default to 1555 1555
 
 	    strncpy(link->atName1,  at_1->GetAtomName(), 20);
@@ -302,10 +304,10 @@ molecule_class_info_t::make_link(const coot::atom_spec_t &spec_1, const coot::at
 	    asn_hydrogen_position_swap(residues); // HD21 and HD22 (HD22 will be deleted)
 	    bpc.apply_chem_mods(geom);
 	    atom_sel.mol->FinishStructEdit();
-	    
+
 	    update_molecule_after_additions();
 	 }
-      } 
+      }
    }
 }
 
@@ -427,6 +429,7 @@ molecule_class_info_t::delete_link(mmdb::Link *link, mmdb::Model *model_p) {
    }
 }
 
+// there is a copy of this in add-linked-cho now.
 void
 molecule_class_info_t::asn_hydrogen_position_swap(std::vector<std::pair<bool, mmdb::Residue *> > residues) {
 
@@ -482,7 +485,7 @@ molecule_class_info_t::move_reference_chain_to_symm_chain_position(coot::Symm_At
 
    if (naii.success) {
 
-      make_backup();
+      make_backup(__FUNCTION__);
 
       mmdb::mat44 my_matt;
       mmdb::mat44 pre_shift_matt;
@@ -543,7 +546,7 @@ molecule_class_info_t::globularize() {
    mmdb::Manager *mol = atom_sel.mol;
 
    if (mol) { 
-      make_backup();
+      make_backup(__FUNCTION__);
 
       bool nucleotides = false;
 
@@ -587,7 +590,7 @@ molecule_class_info_t::reduce(coot::protein_geometry *geom_p) {
 
    bool go_nuclear = false; // pass this, I think
 
-   make_backup();
+   make_backup(__FUNCTION__);
    mmdb::Manager *mol = atom_sel.mol;
    coot::reduce r(mol, imol_no);
    r.add_geometry(geom_p);
@@ -637,7 +640,7 @@ molecule_class_info_t::switch_HIS_protonation(coot::residue_spec_t res_spec) {
       if (atom_2 && ! atom_1) at = atom_2;
 
       if (at) {
-	 make_backup();
+	 make_backup(__FUNCTION__);
 	 coot::reduce r(atom_sel.mol, imol_no);
 	 r.switch_his_protonation(residue_p, at);
 	 update_molecule_after_additions();
@@ -666,7 +669,7 @@ molecule_class_info_t::crankshaft_peptide_rotation_optimization(const coot::resi
 					       n_samples, n_solutions, thread_pool_p, n_threads);
 
    if (mols.size() == 1) {
-      make_backup();
+      make_backup(__FUNCTION__);
       std::cout << "DEBUG:: crankshaft updated " << std::endl;
       // what do we do with the old atom selection and mol?
       // should we delete them here?
@@ -735,7 +738,7 @@ molecule_class_info_t::trim_molecule_by_b_factor(float limit, bool keep_higher_f
    // delete residues if the B-factor is higher (or lower)
 
    int status = 1;
-   make_backup();
+   make_backup(__FUNCTION__);
    mmdb::Manager *mol = atom_sel.mol;
    std::set<mmdb::Residue *> deletable_residues;
    for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
@@ -813,7 +816,7 @@ molecule_class_info_t::pLDDT_to_b_factor() {
    };
 
    float m_b_factor_pre = coot::util::average_temperature_factor(atom_sel.atom_selection, atom_sel.n_selected_atoms, 0, 1000, 0, 0);
-   make_backup();
+   make_backup(__FUNCTION__);
    mmdb::Manager *mol = atom_sel.mol;
    for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
       mmdb::Model *model_p = mol->GetModel(imod);

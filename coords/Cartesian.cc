@@ -29,14 +29,13 @@
 
 #include "cos-sin.h"
 
-#include "Cartesian.h"
+#include "Cartesian.hh"
 
 
 coot::Cartesian
 coot::Cartesian::operator*(const float &f) const {
    return coot::Cartesian(x_*f, y_*f, z_*f);
-} 
-
+}
 
 void
 coot::Cartesian::operator+=(const coot::Cartesian &in) {

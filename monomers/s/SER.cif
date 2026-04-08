@@ -1,0 +1,188 @@
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+SER SER SERINE peptide 14 7 .
+
+data_comp_SER
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+SER N N NT3 1 88.105 -7.500 -9.831
+SER CA C CH1 0 87.822 -7.221 -11.265
+SER C C C 0 88.475 -5.896 -11.689
+SER O O O 0 88.336 -4.918 -10.921
+SER CB C CH2 0 86.337 -7.203 -11.533
+SER OG O OH1 0 85.742 -8.447 -11.190
+SER OXT O OC -1 89.099 -5.887 -12.773
+SER H H H 0 87.553 -7.016 -9.304
+SER H2 H H 0 88.960 -7.295 -9.626
+SER H3 H H 0 87.971 -8.377 -9.665
+SER HA H H 0 88.226 -7.948 -11.803
+SER HB3 H H 0 86.182 -7.019 -12.479
+SER HB2 H H 0 85.923 -6.490 -11.011
+SER HG H H 0 84.904 -8.380 -11.287
+
+loop_
+_chem_comp_tree.comp_id
+_chem_comp_tree.atom_id
+_chem_comp_tree.atom_back
+_chem_comp_tree.atom_forward
+_chem_comp_tree.connect_type
+SER N n/a CA START
+SER H N . .
+SER H2 N . .
+SER H3 N . .
+SER CA N C .
+SER HA CA . .
+SER CB CA OG .
+SER HB3 CB . .
+SER HB2 CB . .
+SER OG CB HG .
+SER HG OG . .
+SER C CA . END
+SER O C . .
+SER OXT C . .
+
+loop_
+_chem_comp_acedrg.comp_id
+_chem_comp_acedrg.atom_id
+_chem_comp_acedrg.atom_type
+SER N N(CCCH)(H)3
+SER CA C(CHHO)(NH3)(COO)(H)
+SER C C(CCHN)(O)2
+SER O O(CCO)
+SER CB C(CCHN)(OH)(H)2
+SER OG O(CCHH)(H)
+SER OXT O(CCO)
+SER H H(NCHH)
+SER H2 H(NCHH)
+SER H3 H(NCHH)
+SER HA H(CCCN)
+SER HB3 H(CCHO)
+SER HB2 H(CCHO)
+SER HG H(OC)
+
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+SER N CA SINGLE n 1.487 0.0100 1.487 0.0100
+SER CA C SINGLE n 1.536 0.0100 1.536 0.0100
+SER CA CB SINGLE n 1.508 0.0190 1.508 0.0190
+SER C O DOUBLE n 1.251 0.0183 1.251 0.0183
+SER C OXT SINGLE n 1.251 0.0183 1.251 0.0183
+SER CB OG SINGLE n 1.421 0.0108 1.421 0.0108
+SER N H SINGLE n 1.018 0.0520 0.902 0.0102
+SER N H2 SINGLE n 1.018 0.0520 0.902 0.0102
+SER N H3 SINGLE n 1.018 0.0520 0.902 0.0102
+SER CA HA SINGLE n 1.092 0.0100 0.991 0.0200
+SER CB HB3 SINGLE n 1.092 0.0100 0.976 0.0180
+SER CB HB2 SINGLE n 1.092 0.0100 0.976 0.0180
+SER OG HG SINGLE n 0.972 0.0180 0.846 0.0200
+
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+SER CA N H 109.696 3.00
+SER CA N H2 109.696 3.00
+SER CA N H3 109.696 3.00
+SER H N H2 109.032 3.00
+SER H N H3 109.032 3.00
+SER H2 N H3 109.032 3.00
+SER N CA C 109.839 1.50
+SER N CA CB 111.152 1.50
+SER N CA HA 108.129 1.50
+SER C CA CB 111.300 1.50
+SER C CA HA 108.235 1.50
+SER CB CA HA 108.445 1.50
+SER CA C O 117.199 1.50
+SER CA C OXT 117.189 1.50
+SER O C OXT 125.593 1.50
+SER CA CB OG 110.934 1.86
+SER CA CB HB3 109.238 1.50
+SER CA CB HB2 109.238 1.50
+SER OG CB HB3 109.353 1.50
+SER OG CB HB2 109.353 1.50
+SER HB3 CB HB2 108.095 1.88
+SER CB OG HG 108.539 3.00
+
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+SER chi1 N CA CB OG -60.000 10.0 3
+SER hh1 CA CB OG HG 180.000 10.0 3
+SER sp3_sp3_1 C CA N H 180.000 10.0 3
+SER sp2_sp3_1 O C CA N 0.000 10.0 6
+
+loop_
+_chem_comp_chir.comp_id
+_chem_comp_chir.id
+_chem_comp_chir.atom_id_centre
+_chem_comp_chir.atom_id_1
+_chem_comp_chir.atom_id_2
+_chem_comp_chir.atom_id_3
+_chem_comp_chir.volume_sign
+SER chir_1 CA N C CB positive
+
+loop_
+_chem_comp_plane_atom.comp_id
+_chem_comp_plane_atom.plane_id
+_chem_comp_plane_atom.atom_id
+_chem_comp_plane_atom.dist_esd
+SER plan-1 C 0.020
+SER plan-1 CA 0.020
+SER plan-1 O 0.020
+SER plan-1 OXT 0.020
+
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+SER SMILES ACDLabs 10.04 O=C(O)C(N)CO
+SER SMILES_CANONICAL CACTVS 3.341 N[C@@H](CO)C(O)=O
+SER SMILES CACTVS 3.341 N[CH](CO)C(O)=O
+SER SMILES_CANONICAL "OpenEye OEToolkits" 1.5.0 C([C@@H](C(=O)O)N)O
+SER SMILES "OpenEye OEToolkits" 1.5.0 C(C(C(=O)O)N)O
+SER InChI InChI 1.03 InChI=1S/C3H7NO3/c4-2(1-5)3(6)7/h2,5H,1,4H2,(H,6,7)/t2-/m0/s1
+SER InChIKey InChI 1.03 MTCFGRXMJLQNBG-REOHCLBHSA-N
+
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+SER acedrg 278 "dictionary generator"
+SER acedrg_database 12 "data source"
+SER rdkit 2019.09.1 "Chemoinformatics tool"
+SER refmac5 5.8.0419 "optimization tool"

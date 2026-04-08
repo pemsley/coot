@@ -32,9 +32,9 @@ namespace coot {
    class flip_atom_triplet_t {
    public:
       flip_atom_triplet_t(mmdb::Atom *at_1, mmdb::Atom *at_2, mmdb::Atom *at_3) {
-	 CA_this = at_1;
-	 O_this  = at_2;
-	 CA_next = at_3;
+         CA_this = at_1;
+         O_this  = at_2;
+         CA_next = at_3;
       }
       mmdb::Atom *CA_this;
       mmdb::Atom *O_this;

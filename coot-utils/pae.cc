@@ -39,6 +39,7 @@ pae_t::pae_t(const std::string &file_name, int n_pixels_in) {
       return s;
    };
 
+   pae_vecs.clear();
    n_pixels = n_pixels_in;
    if (coot::file_exists(file_name)) {
       std::string s = file_to_string(file_name);
@@ -46,7 +47,6 @@ pae_t::pae_t(const std::string &file_name, int n_pixels_in) {
          json j = json::parse(s);
          json item_1 = j[0];
          json ls = item_1["predicted_aligned_error"];
-         std::vector<std::vector<int> > pae_vecs;
          for (json::iterator it_1=ls.begin(); it_1!=ls.end(); ++it_1) {
             json &item_2 = *it_1;
             // item_2 is a list with a number for each residue (self is 0)
@@ -60,7 +60,6 @@ pae_t::pae_t(const std::string &file_name, int n_pixels_in) {
          if (is_square) {
             image = make_image(pae_vecs);
          }
-
       }
       catch (const nlohmann::detail::type_error &e) {
          std::cout << "ERROR:: " << e.what() << std::endl;
@@ -82,6 +81,22 @@ pae_t::get_max_value(const std::vector<std::vector<int> > &pae_vecs) const {
    return max_value;
 }
 
+std::vector<unsigned char>
+pae_t::value_to_colour(float value, float max_value) const {
+
+   std::vector<unsigned char> col(3, 0);
+   float f = value/max_value;
+   unsigned char rb_col = static_cast<unsigned char>(255.0 * f);
+   unsigned char  g_col = static_cast<unsigned char>(190.0 * f) + 65;
+   if (rb_col > 255) rb_col = 255;
+   if (g_col  > 255)  g_col = 255;
+   col[0] = rb_col;
+   col[1] =  g_col;
+   col[2] = rb_col;
+   return col;
+}
+
+
 std::string
 pae_t::make_image(const std::vector<std::vector<int> > &pae_vecs) const {
 
@@ -93,19 +108,8 @@ pae_t::make_image(const std::vector<std::vector<int> > &pae_vecs) const {
       return CAIRO_STATUS_SUCCESS;
    };
 
-   auto value_to_colour = [] (float value, float max_value) {
-      std::vector<unsigned char> col(3, 0);
-      float f = value/max_value;
-      unsigned char rb_col = static_cast<unsigned char>(255.0 * f);
-      unsigned char  g_col = static_cast<unsigned char>(190.0 * f) + 65;
-      if (rb_col > 255) rb_col = 255;
-      if (g_col  > 255)  g_col = 255;
-      col[0] = rb_col;
-      col[1] =  g_col;
-      col[2] = rb_col;
-      return col;
-   };
-
+   // the caller decides on the dialog size (n_pixels)
+   // and we make things fit here:
    int n_pixels_for_pae_image = n_pixels - 100;
 
    std::string s;
@@ -121,6 +125,8 @@ pae_t::make_image(const std::vector<std::vector<int> > &pae_vecs) const {
    }
 
    unsigned int n_residues = pae_vecs.size();
+
+   std::cout << "debug:: in pae::make_image() n_residues: " << n_residues << std::endl;
 
    float max_value = get_max_value(pae_vecs);
    for (int i=0; i<n_pixels_for_pae_image; i++) {
@@ -264,3 +270,4 @@ pae_t::make_image(const std::vector<std::vector<int> > &pae_vecs) const {
 #endif
 
 }
+

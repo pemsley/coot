@@ -33,7 +33,6 @@ layout(location = 1) in vec3 normal;   // ditto
 layout(location = 2) in vec4 colour;
 
 uniform mat4 mvp;
-uniform mat4 view_rotation; // the quaternion attached to what the mouse has done
 
 out vec3 frag_pos_transfer;
 out vec4 colour_transfer;

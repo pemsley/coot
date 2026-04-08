@@ -58,6 +58,10 @@
 
 #include "compat/coot-sysdep.h"
 
+#include "utils/logging.hh"
+extern logging logger;
+
+
 zo::rama_table_set coot::restraints_container_t::zo_rama;
 std::atomic<bool> coot::restraints_container_t::print_lock(false);
 
@@ -259,20 +263,55 @@ coot::restraints_container_t::restraints_container_t(mmdb::PResidue *SelResidues
       if (resno > iend_res_l)
 	 iend_res_l = resno;
    }
-   
+
    short int have_flanking_residue_at_start = 0;
    short int have_flanking_residue_at_end = 0;
    short int have_disulfide_residues = 0;
    const char *chn = chain_id.c_str();
 
    // std::cout << "DEBUG:  ==== istart_res iend_res " << istart_res << " "
-   // << iend_res << std::endl; 
+   // << iend_res << std::endl;
 
    init_from_mol(istart_res_l, iend_res_l,
 		 have_flanking_residue_at_start,
 		 have_flanking_residue_at_end,
-		 have_disulfide_residues, 
+		 have_disulfide_residues,
 		 std::string(""), chn, mol_in, fixed_atoms_dummy);
+
+}
+
+void
+coot::restraints_container_t::link_restraints_counts::report() const {
+
+   // std::cout << "   Made " << n_link_bond_restr    << " " << link_type << " bond restraints\n";
+   // std::cout << "   Made " << n_link_angle_restr   << " " << link_type << " angle restraints\n";
+   // std::cout << "   Made " << n_link_plane_restr   << " " << link_type << " plane restraints\n";
+   // std::cout << "   Made " << n_link_trans_peptide << " " << link_type << " trans-peptide restraints\n";
+
+   logger.log(log_t::INFO, {"created", n_link_bond_restr,    link_type, "bond restraints"});
+   logger.log(log_t::INFO, {"created", n_link_angle_restr,   link_type, "angle restraints"});
+   logger.log(log_t::INFO, {"created", n_link_plane_restr,   link_type, "plane restraints"});
+   logger.log(log_t::INFO, {"created", n_link_trans_peptide, link_type, "trans-peptide restraints"});
+}
+
+void
+coot::restraints_container_t::restraint_counts_t::report(bool do_residue_internal_torsions) const {
+
+   // std::cout << "created " << n_bond_restraints   << " bond       restraints " << std::endl;
+   // std::cout << "created " << n_angle_restraints  << " angle      restraints " << std::endl;
+   // std::cout << "created " << n_plane_restraints  << " plane      restraints " << std::endl;
+   // std::cout << "created " << n_chiral_restr      << " chiral vol restraints " << std::endl;
+   // std::cout << "created " << n_improper_dihedral_restr << " improper dihedral restraints " << std::endl;
+   // if (do_residue_internal_torsions)
+   //    std::cout << "created " << n_torsion_restr << " torsion restraints " << std::endl;
+
+   logger.log(log_t::INFO, {"created", n_bond_restraints,  "bond       restraints"});
+   logger.log(log_t::INFO, {"created", n_angle_restraints, "angle      restraints"});
+   logger.log(log_t::INFO, {"created", n_plane_restraints, "plane      restraints"});
+   logger.log(log_t::INFO, {"created", n_chiral_restr,     "chiral vol restraints"});
+   logger.log(log_t::INFO, {"created", n_improper_dihedral_restr, "improper dihedral restraints"});
+   if (do_residue_internal_torsions)
+      logger.log(log_t::INFO, {"created", n_torsion_restr, "torsion restraints"});
 
 }
 
@@ -391,7 +430,8 @@ coot::restraints_container_t::restraints_container_t(const std::vector<std::pair
       std::cout << "debug:: in restraints_container_t() constructor with local residue size " << residues_local.size() << std::endl;
       for (unsigned int ir=0; ir<residues_vec.size(); ir++) {
          if (residues_vec[ir].second) {
-           std::cout << "INFO:: starting init_from_residue_vec() residue " << residues_vec[ir].second << std::endl;
+           // std::cout << "INFO:: starting init_from_residue_vec() residue " << residues_vec[ir].second << std::endl;
+           logger.log(log_t::INFO, "starting init_from_residue_vec() residue", residues_vec[ir].second);
          } else {
            std::cout << "ERROR:: starting init_from_residue_vec() NUll residue " << ir << std::endl;
          }
@@ -762,7 +802,9 @@ void
 coot::restraints_container_t::unset_fixed_during_refinement_udd() {
 
    if (! mol) {
-      std::cout << "ERROR:: in unset_fixed_during_refinement_udd() mol is null" << std::endl;
+      // if the mol has been deleted and reset before destruction of a restraints_container_t
+      // then it is OK for mol to be null.
+      // std::cout << "ERROR:: in unset_fixed_during_refinement_udd() mol is null" << std::endl;
       return;
    }
    int uddHnd = mol->GetUDDHandle(mmdb::UDR_ATOM , "FixedDuringRefinement");
@@ -797,7 +839,8 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
    if (false) {
       for (unsigned int ir=0; ir<residues_vec.size(); ir++) {
          if (residues_vec[ir].second) {
-           std::cout << "INFO:: starting init_from_residue_vec() residue " << residues_vec[ir].second << std::endl;
+           // std::cout << "INFO:: starting init_from_residue_vec() residue " << residues_vec[ir].second << std::endl;
+           logger.log(log_t::INFO, "starting init_from_residue_vec() residue", residues_vec[ir].second);
          } else {
            std::cout << "ERROR:: starting init_from_residue_vec() NUll residue " << ir << std::endl;
          }
@@ -1256,11 +1299,12 @@ coot::restraints_container_t::pre_sanitize_as_needed(std::vector<refinement_ligh
 
 	    if (status == GSL_SUCCESS) {
 	       if (verbose_geometry_reporting != QUIET) {
-		  std::cout << "Pre-Sanitize Minimum found (iteration number " << iter << ") at ";
-		  std::cout << m_s->f << "\n";
+		  // std::cout << "INFO:: Pre-Sanitize Minimum found (iteration number " << iter << ") at ";
+		  // std::cout << m_s->f << "\n";
+		  logger.log(log_t::INFO, "Pre-Sanitize Minimum found (iteration number", iter, ") at", m_s->f);
 	       }
 	    }
-	 
+
 	    if (status == GSL_ENOPROG)
 	       std::cout << "pre-sanitize (No Progress)\n";
 	 }
@@ -1378,7 +1422,7 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
    if (n_times_called == 1 || needs_reset)
       setup_minimize();
 
-   refinement_results_t rr = minimize_inner(usage_flags, nsteps_max, print_initial_chi_sq_flag);
+   refinement_results_t rr = minimize_inner(usage_flags, nsteps_max);
 
    return rr;
 }
@@ -1437,7 +1481,7 @@ coot::restraints_container_t::minimize(int imol, restraint_usage_Flags usage_fla
    }
 #endif
 
-   refinement_results_t rr = minimize_inner(usage_flags, nsteps_max, print_initial_chi_sq_flag);
+   refinement_results_t rr = minimize_inner(usage_flags, nsteps_max);
 
    // std::cout << "debug:: minimize() returns " << rr.progress << std::endl;
 
@@ -1447,9 +1491,8 @@ coot::restraints_container_t::minimize(int imol, restraint_usage_Flags usage_fla
 // return success: GSL_ENOPROG, GSL_CONTINUE, GSL_ENOPROG (no progress)
 //
 coot::refinement_results_t
-coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags, 
-					     int nsteps_max,
-					     short int print_initial_chi_sq_flag) {
+coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
+					     int nsteps_max) {
 
    // Was just checking that minimize() was not being called multiple times concurrently
    // (it wasn't)
@@ -1474,7 +1517,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 
    std::vector<refinement_lights_info_t> lights; // = chi_squareds("--------", m_s->x, false);
 
-   int iter = 0; 
+   int iter = 0;
    int status = GSL_SUCCESS; // some start value for the compiler not to complain about
                              // construction of a refinement_results_t
    std::vector<coot::refinement_lights_info_t> lights_vec;
@@ -1553,11 +1596,13 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 	       if (worst_of_all.is_set) {
 		  const simple_restraint &baddie_restraint = restraints_vec[worst_of_all.restraints_index];
                   if (verbose_geometry_reporting != QUIET)
-                     std::cout << "INFO:: Most dissatisfied restraint (refine no-progress): "
-                               << baddie_restraint.format(atom, worst_of_all.value) << std::endl;
+                     // std::cout << "INFO:: Most dissatisfied restraint (refine no-progress): "
+                     //          << baddie_restraint.format(atom, worst_of_all.value) << std::endl;
+                     logger.log(log_t::INFO, "Most dissatisfied restraint (refine no-progress):", baddie_restraint.format(atom, worst_of_all.value));
 	       } else {
                   if (verbose_geometry_reporting != QUIET)
-                     std::cout << "INFO:: somehow the worst restraint was not set (no-progress)" << std::endl;
+                     // std::cout << "INFO:: somehow the worst restraint was not set (no-progress)" << std::endl;
+                     logger.log(log_t::INFO, "somehow the worst restraint was not set (no-progress)");
 	       }
 
                // debugging/analysis
@@ -1581,15 +1626,17 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
          // std::cout << "Debug:: after gsl_multimin_test_gradient, status is " << status << std::endl;
 
 	 if (status == GSL_SUCCESS) {
-	    if (verbose_geometry_reporting != QUIET) { 
-	       std::cout << "Minimum found (iteration number " << iter << ") at ";
-	       std::cout << m_s->f << "\n";
+	    if (verbose_geometry_reporting != QUIET) {
+	       // std::cout << "Minimum found (iteration number " << iter << ") at ";
+	       // std::cout << m_s->f << "\n";
+               logger.log(log_t::INFO, "Minimum found at iteration number", iter, "at", m_s->f);
             }
 	    std::string title = "Final Estimated RMS Z Scores:";
 	    std::vector<coot::refinement_lights_info_t> results = chi_squareds(title, m_s->x);
 	    lights_vec = results;
             if (verbose_geometry_reporting != QUIET) {
-               std::cout << "-------- Results ---------" << std::endl; // should this go into analyze_for_bad_restraints()?
+               // std::cout << "-------- Results ---------" << std::endl; // should this go into analyze_for_bad_restraints()?
+               logger.log(log_t::INFO, "-------- Results ---------");
                update_atoms(m_s->x); // needed for simple_refine() (maybe other times too to catch the last round)
                analyze_for_bad_restraints();
             }
@@ -4814,8 +4861,9 @@ coot::restraints_container_t::write_new_atoms(std::string pdb_file_name) {
       // return 0 on success, non-zero on failure.
       status = mol->WritePDBASCII(pdb_file_name.c_str());
       if (status == 0)
-	 std::cout << "INFO:: output file: " << pdb_file_name
-		   << " written." << std::endl;
+	 // std::cout << "INFO:: output file: " << pdb_file_name
+	 //          << " written." << std::endl;
+	 logger.log(log_t::INFO, "output file:", pdb_file_name, "written.");
       else
 	 std::cout << "WARNING:: output file: " << pdb_file_name
 		   << " not written." << std::endl;
@@ -4828,14 +4876,17 @@ coot::restraints_container_t::write_new_atoms(std::string pdb_file_name) {
 void
 coot::restraints_container_t::info() const {
 
-   std::cout << "INFO:: There are " << n_atoms << " atoms" << std::endl;
-   std::cout << "INFO:: There are " << size() << " restraints" << std::endl;
+   // std::cout << "INFO:: There are " << n_atoms << " atoms" << std::endl;
+   logger.log(log_t::INFO, "There are", n_atoms, "atoms");
+   // std::cout << "INFO:: There are " << size() << " restraints" << std::endl;
+   logger.log(log_t::INFO, "There are", size(), "restraints");
 
    for (unsigned int i=0; i< restraints_vec.size(); i++) {
       const simple_restraint &restraint = restraints_vec[i];
       if (restraint.restraint_type == coot::TORSION_RESTRAINT) {
-	 std::cout << "INFO:: restraint " << i << " is of type "
-		   << restraint.restraint_type << std::endl;
+	 // std::cout << "INFO:: restraint " << i << " is of type "
+	 //          << restraint.restraint_type << std::endl;
+	 logger.log(log_t::INFO, "restraint", i, "is of type", restraint.restraint_type);
 
 	 std::cout << restraint.atom_index_1 << " "
 		   << restraint.atom_index_2 << " "
@@ -4848,8 +4899,9 @@ coot::restraints_container_t::info() const {
 		   << " with periodicity "
   		   << restraint.periodicity << std::endl;
       }
-      std::cout << "INFO:: restraint number " << i << " is restraint_type " <<
-	 restraint.restraint_type << std::endl;
+      // std::cout << "INFO:: restraint number " << i << " is restraint_type " <<
+      //    restraint.restraint_type << std::endl;
+      logger.log(log_t::INFO, "restraint number", i, "is restraint_type", restraint.restraint_type);
    }
 } 
 
@@ -5008,7 +5060,8 @@ coot::refinement_results_t::hooray() const {
    for (unsigned int i=0; i<lights.size(); i++) {
       const refinement_lights_info_t &light = lights[i];
       if (false)
-         std::cout << "INFO:: for lights index " << i << " " << light.name << " " << light.value << std::endl;
+         // std::cout << "INFO:: for lights index " << i << " " << light.name << " " << light.value << std::endl;
+         logger.log(log_t::INFO, "for lights index", i, light.name, light.value);
       float crit_value = 1.0; // 20210906-PE was 1.4
       if (light.name == "Trans_peptide")
          crit_value = 2.0; // 20210906-PE  was 6.0. Should Trans-peptide even be tested in hooray()?

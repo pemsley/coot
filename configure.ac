@@ -26,7 +26,7 @@ dnl
 dnl Process this file with autoconf to produce a configure script.
 
 
-AC_INIT([coot],[1.1.x-pre])
+AC_INIT([coot],[1.2.x-pre])
 AC_CONFIG_SRCDIR(src/main.cc)
 AM_INIT_AUTOMAKE
 
@@ -84,9 +84,11 @@ AX_CXX_HAVE_THREAD
 
 # AX_CXX_COMPILE_STDCXX_11 sets HAVE_CXX11=1 (hopefully)
 if test $HAVE_CXX11 = 1 ; then
-   CXXFLAGS="$CXXFLAGS -std=c++17"
+   # C++20 is required by newest versions of RDKit (since March 2025)
+   # Coot itself should compile with C++17
+   CXXFLAGS="$CXXFLAGS -std=c++20"
 else
-   echo we can\'t compile coot then
+   echo We can\'t compile Coot without C++17 \(C++20 ideally\)
 fi
 
 AC_LIB_PREPARE_MULTILIB
@@ -199,6 +201,13 @@ AM_WITH_SSM
 
 AM_SINGLE_FFTW2
 
+echo PKG_CONFIG_PATH is $PKG_CONFIG_PATH
+echo debug clipper:
+echo pkg-config --modversion clipper
+pkg-config --modversion clipper
+echo pkg-config --libs clipper
+pkg-config --libs clipper
+
 dnl Check for Clipper.  we exit if clipper is not found.
 #
 AM_PATH_CLIPPER(, [echo Error locating Clipper - a CNS-enabled version of Clipper \(2.1-090520-ac or later\) is required now; exit 1],AC_MSG_ERROR([Cannot find Clipper]))
@@ -251,6 +260,8 @@ CFLAGS="$save_cflags"
 
 # I don't understand how this test works
 # AX_PATH_GSL(GSL_VERSION, [], [AC_MSG_ERROR(could not find required version of GSL)])
+
+# AX_PATH_GSL(1.3, [], [AC_MSG_ERROR(could not find required version of GSL)])
 
 
 dnl =========================== GLM ================================
@@ -368,7 +379,6 @@ if test x$rdkit_prefix = xfalse ; then
       echo OK, good we found RDKit in $prefix
       rdkit_install_dir=$prefix
       RDKIT_CXXFLAGS="-I$rdkit_install_dir/include/rdkit -DRDKIT_HAS_CAIRO_SUPPORT"
-      RDKIT_LIBS="-L$rdkit_install_dir/lib -lRDKitMolDraw2D -lRDKitForceFieldHelpers -lRDKitDescriptors -lRDKitForceField -lRDKitSubstructMatch -lRDKitOptimizer -lRDKitDistGeomHelpers -lRDKitDistGeometry -lRDKitChemReactions -lRDKitAlignment -lRDKitEigenSolvers -lRDKitDepictor -lRDKitcoordgen -lRDKitMolChemicalFeatures -lRDKitPartialCharges -lRDKitFileParsers -lRDKitRDGeometryLib -lRDKitGraphMol -lRDKitShapeHelpers -lRDKitFingerprints -lRDKitMolAlign -lRDKitMolTransforms -lRDKitChemTransforms -lRDKitSmilesParse -lRDKitGenericGroups -lRDKitRingDecomposerLib -lRDKitFilterCatalog -lRDKitCatalogs -lRDKitSubgraphs -lRDKitPartialCharges -lRDKitRDGeneral -lRDKitDataStructs -lboost_serialization -lboost_iostreams"
    else
       echo Configuration error. No, bad... we do not have necessary RDKIT
       exit 1
@@ -377,8 +387,33 @@ else
    rdkit_install_dir="$withval"
    # better RDKit linking I hope
    RDKIT_CXXFLAGS="-I$rdkit_install_dir/include/rdkit -DRDKIT_HAS_CAIRO_SUPPORT"
-   RDKIT_LIBS="-L$rdkit_install_dir/lib -lRDKitMolDraw2D -lRDKitForceFieldHelpers -lRDKitDescriptors -lRDKitForceField -lRDKitSubstructMatch -lRDKitOptimizer -lRDKitDistGeomHelpers -lRDKitDistGeometry -lRDKitChemReactions -lRDKitAlignment -lRDKitEigenSolvers -lRDKitDepictor -lRDKitcoordgen -lRDKitMolChemicalFeatures -lRDKitPartialCharges -lRDKitFileParsers -lRDKitRDGeometryLib -lRDKitGraphMol -lRDKitShapeHelpers -lRDKitFingerprints -lRDKitMolAlign -lRDKitMolTransforms -lRDKitChemTransforms -lRDKitSmilesParse -lRDKitGenericGroups -lRDKitRingDecomposerLib -lRDKitFilterCatalog -lRDKitCatalogs -lRDKitSubgraphs -lRDKitPartialCharges -lRDKitRDGeneral -lRDKitDataStructs -lboost_serialization -lboost_iostreams"
 fi
+
+
+# test here for presence of coordgen in the RDKit.
+# To clarify, this is not related to how to configure Coot, it is related to how the RDKit was configured (and linked).
+# We need to clarify that so that Coot can be linked correctly.
+librdkitcoordgen=
+AC_ARG_WITH([coordgen], AS_HELP_STRING([--with-coordgen Specify that the RDKit was compiled with coordgen]), with_rdkit_coordgen="$withval", with_rdkit_coordgen=false)
+if test "$with_rdkit_coordgen" = false ; then
+   :
+else
+   librdkitcoordgen=-lRDKitcoordgen
+fi
+
+# test here for presence of Inchi support in the RDKit.
+# To clarify, this is not related to how to configure Coot, it is related to how the RDKit was configured (and linked).
+# We need to clarify that so that Coot can be linked correctly.
+librdkitinchi=
+if test -f "$rdkit_install_dir/include/rdkit/GraphMol/inchi.h"; then
+    echo Enabling RDKit Inchi support.
+    # echo If this step causes linking problems, consider adding -linchi or -lRDKitInchi
+    librdkitinchi="-lRDKitRDInchiLib"
+else
+   echo RDKit Inchi support disabled.
+fi
+
+RDKIT_LIBS="-L$rdkit_install_dir/lib -lRDKitMolDraw2D -lRDKitForceFieldHelpers -lRDKitDescriptors -lRDKitForceField -lRDKitSubstructMatch -lRDKitOptimizer -lRDKitDistGeomHelpers -lRDKitDistGeometry -lRDKitChemReactions -lRDKitAlignment -lRDKitEigenSolvers -lRDKitDepictor $librdkitcoordgen -lRDKitMolChemicalFeatures -lRDKitPartialCharges -lRDKitFileParsers -lRDKitRDGeometryLib -lRDKitGraphMol $librdkitinchi -lRDKitShapeHelpers -lRDKitFingerprints -lRDKitMolAlign -lRDKitMolTransforms -lRDKitChemTransforms -lRDKitSmilesParse -lRDKitGenericGroups -lRDKitRingDecomposerLib -lRDKitFilterCatalog -lRDKitCatalogs -lRDKitSubgraphs -lRDKitPartialCharges -lRDKitRDGeneral -lRDKitDataStructs -lboost_serialization -lboost_iostreams"
 
 # this must always be true now
 ENHANCED_LIGAND_TOOLS_CPPFLAGS="-DMAKE_ENHANCED_LIGAND_TOOLS"
@@ -425,24 +460,19 @@ AC_ARG_WITH([gemmi], AS_HELP_STRING([--with-gemmi location of the GEMMI package]
 # is this the wrong logic actually, should the checking message only be seen if with_gemmi is not false?
 AC_MSG_CHECKING([for GEMMI])
 if test "x$with_gemmi" = xfalse ; then
-   :
-   AC_MSG_RESULT(no)
+    AC_MSG_RESULT(no)
 else
-   AC_MSG_RESULT(yes)
-   AC_SUBST(GEMMI_CXXFLAGS, "-I$withval/include -DUSE_GEMMI=1")
-   AC_SUBST(GEMMI_LIBS, "-L$withval/lib -lgemmi_cpp")
+    AC_LANG_PUSH(C++)
+    GEMMI_CXXFLAGS="-I$with_gemmi/include -DUSE_GEMMI=1"
+    save_CPPFLAGS="$CPPFLAGS"
+    CPPFLAGS="$CPPFLAGS $GEMMI_CXXFLAGS"
+    AC_CHECK_HEADER([gemmi/to_json.hpp], AC_MSG_NOTICE(GEMMI headers were found), AC_MSG_FAILURE(GEMMI headers were not found),)
+    CPPFLAGS="$save_CPPFLAGS"
+    AC_LANG_POP
+    AC_MSG_RESULT(yes)
+    AC_SUBST(GEMMI_CXXFLAGS)
+    AC_SUBST(GEMMI_LIBS, "-L$withval/lib -lgemmi_cpp")
 fi
-
-dnl put this test in the above block. We need to know (and stop) if GEMMI was requested but not found.
-dnl #GEMMI
-dnl AC_LANG_PUSH(C++)
-dnl AC_CHECK_HEADER([gemmi/to_json.hpp], AC_MSG_NOTICE(GEMMI headers were found), AC_MSG_NOTICE(GEMMI headers were not found),)
-dnl if test "$ac_cv_header_gemmi_to_json_hpp" = yes ; then
-dnl    GEMMI_CXXFLAGS=-DUSE_GEMMI
-dnl fi
-dnl AC_SUBST(GEMMI_CXXFLAGS)
-dnl AC_LANG_POP
-
 
 # 20090613 We need to be able to determine the build type, and embed
 # that value in to coot binary.  We need to do that for the updating
@@ -452,7 +482,7 @@ dnl AC_LANG_POP
 AM_COOT_SYS_BUILD_TYPE
 
 
-AC_ARG_WITH([sound], AS_HELP_STRING([--with-sound compile with ogg-vorbis and ALSA libs]), with_sound="withval", with_sound=false)
+AC_ARG_WITH([sound], AS_HELP_STRING([--with-sound compile with ogg-vorbis and OpenAL libs]), with_sound="$withval", with_sound=false)
 AC_MSG_CHECKING([for sound])
 if test "x$with_sound" = xfalse ; then
    :
@@ -460,16 +490,69 @@ if test "x$with_sound" = xfalse ; then
 else
    AC_MSG_RESULT(yes)
    PKG_CHECK_MODULES(VORBISFILE, [vorbisfile >= 1.2])
-   uname_s=$(uname -s) # should autoconf do this for us? If so, I can't see where it is stored
-   if test "$uname_s" = Linux ; then
-      PKG_CHECK_MODULES(ALSA, [alsa >= 1.2])
-   else
-      # it's a mac then
-      PKG_CHECK_MODULES(OpenAL, [OpenAL >= 1.23])
-   fi
+   PKG_CHECK_MODULES(openal, [openal >= 1.23])
+   # uname_s=$(uname -s) # should autoconf do this for us? If so, I can't see where it is stored
+   # if test "$uname_s" = Linux ; then
+   #   PKG_CHECK_MODULES(ALSA, [alsa >= 1.2])
+   #else
+   #   # it's a mac then
+   #   PKG_CHECK_MODULES(OpenAL, [OpenAL >= 1.23])
+   #fi
    # Use Core Audio on macOS. Consider PortAudio instead of using alsa directly.
    AC_SUBST(SOUND_FLAGS, -DWITH_SOUND)
 fi
+
+
+PKG_CHECK_MODULES([RSVG], [librsvg-2.0 >= 2.40], [
+                            AC_DEFINE(HAVE_RSVG, 1, [Define if librsvg is available])
+], [
+])
+
+# Add the compiler and linker flags from pkg-config
+AC_SUBST(RSVG_CFLAGS)
+AC_SUBST(RSVG_LIBS)
+
+
+AC_ARG_WITH([netcdf], AS_HELP_STRING([--with-netcdf], [compile with NetCDF support for Amber trajectories]), with_netcdf="$withval", with_netcdf=no)
+AC_MSG_CHECKING([for NetCDF support])
+if test "x$with_netcdf" = xno ; then
+   AC_MSG_RESULT(no)
+   AC_SUBST(NETCDF_CFLAGS, "")
+   AC_SUBST(NETCDF_LIBS, "")
+else
+   AC_MSG_RESULT(yes)
+   PKG_CHECK_MODULES([NETCDF], [netcdf], [
+      AC_DEFINE(HAVE_NETCDF, 1, [Define if NetCDF is available])
+   ], [
+      AC_MSG_ERROR([NetCDF library not found. Install netcdf or use --without-netcdf])
+   ])
+   AC_SUBST(NETCDF_CFLAGS)
+   AC_SUBST(NETCDF_LIBS)
+fi
+
+
+AC_ARG_WITH([vte],
+            AS_HELP_STRING([--with-vte], [compile with VTE terminal widget for Python scripting]),
+            with_vte="$withval",
+            with_vte=no)
+AC_MSG_CHECKING([for VTE terminal support])
+if test "x$with_vte" = xno ; then
+   AC_MSG_RESULT(no)
+   AC_SUBST(VTE_CFLAGS, "")
+   AC_SUBST(VTE_LIBS, "")
+else
+   AC_MSG_RESULT(yes)
+   if test "x$with_vte" != xyes ; then
+      export PKG_CONFIG_PATH="$with_vte/lib/pkgconfig:$with_vte/lib64/pkgconfig:$PKG_CONFIG_PATH"
+   fi
+   PKG_CHECK_MODULES([VTE], [vte-2.91-gtk4], [], [
+      AC_MSG_ERROR([VTE GTK4 library not found. Install vte-2.91-gtk4 or use --without-vte])
+   ])
+   VTE_CFLAGS="$VTE_CFLAGS -DHAVE_VTE"
+   AC_SUBST(VTE_CFLAGS)
+   AC_SUBST(VTE_LIBS)
+fi
+
 
 AM_WITH_MYSQL_DATABASE
 
@@ -502,7 +585,6 @@ dnl Set PACKAGE_LOCALE_DIR in config.h.
 AC_CONFIG_FILES([
 Makefile
 macros/Makefile
-pdb-templates/Makefile
 scheme/Makefile
 python/Makefile
 compat/Makefile
@@ -531,10 +613,13 @@ doc/Makefile
 validation-graphs/Makefile
 python/coot_load_modules.py
 data/Makefile
-data/rama-coeffs/Makefile
-data/metal/Makefile
 data/cho-models/Makefile
 data/cho-acedrg/Makefile
+data/cho-links/Makefile
+data/pdb-templates/Makefile
+data/rama-coeffs/Makefile
+data/metal/Makefile
+monomers/Makefile
 glTF/Makefile
 pixmaps/Makefile
 pixmaps/icons/Makefile
@@ -542,12 +627,14 @@ textures/Makefile
 sounds/Makefile
 rama-data/Makefile
 man/Makefile
+reference-structures/Makefile
 api/Makefile
 pli/Makefile
 fonts/Makefile
 pyrogen/Makefile
 pyrogen/pyrogen
 layla/Makefile
+layla/layla
 MoleculesToTriangles/Makefile
 MoleculesToTriangles/CXXSurface/Makefile
 MoleculesToTriangles/CXXSurface/MoleculesToTrianglesCXXSurface.pc

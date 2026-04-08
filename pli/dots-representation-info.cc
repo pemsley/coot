@@ -62,20 +62,18 @@ std::vector<std::pair<coot::atom_spec_t, float> >
 pli::dots_representation_info_t::solvent_accessibilities(mmdb::Residue *res_ref,
                                                          const std::vector<mmdb::Residue *> &near_residues) const {
 
-
    std::vector<std::pair<coot::atom_spec_t, float> > v;
 
    // no solvent exposures if the ligand does not have *any*
    // neighbours (i.e. it's floating in space (probably the only
    // residue in the molecule).
-   if (near_residues.size() == 0)
+   if (near_residues.empty())
       return v;
 
    std::vector<mmdb::Residue *> residues = near_residues;
    residues.push_back(res_ref);
 
-   std::pair<bool, mmdb::Manager *> mol =
-      coot::util::create_mmdbmanager_from_residue_vector(residues, 0);
+   std::pair<bool, mmdb::Manager *> mol = coot::util::create_mmdbmanager_from_residue_vector(residues, 0);
 
    if (mol.first) {
 
@@ -87,9 +85,8 @@ pli::dots_representation_info_t::solvent_accessibilities(mmdb::Residue *res_ref,
 
       std::vector<std::pair<mmdb::Atom *, float> > se = solvent_exposure(SelHnd, mol.second);
       v.resize(se.size());
-      for (unsigned int i=0; i<se.size(); i++) {
+      for (unsigned int i=0; i<se.size(); i++)
          v[i] = std::pair<coot::atom_spec_t, float> (coot::atom_spec_t(se[i].first), se[i].second);
-      }
 
       mol.second->DeleteSelection(SelHnd);
       delete mol.second;

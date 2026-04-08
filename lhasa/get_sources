@@ -1,83 +1,45 @@
 #!/bin/sh
 
-source ./VERSIONS
+# This is the first step: Get sources of the dependencies.
 
-mkdir -p checkout
-cd checkout
+if [ "x$LHASA_MAIN_DIR" = "x" ]; then
+    # Based on '$0', i.e. the command being executed, finds the absolute path of where this script is located
+    if command -v greadlink > /dev/null 2>&1; then
+        LHASA_MAIN_DIR=`dirname -- "$( greadlink -f -- "$0"; )"`
+    else
+        LHASA_MAIN_DIR=`dirname -- "$( readlink -f -- "$0"; )"`
+    fi
+    echo "Using LHASA_MAIN_DIR: $LHASA_MAIN_DIR"
+else
+    echo "Using LHASA_MAIN_DIR from environment: $LHASA_MAIN_DIR"
+fi
 
+if [ -e "$LHASA_MAIN_DIR/lhasa_build_functions" ]; then
+    . "$LHASA_MAIN_DIR/lhasa_build_functions"
+else
+    # The fail function is not available here
+    echo "Cannot find lhasa_build_functions. Exiting."
+    exit 1
+fi
 
-echo "Downloading RDKit source"
-curl -L https://github.com/rdkit/rdkit/archive/refs/tags/$rdkit_release.tar.gz -o "$rdkit_release.tar.gz"
-echo
+setcolor cyan
+echo "Dependency download directory is ${DEPENDENCY_DIR}"
+setcolor reset
 
+get_all_sources() {
+    getrdkit
+    getboost
+    getgraphene
+    getsigcpp
+    getgemmi
+    getmaeparser
+    getcoordgen
+}
 
-echo "Downloading graphene source"
-curl -L https://github.com/ebassi/graphene/archive/refs/tags/$graphene_release.tar.gz -o graphene_$graphene_release.tar.gz
-echo
-
-
-echo "Downloading libsigc++ source"
-curl -L https://github.com/libsigcplusplus/libsigcplusplus/archive/refs/tags/$libsigcpp_release.tar.gz -o libsigcplusplus_$libsigcpp_release.tar.gz
-echo
-
-echo "Downloading gemmi source"
-curl -L https://github.com/project-gemmi/gemmi/archive/refs/tags/v$gemmi_release.tar.gz -o gemmi_$gemmi_release.tar.gz
-echo
-
-echo "Downloading maeparser source"
-curl -L https://github.com/schrodinger/maeparser/archive/refs/tags/v$maeparser_release.tar.gz -o maeparser_$maeparser_release.tar.gz
-echo
-
-echo "Downloading coordgen source"
-curl -L https://github.com/schrodinger/coordgenlibs/archive/refs/tags/v$coordgen_release.tar.gz -o coordgen_$coordgen_release.tar.gz
-echo
-
-echo "Unpacking RDKit source"
-tar xf "$rdkit_release.tar.gz"
-echo
-
-echo "Unpacking libsigc++ source"
-tar xf "libsigcplusplus_$libsigcpp_release.tar.gz"
-echo
-
-echo "Unpacking graphene source"
-tar xf "graphene_$graphene_release.tar.gz"
-echo
-
-echo "Unpacking maeparser source"
-tar xf "maeparser_$maeparser_release.tar.gz"
-echo
-
-echo "Unpacking coordgen source"
-tar xf "coordgen_$coordgen_release.tar.gz"
-echo
-
-echo "Unpacking gemmi source"
-tar xf "gemmi_$gemmi_release.tar.gz"
-echo
-
-echo Patching gemmi...
-cd gemmi-$gemmi_release
-patch -p1 < ../../patches/gemmi-emscripten-64.patch
-cd ..
-
-# #Get RDKit
-# echo "Downloading RDKit_minimal js/wasm"
-# echo
-# curl -L https://unpkg.com/@rdkit/rdkit/Code/MinimalLib/dist/RDKit_minimal.wasm -o web_example/RDKit_minimal.wasm
-# curl -L https://unpkg.com/@rdkit/rdkit/Code/MinimalLib/dist/RDKit_minimal.js -o web_example/RDKit_minimal.js
-
-echo "Checking out boost"
-curl -L https://github.com/boostorg/boost/releases/download/boost-$boost_release/boost-$boost_release.tar.gz  -o boost_$boost_release.tar.gz
-tar xf boost_$boost_release.tar.gz
-
-ln -s boost-$boost_release boost
-ln -s "rdkit-$rdkit_release" rdkit
+get_all_sources
 
 
-patch -p0 < ../patches/boost-emscripten.patch
-
-cd ..
+cd "$LHASA_MAIN_DIR"
 
 
 

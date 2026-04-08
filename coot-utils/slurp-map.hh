@@ -18,6 +18,8 @@
  * 02110-1301, USA
  */
 
+#ifndef COOT_UTILS_SLURP_MAP_HH
+#define COOT_UTILS_SLURP_MAP_HH
 
 #include <sys/stat.h>
 
@@ -29,18 +31,38 @@
 namespace coot {
    namespace util {
 
-      bool is_basic_em_map_file(const std::string &file_name);
+      // 20250531-PE this is how to do enum class variables
+
+      enum class slurp_map_result_t { OK=1,
+                                      IS_SLURPABLE_EM_MAP=100,
+                                      IS_NON_SLURPABLE_EM_MAP=600,
+                                      NOT_AN_EM_MAP=200,
+                                      FAIL=300,
+                                      FILE_NOT_FOUND=400,
+                                      UNRESOLVED=500 };
+      std::string to_string(slurp_map_result_t r);
+      std::ostream& operator<<(std::ostream& os, slurp_map_result_t smr);
+
+      std::vector<std::string> get_map_labels(const std::string &file_name);
+
+      // PANDDA::, or that is.
+      bool map_labels_contain_PANDDA(const std::string &file_name);
+
+      slurp_map_result_t is_basic_em_map_file(const std::string &file_name);
 
       // inf check_only is true, then just read the header, check that it is sane
       // and return that status (don't touch the xmap). Otherwise, fill the xmap.
       //
-      bool slurp_fill_xmap_from_map_file(const std::string &file_name,
-                                         clipper::Xmap<float> *xmap_p,
-                                         bool check_only=false);
+      slurp_map_result_t slurp_fill_xmap_from_map_file(const std::string &file_name,
+                                                       clipper::Xmap<float> *xmap_p,
+                                                       bool check_only=false);
 
-      bool slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p,
-                                 bool check_only=false);
+      slurp_map_result_t slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p,
+                                               bool check_only=false);
 
    }
 
 }
+
+#endif // COOT_UTILS_SLURP_MAP_HH
+

@@ -28,7 +28,7 @@
 
 int
 coot::get_brick_id_inner(int x_idx, int y_idx, int z_idx,
-			 int nx_grid, int ny_grid, int nz_grid) {
+                         int nx_grid, int ny_grid, int nz_grid) {
 
    // This is a non-intuitive function
 
@@ -75,10 +75,10 @@ coot::get_brick_id_inner(int x_idx, int y_idx, int z_idx,
 
    if (false)
       std::cout << "debug:: get_brick_id_inner() "
-		<< x_idx << " " << y_idx << " " << z_idx << " "
-		<< " -> even-x even-y "
-		<< even_x << " " << even_y << " id_1, id_2: " << id_1 << " " << id_2
-		<< " -> id_sum " << id_sum << std::endl;
+                << x_idx << " " << y_idx << " " << z_idx << " "
+                << " -> even-x even-y "
+                << even_x << " " << even_y << " id_1, id_2: " << id_1 << " " << id_2
+                << " -> id_sum " << id_sum << std::endl;
 
    return id_sum;
 
@@ -86,7 +86,7 @@ coot::get_brick_id_inner(int x_idx, int y_idx, int z_idx,
 
 int
 coot::get_brick_id(const clipper::Coord_orth &pt, const clipper::Coord_orth &pt_minimums,
-		   int nx_grid, int ny_grid, int nz_grid, float brick_length) {
+                   int nx_grid, int ny_grid, int nz_grid, float brick_length) {
 
    clipper::Coord_orth delta = pt - pt_minimums;
    int x_idx(delta.x()/brick_length);
@@ -107,7 +107,7 @@ coot::get_brick_id(const clipper::Coord_orth &pt, const clipper::Coord_orth &pt_
 //
 std::vector<std::vector<int> >
 coot::molecule_to_bricks(mmdb::Manager *mol, int SelectionHandle,
-			       float atom_max_radius) {
+                               float atom_max_radius) {
 
    std::vector<std::vector<int> > v;
    float brick_length = atom_max_radius * 2.0;
@@ -126,7 +126,7 @@ coot::molecule_to_bricks(mmdb::Manager *mol, int SelectionHandle,
    if (n_z%2 != 0) n_z++;
 
    std::cout << "----------- here with brick dimension " << n_x << " " << n_y << " " << n_z
-	     << std::endl;
+             << std::endl;
 
    try {
       v.reserve(n_x*n_y*n_z);
@@ -134,19 +134,19 @@ coot::molecule_to_bricks(mmdb::Manager *mol, int SelectionHandle,
       int n_selected_atoms = 0;
       mol->GetSelIndex(SelectionHandle, selected_atoms, n_selected_atoms);
       for (int iat=0; iat<n_selected_atoms; iat++) {
-	 mmdb::Atom *at = selected_atoms[iat];
-	 clipper::Coord_orth pt = co(at);
-	 unsigned int brick_idx = get_brick_id(pt, pt_minimums, n_x, n_y, n_z, brick_length);
-	 try {
-	    if (brick_idx >= v.size()) {
-	       v.resize(brick_idx+1);
-	       v[brick_idx].reserve(20);
-	    }
-	    v[brick_idx].push_back(iat);
-	 }
-	 catch (...) {
-	    std::cout << "caught an default exception for brick idx " << brick_idx << std::endl;
-	 }
+         mmdb::Atom *at = selected_atoms[iat];
+         clipper::Coord_orth pt = co(at);
+         unsigned int brick_idx = get_brick_id(pt, pt_minimums, n_x, n_y, n_z, brick_length);
+         try {
+            if (brick_idx >= v.size()) {
+               v.resize(brick_idx+1);
+               v[brick_idx].reserve(20);
+            }
+            v[brick_idx].push_back(iat);
+         }
+         catch (...) {
+            std::cout << "caught an default exception for brick idx " << brick_idx << std::endl;
+         }
       }
    }
    catch (...) {

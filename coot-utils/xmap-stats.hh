@@ -54,8 +54,8 @@ public:
 template<class T>
 mean_and_variance<T>
 map_density_distribution(const clipper::Xmap<T> &map,
-			 unsigned int hist_n_bins=40,
-			 bool write_output_flag=false,
-			 bool ignore_pseude_zeros=false);
+                         unsigned int hist_n_bins=40,
+                         bool write_output_flag=false,
+                         bool ignore_pseude_zeros=false);
 
 #endif // XMAP_STATS_H

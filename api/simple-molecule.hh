@@ -2,7 +2,7 @@
 #define COOT_ATOM_HH
 
 #include <string>
-#include "coords/Cartesian.h"
+#include "coords/Cartesian.hh"
 
 namespace coot {
 
@@ -29,7 +29,7 @@ namespace coot {
             DOUBLE_OR_AROMATIC=7,
             DELOC_ONE_AND_A_HALF=8,
             BOND_ANY=9 };
-         
+
          unsigned int atom_1;
          unsigned int atom_2;
          bond_type_t bond_type;

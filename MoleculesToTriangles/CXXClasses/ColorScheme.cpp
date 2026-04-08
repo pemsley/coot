@@ -43,10 +43,10 @@ std::shared_ptr<ColorScheme> ColorScheme::colorByElementScheme()
 std::shared_ptr<ColorScheme> ColorScheme::colorBySecondaryScheme()
 {
     std::shared_ptr<ColorScheme> result(new ColorScheme());
-    result->addRule(SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("/*/*/*.*/*:*", "NoSecondary"), "white"));
-    result->addRule(SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("SSE_None",  "SSE_None"),   "white"));
-    result->addRule(SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("SSE_Helix", "SSE_Helix"),  "magenta"));
-    result->addRule(SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("SSE_Strand","SSE_Strand"), "yellow"));
+    result->addRule(SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("/*/*/*.*/*:*", "NoSecondary"), "#666666"));
+    result->addRule(SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("SSE_None",  "SSE_None"),   "#666666"));
+    result->addRule(SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("SSE_Helix", "SSE_Helix"),  "#aa2222"));
+    result->addRule(SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("SSE_Strand","SSE_Strand"), "#aaaa22"));
     result->addRule(SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("NUCLEICACIDS","NUCLEICACIDS"), "forestgreen"));
     return result;
 }
@@ -74,8 +74,6 @@ std::shared_ptr<ColorScheme> ColorScheme::colorRampChainsScheme(){
 
 std::shared_ptr<ColorScheme> ColorScheme::colorChainsScheme(){
 
-   std::cout << "####### M2T colorChainsScheme() !" << std::endl;
-
     std::shared_ptr<ColorScheme> result(new ColorScheme());
     std::string colorNames[] = {
                                 //    "RED","GREEN","BLUE","CYAN","MAGENTA","YELLOW","WHITE"
@@ -86,14 +84,19 @@ std::shared_ptr<ColorScheme> ColorScheme::colorChainsScheme(){
     };
     std::string chainIds(" ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnpqrstuvwxyz1234567890");
     int nColorNames = sizeof(colorNames)/sizeof(std::string);
-    
+
     for (unsigned int i=0; i<chainIds.length(); i++){
+#if 0
         std::string selectionString("/*/");
         selectionString.append(1, chainIds[i]);
         selectionString.append("/*.*/*:*");
+#endif
+        std::string selectionString = std::string("//");
+        selectionString.append(1, chainIds[i]);
+
         // std::cout << "### " << selectionString << " " << colorNames[i%nColorNames] << std::endl;
         std::string c =   colorNames[i%nColorNames];
-        auto colorRule =
+        std::shared_ptr<SolidColorRule> colorRule =
            SolidColorRule::colorRuleForSelectionAndName(std::shared_ptr<CompoundSelection>(new CompoundSelection(selectionString)), c);
         result->addRule(colorRule);
     }

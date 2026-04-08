@@ -45,14 +45,17 @@
 #include "clipper/ccp4/ccp4_mtz_io.h" // pathology plots
 
 #include <mmdb2/mmdb_manager.h>
-#include "coords/mmdb-extras.h"
+#include "coords/mmdb-extras.hh"
 #include "coords/mmdb.hh"
-#include "coords/mmdb-crystal.h"
+#include "coords/mmdb-crystal.hh"
 
 #include "graphics-info.h"
 
 #ifdef USE_GUILE
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
 #include <libguile.h>
+#pragma GCC diagnostic pop
 #endif // USE_GUILE
 
 // Including python needs to come after graphics-info.h, because
@@ -82,6 +85,10 @@
 #include "widget-from-builder.hh"
 
 #include "rama_plot_with_canvas.hh"
+
+#include "utils/logging.hh"
+extern logging logger;
+
 
 /*  ----------------------------------------------------------------------- */
 /*                  check waters interface                                  */
@@ -490,7 +497,7 @@ void delete_checked_waters_baddies(int imol, float b_factor_lim, float map_sigma
    if (is_valid_model_molecule(imol)) {
       if (!is_valid_map_molecule(imol_for_map)) {
 	 std::cout << "WARNING:: Not a valid map for density testing " << imol_for_map << std::endl;
-	 show_select_map_dialog();
+	 show_select_map_frame();
       } else {
 	 std::vector<coot::atom_spec_t> baddies =
 	    graphics_info_t::molecules[imol].find_water_baddies(b_factor_lim,
@@ -762,8 +769,8 @@ difference_map_peaks(int imol, int imol_coords,
    // searching.
    //
    if (! is_valid_map_molecule(imol)) {
-
-      std::cout << "Molecule number " << imol << " is not a valid map molecule" << std::endl;
+      // std::cout << "Molecule number " << imol << " is not a valid map molecule" << std::endl;
+      logger.log(log_t::WARNING, "Molecule number", imol, "is not a valid molecule");
       return;
    }
 
@@ -782,9 +789,6 @@ difference_map_peaks(int imol, int imol_coords,
             graphics_info_t::molecules[imol_coords].atom_sel.mol,
             n_sigma, do_positive_level_flag, do_negative_levels_flag,
                            around_model_only_flag);
-      for (unsigned int ii=0; ii<centres.size(); ii++)
-         std::cout << centres[ii].second << " " << centres[ii].first.format()
-                     << std::endl;
    } else {
       centres =
          ps.get_peaks(graphics_info_t::molecules[imol].xmap,
@@ -811,18 +815,22 @@ difference_map_peaks(int imol, int imol_coords,
          gtk_widget_set_visible(peaks_vbox, TRUE);
       }
 
-      std::cout << "\n   Found these peak positions:\n";
+      // std::cout << "\nFound these peak positions:\n";
+      logger.log(log_t::INFO, logging::function_name_t("difference_map_peaks"),
+		 "Found these peak positions");
       for (unsigned int i=0; i<centres.size(); i++) {
-         std::cout << "   " << i << " dv: "
-         << centres[i].second << " n-rmsd: "
-         << centres[i].second/map_sigma << " "
-         << centres[i].first.format() << std::endl;
+         // std::cout << "   " << i << " dv: "
+	 // 	   << centres[i].second << " n-rmsd: "
+	 // 	   << centres[i].second/map_sigma << " "
+	 // 	   << centres[i].first.format() << std::endl;
+	 auto dv  = centres[i].second;
+	 auto pos = centres[i].first.format();
+	 auto nrmsd = dv/map_sigma;
+	 logger.log(log_t::INFO, {"      ", i, "dv", dv, "n-rmsd:", nrmsd, "at", pos});
       }
-      std::cout << "\n   Found " << centres.size() << " peak positions:\n";
+      // std::cout << "\n   Found " << centres.size() << " peak positions:\n";
+      logger.log(log_t::INFO, "Found", std::to_string(centres.size()), "peak positions");
    }
-   
-      
-   
 }
 
 void set_difference_map_peaks_widget(GtkWidget *w) {
@@ -1020,6 +1028,7 @@ PyObject *map_peaks_py(int imol_map, float n_sigma) {
       int do_positive_levels_flag = 1;
       int also_negative_levels_flag = 0;
       coot::peak_search ps(xmap);
+      ps.set_max_closeness(0.0f);
       std::vector<std::pair<clipper::Coord_orth, float> > peaks =
 	 ps.get_peaks(xmap, n_sigma, do_positive_levels_flag, also_negative_levels_flag);
       r = PyList_New(peaks.size());
@@ -1104,6 +1113,7 @@ SCM map_peaks_scm(int imol_map, float n_sigma) {
       int do_positive_levels_flag = 1;
       int also_negative_levels_flag = 0;
       coot::peak_search ps(xmap);
+      ps.set_max_closeness(0.0f);
       std::vector<std::pair<clipper::Coord_orth, float> > peaks =
 	 ps.get_peaks(xmap, n_sigma, do_positive_levels_flag, also_negative_levels_flag);
       for (unsigned int i=0; i<peaks.size(); i++) {
@@ -1260,7 +1270,8 @@ int do_ramachandran_plot_differences_by_widget(GtkWidget *w) {
 	 istat = 1;
 	 ramachandran_plot_differences(imol1, imol2);
       } else {
-	 std::cout << "INFO:: incomprehensible molecule/chain selection" << std::endl;
+	 // std::cout << "INFO:: incomprehensible molecule/chain selection" << std::endl;
+	 logger.log(log_t::INFO, "incomprehensible molecule/chain selection");
 	 std::string s = "Can't make sense of chain selection.  Try again?";
 	 GtkWidget *nbd = wrapped_nothing_bad_dialog(s);
 	 gtk_widget_set_visible(nbd, TRUE);
@@ -2349,7 +2360,8 @@ PyObject *all_molecule_ramachandran_region_py(int imol) {
           PyList_SetItem(r, i, pair);
         }
       } else {
-        std::cout << "INFO:: empty ramachandran region list" << std::endl;
+        // std::cout << "INFO:: empty ramachandran region list" << std::endl;
+        logger.log(log_t::INFO, "empty ramachandran region list");
       }
    }
 
@@ -2474,7 +2486,8 @@ PyObject *pathology_data(const std::string &mtz_file_name,
 
    try {
       clipper::CCP4MTZfile mtz;
-      std::cout << "INFO:: reading mtz file " << mtz_file_name << std::endl;
+      // std::cout << "INFO:: reading mtz file " << mtz_file_name << std::endl;
+      logger.log(log_t::INFO, "reading mtz file", mtz_file_name);
       mtz.open_read(mtz_file_name);
       clipper::HKL_data< clipper::datatypes::F_sigF<float> > fsigf;
       std::string dataname = "/*/*/[" + fp_col + " " + sigfp_col + "]";
@@ -2509,8 +2522,9 @@ PyObject *pathology_data(const std::string &mtz_file_name,
       std::cout << "error: " << e.text() << std::endl;
    }
 
-   std::cout << "INFO:: pathology_plots() found "
-   << fp_vs_reso_data.size() << " data" << std::endl;
+   // std::cout << "INFO:: pathology_plots() found "
+   // << fp_vs_reso_data.size() << " data" << std::endl;
+   logger.log(log_t::INFO, "pathology_plots() found", static_cast<unsigned long>(fp_vs_reso_data.size()), "data");
 
 
    // this is just a bit of fun - looking for large FP outliers.
@@ -2640,7 +2654,8 @@ add_cablam_markup(int imol, const std::string &cablam_log_file_name) {
       mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
       std::vector<coot::cablam_markup_t> v = coot::make_cablam_markups(mol, cablam_log_file_name);
 
-      std::cout << "INFO:: Made " << v.size() << " cablam markups " << std::endl;
+      // std::cout << "INFO:: Made " << v.size() << " cablam markups " << std::endl;
+      logger.log(log_t::INFO, "Made", static_cast<unsigned long>(v.size()), "cablam markups");
       std::vector<coot::cablam_markup_t>::const_iterator it;
       int idx_cablam = generic_object_index("xxCaBLAM");
       if (idx_cablam == -1)

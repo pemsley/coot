@@ -1,0 +1,247 @@
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+HIS HIS HISTIDINE peptide 21 11 .
+
+data_comp_HIS
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+HIS N N NT3 1 33.660 42.779 -4.734
+HIS CA C CH1 0 33.418 41.805 -5.835
+HIS C C C 0 33.362 42.558 -7.170
+HIS O O O 0 32.473 43.428 -7.296
+HIS CB C CH2 0 32.141 40.999 -5.566
+HIS CG C CR5 0 31.907 39.881 -6.528
+HIS ND1 N NR15 1 32.388 38.605 -6.324
+HIS CD2 C CR15 0 31.249 39.846 -7.694
+HIS CE1 C CR15 0 32.025 37.834 -7.339
+HIS NE2 N NR15 0 31.332 38.567 -8.183
+HIS OXT O OC -1 34.210 42.245 -8.036
+HIS H H H 0 32.989 43.381 -4.702
+HIS H2 H H 0 34.439 43.213 -4.870
+HIS H3 H H 0 33.701 42.345 -3.944
+HIS HA H H 0 34.186 41.182 -5.863
+HIS HB3 H H 0 31.373 41.610 -5.597
+HIS HB2 H H 0 32.189 40.630 -4.657
+HIS HD1 H H 0 32.878 38.369 -5.655
+HIS HD2 H H 0 30.808 40.561 -8.109
+HIS HE1 H H 0 32.229 36.920 -7.437
+HIS HE2 H H 0 30.960 38.279 -8.940
+
+loop_
+_chem_comp_tree.comp_id
+_chem_comp_tree.atom_id
+_chem_comp_tree.atom_back
+_chem_comp_tree.atom_forward
+_chem_comp_tree.connect_type
+HIS N n/a CA START
+HIS H N . .
+HIS H2 N . .
+HIS H3 N . .
+HIS CA N C .
+HIS HA CA . .
+HIS CB CA CG .
+HIS HB3 CB . .
+HIS HB2 CB . .
+HIS CG CB ND1 .
+HIS ND1 CG CE1 .
+HIS HD1 ND1 . .
+HIS CE1 ND1 NE2 .
+HIS HE1 CE1 . .
+HIS NE2 CE1 CD2 .
+HIS HE2 NE2 . .
+HIS CD2 NE2 HD2 .
+HIS HD2 CD2 . .
+HIS C CA . END
+HIS O C . .
+HIS OXT C . .
+HIS CD2 CG . ADD
+
+loop_
+_chem_comp_acedrg.comp_id
+_chem_comp_acedrg.atom_id
+_chem_comp_acedrg.atom_type
+HIS N N(CCCH)(H)3
+HIS CA C(CC[5]HH)(NH3)(COO)(H)
+HIS C C(CCHN)(O)2
+HIS O O(CCO)
+HIS CB C(C[5]C[5]N[5])(CCHN)(H)2
+HIS CG C[5](C[5]N[5]H)(N[5]C[5]H)(CCHH){2|H<1>}
+HIS ND1 N[5](C[5]C[5]C)(C[5]N[5]H)(H){2|H<1>}
+HIS CD2 C[5](C[5]N[5]C)(N[5]C[5]H)(H){2|H<1>}
+HIS CE1 C[5](N[5]C[5]H)2(H){1|C<4>,1|H<1>}
+HIS NE2 N[5](C[5]C[5]H)(C[5]N[5]H)(H){1|C<4>,1|H<1>}
+HIS OXT O(CCO)
+HIS H H(NCHH)
+HIS H2 H(NCHH)
+HIS H3 H(NCHH)
+HIS HA H(CCCN)
+HIS HB3 H(CC[5]CH)
+HIS HB2 H(CC[5]CH)
+HIS HD1 H(N[5]C[5]2)
+HIS HD2 H(C[5]C[5]N[5])
+HIS HE1 H(C[5]N[5]2)
+HIS HE2 H(N[5]C[5]2)
+
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+HIS N CA SINGLE n 1.489 0.0100 1.489 0.0100
+HIS CA C SINGLE n 1.533 0.0100 1.533 0.0100
+HIS CA CB SINGLE n 1.533 0.0104 1.533 0.0104
+HIS C O DOUBLE n 1.251 0.0183 1.251 0.0183
+HIS C OXT SINGLE n 1.251 0.0183 1.251 0.0183
+HIS CB CG SINGLE n 1.493 0.0146 1.493 0.0146
+HIS CG ND1 SINGLE y 1.378 0.0100 1.378 0.0100
+HIS CG CD2 DOUBLE y 1.338 0.0174 1.338 0.0174
+HIS ND1 CE1 DOUBLE y 1.326 0.0133 1.326 0.0133
+HIS CD2 NE2 SINGLE y 1.371 0.0154 1.371 0.0154
+HIS CE1 NE2 SINGLE y 1.316 0.0157 1.316 0.0157
+HIS N H SINGLE n 1.018 0.0520 0.902 0.0102
+HIS N H2 SINGLE n 1.018 0.0520 0.902 0.0102
+HIS N H3 SINGLE n 1.018 0.0520 0.902 0.0102
+HIS CA HA SINGLE n 1.092 0.0100 0.989 0.0200
+HIS CB HB3 SINGLE n 1.092 0.0100 0.982 0.0176
+HIS CB HB2 SINGLE n 1.092 0.0100 0.982 0.0176
+HIS ND1 HD1 SINGLE n 1.013 0.0120 0.881 0.0200
+HIS CD2 HD2 SINGLE n 1.085 0.0150 0.937 0.0104
+HIS CE1 HE1 SINGLE n 1.085 0.0150 0.942 0.0200
+HIS NE2 HE2 SINGLE n 1.013 0.0120 0.877 0.0200
+
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+HIS CA N H 109.992 2.14
+HIS CA N H2 109.992 2.14
+HIS CA N H3 109.992 2.14
+HIS H N H2 109.032 3.00
+HIS H N H3 109.032 3.00
+HIS H2 N H3 109.032 3.00
+HIS N CA C 109.292 1.55
+HIS N CA CB 110.573 1.50
+HIS N CA HA 108.019 2.27
+HIS C CA CB 111.874 3.00
+HIS C CA HA 108.290 1.50
+HIS CB CA HA 108.890 2.34
+HIS CA C O 117.058 3.00
+HIS CA C OXT 117.058 3.00
+HIS O C OXT 125.883 1.50
+HIS CA CB CG 113.931 1.83
+HIS CA CB HB3 108.697 1.50
+HIS CA CB HB2 108.697 1.50
+HIS CG CB HB3 108.948 1.50
+HIS CG CB HB2 108.948 1.50
+HIS HB3 CB HB2 107.846 2.68
+HIS CB CG ND1 122.940 3.00
+HIS CB CG CD2 131.173 3.00
+HIS ND1 CG CD2 105.887 1.50
+HIS CG ND1 CE1 109.313 1.50
+HIS CG ND1 HD1 125.337 2.60
+HIS CE1 ND1 HD1 125.350 3.00
+HIS CG CD2 NE2 107.589 1.50
+HIS CG CD2 HD2 126.688 3.00
+HIS NE2 CD2 HD2 125.723 3.00
+HIS ND1 CE1 NE2 108.287 1.50
+HIS ND1 CE1 HE1 125.729 2.42
+HIS NE2 CE1 HE1 125.984 1.51
+HIS CD2 NE2 CE1 108.930 1.50
+HIS CD2 NE2 HE2 125.575 3.00
+HIS CE1 NE2 HE2 125.489 3.00
+
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+HIS chi1 N CA CB CG -60.000 10.0 3
+HIS chi2 CA CB CG CD2 90.000 10.0 6
+HIS sp3_sp3_1 C CA N H 180.000 10.0 3
+HIS const_17 NE2 CD2 CG ND1 0.000 0.0 1
+HIS const_13 CG CD2 NE2 CE1 0.000 0.0 1
+HIS const_sp2_sp2_5 NE2 CE1 ND1 CG 0.000 0.0 1
+HIS const_sp2_sp2_9 ND1 CE1 NE2 CD2 0.000 0.0 1
+HIS const_sp2_sp2_1 CD2 CG ND1 CE1 0.000 0.0 1
+HIS sp2_sp3_1 O C CA N 0.000 10.0 6
+
+loop_
+_chem_comp_chir.comp_id
+_chem_comp_chir.id
+_chem_comp_chir.atom_id_centre
+_chem_comp_chir.atom_id_1
+_chem_comp_chir.atom_id_2
+_chem_comp_chir.atom_id_3
+_chem_comp_chir.volume_sign
+HIS chir_1 CA N C CB positive
+
+loop_
+_chem_comp_plane_atom.comp_id
+_chem_comp_plane_atom.plane_id
+_chem_comp_plane_atom.atom_id
+_chem_comp_plane_atom.dist_esd
+HIS plan-1 CB 0.020
+HIS plan-1 CD2 0.020
+HIS plan-1 CE1 0.020
+HIS plan-1 CG 0.020
+HIS plan-1 HD1 0.020
+HIS plan-1 HD2 0.020
+HIS plan-1 HE1 0.020
+HIS plan-1 HE2 0.020
+HIS plan-1 ND1 0.020
+HIS plan-1 NE2 0.020
+HIS plan-2 C 0.020
+HIS plan-2 CA 0.020
+HIS plan-2 O 0.020
+HIS plan-2 OXT 0.020
+
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+HIS SMILES ACDLabs 10.04 "O=C(O)C(N)Cc1cnc[nH+]1"
+HIS SMILES_CANONICAL CACTVS 3.341 "N[C@@H](Cc1c[nH]c[nH+]1)C(O)=O"
+HIS SMILES CACTVS 3.341 "N[CH](Cc1c[nH]c[nH+]1)C(O)=O"
+HIS SMILES_CANONICAL "OpenEye OEToolkits" 1.5.0 "c1c([nH+]c[nH]1)C[C@@H](C(=O)O)N"
+HIS SMILES "OpenEye OEToolkits" 1.5.0 "c1c([nH+]c[nH]1)CC(C(=O)O)N"
+HIS InChI InChI 1.03 "InChI=1S/C6H9N3O2/c7-5(6(10)11)1-4-2-8-3-9-4/h2-3,5H,1,7H2,(H,8,9)(H,10,11)/p+1/t5-/m0/s1"
+HIS InChIKey InChI 1.03 HNDVDQJCIGZPNO-YFKPBYRVSA-O
+
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+HIS acedrg 278 "dictionary generator"
+HIS acedrg_database 12 "data source"
+HIS rdkit 2019.09.1 "Chemoinformatics tool"
+HIS refmac5 5.8.0419 "optimization tool"

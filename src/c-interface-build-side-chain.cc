@@ -24,6 +24,9 @@
  * Fifth Floor, Boston, MA, 02110-1301, USA.
  */
 
+#include "geometry/residue-and-atom-specs.hh"
+#include "gtk/gtk.h"
+#include "mmdb2/mmdb_chain.h"
 #ifdef USE_PYTHON
 #include <Python.h>  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #include "python-3-interface.hh"
@@ -49,19 +52,19 @@
 #define S_ISREG(m) (((m) & S_IFMT) == S_IFREG)
 #include <windows.h>
 #endif
- 
 
 #include <mmdb2/mmdb_manager.h>
-#include "coords/mmdb-extras.h"
+
+#include "coords/mmdb-extras.hh"
 #include "coords/mmdb.hh"
+#include "coords/Cartesian.hh"
+#include "coords/Bond_lines.hh"
 
 // just delete this header?
 #include "globjects.h" //includes gtk/gtk.h
 
-#include "coords/mmdb-crystal.h"
+#include "coords/mmdb-crystal.hh"
 
-#include "coords/Cartesian.h"
-#include "coords/Bond_lines.h"
 
 #include "graphics-info.h"
 
@@ -106,6 +109,8 @@
 
 #include "c-interface-refine.hh"
 
+#include "utils/logging.hh"
+extern logging logger;
 
 
 void delete_residue_sidechain(int imol, const char *chain_id, int resno, const char *ins_code,
@@ -518,7 +523,7 @@ setup_mutate_auto_fit(short int state) {
 	 g.pick_pending_flag = 1;
       } else { 
 	 // map chooser dialog
-	 g.show_select_map_dialog();
+	 g.show_select_map_frame();
 	 g.in_mutate_auto_fit_define = 0;
 	 normal_cursor();
 	 g.model_fit_refine_unactive_togglebutton("model_refine_dialog_mutate_auto_fit_togglebutton");
@@ -684,19 +689,32 @@ mutate_active_residue_to_single_letter_code(const std::string &slc) {
 }
 
 // \brief show keyboard mutate dialog
-void show_keyboard_mutate_dialog() {
+void show_keyboard_mutate_frame() {
 
-   GtkWidget *w = widget_from_builder("keyboard_mutate_dialog");
+   GtkWidget *w = widget_from_builder("keyboard_mutate_frame");
+   GtkWidget *e = widget_from_builder("keyboard_mutate_entry");
+   gtk_widget_grab_focus(e);
    gtk_widget_set_visible(w, TRUE);
 
 }
 
 
+//! mutate by overlap - 20241211-PE welcome into Coot at long last.
+int mutate_by_overlap(int imol, const std::string &chain_id, int res_no, const std::string &new_type) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      status = g.molecules[imol].mutate_by_overlap(chain_id, res_no, new_type);
+   }
+   return status;
+}
+
 
 // return success on residue type match
 // success: 1, failure: 0.
 int
-mutate_internal(int ires_serial, const char *chain_id, int imol, std::string &target_res_type) {
+mutate_internal(int ires_serial, const char *chain_id, int imol, const std::string &target_res_type) {
 
    graphics_info_t g;
    int istate = 0;
@@ -712,12 +730,12 @@ mutate_internal(int ires_serial, const char *chain_id, int imol, std::string &ta
 
 // causes a make_backup()
 int
-mutate(int imol, const char *chain_id, int ires, const char *inscode,  const char *target_res_type) { 
+mutate(int imol, const char *chain_id, int ires, const char *inscode,  const char *target_res_type) {
 
    int istate = 0;
    std::string target_type(target_res_type);
 
-   if (is_valid_model_molecule(imol)) { 
+   if (is_valid_model_molecule(imol)) {
       istate = graphics_info_t::molecules[imol].mutate(ires, inscode, std::string(chain_id), std::string(target_res_type));
       graphics_info_t g;
       g.update_validation(imol);
@@ -731,7 +749,7 @@ mutate(int imol, const char *chain_id, int ires, const char *inscode,  const cha
    args.push_back(coot::util::single_quote(inscode));
    args.push_back(coot::util::single_quote(target_res_type));
    add_to_history_typed(cmd, args);
-   
+
    return istate;
 }
 
@@ -858,7 +876,7 @@ int mutate_and_autofit_residue_range(int imol, const char *chain_id, int start_r
 
 e.g. if nudge_by is 1, then the sidechain of residue 20 is moved up
 onto what is currently residue 21.  The mainchain numbering and atoms is not changed. */
-int nudge_residue_sequence(int imol, char *chain_id, int res_no_range_start,
+int nudge_residue_sequence(int imol, const char *chain_id, int res_no_range_start,
 			   int res_no_range_end,
 			   int nudge_by,
 			   short int nudge_residue_numbers_also) {
@@ -1195,7 +1213,7 @@ void fill_partial_residues(int imol) {
 	    turn_on_backup(imol);
 
       } else {
-	 g.show_select_map_dialog();
+	 g.show_select_map_frame();
       }
       graphics_draw();
    }
@@ -1221,7 +1239,7 @@ void fill_partial_residue(int imol, const char *chain_id, int resno, const char*
 	 set_refinement_immediate_replacement(refinement_replacement_state);
 
       } else {
-	 g.show_select_map_dialog();
+	 g.show_select_map_frame();
       }
    }
 }
@@ -1239,6 +1257,7 @@ void simple_fill_partial_residues(int imol) {
 	 graphics_draw();
       } else {
 	 add_status_bar_text("Refinement map not set");
+         g.ephemeral_overlay_label("Refinement map not set");
       }
    }
 }
@@ -1249,6 +1268,29 @@ void simple_fill_partial_residues(int imol) {
 
 std::string sequence_from_map(int imol, const std::string &chain_id, int resno_start, int resno_end, int imol_map) {
 
+   auto backrub_chain = [] (int imol, const std::string &chain_id, int imol_map) {
+
+      int n = 0;
+      graphics_info_t g;
+      if (is_valid_model_molecule(imol)) {
+         mmdb::Chain *chain_p = graphics_info_t::molecules[imol].get_chain(chain_id);
+         if (chain_p) {
+            int n_residues = chain_p->GetNumberOfResidues();
+            for (int iserial=0; iserial<n_residues; iserial++) {
+               std::string res_name = resname_from_serial_number(imol, chain_id.c_str(), iserial);
+               int res_no = seqnum_from_serial_number(imol, chain_id.c_str(), iserial);
+               std::string ins_code = insertion_code_from_serial_number(imol, chain_id.c_str(), iserial);
+               if (res_name != "HOH") {
+                  std::string alt_loc;
+                  int clash_flag = 1;
+                  float lp = 1.1;
+                  auto_fit_best_rotamer(imol, chain_id.c_str(), res_no, ins_code.c_str(), alt_loc.c_str(), imol_map, clash_flag, lp);
+               }
+            }
+         }
+      }
+   };
+
    std::string guessed_sequence;
    if (is_valid_model_molecule(imol)) {
       if (is_valid_map_molecule(imol_map)) {
@@ -1258,8 +1300,20 @@ std::string sequence_from_map(int imol, const std::string &chain_id, int resno_s
          scd.fill_residue_blocks(mol, chain_id, resno_start, resno_end, xmap);
          guessed_sequence =
             scd.guess_the_sequence(mol, chain_id, resno_start, resno_end, xmap);
-         // std::cout << "guessed sequence " << guessed_sequence << std::endl;
+         logger.log(log_t::INFO, logging::function_name_t(__FUNCTION__),
+                    "guessed_sequence", guessed_sequence);
+         if (guessed_sequence.size() > 0) {
+            mutate_residue_range(imol, chain_id, resno_start, resno_end, guessed_sequence);
+            int imol_map = imol_refinement_map();
+            backrub_chain(imol, chain_id, imol_map);
+         } else {
+            std::cout << "DEBUG:: guessed_sequence is zero length" << std::endl;
+         }
+      } else {
+         std::cout << "DEBUG:: imol_map is not valid" << std::endl;
       }
+   } else {
+      std::cout << "DEBUG:: imol is not valid model" << std::endl;
    }
    return guessed_sequence;
 }
@@ -1410,4 +1464,66 @@ void assign_sequence_to_active_fragment() {
    } else {
       std::cout << "No active atom" << std::endl;
    }
+}
+
+
+//! @return a python list of residue specs for the residues in the given chain
+PyObject *get_residues_in_chain_py(int imol, const std::string &chain_id) {
+
+   PyObject *l = PyList_New(0);
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      if (mol) {
+         int imod = 1;
+         mmdb::Model *model_p = mol->GetModel(imod);
+         if (model_p) {
+            int n_chains = model_p->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains; ichain++) {
+               mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               if (chain_id == chain_p->GetChainID()) {
+                  int n_res = chain_p->GetNumberOfResidues();
+                  std::vector<coot::residue_spec_t> res_specs;
+                  for (int ires=0; ires<n_res; ires++) {
+                     mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                     if (residue_p) {
+                        coot::residue_spec_t rs(residue_p);
+                        res_specs.push_back(rs);
+                     }
+                  }
+                  if (! res_specs.empty()) {
+                     // delete l here
+                     l = PyList_New(res_specs.size());
+                     for (unsigned int i=0; i<res_specs.size(); i++) {
+                        const auto &rs = res_specs[i];
+                        PyObject *o = residue_spec_to_py(rs);
+                        PyList_SetItem(l, i, o);
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+   return l;
+}
+
+
+//! does the specfied residue exist?
+//!
+//! @param imol the molecule index
+//! @param spec is the residue spec to test for existance
+//! @return 0 for no, 1 for yes, -1 for error
+int residue_exists_py(int imol, PyObject *residue_spec_py) {
+
+   int r = -1;
+
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t res_spec = residue_spec_from_py(residue_spec_py);
+      mmdb::Residue *residue_p = graphics_info_t::molecules[imol].get_residue(res_spec);
+      if (residue_p)
+         r = 1;
+      else
+         r = 0;
+   }
+   return r;
 }

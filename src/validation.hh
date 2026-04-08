@@ -31,7 +31,10 @@
 #endif // USE_PYTHON
 
 #ifdef USE_GUILE
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
 #include <libguile.h>
+#pragma GCC diagnostic pop
 #endif // USE_GUILE
 
 #ifdef USE_PYTHON
@@ -42,5 +45,10 @@ PyObject *c_beta_deviations_py(int imol);
 #ifdef USE_GUILE
 SCM c_beta_deviations_scm(int imol);
 #endif
+
+// atom_spec_list is a 5-member atom spec
+void add_unhappy_atom_marker_py(int imol, PyObject *atom_spec_list);
+void remove_unhappy_atom_marker_py(int imol, PyObject *atom_spec_list);
+void remove_all_unhappy_atom_markers();
 
 

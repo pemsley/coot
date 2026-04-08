@@ -27,6 +27,10 @@
 
 // Load the head if it hasn't been included.
 
+#include "gtk/gtk.h"
+#include "lidia-core/svg-container.hh"
+#include <filesystem>
+#include <unordered_map>
 #ifdef USE_PYTHON
 #ifndef PYTHONH
 #define PYTHONH
@@ -85,11 +89,11 @@
 #include <string>
 
 #include <mmdb2/mmdb_manager.h>
-#include "coords/mmdb-extras.h"
+#include "coords/mmdb-extras.hh"
 #include "coords/mmdb.hh"
-#include "coords/mmdb-crystal.h"
-#include "coords/Cartesian.h"
-#include "coords/Bond_lines.h"
+#include "coords/mmdb-crystal.hh"
+#include "coords/Cartesian.hh"
+#include "coords/Bond_lines.hh"
 
 #include "utils/coot-utils.hh"
 #include "coot-utils/read-sm-cif.hh"
@@ -321,13 +325,6 @@ int test_function(int i, int j) {
       }
    }
 
-
-   if (0) {
-      std::vector<std::pair<std::string, int> > h =
-	 coot::get_prodrg_hybridizations("coot-ccp4/tmp-prodrg-flat.log");
-
-   }
-
    if (0) {
       // atom_selection_container_t asc = get_atom_selection("double.pdb");
       atom_selection_container_t asc = get_atom_selection("test-frag.pdb", false, true, false);
@@ -399,13 +396,13 @@ int test_function(int i, int j) {
    }
 
 
-   if (0) {
+   if (false) {
       GtkWidget *w = wrapped_create_least_squares_dialog();
       gtk_widget_set_visible(w, TRUE);
    }
 
 
-   if (0) {
+   if (false) {
       std::vector<std::string> s;
       s.push_back("");
       s.push_back("123");
@@ -1235,7 +1232,7 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 #endif
 
 
-#include "coot-utils/oct.hh" // ortep 20230108-PE
+#include "coot-utils/ortep.hh" // ortep 20230108-PE // 20241202-PE
 #include "utils/dodec.hh"
 #include "widget-from-builder.hh"
 
@@ -1246,14 +1243,36 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 
 #include <boost/python.hpp> // because we try to call python functions from c++ using an rdkit molecule
 
+void pandda();
+
+// should this be in a header?
+void add_unhappy_atom_marker(int imol, const coot::atom_spec_t &atom_spec);
+
 #ifdef USE_PYTHON
 static PyObject *rdkit_chem_qed_func        = NULL;
 static PyObject *rdkit_chem_properties_func = NULL;
 PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
 
    std::cout << "-------------------------- test_function_py() " << std::endl;
-   std::string d = coot::prefix_dir();
-   std::cout << "--------- prefix_dir " << d << std::endl;
+
+   if (true) {
+      coot::atom_spec_t atom_spec("B", 145, "", "CE", "");
+      add_unhappy_atom_marker(0, atom_spec);
+   }
+
+   if (true) {
+      pandda();
+   }
+
+   if (false)   {
+      int imol = 0;
+      graphics_info_t::molecules[imol].debug_ghosts();
+   }
+
+   if (false) {
+      std::string d = coot::prefix_dir();
+      std::cout << "--------- prefix_dir " << d << std::endl;
+   }
 
 
 #if 0
@@ -1390,7 +1409,7 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
             catch (const std::runtime_error &rte) {
                std::cout << "ERROR:: (runtime error) in fle_view_with_rdkit(): "
                          << rte.what() << std::endl;
-            } 
+            }
             catch (const std::exception &e) {
                std::cout << "ERROR (exception) in fle_view_with_rdkit(): " << e.what() << std::endl;
             }
@@ -1527,7 +1546,7 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
 
       if (is_valid_model_molecule(i)) {
 
-         std::vector<coot::ghost_molecule_display_t> gi = g.molecules[i].NCS_ghosts();
+         std::vector<drawn_ghost_molecule_display_t> gi = g.molecules[i].NCS_ghosts();
 
          mmdb::Manager *mol = g.molecules[i].atom_sel.mol;
          std::vector<std::string> chain_ids = g.molecules[i].get_chain_ids();
@@ -1550,7 +1569,8 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
             auto chain_id = chain_ids[i_ch];
             // gi is used if colour_by_ncs_ghost is true
             bool colour_by_ncs_ghost = false;
-            make_a_surface(i, mol, i_ch, chain_id, gi, colour_by_ncs_ghost, chain_id_map);
+            // this doesn't compile
+            // make_a_surface(i, mol, i_ch, chain_id, gi, colour_by_ncs_ghost, chain_id_map);
          }
 
       }

@@ -33,11 +33,15 @@
 #include "lidia-core/lig-build.hh"
 #include "lidia-core/lbg-molfile.hh"
 #include "lidia-core-functions.hh"
+#include "analysis/stats.hh"
 
 #ifdef USE_GEMMI
 #include "gemmi/mmread.hpp"
 #include "gemmi/mmdb.hpp"
 #endif
+
+#include "utils/logging.hh"
+extern logging logger;
 
 mmdb::Residue *
 atom_selection_container_t::get_next(mmdb::Residue *residue_in) const {
@@ -81,6 +85,22 @@ atom_selection_container_t::get_previous(mmdb::Residue *residue_in) const {
    return r;
 }
 
+//! clear the atom selection of all pointers
+void
+atom_selection_container_t::clear_up() {
+
+   if (read_success)
+      if (SelectionHandle)
+         if (mol)
+            mol->DeleteSelection(SelectionHandle);
+   delete mol;
+   atom_selection = 0;
+   mol = 0;
+   read_success = 0;
+}
+
+
+
 // This is used for pick_test  (a function that returns
 // an atom selection from a pdb_file name string is not
 // generally so useful).
@@ -90,7 +110,6 @@ get_atom_selection(std::string pdb_name,
                    bool use_gemmi,
                    bool allow_duplseqnum,
                    bool verbose_mode) {
-
 
    auto atom_name_fix_ups = [] (mmdb::Manager *mol) {
 
@@ -125,7 +144,7 @@ get_atom_selection(std::string pdb_name,
    };
 
    auto debug_atom_names = [] (mmdb::Manager *mol) {
-      
+
       for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
          mmdb::Model *model_p = mol->GetModel(imod);
          if (model_p) {
@@ -150,15 +169,114 @@ get_atom_selection(std::string pdb_name,
       }
    };
 
-   auto file_name_to_manager_via_gemmi = [] (const std::string &pdb_name) {
-      mmdb::Manager *mol = nullptr;
+   auto add_links_to_models = [] (mmdb::Manager *mol, const std::vector<mmdb::Link> &mmdb_links) {
+
+      for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+         mmdb::Model *model_p = mol->GetModel(imod);
+         if (model_p) {
+            for(const auto &ml : mmdb_links) {
+               mmdb::Link *l = new mmdb::Link(ml);
+               model_p->AddLink(l);
+            }
+         }
+      }
+      if (! mmdb_links.empty())
+         mol->FinishStructEdit();
+   };
+
 #ifdef USE_GEMMI
+   auto transfer_links = [add_links_to_models] (const gemmi::Structure &st, mmdb::Manager *mol) {
+
+      std::vector<mmdb::Link> mmdb_links;
+      for (const gemmi::Connection &con : st.connections) {
+         if (false) // debugging
+            // std::cout << "INFO:: gemmi connection: " << con.name
+            //           << " " << con.partner1.str() << " " << con.partner2.str() << std::endl;
+            logger.log(log_t::INFO, "gemmi connection:", con.name, con.partner1.str(), con.partner2.str());
+         mmdb::Link l;
+         std::string atom_name = con.partner1.atom_name;
+         bool atom_1_is_metal = false;
+         if (atom_name == "ZN") atom_1_is_metal = true;
+         if (atom_name == "MG") atom_1_is_metal = true;
+         if (atom_name == "FE") atom_1_is_metal = true;
+         if (atom_name == "CO") atom_1_is_metal = true;
+         if (atom_name == "NI") atom_1_is_metal = true;
+         int ll = atom_name.length();
+         std::string new_atom_name;
+         if (ll == 1) new_atom_name = std::string(" ") + atom_name + std::string("  ");
+         if (ll == 2) {
+            if (atom_1_is_metal) {
+               new_atom_name = atom_name + std::string("  "); // form for metal
+            } else {
+               new_atom_name = std::string(" ") + atom_name + std::string(" ");
+            }
+         }
+         if (ll == 3) new_atom_name = atom_name + std::string(" ");
+         strcpy(l.atName1, new_atom_name.c_str());
+         l.aloc1[0] = con.partner1.altloc;
+         l.aloc1[1] = 0;
+         strcpy(l.resName1, con.partner1.res_id.name.c_str());
+         strcpy(l.chainID1, con.partner1.chain_name.c_str());
+         l.insCode1[0] = con.partner1.res_id.seqid.icode;
+         if (con.partner1.res_id.seqid.icode == ' ') l.insCode1[0] = 0;
+         l.insCode1[1] = 0;
+         atom_name = con.partner2.atom_name;
+         bool atom_2_is_metal = false;
+         if (atom_name == "ZN") atom_2_is_metal = true;
+         if (atom_name == "MG") atom_2_is_metal = true;
+         if (atom_name == "FE") atom_2_is_metal = true;
+         if (atom_name == "CO") atom_2_is_metal = true;
+         if (atom_name == "NI") atom_2_is_metal = true;
+         ll = atom_name.length();
+         new_atom_name = atom_name;
+         if (ll == 1) new_atom_name = std::string(" ") + atom_name + std::string("  ");
+         if (ll == 2) {
+            if (atom_2_is_metal) {
+               new_atom_name = atom_name + std::string("  "); // form for metal
+            } else {
+               new_atom_name = std::string(" ") + atom_name + std::string(" ");
+            }
+         }
+         if (ll == 3) new_atom_name = atom_name + std::string(" ");
+         strcpy(l.atName2, new_atom_name.c_str());
+         l.aloc2[0] = con.partner2.altloc;
+         l.aloc2[1] = 0;
+         strcpy(l.resName2, con.partner2.res_id.name.c_str());
+         strcpy(l.chainID2, con.partner2.chain_name.c_str());
+         l.insCode2[0] = con.partner2.res_id.seqid.icode;
+         if (con.partner2.res_id.seqid.icode == ' ') l.insCode2[0] = 0;
+         l.insCode2[1] = 0;
+         if (con.partner1.res_id.seqid.num.has_value()) {
+            if (con.partner2.res_id.seqid.num.has_value()) {
+               // std::cout << "   debug:: on pushing back link: at-Name-1 :" << l.atName1 << ":" << std::endl;
+               // std::cout << "   debug:: on pushing back link: at-Name-2 :" << l.atName2 << ":" << std::endl;
+               l.seqNum1 = con.partner1.res_id.seqid.num.value;
+               l.seqNum2 = con.partner2.res_id.seqid.num.value;
+               if (false)
+                  std::cout << "Here's the fresh link: "
+                            << l.chainID1 << " seqNum: " << l.seqNum1 << " ins-code: \"" << l.insCode1 << "\" \"" << l.atName1 << "\" to "
+                            << l.chainID2 << " seqNum: " << l.seqNum2 << " ins-code: \"" << l.insCode2 << "\" \"" << l.atName2 << "\"" << std::endl;
+               mmdb_links.push_back(l);
+            }
+         }
+      }
+      add_links_to_models(mol, mmdb_links);
+   };
+#endif // USE_GEMMI
+
+#ifdef USE_GEMMI
+   auto file_name_to_manager_via_gemmi = [transfer_links] (const std::string &pdb_name) {
+      mmdb::Manager *mol = nullptr;
       try {
          gemmi::Structure st = gemmi::read_structure_file(pdb_name);
          if (! st.models.empty()) {
+            st.merge_chain_parts();
             mol = new mmdb::Manager;
             gemmi::copy_to_mmdb(st, mol);
+            transfer_links(st, mol);
 
+            // now fix (cootify) the atom names
+            //
             for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
                mmdb::Model *model_p = mol->GetModel(imod);
                if (model_p) {
@@ -192,12 +310,16 @@ get_atom_selection(std::string pdb_name,
       catch (const std::runtime_error &e) {
          std::cout << "WARNING::" << e.what() << std::endl;
       }
-#endif // USE_GEMMI
       return mol;
    };
+#endif // USE_GEMMI
 
    if (false) // too noisy
-      std::cout << "get_atom_selection() with file \"" << pdb_name << "\"" << std::endl;
+      std::cout << "DEBUG:: get_atom_selection() with file \"" << pdb_name << "\""
+                << " use_gemmi: " << use_gemmi << std::endl;
+
+   logger.log(log_t::DEBUG, logging::function_name_t(__FUNCTION__),
+              {logging::ltw("with file"), pdb_name, logging::ltw("use_gemmi"), use_gemmi});
 
    mmdb::ERROR_CODE err;
    mmdb::Manager* MMDBManager;
@@ -306,8 +428,9 @@ get_atom_selection(std::string pdb_name,
 #endif
              MMDBManager->PDBCleanup(mmdb::PDBCLEAN_ELEMENT);
 
-             if (verbose_mode)
-                std::cout << "INFO:: Reading coordinate file: " << pdb_name.c_str() << "\n";
+             // std::cout << "INFO:: Reading coordinate file: " << pdb_name.c_str() << "\n";
+             logger.log(log_t::INFO, "Reading coordinate file:", pdb_name);
+
              err = MMDBManager->ReadCoorFile(pdb_name.c_str());
 
              if (err) {
@@ -352,8 +475,10 @@ get_atom_selection(std::string pdb_name,
 
                 MMDBManager->PDBCleanup(mmdb::PDBCLEAN_ELEMENT);
 
-                if (verbose_mode)
-                   std::cout << "INFO:: file " << pdb_name.c_str() << " has been read.\n";
+                if (verbose_mode) {
+                   // std::cout << "INFO:: file " << pdb_name.c_str() << " has been read.\n";
+                   logger.log(log_t::INFO, "File", pdb_name, "has been read");
+                }
                 asc.read_success = 1; // TRUE
 
                 // atom_selection_container.read_error_message = NULL; // its a string
@@ -376,13 +501,16 @@ get_atom_selection(std::string pdb_name,
        if (MMDBManager) {
           char *str = MMDBManager->GetSpaceGroup();
           if (str) {
-             if (false) {
+             if (verbose_mode) {
                 std::string sgrp(str);
-                std::cout << "Spacegroup: " << sgrp << "\n";
+                // std::cout << "Spacegroup: " << sgrp << "\n";
+                logger.log(log_t::INFO, "File", pdb_name, "has spacegroup", sgrp);
              }
           } else {
-             // Too noisy, not valuable
-             // std::cout << "No Spacegroup found for this PDB file\n";
+             if (verbose_mode) {
+                // std::cout << "No Spacegroup found for this PDB file\n";
+                logger.log(log_t::INFO, "File", pdb_name, "no spacegroup found");
+             }
           }
        }
 
@@ -845,13 +973,17 @@ make_asc(mmdb::Manager *mol, bool transfer_atom_index_flag) {
    asc.mol->GetSelIndex(asc.SelectionHandle, asc.atom_selection, asc.n_selected_atoms);
 
    int uddHnd = mol->RegisterUDInteger(mmdb::UDR_ATOM, "atom index");
+   if (false)
+      std::cout << "debug:: in make_asc(): uddHnd " << uddHnd << " for 'atom index' for mol "
+                << mol << std::endl;
    if (uddHnd < 0) {
       std::cout << "ERROR:: ----------------- atom index registration failed.\n";
    } else {
       // std::cout << "in make_asc() saving UDDAtomIndexHandle " << uddHnd << std::endl;
       asc.UDDAtomIndexHandle = uddHnd;
-      for (int i=0; i<asc.n_selected_atoms; i++)
-         asc.atom_selection[i]->PutUDData(uddHnd,i);
+      for (int i=0; i<asc.n_selected_atoms; i++) {
+         int status = asc.atom_selection[i]->PutUDData(uddHnd,i);
+      }
    }
    asc.read_error_message = "No error";
    asc.read_success = 1;
@@ -901,7 +1033,7 @@ atom_selection_container_t read_standard_residues() {
 
    std::string standard_env_dir = "COOT_STANDARD_RESIDUES";
    atom_selection_container_t standard_residues_asc;
-   
+
    const char *filename = getenv(standard_env_dir.c_str());
    if (! filename) {
 
@@ -911,33 +1043,44 @@ atom_selection_container_t read_standard_residues() {
       standard_file_name += "standard-residues.pdb";
 
       struct stat buf;
-      int status = stat(standard_file_name.c_str(), &buf);  
+      int status = stat(standard_file_name.c_str(), &buf);
       if (status != 0) { // standard-residues file was not found in
-			 // default location either...
-	 std::cout << "WARNING: environment variable for standard residues ";
-	 std::cout << standard_env_dir << "\n";
-	 std::cout << "         is not set.";
-	 std::cout << " Mutations will not be possible\n";
-	 // mark as not read then:
-	 standard_residues_asc.read_success = 0;
-	 // std::cout << "DEBUG:: standard_residues_asc marked as
-	 // empty" << std::endl;
-      } else { 
-	 // stat success:
-	 standard_residues_asc = get_atom_selection(standard_file_name, false, true, false);
+                         // default location either...
+         std::cout << "WARNING: environment variable for standard residues ";
+         std::cout << standard_env_dir << "\n";
+         std::cout << "         is not set.";
+         std::cout << " Mutations will not be possible\n";
+         // mark as not read then:
+         standard_residues_asc.read_success = 0;
+         // std::cout << "DEBUG:: standard_residues_asc marked as
+         // empty" << std::endl;
+      } else {
+         // stat success:
+         standard_residues_asc = get_atom_selection(standard_file_name, false, true, false);
       }
-   } else { 
+   } else {
       standard_residues_asc = get_atom_selection(filename, false, true, false);
    }
 
    return standard_residues_asc;
 }
 
-#include "analysis/stats.hh"
+void
+atom_selection_container_t::debug_write_pdb() {
+
+   if (mol) {
+      std::string fn = "debug-" + std::to_string(user_data) + ".pdb";
+      mol->WritePDBASCII(fn.c_str());
+   }
+
+}
+
 
 // return an estimate of the molecule diameter
 float
 coot::get_molecule_diameter(const atom_selection_container_t &asc) {
+
+   // c.f. radius_of_gyration
 
    float f = -1;
 
@@ -976,4 +1119,5 @@ coot::get_molecule_diameter(const atom_selection_container_t &asc) {
    return f;
 
 }
+
 

@@ -25,6 +25,7 @@
  */
 
 #include "graphics-info.h"
+#include "stereo-eye.hh"
 
 void
 graphics_info_t::draw_models_for_ssao() {
@@ -50,7 +51,7 @@ graphics_info_t::draw_models_for_ssao() {
 }
 
 void
-graphics_info_t::draw_molecules_for_ssao() {
+graphics_info_t::draw_molecules_for_ssao(stereo_eye_t eye) {
 
    bool do_orthographic_projection = ! perspective_projection_flag;
    GtkAllocation allocation;
@@ -82,10 +83,10 @@ graphics_info_t::draw_molecules_for_ssao() {
    }
 
    glEnable(GL_DEPTH_TEST);
-   draw_intermediate_atoms(PASS_TYPE_SSAO);
-   draw_intermediate_atoms_rama_balls(PASS_TYPE_SSAO); // currently rama balls are part of intermediate atoms
-   draw_rotation_centre_crosshairs(GTK_GL_AREA(gl_area), PASS_TYPE_SSAO);
-   draw_bad_nbc_atom_pair_markers(PASS_TYPE_SSAO);
+   draw_intermediate_atoms(eye, PASS_TYPE_SSAO);
+   draw_intermediate_atoms_rama_balls(eye, PASS_TYPE_SSAO); // currently rama balls are part of intermediate atoms
+   draw_rotation_centre_crosshairs(eye, GTK_GL_AREA(gl_area), PASS_TYPE_SSAO);
+   draw_bad_nbc_atom_pair_markers(eye, PASS_TYPE_SSAO);
 
 #if 0 // Nice things to have, but they need to work with shader_for_meshes_for_ssao.
    draw_atom_pull_restraints(PASS_TYPE_SSAO);
@@ -94,16 +95,17 @@ graphics_info_t::draw_molecules_for_ssao() {
    draw_generic_objects(PASS_TYPE_SSAO);
 #endif
 
-   draw_meshed_generic_display_object_meshes(PASS_TYPE_SSAO);
-   draw_molecules_other_meshes(PASS_TYPE_SSAO); // draws the meshes in a molecules std::vector<Messh> meshes;
-   draw_generic_objects(PASS_TYPE_SSAO);
+   draw_meshed_generic_display_object_meshes(eye, PASS_TYPE_SSAO);
+   draw_molecules_other_meshes(eye, PASS_TYPE_SSAO); // draws the meshes in a molecules std::vector<Messh> meshes;
+   draw_generic_objects(PASS_TYPE_SSAO, eye);
    glDisable(GL_BLEND);
 
 }
 
 // Models with a captial M.
 void
-graphics_info_t::draw_models(Shader *shader_for_tmeshes_p,
+graphics_info_t::draw_models(stereo_eye_t eye,
+                            Shader *shader_for_tmeshes_p,
                             Shader *shader_for_meshes_p,
                             Shader *shader_for_tmeshes_with_shadows_p,
                             Shader *shader_for_meshes_with_shadows_p,
@@ -117,14 +119,49 @@ graphics_info_t::draw_models(Shader *shader_for_tmeshes_p,
 
    // std::cout << "------ draw_models() with draw_shadows " << draw_shadows << std::endl;
 
-   // crow convertion vars
-   auto get_mvp = [] (int x, int y) {
-                     return get_molecule_mvp(); // no args passed.... Hmm.
-                   };
+   auto get_Model_rotation_and_translation = [] (const Model &model, unsigned int model_index) {
+      glm::mat4 mr(1.0f);
+      glm::mat4 mt(1.0f);
+      if (model.do_animation) {
+         float time_ms = model.duration();
+         float time_s = time_ms * 0.001f;
+         float sf = 0.3f;
+         float fidx = static_cast<float>(model_index);
+         float x = -5.0 * sinf(2.0f * fidx + sf * time_s);
+         float y =  5.0 * cosf(2.0f * fidx + sf * time_s);
+         glm::vec3 t(x,y,0.0f);
+         mr = glm::translate(mr, t);
+         float theta = sf * time_s + 2.0f * fidx + 0.05; // head toward to inside of the circle a small bit
+         glm::vec3 up(0.0f, 0.0f, 1.0f);
+         mr = glm::rotate(mr, theta, up);
+      }
+      return std::make_pair(mr, mt);
+   };
+
+   auto get_mvp = [get_Model_rotation_and_translation] (const Model &model, unsigned int model_index, int w, int h) {
+      bool do_orthographic_projection = ! perspective_projection_flag; // weird
+      glm::mat4 view_matrix = get_view_matrix();
+
+      glm::mat4 m(1.0f);
+      glm::vec3 rc = get_rotation_centre();
+      rc = glm::vec3(0,0,0);
+      // we have to do the translations before the view rotation (not view_matrix - that's a different thing)
+      // c.f. get_model_matrix()
+      glm::mat4 translation_matrix = glm::translate(m, rc);
+      std::pair<glm::mat4, glm::mat4> p = get_Model_rotation_and_translation(model, model_index);
+      glm::mat4 Model_translation_matrix = p.second;
+      glm::mat4 Model_rotation_matrix = p.first;
+      glm::mat4 rotation_matrix = get_model_rotation();
+      glm::mat4 model_at_screen_centre = rotation_matrix * Model_rotation_matrix * Model_translation_matrix * translation_matrix;
+
+      glm::mat4  proj_matrix = get_projection_matrix(do_orthographic_projection, w, h);
+      glm::mat4 mvp = proj_matrix * view_matrix * model_at_screen_centre;
+      return mvp;
+   };
+
    glm::vec3 bg_col = background_colour;
    bool do_depth_fog = shader_do_depth_fog_flag;
 
-   glm::mat4 mvp = get_mvp(graphics_x_size, graphics_y_size);
    glm::mat4 model_rotation = get_model_rotation();
    glm::vec4 bg_col_v4(bg_col, 1.0f);
    auto ccrc = RotationCentre();
@@ -135,16 +172,20 @@ graphics_info_t::draw_models(Shader *shader_for_tmeshes_p,
    } else {
       for (unsigned int ii=0; ii<models.size(); ii++) {
          auto &model = models[ii];
+         glm::mat4 mvp = get_mvp(model, ii, graphics_x_size, graphics_y_size);
 	 if (shader_for_tmeshes_p) {
+            if (false)
+               std::cout << "DEBUG:: draw_models(): drawing texture mesh model " << ii << " "
+                         << shader_for_tmeshes_p->name << std::endl;
 	    shader_for_tmeshes_p->Use();
-	    model.draw_tmeshes(shader_for_tmeshes_p, mvp, model_rotation, lights, eye_position, bg_col_v4,
-			       do_depth_fog);
+	    model.draw_tmeshes(shader_for_tmeshes_p, mvp, model_rotation, lights, eye_position,
+                               bg_col_v4, do_depth_fog);
          }
 
          // now the coloured vertices mesh (for molecule things, not textured things)
          if (shader_for_meshes_p) {
             float opacity = 1.0f;
-            model.draw_meshes(shader_for_meshes_p, mvp, model_rotation, lights, eye_position, rc, opacity, bg_col_v4, do_depth_fog);
+            model.draw_meshes(shader_for_meshes_p, eye, mvp, model_rotation, lights, eye_position, rc, opacity, bg_col_v4, do_depth_fog);
 	 }
       }
    }
@@ -153,7 +194,8 @@ graphics_info_t::draw_models(Shader *shader_for_tmeshes_p,
 
 // Models with a capital M.
 void
-graphics_info_t::draw_models_with_shadows(Shader *shader_for_tmeshes_with_shadows_p,
+graphics_info_t::draw_models_with_shadows(stereo_eye_t eye,
+					 Shader *shader_for_tmeshes_with_shadows_p,
 					 Shader *shader_for_meshes_with_shadows_p,
 					 int graphics_x_size,
 					 int graphics_y_size,
@@ -162,15 +204,14 @@ graphics_info_t::draw_models_with_shadows(Shader *shader_for_tmeshes_with_shadow
 					 bool show_just_shadows) {
 
    // crow convertion vars
-   auto get_mvp = [] (int x, int y) {
-                     return get_molecule_mvp(); // no args passed.... Hmm.
+   auto get_mvp = [] (stereo_eye_t eye, int x, int y) {
+                     return get_molecule_mvp(eye); // no args passed.... Hmm.
                    };
-
 
    glm::vec3 bg_col = background_colour;
    bool do_depth_fog = shader_do_depth_fog_flag;
 
-   glm::mat4 mvp = get_mvp(graphics_x_size, graphics_y_size);
+   glm::mat4 mvp = get_mvp(eye, graphics_x_size, graphics_y_size);
    // std::cout << "debug:: mvp draw_models_with_shadows() is " << glm::to_string(mvp) << std::endl;
    glm::mat4 model_rotation = get_model_rotation();
    glm::vec4 bg_col_v4(bg_col, 1.0f);
@@ -195,6 +236,9 @@ graphics_info_t::draw_models_with_shadows(Shader *shader_for_tmeshes_with_shadow
 // Models as in the class Model
 void
 graphics_info_t::draw_Models_for_shadow_map(unsigned int light_index) {
+
+   // Shadow maps are rendered from the light's perspective, not stereo
+   stereo_eye_t eye = stereo_eye_t::MONO;
 
    // we need to adjust the view_rotation and hence the mvp so that they match that light's point of view
 
@@ -229,7 +273,7 @@ graphics_info_t::draw_Models_for_shadow_map(unsigned int light_index) {
             std::map<unsigned int, lights_info_t> dummy_lights;
             glm::vec3 dummy_eye_position;
             float opacity = 1.0f;
-            m.draw_mesh(j, &shader_for_meshes_shadow_map, mvp_orthogonal, model_rotation,
+            m.draw_mesh(j, &shader_for_meshes_shadow_map, eye, mvp_orthogonal, model_rotation,
 			dummy_lights, dummy_eye_position, rc, opacity, bg_col_v4, false, false);
 	 }
       }
@@ -238,6 +282,8 @@ graphics_info_t::draw_Models_for_shadow_map(unsigned int light_index) {
 
 void
 graphics_info_t::draw_molecules_for_shadow_map(unsigned int light_index) {
+
+   stereo_eye_t eye = stereo_eye_t::MONO; // pass this
 
    // std::cout << "draw_molecules_for_shadow_map() " << std::endl;
 
@@ -268,7 +314,7 @@ graphics_info_t::draw_molecules_for_shadow_map(unsigned int light_index) {
                bool do_depth_fog = false;
                // draw the surface - not the mesh - not sure if this is a good idea yet.
                m.map_as_mesh.draw(&shader_for_meshes_shadow_map,
-                                  mvp_orthogonal, model_rotation, lights, dummy_eye_position, rc,
+                                  eye, mvp_orthogonal, model_rotation, lights, dummy_eye_position, rc,
                                   opacity, bg_col_v4, gl_lines_mode, do_depth_fog, show_just_shadows);
             }
          }
@@ -294,7 +340,7 @@ graphics_info_t::draw_molecules_for_shadow_map(unsigned int light_index) {
 
                m.model_molecule_meshes.draw(&shader_for_meshes_shadow_map,
                                             &shader_for_instanced_meshes_shadow_map,
-                                            mvp_orthogonal, model_rotation, lights, dummy_eye_position,
+                                            eye, mvp_orthogonal, model_rotation, lights, dummy_eye_position,
                                             opacity, bg_col_v4, gl_lines_mode, do_depth_fog, show_just_shadows);
             }
          }
@@ -303,9 +349,9 @@ graphics_info_t::draw_molecules_for_shadow_map(unsigned int light_index) {
 
    // ribbons
 
-   draw_meshed_generic_display_object_meshes(PASS_TYPE_GEN_SHADOW_MAP); // draws generic objects
+   draw_meshed_generic_display_object_meshes(eye, PASS_TYPE_GEN_SHADOW_MAP); // draws generic objects
 
-   draw_molecules_other_meshes(PASS_TYPE_GEN_SHADOW_MAP); // draws the meshes in a molecules std::vector<Messh> meshes;
+   draw_molecules_other_meshes(eye, PASS_TYPE_GEN_SHADOW_MAP); // draws the meshes in a molecules std::vector<Messh> meshes;
 
    // more stuff needs to be added here - see draw_molecules_for_ssao() (where they haven't been added either)
 }

@@ -82,13 +82,13 @@ void orient_view(int imol,
 
 	    double theta = atan2(a_s_z, a_s_x) * 0.5;
 
-	    if (0) 
-	       std::cout << "theta: " << clipper::Util::rad2d(theta) << " degrees with asx " 
+	    if (false)
+	       std::cout << "theta: " << clipper::Util::rad2d(theta) << " degrees with asx "
 			 << a_s_x << " and asz " << a_s_z << std::endl;
 
 	    rotate_y_scene(100, 0.01 * clipper::Util::rad2d(theta));
 
-				       
+
 	 }
 	 catch (const std::runtime_error &rte) {
 	    std::cout << rte.what() << std::endl;
@@ -275,6 +275,8 @@ void set_model_material_diffuse(int imol, float r, float g, float b, float a) {
       glm::vec4 d(r,g,b,a);
       m.material_for_models.diffuse = d;
       m.model_molecule_meshes.set_material_diffuse(d);
+      for (auto &mesh : m.meshes)
+         mesh.set_material_diffuse(d);
       graphics_draw();
    }
 }
@@ -287,6 +289,8 @@ void set_model_material_ambient(int imol, float r, float g, float b, float a) {
       glm::vec4 ambient(r,g,b,a);
       m.material_for_models.ambient = ambient;
       m.model_molecule_meshes.set_material_ambient(ambient);
+      for (auto &mesh : m.meshes)
+         mesh.set_material_ambient(ambient);
    }
    graphics_draw();
 }
@@ -478,10 +482,27 @@ void set_use_fancy_lighting(short int state) {
 
 //! \brief set bond smoothness (default 1 (not smooth))
 void set_bond_smoothness_factor(unsigned int fac) {
+
    graphics_info_t::bond_smoothness_factor = fac;
 
    // rebonding of the molecules needed here.
    //
+   for (int imol=0; imol<graphics_n_molecules(); imol++) {
+      if (is_valid_model_molecule(imol)) {
+         graphics_info_t::molecules[imol].make_glsl_bonds_type_checked(__FUNCTION__);
+      }
+   }
+   graphics_draw();
+}
+
+void toggle_bond_smoothness_factor() {
+
+   int next = graphics_info_t::bond_smoothness_factor + 1;
+   if (next == 4) next = 1;
+
+   // std::cout << "next: " << next << std::endl;
+   graphics_info_t::bond_smoothness_factor = next;
+
    for (int imol=0; imol<graphics_n_molecules(); imol++) {
       if (is_valid_model_molecule(imol)) {
          graphics_info_t::molecules[imol].make_glsl_bonds_type_checked(__FUNCTION__);
@@ -538,11 +559,27 @@ void read_test_gltf_models() {
 }
 
 //! \brief load a gltf model
-void load_gltf_model(const std::string &gltf_file_name) {
+int load_gltf_model(const std::string &gltf_file_name) {
    graphics_info_t g;
-   g.load_gltf_model(gltf_file_name);
+   int idx = g.load_gltf_model(gltf_file_name);
    g.graphics_draw();
+   return idx;
 }
+
+//! \brief set the model animation parameters
+void set_model_animation_parameters(unsigned int model_index, float amplitude, float wave_numer, float freq) {
+
+   graphics_info_t g;
+   g.set_model_animation_parameters(model_index, amplitude, wave_numer, freq);
+}
+
+//! \brief enable/disable the model animation (on or off)
+void set_model_animation_state(unsigned int model_index, bool state) {
+
+   graphics_info_t g;
+   g.set_model_animation_state(model_index, state);
+}
+
 
 //! \brief load a gltf model
 void scale_model(unsigned int model_index, float scale_factor) {

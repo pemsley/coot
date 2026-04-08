@@ -47,7 +47,8 @@ unsigned int quadVBO;
 
 // static
 void
-graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shader *shader_for_meshes_p,
+graphics_info_t::render_scene_sans_depth_blur(stereo_eye_t eye,
+                                              Shader *shader_for_tmeshes_p, Shader *shader_for_meshes_p,
                                               Shader *shader_for_tmeshes_with_shadows_p,
                                               Shader *shader_for_meshes_with_shadows_p,
                                               int width, int height) {
@@ -150,6 +151,10 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
          // render
          // ------
 
+         // Set viewport for SSAO passes (needed for high-res screendump where the
+         // previous frame's viewport may differ from the current FBO size)
+         glViewport(0, 0, w, h);
+
          // 1. geometry pass: render scene's geometry/color data into gbuffer
          // -----------------------------------------------------------------
          // glBindFramebuffer(GL_FRAMEBUFFER, di.gBufferFBO);
@@ -187,7 +192,7 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
 
          // render_3d_scene_for_ssao(); // 20220130-PE render_3d_scene() was coot before Models/crows
          draw_models_for_ssao();
-         draw_molecules_for_ssao();
+         draw_molecules_for_ssao(eye);
 
          glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -286,8 +291,7 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
             {
 
                // std::cout << "   framebuffer_scale: " << framebuffer_scale << std::endl;
-               // glViewport(0,0, width * framebuffer_scale, height * framebuffer_scale);
-               glViewport(0,0, width, height);
+               glViewport(0,0, width * framebuffer_scale, height * framebuffer_scale);
                di.framebuffer_for_effects.bind();
 
                // are these needed if the background image is drawn?
@@ -300,7 +304,7 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
                   texture_for_background_image.Bind(0);
                   tmesh_for_background_image.draw(&shader_for_background_image, HUDTextureMesh::TOP_LEFT);
                }
-         
+
                glEnable(GL_DEPTH_TEST);
                glDepthFunc(GL_LESS);
                glDisable(GL_BLEND);
@@ -321,14 +325,15 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
                // std::cout << "render_scene_sans_depth_blur() here 5 " << std::endl;
 
                // std::cout << "draw_models_with_shadows() with shader " << shader_for_meshes_with_shadows_p->name << std::endl;
-               di.draw_models_with_shadows(shader_for_tmeshes_with_shadows_p,
+               di.draw_models_with_shadows(eye,
+                                           shader_for_tmeshes_with_shadows_p,
                                            shader_for_meshes_with_shadows_p,
                                            width, height,
                                            draw_shadows,
                                            shadow_strength,
                                            show_just_shadows);
 
-               render_3d_scene_with_shadows(); // no longer does a glClear()
+               render_3d_scene_with_shadows(eye); // no longer does a glClear()
 
             }
 
@@ -360,7 +365,10 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
                shader_for_effects.set_int_for_uniform("screenTexture", 0);
                shader_for_effects.set_int_for_uniform("screenDepth",   1);
                shader_for_effects.set_int_for_uniform("ssao",          2); // sampler2D
-               shader_for_effects.set_int_for_uniform("effects_output_type", effects_shader_output_type);
+               if (graphics_info_t::graphics_is_gl_es)
+                  std::cout << "INFO:: no effects shader in OpenGL-ES mode" << std::endl;
+               else
+                  shader_for_effects.set_int_for_uniform("effects_output_type", effects_shader_output_type);
                shader_for_effects.set_bool_for_uniform("use_ssao", di.use_ssao);
                shader_for_effects.set_bool_for_uniform("show_ssao", di.show_just_ssao);
                shader_for_effects.set_float_for_uniform("ssao_strength", di.ssao_strength);
@@ -380,13 +388,13 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
                // std::cout << "DEBUG:: render_scene_sans_depth_blur() -- done -- " << std::endl;
             }
 
-            di.draw_particles();
+            di.draw_particles(eye);
 
             // 20220504-PE Either way round there is text texture masking problems over angry diego.
             //             Is the atom label shader not discarding the pixels correctly?
-            draw_bad_nbc_atom_pair_markers(PASS_TYPE_STANDARD);
-            draw_molecules_atom_labels();
-            draw_rotation_centre_crosshairs(GTK_GL_AREA(gl_area), PASS_TYPE_STANDARD);
+            draw_bad_nbc_atom_pair_markers(eye, PASS_TYPE_STANDARD);
+            draw_molecules_atom_labels(eye);
+            draw_rotation_centre_crosshairs(eye, GTK_GL_AREA(gl_area), PASS_TYPE_STANDARD);
             if (show_fps_flag)
                draw_hud_fps();
 
@@ -396,7 +404,8 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
 }
 
 void
-graphics_info_t::render_scene_with_depth_blur(Shader *shader_for_tmeshes_p, Shader *shader_for_meshes_p,
+graphics_info_t::render_scene_with_depth_blur(stereo_eye_t eye,
+                                              Shader *shader_for_tmeshes_p, Shader *shader_for_meshes_p,
                                               Shader *shader_for_tmeshes_with_shadows_p,
                                               Shader *shader_for_meshes_with_shadows_p,
                                               int width, int height) {
@@ -489,6 +498,10 @@ graphics_info_t::render_scene_with_depth_blur(Shader *shader_for_tmeshes_p, Shad
          // render
          // ------
 
+         // Set viewport for SSAO passes (needed for high-res screendump where the
+         // previous frame's viewport may differ from the current FBO size)
+         glViewport(0, 0, w, h);
+
          // 1. geometry pass: render scene's geometry/color data into gbuffer
          // -----------------------------------------------------------------
          // glBindFramebuffer(GL_FRAMEBUFFER, di.gBufferFBO);
@@ -525,7 +538,7 @@ graphics_info_t::render_scene_with_depth_blur(Shader *shader_for_tmeshes_p, Shad
 
          // render_3d_scene_for_ssao(); // 20220130-PE render_3d_scene() was coot before Models/crows
          draw_models_for_ssao();
-         draw_molecules_for_ssao();
+         draw_molecules_for_ssao(eye);
 
          glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -631,13 +644,14 @@ graphics_info_t::render_scene_with_depth_blur(Shader *shader_for_tmeshes_p, Shad
                // I will write a shader for the meshes (shader_for_meshes_with_shadows_p)
                // that doesn't draw shadows.
 
-               di.draw_models_with_shadows(shader_for_tmeshes_with_shadows_p,
+               di.draw_models_with_shadows(eye,
+                                           shader_for_tmeshes_with_shadows_p,
                                            shader_for_meshes_with_shadows_p,
                                            width, height,
                                            draw_shadows,
                                            shadow_strength,
                                            show_just_shadows);
-               render_3d_scene_with_shadows(); // no longer does a glClear()
+               render_3d_scene_with_shadows(eye); // no longer does a glClear()
             }
 
 
@@ -686,11 +700,11 @@ graphics_info_t::render_scene_with_depth_blur(Shader *shader_for_tmeshes_p, Shad
                // std::cout << "DEBUG:: render_scene_sans_depth_blur() -- done -- " << std::endl;
             }
 
-            di.draw_particles();
+            di.draw_particles(eye);
 
-            draw_bad_nbc_atom_pair_markers(PASS_TYPE_STANDARD);
-            draw_molecules_atom_labels();
-            draw_rotation_centre_crosshairs(GTK_GL_AREA(gl_area), PASS_TYPE_STANDARD);
+            draw_bad_nbc_atom_pair_markers(eye, PASS_TYPE_STANDARD);
+            draw_molecules_atom_labels(eye);
+            draw_rotation_centre_crosshairs(eye, GTK_GL_AREA(gl_area), PASS_TYPE_STANDARD);
 
             blur_x_framebuffer.bind();
             render_scene_with_y_blur();
@@ -698,7 +712,7 @@ graphics_info_t::render_scene_with_depth_blur(Shader *shader_for_tmeshes_p, Shad
             combine_textures_using_depth_framebuffer.bind();
             render_scene_with_x_blur();
 
-            gtk_gl_area_attach_buffers(GTK_GL_AREA(gl_area));
+            di.attach_buffers(); // use attach_buffers() so screendump redirect works
 
             render_scene_with_texture_combination_for_depth_blur();
 
@@ -713,18 +727,39 @@ graphics_info_t::render_scene_with_depth_blur(Shader *shader_for_tmeshes_p, Shad
 
 
 
-
 // needs args bool to_screendump_framebuffer_flag, const std::string &output_file_name
 gboolean
 graphics_info_t::render_scene() {
 
+   bool do_mono = true;
+   if (display_mode == coot::SIDE_BY_SIDE_STEREO)          do_mono = false;
+   if (display_mode == coot::SIDE_BY_SIDE_STEREO_WALL_EYE) do_mono = false;
+
+   if (do_mono) {
+      return render_scene_for_eye_internal(stereo_eye_t::MONO);
+   } else {
+      bool ss = render_scene_for_eye_internal(stereo_eye_t::LEFT_EYE);
+      bool st = render_scene_for_eye_internal(stereo_eye_t::RIGHT_EYE);
+      return ss;
+   }
+}
+
+
+// needs args bool to_screendump_framebuffer_flag, const std::string &output_file_name
+gboolean
+graphics_info_t::render_scene_for_eye_internal(stereo_eye_t eye) {
+
    // make this a member data
    // bool draw_background_image = true;
 
-   auto render_scene_basic = [] () {
+   auto render_scene_basic = [] (stereo_eye_t eye) {
 
       // std::cout << "--- render_scene_basic() ---------------------------------------- " << std::endl;
       // auto tp_0 = std::chrono::high_resolution_clock::now();
+
+      GLenum err = glGetError();
+      if (err)
+         std::cout << "GL ERROR:: render_scene_basic() --- start --- " << err << std::endl;
 
       GtkAllocation allocation;
       auto gl_area = graphics_info_t::glareas[0];
@@ -738,14 +773,71 @@ graphics_info_t::render_scene() {
 #ifdef __APPLE__
       sf = 2;
 #endif
-      // we always want this viewport to be the size of the widget (in the case of APPLE, theree
+      // we always want this viewport to be the size of the widget (in the case of APPLE, there
       // is the double resolution issue to handle)
-      glViewport(0, 0, width * sf, height * sf);
+
+      // When screendumping, use the screendump FBO dimensions for viewport
+      if (screendump_target_framebuffer != 0) {
+         width = graphics_x_size;
+         height = graphics_y_size;
+         sf = 1; // graphics_x_size already includes scaling
+      }
+
+      if (scale_up_graphics != 1) {
+         width  *= scale_up_graphics;
+         height *= scale_up_graphics;
+      }
+      if (scale_down_graphics != 1) {
+         width /= scale_down_graphics;
+         height /= scale_down_graphics;
+      }
+      // std::cout << "render_scene_basic() " << width << " " << height << std::endl;
+
+      err = glGetError();
+      if (err)
+         std::cout << "GL ERROR:: render_scene_basic() A " << err << std::endl;
+
       attach_buffers(); // just GTK things
+      err = glGetError();
+      if (err)
+         std::cout << "GL ERROR:: render_scene_basic() B " << err << std::endl;
+
+      int left = 0;
+      int bot = 0;
+      int right = width * sf;
+      int top = height *sf;
+      if (eye == stereo_eye_t::LEFT_EYE) {
+         right /= 2;
+      }
+      if (eye == stereo_eye_t::RIGHT_EYE) {
+         left = right/2;
+      }
+      glViewport(left, bot, right, top);
+      err = glGetError();
+      if (err)
+         std::cout << "GL ERROR:: render_scene_basic() C " << err << std::endl;
+
       glClearColor(background_colour.r, background_colour.g, background_colour.b, 1.0);
-      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+      err = glGetError();
+      if (err)
+         std::cout << "GL ERROR:: render_scene_basic() D " << err << std::endl;
+
+      if (eye != stereo_eye_t::RIGHT_EYE) // drawn second
+         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+      err = glGetError();
+      if (err)
+         std::cout << "GL ERROR:: render_scene_basic() E " << err << std::endl;
+
       glDisable(GL_BLEND);
+      err = glGetError();
+      if (err)
+         std::cout << "GL ERROR:: render_scene_basic() F " << err << std::endl;
+
       glEnable(GL_DEPTH_TEST);
+      err = glGetError();
+      if (err)
+         std::cout << "GL ERROR:: render_scene_basic() G " << err << std::endl;
+
       glDepthFunc(GL_LESS);
 
       if (draw_background_image_flag) {
@@ -753,16 +845,39 @@ graphics_info_t::render_scene() {
          texture_for_background_image.Bind(0);
          tmesh_for_background_image.draw(&shader_for_background_image, HUDTextureMesh::TOP_LEFT);
       }
-      
+
       graphics_info_t g;// needed? Yes.
-      g.draw_models(&shader_for_tmeshes, &shader_for_meshes, nullptr, nullptr, width, height);
-      draw_rotation_centre_crosshairs(GTK_GL_AREA(gl_area), PASS_TYPE_STANDARD);
-      render_3d_scene(GTK_GL_AREA(gl_area));
+      err = glGetError();
+      if (err)
+         std::cout << "GL ERROR:: render_scene_basic() H " << err << std::endl;
+
+      g.draw_models(eye, &shader_for_tmeshes, &shader_for_meshes, nullptr, nullptr, width, height);
+      err = glGetError();
+      if (err)
+         std::cout << "GL ERROR:: render_scene_basic() I " << err << std::endl;
+
+      draw_rotation_centre_crosshairs(eye, GTK_GL_AREA(gl_area), PASS_TYPE_STANDARD);
+      render_3d_scene(GTK_GL_AREA(gl_area), eye);
       // HUD things? Not here?
-      if (show_fps_flag)
+      if (show_fps_flag) {
+         err = glGetError();
+         if (err)
+            std::cout << "GL ERROR:: render_scene_basic() J " << err << std::endl;
          draw_hud_fps();
+      }
    };
 
+   // 20250422-PE - if we switch contexts when rendering the Rama plot, we needd
+   // to switch back. It seems that here is the place to do it (I might be wrong).
+   //
+   GtkWidget *gl_area = glareas[0];
+   gtk_gl_area_make_current(GTK_GL_AREA(gl_area));
+   if (gtk_gl_area_get_error(GTK_GL_AREA(gl_area))) {
+      auto mess = gtk_gl_area_get_error(GTK_GL_AREA(gl_area))->message;
+      std::cout << "ERROR:: graphics_info_t::render_scene(): error making current GL context: "
+                << mess << std::endl;
+   };
+   // it is disasterous to carry on here if we get the above error
 
    // crow variable conversion
    Shader *shader_for_tmeshes_p = &shader_for_texture_meshes;
@@ -774,17 +889,26 @@ graphics_info_t::render_scene() {
 
    bool show_basic_scene_state = (displayed_image_type == SHOW_BASIC_SCENE);
 
+   // std::cout << "render_scene(): show_basic_scene_state " << show_basic_scene_state << std::endl;
+
    if (show_basic_scene_state) {
-      render_scene_basic();
+
+      GLenum err = glGetError();
+      if (err)
+         std::cout << "GL ERROR:: render_scene() basic path " << err << std::endl;
+
+      render_scene_basic(eye);
    } else {
       if (shader_do_depth_of_field_blur_flag || shader_do_outline_flag) {
-         render_scene_with_depth_blur(shader_for_tmeshes_p, // or outline
+         render_scene_with_depth_blur(eye,
+                                      shader_for_tmeshes_p, // or outline
                                       shader_for_meshes_p,
                                       shader_for_tmeshes_with_shadows_p,
                                       shader_for_meshes_with_shadows_p,
                                       graphics_x_size, graphics_y_size);
       } else {
-         render_scene_sans_depth_blur(shader_for_tmeshes_p,
+         render_scene_sans_depth_blur(eye,
+                                      shader_for_tmeshes_p,
                                       shader_for_meshes_p,
                                       shader_for_tmeshes_with_shadows_p,
                                       shader_for_meshes_with_shadows_p,

@@ -1,0 +1,240 @@
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+ILE ILE ISOLEUCINE peptide 22 9 .
+
+data_comp_ILE
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+ILE N N NT3 1 52.911 76.465 68.493
+ILE CA C CH1 0 53.201 77.811 67.902
+ILE C C C 0 51.886 78.441 67.404
+ILE O O O 0 51.005 77.667 66.962
+ILE CB C CH1 0 54.273 77.728 66.792
+ILE CG1 C CH2 0 54.806 79.117 66.415
+ILE CG2 C CH3 0 53.775 76.967 65.560
+ILE CD1 C CH3 0 55.991 79.094 65.464
+ILE OXT O OC -1 51.789 79.686 67.476
+ILE H H H 0 53.671 75.992 68.596
+ILE H2 H H 0 52.344 75.994 67.973
+ILE H3 H H 0 52.530 76.571 69.304
+ILE HA H H 0 53.554 78.378 68.615
+ILE HB H H 0 55.027 77.224 67.158
+ILE HG12 H H 0 55.071 79.584 67.234
+ILE HG13 H H 0 54.084 79.629 65.999
+ILE HG21 H H 0 53.180 76.249 65.830
+ILE HG22 H H 0 54.534 76.591 65.082
+ILE HG23 H H 0 53.296 77.576 64.972
+ILE HD11 H H 0 56.404 78.209 65.466
+ILE HD12 H H 0 56.648 79.757 65.749
+ILE HD13 H H 0 55.687 79.307 64.562
+
+loop_
+_chem_comp_tree.comp_id
+_chem_comp_tree.atom_id
+_chem_comp_tree.atom_back
+_chem_comp_tree.atom_forward
+_chem_comp_tree.connect_type
+ILE N n/a CA START
+ILE H N . .
+ILE H2 N . .
+ILE H3 N . .
+ILE CA N C .
+ILE HA CA . .
+ILE CB CA CG2 .
+ILE HB CB . .
+ILE CG1 CB CD1 .
+ILE HG13 CG1 . .
+ILE HG12 CG1 . .
+ILE CD1 CG1 HD13 .
+ILE HD11 CD1 . .
+ILE HD12 CD1 . .
+ILE HD13 CD1 . .
+ILE CG2 CB HG23 .
+ILE HG21 CG2 . .
+ILE HG22 CG2 . .
+ILE HG23 CG2 . .
+ILE C CA . END
+ILE O C . .
+ILE OXT C . .
+
+loop_
+_chem_comp_acedrg.comp_id
+_chem_comp_acedrg.atom_id
+_chem_comp_acedrg.atom_type
+ILE N N(CCCH)(H)3
+ILE CA C(CCCH)(NH3)(COO)(H)
+ILE C C(CCHN)(O)2
+ILE O O(CCO)
+ILE CB C(CCHH)(CCHN)(CH3)(H)
+ILE CG1 C(CCCH)(CH3)(H)2
+ILE CG2 C(CCCH)(H)3
+ILE CD1 C(CCHH)(H)3
+ILE OXT O(CCO)
+ILE H H(NCHH)
+ILE H2 H(NCHH)
+ILE H3 H(NCHH)
+ILE HA H(CCCN)
+ILE HB H(CC3)
+ILE HG12 H(CCCH)
+ILE HG13 H(CCCH)
+ILE HG21 H(CCHH)
+ILE HG22 H(CCHH)
+ILE HG23 H(CCHH)
+ILE HD11 H(CCHH)
+ILE HD12 H(CCHH)
+ILE HD13 H(CCHH)
+
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+ILE N CA SINGLE n 1.495 0.0100 1.495 0.0100
+ILE CA C SINGLE n 1.538 0.0100 1.538 0.0100
+ILE CA CB SINGLE n 1.540 0.0102 1.540 0.0102
+ILE C O DOUBLE n 1.251 0.0183 1.251 0.0183
+ILE C OXT SINGLE n 1.251 0.0183 1.251 0.0183
+ILE CB CG1 SINGLE n 1.529 0.0200 1.529 0.0200
+ILE CB CG2 SINGLE n 1.529 0.0119 1.529 0.0119
+ILE CG1 CD1 SINGLE n 1.518 0.0129 1.518 0.0129
+ILE N H SINGLE n 1.018 0.0520 0.902 0.0102
+ILE N H2 SINGLE n 1.018 0.0520 0.902 0.0102
+ILE N H3 SINGLE n 1.018 0.0520 0.902 0.0102
+ILE CA HA SINGLE n 1.092 0.0100 0.977 0.0200
+ILE CB HB SINGLE n 1.092 0.0100 0.978 0.0189
+ILE CG1 HG12 SINGLE n 1.092 0.0100 0.979 0.0127
+ILE CG1 HG13 SINGLE n 1.092 0.0100 0.979 0.0127
+ILE CG2 HG21 SINGLE n 1.092 0.0100 0.972 0.0156
+ILE CG2 HG22 SINGLE n 1.092 0.0100 0.972 0.0156
+ILE CG2 HG23 SINGLE n 1.092 0.0100 0.972 0.0156
+ILE CD1 HD11 SINGLE n 1.092 0.0100 0.976 0.0140
+ILE CD1 HD12 SINGLE n 1.092 0.0100 0.976 0.0140
+ILE CD1 HD13 SINGLE n 1.092 0.0100 0.976 0.0140
+
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+ILE CA N H 109.990 2.80
+ILE CA N H2 109.990 2.80
+ILE CA N H3 109.990 2.80
+ILE H N H2 109.032 3.00
+ILE H N H3 109.032 3.00
+ILE H2 N H3 109.032 3.00
+ILE N CA C 108.738 1.50
+ILE N CA CB 110.837 1.50
+ILE N CA HA 108.328 1.50
+ILE C CA CB 111.703 1.50
+ILE C CA HA 108.550 1.50
+ILE CB CA HA 108.373 1.50
+ILE CA C O 117.155 1.50
+ILE CA C OXT 117.155 1.50
+ILE O C OXT 125.690 1.50
+ILE CA CB CG1 111.638 1.50
+ILE CA CB CG2 110.951 1.50
+ILE CA CB HB 107.422 1.50
+ILE CG1 CB CG2 111.728 1.50
+ILE CG1 CB HB 107.389 1.50
+ILE CG2 CB HB 107.597 1.50
+ILE CB CG1 CD1 114.066 1.50
+ILE CB CG1 HG12 108.686 1.50
+ILE CB CG1 HG13 108.686 1.50
+ILE CD1 CG1 HG12 108.722 1.50
+ILE CD1 CG1 HG13 108.722 1.50
+ILE HG12 CG1 HG13 107.774 1.50
+ILE CB CG2 HG21 109.633 1.50
+ILE CB CG2 HG22 109.633 1.50
+ILE CB CG2 HG23 109.633 1.50
+ILE HG21 CG2 HG22 109.390 1.50
+ILE HG21 CG2 HG23 109.390 1.50
+ILE HG22 CG2 HG23 109.390 1.50
+ILE CG1 CD1 HD11 109.644 2.81
+ILE CG1 CD1 HD12 109.644 2.81
+ILE CG1 CD1 HD13 109.644 2.81
+ILE HD11 CD1 HD12 109.381 1.50
+ILE HD11 CD1 HD13 109.381 1.50
+ILE HD12 CD1 HD13 109.381 1.50
+
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+ILE chi1 N CA CB CG2 -60.000 10.0 3
+ILE chi2 CA CB CG1 CD1 180.000 10.0 3
+ILE hh1 CA CB CG2 HG23 -60.000 10.0 3
+ILE hh2 CB CG1 CD1 HD13 60.000 10.0 3
+ILE sp3_sp3_1 C CA N H 180.000 10.0 3
+ILE sp2_sp3_1 O C CA N 0.000 10.0 6
+
+loop_
+_chem_comp_chir.comp_id
+_chem_comp_chir.id
+_chem_comp_chir.atom_id_centre
+_chem_comp_chir.atom_id_1
+_chem_comp_chir.atom_id_2
+_chem_comp_chir.atom_id_3
+_chem_comp_chir.volume_sign
+ILE chir_1 CA N C CB positive
+ILE chir_2 CB CA CG1 CG2 positive
+
+loop_
+_chem_comp_plane_atom.comp_id
+_chem_comp_plane_atom.plane_id
+_chem_comp_plane_atom.atom_id
+_chem_comp_plane_atom.dist_esd
+ILE plan-1 C 0.020
+ILE plan-1 CA 0.020
+ILE plan-1 O 0.020
+ILE plan-1 OXT 0.020
+
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+ILE SMILES ACDLabs 10.04 O=C(O)C(N)C(C)CC
+ILE SMILES_CANONICAL CACTVS 3.341 CC[C@H](C)[C@H](N)C(O)=O
+ILE SMILES CACTVS 3.341 CC[CH](C)[CH](N)C(O)=O
+ILE SMILES_CANONICAL "OpenEye OEToolkits" 1.5.0 CC[C@H](C)[C@@H](C(=O)O)N
+ILE SMILES "OpenEye OEToolkits" 1.5.0 CCC(C)C(C(=O)O)N
+ILE InChI InChI 1.03 InChI=1S/C6H13NO2/c1-3-4(2)5(7)6(8)9/h4-5H,3,7H2,1-2H3,(H,8,9)/t4-,5-/m0/s1
+ILE InChIKey InChI 1.03 AGPKZVBTJJNPAG-WHFBIAKZSA-N
+
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+ILE acedrg 278 "dictionary generator"
+ILE acedrg_database 12 "data source"
+ILE rdkit 2019.09.1 "Chemoinformatics tool"
+ILE refmac5 5.8.0419 "optimization tool"

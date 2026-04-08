@@ -1,0 +1,301 @@
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+TRP TRP TRYPTOPHAN peptide 27 15 .
+
+data_comp_TRP
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+TRP N N NT3 1 75.046 60.221 32.550
+TRP CA C CH1 0 74.659 61.570 32.056
+TRP C C C 0 73.758 61.438 30.822
+TRP O O O 0 72.787 62.222 30.736
+TRP CB C CH2 0 75.903 62.411 31.737
+TRP CG C CR5 0 76.760 62.727 32.935
+TRP CD1 C CR15 0 77.836 62.019 33.383
+TRP CD2 C CR56 0 76.605 63.839 33.843
+TRP NE1 N NR15 0 78.364 62.608 34.501
+TRP CE2 C CR56 0 77.632 63.725 34.809
+TRP CE3 C CR16 0 75.707 64.913 33.936
+TRP CZ2 C CR16 0 77.780 64.645 35.849
+TRP CZ3 C CR16 0 75.854 65.821 34.965
+TRP CH2 C CR16 0 76.878 65.687 35.909
+TRP OXT O OC -1 74.059 60.555 29.988
+TRP H H H 0 75.680 59.865 32.016
+TRP H2 H H 0 74.332 59.671 32.560
+TRP H3 H H 0 75.369 60.277 33.391
+TRP HA H H 0 74.147 62.030 32.775
+TRP HB3 H H 0 75.613 63.253 31.325
+TRP HB2 H H 0 76.446 61.928 31.078
+TRP HD1 H H 0 78.177 61.234 32.984
+TRP HE1 H H 0 79.056 62.317 34.946
+TRP HE3 H H 0 75.014 65.011 33.305
+TRP HZ2 H H 0 78.468 64.556 36.485
+TRP HZ3 H H 0 75.254 66.545 35.034
+TRP HH2 H H 0 76.954 66.321 36.599
+
+loop_
+_chem_comp_tree.comp_id
+_chem_comp_tree.atom_id
+_chem_comp_tree.atom_back
+_chem_comp_tree.atom_forward
+_chem_comp_tree.connect_type
+TRP N n/a CA START
+TRP H N . .
+TRP H2 N . .
+TRP H3 N . .
+TRP CA N C .
+TRP HA CA . .
+TRP CB CA CG .
+TRP HB3 CB . .
+TRP HB2 CB . .
+TRP CG CB CD1 .
+TRP CD1 CG NE1 .
+TRP HD1 CD1 . .
+TRP NE1 CD1 CE2 .
+TRP HE1 NE1 . .
+TRP CE2 NE1 CD2 .
+TRP CD2 CE2 CE3 .
+TRP CE3 CD2 CZ3 .
+TRP HE3 CE3 . .
+TRP CZ3 CE3 CH2 .
+TRP HZ3 CZ3 . .
+TRP CH2 CZ3 CZ2 .
+TRP HH2 CH2 . .
+TRP CZ2 CH2 HZ2 .
+TRP HZ2 CZ2 . .
+TRP C CA . END
+TRP O C . .
+TRP OXT C . .
+TRP CD2 CG . ADD
+
+loop_
+_chem_comp_acedrg.comp_id
+_chem_comp_acedrg.atom_id
+_chem_comp_acedrg.atom_type
+TRP N N(CCCH)(H)3
+TRP CA C(CC[5a]HH)(NH3)(COO)(H)
+TRP C C(CCHN)(O)2
+TRP O O(CCO)
+TRP CB C(C[5a]C[5a,6a]C[5a])(CCHN)(H)2
+TRP CG C[5a](C[5a,6a]C[5a,6a]C[6a])(C[5a]N[5a]H)(CCHH){2|C<3>,2|H<1>}
+TRP CD1 C[5a](C[5a]C[5a,6a]C)(N[5a]C[5a,6a]H)(H){2|C<3>}
+TRP CD2 C[5a,6a](C[5a,6a]C[6a]N[5a])(C[5a]C[5a]C)(C[6a]C[6a]H){1|C<3>,4|H<1>}
+TRP NE1 N[5a](C[5a,6a]C[5a,6a]C[6a])(C[5a]C[5a]H)(H){1|C<4>,1|H<1>,2|C<3>}
+TRP CE2 C[5a,6a](C[5a,6a]C[5a]C[6a])(C[6a]C[6a]H)(N[5a]C[5a]H){1|C<3>,1|C<4>,3|H<1>}
+TRP CE3 C[6a](C[5a,6a]C[5a,6a]C[5a])(C[6a]C[6a]H)(H){1|C<4>,1|H<1>,1|N<3>,2|C<3>}
+TRP CZ2 C[6a](C[5a,6a]C[5a,6a]N[5a])(C[6a]C[6a]H)(H){2|H<1>,3|C<3>}
+TRP CZ3 C[6a](C[6a]C[5a,6a]H)(C[6a]C[6a]H)(H){1|H<1>,2|C<3>}
+TRP CH2 C[6a](C[6a]C[5a,6a]H)(C[6a]C[6a]H)(H){1|C<3>,1|H<1>,1|N<3>}
+TRP OXT O(CCO)
+TRP H H(NCHH)
+TRP H2 H(NCHH)
+TRP H3 H(NCHH)
+TRP HA H(CCCN)
+TRP HB3 H(CC[5a]CH)
+TRP HB2 H(CC[5a]CH)
+TRP HD1 H(C[5a]C[5a]N[5a])
+TRP HE1 H(N[5a]C[5a,6a]C[5a])
+TRP HE3 H(C[6a]C[5a,6a]C[6a])
+TRP HZ2 H(C[6a]C[5a,6a]C[6a])
+TRP HZ3 H(C[6a]C[6a]2)
+TRP HH2 H(C[6a]C[6a]2)
+
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+TRP N CA SINGLE n 1.486 0.0100 1.486 0.0100
+TRP CA C SINGLE n 1.532 0.0129 1.532 0.0129
+TRP CA CB SINGLE n 1.535 0.0100 1.535 0.0100
+TRP C O DOUBLE n 1.251 0.0183 1.251 0.0183
+TRP C OXT SINGLE n 1.251 0.0183 1.251 0.0183
+TRP CB CG SINGLE n 1.506 0.0100 1.506 0.0100
+TRP CG CD1 DOUBLE y 1.364 0.0100 1.364 0.0100
+TRP CG CD2 SINGLE y 1.445 0.0100 1.445 0.0100
+TRP CD1 NE1 SINGLE y 1.369 0.0100 1.369 0.0100
+TRP CD2 CE2 DOUBLE y 1.412 0.0100 1.412 0.0100
+TRP CD2 CE3 SINGLE y 1.399 0.0100 1.399 0.0100
+TRP NE1 CE2 SINGLE y 1.370 0.0100 1.370 0.0100
+TRP CE2 CZ2 SINGLE y 1.393 0.0100 1.393 0.0100
+TRP CE3 CZ3 DOUBLE y 1.377 0.0100 1.377 0.0100
+TRP CZ2 CH2 DOUBLE y 1.376 0.0101 1.376 0.0101
+TRP CZ3 CH2 SINGLE y 1.394 0.0120 1.394 0.0120
+TRP N H SINGLE n 1.018 0.0520 0.902 0.0102
+TRP N H2 SINGLE n 1.018 0.0520 0.902 0.0102
+TRP N H3 SINGLE n 1.018 0.0520 0.902 0.0102
+TRP CA HA SINGLE n 1.092 0.0100 0.995 0.0200
+TRP CB HB3 SINGLE n 1.092 0.0100 0.981 0.0100
+TRP CB HB2 SINGLE n 1.092 0.0100 0.981 0.0100
+TRP CD1 HD1 SINGLE n 1.085 0.0150 0.944 0.0195
+TRP NE1 HE1 SINGLE n 1.013 0.0120 0.873 0.0200
+TRP CE3 HE3 SINGLE n 1.085 0.0150 0.942 0.0199
+TRP CZ2 HZ2 SINGLE n 1.085 0.0150 0.942 0.0181
+TRP CZ3 HZ3 SINGLE n 1.085 0.0150 0.943 0.0167
+TRP CH2 HH2 SINGLE n 1.085 0.0150 0.941 0.0176
+
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+TRP CA N H 109.786 3.00
+TRP CA N H2 109.786 3.00
+TRP CA N H3 109.786 3.00
+TRP H N H2 109.032 3.00
+TRP H N H3 109.032 3.00
+TRP H2 N H3 109.032 3.00
+TRP N CA C 109.790 1.50
+TRP N CA CB 110.346 1.50
+TRP N CA HA 108.404 1.50
+TRP C CA CB 111.156 1.50
+TRP C CA HA 108.682 1.50
+TRP CB CA HA 108.429 1.50
+TRP CA C O 117.155 2.01
+TRP CA C OXT 117.155 2.01
+TRP O C OXT 125.691 1.50
+TRP CA CB CG 113.870 1.50
+TRP CA CB HB3 108.522 1.50
+TRP CA CB HB2 108.522 1.50
+TRP CG CB HB3 108.877 1.50
+TRP CG CB HB2 108.877 1.50
+TRP HB3 CB HB2 107.959 3.00
+TRP CB CG CD1 126.940 2.13
+TRP CB CG CD2 126.837 1.66
+TRP CD1 CG CD2 106.223 1.50
+TRP CG CD1 NE1 110.303 1.50
+TRP CG CD1 HD1 125.325 2.99
+TRP NE1 CD1 HD1 124.372 1.81
+TRP CG CD2 CE2 106.978 1.50
+TRP CG CD2 CE3 134.327 1.50
+TRP CE2 CD2 CE3 118.695 1.50
+TRP CD1 NE1 CE2 109.057 1.50
+TRP CD1 NE1 HE1 125.366 3.00
+TRP CE2 NE1 HE1 125.577 3.00
+TRP CD2 CE2 NE1 107.438 1.50
+TRP CD2 CE2 CZ2 122.273 1.50
+TRP NE1 CE2 CZ2 130.289 1.50
+TRP CD2 CE3 CZ3 118.811 1.50
+TRP CD2 CE3 HE3 120.479 1.50
+TRP CZ3 CE3 HE3 120.709 1.50
+TRP CE2 CZ2 CH2 117.418 1.50
+TRP CE2 CZ2 HZ2 121.196 1.50
+TRP CH2 CZ2 HZ2 121.386 1.50
+TRP CE3 CZ3 CH2 121.228 1.50
+TRP CE3 CZ3 HZ3 119.424 1.50
+TRP CH2 CZ3 HZ3 119.348 1.50
+TRP CZ2 CH2 CZ3 121.574 1.50
+TRP CZ2 CH2 HH2 119.154 1.50
+TRP CZ3 CH2 HH2 119.272 1.50
+
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+TRP chi1 N CA CB CG -60.000 10.0 3
+TRP chi2 CA CB CG CD1 90.000 10.0 6
+TRP CONST_1 CB CG CD1 NE1 0.000 0.0 1
+TRP CONST_2 CG CD1 NE1 CE2 0.000 0.0 1
+TRP CONST_3 NE1 CE2 CD2 CE3 0.000 0.0 1
+TRP CONST_4 CE2 CD2 CE3 CZ3 0.000 0.0 1
+TRP CONST_5 CD1 NE1 CE2 CD2 0.000 0.0 1
+TRP CONST_6 CD2 CE3 CZ3 CH2 0.000 0.0 1
+TRP CONST_7 CZ3 CH2 CZ2 CE2 0.000 0.0 1
+TRP CONST_8 CE3 CZ3 CH2 CZ2 0.000 0.0 1
+TRP sp3_sp3_1 C CA N H 180.000 10.0 3
+TRP const_33 CE2 CD2 CG CD1 0.000 0.0 1
+TRP const_17 CD2 CE2 CZ2 CH2 0.000 0.0 1
+TRP sp2_sp3_1 O C CA N 0.000 10.0 6
+
+loop_
+_chem_comp_chir.comp_id
+_chem_comp_chir.id
+_chem_comp_chir.atom_id_centre
+_chem_comp_chir.atom_id_1
+_chem_comp_chir.atom_id_2
+_chem_comp_chir.atom_id_3
+_chem_comp_chir.volume_sign
+TRP chir_1 CA N C CB positive
+
+loop_
+_chem_comp_plane_atom.comp_id
+_chem_comp_plane_atom.plane_id
+_chem_comp_plane_atom.atom_id
+_chem_comp_plane_atom.dist_esd
+TRP plan-1 CD2 0.020
+TRP plan-1 CE2 0.020
+TRP plan-1 CE3 0.020
+TRP plan-1 CG 0.020
+TRP plan-1 CH2 0.020
+TRP plan-1 CZ2 0.020
+TRP plan-1 CZ3 0.020
+TRP plan-1 HE3 0.020
+TRP plan-1 HH2 0.020
+TRP plan-1 HZ2 0.020
+TRP plan-1 HZ3 0.020
+TRP plan-1 NE1 0.020
+TRP plan-2 CB 0.020
+TRP plan-2 CD1 0.020
+TRP plan-2 CD2 0.020
+TRP plan-2 CE2 0.020
+TRP plan-2 CE3 0.020
+TRP plan-2 CG 0.020
+TRP plan-2 CZ2 0.020
+TRP plan-2 HD1 0.020
+TRP plan-2 HE1 0.020
+TRP plan-2 NE1 0.020
+TRP plan-3 C 0.020
+TRP plan-3 CA 0.020
+TRP plan-3 O 0.020
+TRP plan-3 OXT 0.020
+
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+TRP SMILES ACDLabs 10.04 "O=C(O)C(N)Cc2c1ccccc1nc2"
+TRP SMILES_CANONICAL CACTVS 3.341 "N[C@@H](Cc1c[nH]c2ccccc12)C(O)=O"
+TRP SMILES CACTVS 3.341 "N[CH](Cc1c[nH]c2ccccc12)C(O)=O"
+TRP SMILES_CANONICAL "OpenEye OEToolkits" 1.5.0 "c1ccc2c(c1)c(c[nH]2)C[C@@H](C(=O)O)N"
+TRP SMILES "OpenEye OEToolkits" 1.5.0 "c1ccc2c(c1)c(c[nH]2)CC(C(=O)O)N"
+TRP InChI InChI 1.03 "InChI=1S/C11H12N2O2/c12-9(11(14)15)5-7-6-13-10-4-2-1-3-8(7)10/h1-4,6,9,13H,5,12H2,(H,14,15)/t9-/m0/s1"
+TRP InChIKey InChI 1.03 QIVBCDIJIAJPQS-VIFPVBQESA-N
+
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+TRP acedrg 278 "dictionary generator"
+TRP acedrg_database 12 "data source"
+TRP rdkit 2019.09.1 "Chemoinformatics tool"
+TRP refmac5 5.8.0419 "optimization tool"

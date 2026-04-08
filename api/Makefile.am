@@ -48,7 +48,10 @@ phi-psi-prob.hh          saved-strand-info.hh       simple-molecule.hh          
 generic-3d-lines.hh      cell.hh                    coot-simple-molecule.hh                \
 api-cell.hh              bond-colour.hh             make-instanced-graphical-bonds.hh      \
 symmetry-info.hh         instancing.hh              merge-molecule-results-info-t.hh       \
-coot-molecule-bonds.hh   clipper-ccp4-map-file-wrapper.hh blender-mesh.hh plain-atom-overlap.hh
+coot-molecule-bonds.hh   clipper-ccp4-map-file-wrapper.hh blender-mesh.hh                  \
+ncs-ghosts.hh            moved-atom.hh              moved-residue.hh \
+filo-tests.hh            plain-atom-overlap.hh      test-molecules-container.hh \
+lucrezia-tests.hh        user-defined-colour-table.hh positioned-atom-spec.hh
 
 lib_LTLIBRARIES=libcoot-api.la
 
@@ -59,11 +62,13 @@ coot-molecule-bonds.cc	     coot-molecule-validation.cc                      mol
 molecules-container.cc       make-a-dodec.cc	                              molecules-container-ligand-fitting.cc \
 phi-psi-prob.cc              coot-molecule-moltris.cc                         coot-molecule-replace-fragment.cc \
 coot-molecule-backup.cc      coot-molecule-bonds-instanced.cc                 molecules-container-mmrrcc.cc \
-molecules-container-gltf.cc \
+molecules-container-gltf.cc  mmcif-tests.cc                                   ncs-ghosts.cc \
 coot-molecule-refine.cc      molecules-container-superpose.cc                 rigid-body-fit.cc \
 moorhen-h-bonds.cc           molecules-container-bucca-ml-growing.cc          instancing.cc  \
 molecules-container-maps.cc  coot-molecule-change-chain-id.cc                 coot-molecule-modelling.cc \
-blender-mesh.cc              coot-molecule-blender.cc                         molecules-container-blender.cc
+blender-mesh.cc              coot-molecule-blender.cc                         molecules-container-blender.cc \
+ghost-molecule-display.cc    model-analysis.cc                                coot-molecule-json.cc \
+molecules-container-pyrogen.cc                                                molecules-container-molecular-placement.cc
 
 libcoot_api_la_LDFLAGS = $(SHARED_LDFLAGS)            \
    $(top_builddir)/MoleculesToTriangles/CXXClasses/libMoleculesToTrianglesCXXClasses.la \
@@ -72,6 +77,7 @@ libcoot_api_la_LDFLAGS = $(SHARED_LDFLAGS)            \
    $(top_builddir)/pli/libcoot-pli.la                 \
    $(top_builddir)/ideal/libcoot-ideal.la             \
    $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
+   $(top_builddir)/pyrogen/libcoot_py_restraints.la   \
    $(top_builddir)/cootaneer/libcootaneer.la          \
    $(top_builddir)/db-main/libcoot-db-main.la         \
    $(top_builddir)/ccp4mg-utils/libccp4mg-utils.la    \
@@ -94,6 +100,7 @@ test_molecules_container_SOURCES = test-molecules-container.cc filo-tests.cc luc
 test_molecules_container_LDFLAGS = ./libcoot-api.la \
    $(top_builddir)/MoleculesToTriangles/CXXClasses/libMoleculesToTrianglesCXXClasses.la \
    $(top_builddir)/MoleculesToTriangles/CXXSurface/libMoleculesToTrianglesCXXSurface.la \
+   $(top_builddir)/pyrogen/libcoot_py_restraints.la    \
    $(top_builddir)/ligand/libcoot-ligand.la           \
    $(top_builddir)/ideal/libcoot-ideal.la             \
    $(top_builddir)/pli/libcoot-pli.la                 \
@@ -106,21 +113,4 @@ test_molecules_container_LDFLAGS = ./libcoot-api.la \
    $(top_builddir)/utils/libcoot-utils.la            \
    $(CLIPPER_LIBS) $(GEMMI_LIBS) $(MMDB_LIBS) $(RDKIT_LIBS)
 
-# ---------- pythonic ------------------
-
-EXTRA_DIST = coot-headless-api.i
-
-dist_python_PYTHON = coot_headless_api.py
-
-pyexec_LTLIBRARIES = _coot_headless_api.la
-
-wrap-coot-api.cc: coot-headless-api.i molecules-container.hh
-	swig -o $@ -python -c++ $<
-
-_coot_headless_api_la_SOURCES = wrap-coot-api.cc molecules-container-swig.cc
-
-_coot_headless_api_la_CXXFLAGS = -DUSE_PYTHON -DSWIG
-
-_coot_headless_api_la_LIBADD = libcoot-api.la
-
-_coot_headless_api_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined
+# 2025-07-03-PE swig stuff was here.

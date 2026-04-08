@@ -1,0 +1,104 @@
+#
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+ACT     ACT      "ACETATE ION"     NON-POLYMER     7     4     .     
+#
+data_comp_ACT
+#
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+ACT     C       C       C       0       50.652      -7.080      41.537      
+ACT     O       O       O       0       50.915      -7.323      42.732      
+ACT     OXT     O       OC      -1      51.516      -6.945      40.648      
+ACT     CH3     C       CH3     0       49.181      -6.939      41.139      
+ACT     H1      H       H       0       49.117      -6.760      40.187      
+ACT     H2      H       H       0       48.780      -6.205      41.632      
+ACT     H3      H       H       0       48.708      -7.761      41.345      
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+ACT           C           O      DOUBLE       n     1.247  0.0187     1.247  0.0187
+ACT           C         OXT      SINGLE       n     1.247  0.0187     1.247  0.0187
+ACT           C         CH3      SINGLE       n     1.530  0.0200     1.530  0.0200
+ACT         CH3          H1      SINGLE       n     1.089  0.0100     0.971  0.0140
+ACT         CH3          H2      SINGLE       n     1.089  0.0100     0.971  0.0140
+ACT         CH3          H3      SINGLE       n     1.089  0.0100     0.971  0.0140
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+ACT           O           C         OXT     123.884    1.50
+ACT           O           C         CH3     118.052    1.94
+ACT         OXT           C         CH3     118.052    1.94
+ACT           C         CH3          H1     109.670    1.50
+ACT           C         CH3          H2     109.670    1.50
+ACT           C         CH3          H3     109.670    1.50
+ACT          H1         CH3          H2     109.424    1.50
+ACT          H1         CH3          H3     109.424    1.50
+ACT          H2         CH3          H3     109.424    1.50
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+ACT             sp2_sp3_1           O           C         CH3          H1       0.000    10.0     6
+loop_
+_chem_comp_plane_atom.comp_id
+_chem_comp_plane_atom.plane_id
+_chem_comp_plane_atom.atom_id
+_chem_comp_plane_atom.dist_esd
+ACT    plan-1           C   0.020
+ACT    plan-1         CH3   0.020
+ACT    plan-1           O   0.020
+ACT    plan-1         OXT   0.020
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+ACT           SMILES              ACDLabs 10.04                              "[O-]C(=O)C"
+ACT SMILES_CANONICAL               CACTVS 3.341                                CC([O-])=O
+ACT           SMILES               CACTVS 3.341                                CC([O-])=O
+ACT SMILES_CANONICAL "OpenEye OEToolkits" 1.5.0                                CC(=O)[O-]
+ACT           SMILES "OpenEye OEToolkits" 1.5.0                                CC(=O)[O-]
+ACT            InChI                InChI  1.03 InChI=1S/C2H4O2/c1-2(3)4/h1H3,(H,3,4)/p-1
+ACT         InChIKey                InChI  1.03               QTBSBXVTEAMEQO-UHFFFAOYSA-M
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+ACT acedrg               243         "dictionary generator"                  
+ACT acedrg_database      11          "data source"                           
+ACT rdkit                2017.03.2   "Chemoinformatics tool"
+ACT refmac5              5.8.0238    "optimization tool"                     

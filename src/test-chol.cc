@@ -25,7 +25,7 @@
  */
 
 #include <iostream>
-#include "gl-matrix.h"
+#include "coot-utils/gl-matrix.h"
 
 int main (int argc, char **argv) {
 

@@ -150,7 +150,7 @@ molecule_class_info_t::apply_pir_alignment(const std::string &chain_id) {
 
 	    // so now we have the alignment and the chain to which it should be applied
 
-	    make_backup();
+	    make_backup(__FUNCTION__);
 	    int bs = backups_state();
 	    turn_off_backup();
 

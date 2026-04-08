@@ -62,6 +62,9 @@
 #include <mmdb2/mmdb_math_align.h>
 #include <mmdb2/mmdb_tables.h>
 
+#include "utils/logging.hh"
+extern logging logger;
+
 int
 molecule_class_info_t::mutate(int resno, const std::string &insertion_code,
 			      const std::string &chain_id,
@@ -103,23 +106,44 @@ molecule_class_info_t::mutate(int resno, const std::string &insertion_code,
 // this is the interface from the GUI.
 int
 molecule_class_info_t::mutate(int atom_index, const std::string &residue_type,
-			      short int do_stub_flag) {
+			      short int make_stub_flag) {
 
-   mmdb::Residue *res = atom_sel.atom_selection[atom_index]->residue;
-   int r = mutate(res, residue_type);
+   int r = -1;
 
-   if (atom_sel.mol) {
+   if (false) {
+      // 20260119-PE this function is crashing. What's happend to the molecule?
+      //
+      // the problem was mixing old thinking about transfer of atom and residue info
+      // into the new thinking.
+      std::cout << "::::::::::::::: atom_index " << atom_index << std::endl;
+      for (int iat=0; iat<atom_sel.n_selected_atoms; iat++) {
+         mmdb::Atom *at = atom_sel.atom_selection[iat];
+         std::cout << "atom " << at->residue->GetSeqNum() << " " << at->GetAtomName() << std::endl;
+      }
+   }
 
-      if (do_stub_flag) {
-	 int resno = res->GetSeqNum();
-	 std::string chain_id(res->GetChainID());
-	 std::string inscode(res->GetInsCode());
-     // BL says:: we made a new CB with a new B-factor
-     // we should either not delete it (pass do stub_flag) or
-     // save the b_factor and apply again. Not sure whats preferred,
-     // so leave it for now (shouldnt do stubbing anyway...?!)
-     // FIXME
-	 delete_residue_sidechain(chain_id, resno, inscode);
+   if (atom_index < 0) return r;
+
+   if (atom_index < atom_sel.n_selected_atoms) {
+      mmdb:: Atom *at = atom_sel.atom_selection[atom_index];
+      if (at) {
+         mmdb::Residue *res = at->residue;
+         if (res) {
+            r = mutate(res, residue_type);
+            if (atom_sel.mol) {
+               if (make_stub_flag) {
+                  int resno = res->GetSeqNum();
+                  std::string chain_id(res->GetChainID());
+                  std::string inscode(res->GetInsCode());
+                  // BL says:: we made a new CB with a new B-factor
+                  // we should either not delete it (pass do stub_flag) or
+                  // save the b_factor and apply again. Not sure whats preferred,
+                  // so leave it for now (shouldnt do stubbing anyway...?!)
+                  // FIXME
+                  delete_residue_sidechain(chain_id, resno, inscode);
+               }
+            }
+         }
       }
    }
    return r;
@@ -135,9 +159,10 @@ molecule_class_info_t::mutate(mmdb::Residue *res, const std::string &residue_typ
    int istate = 0;
 
    if (verbose_mode)
-      std::cout << "INFO:: mutate " << res->GetSeqNum() << " "
-                << res->GetChainID() << " to a " << residue_type
-                << std::endl;
+      // std::cout << "INFO:: mutate " << res->GetSeqNum() << " "
+      //           << res->GetChainID() << " to a " << residue_type
+      //           << std::endl;
+      logger.log(log_t::INFO, "mutate", res->GetSeqNum(), res->GetChainID(), "to a", residue_type);
 
    // get the standard orientation residue for this residue type
    mmdb::PPResidue SelResidue;
@@ -207,7 +232,7 @@ molecule_class_info_t::mutate(mmdb::Residue *res, const std::string &residue_typ
 
             } else {
 
-               make_backup();
+               make_backup(__FUNCTION__);
 
                mmdb::PPAtom residue_atoms;
                int nResidueAtoms;
@@ -292,7 +317,7 @@ molecule_class_info_t::mutate_chain(const std::string &chain_id,
    if (mutation_info.insertions.size() > 0 ||
        mutation_info.deletions.size() > 0 ||
        mutation_info.mutations.size() > 0) {
-      make_backup();
+      make_backup(__FUNCTION__);
 
       // Don't backup each mutation, insertion etc - just do it before
       // and after.
@@ -469,15 +494,19 @@ molecule_class_info_t::mutate_chain(const std::string &chain_id,
 		  SelResidues[ires]->seqNum--;
 	       }
 	    } else {
-	       std::cout << "INFO:: found a null residue at " << ires
-			 << std::endl;
+	       // std::cout << "INFO:: found a null residue at " << ires
+	       //          << std::endl;
+	       logger.log(log_t::INFO, "found a null residue at", ires);
 	    }
 	 }
       }
 
-      std::cout << "INFO:: Applied " << n_insertions << " insertions " << std::endl;
-      std::cout << "INFO:: Applied " << n_mutations << " mutations " << std::endl;
-      std::cout << "INFO:: Applied " << n_deletions << " deletions " << std::endl;
+      // std::cout << "INFO:: Applied " << n_insertions << " insertions " << std::endl;
+      logger.log(log_t::INFO, "Applied", n_insertions, "insertions");
+      // std::cout << "INFO:: Applied " << n_mutations << " mutations " << std::endl;
+      logger.log(log_t::INFO, "Applied", n_mutations, "mutations");
+      // std::cout << "INFO:: Applied " << n_deletions << " deletions " << std::endl;
+      logger.log(log_t::INFO, "Applied", n_deletions, "deletions");
 
       atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
       atom_sel.mol->FinishStructEdit();
@@ -567,8 +596,10 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
    bool allow_ligands = false;
    std::string model = coot::util::model_sequence(vseq, allow_ligands);
    if (console_output || debug) {
-      std::cout << "INFO:: input model  sequence: " << model  << std::endl;
-      std::cout << "INFO:: input target sequence: " << target  << std::endl;
+      // std::cout << "INFO:: input model  sequence: " << model  << std::endl;
+      logger.log(log_t::INFO, "input model  sequence:", model);
+      // std::cout << "INFO:: input target sequence: " << target  << std::endl;
+      logger.log(log_t::INFO, "input target sequence:", target);
    }
 
    mmdb::math::Alignment align;
@@ -636,7 +667,8 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
 	 std::cout << name_ << std::endl;
 	 std::cout << align.GetAlignedS() << std::endl;
 	 std::cout << "> target seq: \n" << align.GetAlignedT() << std::endl;
-	 std::cout << "INFO:: alignment score " << align.GetScore() << std::endl;
+	 // std::cout << "INFO:: alignment score " << align.GetScore() << std::endl;
+	 logger.log(log_t::INFO, "alignment score", align.GetScore());
       } else {
 
 	 std::string aligned = align.GetAlignedS();
@@ -1087,6 +1119,56 @@ molecule_class_info_t::find_terminal_residue_type(const std::string &chain_id, i
    return std::pair<bool, std::string> (found, type);
 }
 
+int
+molecule_class_info_t::mutate_by_overlap(const std::string &chain_id, int res_no, const std::string &new_type) {
+
+   int status = 0;
+   graphics_info_t g;
+   mmdb::Residue *residue_p = get_residue(coot::residue_spec_t(chain_id, res_no, ""));
+
+   if (residue_p) {
+      std::string current_residue_type = residue_p->GetResName();
+      g.Geom_p()->check_and_try_dynamic_add(current_residue_type, imol_no, g.cif_dictionary_read_number);
+      g.cif_dictionary_read_number++;
+      std::pair<bool, coot::dictionary_residue_restraints_t> rp_current =
+         g.Geom_p()->get_monomer_restraints(current_residue_type, imol_no);
+      if (rp_current.first) {
+         mmdb::Manager *mol = g.molecules[imol_no].atom_sel.mol;
+         const auto &restraints_current_type = rp_current.second;
+
+         g.Geom_p()->check_and_try_dynamic_add(new_type, imol_no, g.cif_dictionary_read_number);
+         g.cif_dictionary_read_number++;
+         std::pair<bool, coot::dictionary_residue_restraints_t> rp_new_type =
+            g.Geom_p()->get_monomer_restraints(new_type, imol_no);
+         if (rp_new_type.first) {
+            const auto &restraints_new_type = rp_new_type.second;
+
+            mmdb::Residue *restraints_new_type_residue_p = restraints_new_type.GetResidue(false, 10.0f);
+
+            if (restraints_new_type_residue_p) {
+
+               status = coot::util::mutate_by_overlap(residue_p, mol, restraints_current_type, restraints_new_type);
+               atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+               atom_sel.mol->FinishStructEdit();
+               atom_sel.regen_atom_selection();
+               make_bonds_type_checked();
+
+               if (status == 0)
+                  logger.log(log_t::WARNING, "mutate_by_overlap() failed");
+            } else {
+               std::string m = "mutate_by_overlap() restraints_new_type_residue_p was null";
+               logger.log(log_t::WARNING, m);
+            }
+         } else {
+            std::string m = "failed to get restraints for " + new_type;
+            logger.log(log_t::WARNING, logging::function_name_t(__FUNCTION__), m);
+         }
+      }
+   }
+   return status;
+}
+
+
 
 // Here is something that does DNA/RNA
 int
@@ -1198,7 +1280,7 @@ void
 molecule_class_info_t::mutate_base_internal(mmdb::Residue *residue, mmdb::Residue *std_base,
 					    bool use_old_names) {
 
-   make_backup();
+   make_backup(__FUNCTION__);
 
    if (0)
       std::cout << "DEBUG:: mutate_base_internal():: residue name: "
@@ -1264,7 +1346,8 @@ molecule_class_info_t::exchange_chain_ids_for_seg_ids() {
 
 	 // OK, so we have vector of vectors of atoms.  We need to make
 	 // new atoms and residues to put them in.
-	 std::cout << "INFO:: Creating " << atom_chain_vec.size() << " new chains\n";
+	 // std::cout << "INFO:: Creating " << atom_chain_vec.size() << " new chains\n";
+	 logger.log(log_t::INFO, "Creating", atom_chain_vec.size(), "new chains");
 	 for (unsigned int inch=0; inch<atom_chain_vec.size(); inch++) {
 	    mmdb::Chain *chain_p = new mmdb::Chain;
 	    const char *chid = atom_chain_vec[inch].second.c_str();
@@ -1352,7 +1435,7 @@ molecule_class_info_t::spin_search(clipper::Xmap<float> &xmap,
 	    std::cout << "ERROR:: something bad in spin_search" << std::endl;
 	 } else {
 
-	    make_backup();
+	    make_backup(__FUNCTION__);
 
 	    // Now rotate the atoms in moving_atoms_list about dir;
 	    //
@@ -1530,7 +1613,7 @@ molecule_class_info_t::apply_sequence(int imol_map, mmdb::Manager *poly_ala_mol,
 
 //    std::cout << "DEBUG:: residue vector len " <<  mmdb_residues.size() << std::endl;
 //    std::cout << "DEBUG:: best sequence  len " <<  best_seq.length() << std::endl;
-   make_backup();
+   make_backup(__FUNCTION__);
 
    int selHnd = poly_ala_mol->NewSelection();
    poly_ala_mol->Select(selHnd, mmdb::STYPE_RESIDUE, 1,
@@ -1723,7 +1806,7 @@ molecule_class_info_t::delete_all_except_res(mmdb::Residue *res) {
 
    int state = 0;
    if (atom_sel.n_selected_atoms > 0) {
-      make_backup();
+      make_backup(__FUNCTION__);
 //       std::cout << "DEBUG:: molecule number " << imol_no << " contains "
 // 		<< atom_sel.mol->GetNumberOfModels() << " models"
 // 		<< std::endl;
@@ -1786,6 +1869,16 @@ molecule_class_info_t::remove_TER_on_last_residue(mmdb::Chain *chain_p) {
    }
 }
 
+void
+molecule_class_info_t::remove_TER_on_residue_if_last_residue(mmdb::Chain *chain_p, mmdb::Residue *residue_p) {
+
+   int n_residues = chain_p->GetNumberOfResidues();
+   if (n_residues > 0) {
+      mmdb::Residue *r = chain_p->GetResidue(n_residues-1); // last residue
+      if (r == residue_p)
+	 remove_TER_internal(r);
+   }
+}
 
 // remove TER record from residue
 //
@@ -1814,47 +1907,13 @@ void
 molecule_class_info_t::remove_ter_atoms(const coot::residue_spec_t &spec) {  // from all models
 
    // do a backup only if this chain has a residue with a TER atom.
-   bool has_ter = 0;
-
-   for(int imod=1; imod<=atom_sel.mol->GetNumberOfModels(); imod++) {
-      mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
-      mmdb::Chain *chain_p;
-      // run over chains of the existing mol
-      int nchains = model_p->GetNumberOfChains();
-      for (int ichain=0; ichain<nchains; ichain++) {
-	 chain_p = model_p->GetChain(ichain);
-	 if (spec.chain_id == chain_p->GetChainID()) {
-	    int nres = chain_p->GetNumberOfResidues();
-	    if (nres > 0) {
-	       mmdb::Residue *residue_p = chain_p->GetResidue(nres-1);
-	       if (spec.res_no == residue_p->GetSeqNum()) {
-		  has_ter = residue_has_TER_atom(residue_p);
-	       }
-	    }
-	 }
-      }
-   }
-
+   bool has_ter = false;
+   mmdb::Residue *residue_p = get_residue(spec);
+   if (residue_p)
+      has_ter = residue_has_TER_atom(residue_p);
    if (has_ter) {
-      make_backup();
-      for(int imod=1; imod<=atom_sel.mol->GetNumberOfModels(); imod++) {
-	 mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
-	 mmdb::Chain *chain_p;
-	 // run over chains of the existing mol
-	 int nchains = model_p->GetNumberOfChains();
-	 for (int ichain=0; ichain<nchains; ichain++) {
-	    chain_p = model_p->GetChain(ichain);
-	    if (spec.chain_id == chain_p->GetChainID()) {
-	       int nres = chain_p->GetNumberOfResidues();
-	       if (nres > 0) {
-		  mmdb::Residue *residue_p = chain_p->GetResidue(nres-1);
-		  if (spec.res_no == residue_p->GetSeqNum()) {
-		     remove_TER_internal(residue_p);
-		  }
-	       }
-	    }
-	 }
-      }
+      make_backup(__FUNCTION__);
+      remove_TER_internal(residue_p);
    }
 }
 
@@ -1925,7 +1984,7 @@ molecule_class_info_t::nudge_residue_sequence(const std::string &chain_id,
 
       if (seq_status && int(current_types.size()) == (range+1)) {
 
-	 make_backup();
+	 make_backup(__FUNCTION__);
 
 	 status = 1; // we did something
 

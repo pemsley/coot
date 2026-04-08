@@ -49,11 +49,11 @@
 #include <iostream>
 
 #include <mmdb2/mmdb_manager.h>
-#include "coords/mmdb-extras.h"
+#include "coords/mmdb-extras.hh"
 #include "coords/mmdb.hh"
-#include "coords/mmdb-crystal.h"
-#include "coords/Cartesian.h"
-#include "coords/Bond_lines.h"
+#include "coords/mmdb-crystal.hh"
+#include "coords/Cartesian.hh"
+#include "coords/Bond_lines.hh"
 
 #include <gtk/gtk.h>  // must come after mmdb_manager on MacOS X Darwin
 // #include <GL/glut.h>  // for some reason...  // Eh?
@@ -65,6 +65,10 @@
 #include "molecule-class-info.h"
 
 #include "manipulation-modes.hh"
+
+#include "utils/logging.hh"
+extern logging logger;
+
 
 // #include "coot-utils.hh"
 
@@ -198,8 +202,9 @@ graphics_info_t::add_side_chain_to_terminal_res(atom_selection_container_t asc,
 
 		     }
 		     if (true)
-			std::cout << "INFO:: done mutating residue " << coot::residue_spec_t(residue_p)
-				  << " in add_cb_to_terminal_res\n";
+			// std::cout << "INFO:: done mutating residue " << coot::residue_spec_t(residue_p)
+			//           << " in add_cb_to_terminal_res\n";
+			logger.log(log_t::INFO, "done mutating residue " + coot::residue_spec_t(residue_p).format() + " in add_cb_to_terminal_res");
 		  }
 	       }
 
@@ -243,37 +248,67 @@ graphics_info_t::do_mutation(int imol, const coot::residue_spec_t &res_spec,
    // and auto_fit_mutate (in_mutate_auto_fit_define).
    // mutate_auto_fit_residue_imol will not be set in the simple mutate case
 
-   if (true)
-      std::cout << "::::::::::::::::::::::: in do_mutation() with residue_type_chooser_auto_fit_flag "
+   if (false)
+      std::cout << "::::::::::::::::::::::: in do_mutation() with imol " << imol
+                << " and residue_type_chooser_auto_fit_flag "
                 << residue_type_chooser_auto_fit_flag << std::endl;
 
    if (residue_type_chooser_auto_fit_flag) {
 
-      if (! is_valid_model_molecule(mutate_auto_fit_residue_imol)) {
+      if (! is_valid_model_molecule(imol)) {
          std::cout << "ERROR:: invalid model molecule number in do_mutation() "
                    << mutate_auto_fit_residue_imol << std::endl;
          return;
       }
 
-      std::cout << "do_mutation() here with mutate_and_autofit_imol "
-                << mutate_auto_fit_residue_imol << std::endl;
-      molecules[mutate_auto_fit_residue_imol].mutate(mutate_auto_fit_residue_atom_index,
-                                                     residue_type, do_stub_flag);
+      std::cout << "do_mutation() here with imol " << imol << std::endl;
+
+      int local_atom_index = -1;
+
+      // set an sane local_atom_index:
+      mmdb::Residue *residue_p = molecules[imol].get_residue(res_spec);
+      if (residue_p) {
+         for (int iat=0; iat<molecules[imol].atom_sel.n_selected_atoms; iat++) {
+            mmdb::Atom *at = molecules[imol].atom_sel.atom_selection[iat];
+            std::string at_chain_id = at->GetChainID();
+            if (res_spec.chain_id == at_chain_id) {
+               int res_no = at->GetSeqNum();
+               if (res_spec.res_no == res_no) {
+                  std::string ins_code = at->GetInsCode();
+                  if (res_spec.ins_code == ins_code) {
+                     local_atom_index = iat;
+                  }
+               }
+            }
+            if (local_atom_index != -1)
+               break;
+         }
+      }
+
+      if (local_atom_index == -1) {
+         std::cout << "WARNING:: bad local atom index " << local_atom_index << std::endl;
+         return;
+      }
+
+      molecules[mutate_auto_fit_residue_imol].mutate(local_atom_index, residue_type, do_stub_flag);
 
       // 20071005 No longer check for stub state.  It doesn't make
       // sense to autofit a stub.  So ignore the stub state and just
       // autofit as normal.
 
       int imol_map = Imol_Refinement_Map();
-      std::cout << "here with imol_map = " << imol_map << std::endl;
+      // std::cout << "DEBUG:: do_mutation(): here with imol_map = " << imol_map << std::endl;
       if (imol_map >= 0) {
 
          // float f =
          int mode = graphics_info_t::rotamer_search_mode;
          // this signature needs to be changed to a residue spec.
-         molecules[mutate_auto_fit_residue_imol].auto_fit_best_rotamer(mode, mutate_auto_fit_residue_atom_index,
-                                                                       imol_map, rotamer_fit_clash_flag,
-                                                                       rotamer_lowest_probability, *Geom_p());
+         float result = molecules[imol].auto_fit_best_rotamer(mode, local_atom_index,
+                                                              imol_map, rotamer_fit_clash_flag,
+                                                              rotamer_lowest_probability, *Geom_p());
+         // std::cout << "DEBUG:: auto_fit_best_rotamer() returned " << result << std::endl;
+         logger.log(log_t::INFO, logging::function_name_t("do_mutation"),
+                    "auto_fit_best_rotamer returned", result);
 
          if (mutate_auto_fit_do_post_refine_flag) {
             // Run refine zone with autoaccept, autorange on
@@ -285,21 +320,21 @@ graphics_info_t::do_mutation(int imol, const coot::residue_spec_t &res_spec,
          }
 
          // This is the wrong function, isn't it?
-         update_go_to_atom_window_on_changed_mol(mutate_residue_imol);
+         update_go_to_atom_window_on_changed_mol(imol);
 
-         update_validation(mutate_auto_fit_residue_imol);
+         update_validation(imol);
 
-         run_post_manipulation_hook(mutate_auto_fit_residue_imol, MUTATED);
+         run_post_manipulation_hook(imol, MUTATED);
 
       } else {
 
          // imol map chooser
-         show_select_map_dialog();
+         show_select_map_frame();
       }
 
    } else {
 
-      std::cout << "do_mutation() here with mutate_residue_imol "
+      std::cout << "DEBUG:: do_mutation() here with mutate_residue_imol "
                 << mutate_residue_imol << std::endl;
       if (is_valid_model_molecule(mutate_residue_imol)) {
          // simple mutation
@@ -377,8 +412,9 @@ graphics_info_t::mutate_chain(int imol, const std::string &chain_id,
    if (imol < n_molecules()) {
       if (imol >= 0) {
 	 if (molecules[imol].has_model()) {
-	    std::cout << "INFO:: aligning to mol number " << imol << " chain: "
-		      << chain_id << std::endl;
+	    // std::cout << "INFO:: aligning to mol number " << imol << " chain: "
+	    //           << chain_id << std::endl;
+	    logger.log(log_t::INFO, "aligning to mol number", imol, "chain:", chain_id);
 	    coot::chain_mutation_info_container_t mutation_info =
 	       molecules[imol].align_and_mutate(chain_id, coot::fasta(seq), renumber_residues_flag,
 						alignment_wgap, alignment_wspace);

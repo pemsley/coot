@@ -24,31 +24,17 @@
 // Must include these headers to get molecule_class_info_t.h to parse.
 //
 
-#ifdef USE_PYTHON
-#include "Python.h"
-#endif
-
 #include "compat/coot-sysdep.h"
 
-
-#include <string>
-#include <algorithm>
-#include <stdexcept>
-
 #include <string.h>
-// #include <GL/glut.h>
 
 // #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 // // includes order important, otherwise we get dcgettext() problems.
 // #include "rdkit-interface.hh" // needed for add_hydrogens()
 // #endif
-#include "graphics-info.h"  // for rama probablity definitions
 
 #include <mmdb2/mmdb_manager.h>
 #include <mmdb2/mmdb_tables.h>  // for mmdb::Get1LetterCode()
-#include "coords/mmdb-extras.h"
-#include "coords/Cartesian.h"
-#include "coords/mmdb-crystal.h"
 
 #include "ligand/rotamer.hh" // in ligand
 
@@ -57,12 +43,13 @@
 #include "ligand/base-pairing.hh"
 #include "ideal/torsion-bonds.hh"
 
-#include "molecule-class-info.h"
 #include "geometry/mol-utils.hh"
 #include "utils/coot-utils.hh"
-#include "coot-hydrogens.hh"
+#include "ideal/add-linked-cho.hh"
 
-#include "rama_plot_with_canvas.hh"
+#include "molecule-class-info.h"
+#include "coot-hydrogens.hh"
+#include "graphics-info.h"
 
 
 // 1: success
@@ -190,7 +177,7 @@ molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
 
    std::pair<bool, std::string> r(0, "");
 
-   make_backup();
+   make_backup(__FUNCTION__);
    mmdb::Residue *residue_p = get_residue(chain_id, res_no, ins_code);
    std::vector<coot::atom_spec_t> fixed_atoms;
    mmdb::PPAtom residue_atoms = 0;
@@ -865,7 +852,7 @@ molecule_class_info_t::hetify_residue_atoms(const std::string &chain_id,
    int r = -1;
    mmdb::Residue *residue_p = get_residue(chain_id, resno, ins_code);
    if (residue_p) {
-      make_backup();
+      make_backup(__FUNCTION__);
       int n_atoms = coot::hetify_residue_atoms_as_needed(residue_p);
       if (n_atoms > 0)
 	 r = 1;
@@ -1282,7 +1269,7 @@ molecule_class_info_t::watson_crick_pair_for_residue_range(const std::string &ch
 
    if (model_p) {
       if (new_residues.size()) {
-	 make_backup();
+	 make_backup(__FUNCTION__);
 	 mmdb::Chain *chain_p = new mmdb::Chain;
 	 // set the chain id
 	 std::pair<short int, std::string> u = unused_chain_id();
@@ -1326,7 +1313,7 @@ molecule_class_info_t::add_residue(mmdb::Residue *new_res,
 	       chain_p = model_p->GetChain(ichain);
 	       std::string chain_id(chain_p->GetChainID());
 	       if (chain_id == chain_id_in) {
-		  make_backup();
+		  make_backup(__FUNCTION__);
 		  res_copied = copy_and_add_residue_to_chain(chain_p, new_res);
 		  status = true;
 		  have_unsaved_changes_flag = 1;
@@ -1415,132 +1402,6 @@ molecule_class_info_t::add_linked_residue_by_atom_torsions(const coot::residue_s
 
 }
 
-
-// this can throw a std::runtime_error
-coot::dict_link_info_t::dict_link_info_t(mmdb::Residue *residue_ref,
-					 mmdb::Residue *residue_new,
-					 const std::string &link_type,
-					 const coot::protein_geometry &geom) {
-
-   if (0) {
-      std::cout << "dict_link_info_t() constructor start with link_type: "
-		<< link_type << std::endl;
-      std::cout << "dict_link_info_t() constructor start with residue_ref: "
-		<< coot::residue_spec_t(residue_ref) << std::endl;
-      std::cout << "dict_link_info_t() constructor start with residue_new: "
-		<< coot::residue_spec_t(residue_new) << std::endl;
-   }
-
-   bool ifound = false;
-   if (! residue_ref) {
-      throw (std::runtime_error("Null residue_ref"));
-   } else {
-      if (! residue_ref) {
-	 throw (std::runtime_error("Null residue_new"));
-      } else {
-	 coot::dictionary_residue_link_restraints_t rr = geom.link(link_type);
-	 if (rr.link_id == "") {
-	    throw (std::runtime_error("Link not found in dictionary"));
-	 } else {
-
-	    bool order_switch_flag = check_for_order_switch(residue_ref,
-							    residue_new,
-							    link_type, geom);
-
-	    mmdb::Residue *res_1 = residue_ref;
-	    mmdb::Residue *res_2 = residue_new;
-
-	    if (order_switch_flag) {
-	       std::swap(res_1, res_2);
-	    }
-
-	    // we found it (i.e. not null object)
-	    coot::residue_spec_t res_spec_ref(res_1);
-	    coot::residue_spec_t res_spec_new(res_2);
-	    for (unsigned int ibond=0; ibond<rr.link_bond_restraint.size(); ibond++) {
-	       mmdb::PPAtom residue_atoms_1 = 0;
-	       int n_residue_atoms_1;
-	       res_1->GetAtomTable(residue_atoms_1, n_residue_atoms_1);
-	       for (int iat1=0; iat1<n_residue_atoms_1; iat1++) {
-		  std::string atom_name_1(residue_atoms_1[iat1]->name);
-		  if (atom_name_1 == rr.link_bond_restraint[ibond].atom_id_1_4c()) {
-		     // OK so the first atom matched
-		     mmdb::PPAtom residue_atoms_2 = 0;
-		     int n_residue_atoms_2;
-		     res_2->GetAtomTable(residue_atoms_2, n_residue_atoms_2);
-		     for (int iat2=0; iat2<n_residue_atoms_2; iat2++) {
-			std::string atom_name_2(residue_atoms_2[iat2]->name);
-			if (atom_name_2 == rr.link_bond_restraint[ibond].atom_id_2_4c()) {
-			   ifound = 1;
-			   spec_ref = coot::atom_spec_t(res_spec_ref.chain_id,
-							res_spec_ref.res_no,
-							res_spec_ref.ins_code,
-							atom_name_1, "");
-			   spec_new = coot::atom_spec_t(res_spec_new.chain_id,
-							res_spec_new.res_no,
-							res_spec_new.ins_code,
-							atom_name_2, "");
-
-			   dist = coot::distance(residue_atoms_1[iat1],
-						 residue_atoms_2[iat2]);
-			   break;
-			}
-			if (ifound)
-			   break;
-		     }
-		  }
-		  if (ifound)
-		     break;
-	       }
-	       if (ifound)
-		  break;
-	    }
-
-	    if (! ifound)
-	       throw std::runtime_error("Dictionary links atom not found in link residues");
-	 }
-      }
-   }
-}
-
-bool
-coot::dict_link_info_t::check_for_order_switch(mmdb::Residue *residue_ref,
-					       mmdb::Residue *residue_new,
-					       const std::string &link_type,
-					       const coot::protein_geometry &geom) const {
-
-   bool order_switch_flag = false;
-   std::string comp_id_ref = residue_ref->GetResName();
-   std::string comp_id_new = residue_new->GetResName();
-
-   try {
-      std::string group_ref = geom.get_group(residue_ref);
-      // std::cout << "got group_ref: " << group_ref << std::endl;
-      std::string group_new = geom.get_group(residue_new);
-      // std::cout << "got group_new:o " << group_new << std::endl;
-      std::vector<std::pair<coot::chem_link, bool> > link_infos;
-      std::vector<coot::chem_link> link_infos_f = geom.matching_chem_links(comp_id_ref, group_ref, comp_id_new, group_new);
-      std::vector<coot::chem_link> link_infos_b = geom.matching_chem_links(comp_id_new, group_new, comp_id_ref, group_ref);
-      for (const auto &link : link_infos_f) link_infos.push_back(std::make_pair(link, false));
-      for (const auto &link : link_infos_b) link_infos.push_back(std::make_pair(link,  true));
-
-      if (0)
-	 std::cout << "DEBUG:: in check_for_order_switch() found " << link_infos.size()
-		   << " link infos " << std::endl;
-      for (unsigned int ilink=0; ilink<link_infos.size(); ilink++) {
-	 // std::cout << "   chem_link: " << ilink << " " << link_infos[ilink].first
-	 // << " " << link_infos[ilink].second << std::endl;
-	 if (link_infos[ilink].first.Id() == link_type) {
-	    order_switch_flag = link_infos[ilink].second;
-	    break;
-	 }
-      }
-   }
-   catch (const std::runtime_error &rte) {
-      std::cout << "WARNING:: check_for_order_switch() exception: " << rte.what() << std::endl;
-   }
-   return order_switch_flag;
-}
 
 // multi-residue torsion map fitting interface
 void
@@ -1709,7 +1570,7 @@ molecule_class_info_t::split_water(std::string chain_id, int res_no, std::string
       if (n_atoms == 1) {
 	 mmdb::Atom *at = residue_p->GetAtom(" O  "); // PDBv3
 	 if (at) {
-	    make_backup();
+	    make_backup(__FUNCTION__);
         float old_occ = at->occupancy;
 	    mmdb::Atom *new_at = new mmdb::Atom;
 	    new_at->Copy(at);
@@ -2001,7 +1862,7 @@ molecule_class_info_t::rotate_residue(const coot::residue_spec_t &rs,
 
    mmdb::Residue *residue_p = get_residue(rs);
    if (residue_p) {
-      make_backup();
+      make_backup(__FUNCTION__);
       coot::util::rotate_residue(residue_p, around_vec, origin_offset, angle);
       have_unsaved_changes_flag = 1;
       atom_sel.mol->FinishStructEdit();
@@ -2236,7 +2097,7 @@ molecule_class_info_t::residue_partial_alt_locs_split_residue(coot::residue_spec
 				    tree.rotate_about(ra1, ra2, theta, reverse_fragment);
 
 				    if (atom_store.size()) {
-				       make_backup();
+				       make_backup(__FUNCTION__);
 				       std::cout << "These are the moving atoms: " << std::endl;
 				       for (unsigned int ii=0; ii<atom_store.size(); ii++) {
 					  std::cout << "here 0 " << ii << " of " << atom_store.size() << std::endl;
@@ -2300,7 +2161,7 @@ molecule_class_info_t::delete_chain(const std::string &chain_id) {
 	    if (chain_p) {
 	       std::string this_chain_id(chain_p->GetChainID());
 	       if (this_chain_id == chain_id) {
-                  make_backup();
+                  make_backup(__FUNCTION__);
 		  model_p->DeleteChain(ichain);
 		  done = true;
 	       }
@@ -2333,7 +2194,7 @@ molecule_class_info_t::delete_sidechains_for_chain(const std::string &chain_id) 
 	       std::string this_chain_id = chain_p->GetChainID();
 	       if (this_chain_id == chain_id) {
 
-		  make_backup();
+		  make_backup(__FUNCTION__);
 
 		  int nres = chain_p->GetNumberOfResidues();
 		  // delete the specific atoms of eacho of the residues:
@@ -2419,7 +2280,7 @@ molecule_class_info_t::delete_sidechain_range(const coot::residue_spec_t &res_1,
 	       std::string this_chain_id = chain_p->GetChainID();
 	       if (this_chain_id == chain_id) {
 
-		  make_backup();
+		  make_backup(__FUNCTION__);
 
 		  int nres = chain_p->GetNumberOfResidues();
 		  // delete the specific atoms of eacho of the residues:
@@ -2459,6 +2320,15 @@ molecule_class_info_t::delete_sidechain_range(const coot::residue_spec_t &res_1,
    return done;
 }
 
+void
+molecule_class_info_t::delete_all_carbohydrate() {
+
+   if (atom_sel.mol) {
+      make_backup(__FUNCTION__);
+      coot::util::delete_all_carbohydrate(atom_sel.mol);
+      make_bonds_type_checked();
+   }
+}
 
 
 
@@ -2541,7 +2411,7 @@ void molecule_class_info_t::spin_N(const coot::residue_spec_t &residue_spec, flo
       mmdb::Atom *c  = coot::util::get_atom( c_spec, residue_p);
       mmdb::Atom *o  = coot::util::get_atom( o_spec, residue_p);
       if (ca && c && o) {
-	 make_backup();
+	 make_backup(__FUNCTION__);
 	 clipper::Coord_orth ca_pos = coot::co(ca);
 	 clipper::Coord_orth  c_pos = coot::co(c);
 	 clipper::Coord_orth dir = ca_pos - c_pos;
@@ -2609,7 +2479,7 @@ molecule_class_info_t::merge_fragments() {
 
    int status = 1;
 
-   make_backup();
+   make_backup(__FUNCTION__);
 
    coot::merge_atom_selections(atom_sel.mol); // doesn't return a value, should it?
 
@@ -2832,3 +2702,23 @@ molecule_class_info_t::resolve_clashing_sidechains_by_rebuilding(const coot::pro
       make_bonds_type_checked(__FUNCTION__);
    }
 }
+
+// carbohydrate building - WTA for the moment
+void
+molecule_class_info_t::add_named_glyco_tree(const std::string &glycosylation_type,
+                                            coot::protein_geometry *geom_p,
+                                            const coot::residue_spec_t &asn_res_spec,
+                                            const clipper::Xmap<float> &xmap) {
+
+   float mt = coot::util::median_temperature_factor(atom_sel.atom_selection, atom_sel.n_selected_atoms, 2.0, 2222.2, false, false);
+   float b_factor_for_new_atoms = 1.55 * mt;
+   make_backup(__FUNCTION__);
+   coot::cho::add_named_glyco_tree(glycosylation_type, &atom_sel, imol_no, b_factor_for_new_atoms, xmap,
+                                   geom_p, asn_res_spec.chain_id, asn_res_spec.res_no);
+   have_unsaved_changes_flag = true;
+   atom_sel.mol->FinishStructEdit();
+   atom_sel = make_asc(atom_sel.mol);
+   make_bonds_type_checked(__FUNCTION__);
+
+}
+

@@ -43,7 +43,7 @@ pli::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
       std::cout << "::::::::: n residues: " << residues.size() << std::endl;
       for (unsigned int ires=0; ires<residues.size(); ires++)
 	 std::cout << ":::::::::      residue: " << ires << " " << coot::residue_spec_t(residues[ires])
-		   << std::endl;
+		   << " " << residues[ires]->GetResName() << std::endl;
       std::cout << "::::::::: mol: " << mol << std::endl;
       std::cout << "::::::::: name map size: " << name_map.size() << std::endl;
       std::map<std::string, std::string>::const_iterator it;
@@ -78,8 +78,16 @@ pli::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
       if (! status.first)
 	 std::cout << "WARNING:: ===================== no HB status on atoms of ligand! ======="
 		   << "=========" << std::endl;
+
       std::vector<coot::h_bond> hbonds = hb.get_mcdonald_and_thornton(SelHnd_lig, SelHnd_all, m.second,
-								      geom, h_bond_dist_max);
+                                                                      geom, imol, h_bond_dist_max);
+
+      if (debug) {
+         std::cout << "DEBUG:: get_mcdonald_and_thornton() returned " << hbonds.size() << " H-bonds" << std::endl;
+         for (unsigned int i=0; i<hbonds.size(); i++) {
+            std::cout << "      " << i << " " << hbonds[i] << std::endl;
+         }
+      }
 
       if (debug)
 	 std::cout << "DEBUG:: get_fle_ligand_bonds from h_bonds class found "
@@ -96,7 +104,7 @@ pli::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
 							  hbonds[i].acceptor,
 							  hbonds[i].ligand_atom_is_donor);
 	 // override these 2 if ligand atom is donor
-	 // 
+	 //
 	 mmdb::Atom      *ligand_atom = hbonds[i].acceptor;
 	 mmdb::Atom *env_residue_atom = hbonds[i].donor;
 	 double explict_H_bond_fudge_factor = 0.0; // for H-bonds with no Hs.
@@ -107,7 +115,7 @@ pli::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
 	 }
 
 	 // OK, 20110511 new style, where is the hydrogen?
-	 // 
+	 //
 	 if (hbonds[i].has_hydrogen()) {
 	    if (hbonds[i].ligand_atom_is_H()) {
 	       ligand_atom      = hbonds[i].hb_hydrogen;
@@ -121,8 +129,8 @@ pli::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
 
 	 // This map no longer works because we don't pass ligand atom
 	 // name any more (we pass a spec).
-	 // 
-	 
+	 //
+
 // 	 // Now, in 3D (pre-prodrgification) we don't have (polar) Hs on the ligand
 // 	 // (but we do in 2D), the map allows transfer from the ligand O or N to the
 // 	 // polar H in FLEV.
@@ -135,9 +143,9 @@ pli::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
 // 	    ligand_atom_name = it->second;
 // 	 }
 
-	 if (debug) 
+	 if (debug)
 	    std::cout << "constructing fle ligand bond " << ligand_atom->name
-		      << " " << bond_type << " " << hbonds[i].dist << " " 
+		      << " " << bond_type << " " << hbonds[i].dist << " "
 		      << coot::atom_spec_t(env_residue_atom) << " "
 		      << env_residue_atom->GetResName()
 		      << std::endl;
@@ -158,7 +166,7 @@ pli::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
 	    // coot::fle_ligand_bond_t bond(ligand_atom_name, bond_type, hbonds[i].dist, res_spec);
 	    //
 	    fle_ligand_bond_t bond(coot::atom_spec_t(ligand_atom),
-					 coot::atom_spec_t(env_residue_atom), 
+					 coot::atom_spec_t(env_residue_atom),
 					 bond_type,
 					 hbonds[i].dist+explict_H_bond_fudge_factor, is_bond_to_water);
 
@@ -174,7 +182,7 @@ pli::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
 	 std::cout << ".... get_fle_ligand_bonds(): after h-bonds v.size() is " << v.size() << std::endl;
 
       // -----------------------
-      //   covalent bonds 
+      //   covalent bonds
       // -----------------------
 
       // by distance and by LINK
@@ -193,10 +201,9 @@ pli::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
       // finally add the covent bonds to all-bonds
       for (unsigned int i=0; i<covalent_bonds.size(); i++)
 	 v.push_back(covalent_bonds[i]);
-      
-     
+
       // -----------------------
-      //   metal bonds 
+      //   metal bonds
       // -----------------------
 
       std::vector<fle_ligand_bond_t> metal_bonds = get_metal_bonds(ligand_res, residues);
@@ -560,7 +567,7 @@ pli::protein_ligand_interactions(mmdb::Residue *ligand_residue_p, mmdb::Manager 
       std::cout << "WARNING:: no HB status on atoms of ligand\n";
    std::vector<coot::h_bond> hbonds = hb.get_mcdonald_and_thornton(SelHnd_lig,
                                                                    SelHnd_all,
-                                                                   mol, *geom_p, h_bond_dist_max);
+                                                                   mol, *geom_p, imol, h_bond_dist_max);
 
    for (unsigned int i=0; i<hbonds.size(); i++) {
       if (true)

@@ -23,7 +23,7 @@
 #define ADDITIONAL_REPRESENTATION_HH
 
 #include "coot-utils/atom-selection-container.hh"
-#include "coords/Bond_lines.h"
+#include "coords/Bond_lines.hh"
 #include "atom-selection.hh"
 
 namespace coot {
@@ -32,7 +32,7 @@ namespace coot {
    enum { SIMPLE_LINES, STICKS, BALL_AND_STICK, LIQUORICE, SURFACE };
 
 
-   class additional_representations_t { 
+   class additional_representations_t {
    public:
       bool show_it;
       int bonds_box_type;

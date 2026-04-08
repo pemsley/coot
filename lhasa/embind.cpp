@@ -43,7 +43,14 @@ EMSCRIPTEN_BINDINGS(lhasa) {
   // TODO: RDKit typedefinitions
   // function("remove_non_polar_hydrogens", &coot::layla::remove_non_polar_hydrogens);
   function("append_from_smiles", &lhasa::append_from_smiles);
+  function("append_from_import", &lhasa::append_from_import);
   function("append_from_pickle_base64", &lhasa::append_from_pickle_base64);
+  function("export_mol", &lhasa::export_mol);
+  enum_<lhasa::CheminformaticsFileFormat>("CheminformaticsFileFormat")
+    .value("Molfile", lhasa::CheminformaticsFileFormat::Molfile)
+    .value("SDF", lhasa::CheminformaticsFileFormat::SDF)
+    .value("InChI", lhasa::CheminformaticsFileFormat::InChI)
+    .value("CDXML", lhasa::CheminformaticsFileFormat::CDXML);
   // TODO: RDKit typedefinitions
   // function("rdkit_mol_from_smiles", &lhasa::rdkit_mol_from_smiles);
   // TODO: RDKit typedefinitions
@@ -108,6 +115,7 @@ EMSCRIPTEN_BINDINGS(lhasa) {
   class_<impl::Renderer::TextSpan>("TextSpan")
     .property("style", &impl::Renderer::TextSpan::style)
     .property("specifies_style", &impl::Renderer::TextSpan::specifies_style)
+    .function("is_newline", &impl::Renderer::TextSpan::is_newline)
     .function("has_subspans", &impl::Renderer::TextSpan::has_subspans) 
     .function("as_caption", select_const(&impl::Renderer::TextSpan::as_caption))
     .function("as_subspans", select_const(&impl::Renderer::TextSpan::as_subspans))
@@ -199,10 +207,8 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .constructor<>();
   function("make_active_tool", &lhasa::make_active_tool);
   value_object<CootLigandEditorCanvas::SizingInfo>("SizingInfo")
-    .field("requested_size", &CootLigandEditorCanvas::SizingInfo::requested_size);
-  enum_<CootLigandEditorCanvas::MeasurementDirection>("MeasurementDirection")
-    .value("HORIZONTAL", CootLigandEditorCanvas::MeasurementDirection::HORIZONTAL)
-    .value("VERTICAL", CootLigandEditorCanvas::MeasurementDirection::VERTICAL);
+    .field("width", &CootLigandEditorCanvas::SizingInfo::width)
+    .field("height", &CootLigandEditorCanvas::SizingInfo::height);
   value_object<CanvasMolecule::QEDInfo>("QEDInfo")
     .field("number_of_hydrogen_bond_acceptors", &CanvasMolecule::QEDInfo::number_of_hydrogen_bond_acceptors)
     .field("number_of_hydrogen_bond_donors",&CanvasMolecule::QEDInfo:: number_of_hydrogen_bond_donors)
@@ -223,6 +229,8 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .field("qed_score", &CanvasMolecule::QEDInfo::qed_score);
   class_<impl::WidgetCoreData>("ImplWidgetCoreData");
   register_map<unsigned int, std::string>("SmilesMap");
+  // type already registered
+  // register_map<unsigned int, std::string>("InchiKeyMap");
   // Without this, Emscripten errors out
   register_vector<unsigned int>("MoleculeIdVector");
   class_<CootLigandEditorCanvas, base<impl::WidgetCoreData>>("Canvas")
@@ -235,6 +243,8 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .function("get_scale", &CootLigandEditorCanvas::get_scale)
     .function("undo_edition", &CootLigandEditorCanvas::undo)
     .function("redo_edition", &CootLigandEditorCanvas::redo)
+    // TODO: RDKit typedefinitions
+    // .function("get_rdkit_molecule", &CootLigandEditorCanvas::get_rdkit_molecule)
     .function("get_molecule_count", &CootLigandEditorCanvas::get_molecule_count)
     .function("get_idx_of_first_molecule", &CootLigandEditorCanvas::get_idx_of_first_molecule)
     .function("get_max_molecule_idx", &CootLigandEditorCanvas::get_max_molecule_idx)
@@ -246,6 +256,8 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .function("set_display_mode", &CootLigandEditorCanvas::set_display_mode)
     .function("get_smiles", &CootLigandEditorCanvas::get_smiles)
     .function("get_smiles_for_molecule", &CootLigandEditorCanvas::get_smiles_for_molecule)
+    .function("get_inchi_keys", &CootLigandEditorCanvas::get_inchi_keys)
+    .function("get_inchi_key_for_molecule", &CootLigandEditorCanvas::get_inchi_key_for_molecule)
     .function("get_pickled_molecule", &CootLigandEditorCanvas::get_pickled_molecule)
     .function("get_pickled_molecule_base64", &CootLigandEditorCanvas::get_pickled_molecule_base64)
     .function("clear_molecules", &CootLigandEditorCanvas::clear_molecules)
@@ -257,5 +269,6 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .function("on_right_click_released", &CootLigandEditorCanvas::on_right_click_released)
     .function("render", &CootLigandEditorCanvas::render)
     .function("measure", &CootLigandEditorCanvas::measure)
+    .function("set_minimum_dimensions", &CootLigandEditorCanvas::set_minimum_dimensions)
     .function("connect", &CootLigandEditorCanvas::connect);
 }

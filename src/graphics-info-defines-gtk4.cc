@@ -45,10 +45,10 @@ graphics_info_t::check_if_in_range_defines() {
       pick_info nearest_atom_index_info;
       nearest_atom_index_info = atom_pick_gtk3(false);
 
-      if ( nearest_atom_index_info.success == GL_TRUE ) {
+      if (nearest_atom_index_info.success == GL_TRUE) {
 
          int im = nearest_atom_index_info.imol;
-         std::cout << "geometry: on molecule number: " << im << std::endl;
+         // std::cout << "geometry: on molecule number: " << im << std::endl;
          // some visual feedback, label the atom:
          molecules[im].add_to_labelled_atom_list(nearest_atom_index_info.atom_index);
 
@@ -58,7 +58,7 @@ graphics_info_t::check_if_in_range_defines() {
             geometry_atom_index_1_mol_no = nearest_atom_index_info.imol;
             mmdb::Atom *atom1 = molecules[im].atom_sel.atom_selection[geometry_atom_index_1];
             distance_pos_1 = coot::Cartesian(atom1->x, atom1->y, atom1->z);
-            std::cout << "click on a second atom" << std::endl;
+            // std::cout << "click on a second atom" << std::endl;
             graphics_draw();
          } else {
 
@@ -80,6 +80,31 @@ graphics_info_t::check_if_in_range_defines() {
             pick_pending_flag = 0;
             normal_cursor();
          }
+      } else {
+	 coot::Symm_Atom_Pick_Info_t sapi = symmetry_atom_pick();
+	 if (sapi.success == GL_TRUE) {
+	    int imol = sapi.imol;
+	    molecules[imol].add_atom_to_labelled_symm_atom_list(sapi.atom_index, sapi.symm_trans,
+								sapi.pre_shift_to_origin);
+
+	    if (in_distance_define == 1) {
+	       distance_pos_1 = sapi.hybrid_atom.pos;
+	       geometry_atom_index_1_mol_no = sapi.imol;
+	       in_distance_define = 2;
+	       graphics_draw();
+
+	    } else {
+
+	       // i.e.: in_distance_define == 2
+	       coot::Cartesian pos2 = sapi.hybrid_atom.pos;
+	       geometry_atom_index_2_mol_no = sapi.imol;
+	       add_measure_distance(distance_pos_1, pos2);
+	       unset_geometry_dialog_distance_togglebutton();
+	       in_distance_define = 0;
+	       pick_pending_flag = 0;
+	       normal_cursor();
+	    }
+	 }
       }
    }
 

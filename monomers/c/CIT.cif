@@ -1,0 +1,167 @@
+#
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+CIT     CIT      "CITRIC ACID"     NON-POLYMER     18     13     .     
+#
+data_comp_CIT
+#
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+CIT     C1      C       C       0       68.294      48.626      33.126      
+CIT     O1      O       O       0       68.788      47.850      32.284      
+CIT     O2      O       OC      -1      68.442      49.864      33.098      
+CIT     C2      C       CH2     0       67.461      48.031      34.249      
+CIT     C3      C       CT      0       65.936      48.072      34.058      
+CIT     O7      O       OH1     0       65.552      49.385      33.678      
+CIT     C4      C       CH2     0       65.543      47.084      32.947      
+CIT     C5      C       C       0       64.054      46.946      32.674      
+CIT     O3      O       O       0       63.520      45.833      32.859      
+CIT     O4      O       OC      -1      63.435      47.954      32.278      
+CIT     C6      C       C       0       65.250      47.659      35.391      
+CIT     O5      O       O       0       65.512      46.525      35.841      
+CIT     O6      O       OC      -1      64.481      48.484      35.929      
+CIT     H21     H       H       0       67.682      48.509      35.075      
+CIT     H22     H       H       0       67.733      47.098      34.370      
+CIT     HO7     H       H       0       64.718      49.503      33.781      
+CIT     H41     H       H       0       65.896      46.200      33.179      
+CIT     H42     H       H       0       65.976      47.362      32.115      
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+CIT          C1          O1      DOUBLE       n     1.247  0.0187     1.247  0.0187
+CIT          C1          O2      SINGLE       n     1.247  0.0187     1.247  0.0187
+CIT          C1          C2      SINGLE       n     1.519  0.0109     1.519  0.0109
+CIT          C2          C3      SINGLE       n     1.534  0.0100     1.534  0.0100
+CIT          C3          O7      SINGLE       n     1.417  0.0100     1.417  0.0100
+CIT          C3          C4      SINGLE       n     1.534  0.0100     1.534  0.0100
+CIT          C3          C6      SINGLE       n     1.551  0.0100     1.551  0.0100
+CIT          C4          C5      SINGLE       n     1.519  0.0109     1.519  0.0109
+CIT          C5          O3      DOUBLE       n     1.247  0.0187     1.247  0.0187
+CIT          C5          O4      SINGLE       n     1.247  0.0187     1.247  0.0187
+CIT          C6          O5      DOUBLE       n     1.247  0.0187     1.247  0.0187
+CIT          C6          O6      SINGLE       n     1.247  0.0187     1.247  0.0187
+CIT          C2         H21      SINGLE       n     1.089  0.0100     0.979  0.0159
+CIT          C2         H22      SINGLE       n     1.089  0.0100     0.979  0.0159
+CIT          O7         HO7      SINGLE       n     0.970  0.0120     0.848  0.0200
+CIT          C4         H41      SINGLE       n     1.089  0.0100     0.979  0.0159
+CIT          C4         H42      SINGLE       n     1.089  0.0100     0.979  0.0159
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+CIT          O1          C1          O2     123.820    1.50
+CIT          O1          C1          C2     118.090    1.84
+CIT          O2          C1          C2     118.090    1.84
+CIT          C1          C2          C3     115.470    1.57
+CIT          C1          C2         H21     108.477    1.50
+CIT          C1          C2         H22     108.477    1.50
+CIT          C3          C2         H21     108.739    1.50
+CIT          C3          C2         H22     108.739    1.50
+CIT         H21          C2         H22     107.711    1.51
+CIT          C2          C3          O7     109.404    1.81
+CIT          C2          C3          C4     108.961    1.71
+CIT          C2          C3          C6     109.606    1.52
+CIT          O7          C3          C4     109.404    1.81
+CIT          O7          C3          C6     110.081    1.50
+CIT          C4          C3          C6     109.606    1.52
+CIT          C3          O7         HO7     108.694    3.00
+CIT          C3          C4          C5     115.470    1.57
+CIT          C3          C4         H41     108.739    1.50
+CIT          C3          C4         H42     108.739    1.50
+CIT          C5          C4         H41     108.477    1.50
+CIT          C5          C4         H42     108.477    1.50
+CIT         H41          C4         H42     107.711    1.51
+CIT          C4          C5          O3     118.090    1.84
+CIT          C4          C5          O4     118.090    1.84
+CIT          O3          C5          O4     123.820    1.50
+CIT          C3          C6          O5     117.335    1.81
+CIT          C3          C6          O6     117.335    1.81
+CIT          O5          C6          O6     125.331    1.50
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+CIT             sp2_sp3_2          O1          C1          C2          C3     120.000    10.0     6
+CIT             sp3_sp3_2          C1          C2          C3          O7     -60.000    10.0     3
+CIT             sp2_sp3_8          O5          C6          C3          C2     120.000    10.0     6
+CIT            sp3_sp3_10          C2          C3          O7         HO7     180.000    10.0     3
+CIT            sp3_sp3_19          C2          C3          C4          C5     -60.000    10.0     3
+CIT            sp2_sp3_14          O3          C5          C4          C3     120.000    10.0     6
+loop_
+_chem_comp_chir.comp_id
+_chem_comp_chir.id
+_chem_comp_chir.atom_id_centre
+_chem_comp_chir.atom_id_1
+_chem_comp_chir.atom_id_2
+_chem_comp_chir.atom_id_3
+_chem_comp_chir.volume_sign
+CIT    chir_1    C3    O7    C6    C2    both
+loop_
+_chem_comp_plane_atom.comp_id
+_chem_comp_plane_atom.plane_id
+_chem_comp_plane_atom.atom_id
+_chem_comp_plane_atom.dist_esd
+CIT    plan-1          C1   0.020
+CIT    plan-1          C2   0.020
+CIT    plan-1          O1   0.020
+CIT    plan-1          O2   0.020
+CIT    plan-2          C4   0.020
+CIT    plan-2          C5   0.020
+CIT    plan-2          O3   0.020
+CIT    plan-2          O4   0.020
+CIT    plan-3          C3   0.020
+CIT    plan-3          C6   0.020
+CIT    plan-3          O5   0.020
+CIT    plan-3          O6   0.020
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+CIT           SMILES              ACDLabs 10.04                                                         O=C(O)CC(O)(C(=O)O)CC(=O)O
+CIT SMILES_CANONICAL               CACTVS 3.341                                                         OC(=O)CC(O)(CC(O)=O)C(O)=O
+CIT           SMILES               CACTVS 3.341                                                         OC(=O)CC(O)(CC(O)=O)C(O)=O
+CIT SMILES_CANONICAL "OpenEye OEToolkits" 1.5.0                                                       C(C(=O)O)C(CC(=O)O)(C(=O)O)O
+CIT           SMILES "OpenEye OEToolkits" 1.5.0                                                       C(C(=O)O)C(CC(=O)O)(C(=O)O)O
+CIT            InChI                InChI  1.03 InChI=1S/C6H8O7/c7-3(8)1-6(13,5(11)12)2-4(9)10/h13H,1-2H2,(H,7,8)(H,9,10)(H,11,12)
+CIT         InChIKey                InChI  1.03                                                        KRKNYBCHXYNGOX-UHFFFAOYSA-N
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+CIT acedrg               243         "dictionary generator"                  
+CIT acedrg_database      11          "data source"                           
+CIT rdkit                2017.03.2   "Chemoinformatics tool"
+CIT refmac5              5.8.0238    "optimization tool"                     

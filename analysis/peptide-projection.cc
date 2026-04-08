@@ -21,8 +21,6 @@
 
 #include <string>
 
-#include "coords/mmdb-extras.h"
-#include "coords/mmdb.hh"
 #include "coot-utils/coot-coord-utils.hh"
 
 #include "stats.hh"

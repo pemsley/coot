@@ -1,6 +1,6 @@
 /*
  * api/coot-molecule.hh
- * 
+ *
  * Copyright 2020 by Medical Research Council
  * Author: Paul Emsley
  *
@@ -30,6 +30,7 @@
 #include <utility>
 #include <atomic>
 #include <array>
+#include <set>
 
 
 #include "compat/coot-sysdep.h"
@@ -42,9 +43,10 @@
 #include "coot-utils/sfcalc-genmap.hh"
 #include "coot-utils/atom-tree.hh"
 #include "coot-utils/texture-as-floats.hh"
+#include "coot-utils/coot-align.hh"
 #include "geometry/residue-and-atom-specs.hh"
-#include "coords/Cartesian.h"
-#include "coords/Bond_lines.h"
+#include "coords/Cartesian.hh"
+#include "coords/Bond_lines.hh"
 #include "ideal/simple-restraint.hh"
 #include "ideal/extra-restraints.hh"
 #include "coot-utils/simple-mesh.hh"
@@ -60,7 +62,7 @@
 
 #include "coot-colour.hh" // put this in utils
 
-#include "coords/mmdb-extras.h"
+#include "coords/mmdb-extras.hh"
 #include "merge-molecule-results-info-t.hh"
 #include "phi-psi-prob.hh"
 
@@ -76,8 +78,12 @@
 #include "coot-utils/coot-map-utils.hh" // for map_molecule_centre_info_t
 #include "api-cell.hh" // 20230702-PE not needed in this file - remove it from here
 
+#include "moved-atom.hh"
+#include "moved-residue.hh"
+
 #include "bond-colour.hh"
 #include "blender-mesh.hh"
+#include "user-defined-colour-table.hh"
 
 // 2023-07-04-PE This is a hack. This should be configured - and the
 // various functions that depend on this being true should be
@@ -94,6 +100,27 @@ namespace coot {
 
    enum { RESIDUE_NUMBER_UNSET = -1111}; // from molecule-class-info
 
+   //! a simple wrapper for a residue range
+   class residue_range_t {
+   public:
+      residue_range_t() : res_no_start(-999), res_no_end(-999) {}
+      residue_range_t(const std::string &c, int r1, int r2) : res_no_start(r1), res_no_end(r2) {}
+      std::string chain_id;
+      int res_no_start;
+      int res_no_end;
+   };
+
+   //! a simple wrapper for annotated distances
+   class atom_distance_t {
+   public:
+     atom_distance_t(const atom_spec_t &a1, const atom_spec_t &a2,
+		    float d) : atom_1(a1), atom_2(a2), distance(d) {}
+     atom_distance_t() : distance(-1) {}
+     atom_spec_t atom_1;
+     atom_spec_t atom_2;
+     float distance;
+   };
+
    class molecule_t {
 
       class molecule_save_info_t {
@@ -107,7 +134,8 @@ namespace coot {
          void new_modification(const std::string &mod_string) {
             modification_index++;
             if (false) // debugging
-               std::cout << "new_modification: moved on to " << modification_index << " by " << mod_string << std::endl;
+               std::cout << "new_modification: moved on to " << modification_index
+                         << " by " << mod_string << std::endl;
             if (modification_index > max_modification_index)
                max_modification_index = modification_index;
          }
@@ -268,6 +296,9 @@ namespace coot {
       std::vector<density_contour_triangles_container_t> draw_diff_map_vector_sets;
       std::vector<std::pair<int, TRIANGLE> > map_triangle_centres; // with associated mid-points and indices
 
+      // insert coords - c.f function in molecule-class-info_t
+      void insert_coords_internal(const atom_selection_container_t &asc);
+
       // This function no longer does a backup or updates the save_info!
       // The calling function should do that.
       void replace_coords(const atom_selection_container_t &asc,
@@ -369,10 +400,11 @@ namespace coot {
 
       // ====================== validation ======================================
 
-      std::vector<coot::geometry_distortion_info_container_t>
+      std::vector<coot::geometry_distortion_info_pod_container_t>
       geometric_distortions_from_mol(const atom_selection_container_t &asc, bool with_nbcs,
                                      coot::protein_geometry &geom,
                                      ctpl::thread_pool &static_thread_pool);
+
 
       // ====================== dragged refinement ======================================
 
@@ -431,6 +463,10 @@ namespace coot {
          }
 
          indexed_user_defined_colour_selection_cids_apply_to_non_carbon_atoms_also = true;
+
+         gltf_pbr_roughness = 0.2;
+         gltf_pbr_metalicity = 0.0;
+
       }
 
       // chain-id (maybe) and plain sequence.
@@ -474,6 +510,8 @@ namespace coot {
       }
 
       float get_median_temperature_factor() const;
+
+      float get_temperature_factor_of_atom(const std::string &atom_cid) const;
 
       // ------------------------ close
 
@@ -560,6 +598,7 @@ namespace coot {
 
       std::string get_name() const { return name; }
       void set_molecule_name(const std::string &n) { name = n; };
+      mmdb::Manager *get_mol(); // return null on failure
       int get_molecule_index() const { return imol_no; }
       // void set_molecule_index(int idx) { imol_no = idx; } // 20221011-PE needed?
       bool is_valid_model_molecule() const;
@@ -567,15 +606,35 @@ namespace coot {
       unsigned int get_number_of_atoms() const;
       int get_number_of_hydrogen_atoms() const;
       float get_molecule_diameter() const;
+      //! Get Radius of Gyration
+      //!
+      //! @param imol is the model molecule index
+      //!
+      //! @return the molecule centre. If the number is less than zero, there
+      //! was a problem finding the molecule or atoms.
+      double get_radius_of_gyration() const;
+
+      //! get types
+      std::vector<std::string> get_types_in_molecule() const;
       mmdb::Residue *cid_to_residue(const std::string &cid) const;
       std::vector<mmdb::Residue *> cid_to_residues(const std::string &cid) const;
       mmdb::Atom *cid_to_atom(const std::string &cid) const;
       std::pair<bool, residue_spec_t> cid_to_residue_spec(const std::string &cid) const;
       std::pair<bool, atom_spec_t> cid_to_atom_spec(const std::string &cid) const;
       std::vector<std::string> get_residue_names_with_no_dictionary(const protein_geometry &geom) const;
-      int insert_waters_into_molecule(const minimol::molecule &water_mol);
+      // here res-name might be HOH or DUM
+      int insert_waters_into_molecule(const minimol::molecule &water_mol, const std::string &res_name);
+
+      std::string get_molecule_selection_as_json(const std::string &cid) const;
+      std::string get_torsions_for_residues_in_chain_as_json(const std::string &chain_id) const;
 
       // ----------------------- model utils
+
+     //! get missing residue ranges
+     //!
+     //! @param imol is the model molecule index
+     //! @return missing residue ranges
+     std::vector<residue_range_t> get_missing_residue_ranges() const;
 
       // public
       void make_bonds(protein_geometry *geom, rotamer_probability_tables *rot_prob_tables_p,
@@ -605,6 +664,7 @@ namespace coot {
       bool have_unsaved_changes() const { return modification_info.have_unsaved_changes(); }
       int undo(); // 20221018-PE return status not yet useful
       int redo(); // likewise
+      // the return value of WritePDBASCII() or WriteCIFASCII(). mmdb return type
       int write_coordinates(const std::string &file_name) const; // return 0 on OK, 1 on failure
 
       //! @return a model molecule imol as a string. Return emtpy string on error
@@ -625,6 +685,32 @@ namespace coot {
       //! Get the chains that are related by NCS:
       std::vector<std::vector<std::string> > get_ncs_related_chains() const;
 
+      //! copy chain using NCS matrix
+      bool copy_ncs_chain(const std::string &from_chain_id, const std::string &to_chain_id);
+
+      //! get the residue CA position
+      //!
+      //! @return a vector. The length of the vector is 0 on failure, otherwise it is the x,y,z values
+      std::vector<double> get_residue_CA_position(const std::string &cid) const;
+
+      //! get the avarge residue position
+      //!
+      //! @return a vector. The length of the vector is 0 on failure, otherwise it is the x,y,z values
+      std::vector<double> get_residue_average_position(const std::string &cid) const;
+
+      //! get the avarge residue side-chain position
+      //!
+      //! @return a vector. The length of the vector is 0 on failure, otherwise it is the x,y,z values
+      std::vector<double> get_residue_sidechain_average_position(const std::string &cid) const;
+
+      //! set occupancy
+      //!
+      //! set the occupancy for the given atom selection
+      //!
+      //! @param imol is the model molecule index
+      //! @param cod is the atom selection CID
+      void set_occupancy(const std::string &cid, float occ_new);
+
       // ----------------------- model bonds
 
       simple_mesh_t get_bonds_mesh(const std::string &mode, protein_geometry *geom,
@@ -640,6 +726,10 @@ namespace coot {
       instanced_mesh_t get_bonds_mesh_instanced(const std::string &mode, protein_geometry *geom,
                                                 bool against_a_dark_background,
                                                 float bonds_width, float atom_radius_to_bond_width_ratio,
+                                                bool render_atoms_as_aniso, // if possible, of course
+                                                float aniso_probability,
+                                                bool render_aniso_atoms_as_ortep,
+                                                bool render_aniso_atoms_as_empty,
                                                 int smoothness_factor,
                                                 bool draw_hydrogen_atoms_flag,
                                                 bool draw_missing_residue_loops);
@@ -648,6 +738,9 @@ namespace coot {
                                                               protein_geometry *geom,
                                                               bool against_a_dark_background,
                                                               float bonds_width, float atom_radius_to_bond_width_ratio,
+                                                              bool render_atoms_as_aniso, // if possible, of course
+                                                              bool render_aniso_atoms_as_ortep,
+                                                              bool render_aniso_atoms_as_empty,
                                                               int smoothness_factor,
                                                               bool draw_hydrogen_atoms_flag,
                                                               bool draw_missing_residue_loops);
@@ -740,8 +833,32 @@ namespace coot {
                                                       const std::string &style,
                                                       int secondaryStructureUsageFlag) const;
 
+      class res_prop_t {
+         public:
+         float value; // e.g. worm-radius
+         float value_x; // for aniso props
+         float value_y;
+         float value_z;
+         res_prop_t() : value(-1.1f), value_x(-1.1f), value_y(-1.1f), value_z(-1.1f) {}
+         bool filled_aniso() const { return value_x > 0.0f && value_y > 0.0f && value_z > 0.0f; }
+      };
+      std::map<coot::residue_spec_t, res_prop_t> residue_properties_map;
+
+      //! \brief set the residue properties
+      //!
+      //! a list of propperty maps such as `{"chain-id": "A", "res-no": 34, "ins-code": "", "worm-radius": 1.2}`
+      //!
+      //! @param json_string is the properties in JSON format
+      //! @return true
+      bool set_residue_properties(const std::string &json_string);
+
+      void clear_residue_properties();
+
       simple_mesh_t get_gaussian_surface(float sigma, float contour_level,
                                          float box_radius, float grid_scale, float fft_b_factor) const;
+
+      simple_mesh_t get_gaussian_surface_for_atom_selection(const std::string &cid, float sigma, float contour_level,
+                                                            float box_radius, float grid_scale, float fft_b_factor) const;
 
       simple_mesh_t get_chemical_features_mesh(const std::string &cid, const protein_geometry &geom) const;
 
@@ -770,11 +887,18 @@ namespace coot {
                                          const std::string &file_name);
 
       // this is the ribbons and surfaces API
-      void export_molecular_represenation_as_gltf(const std::string &atom_selection_cid,
+      void export_molecular_representation_as_gltf(const std::string &atom_selection_cid,
                                                   const std::string &colour_scheme,
                                                   const std::string &style,
                                                   int secondary_structure_usage_flag,
                                                   const std::string &file_name);
+
+      void export_chemical_features_as_gltf(const std::string &cid,
+                                            const protein_geometry &geom,
+                                            const std::string &file_name) const;
+
+      float gltf_pbr_roughness;
+      float gltf_pbr_metalicity;
 
       void set_show_symmetry(bool f) { show_symmetry = f;}
       bool get_show_symmetry() { return show_symmetry;}
@@ -799,6 +923,8 @@ namespace coot {
 
       std::vector<residue_spec_t> get_non_standard_residues_in_molecule() const;
 
+      std::vector<std::string> get_residue_types_without_dictionaries(const protein_geometry &geom) const;
+
       //! @return the instanced mesh for the specified ligand
       instanced_mesh_t contact_dots_for_ligand(const std::string &cid, const protein_geometry &geom,
                                                unsigned int num_subdivisions) const;
@@ -808,7 +934,7 @@ namespace coot {
                                                  unsigned int num_subdivisions) const;
 
       generic_3d_lines_bonds_box_t
-      make_exportable_environment_bond_box(coot::residue_spec_t &spec, coot::protein_geometry &geom) const;
+      make_exportable_environment_bond_box(coot::residue_spec_t &spec, float max_dist, coot::protein_geometry &geom) const;
 
       //! we pass the imol because we use that to look up the residue type in the dictionary
       //! annoyingly, we pass a non-const pointer to the protein-geometry because that is what
@@ -829,19 +955,50 @@ namespace coot {
                                                                        coot::protein_geometry &geom,
                                                                        ctpl::thread_pool &static_thread_pool);
 
-      // this function is another version of the above function, but returns distortion values
-      std::vector<coot::geometry_distortion_info_container_t>
-      geometric_distortions_from_mol(const std::string &ligand_cid, bool with_nbcs,
-                                     coot::protein_geometry &geom,
-                                     ctpl::thread_pool &static_thread_pool);
+      //! this function is another version of the above function, but returns distortion values
+      //!
+      //! this function returns a vector of the wrong type (it has pointers to expired molecules).
+      //!
+      std::vector<coot::geometry_distortion_info_pod_container_t>
+      geometric_distortions_for_one_residue_from_mol(const std::string &ligand_cid, bool with_nbcs,
+                                                     coot::protein_geometry &geom,
+                                                     ctpl::thread_pool &static_thread_pool);
+
+      //! this function is another version of the above function, but returns distortion values
+      //!
+      //! this function returns a vector of the wrong type (it has pointers to expired molecules).
+      //!
+      std::vector<coot::geometry_distortion_info_pod_container_t>
+      geometric_distortions_for_selection_from_mol(const std::string &selection_cid, bool with_nbcs,
+                                                   coot::protein_geometry &geom,
+                                                   ctpl::thread_pool &static_thread_pool);
+
+      // I want a function that does the evaluation of the distortion
+      // in place - I don't want to get a function that allows me to
+      // calculate the distortion from the restraints.
+      //
+      std::pair<int, double>
+      simple_geometric_distortions_from_mol(const std::string &ligand_cid, bool with_nbcs,
+                                            coot::protein_geometry &geom,
+                                            ctpl::thread_pool &static_thread_pool);
 
       coot::instanced_mesh_t get_extra_restraints_mesh(int mode) const;
 
       //! @return a list of residues specs that have atoms within dist of the atoms of the specified residue
       std::vector<coot::residue_spec_t> residues_near_residue(const std::string &residue_cid, float dist) const;
 
+     //! get atom distances
+     //! other stuff here
+     std::vector<coot::atom_distance_t>
+     get_distances_between_atoms_of_residues(const std::string &cid_res_1,
+					     const std::string &cid_res_2,
+					     float dist_max) const;
+
       //! not const because it can dynamically add dictionaries
-      std::vector<plain_atom_overlap_t> get_overlaps(protein_geometry *geom_p);
+      std::vector<plain_atom_overlap_t> get_atom_overlaps(protein_geometry *geom_p);
+
+      //! get the atom overlap
+      float get_atom_overlap_score(protein_geometry *geom_p) const;
 
       //! not const because it can dynamically add dictionaries
       std::vector<plain_atom_overlap_t> get_overlaps_for_ligand(const std::string &cid_ligand,
@@ -853,6 +1010,28 @@ namespace coot {
       //! not const because it can dynamically add dictionaries
       coot::atom_overlaps_dots_container_t get_overlap_dots_for_ligand(const std::string &cid_ligand,
                                                                        protein_geometry *geom_p);
+
+      instanced_mesh_t get_HOLE(const clipper::Coord_orth &start_pos,
+                                const clipper::Coord_orth &end_pos,
+                                const protein_geometry &geom) const;
+
+      //! get pucker info
+      //!
+      //! @param imol2 is the model molecule index
+      //! @return a json string or an empty string on failure
+      std::string get_pucker_analysis_info() const;
+
+      //! Get SVG for 2d ligand environment view (FLEV)
+      //!
+      //! The caller should make sure that the dictionary for the ligand has been loaded - this
+      //! function won't do that. It will add hydrogen atoms if needed.
+      //! The can modify the protein_geometry
+      //!
+      //! @param residue_cid is the cid for the residue
+      std::string get_svg_for_2d_ligand_environment_view(const std::string &residue_cid,
+                                                         protein_geometry *geom,
+                                                         bool add_key) const;
+
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
       //! if the ligand cid specifies more than one residue, only the first is returned.
@@ -887,11 +1066,22 @@ namespace coot {
       int delete_chain_using_atom_cid(const std::string &cid);
       int delete_literal_using_cid(const std::string &cid); // cid is an atom selection, e.g. containing a residue range
 
+      int change_alt_locs(const std::string &cid, const std::string &change_mode);
+
       std::pair<int, std::string> add_terminal_residue_directly(const residue_spec_t &spec,
                                                                 const std::string &new_res_type,
                                                                 const protein_geometry &geom,
                                                                 const clipper::Xmap<float> &xmap,
+                                                                mmdb::Manager *standard_residues_asc_mol, // for RNA
                                                                 ctpl::thread_pool &static_thread_pool);
+
+      void execute_simple_nucleotide_addition(const std::string &term_type,
+                                              mmdb::Residue *res_p, const std::string &chain_id,
+                                              mmdb::Manager *standard_residues_asc_mol);
+      void execute_simple_nucleotide_addition(mmdb::Residue *residue_p,
+                                              mmdb::Manager *standard_residues_asc_mol);
+      void execute_simple_nucleotide_addition(const std::string &cid,
+                                              mmdb::Manager *standard_residues_asc_mol);
 
       int add_compound(const dictionary_residue_restraints_t &monomer_restraints, const Cartesian &position,
                        const clipper::Xmap<float> &xmap, float map_rmsd);
@@ -908,6 +1098,9 @@ namespace coot {
       int fill_partial_residues(const clipper::Xmap<float> &xmap, protein_geometry *geom);
 
       int mutate(const residue_spec_t &spec, const std::string &new_res_type);
+
+      void add_named_glyco_tree(const std::string &glycosylation_name, const std::string &chain_id, int res_no,
+                                const clipper::Xmap<float> &xmap, protein_geometry *geom);
 
       int side_chain_180(const residue_spec_t &residue_spec, const std::string &alt_conf,
                          coot::protein_geometry *geom_p); // sub functions are non-const
@@ -955,6 +1148,21 @@ namespace coot {
       //! @return 1 on a successful additions, 0 on failure.
       int delete_hydrogen_atoms();
 
+      //! delete all carbohydrate
+      //!
+      //! @return true on successful deletion, return false on no deletion.
+      bool delete_all_carbohydrate();
+
+      //! Residue is nucleic acid?
+      //!
+      //! Every residue in the selection is checked
+      //!
+      //! @param imol is the model molecule index
+      //! @param cid is the selection CID e.g "//A/15" (residue 15 of chain A)
+      //!
+      //! @return a bool
+      bool residue_is_nucleic_acid(const std::string &cid) const;
+
       // change the chain id
       // return -1 on a conflict
       // 1 on good.
@@ -974,40 +1182,16 @@ namespace coot {
                                          int end_resno);
       void change_chain_id_with_residue_range_helper_insert_or_add(mmdb::Chain *to_chain_p, mmdb::Residue *new_residue);
 
-      //! a moved atom
-      class moved_atom_t {
-      public:
-         std::string atom_name;
-         std::string alt_conf;
-         float x, y, z;
-         int index; // for fast lookup. -1 is used for "unknown"
-         moved_atom_t(const std::string &a, const std::string &alt, float x_in, float y_in, float z_in) :
-            atom_name(a), alt_conf(alt), x(x_in), y(y_in), z(z_in), index(-1) {}
-         moved_atom_t(const std::string &a, const std::string &alt, float x_in, float y_in, float z_in, int idx) :
-            atom_name(a), alt_conf(alt), x(x_in), y(y_in), z(z_in), index(idx) {}
-      };
-
-      //! a moved residue - which contains a vector of atoms
-      class moved_residue_t {
-      public:
-         std::string chain_id;
-         int res_no;
-         std::string ins_code;
-         std::vector<moved_atom_t> moved_atoms;
-         moved_residue_t(const std::string &c, int rn, const std::string &i) : chain_id(c), res_no(rn), ins_code(i) {}
-         void add_atom(const moved_atom_t &mva) {moved_atoms.push_back(mva); }
-      };
-
       //! set new positions for the atoms in the specified residue
-      int new_positions_for_residue_atoms(const std::string &residue_cid, const std::vector<moved_atom_t> &moved_atoms);
+      int new_positions_for_residue_atoms(const std::string &residue_cid, const std::vector<api::moved_atom_t> &moved_atoms);
 
       //! set new positions for the atoms of the specified residues
-      int new_positions_for_atoms_in_residues(const std::vector<moved_residue_t> &moved_residues);
+      int new_positions_for_atoms_in_residues(const std::vector<api::moved_residue_t> &moved_residues);
 
       //! not for wrapping (should be private).
       //! We don't want this function to backup if the backup happens in the calling function (i.e.
       //! new_positions_for_atoms_in_residues).
-      int new_positions_for_residue_atoms(mmdb::Residue *residue_p, const std::vector<moved_atom_t> &moved_atoms,
+      int new_positions_for_residue_atoms(mmdb::Residue *residue_p, const std::vector<api::moved_atom_t> &moved_atoms,
                                           bool do_backup);
 
       //! merge molecules - copy the atom of mols into this molecule
@@ -1073,10 +1257,21 @@ namespace coot {
                                            int rotamer_change_direction,
                                            const coot::protein_geometry &pg);
 
+      int set_residue_to_rotamer_number(coot::residue_spec_t res_spec,
+                                        const std::string &alt_conf_in,
+                                        int rotamer_number,
+                                        const coot::protein_geometry &pg);
+
       void associate_sequence_with_molecule(const std::string &chain_id, const std::string &sequence);
 
       //! try to fit all of the sequences to all of the chains
       void assign_sequence(const clipper::Xmap<float> &xmap, const coot::protein_geometry &geom);
+
+      //!  simple return the associated sequences
+      std::vector<std::pair<std::string, std::string> > get_sequence_info() const;
+
+      //! return the mismatches/mutations:
+      chain_mutation_info_container_t get_mutation_info() const;
 
       // ----------------------- merge molecules
 
@@ -1108,12 +1303,20 @@ namespace coot {
       std::pair<int, std::vector<merge_molecule_results_info_t> >
       merge_molecules(const std::vector<atom_selection_container_t> &add_molecules);
 
+
+      std::pair<int, double>
+      get_torsion(const std::string &cid, const std::vector<std::string> &atom_names) const;
+
+
+      void
+      set_temperature_factors_using_cid(const std::string &cid, float temp_fact);
+
       // ----------------------- refinement
 
       coot::extra_restraints_t extra_restraints;
 
       //! read extra restraints (e.g. from ProSMART)
-      void read_extra_restraints(const std::string &file_name);
+      int read_extra_restraints(const std::string &file_name);
       //! refinement tool
       std::vector<mmdb::Residue *> select_residues(const residue_spec_t &spec, const std::string &mode) const;
       //! resno_start and resno_end are inclusive
@@ -1123,6 +1326,7 @@ namespace coot {
 
       //! real space refinement
       int refine_direct(std::vector<mmdb::Residue *> rv, const std::string &alt_loc, const clipper::Xmap<float> &xmap,
+                        unsigned int max_number_of_threads,
                         float map_weight, int n_cycles, const coot::protein_geometry &geom,
                         bool do_rama_plot_restraints, float rama_plot_weight,
                         bool do_torsion_restraints, float torsion_weight,
@@ -1201,7 +1405,14 @@ namespace coot {
       // --------------- rigid body fit
       int rigid_body_fit(const std::string &mult_cids, const clipper::Xmap<float> &xmap);
 
+      int rotate_around_bond(const std::string &residue_cid,
+                             const std::string &alt_conf,
+                             coot::atom_name_quad quad,
+                             double torsion_angle, protein_geometry &geom);
+
       // ----------------------- map functions
+
+      void scale_map(float scale_factor);
 
       bool is_EM_map() const;
 
@@ -1232,6 +1443,9 @@ namespace coot {
                                           bool use_thread_pool, ctpl::thread_pool *thread_pool_p);
       simple_mesh_t get_map_contours_mesh_using_other_map_for_colours(const clipper::Coord_orth &position, float radius, float contour_level,
                                                                       const clipper::Xmap<float> &xmap);
+      simple_mesh_t get_map_contours_mesh_using_other_map_for_colours(const clipper::Coord_orth &position, float radius, float contour_level,
+								      const user_defined_colour_table_t &udct,
+                                                                      const clipper::Xmap<float> &xmap);
 
       //! map histogram class
       class histogram_info_t {
@@ -1257,6 +1471,15 @@ namespace coot {
       //! centred around the median (typically 1.0 but usefully can vary until ~20.0).
       histogram_info_t get_map_histogram(unsigned int n_bins, float zoom_factor) const;
 
+      // just look at the vertices of the map - not the whole thing
+      // Sample the points from other_map
+      histogram_info_t
+      get_map_vertices_histogram(const clipper::Xmap<float> &other_xmap,
+				 const clipper::Coord_orth &pt,
+				 float radius, float contour_level,
+				 bool use_thread_pool, ctpl::thread_pool *thread_pool_p,
+				 unsigned int n_bins);
+
       void set_map_colour(colour_holder holder);
       void set_map_colour_saturation(float s) { radial_map_colour_saturation = s; }
 
@@ -1267,6 +1490,10 @@ namespace coot {
       void set_other_map_for_colouring_invert_colour_ramp(bool state) {
          radial_map_colour_invert_flag = state;
       }
+
+      double sum_density_for_atoms_in_residue(const std::string &cid,
+                                              const std::vector<std::string> &atom_names,
+                                              const clipper::Xmap<float> &xmap) const;
 
       //! The container class for an interesting place.
       //!
@@ -1338,6 +1565,12 @@ namespace coot {
                                       float bond_width, float atom_radius_to_bond_width_ratio,
                                       int smoothness_factor);
 
+      //! Make an (internal) mesh
+      //!
+      //! this function doesn't return a value, instead it stores a `blender_mesh_t` blender_mesh
+      //! in this model
+      //!
+      //! @modifies internal state to fill the internal `blender_mesh` object
       void make_mesh_for_molecular_representation_for_blender(const std::string &cid,
                                                               const std::string &colour_scheme,
                                                               const std::string &style,

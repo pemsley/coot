@@ -2356,27 +2356,6 @@ draw_axes(GL_matrix &m) {
    }
 }
 
-
-
-float r_50(std::string ele) {
-
-   // fix later
-   //
-   return 1.2;
-}
-
-float rad_50_and_prob_to_radius(float rad_50, float prob) {
-
-   // Note the prob*(prob-100.0) part is scaled up by a factor of
-   // 100*100... and the (50-prob) is scaled by a factor of 100, so
-   // multiply the top by 100.0 to compensate.
-   //
-   // The leading factor is to stop the radius moving too fast.
-   //
-   return rad_50*exp(0.3*100.0*(50.0-prob)/(prob*(prob-100.0)));
-
-}
-
 // This function is way too long.  It needs to be split it into
 // internal bits.
 //

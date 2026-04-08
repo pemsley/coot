@@ -36,3 +36,36 @@ molecule_class_info_t::get_model_composition_statistics() const {
    return m;
 
 }
+
+std::vector<std::string>
+molecule_class_info_t::get_types_in_molecule() const {
+
+   // 20250513-PE move this into coot-utils
+
+   std::vector<std::string> v;
+   std::set<std::string> s;
+   mmdb::Manager *mol = atom_sel.mol;
+   if (mol) {
+      for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+	 mmdb::Model *model_p = mol->GetModel(imod);
+	 if (model_p) {
+	    int n_chains = model_p->GetNumberOfChains();
+	    for (int ichain=0; ichain<n_chains; ichain++) {
+	       mmdb::Chain *chain_p = model_p->GetChain(ichain);
+	       int n_res = chain_p->GetNumberOfResidues();
+	       for (int ires=0; ires<n_res; ires++) {
+		  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+		  if (residue_p) {
+		     std::string type = residue_p->GetResName();
+		     s.insert(type);
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   for (const auto &item : s) {
+      v.push_back(item);
+   }
+   return v;
+}

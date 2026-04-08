@@ -46,10 +46,13 @@ out vec4 colour_transfer;
 
 uniform mat4 mvp;
 uniform mat4 view_rotation;
+uniform float stereo_x_scale;
+uniform float stereo_x_offset;
 
 void main() {
    vec4 n = vec4(normal, 1.0);
-   gl_Position = mvp * vec4(position, 1.0);
+   // gl_Position = mvp * vec4(position, 1.0);
+   gl_Position = mvp * vec4(position, 1.0) * vec4(stereo_x_scale, 1.0f, 1.0f, 1.0f) + vec4(stereo_x_offset, 0.0f, 0.0f, 0.0f);
    normal_transfer = normal; // Hmmm! 20220209-PE normals are in "molecule" space (as are the light positions)
    colour_transfer = colour;
    frag_pos_transfer = position;
@@ -232,9 +235,6 @@ void main() {
       // (I.N) should be 1.0 if we are looking staight on to (perpendicular to) the surface.
       float I_dot_N = dp_eye;
       if (I_dot_N <= 0.0) {
-         float bias  = 0.01;
-         float scale = 0.5;
-         float power = 2.2;
          // I_dot_N = clamp(I_dot_N, 0.0, 1.0); // should not be needed.
          float R0 = fresnel_bias + fresnel_scale * pow((1.0 + I_dot_N), fresnel_power);
          float R = clamp(R0, 0.0, 1.0);

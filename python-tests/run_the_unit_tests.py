@@ -5,9 +5,14 @@ import coot
 import coot_utils
 import coot_testing_utils
 
-import sys
+import os
 sys.path.append(".")
-sys.path.append("../../coot/python-tests")
+# more general!?! append python-test dir, i.e. directory this file resides in
+import inspect
+this_file=inspect.getsourcefile(lambda:0)
+test_dir=os.path.split(this_file)[0]
+sys.path.append(test_dir)
+# sys.path.append("../../coot/python-tests")
 
 from TestPdbMtzFunctions    import *
 from TestShelxFunctions     import *
@@ -22,7 +27,7 @@ from TestInternalFunctions  import *
 # as well as to sys.stdout
 class StreamIO:
         
-    def __init__(self, etxra, src=sys.stderr, dst=sys.stdout):
+    def __init__(self, src=sys.stderr, dst=sys.stdout):
         import io
         global unittest_output
         unittest_output = io.StringIO()
@@ -36,6 +41,9 @@ class StreamIO:
         self.dst.write(msg)
 
     def flush(self):
+        self.src.flush()
+        self.dst.flush()
+        self.extra.flush()
         pass
 
 
@@ -51,3 +59,11 @@ for test in test_list:
 log = StreamIO(sys.stderr, sys.stdout)
 
 result = unittest.TextTestRunner(stream=log, verbosity=2).run(suite)
+
+# Shouldnt we exit!?
+# cheating?! We only exit Coot if we are not in graphics mode
+if (coot.use_graphics_interface_state() == 0):
+    if (result.wasSuccessful()):
+        coot.coot_real_exit(0)
+    else:
+        coot.coot_real_exit(1)

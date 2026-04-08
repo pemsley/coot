@@ -35,9 +35,9 @@
 // the vector points towards the ring
 std::pair<bool, double>
 coot::angle_betwen_plane_and_vector(mmdb::Residue *residue_p,
-				    const std::vector<std::string> &ring_atom_names,
-				    const std::string &altconf_in,
-				    const clipper::Coord_orth &vector) {
+                                    const std::vector<std::string> &ring_atom_names,
+                                    const std::string &altconf_in,
+                                    const clipper::Coord_orth &vector) {
 
    std::pair<bool, double> r(false,0);
 
@@ -47,25 +47,25 @@ coot::angle_betwen_plane_and_vector(mmdb::Residue *residue_p,
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
       std::vector<clipper::Coord_orth> ring_atom_positions;
       for (int iat=0; iat<n_residue_atoms; iat++) {
-	 mmdb::Atom *at = residue_atoms[iat];
-	 std::string atom_name(at->GetAtomName());
-	 std::string alt_conf(at->altLoc);
-	 std::vector<std::string>::const_iterator it =
-	    std::find(ring_atom_names.begin(), ring_atom_names.end(), atom_name);
-	 if (it != ring_atom_names.end()) {
-	    if (alt_conf == altconf_in) {
-	       clipper::Coord_orth pos = co(at);
-	       ring_atom_positions.push_back(pos);
-	    }
-	 }
+         mmdb::Atom *at = residue_atoms[iat];
+         std::string atom_name(at->GetAtomName());
+         std::string alt_conf(at->altLoc);
+         std::vector<std::string>::const_iterator it =
+            std::find(ring_atom_names.begin(), ring_atom_names.end(), atom_name);
+         if (it != ring_atom_names.end()) {
+            if (alt_conf == altconf_in) {
+               clipper::Coord_orth pos = co(at);
+               ring_atom_positions.push_back(pos);
+            }
+         }
 
-	 if (ring_atom_positions.size() > 4) {
+         if (ring_atom_positions.size() > 4) {
 
-	    lsq_plane_info_t l(ring_atom_positions);
-	    double angle = l.angle(vector); // degrees
-	    r.first = true;
-	    r.second = angle;
-	 }
+            lsq_plane_info_t l(ring_atom_positions);
+            double angle = l.angle(vector); // degrees
+            r.first = true;
+            r.second = angle;
+         }
       }
    }
 
@@ -75,8 +75,8 @@ coot::angle_betwen_plane_and_vector(mmdb::Residue *residue_p,
 
 std::pair<bool, double>
 coot::angle_betwen_plane_and_vector(mmdb::Residue *residue_p,
-				    mmdb::Atom *atom_in_ring,
-				    mmdb::Atom *bonding_atom) {
+                                    mmdb::Atom *atom_in_ring,
+                                    mmdb::Atom *bonding_atom) {
 
    std::pair<bool, double> r(false,0);
 

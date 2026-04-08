@@ -46,7 +46,7 @@ coot::molecule_t::setup_cylinder_clashes(instanced_mesh_t &im, const atom_overla
    if (c.clashes.size() > 0) {
       std::string clashes_name = molecule_name_stub + std::string(" clashes");
 
-      instanced_geometry_t ig_empty;
+      instanced_geometry_t ig_empty(clashes_name);
       im.add(ig_empty);
       instanced_geometry_t &ig = im.geom.back();
 
@@ -196,7 +196,7 @@ coot::molecule_t::contact_dots_for_ligand(const std::string &cid, const coot::pr
 
       mmdb::Manager *mol = atom_sel.mol;
       std::vector<mmdb::Residue *> neighbs = coot::residues_near_residue(residue_p, mol, 5);
-      coot::atom_overlaps_container_t overlaps(residue_p, neighbs, mol, &geom, 0.5, 0.25);
+      coot::atom_overlaps_container_t overlaps(residue_p, neighbs, mol, imol_no, &geom, 0.5, 0.25);
 
       coot::atom_overlaps_dots_container_t c = overlaps.contact_dots_for_ligand(cdd);
       float ball_size = 0.07;
@@ -237,32 +237,59 @@ coot::molecule_t::all_molecule_contact_dots(const coot::protein_geometry &geom,
 }
 
 // this function is a wrapper for the below function,
-// but returns something without expired pointers.
 //
-std::vector<coot::geometry_distortion_info_container_t>
-coot::molecule_t::geometric_distortions_from_mol(const std::string &ligand_cid, bool with_nbcs,
-                                                 coot::protein_geometry &geom,
-                                                 ctpl::thread_pool &static_thread_pool) {
+std::vector<coot::geometry_distortion_info_pod_container_t>
+coot::molecule_t::geometric_distortions_for_one_residue_from_mol(const std::string &ligand_cid, bool with_nbcs,
+                                                                 coot::protein_geometry &geom,
+                                                                 ctpl::thread_pool &static_thread_pool) {
 
-   std::vector<coot::geometry_distortion_info_container_t> v;
+   std::vector<coot::geometry_distortion_info_pod_container_t> v;
    mmdb::Residue *residue_p = cid_to_residue(ligand_cid);
    if (residue_p) {
       mmdb::Manager *mol = coot::util::create_mmdbmanager_from_residue(residue_p);
       if (mol) {
          atom_selection_container_t asc = make_asc(mol);
+         // does v contain pointers to atoms (I'd rather that it didnt)
          v = geometric_distortions_from_mol(asc, with_nbcs, geom, static_thread_pool);
+         //          2026-02-19-PE have a look here - check that asc.clear_up works OK. We don't
+         //          want to leak the atom selection.
+         // asc.clear_up();  asc is no longer needed?
+         delete(mol);
+      }
+   }
+   return v;
+}
+
+//
+std::vector<coot::geometry_distortion_info_pod_container_t>
+coot::molecule_t::geometric_distortions_for_selection_from_mol(const std::string &cid, bool with_nbcs,
+                                                               coot::protein_geometry &geom,
+                                                               ctpl::thread_pool &static_thread_pool) {
+
+   std::vector<coot::geometry_distortion_info_pod_container_t> v;
+   std::vector<mmdb::Residue *> residues = cid_to_residues(cid);
+   if (! residues.empty()) {
+      std::pair<bool, mmdb::Manager *> mol_p = coot::util::create_mmdbmanager_from_residue_vector(residues, atom_sel.mol);
+      if (mol_p.first) {
+         mmdb::Manager *mol = mol_p.second;
+         atom_selection_container_t asc = make_asc(mol);
+         // does v contain pointers to atoms (I'd rather that it didnt)
+         v = geometric_distortions_from_mol(asc, with_nbcs, geom, static_thread_pool);
+         asc.clear_up();  // asc is no longer needed
       }
    }
    return v;
 }
 
 
-std::vector<coot::geometry_distortion_info_container_t>
+std::vector<coot::geometry_distortion_info_pod_container_t>
 coot::molecule_t::geometric_distortions_from_mol(const atom_selection_container_t &asc, bool with_nbcs,
                                                  coot::protein_geometry &geom,
                                                  ctpl::thread_pool &static_thread_pool) {
 
-   std::vector<coot::geometry_distortion_info_container_t> dcv;
+   // 20241115-PE I think this function is dangerous (see below simple version)
+
+   std::vector<coot::geometry_distortion_info_pod_container_t> dcv;
 
    if (! asc.mol)
       return dcv;
@@ -285,7 +312,6 @@ coot::molecule_t::geometric_distortions_from_mol(const atom_selection_container_
          mmdb::Chain *chain_p;
          int nchains = model_p->GetNumberOfChains();
          const char *chain_id;
-
 
          for (int ichain=0; ichain<nchains; ichain++) {
 
@@ -396,12 +422,16 @@ coot::molecule_t::geometric_distortions_from_mol(const atom_selection_container_
                                                 0.0, 0, false, false, false,
                                                 pseudos);
 
+                  if (false)
+                     std::cout << "debug:: in geometric_distortions_from_mol() nrestraints " << nrestraints
+                               << std::endl;
+
                   if (nrestraints > 0) {
 
 //                      std::cout << "DEBUG:: model " << imod << " pushing back " << nrestraints
 //                                << " restraints" << std::endl;
 
-                     dcv.push_back(restraints.geometric_distortions());
+                     dcv.push_back(restraints.geometric_distortions_pod());
 
                   } else {
 
@@ -423,6 +453,196 @@ coot::molecule_t::geometric_distortions_from_mol(const atom_selection_container_
    }
    return dcv;
 }
+
+// I want a function that does the evaluation of the distortion
+// in place - I don't want to get a function that allows me to
+// calculate the distortion from the restraints.
+//
+std::pair<int, double>
+coot::molecule_t::simple_geometric_distortions_from_mol(const std::string &ligand_cid,
+                                                        bool with_nbcs,
+                                                        coot::protein_geometry &geom,
+                                                        ctpl::thread_pool &static_thread_pool) {
+
+   // 20241115-PE
+   // This is a copy of the above function. I am not sure that the above function should be used
+   // because the std::vector<coot::geometry_distortion_info_container_t>
+   // contains pointers that have gone out of scope when the function ends
+
+   std::cout << "---------------------------------- geometric_distortions_from_mol() --- start " << std::endl;
+
+   int status = 0;
+   double distortion = 0.0;
+
+   mmdb::Residue *residue_p = cid_to_residue(ligand_cid);
+   if (! residue_p) {
+      return std::make_pair(0, 0.0); // fail
+   } else {
+      mmdb::Manager *mol = coot::util::create_mmdbmanager_from_residue(residue_p);
+      if (! mol) {
+         return std::make_pair(0, 0.0); // fail
+      } else {
+         atom_selection_container_t asc = make_asc(mol);
+
+         int n_models = asc.mol->GetNumberOfModels();
+
+         if (n_models > 0) {
+
+            // 20100629, crash!  Ooops, we can't run over many models
+            // because geometry_graphs (and its data member `blocks' are
+            // sized to the number of chains).  If we run over all models,
+            // then there are too many chains for the indexing of `blocks`
+            // -> crash.  So we just use the first model.
+
+            // for (int imod=1; imod<=n_models; imod++) {
+            int imod=1;
+            {
+
+               mmdb::Model *model_p = asc.mol->GetModel(imod);
+               int nchains = model_p->GetNumberOfChains();
+
+               for (int ichain=0; ichain<nchains; ichain++) {
+
+                  mmdb::Chain *chain_p = model_p->GetChain(ichain);
+
+                  if (! chain_p->isSolventChain()) {
+                     const char *chain_id = chain_p->GetChainID();
+
+                     // First make an atom selection of the residues selected to regularize.
+                     //
+                     int selHnd = asc.mol->NewSelection(); // yes, it's deleted.
+                     int nSelResidues;
+                     mmdb::PResidue *SelResidues = NULL;
+
+                     // Consider as the altconf the altconf of one of the residues (we
+                     // must test that the altlocs of the selected atoms to be either
+                     // the same as each other (A = A) or one of them is "".  We need to
+                     // know the mmdb syntax for "either".  Well, now I know that's ",A"
+                     // (for either blank or "A").
+                     //
+                     //
+                     //
+                     asc.mol->Select(selHnd, mmdb::STYPE_RESIDUE, imod,
+                                     chain_id,
+                                     mmdb::ANY_RES, "*",
+                                     mmdb::ANY_RES, "*",
+                                     "*",  // residue name
+                                     "*",  // Residue must contain this atom name?
+                                     "*",  // Residue must contain this Element?
+                                     "*",  // altLocs
+                                     mmdb::SKEY_NEW // selection key
+                                     );
+                     asc.mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
+
+                     if (nSelResidues <= 0) {
+
+                        std::cout << "ERROR:: No Residues!! This should never happen:" << std::endl;
+                        std::cout << "  in geometric_distortions_from_mol()" << std::endl;
+
+                     } else { // normal
+
+                        std::vector<coot::atom_spec_t> fixed_atom_specs;
+
+                        // Notice that we have to make 2 atom selections, one, which includes
+                        // flanking (and disulphide eventually) residues that is used for the
+                        // restraints (restraints_container_t constructor) and one that is the
+                        // moving atoms (which does not have flanking atoms).
+                        //
+                        // The restraints_container_t moves the atom of the mol that is passes to
+                        // it.  This must be the same mol as the moving atoms mol so that the
+                        // changed atom positions can be seen.  However (as I said) the moving
+                        // atom mol should not have flanking residues shown.  So we make an asc
+                        // that has the same mol as that passed to the restraints but a different
+                        // atom selection (it is the atom selection that is used in the bond
+                        // generation).
+                        //
+
+                        //                  20100210 try vector
+                        //                   coot::restraints_container_t restraints(SelResidues, nSelResidues,
+                        //                                                           std::string(chain_id),
+                        //                                                           asc.mol);
+                        std::vector<std::pair<bool,mmdb::Residue *> > residue_vec;
+                        for (int ires=0; ires<nSelResidues; ires++)
+                           residue_vec.push_back(std::pair<bool, mmdb::Residue *> (0, SelResidues[ires]));
+
+                        std::vector<mmdb::Link> links;
+                        clipper::Xmap<float> dummy_xmap;
+
+                        coot::restraints_container_t restraints(residue_vec,
+                                                                links,
+                                                                geom,
+                                                                asc.mol,
+                                                                fixed_atom_specs,
+                                                                &dummy_xmap);
+
+                        // coot::restraint_usage_Flags flags = coot::BONDS;
+                        // coot::restraint_usage_Flags flags = coot::BONDS_AND_ANGLES;
+                        // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_AND_PLANES;
+                        // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_TORSIONS_AND_PLANES;
+                        coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED;
+                        flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
+                        flags = coot::BONDS_ANGLES_AND_PLANES;
+                        flags = coot::BONDS_ANGLES_PLANES_AND_CHIRALS;
+
+                        if (with_nbcs)
+                           flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
+
+                        unsigned int n_threads = coot::get_max_number_of_threads();
+                        if (n_threads > 0)
+                           restraints.thread_pool(&static_thread_pool, n_threads);
+                        short int do_residue_internal_torsions = 0;
+
+                        //                if (do_torsion_restraints) {
+                        //                   do_residue_internal_torsions = 1;
+                        //                   flags = coot::BONDS_ANGLES_TORSIONS_PLANES_AND_NON_BONDED;
+                        //                }
+
+                        //                if (do_peptide_torsion_restraints)
+                        //                   do_link_torsions = 1;
+
+                        coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
+                        bool do_trans_peptide_restraints = false;
+                        int nrestraints =
+                           restraints.make_restraints(imol_no, geom,
+                                                      flags,
+                                                      do_residue_internal_torsions,
+                                                      do_trans_peptide_restraints,
+                                                      0.0, 0, false, false, false,
+                                                      pseudos);
+
+                        if (nrestraints > 0) {
+
+                           //                      std::cout << "DEBUG:: model " << imod << " pushing back " << nrestraints
+                           //                                << " restraints" << std::endl;
+
+                           status = 1;
+                           geometry_distortion_info_container_t gdic = restraints.geometric_distortions();
+                           distortion += gdic.distortion();
+
+
+                        } else {
+
+                           // don't give this annoying dialog if restraints
+                           // have been read for the residues in this chain.
+                           // e.g. a single CLs residues in a chain.
+                           int cif_dictionary_read_number = 50;
+                           std::vector<std::string> res_types = coot::util::residue_types_in_chain(chain_p);
+                           bool hd = geom.have_dictionary_for_residue_types(res_types, imol_no,
+                                                                            cif_dictionary_read_number);
+                           // we need to signal to the caller that there were no restraints.
+                           cif_dictionary_read_number += res_types.size();
+                        }
+                     }
+                     asc.mol->DeleteSelection(selHnd);
+                  }
+               }
+            }
+         }
+      }
+   }
+   return std::make_pair(status, distortion);
+}
+
 
 #include "coot-utils/shapes.hh"
 
@@ -471,11 +691,11 @@ coot::molecule_t::get_mesh_for_ligand_validation_vs_dictionary(const std::string
       if (mol) {
          bool with_nbcs = true; // pass this?
          atom_selection_container_t asc = make_asc(mol);
-         std::vector<coot::geometry_distortion_info_container_t> v =
+         std::vector<coot::geometry_distortion_info_pod_container_t> v =
             geometric_distortions_from_mol(asc, with_nbcs, geom, static_thread_pool);
          if (v.size() == 1) {
             if (v[0].geometry_distortion.size() > 1) {
-               coot::geometry_distortion_info_container_t gdc = v[0];
+               coot::geometry_distortion_info_pod_container_t gdc = v[0];
 
                if (gdc.geometry_distortion.size()) {
 
@@ -611,7 +831,7 @@ coot::molecule_t::get_mesh_for_ligand_validation_vs_dictionary(const std::string
 
 //! not const because it can dynamically add dictionaries
 std::vector<coot::plain_atom_overlap_t>
-coot::molecule_t::get_overlaps(protein_geometry *geom_p) {
+coot::molecule_t::get_atom_overlaps(protein_geometry *geom_p) {
 
    std::vector<coot::plain_atom_overlap_t> v;
    if (atom_sel.mol) {
@@ -630,6 +850,21 @@ coot::molecule_t::get_overlaps(protein_geometry *geom_p) {
    return v;
 
 }
+
+//! get the atom overlap
+float
+coot::molecule_t::get_atom_overlap_score(protein_geometry *geom_p) const {
+
+   mmdb::Manager *mol = atom_sel.mol;
+   bool ignore_waters_flag = false;
+   coot::atom_overlaps_container_t ao(mol, geom_p, ignore_waters_flag);
+   ao.make_all_atom_overlaps();
+   float s = ao.score();
+   return s;
+
+}
+
+
 
 //! not const because it can dynamically add dictionaries
 std::vector<coot::plain_atom_overlap_t>
@@ -687,4 +922,202 @@ coot::molecule_t::get_overlap_dots_for_ligand(const std::string &cid_ligand,
    }
    return aodc;
 
+}
+
+//! get missing residue ranges
+//!
+//! @param imol is the model molecule index
+//! @return missing residue ranges
+std::vector<coot::residue_range_t>
+coot::molecule_t::get_missing_residue_ranges() const {
+
+   // put this in coot-utils, I think
+
+   std::vector<residue_range_t> v;
+
+   int imod = 1;
+   mmdb::Manager *mol = atom_sel.mol;
+   if (! mol) return v;
+
+   mmdb::Model *model_p = mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+	 std::string chain_id = chain_p->GetChainID();
+         int n_res = chain_p->GetNumberOfResidues();
+         for (int ires=0; ires<(n_res-1); ires++) {
+            mmdb::Residue *residue_this = chain_p->GetResidue(ires);
+            mmdb::Residue *residue_next = chain_p->GetResidue(ires+1);
+            if (residue_this) {
+	       if (residue_next) {
+		  int rn1 = residue_this->GetSeqNum();
+		  int rn2 = residue_next->GetSeqNum();
+		  if (rn2 > (rn1+1)) {
+		     bool is_close = false;
+		     std::pair<bool,float> ca = closest_approach(mol, residue_this, residue_next);
+		     if (ca.first) {
+			if (ca.second < 3.0) {
+			   is_close = true;
+			}
+		     }
+		     if (! is_close) {
+			int rn1_gap = rn1 + 1;
+			int rn2_gap = rn2 - 1;
+			residue_range_t rr(chain_id, rn1_gap, rn2_gap);
+			v.push_back(rr);
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   return v;
+}
+
+#include "coot-utils/coot-hole.hh"
+//
+// Put this in coot-molecule-analysis one day
+//
+coot::instanced_mesh_t
+coot::molecule_t::get_HOLE(const clipper::Coord_orth &start_pos, const clipper::Coord_orth &end_pos,
+                           const coot::protein_geometry &geom) const {
+
+   auto coord_orth_to_glm = [] (const clipper::Coord_orth &co) {
+      return glm::vec3(co.x(), co.y(), co.z());
+   };
+
+   coot::instanced_mesh_t m;
+   coot::hole hole(atom_sel.mol, start_pos, end_pos, geom);
+   std::pair<std::vector<std::pair<clipper::Coord_orth, double> >, std::vector<hole_surface_point_t> >
+      hole_path_and_surface = hole.generate();
+
+   const auto &path    = hole_path_and_surface.first;
+   const auto &surface = hole_path_and_surface.second;
+
+   std::cout << "in get_HOLE() path: " << path.size() << " surface " << surface.size() << std::endl;
+
+   coot::instanced_geometry_t ig;
+   glm::vec3 size(0.1f, 0.1f, 0.1f); // needs testing.
+   ig.instancing_data_A.resize(surface.size());
+   for (unsigned int i=0; i<surface.size(); i++) {
+      const auto &s_p = surface[i].position;
+      const coot::colour_holder &s_c = surface[i].colour;
+      glm::vec3 pos = coord_orth_to_glm(s_p);
+      glm::vec4 col = colour_holder_to_glm(s_c);
+      coot::instancing_data_type_A_t id(pos, col, size);
+      ig.instancing_data_A[i] = id;
+   }
+   m.geom.push_back(ig);
+   return m;
+}
+
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+#include "pli/flev.hh"
+#endif
+
+// Put this in coot-molecule-analysis one day
+//
+//! Get SVG for 2d ligand environment view (FLEV)
+//!
+//! The caller should make sure that the dictionary for the ligand has been loaded - this
+//! function won't do that. It will add hydrogen atoms if needed.
+//!
+//! @param residue_cid is the cid for the residue
+std::string
+coot::molecule_t::get_svg_for_2d_ligand_environment_view(const std::string &residue_cid,
+                                                         coot::protein_geometry *geom,
+                                                         bool add_key) const {
+
+   std::string s;
+
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+
+   float radius = 4.2; // pass this, I think.
+
+   mmdb::Residue *residue_p = get_residue(residue_cid);
+   if (residue_p) {
+      std::string chain_id = residue_p->GetChainID();
+      int res_no = residue_p->GetSeqNum();
+      std::string ins_code = residue_p->GetInsCode();
+      svg_container_t svgc = pli::fle_view_with_rdkit_internal(atom_sel.mol, imol_no, geom,
+                                                               chain_id, res_no, ins_code, radius, add_key);
+      s = svgc.compose(true);
+   }
+#endif
+   return s;
+}
+
+// this is analysis really
+//
+//! get atom distances
+//! other stuff here
+std::vector<coot::atom_distance_t>
+coot::molecule_t::get_distances_between_atoms_of_residues(const std::string &cid_res_1,
+							  const std::string &cid_res_2,
+							  float dist_max) const {
+  std::vector<atom_distance_t> v;
+  mmdb::Residue *residue_1 = cid_to_residue(cid_res_1);
+  mmdb::Residue *residue_2 = cid_to_residue(cid_res_2);
+  if (residue_1) {
+     if (residue_2) {
+        int nResidueAtoms_1 = 0;
+        mmdb::PPAtom ResidueAtoms_1 = nullptr;
+        residue_1->GetAtomTable(ResidueAtoms_1, nResidueAtoms_1);
+        int nResidueAtoms_2 = 0;
+        mmdb::PPAtom ResidueAtoms_2 = nullptr;
+        residue_2->GetAtomTable(ResidueAtoms_2, nResidueAtoms_2);
+        for (int ii=0; ii<nResidueAtoms_1; ii++) {
+	        mmdb::Atom *at_1 = ResidueAtoms_1[ii];
+	        for (int jj=0; jj<nResidueAtoms_2; jj++) {
+	           mmdb::Atom *at_2 = ResidueAtoms_2[jj];
+	           double dd =
+	      (at_2->x - at_1->x) * (at_2->x - at_1->x) +
+	      (at_2->y - at_1->y) * (at_2->y - at_1->y) +
+	      (at_2->z - at_1->z) * (at_2->z - at_1->z);
+	           double d = std::sqrt(dd);
+	           if (d < dist_max) {
+	              atom_spec_t spec_1(at_1);
+	              atom_spec_t spec_2(at_2);
+	              atom_distance_t ad(spec_1, spec_2, d);
+	              v.push_back(ad);
+	           }
+	        }
+        }
+     }
+  }
+  return v;
+}
+
+
+std::vector<std::string>
+coot::molecule_t::get_types_in_molecule() const {
+
+   std::vector<std::string> v;
+   std::set<std::string> s;
+   mmdb::Manager *mol = atom_sel.mol;
+   if (mol) {
+      for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+	 mmdb::Model *model_p = mol->GetModel(imod);
+	 if (model_p) {
+	    int n_chains = model_p->GetNumberOfChains();
+	    for (int ichain=0; ichain<n_chains; ichain++) {
+	       mmdb::Chain *chain_p = model_p->GetChain(ichain);
+	       int n_res = chain_p->GetNumberOfResidues();
+	       for (int ires=0; ires<n_res; ires++) {
+		  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+		  if (residue_p) {
+		     std::string type = residue_p->GetResName();
+		     s.insert(type);
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   for (const auto &item : s) {
+      v.push_back(item);
+   }
+   return v;
 }

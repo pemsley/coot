@@ -1,8 +1,10 @@
 
 #include <clipper/ccp4/ccp4_map_io.h> // debugging mapout
+#include <stdexcept>
 
 #include "utils/base64-encode-decode.hh"
 #include "ligand/wligand.hh"
+#include "coot-utils/json.hpp"
 
 #include "molecules-container.hh"
 
@@ -31,10 +33,10 @@ std::string get_first_residue_name(mmdb::Manager *mol) {
    return res_name;
 }
 
+#if 0
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 // Another ligand but non-ligand-fitting function:
-RDKit::RWMol
-molecules_container_t::get_rdkit_mol(const std::string &residue_name, int imol_enc) {
+RDKit::RWMol molecules_container_t::get_rdkit_mol(const std::string &residue_name, int imol_enc) {
 
    RDKit::RWMol m;
 
@@ -53,6 +55,7 @@ molecules_container_t::get_rdkit_mol(const std::string &residue_name, int imol_e
    }
    return m;
 }
+#endif
 #endif
 
 
@@ -81,13 +84,27 @@ molecules_container_t::get_rdkit_mol_pickle_base64(const std::string &residue_na
 
    RDKIT_GRAPHMOL_EXPORT RDKit::MolPickler mp;
    std::string pickle_string;
-   RDKit::RWMol mol = get_rdkit_mol(residue_name, imol_enc);
-   if (mol.getNumAtoms() > 0) {
-      mp.pickleMol(mol, pickle_string);
-      return moorhen_base64::base64_encode((const unsigned char*)pickle_string.c_str(), pickle_string.size());
-      // std::ofstream f("test-mol.pickle");
-      // f << pickle_string;
-      // f.close();
+   try {
+      std::pair<bool, coot::dictionary_residue_restraints_t> r_p =
+         geom.get_monomer_restraints(residue_name, imol_enc);
+      if (r_p.first) {
+         const auto &restraints = r_p.second;
+         RDKit::RWMol mol = coot::rdkit_mol(restraints);
+         if (mol.getNumAtoms() > 0) {
+            unsigned int pickleFlags = RDKit::PicklerOps::AtomProps
+                                     | RDKit::PicklerOps::BondProps
+                                     | RDKit::PicklerOps::MolProps;
+            mp.pickleMol(mol, pickle_string, pickleFlags);
+            return moorhen_base64::base64_encode((const unsigned char*)pickle_string.c_str(), pickle_string.size());
+         } else {
+            std::cout << "WARNING:: get_rdkit_mol_pickle_base64(): mol had no atoms" << std::endl;
+         }
+      } else {
+         std::cout << "WARNING:: get_rdkit_mol_pickle_base64(): failed to get get_monomer_restraints" << std::endl;
+      }
+   }
+   catch (const std::runtime_error &rte) {
+      std::cout << "DEBUG:: get_rdkit_mol_pickle_base64 " << rte.what() << std::endl;
    }
    return pickle_string;
 }
@@ -492,22 +509,96 @@ molecules_container_t::get_eigenvalues(int imol, const std::string &chain_id, in
    return v;
 }
 
+std::string
+molecules_container_t::get_eigenvectors_and_eigenvalues(int imol, const std::string &cid) {
+
+   using json = nlohmann::json;
+   if (!is_valid_model_molecule(imol)) return std::string();
+
+   mmdb::Manager *mol = molecules[imol].atom_sel.mol;
+   if (!mol) return std::string();
+
+   int selhandle = mol->NewSelection();
+   mol->Select(selhandle, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_NEW);
+
+   mmdb::Atom **selected_atoms = nullptr;
+   int n_selected = 0;
+   mol->GetSelIndex(selhandle, selected_atoms, n_selected);
+
+   std::vector<double> x, y, z;
+   for (int i=0; i<n_selected; i++) {
+      mmdb::Atom *at = selected_atoms[i];
+      if (!at->isTer()) {
+         x.push_back(at->x);
+         y.push_back(at->y);
+         z.push_back(at->z);
+      }
+   }
+   mol->DeleteSelection(selhandle);
+
+   if (x.empty()) return std::string();
+
+   coot::stats::single stats_x(x);
+   coot::stats::single stats_y(y);
+   coot::stats::single stats_z(z);
+   double x_mean = stats_x.mean();
+   double y_mean = stats_y.mean();
+   double z_mean = stats_z.mean();
+
+   clipper::Matrix<double> mat(3,3);
+   for (unsigned int i=0; i<x.size(); i++) {
+      double dx = x[i] - x_mean;
+      double dy = y[i] - y_mean;
+      double dz = z[i] - z_mean;
+      mat(0,0) += dx * dx;
+      mat(1,1) += dy * dy;
+      mat(2,2) += dz * dz;
+      mat(0,1) += dx * dy;
+      mat(0,2) += dx * dz;
+      mat(1,2) += dy * dz;
+   }
+   mat(1,0) = mat(0,1);
+   mat(2,0) = mat(0,2);
+   mat(2,1) = mat(1,2);
+
+   // sort_eigenvalues=true: ascending order (smallest first).
+   // After the call, mat contains the eigenvectors as columns.
+   std::tuple<double, double, double> eigens = coot::fast_eigens(mat, true);
+
+   // mat columns are eigenvectors: column i is (mat(0,i), mat(1,i), mat(2,i))
+   // eigenvalue[0] is smallest (thinnest axis), eigenvalue[2] is largest.
+   json j;
+   j["centroid"] = {x_mean, y_mean, z_mean};
+   j["eigenvalues"] = {std::get<0>(eigens), std::get<1>(eigens), std::get<2>(eigens)};
+   j["eigenvectors"] = {
+      {mat(0,0), mat(1,0), mat(2,0)},
+      {mat(0,1), mat(1,1), mat(2,1)},
+      {mat(0,2), mat(1,2), mat(2,2)}
+   };
+
+   return j.dump();
+}
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #include "lidia-core/rdkit-interface.hh"
 #include <GraphMol/MolDraw2D/MolDraw2DSVG.h>
-#endif
-
 #include "lidia-core/svg-molecule.hh"
 #include "svg-store-key.hh"
+#endif
 
 //! This is a ligand function, not really a ligand-fitting function.
 //!
 std::string
 molecules_container_t::get_svg_for_residue_type(int imol, const std::string &comp_id,
-                                                bool use_rdkit_svg, bool dark_bg_flag) {
+                                                bool use_rdkit_svg,
+                                                const std::string &background_type) {
 
    std::string s = "Needs-to-be-compiled-with-the-RDKit"; // gets changed to the correct string (hopefully)
+
+   bool dark_bg_flag = false;
+   // "dark-mode" representation
+   if (background_type == "light-bonds/transparent-bg") dark_bg_flag = true;
+   if (background_type == "light-bonds/opaque-bg")      dark_bg_flag = true;
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
@@ -521,6 +612,7 @@ molecules_container_t::get_svg_for_residue_type(int imol, const std::string &com
 
       std::pair<bool, coot::dictionary_residue_restraints_t> mr = geom.get_monomer_restraints(comp_id, imol);
       if (mr.first) {
+
          try {
             const coot::dictionary_residue_restraints_t &restraints = mr.second;
             std::pair<int, RDKit::RWMol> mol_pair = coot::rdkit_mol_with_2d_depiction(restraints);
@@ -546,7 +638,11 @@ molecules_container_t::get_svg_for_residue_type(int imol, const std::string &com
                } else {
                   svg_molecule_t svg;
                   svg.import_rdkit_mol(&mol, iconf);
-                  s = svg.render_to_svg_string(dark_bg_flag);
+                  double sf = 400.0;
+                  bool add_bg = true;
+                  if (background_type == "light-bonds/transparent-bg") add_bg = false;
+                  if (background_type == "dark-bonds/transparent-bg")  add_bg = false;
+                  s = svg.render_to_svg_string(sf, dark_bg_flag, add_bg);
                   ligand_svg_store[key] = s;
                }
             } else {
@@ -576,14 +672,23 @@ molecules_container_t::get_svg_for_residue_type(int imol, const std::string &com
                   RDKit::WedgeMolBonds(rdkit_mol, &conf);
                   svg_molecule_t svg;
                   svg.import_rdkit_mol(&rdkit_mol, conformer_id);
-                  dark_bg_flag = false;
-                  s = svg.render_to_svg_string(dark_bg_flag);
+                  double sf = 400.0;
+                  bool add_background_rect = true;
+                  if (background_type == "light-bonds/transparent-bg") add_background_rect = false;
+                  if (background_type == "dark-bonds/transparent-bg")  add_background_rect = false;
+                  s = svg.render_to_svg_string(sf, dark_bg_flag, add_background_rect);
                }
                ligand_svg_store[key] = s;
             }
          }
          catch (const Invar::Invariant &e) {
             std::cout << "error " << e.what() << std::endl;
+         }
+         catch (const std::runtime_error &e) {
+            std::cout << "error " << e.what() << std::endl;
+         }
+         catch (...) {
+            std::cout << "error something" << std::endl;
          }
 
       } else {

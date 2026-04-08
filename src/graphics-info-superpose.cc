@@ -66,36 +66,33 @@ graphics_info_t::superpose_combobox_changed_mol2(GtkWidget *combobox, gpointer d
 }
 
 // static
-void graphics_info_t::fill_superpose_combobox_with_chain_options(GtkWidget *button,
-								 int is_reference_structure_flag) {
+void graphics_info_t::fill_superpose_combobox_with_chain_options(int imol_active,
+								 bool is_reference_structure_flag) {
    GtkWidget *chain_combobox = NULL;
 
    if (is_reference_structure_flag)
       chain_combobox = widget_from_builder("superpose_dialog_reference_chain_combobox");
-   else 
+   else
       chain_combobox = widget_from_builder("superpose_dialog_moving_chain_combobox");
 
-   GCallback callback_func = 0;
-   int imol;
-   if (is_reference_structure_flag) { 
-      imol = graphics_info_t::superpose_imol1;
+   GCallback callback_func = nullptr;
+   if (is_reference_structure_flag) {
       callback_func = G_CALLBACK(superpose_reference_chain_combobox_changed);
    } else {
-      imol = graphics_info_t::superpose_imol2;
-       callback_func = G_CALLBACK(superpose_moving_chain_combobox_changed);
+      callback_func = G_CALLBACK(superpose_moving_chain_combobox_changed);
    }
 
-   if (is_valid_model_molecule(imol)) {
+   if (is_valid_model_molecule(imol_active)) {
 
-      std::string set_chain = fill_combobox_with_chain_options(chain_combobox, imol, callback_func, "");
+      std::string set_chain = fill_combobox_with_chain_options(chain_combobox, imol_active, callback_func, "");
       if (is_reference_structure_flag) {
 	 graphics_info_t::superpose_imol1_chain = set_chain;
       } else {
 	 graphics_info_t::superpose_imol2_chain = set_chain;
       }
-      
+
    } else {
-      std::cout << "ERROR in imol in fill_superpose_option_menu_with_chain_options "
+      std::cout << "ERROR:: in imol in fill_superpose_combobox_with_chain_options"
 		<< std::endl;
    }
 }

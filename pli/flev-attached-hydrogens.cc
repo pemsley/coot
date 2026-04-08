@@ -235,6 +235,7 @@ pli::flev_attached_hydrogens_t::distances_to_protein_using_correct_Hs(mmdb::Resi
          if (lig_at && H_at)
             break;
       }
+
       if (lig_at && H_at) {
          clipper::Coord_orth H_pt(H_at->x, H_at->y, H_at->z);
          clipper::Coord_orth lig_atom_pt(lig_at->x, lig_at->y, lig_at->z);
@@ -242,7 +243,7 @@ pli::flev_attached_hydrogens_t::distances_to_protein_using_correct_Hs(mmdb::Resi
          std::vector<mmdb::Atom *> atoms = close_atoms(H_pt, env_residues);
          coot::bash_distance_t bash = find_bash_distance(lig_atom_pt, H_pt, atoms);
          atom_bashes[atoms_with_riding_hydrogens[irh].first].push_back(bash);
-         if (true)
+         if (false)
             std::cout << " adding bash distance " << bash << " to atom "
                       << atoms_with_riding_hydrogens[irh].first << std::endl;
       }
@@ -438,14 +439,14 @@ pli::flev_attached_hydrogens_t::find_bash_distance(const clipper::Coord_orth &li
 
    for (double slide=0; slide<=max_dist; slide+=0.04) {
       clipper::Coord_orth test_pt = ligand_atom_pos + slide * h_vector;
-      if (true)
+      if (false)
          std::cout << "   bash distance for ligand atom at " << ligand_atom_pos.format() << " "
                    << "determined from " << atom_positions.size() << " atom positions"
                    << std::endl;
       for (unsigned int iat=0; iat<atom_positions.size(); iat++) {
          double atom_radius_plus_cbr = radius[iat] + cannonball_radius;
          double d_squared = (test_pt - atom_positions[iat]).lengthsq();
-         if (true)
+         if (false)
             std::cout << "   atom " << iat << " "
                       << close_residue_atoms[iat]->GetChainID() << " "
                       << close_residue_atoms[iat]->GetSeqNum() << " "

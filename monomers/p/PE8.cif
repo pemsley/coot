@@ -1,0 +1,318 @@
+#
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+PE8     PE8      3,6,9,12,15,18,21-HEPTAOXATRICOSANE-1,23-DIOL     NON-POLYMER     59     25     .     
+#
+data_comp_PE8
+#
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+PE8     O1      O       OH1     0       -20.407     5.228       5.159       
+PE8     C2      C       CH2     0       -20.744     4.528       3.977       
+PE8     C3      C       CH2     0       -19.535     4.037       3.246       
+PE8     O4      O       O2      0       -18.905     3.002       3.996       
+PE8     C5      C       CH2     0       -17.650     2.586       3.463       
+PE8     C6      C       CH2     0       -16.548     3.393       4.075       
+PE8     O7      O       O2      0       -15.294     2.937       3.579       
+PE8     C8      C       CH2     0       -14.186     3.631       4.141       
+PE8     C9      C       CH2     0       -12.914     3.091       3.565       
+PE8     O10     O       O2      0       -12.843     3.414       2.179       
+PE8     C11     C       CH2     0       -11.742     2.815       1.501       
+PE8     C12     C       CH2     0       -12.161     1.501       0.917       
+PE8     O13     O       O2      0       -11.047     0.891       0.271       
+PE8     C14     C       CH2     0       -11.381     -0.272      -0.484      
+PE8     C15     C       CH2     0       -11.642     0.110       -1.908      
+PE8     O16     O       O2      0       -11.981     -1.053      -2.659      
+PE8     C17     C       CH2     0       -12.056     -0.831      -4.066      
+PE8     C18     C       CH2     0       -10.736     -1.150      -4.697      
+PE8     O19     O       O2      0       -10.822     -0.959      -6.107      
+PE8     C20     C       CH2     0       -10.470     0.354       -6.536      
+PE8     C21     C       CH2     0       -10.932     0.563       -7.945      
+PE8     O22     O       O2      0       -12.352     0.444       -8.008      
+PE8     C23     C       CH2     0       -13.045     1.673       -7.806      
+PE8     C24     C       CH2     0       -14.506     1.403       -7.625      
+PE8     O25     O       OH1     0       -14.775     0.683       -6.438      
+PE8     HO1     H       H       0       -21.114     5.518       5.523       
+PE8     H21     H       H       0       -21.257     5.121       3.390       
+PE8     H22     H       H       0       -21.312     3.764       4.210       
+PE8     H31     H       H       0       -18.906     4.779       3.109       
+PE8     H32     H       H       0       -19.799     3.692       2.364       
+PE8     H51     H       H       0       -17.641     2.698       2.486       
+PE8     H52     H       H       0       -17.509     1.634       3.662       
+PE8     H61     H       H       0       -16.573     3.301       5.052       
+PE8     H62     H       H       0       -16.668     4.342       3.851       
+PE8     H81     H       H       0       -14.182     3.517       5.116       
+PE8     H82     H       H       0       -14.259     4.590       3.942       
+PE8     H91     H       H       0       -12.884     2.117       3.683       
+PE8     H92     H       H       0       -12.146     3.482       4.036       
+PE8     H111    H       H       0       -10.993     2.677       2.123       
+PE8     H112    H       H       0       -11.436     3.410       0.783       
+PE8     H121    H       H       0       -12.886     1.643       0.270       
+PE8     H122    H       H       0       -12.493     0.913       1.630       
+PE8     H141    H       H       0       -12.178     -0.706      -0.105      
+PE8     H142    H       H       0       -10.638     -0.912      -0.446      
+PE8     H151    H       H       0       -10.841     0.532       -2.290      
+PE8     H152    H       H       0       -12.380     0.756       -1.948      
+PE8     H171    H       H       0       -12.295     0.104       -4.250      
+PE8     H172    H       H       0       -12.752     -1.406      -4.451      
+PE8     H181    H       H       0       -10.497     -2.083      -4.507      
+PE8     H182    H       H       0       -10.037     -0.572      -4.318      
+PE8     H201    H       H       0       -9.496      0.468       -6.487      
+PE8     H202    H       H       0       -10.888     1.022       -5.949      
+PE8     H211    H       H       0       -10.520     -0.110      -8.530      
+PE8     H212    H       H       0       -10.652     1.452       -8.258      
+PE8     H231    H       H       0       -12.910     2.259       -8.582      
+PE8     H232    H       H       0       -12.693     2.129       -7.011      
+PE8     H241    H       H       0       -14.836     0.890       -8.392      
+PE8     H242    H       H       0       -14.990     2.255       -7.598      
+PE8     H25     H       H       0       -14.427     -0.087      -6.492      
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+PE8          O1          C2      SINGLE       n     1.414  0.0200     1.414  0.0200
+PE8          C2          C3      SINGLE       n     1.496  0.0200     1.496  0.0200
+PE8          C3          O4      SINGLE       n     1.423  0.0106     1.423  0.0106
+PE8          O4          C5      SINGLE       n     1.423  0.0106     1.423  0.0106
+PE8          C5          C6      SINGLE       n     1.496  0.0200     1.496  0.0200
+PE8          C6          O7      SINGLE       n     1.423  0.0106     1.423  0.0106
+PE8          O7          C8      SINGLE       n     1.423  0.0106     1.423  0.0106
+PE8          C8          C9      SINGLE       n     1.496  0.0200     1.496  0.0200
+PE8          C9         O10      SINGLE       n     1.423  0.0106     1.423  0.0106
+PE8         O10         C11      SINGLE       n     1.423  0.0106     1.423  0.0106
+PE8         C11         C12      SINGLE       n     1.496  0.0200     1.496  0.0200
+PE8         C12         O13      SINGLE       n     1.423  0.0106     1.423  0.0106
+PE8         O13         C14      SINGLE       n     1.423  0.0106     1.423  0.0106
+PE8         C14         C15      SINGLE       n     1.496  0.0200     1.496  0.0200
+PE8         C15         O16      SINGLE       n     1.423  0.0106     1.423  0.0106
+PE8         O16         C17      SINGLE       n     1.423  0.0106     1.423  0.0106
+PE8         C17         C18      SINGLE       n     1.496  0.0200     1.496  0.0200
+PE8         C18         O19      SINGLE       n     1.423  0.0106     1.423  0.0106
+PE8         O19         C20      SINGLE       n     1.423  0.0106     1.423  0.0106
+PE8         C20         C21      SINGLE       n     1.496  0.0200     1.496  0.0200
+PE8         C21         O22      SINGLE       n     1.423  0.0106     1.423  0.0106
+PE8         O22         C23      SINGLE       n     1.423  0.0106     1.423  0.0106
+PE8         C23         C24      SINGLE       n     1.496  0.0200     1.496  0.0200
+PE8         C24         O25      SINGLE       n     1.414  0.0200     1.414  0.0200
+PE8          O1         HO1      SINGLE       n     0.970  0.0120     0.846  0.0200
+PE8          C2         H21      SINGLE       n     1.089  0.0100     0.980  0.0144
+PE8          C2         H22      SINGLE       n     1.089  0.0100     0.980  0.0144
+PE8          C3         H31      SINGLE       n     1.089  0.0100     0.982  0.0175
+PE8          C3         H32      SINGLE       n     1.089  0.0100     0.982  0.0175
+PE8          C5         H51      SINGLE       n     1.089  0.0100     0.982  0.0175
+PE8          C5         H52      SINGLE       n     1.089  0.0100     0.982  0.0175
+PE8          C6         H61      SINGLE       n     1.089  0.0100     0.982  0.0175
+PE8          C6         H62      SINGLE       n     1.089  0.0100     0.982  0.0175
+PE8          C8         H81      SINGLE       n     1.089  0.0100     0.982  0.0175
+PE8          C8         H82      SINGLE       n     1.089  0.0100     0.982  0.0175
+PE8          C9         H91      SINGLE       n     1.089  0.0100     0.982  0.0175
+PE8          C9         H92      SINGLE       n     1.089  0.0100     0.982  0.0175
+PE8         C11        H111      SINGLE       n     1.089  0.0100     0.982  0.0175
+PE8         C11        H112      SINGLE       n     1.089  0.0100     0.982  0.0175
+PE8         C12        H121      SINGLE       n     1.089  0.0100     0.982  0.0175
+PE8         C12        H122      SINGLE       n     1.089  0.0100     0.982  0.0175
+PE8         C14        H141      SINGLE       n     1.089  0.0100     0.982  0.0175
+PE8         C14        H142      SINGLE       n     1.089  0.0100     0.982  0.0175
+PE8         C15        H151      SINGLE       n     1.089  0.0100     0.982  0.0175
+PE8         C15        H152      SINGLE       n     1.089  0.0100     0.982  0.0175
+PE8         C17        H171      SINGLE       n     1.089  0.0100     0.982  0.0175
+PE8         C17        H172      SINGLE       n     1.089  0.0100     0.982  0.0175
+PE8         C18        H181      SINGLE       n     1.089  0.0100     0.982  0.0175
+PE8         C18        H182      SINGLE       n     1.089  0.0100     0.982  0.0175
+PE8         C20        H201      SINGLE       n     1.089  0.0100     0.982  0.0175
+PE8         C20        H202      SINGLE       n     1.089  0.0100     0.982  0.0175
+PE8         C21        H211      SINGLE       n     1.089  0.0100     0.982  0.0175
+PE8         C21        H212      SINGLE       n     1.089  0.0100     0.982  0.0175
+PE8         C23        H231      SINGLE       n     1.089  0.0100     0.982  0.0175
+PE8         C23        H232      SINGLE       n     1.089  0.0100     0.982  0.0175
+PE8         C24        H241      SINGLE       n     1.089  0.0100     0.980  0.0144
+PE8         C24        H242      SINGLE       n     1.089  0.0100     0.980  0.0144
+PE8         O25         H25      SINGLE       n     0.970  0.0120     0.846  0.0200
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+PE8          C2          O1         HO1     109.347    1.86
+PE8          O1          C2          C3     112.284    1.56
+PE8          O1          C2         H21     109.012    1.50
+PE8          O1          C2         H22     109.012    1.50
+PE8          C3          C2         H21     109.198    1.50
+PE8          C3          C2         H22     109.198    1.50
+PE8         H21          C2         H22     108.093    1.50
+PE8          C2          C3          O4     109.904    1.68
+PE8          C2          C3         H31     109.795    1.50
+PE8          C2          C3         H32     109.795    1.50
+PE8          O4          C3         H31     109.691    1.50
+PE8          O4          C3         H32     109.691    1.50
+PE8         H31          C3         H32     108.274    1.50
+PE8          C3          O4          C5     112.795    1.50
+PE8          O4          C5          C6     109.613    1.74
+PE8          O4          C5         H51     109.691    1.50
+PE8          O4          C5         H52     109.691    1.50
+PE8          C6          C5         H51     109.729    1.50
+PE8          C6          C5         H52     109.729    1.50
+PE8         H51          C5         H52     108.274    1.50
+PE8          C5          C6          O7     109.613    1.74
+PE8          C5          C6         H61     109.729    1.50
+PE8          C5          C6         H62     109.729    1.50
+PE8          O7          C6         H61     109.691    1.50
+PE8          O7          C6         H62     109.691    1.50
+PE8         H61          C6         H62     108.274    1.50
+PE8          C6          O7          C8     112.795    1.50
+PE8          O7          C8          C9     109.613    1.74
+PE8          O7          C8         H81     109.691    1.50
+PE8          O7          C8         H82     109.691    1.50
+PE8          C9          C8         H81     109.729    1.50
+PE8          C9          C8         H82     109.729    1.50
+PE8         H81          C8         H82     108.274    1.50
+PE8          C8          C9         O10     109.613    1.74
+PE8          C8          C9         H91     109.729    1.50
+PE8          C8          C9         H92     109.729    1.50
+PE8         O10          C9         H91     109.691    1.50
+PE8         O10          C9         H92     109.691    1.50
+PE8         H91          C9         H92     108.274    1.50
+PE8          C9         O10         C11     112.795    1.50
+PE8         O10         C11         C12     109.613    1.74
+PE8         O10         C11        H111     109.691    1.50
+PE8         O10         C11        H112     109.691    1.50
+PE8         C12         C11        H111     109.729    1.50
+PE8         C12         C11        H112     109.729    1.50
+PE8        H111         C11        H112     108.274    1.50
+PE8         C11         C12         O13     109.613    1.74
+PE8         C11         C12        H121     109.729    1.50
+PE8         C11         C12        H122     109.729    1.50
+PE8         O13         C12        H121     109.691    1.50
+PE8         O13         C12        H122     109.691    1.50
+PE8        H121         C12        H122     108.274    1.50
+PE8         C12         O13         C14     112.795    1.50
+PE8         O13         C14         C15     109.613    1.74
+PE8         O13         C14        H141     109.691    1.50
+PE8         O13         C14        H142     109.691    1.50
+PE8         C15         C14        H141     109.729    1.50
+PE8         C15         C14        H142     109.729    1.50
+PE8        H141         C14        H142     108.274    1.50
+PE8         C14         C15         O16     109.613    1.74
+PE8         C14         C15        H151     109.729    1.50
+PE8         C14         C15        H152     109.729    1.50
+PE8         O16         C15        H151     109.691    1.50
+PE8         O16         C15        H152     109.691    1.50
+PE8        H151         C15        H152     108.274    1.50
+PE8         C15         O16         C17     112.795    1.50
+PE8         O16         C17         C18     109.613    1.74
+PE8         O16         C17        H171     109.691    1.50
+PE8         O16         C17        H172     109.691    1.50
+PE8         C18         C17        H171     109.729    1.50
+PE8         C18         C17        H172     109.729    1.50
+PE8        H171         C17        H172     108.274    1.50
+PE8         C17         C18         O19     109.613    1.74
+PE8         C17         C18        H181     109.729    1.50
+PE8         C17         C18        H182     109.729    1.50
+PE8         O19         C18        H181     109.691    1.50
+PE8         O19         C18        H182     109.691    1.50
+PE8        H181         C18        H182     108.274    1.50
+PE8         C18         O19         C20     112.795    1.50
+PE8         O19         C20         C21     109.613    1.74
+PE8         O19         C20        H201     109.691    1.50
+PE8         O19         C20        H202     109.691    1.50
+PE8         C21         C20        H201     109.729    1.50
+PE8         C21         C20        H202     109.729    1.50
+PE8        H201         C20        H202     108.274    1.50
+PE8         C20         C21         O22     109.613    1.74
+PE8         C20         C21        H211     109.729    1.50
+PE8         C20         C21        H212     109.729    1.50
+PE8         O22         C21        H211     109.691    1.50
+PE8         O22         C21        H212     109.691    1.50
+PE8        H211         C21        H212     108.274    1.50
+PE8         C21         O22         C23     112.795    1.50
+PE8         O22         C23         C24     109.904    1.68
+PE8         O22         C23        H231     109.691    1.50
+PE8         O22         C23        H232     109.691    1.50
+PE8         C24         C23        H231     109.795    1.50
+PE8         C24         C23        H232     109.795    1.50
+PE8        H231         C23        H232     108.274    1.50
+PE8         C23         C24         O25     112.284    1.56
+PE8         C23         C24        H241     109.198    1.50
+PE8         C23         C24        H242     109.198    1.50
+PE8         O25         C24        H241     109.012    1.50
+PE8         O25         C24        H242     109.012    1.50
+PE8        H241         C24        H242     108.093    1.50
+PE8         C24         O25         H25     109.347    1.86
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+PE8             sp3_sp3_1          C3          C2          O1         HO1     180.000    10.0     3
+PE8            sp3_sp3_49         O10         C11         C12         O13     180.000    10.0     3
+PE8            sp3_sp3_58         C11         C12         O13         C14     180.000    10.0     3
+PE8            sp3_sp3_61         C15         C14         O13         C12     180.000    10.0     3
+PE8            sp3_sp3_64         O13         C14         C15         O16     180.000    10.0     3
+PE8            sp3_sp3_73         C14         C15         O16         C17     180.000    10.0     3
+PE8            sp3_sp3_76         C18         C17         O16         C15     180.000    10.0     3
+PE8            sp3_sp3_79         O16         C17         C18         O19     180.000    10.0     3
+PE8            sp3_sp3_88         C17         C18         O19         C20     180.000    10.0     3
+PE8            sp3_sp3_91         C21         C20         O19         C18     180.000    10.0     3
+PE8            sp3_sp3_94         O19         C20         C21         O22     180.000    10.0     3
+PE8             sp3_sp3_4          O1          C2          C3          O4     180.000    10.0     3
+PE8           sp3_sp3_103         C20         C21         O22         C23     180.000    10.0     3
+PE8           sp3_sp3_106         C24         C23         O22         C21     180.000    10.0     3
+PE8           sp3_sp3_109         O22         C23         C24         O25     180.000    10.0     3
+PE8           sp3_sp3_118         C23         C24         O25         H25     180.000    10.0     3
+PE8            sp3_sp3_13          C2          C3          O4          C5     180.000    10.0     3
+PE8            sp3_sp3_16          C6          C5          O4          C3     180.000    10.0     3
+PE8            sp3_sp3_19          O4          C5          C6          O7     180.000    10.0     3
+PE8            sp3_sp3_28          C5          C6          O7          C8     180.000    10.0     3
+PE8            sp3_sp3_31          C9          C8          O7          C6     180.000    10.0     3
+PE8            sp3_sp3_34          O7          C8          C9         O10     180.000    10.0     3
+PE8            sp3_sp3_43          C8          C9         O10         C11     180.000    10.0     3
+PE8            sp3_sp3_46         C12         C11         O10          C9     180.000    10.0     3
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+PE8           SMILES              ACDLabs 10.04                                                                         O(CCOCCO)CCOCCOCCOCCOCCOCCO
+PE8 SMILES_CANONICAL               CACTVS 3.341                                                                           OCCOCCOCCOCCOCCOCCOCCOCCO
+PE8           SMILES               CACTVS 3.341                                                                           OCCOCCOCCOCCOCCOCCOCCOCCO
+PE8 SMILES_CANONICAL "OpenEye OEToolkits" 1.5.0                                                                         C(COCCOCCOCCOCCOCCOCCOCCO)O
+PE8           SMILES "OpenEye OEToolkits" 1.5.0                                                                         C(COCCOCCOCCOCCOCCOCCOCCO)O
+PE8            InChI                InChI  1.03 InChI=1S/C16H34O9/c17-1-3-19-5-7-21-9-11-23-13-15-25-16-14-24-12-10-22-8-6-20-4-2-18/h17-18H,1-16H2
+PE8         InChIKey                InChI  1.03                                                                         GLZWNFNQMJAZGY-UHFFFAOYSA-N
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+PE8 acedrg               243         "dictionary generator"                  
+PE8 acedrg_database      11          "data source"                           
+PE8 rdkit                2017.03.2   "Chemoinformatics tool"
+PE8 refmac5              5.8.0238    "optimization tool"                     

@@ -1,0 +1,108 @@
+#
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+BME     BME      BETA-MERCAPTOETHANOL     NON-POLYMER     10     4     .     
+#
+data_comp_BME
+#
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+BME     C1      C       CH2     0       15.151      16.272      23.137      
+BME     C2      C       CH2     0       15.367      14.792      23.261      
+BME     O1      O       OH1     0       15.208      16.684      21.787      
+BME     S2      S       SH1     0       17.009      14.250      22.724      
+BME     H11     H       H       0       15.834      16.743      23.649      
+BME     H12     H       H       0       14.281      16.505      23.510      
+BME     H21     H       H       0       14.695      14.324      22.720      
+BME     H22     H       H       0       15.244      14.527      24.197      
+BME     HO1     H       H       0       15.037      17.512      21.754      
+BME     HS2     H       HSH1    0       17.466      15.334      22.470      
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+BME          C1          C2      SINGLE       n     1.500  0.0200     1.500  0.0200
+BME          C1          O1      SINGLE       n     1.413  0.0198     1.413  0.0198
+BME          C2          S2      SINGLE       n     1.811  0.0100     1.811  0.0100
+BME          C1         H11      SINGLE       n     1.089  0.0100     0.975  0.0146
+BME          C1         H12      SINGLE       n     1.089  0.0100     0.975  0.0146
+BME          C2         H21      SINGLE       n     1.089  0.0100     0.981  0.0122
+BME          C2         H22      SINGLE       n     1.089  0.0100     0.981  0.0122
+BME          O1         HO1      SINGLE       n     0.970  0.0120     0.846  0.0200
+BME          S2         HS2      SINGLE       n     1.338  0.0100     1.203  0.0200
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+BME          C2          C1          O1     112.505    3.00
+BME          C2          C1         H11     109.785    1.50
+BME          C2          C1         H12     109.785    1.50
+BME          O1          C1         H11     109.715    1.50
+BME          O1          C1         H12     109.715    1.50
+BME         H11          C1         H12     108.284    1.50
+BME          C1          C2          S2     112.239    3.00
+BME          C1          C2         H21     108.815    1.50
+BME          C1          C2         H22     108.815    1.50
+BME          S2          C2         H21     107.876    2.03
+BME          S2          C2         H22     107.876    2.03
+BME         H21          C2         H22     107.922    1.50
+BME          C1          O1         HO1     108.328    2.23
+BME          C2          S2         HS2      97.649    3.00
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+BME             sp3_sp3_1          O1          C1          C2          S2     180.000    10.0     3
+BME            sp3_sp3_10          C2          C1          O1         HO1     180.000    10.0     3
+BME            sp3_sp3_13          C1          C2          S2         HS2     180.000    10.0     3
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+BME           SMILES              ACDLabs 10.04                                 OCCS
+BME SMILES_CANONICAL               CACTVS 3.341                                 OCCS
+BME           SMILES               CACTVS 3.341                                 OCCS
+BME SMILES_CANONICAL "OpenEye OEToolkits" 1.5.0                               C(CS)O
+BME           SMILES "OpenEye OEToolkits" 1.5.0                               C(CS)O
+BME            InChI                InChI  1.03 InChI=1S/C2H6OS/c3-1-2-4/h3-4H,1-2H2
+BME         InChIKey                InChI  1.03          DGVVWUTYPXICAM-UHFFFAOYSA-N
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+BME acedrg               243         "dictionary generator"                  
+BME acedrg_database      11          "data source"                           
+BME rdkit                2017.03.2   "Chemoinformatics tool"
+BME refmac5              5.8.0238    "optimization tool"                     

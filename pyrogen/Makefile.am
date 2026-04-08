@@ -20,7 +20,7 @@
 # 02110-1301, USA
 
 
-# we need files for make dist configuresd without MAKE_ENHANCED_LIGAND_TOOLS and USE_PYTHON
+# we need files for make dist configured without MAKE_ENHANCED_LIGAND_TOOLS and USE_PYTHON
 
 # pyexec_LTLIBRARIES allows us to make libtool libraries that get the
 # file names we like and installed where we like, not forced to be
@@ -71,11 +71,9 @@ pyrogen-swig.cc: $(top_srcdir)/pyrogen/pyrogen-swig.i $(top_srcdir)/pyrogen/rest
 #	swig $(AM_CPPFLAGS) -o $@ -python -shadow -c++ $<
 #	echo '#include "mmdb2-interface.cc"' >> $@
 
-if MAKE_ENHANCED_LIGAND_TOOLS
-
 pyexec_LTLIBRARIES += _pyrogen_swig.la pyrogen_boost.la
 # add these when it works geometry-store.cc geometry-store.hh geometry-store-private.hh
-_pyrogen_swig_la_SOURCES = pyrogen-swig.cc restraints.cc restraints.hh
+_pyrogen_swig_la_SOURCES = pyrogen-swig.cc
 
 ## _pyrogen_swig_la_CFLAGS = $(PYTHON_CFLAGS) -I$(top_srcdir)/include $(PYTHON_CPPFLAGS) 
 
@@ -110,7 +108,7 @@ lib_LTLIBRARIES=libcoot_py_restraints.la
 #
 libcoot_py_restraints_la_SOURCES = mmff-restraints.cc mmff-restraints.hh \
 	py-restraints.cc py-restraints.hh restraints-private.hh cairo-molecule.hh \
-	cairo-molecule.cc atom_types.cc
+	cairo-molecule.cc restraints.cc restraints.hh
 
 # 20141014 Add $RDKIT_LIBS for Bill
 libcoot_py_restraints_la_LIBADD =  \
@@ -118,7 +116,8 @@ libcoot_py_restraints_la_LIBADD =  \
                                 $(top_builddir)/lidia-core/libcoot-lidia-core.la \
                                 $(top_builddir)/utils/libcoot-utils.la       \
                                 $(CLIPPER_LIBS) $(MMDB_LIBS) \
-                                $(RDKIT_LIBS) $(PYTHON_LIBS) $(CAIRO_LIBS)
+                                $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON) \
+                                $(PYTHON_LIBS) $(CAIRO_LIBS)
 
 # -no-undefined causes strange/interesting link errors with clang/Mac OS X 10.10.3
 # libcoot_py_restraints_la_LDFLAGS = -no-undefined 
@@ -165,4 +164,3 @@ endif
 clean-local: 
 	rm -f _pyrogen_swig.so
 
-endif

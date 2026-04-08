@@ -24,6 +24,13 @@
 
 #include <rdkit/GraphMol/RWMol.h>
 #include <rdkit/GraphMol/SmilesParse/SmilesWrite.h>
+// To check if Inchi support is enabled
+#include <rdkit/RDGeneral/RDConfig.h>
+#ifdef RDK_BUILD_INCHI_SUPPORT
+#include <rdkit/GraphMol/inchi.h>
+#else
+#warning Your version of RDKit was built without InChI support. Molecule InChI key lookup will not be available.
+#endif
 
 #include <memory>
 #include <vector>
@@ -102,6 +109,9 @@ struct WidgetCoreData {
     /// Numbers of elements to be removed from the `state_stack`
     /// when its' maximum length gets exceeded
     const static unsigned int STATE_STACK_TRIM_BATCH_SIZE;
+    /// When the top-left coordinate of the canvas is in the negative numbers,
+    /// this determines the size of viewport offset margin, expressed in pixels
+    const static unsigned int VIEWPORT_OFFSET_PIXEL_MARGIN;
 
     protected:
 
@@ -126,6 +136,8 @@ struct WidgetCoreData {
     std::optional<CurrentlyCreatedBond> currently_created_bond;
 
     float scale;
+
+    std::pair<int, int> viewport_origin_offset;
 
     bool allow_invalid_molecules;
     bool use_coordgen;
@@ -178,15 +190,20 @@ struct WidgetCoreData {
     void emit_mutation_signals() const noexcept;
 
     coot::ligand_editor_canvas::SmilesMap build_smiles() const;
+    coot::ligand_editor_canvas::InchiKeyMap build_inchi_keys() const;
 
     unsigned int get_molecule_count_impl() const noexcept;
     /// Returns -1 if none
     int get_first_molecule_idx() const noexcept;
 
+    /// Used for widget/canvas measurement and updating viewport offset
+    graphene_rect_t get_on_screen_bounding_rect() const noexcept;
+
     /// Abstraction over gtk_widget_queue_draw
     void queue_redraw() const noexcept;
     /// Abstraction over gtk_widget_queue_resize
-    void queue_resize() const noexcept;
+    /// Handles updating viewport offset
+    void queue_resize() noexcept;
 };
 
 /// This is the private struct for GObject
@@ -219,15 +236,13 @@ struct CootLigandEditorCanvas : coot::ligand_editor_canvas::impl::CootLigandEdit
     sigc::signal<void()> queue_resize_signal;
 
     public:
-
-    enum class MeasurementDirection :unsigned char {
-        HORIZONTAL = 0,
-        VERTICAL = 1
-    };
-
     struct SizingInfo {
-        int requested_size;
+        unsigned int width, height;
     };
+    private:
+    /// Lhasa specific
+    SizingInfo minimum_dimensions;
+    public:
 
     // Implemented at 'ligand_editor_canvas.cpp'
     CootLigandEditorCanvas() noexcept;
@@ -242,7 +257,7 @@ struct CootLigandEditorCanvas : coot::ligand_editor_canvas::impl::CootLigandEdit
     float get_scale() noexcept;
     void undo() noexcept;
     void redo() noexcept;
-    // const RDKit::ROMol& get_rdkit_molecule(unsigned int index) noexcept;
+    const RDKit::ROMol& get_rdkit_molecule(unsigned int index) noexcept;
     unsigned int get_molecule_count() noexcept;
     unsigned int get_idx_of_first_molecule() noexcept;
     unsigned int get_max_molecule_idx() noexcept;
@@ -253,7 +268,9 @@ struct CootLigandEditorCanvas : coot::ligand_editor_canvas::impl::CootLigandEdit
     coot::ligand_editor_canvas::DisplayMode get_display_mode() noexcept;
     void set_display_mode(coot::ligand_editor_canvas::DisplayMode value) noexcept;
     coot::ligand_editor_canvas::SmilesMap get_smiles() noexcept;
+    coot::ligand_editor_canvas::InchiKeyMap get_inchi_keys() noexcept;
     std::string get_smiles_for_molecule(unsigned int molecule_idx) noexcept;
+    std::string get_inchi_key_for_molecule(unsigned int molecule_idx) noexcept;
     std::string get_pickled_molecule(unsigned int molecule_idx) noexcept;
     std::string get_pickled_molecule_base64(unsigned int molecule_idx) noexcept;
     void clear_molecules() noexcept;
@@ -262,7 +279,11 @@ struct CootLigandEditorCanvas : coot::ligand_editor_canvas::impl::CootLigandEdit
     void connect(std::string signal_name, emscripten::val callback);
 
     // Implemented at 'ligand_editor_canvas.cpp'
-    SizingInfo measure(MeasurementDirection orientation) const noexcept;
+    SizingInfo measure() const noexcept;
+    /// Lhasa-specific: Fixes centering for (empty) canvas
+    void set_minimum_dimensions(unsigned int width, unsigned int height) noexcept;
+    // Lhasa does not need this... does it?
+    // graphene_rect_t get_on_screen_bounding_rect() const noexcept;
     // Implemented at 'ligand_editor_canvas.cpp'
     void on_hover(double x, double y, bool alt_pressed, bool control_pressed);
     // Implemented at 'ligand_editor_canvas.cpp'

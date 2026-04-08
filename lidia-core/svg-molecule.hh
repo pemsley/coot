@@ -29,6 +29,7 @@
 #include "lig-build.hh"
 #include "lbg-shared.hh"
 #include "use-rdkit.hh"
+#include "svg-container.hh"
 
 class svg_atom_t : public lig_build::atom_t {
    // use self element to set the colour
@@ -58,6 +59,7 @@ class svg_bond_t : public lig_build::bond_t {
                                                  const lig_build::pos_t &centre,
                                                  double scale) const;
    std::string make_bond_line_string(const lig_build::pos_t &p1, const lig_build::pos_t &p2,
+                                     double scale_factor,
                                      const std::string &bond_colour) const;
    std::string make_dashed_bond_line_string(const lig_build::pos_t &p1, const lig_build::pos_t &p2,
                                             const std::string &bond_colour) const;
@@ -93,7 +95,8 @@ class svg_molecule_t : public lig_build::molecule_t<svg_atom_t, svg_bond_t> {
 public:
    svg_molecule_t() { median_bond_length_ = 1.0; }
    void import_rdkit_mol(RDKit::ROMol *mol, int iconf);
-   std::string render_to_svg_string(bool dark_background_flag);
+   std::string render_to_svg_string(double scale_factor, bool dark_background_flag, bool add_background_rect);
+   svg_container_t make_svg(double scale_factor, bool dark_background_flag, bool add_background_rect);
    double median_bond_length_;
    double get_scale() const;
 

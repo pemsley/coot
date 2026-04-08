@@ -21,9 +21,13 @@
  * Fifth Floor, Boston, MA, 02110-1301, USA.
  */
 
+#include <optional>
 
 #include "compat/coot-sysdep.h"
 
+#include "coot-utils/bonded-pairs.hh"
+#include "geometry/protein-geometry.hh"
+#include "geometry/residue-and-atom-specs.hh"
 #include "simple-restraint.hh"
 
 #include "coot-utils/coot-coord-extras.hh"  // is_nucleotide_by_dict
@@ -695,13 +699,14 @@ coot::restraints_container_t::add_link_torsion(std::string link_type,
                                     if (pdb_atom_name_1 == " CA " && pdb_atom_name_4 == " CA ") continue;
                                     if (pdb_atom_name_1 == " C  " && pdb_atom_name_4 == " C  ") continue;
 
-                                    std::cout << "----------------------- adding link torsion! "
-                                              << coot::atom_spec_t(atom_1) << " "
-                                              << coot::atom_spec_t(atom_2) << " "
-                                              << coot::atom_spec_t(atom_3) << " "
-                                              << coot::atom_spec_t(atom_4) << " "
-                                              << ltr.angle() << " " << ltr.period()
-                                              << std::endl;
+				    if (false)
+				       std::cout << "adding link torsion "
+						 << coot::atom_spec_t(atom_1) << " "
+						 << coot::atom_spec_t(atom_2) << " "
+						 << coot::atom_spec_t(atom_3) << " "
+						 << coot::atom_spec_t(atom_4) << " "
+						 << ltr.angle() << " " << ltr.period()
+						 << std::endl;
 
                                     add(TORSION_RESTRAINT, index_1, index_2, index_3, index_4,
                                         fixed_flag, ltr.angle(), ltr.angle_esd(), 1.2, ltr.period());
@@ -922,11 +927,14 @@ coot::restraints_container_t::make_link_restraints(const coot::protein_geometry 
 						   bool do_rama_plot_restraints,
 						   bool do_trans_peptide_restraints) {
 
+   std::cout << "debug:: make_link_restraints() ***********************************************************"
+             << " I don't think that this function is called. "<< std::endl;
+
    if (from_residue_vector) {
       // coot::bonded_pair_container_t bonded_pairs_container;
       bonded_pairs_container = make_link_restraints_from_res_vec(geom,
 								 do_rama_plot_restraints,
-								 do_trans_peptide_restraints);      
+								 do_trans_peptide_restraints);
       return bonded_pairs_container.size();
    } else { 
       return make_link_restraints_by_linear(geom,
@@ -977,7 +985,7 @@ coot::restraints_container_t::make_link_restraints_by_linear(const coot::protein
 	     << " residues (for link restraints) between (and including) residues "
 	     << istart_res << " and " << iend_res << " of chain " << chain_id_save
 	     << std::endl;
-   
+
    coot::bonded_pair_container_t bonded_residue_pairs =
       bonded_residues_conventional(selHnd, geom);
 
@@ -1001,14 +1009,188 @@ coot::restraints_container_t::make_link_restraints_by_linear(const coot::protein
 
 coot::bonded_pair_container_t
 coot::restraints_container_t::make_link_restraints_from_res_vec(const coot::protein_geometry &geom,
-								bool do_rama_plot_restraints,
-								bool do_trans_peptide_restraints) {
+                                                                bool do_rama_plot_restraints,
+                                                                bool do_trans_peptide_restraints) {
 
-   bool debug = false;
+   // std::cout << "DEBUG:: starting make_link_restraints_from_res_vec() ::::::::::::::::::::::::::::::::::::::::::::::::" << std::endl;
+
+   // 2025-10-14-PE do these arguments make sense?
+   // return make_link_restraints_by_distance(geom, do_rama_plot_restraints, do_trans_peptide_restraints);
+
+   // return make_link_restraints_from_links(geom);
+
+   return coot::bonded_pair_container_t();
+}
+
+coot::bonded_pair_container_t
+coot::restraints_container_t::make_link_restraints_from_links(const coot::protein_geometry &geom) {
+
+   enum class found_link_t { LINK_NONE, LINK_FORWARD, LINK_BACKWARD };
+
+   auto choose_a_link = [] (const std::string &comp_id_1, const std::string &comp_id_2,
+                            const std::string &group_1, const std::string &group_2,
+                            const std::vector<chem_link> &link_infos_f, const std::vector<chem_link> &link_infos_b,
+                            const std::pair<atom_spec_t, atom_spec_t> &l_atoms,
+                            const coot::protein_geometry &geom) -> std::pair<found_link_t, dictionary_residue_link_restraints_t> {
+
+      // std::cout << "choose_a_link(): " << l_atoms.first << " " << l_atoms.second << std::endl;
+      std::vector<dictionary_residue_link_restraints_t> matched_links; // by Id and atom names
+      found_link_t found_link = found_link_t::LINK_NONE;
+
+      // look in geom.dict_link_res_restraints for a matching link restraint.
+      for (unsigned int i=0; i<link_infos_f.size(); i++) {
+         std::string id = link_infos_f[i].Id();
+         dictionary_residue_link_restraints_t lr = geom.link(id);
+         if (! lr.empty()) {
+            for (unsigned int j=0; j<lr.link_bond_restraint.size(); j++) {
+               const auto &lbr = lr.link_bond_restraint[j];
+               if (false)
+                  std::cout << "   compare " << id << " " << l_atoms.first << " " << l_atoms.second << " "
+                            << lbr.atom_id_1() << " " << lbr.atom_id_2() << " " << std::endl;
+               std::string a1 = util::remove_whitespace(l_atoms.first.atom_name);
+               std::string a2 = util::remove_whitespace(l_atoms.second.atom_name);
+               bool m = lbr.matches(a1, a2);
+               if (m) {
+                  matched_links.push_back(lr);
+                  found_link = found_link_t::LINK_FORWARD;
+               }
+            }
+         }
+      }
+      for (unsigned int i=0; i<link_infos_b.size(); i++) {
+         std::string id = link_infos_b[i].Id();
+         dictionary_residue_link_restraints_t lr = geom.link(id);
+         if (! lr.empty()) {
+            for (unsigned int j=0; j<lr.link_bond_restraint.size(); j++) {
+               const auto &lbr = lr.link_bond_restraint[j];
+               if (false)
+                  std::cout << "   compare " << id << " " << l_atoms.first << " " << l_atoms.second << " "
+                            << lbr.atom_id_1() << " " << lbr.atom_id_2() << " " << std::endl;
+               std::string a1 = util::remove_whitespace(l_atoms.first.atom_name);
+               std::string a2 = util::remove_whitespace(l_atoms.second.atom_name);
+               bool m = lbr.matches(a2, a1);
+               if (m) {
+                  matched_links.push_back(lr);
+                  if (found_link == found_link_t::LINK_NONE)
+                     found_link = found_link_t::LINK_BACKWARD;
+               }
+            }
+         }
+      }
+
+      if (false)
+         std::cout << "DEBUG:: found " << matched_links.size() << " matched links for "
+                   << comp_id_1 << " " << comp_id_2 << " "
+                   << group_1 << " " << group_2 << std::endl;
+
+      // this is pretty hacky!
+      if (matched_links.empty()) {
+         dictionary_residue_link_restraints_t dum;
+         return std::make_pair(found_link_t::LINK_NONE, dum);
+      } else {
+         unsigned int idx_pref = 0;
+         if (matched_links.size() > 1) {
+            if (matched_links[1].link_id == "BETA1-4")
+               idx_pref = 1;
+         }
+         return std::make_pair(found_link, matched_links[idx_pref]);
+      }
+   };
+
+   if (false)
+      std::cout << "DEBUG:: starting make_link_restraints_from_links() ::::::::::::::::::::::::::::::::::::::::::::::::" << std::endl;
+
+   coot::bonded_pair_container_t v;
+   // go through the list of links in the manager and see if there are links that match
+   // residues in our selection.
+   int imod = 1;
+   if (mol) {
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+         mmdb::LinkContainer *links = model_p->GetLinks();
+         int n_links = model_p->GetNumberOfLinks();
+         for (int ilink=0; ilink<=n_links; ilink++) {
+            mmdb::Link *link_p = model_p->GetLink(ilink);
+            if (link_p) {
+               std::pair<atom_spec_t, atom_spec_t> l_atoms = link_atoms(link_p, model_p);
+               residue_spec_t res_spec_1(l_atoms.first);
+               residue_spec_t res_spec_2(l_atoms.second);
+               mmdb::Residue *first_residue  = util::get_residue(res_spec_1, mol);
+               mmdb::Residue *second_residue = util::get_residue(res_spec_2, mol);
+               if (first_residue) {
+                  if (second_residue) {
+                     std::string comp_id_1 =  first_residue->GetResName();
+                     std::string comp_id_2 = second_residue->GetResName();
+                     std::string group_1 = geom.get_group( first_residue);
+                     std::string group_2 = geom.get_group(second_residue);
+                     if (group_1 == "DNA") group_1 = "DNA/RNA";
+                     if (group_1 == "RNA") group_1 = "DNA/RNA";
+                     if (group_2 == "DNA") group_2 = "DNA/RNA";
+                     if (group_2 == "RNA") group_2 = "DNA/RNA";
+                     // handle share/coot/data/cho-acedrg/NAG-acedrg.cif and friends (20230720-PE they should be replaced now).
+                     if (group_1 == "D-SACCHARIDE") group_1 = "pyranose";
+                     if (group_2 == "D-SACCHARIDE") group_2 = "pyranose";
+                     std::vector<coot::chem_link> link_infos_f = geom.matching_chem_links(comp_id_1, group_1, comp_id_2, group_2);
+                     std::vector<coot::chem_link> link_infos_b = geom.matching_chem_links(comp_id_2, group_2, comp_id_1, group_1);
+
+                     if (false) {
+                        std::cout << "DEBUG:: make_link_restraints_from_links(): found " << link_infos_f.size() << " forward links for "
+                                  << comp_id_1 << " " << comp_id_2 << std::endl;
+                        std::cout << "DEBUG:: make_link_restraints_from_links(): found " << link_infos_b.size() << " backward links for "
+                                  << comp_id_1 << " " << comp_id_2 << std::endl;
+                        for (unsigned int i=0; i<link_infos_f.size(); i++)
+                           std::cout << "DEBUG:: make_link_restraints_from_links(): link_infos_f " << link_infos_f[i] << std::endl;
+                        for (unsigned int i=0; i<link_infos_b.size(); i++)
+                           std::cout << "DEBUG:: make_link_restraints_from_links(): link_infos_b " << link_infos_b[i] << std::endl;
+                     }
+
+                     std::pair<found_link_t, dictionary_residue_link_restraints_t> lr =
+                        choose_a_link(comp_id_1, comp_id_2, group_1, group_2, link_infos_f, link_infos_b, l_atoms, geom);
+                     if (lr.first == found_link_t::LINK_FORWARD || lr.first == found_link_t::LINK_BACKWARD) {
+
+                        bool fixed_1 = false;
+                        bool fixed_2 = false;
+                        std::string link_id = lr.second.link_id;
+                        // 2025-10-22-PE now find if the residues of this link were fixed. Is there a better way than this
+                        // code block!?
+                        for (unsigned int i=0; i<residues_vec.size(); i++) {
+                           if (residues_vec[i].second ==  first_residue) if (residues_vec[i].first) fixed_1 = true;
+                           if (residues_vec[i].second == second_residue) if (residues_vec[i].first) fixed_2 = true;
+                        }
+
+                        if (false)
+                           std::cout << "OK, eventually calling make_link_restraints_for_link_ng() for "
+                                     << coot::residue_spec_t(first_residue) << " and " << coot::residue_spec_t(second_residue)
+                                     << " " << link_id << std::endl;
+
+                        if (lr.first == found_link_t::LINK_FORWARD)
+                           make_link_restraints_for_link_ng(link_id, first_residue, second_residue, fixed_1, fixed_2, false, geom);
+                        if (lr.first == found_link_t::LINK_BACKWARD)
+                           make_link_restraints_for_link_ng(link_id, second_residue, first_residue, fixed_2, fixed_1, false, geom);
+
+                     } else {
+                        if (false)
+                           std::cout << ".... choose a link found nothing" << std::endl;
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+   // std::cout << "DEBUG:: done make_link_restraints_from_links() ::::::::::::::::::::::::::::::::::::::::::::::::" << std::endl;
+   return v;
+}
+
+coot::bonded_pair_container_t
+coot::restraints_container_t::make_link_restraints_by_distance(const coot::protein_geometry &geom,
+                                                               bool do_rama_plot_restraints,
+                                                               bool do_trans_peptide_restraints) {
+
    // this determines the link type
 
    auto tp_0 = std::chrono::high_resolution_clock::now();
-   bonded_pair_container_t bonded_residue_pairs = bonded_residues_from_res_vec(geom);
+   bonded_pair_container_t bonded_residue_pairs = bonded_residues_from_res_vec(geom); // calc or get?
    auto tp_1 = std::chrono::high_resolution_clock::now();
    auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
    std::cout << "INFO:: Timing for bonded_residues_from_res_vec " << d10 << " milliseconds" << std::endl;
@@ -1293,17 +1475,17 @@ coot::restraints_container_t::find_link_type(mmdb::Residue *first,
 	 bool use_links_in_molecule = false; // because this is the simple version
 	 link_type = find_glycosidic_linkage_type(first, second, geom, use_links_in_molecule);
 	 std::cout << "INFO:: glycosidic_linkage type :" << link_type << ":\n";
-      } 
+      }
    }
 
    return link_type;
 }
 
-// Return "" on failure to find link.  
-// 
+// Return "" on failure to find link.
+//
 // If this returns "", consider calling this function again, with
 // reversed arguments.
-// 
+//
 std::string
 coot::restraints_container_t::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb::Residue *second,
 							   const protein_geometry &geom,
@@ -1311,7 +1493,7 @@ coot::restraints_container_t::find_glycosidic_linkage_type(mmdb::Residue *first,
 
    std::string r;
    if (use_links_in_molecule)
-      r = geom.find_glycosidic_linkage_type(first, second); // 20150714 FIXME
+      r = geom.find_glycosidic_linkage_type_by_distance(first, second); // 20150714 FIXME
    else
       r = geom.find_glycosidic_linkage_type(first, second, mol);
    return r;
@@ -1341,7 +1523,7 @@ coot::restraints_container_t::link_infos_are_glycosidic_by_name_p(const std::vec
 // the the neighbouring residues too (flanking residues) so that
 // have_intermediate_residue_by_seqnum() can use them (to check for
 // spurious bonding from highly distorted structure).
-// 
+//
 std::pair<std::string, bool>
 coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 							mmdb::Residue *second,
@@ -1506,7 +1688,8 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
                                             const std::string &link_id,
                                             bool order_switch_flag) {
 
-      if (false)
+      bool debug = false;
+      if (debug)
          std::cout << "link_type_filter_general() starting with link_id " << link_id << std::endl;
 
       double dist_crit = 3.0; // A
@@ -1562,7 +1745,7 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
             }
          }
       }
-      if (false)
+      if (debug)
          std::cout << "link_type_filter_general() checking type " << link_id << " and returns \""
                    << found_link << "\"" << std::endl;
       return found_link;
@@ -1719,6 +1902,10 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
 
    if (link_type == "pyr-SER")
       link_type = pyr_SER_filter(first_residue, second_residue, order_switch_was_needed);
+
+   if (link_type == "p") // 20241126-PE
+      if (! get_consecutive(first_residue, second_residue))
+         link_type = ""; // nope
 
    // now check other links (but no need to check the links that we have already checked)
    if (! link_type.empty()) {

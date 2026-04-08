@@ -1,0 +1,79 @@
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+HOH HOH WATER NON-POLYMER 3 1 .
+
+data_comp_HOH
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.alt_atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+HOH O  O  O OH2 0 -23.107 18.382 -21.639
+HOH H1 H1 H H   0 -22.244 18.382 -21.639
+HOH H2 H2 H H   0 -23.365 19.206 -21.639
+
+loop_
+_chem_comp_acedrg.comp_id
+_chem_comp_acedrg.atom_id
+_chem_comp_acedrg.atom_type
+HOH O  O(H)2
+HOH H1 H(OH)
+HOH H2 H(OH)
+
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.value_order
+_chem_comp_bond.pdbx_aromatic_flag
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+HOH O H1 SINGLE n 0.972 0.0180 0.863 0.0200
+HOH O H2 SINGLE n 0.972 0.0180 0.863 0.0200
+
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+HOH H1 O H2 107.391 3.00
+
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+HOH SMILES           ACDLabs              10.04 O
+HOH SMILES_CANONICAL CACTVS               3.341 O
+HOH SMILES           CACTVS               3.341 O
+HOH SMILES_CANONICAL "OpenEye OEToolkits" 1.5.0 O
+HOH SMILES           "OpenEye OEToolkits" 1.5.0 O
+HOH InChI            InChI                1.03  InChI=1S/H2O/h1H2
+HOH InChIKey         InChI                1.03  XLYOFNOQVPJJNP-UHFFFAOYSA-N
+
+loop_
+_acedrg_chem_comp_descriptor.comp_id
+_acedrg_chem_comp_descriptor.program_name
+_acedrg_chem_comp_descriptor.program_version
+_acedrg_chem_comp_descriptor.type
+HOH acedrg          285       "dictionary generator"
+HOH acedrg_database 12        "data source"
+HOH rdkit           2019.09.1 "Chemoinformatics tool"
+HOH servalcat       0.4.57    'optimization tool'

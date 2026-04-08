@@ -131,24 +131,57 @@ public:
       }
    }
    std::filesystem::path get_state_home() const {
-      if (!std::filesystem::is_directory(state_home))
-         std::filesystem::create_directories(state_home);
+      try {
+         if (!std::filesystem::is_directory(state_home))
+            std::filesystem::create_directories(state_home);
+      }
+      catch (const std::filesystem::filesystem_error &fse) {
+         std::cout << "ERROR:: " << fse.what() << std::endl;
+      }
       return state_home;
    }
    std::filesystem::path get_data_home() const {
-      if (!std::filesystem::is_directory(data_home))
-         std::filesystem::create_directories(data_home);
+      try {
+         if (!std::filesystem::is_directory(data_home))
+            std::filesystem::create_directories(data_home);
+      }
+      catch (const std::filesystem::filesystem_error &fse) {
+         std::cout << "ERROR:: " << fse.what() << std::endl;
+      }
       return data_home;
    }
    std::filesystem::path get_config_home() const {
-      if (!std::filesystem::is_directory(config_home))
-         std::filesystem::create_directories(config_home);
+      try {
+         if (!std::filesystem::is_directory(config_home))
+            std::filesystem::create_directories(config_home);
+      }
+      catch (const std::filesystem::filesystem_error &fse) {
+         std::cout << "ERROR:: " << fse.what() << std::endl;
+      }
       return config_home;
    }
    std::filesystem::path get_cache_home() const {
-      if (!std::filesystem::is_directory(cache_home))
-         std::filesystem::create_directories(cache_home);
+      try {
+         if (!std::filesystem::is_directory(cache_home))
+            std::filesystem::create_directories(cache_home);
+      }
+      catch (const std::filesystem::filesystem_error &fse) {
+         std::cout << "ERROR:: " << fse.what() << std::endl;
+      }
       return cache_home;
+   }
+   std::filesystem::path get_runtime_dir() const {
+      // 20250113-PE add a check here that runtime_dir is on a local filesystem
+      // Using runtime_dir is non-trivial. It needs more work.
+      // Bottom line is don't use it at the moment.
+      try {
+         if (!std::filesystem::is_directory(runtime_dir))
+            std::filesystem::create_directories(runtime_dir);
+      }
+      catch (const std::filesystem::filesystem_error &fse) {
+         std::cout << "ERROR:: " << fse.what() << std::endl;
+      }
+      return runtime_dir;
    }
    std::string get_data_dirs() const { return data_dirs; }
    std::string get_config_dirs() const { return config_dirs; }
@@ -185,6 +218,12 @@ public:
    }
    std::filesystem::path join(const std::filesystem::path &p, const std::string &file_name) const {
       auto d = p / file_name;
+      return d;
+   }
+   // utility function for coot
+   std::string get_download_dir() const {
+      std::filesystem::path c = get_cache_home();
+      auto d = c / "coot-download";
       return d;
    }
 };

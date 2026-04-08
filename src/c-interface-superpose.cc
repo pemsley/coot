@@ -40,7 +40,7 @@
 #ifdef HAVE_SSMLIB
 #include <string>
 #include <vector>
-#include <gtk/gtk.h> 
+#include <gtk/gtk.h>
 #include "c-interface.h"
 #include "c-interface-gtk-widgets.h"
 #include "cc-interface.hh"
@@ -48,7 +48,7 @@
 #include <iostream>
 #include "interface.h"
 
-#else 
+#else
 
 #include <gtk/gtk.h>
 #include "interface.h"
@@ -62,16 +62,16 @@
 
 #include "widget-from-builder.hh"
 
-void superpose(int imol1, int imol2, short int move_copy_of_imol2_flag) { 
+void superpose(int imol1, int imol2, short int move_copy_of_imol2_flag) {
 
 #ifdef HAVE_SSMLIB
 
-   std::cout << "superposing molecule " << imol2 << " on to " << imol1  
+   std::cout << "DEBUG:: superposing molecule " << imol2 << " on to " << imol1
 	     << " (reference)\n";
 
-   if (graphics_info_t::molecules[imol1].has_model()) { 
-      if (graphics_info_t::molecules[imol2].has_model()) { 
-	 
+   if (is_valid_model_molecule(imol1)) {
+      if (is_valid_model_molecule(imol2)) {
+
 	 graphics_info_t g;
 	 std::string name = graphics_info_t::molecules[imol2].name_for_display_manager();
 	 std::string reference_name = graphics_info_t::molecules[imol1].name_for_display_manager();
@@ -85,8 +85,8 @@ void superpose(int imol1, int imol2, short int move_copy_of_imol2_flag) {
 	    mmdb::Manager *m2 = graphics_info_t::molecules[imol_new].atom_sel.mol;
 
 	    bool success = coot::util::copy_cell_and_symm_headers(m1, m2);
-	    
-	 } 
+
+	 }
 
       } else {
 	 std::cout << "WARNING:: Molecule " << imol2 << " has no model\n";
@@ -101,13 +101,13 @@ void superpose(int imol1, int imol2, short int move_copy_of_imol2_flag) {
    command_strings.push_back(graphics_info_t::int_to_string(imol2));
    command_strings.push_back(graphics_info_t::int_to_string(move_copy_of_imol2_flag));
    add_to_history(command_strings);
-      
+
 #endif // HAVE_SSMLIB
 }
 
 
 // we use short int move_imol2_flag because this has a C interface.
-// 
+//
 void superpose_with_chain_selection(int imol1, int imol2, 
 				    const char *chain_imol1,
 				    const char *chain_imol2,
@@ -230,7 +230,7 @@ int superpose_with_atom_selection(int imol1, int imol2,
 	 std::string ref_name = graphics_info_t::molecules[imol1].name_for_display_manager();
 	 imodel_return = g.superpose_with_atom_selection(asc_ref, asc_mov, imol2, name,
 							 ref_name, move_copy_of_imol2_flag);
-	 
+
 	 asc_ref.mol->DeleteSelection(asc_ref.SelectionHandle);
 	 asc_mov.mol->DeleteSelection(asc_mov.SelectionHandle);
 
@@ -251,17 +251,20 @@ int superpose_with_atom_selection(int imol1, int imol2,
 
 
 
-void execute_superpose(GtkWidget *w) { 
+void execute_superpose(GtkWidget *w) {
 
 #ifdef HAVE_SSMLIB
 
    // We need to extract which molecules are to be superposed:
 
-   int imol1 = graphics_info_t::superpose_imol1;
-   int imol2 = graphics_info_t::superpose_imol2;
+   GtkWidget *combobox_1 = widget_from_builder("superpose_dialog_reference_mol_combobox");
+   GtkWidget *combobox_2 = widget_from_builder("superpose_dialog_moving_mol_combobox");
 
-   std::cout << "DEBUG:: superpose_imol1: " << graphics_info_t::superpose_imol1 << std::endl;
-   std::cout << "DEBUG:: superpose_imol2: " << graphics_info_t::superpose_imol2 << std::endl;
+   int imol1 = my_combobox_get_imol(GTK_COMBO_BOX(combobox_1));
+   int imol2 = my_combobox_get_imol(GTK_COMBO_BOX(combobox_2));
+
+   std::cout << "DEBUG:: superpose_imol1: " << imol1 << std::endl;
+   std::cout << "DEBUG:: superpose_imol2: " << imol2 << std::endl;
 
    GtkWidget *checkbutton = widget_from_builder("superpose_dialog_move_copy_checkbutton");
    GtkWidget *chain_mol1_checkbutton =  widget_from_builder("superpose_reference_chain_checkbutton");
@@ -273,8 +276,8 @@ void execute_superpose(GtkWidget *w) {
    bool make_copy = false;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton)))
       make_copy = true;
-   
-   if (imol1 >= 0 && imol1 < graphics_info_t::n_molecules()) { 
+
+   if (imol1 >= 0 && imol1 < graphics_info_t::n_molecules()) {
       if (imol2 >= 0 && imol2 < graphics_info_t::n_molecules()) {
 
 	 // now check the chains:
@@ -286,25 +289,25 @@ void execute_superpose(GtkWidget *w) {
 
 	 // These chain_mol1/2 need checking to see if they are set
 	 // properly when the use-chain check_button is toggled.
-	 // 
-	 if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(chain_mol1_checkbutton))) {
+	 //
+	 if (gtk_check_button_get_active(GTK_CHECK_BUTTON(chain_mol1_checkbutton))) {
 	    chain_used_flag_imol1 = 1;
 	    chain_mol1 = graphics_info_t::superpose_imol1_chain;
 	 }
-	 if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(chain_mol2_checkbutton))) {
+	 if (gtk_check_button_get_active(GTK_CHECK_BUTTON(chain_mol2_checkbutton))) {
 	    chain_used_flag_imol2 = 1;
 	    chain_mol2 = graphics_info_t::superpose_imol2_chain;
 	 }
 
 	 // Make sure we are not superposing onto self:
-	 short int self_superpose_flag = 0;
+	 bool self_superpose_flag = false;
 	 if (imol1 == imol2) {
 	    if (!chain_used_flag_imol1 && !chain_used_flag_imol2) {
-	       self_superpose_flag = 1;
+	       self_superpose_flag = true;
 	    } else {
-	       if (! make_copy) { 
-		  self_superpose_flag = 1;
-	       } else { 
+	       if (! make_copy) {
+		  self_superpose_flag = true;
+	       } else {
 		  if (chain_used_flag_imol1 && chain_used_flag_imol2) {
 		     if (chain_mol1 == chain_mol2) {
 			self_superpose_flag = 1;
@@ -316,16 +319,16 @@ void execute_superpose(GtkWidget *w) {
 
 	 if (self_superpose_flag == 1)
 	    make_copy = true;
-	    
+
 	 std::string mol1chain_info;
 	 std::string mol2chain_info;
-	 if (chain_used_flag_imol1) { 
+	 if (chain_used_flag_imol1) {
 	       mol1chain_info = " Chain " + chain_mol1;
 	 }
-	 if (chain_used_flag_imol2) { 
+	 if (chain_used_flag_imol2) {
 	    mol2chain_info = " Chain " + chain_mol2;
 	 }
-	 
+
 	 std::cout << "INFO:: matching molecule number " << imol2 << mol2chain_info
 		   << " onto molecule number " << imol1 << mol1chain_info << std::endl;
 
@@ -333,23 +336,53 @@ void execute_superpose(GtkWidget *w) {
 					chain_used_flag_imol1, chain_used_flag_imol2,
 					make_copy);
 
-      } else { 
+      } else {
 	 std::cout << "No such molecule as " << imol2 << "\n";
-      } 
-   } else { 
+      }
+   } else {
       std::cout << "No such molecule as " << imol1 << "\n";
    }
 #endif // HAVE_SSMLIB
-} 
+}
 
+// make this available
+void
+fill_combobox_with_molecule_options_simple(GtkWidget *combobox) {
 
-GtkWidget *wrapped_create_superpose_dialog() { 
+   auto get_model_molecule_vector = [] () {
+                                       graphics_info_t g;
+                                       std::vector<int> vec;
+                                       int n_mol = g.n_molecules();
+                                       for (int i=0; i<n_mol; i++)
+                                          if (g.is_valid_model_molecule(i))
+                                             vec.push_back(i);
+                                       return vec;
+                                    };
+   int imol_active = -1;
+   auto mol_vec = get_model_molecule_vector();
+   if (! mol_vec.empty()) imol_active = mol_vec[0];
+   graphics_info_t g;
+   g.fill_combobox_with_molecule_options(combobox, G_CALLBACK(nullptr), imol_active, mol_vec);
+}
+
+GtkWidget *wrapped_create_superpose_dialog() {
 
    GtkWidget *w = 0; // not NULL for compiler reasons.
 
 #ifdef HAVE_SSMLIB
 
-   // w = create_superpose_dialog();
+   std::cout << ":::::::::::::::::::::: wrapped_create_superpose_dialog() ::::::::::::::::" << std::endl;
+
+   auto get_model_molecule_vector = [] () {
+                                       graphics_info_t g;
+                                       std::vector<int> vec;
+                                       int n_mol = g.n_molecules();
+                                       for (int i=0; i<n_mol; i++)
+                                          if (g.is_valid_model_molecule(i))
+                                             vec.push_back(i);
+                                       return vec;
+                                    };
+
    w = widget_from_builder("superpose_dialog");
 
    graphics_info_t g;
@@ -357,46 +390,34 @@ GtkWidget *wrapped_create_superpose_dialog() {
    GtkWidget *combobox1 = widget_from_builder("superpose_dialog_reference_mol_combobox");
    GtkWidget *combobox2 = widget_from_builder("superpose_dialog_moving_mol_combobox");
 
-   GCallback signal_func1 = G_CALLBACK(g.superpose_combobox_changed_mol1);
-   GCallback signal_func2 = G_CALLBACK(g.superpose_combobox_changed_mol2);
-
-   graphics_info_t::superpose_imol1 = -1;
-   graphics_info_t::superpose_imol2 = -1;
-   // and what should the "set" values of graphics_info_t::superpose_imol1 and 2 be?
-   // 
-   for (int i=0; i<g.n_molecules(); i++) { 
-      if (g.molecules[i].has_model()) { 
-	 graphics_info_t::superpose_imol1 = i;
-	 graphics_info_t::superpose_imol2 = i;
-	 break;
-      }
-   }
-
-   g.fill_combobox_with_coordinates_options(combobox1, signal_func1, g.superpose_imol1);
-   g.fill_combobox_with_coordinates_options(combobox2, signal_func2, g.superpose_imol2);
+   int imol_active = -1;
+   auto mol_vec = get_model_molecule_vector();
+   if (! mol_vec.empty()) imol_active = mol_vec[0];
+   g.fill_combobox_with_molecule_options(combobox1, G_CALLBACK(nullptr), imol_active, mol_vec);
+   g.fill_combobox_with_molecule_options(combobox2, G_CALLBACK(nullptr), imol_active, mol_vec);
 
    GtkWidget *chain_ref_cb = widget_from_builder("superpose_dialog_reference_chain_combobox");
    GtkWidget *chain_mov_cb = widget_from_builder("superpose_dialog_moving_chain_combobox");
 
-   // 20220602-PE why are these here - what do they do? Nothing AFAICS.
-   // GtkWidget *chain_ref_menu = gtk_menu_new();
-   // GtkWidget *chain_mov_menu = gtk_menu_new();
+   fill_superpose_combobox_with_chain_options(imol_active, 1);
+   fill_superpose_combobox_with_chain_options(imol_active, 0);
 
 #endif // HAVE_SSMLIB
+   std::cout << ":::::::::::::::::::::: done wrapped_create_superpose_dialog() ::::::::::::::::" << std::endl;
    return w;
-} 
+}
 
 
-// The callbacks.c callback:
-// 
-void fill_superpose_combobox_with_chain_options(GtkWidget *chain_combobox, 
+//
+void fill_superpose_combobox_with_chain_options(int imol_active,
 						int is_reference_structure_flag) {
 
 #ifdef HAVE_SSMLIB
 
-   graphics_info_t::fill_superpose_combobox_with_chain_options(chain_combobox,
-							       is_reference_structure_flag);
-#endif // HAVE_SSMLIB    
+   graphics_info_t g;
+   g.fill_superpose_combobox_with_chain_options(imol_active, is_reference_structure_flag);
+
+#endif // HAVE_SSMLIB
 }
 
 
@@ -625,20 +646,12 @@ void lsq_ref_mol_combobox_changed(GtkWidget *combobox, gpointer data) {
    GtkWidget *chain_id_combobox = reinterpret_cast<GtkWidget *> (data);
    graphics_info_t::lsq_ref_imol = imol; // meh, I'd pass this in the function these days.
    fill_lsq_combobox_with_chain_options(chain_id_combobox, 1, ss.c_str());
-      
+
 }
 
-void lsq_mov_mol_combobox_changed(GtkWidget *combobox, gpointer data) {
+#include "c-interface-gui.hh"
 
-   std::cout << "Here in lsq_mov_mol_combobox_changed() " << std::endl;
-   int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
-   std::string ss = "Unset";
-   GtkWidget *chain_id_combobox = reinterpret_cast<GtkWidget *> (data);
-   graphics_info_t::lsq_mov_imol = imol;
-   fill_lsq_combobox_with_chain_options(chain_id_combobox, 0, ss.c_str());
-}
-
-
+void fill_lsq_chain_combobox_with_chain_options(GtkWidget *chain_combobox, int imol);
 
 GtkWidget *wrapped_create_least_squares_dialog() {
 
@@ -655,8 +668,8 @@ GtkWidget *wrapped_create_least_squares_dialog() {
 		           1: main
    		           2: all  */
 
-   GtkWidget *mov_combobox = widget_from_builder("least_squares_moving_molecule_combobox");
-   GtkWidget *ref_combobox = widget_from_builder("least_squares_reference_molecule_combobox");
+   GtkWidget *mov_combobox    = widget_from_builder("least_squares_moving_molecule_combobox");
+   GtkWidget *ref_combobox    = widget_from_builder("least_squares_reference_molecule_combobox");
    GtkWidget *ref_res_range_1 = widget_from_builder("least_squares_reference_range_1_entry");
    GtkWidget *ref_res_range_2 = widget_from_builder("least_squares_reference_range_2_entry");
    GtkWidget *mov_res_range_1 = widget_from_builder("least_squares_moving_range_1_entry");
@@ -666,42 +679,27 @@ GtkWidget *wrapped_create_least_squares_dialog() {
    GtkWidget *match_type_main_check_button = widget_from_builder("least_squares_match_type_main_radiobutton");
    GtkWidget *match_type_main_calpha_button =widget_from_builder("least_squares_match_type_calpha_radiobutton");
 
-   // GtkWidget *ref_mol_chain_id_option_menu = widget_from_builder("least_squares_reference_chain_id");
-   // GtkWidget *mov_mol_chain_id_option_menu = widget_from_builder("least_squares_moving_chain_id");
-
    GtkWidget *ref_mol_chain_id_combobox = widget_from_builder("least_squares_reference_chain_id_combobox");
    GtkWidget *mov_mol_chain_id_combobox = widget_from_builder("least_squares_moving_chain_id_combobox");
 
    graphics_info_t g;
 
-   // GtkSignalFunc callback_func1 = GTK_SIGNAL_FUNC(lsq_ref_mol_option_menu_changed);
-   // GtkSignalFunc callback_func2 = GTK_SIGNAL_FUNC(lsq_mov_mol_option_menu_changed);
+   auto get_model_molecule_vector = [] () {
+                                       graphics_info_t g;
+                                       std::vector<int> vec;
+                                       int n_mol = g.n_molecules();
+                                       for (int i=0; i<n_mol; i++)
+                                          if (g.is_valid_model_molecule(i))
+                                             vec.push_back(i);
+                                       return vec;
+                                    };
 
-   // we need to be able to change the chain combobox items when the molecule combobox changes
-   //
-   GCallback callback_func1 = G_CALLBACK(lsq_ref_mol_combobox_changed);
-   GCallback callback_func2 = G_CALLBACK(lsq_mov_mol_combobox_changed);
 
-   g_signal_connect(ref_combobox, "changed", callback_func1, ref_mol_chain_id_combobox);
-   g_signal_connect(mov_combobox, "changed", callback_func2, mov_mol_chain_id_combobox);
-
-
-   // this is not useful now - we will look up the imols from the widget when the "OK" button is clicked.
-   //
-   int imol_1 = first_coords_imol();
-   int imol_2 = first_coords_imol();
-   if (! is_valid_model_molecule(graphics_info_t::lsq_ref_imol))
-      graphics_info_t::lsq_ref_imol = imol_1;
-   if (! is_valid_model_molecule(graphics_info_t::lsq_mov_imol))
-      graphics_info_t::lsq_mov_imol = imol_2;
-
-   if (is_valid_model_molecule(g.lsq_dialog_values.reference_molecule_number))
-      imol_1 = g.lsq_dialog_values.reference_molecule_number;
-   if (is_valid_model_molecule(g.lsq_dialog_values.moving_molecule_number))
-      imol_2 = g.lsq_dialog_values.moving_molecule_number;
-
-   g.fill_combobox_with_coordinates_options(ref_combobox, callback_func1, imol_1);
-   g.fill_combobox_with_coordinates_options(mov_combobox, callback_func2, imol_2);
+   GCallback callback_func = G_CALLBACK(nullptr);
+   auto mol_vec = get_model_molecule_vector();
+   int imol_active = first_coords_imol();
+   g.fill_combobox_with_molecule_options(ref_combobox, callback_func, imol_active, mol_vec);
+   g.fill_combobox_with_molecule_options(mov_combobox, callback_func, imol_active, mol_vec);
 
    // make entries smaller
    gtk_widget_set_size_request(ref_res_range_1, 80, -1);
@@ -715,15 +713,13 @@ GtkWidget *wrapped_create_least_squares_dialog() {
    gtk_editable_set_text(GTK_EDITABLE(mov_res_range_1), clipper::String(g.lsq_dialog_values.mov_res_range_start).c_str());
    gtk_editable_set_text(GTK_EDITABLE(mov_res_range_2), clipper::String(g.lsq_dialog_values.mov_res_range_end).c_str());
 
-   std::string chain_id_ref = g.lsq_dialog_values.chain_id_ref;
-   std::string chain_id_mov = g.lsq_dialog_values.chain_id_mov;
+   std::string chain_id_ref = "A";
+   std::string chain_id_mov = "A";
 
-   // fill_lsq_option_menu_with_chain_options(ref_mol_chain_id_option_menu, 1, chain_id_ref.c_str());
-   // fill_lsq_option_menu_with_chain_options(mov_mol_chain_id_option_menu, 0, chain_id_mov.c_str());
+   fill_lsq_chain_combobox_with_chain_options(ref_mol_chain_id_combobox, imol_active);
+   fill_lsq_chain_combobox_with_chain_options(mov_mol_chain_id_combobox, imol_active);
 
-   fill_lsq_combobox_with_chain_options(ref_mol_chain_id_combobox, 1, chain_id_ref.c_str());
-   fill_lsq_combobox_with_chain_options(mov_mol_chain_id_combobox, 0, chain_id_mov.c_str());
-
+   set_transient_for_main_window(lsq_dialog);
    return lsq_dialog;
 
 }
@@ -744,28 +740,28 @@ void update_lsq_dialog_store_values(GtkWidget *lsq_dialog) {
 
 int apply_lsq_matches_by_widget(GtkWidget *lsq_dialog) {
 
+   std::cout << "---- apply matches ---" << std::endl;
+
    graphics_info_t g;
    g.lsq_dialog_values.update(lsq_dialog);
 
-   // int imol_reference = graphics_info_t::lsq_ref_imol;
-   // int imol_moving    = graphics_info_t::lsq_mov_imol;
-
    GtkWidget *ref_combobox = widget_from_builder("least_squares_reference_molecule_combobox");
    GtkWidget *mov_combobox = widget_from_builder("least_squares_moving_molecule_combobox");
-   //
+   std::cout << "ref_combobox " << ref_combobox << " mov_combobox " << mov_combobox << std::endl;
+
    int imol_reference = my_combobox_get_imol(GTK_COMBO_BOX(ref_combobox));
    int imol_moving    = my_combobox_get_imol(GTK_COMBO_BOX(mov_combobox));
+
+   std::cout << "imol_moving " << imol_moving << " imol_reference " << imol_reference << std::endl;
 
    int ref_start_resno = -9999;
    int ref_end_resno =   -9999;
    int mov_start_resno = -9999;
    int mov_end_resno =   -9999;
    int match_type = -1; /* 0: CA
-		           1: main
-   		           2: all  */
+                           1: main
+                           2: all  */
 
-   // GtkWidget *mov_option_menu = widget_from_builder("least_squares_moving_molecule_optionmenu");
-   // GtkWidget *ref_option_menu = widget_from_builder("least_squares_reference_molecule_optionmenu");
    GtkWidget *ref_res_range_1 = widget_from_builder("least_squares_reference_range_1_entry");
    GtkWidget *ref_res_range_2 = widget_from_builder("least_squares_reference_range_2_entry");
    GtkWidget *mov_res_range_1 = widget_from_builder("least_squares_moving_range_1_entry");
@@ -775,21 +771,21 @@ int apply_lsq_matches_by_widget(GtkWidget *lsq_dialog) {
    GtkWidget *match_type_main_check_button   = widget_from_builder("least_squares_match_type_main_radiobutton");
    GtkWidget *match_type_calpha_check_button = widget_from_builder("least_squares_match_type_calpha_radiobutton");
 
-   // GtkWidget *ref_mol_chain_id_option_menu = widget_from_builder("least_squares_reference_chain_id");
-   // GtkWidget *mov_mol_chain_id_option_menu = widget_from_builder("least_squares_moving_chain_id");
-
    GtkWidget *ref_mol_chain_id_combobox = widget_from_builder("least_squares_reference_chain_id_combobox");
    GtkWidget *mov_mol_chain_id_combobox = widget_from_builder("least_squares_moving_chain_id_combobox");
-   
+
+   std::cout << "ref_mol_chain_id_combobox " << ref_mol_chain_id_combobox << std::endl;
+   std::cout << "mov_mol_chain_id_combobox " << mov_mol_chain_id_combobox << std::endl;
+
    GtkWidget *copy_checkbutton = widget_from_builder("least_squares_move_copy_checkbutton");
    if (copy_checkbutton) { 
-      if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(copy_checkbutton))) {
-	 int new_imol_moving = copy_molecule(imol_moving);
-	 imol_moving = new_imol_moving;
-	 graphics_info_t::lsq_mov_imol = imol_moving;
+      if (gtk_check_button_get_active(GTK_CHECK_BUTTON(copy_checkbutton))) {
+         int new_imol_moving = copy_molecule(imol_moving);
+         imol_moving = new_imol_moving;
+         graphics_info_t::lsq_mov_imol = imol_moving;
       }
    }
-   
+
    const char *txt = 0;
 
    txt = gtk_editable_get_text(GTK_EDITABLE(ref_res_range_1));
@@ -801,19 +797,12 @@ int apply_lsq_matches_by_widget(GtkWidget *lsq_dialog) {
    txt = gtk_editable_get_text(GTK_EDITABLE(mov_res_range_2));
    mov_end_resno = atoi(txt);
 
-   // These are calculated on the fly now.
-   // std::string ref_chain_id_str = graphics_info_t::lsq_match_chain_id_ref;
-   // std::string mov_chain_id_str = graphics_info_t::lsq_match_chain_id_mov;
-
    std::string ref_chain_id_str = g.get_active_label_in_comboboxtext(GTK_COMBO_BOX_TEXT(ref_mol_chain_id_combobox));
    std::string mov_chain_id_str = g.get_active_label_in_comboboxtext(GTK_COMBO_BOX_TEXT(mov_mol_chain_id_combobox));
 
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(match_type_all_check_button)))
-      match_type = 0;
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(match_type_main_check_button)))
-      match_type = 1;
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(match_type_calpha_check_button)))
-      match_type = 2;
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(match_type_all_check_button)))    match_type = 0;
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(match_type_main_check_button)))   match_type = 1;
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(match_type_calpha_check_button))) match_type = 2;
 
    std::cout << "INFO:: reference from " << ref_start_resno << " to " <<  ref_end_resno << " chain "
 	     << ref_chain_id_str << " moving from " << mov_start_resno << " to "
@@ -878,6 +867,25 @@ fill_lsq_option_menu_with_chain_options(GtkWidget *chain_optionmenu,
 }
 #endif
 
+void
+fill_lsq_chain_combobox_with_chain_options(GtkWidget *chain_combobox,
+					   int imol) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      std::vector<std::string> chain_ids = g.molecules[imol].get_chain_ids();
+      if (! chain_ids.empty()) {
+
+	 GtkComboBoxText *cbt = GTK_COMBO_BOX_TEXT(chain_combobox);
+	 gtk_combo_box_text_remove_all(cbt);
+	 for (const auto &chain_id : chain_ids)
+	    gtk_combo_box_text_append_text(cbt, chain_id.c_str());
+	 gtk_combo_box_set_active(GTK_COMBO_BOX(chain_combobox), 0);
+      }
+   }
+
+}
+
 // note that active_chain_id can be NULL.
 //
 void
@@ -891,19 +899,10 @@ fill_lsq_combobox_with_chain_options(GtkWidget *chain_combobox,
 
    GCallback callback_func = NULL;
    int imol = -1;
-   if (is_reference_structure_flag) {
-      imol = graphics_info_t::lsq_ref_imol;
-      // callback_func = G_CALLBACK(lsq_reference_chain_option_menu_item_activate);
-   } else {
-      imol = graphics_info_t::lsq_mov_imol;
-      // callback_func = G_CALLBACK(lsq_moving_chain_option_menu_item_activate);
-   }
 
-   if (false) { // debug
+   if (true) { // debug
       std::cout << "debug:: fill chain option menu for mol " << imol
-		<< " and  active_chain_id " << active_chain_id << std::endl;
-      std::cout << "debug:: lsq_ref_imol " << graphics_info_t::lsq_ref_imol << std::endl;
-      std::cout << "debug:: lsq_mov_imol " << graphics_info_t::lsq_mov_imol << std::endl;
+                << " and  active_chain_id " << active_chain_id << std::endl;
    }
 
    if (is_valid_model_molecule(imol)) {

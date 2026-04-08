@@ -52,6 +52,51 @@
 
 #include "lbg-graph.hh"
 
+#include "utils/logging.hh"
+extern logging logger;
+
+void
+coot::protein_geometry::set_only_bonds(int dict_idx) {
+
+   if (dict_idx != -1) {
+      int drr_size = dict_res_restraints.size(); // type change
+      if (dict_idx < drr_size) {
+         dictionary_residue_restraints_t &dict = dict_res_restraints[dict_idx].second;
+         std::map<std::string, std::vector<std::pair<unsigned int, std::string> > > atom_name_map;
+         for (unsigned int i=0; i<dict.bond_restraint.size(); i++) {
+            const auto &bond = dict.bond_restraint[i];
+            if (bond.type() == "single") {
+               const std::string &atom_name_1 = bond.atom_id_1();
+               const std::string &atom_name_2 = bond.atom_id_2();
+               bool is_H_1 = dict.is_hydrogen(atom_name_1);
+               bool is_H_2 = dict.is_hydrogen(atom_name_2);
+               if (! is_H_1 && !is_H_2) {
+                  std::pair<unsigned int, std::string> p1(i, "first");
+                  std::pair<unsigned int, std::string> p2(i, "second");
+                  atom_name_map[bond.atom_id_1()].push_back(p1);
+                  atom_name_map[bond.atom_id_2()].push_back(p2);
+               }
+            }
+         }
+         std::map<std::string, std::vector<std::pair<unsigned int, std::string> > >::const_iterator it;
+         for (it=atom_name_map.begin(); it!=atom_name_map.end(); ++it) {
+            const std::vector<std::pair<unsigned int, std::string> > &v = it->second;
+            if (v.size() == 1) {
+               const auto &atom_name = it->first;
+               unsigned int bond_index = v[0].first;
+               const std::string &pos  = v[0].second;
+               dict.bond_restraint[bond_index].set_only_bond(pos, true);
+               if (false)
+                  std::cout << "debug:: set_only_bond() in " << dict.residue_info.comp_id
+                            << " atom " << atom_name << " " << pos
+                            << " " << dict.bond_restraint[bond_index].type()
+                            << " has only one non-Hydrogen bond" << std::endl;
+            }
+         }
+      }
+   }
+}
+
 // return the number of atoms read (not the number of bonds (because
 // that is not a good measure of having read the file properly for
 // (for example) CL)).
@@ -146,8 +191,10 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 
       } else {
          if (verbose_mode)
-            std::cout << "There are " << ciffile.GetNofData() << " data in "
-                      << ciffilename << std::endl;
+            // std::cout << "There are " << ciffile.GetNofData() << " data in "
+            //                       << ciffilename << std::endl;
+            logger.log(log_t::INFO, "There are ", std::to_string(ciffile.GetNofData()),
+                       " data in ", ciffilename);
 
          for(int idata=0; idata<ciffile.GetNofData(); idata++) {
 
@@ -195,7 +242,6 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 
                mmdb::mmcif::PLoop mmCIFLoop = data->GetLoop(cat_name.c_str() );
 
-               int n_loop_time = 0;
                if (mmCIFLoop == NULL) {
 
                   bool handled = false;
@@ -257,7 +303,6 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 
                } else {
 
-                  n_loop_time++;
 
                   // We currently want to stop adding chem comp info
                   // if the chem_comp info comes from mon_lib_list.cif:
@@ -291,7 +336,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 
                   // chiral
                   if (cat_name == "_chem_comp_chir") {
-                     std::pair<int, std::vector<std::string> > chirals = 
+                     std::pair<int, std::vector<std::string> > chirals =
                         comp_chiral(mmCIFLoop, imol_enc);
                      n_chiral += chirals.first;
                      for (unsigned int ichir=0; ichir<chirals.second.size(); ichir++)
@@ -347,6 +392,8 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
    } // is regular file test
 
    // debug_mods();
+
+   set_only_bonds(rmit.monomer_idx);
 
    if (comp_ids.size() > 0)
       rmit.comp_id = comp_ids[0];
@@ -2073,8 +2120,10 @@ coot::protein_geometry::init_standard() {
    std::string hardwired_default_place = util::append_dir_dir(pkg_data_dir, "lib");
    bool using_clibd_mon = false;
 
-   if (debug)
+   if (debug) {
+      std::cout << "DEBUG:: init_standard(): pkg_data_dir: " << pkg_data_dir << std::endl;
       std::cout << "DEBUG:: init_standard(): hardwired_default_place: " << hardwired_default_place << std::endl;
+   }
 
    std::string mon_lib_dir;
    short int env_dir_fails = 0;
@@ -2122,8 +2171,9 @@ coot::protein_geometry::init_standard() {
          } else {
             env_dir_fails = 0;
             if (verbose_mode)
-               std::cout << "INFO:: Using Standard CCP4 Refmac dictionary from"
-                         << " CLIBD_MON: " << s << std::endl;
+               // std::cout << "INFO:: Using Standard CCP4 Refmac dictionary from"
+               //           << " CLIBD_MON: " << s << std::endl;
+               logger.log(log_t::INFO, "Using Standard CCP4 Refmac dictionary from CLIBD_MON: " + std::string(s));
             mon_lib_dir = s;
             using_clibd_mon = true;
             // strip any trailing / from mon_lib_dir
@@ -2140,8 +2190,9 @@ coot::protein_geometry::init_standard() {
          s = getenv("CCP4_LIB");
          if (s) {
             if (verbose_mode)
-               std::cout << "INFO:: Using Standard CCP4 Refmac dictionary: "
-                         << s << std::endl;
+               // std::cout << "INFO:: Using Standard CCP4 Refmac dictionary: "
+               //           << s << std::endl;
+               logger.log(log_t::INFO, "Using Standard CCP4 Refmac dictionary: " + std::string(s));
             mon_lib_dir = s;
 
          } else {
@@ -2164,11 +2215,11 @@ coot::protein_geometry::init_standard() {
                   if (is_dir_or_link(lib_dir)) {
                      mon_lib_dir = lib_dir;
                   } else {
-                     std::cout << "WARNING:: COOT_PREFIX set, but no dictionary lib found\n";
+                     std::cout << "WARNING:: init_standard(): env var COOT_PREFIX set, but no dictionary lib found\n";
+                     std::cout << "WARNING:: init_standard(): env var COOT_PREFIX was set to \"" << s << "\"\n";
                   }
                } else {
-                  std::cout << "WARNING:: COOT_PREFIX not set, all attempts to "
-                            << "find dictionary lib failed\n";
+                  std::cout << "WARNING:: env var COOT_PREFIX not set" << std::endl;
                   mon_lib_dir.clear();
                }
             }
@@ -2177,7 +2228,7 @@ coot::protein_geometry::init_standard() {
    }
 
    if (debug)
-      std::cout << "Here with mon_lib_dir set to " << mon_lib_dir << std::endl;
+      std::cout << "DEBUG:: Here with mon_lib_dir set to " << mon_lib_dir << std::endl;
 
    if (mon_lib_dir.length() > 0) {
       mon_lib_dir =  coot::util::intelligent_debackslash(mon_lib_dir);
@@ -2592,11 +2643,14 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
       // delete mmCIFLoop; // crashed when enabled?
 
       int status = mmCIFFile->WriteMMCIFFile(filename.c_str());
-      if (status == 0)
-              std::cout << "INFO:: wrote mmCIF \"" << filename << "\"" << std::endl;
-      else
-              std::cout << "INFO:: on write mmCIF \"" << filename << "\" status: "
-                             << status << std::endl;
+      if (status == 0) {
+              // std::cout << "INFO:: wrote mmCIF \"" << filename << "\"" << std::endl;
+              logger.log(log_t::INFO, "wrote mmCIF", filename);
+      } else {
+              // std::cout << "INFO:: on write mmCIF \"" << filename << "\" status: "
+              //                << status << std::endl;
+              logger.log(log_t::INFO, "on write mmCIF", filename, "status:", status);
+      }
    }
    delete mmCIFFile; // deletes all its attributes too.
 }

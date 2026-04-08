@@ -22,7 +22,7 @@
 #include <vector>
 #include <stdexcept>
 
-#include "coords/mmdb-extras.h"
+#include "coords/mmdb-extras.hh"
 #include "coords/mmdb.hh"
 
 #include "geometry/protein-geometry.hh"

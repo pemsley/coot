@@ -41,7 +41,7 @@
 
 #include <string>
 
-#include "coords/Cartesian.h"
+#include "coords/Cartesian.hh"
 // Clipper stuff
 #include "clipper/core/xmap.h"
 #include "clipper/core/nxmap.h"

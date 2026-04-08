@@ -65,11 +65,14 @@
 #include "utils/win-compat.hh"
 #include "utils/coot-utils.hh"
 
-#include "coords/mmdb-extras.h"   // 220403
+#include "coords/mmdb-extras.hh"   // 220403
 #include "coords/mmdb.hh"
 
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot-utils/coot-map-utils.hh"
+#include "utils/logging.hh"
+
+extern logging logger;
 
 
 std::pair<coot::minimol::molecule, coot::minimol::molecule>
@@ -328,7 +331,8 @@ coot::ligand::mask_map(mmdb::Manager *mol, short int mask_waters_flag) {
    mmdb::realtype xmc, ymc, zmc; // filled by reference
    GetMassCenter (atoms, n_atoms, xmc, ymc, zmc);
    protein_centre = clipper::Coord_orth(xmc, ymc, zmc);
-   std::cout << "INFO:: Protein centre at: " << protein_centre.format() << std::endl;
+   logger.log(log_t::INFO, logging::ltw("Protein centre at: "), logging::ltw(protein_centre.format()));
+   // std::cout << "INFO:: Protein centre at: " << protein_centre.format() << std::endl;
 
    // std::cout << "masking....";
    for(int i=0; i<n_atoms; i++) {
@@ -362,7 +366,8 @@ coot::ligand::mask_map(mmdb::Manager *mol,
    mmdb::PPAtom atom_selection = NULL;
    int n_selected_atoms;
    mol->GetSelIndex(SelectionHandle, atom_selection, n_selected_atoms);
-   std::cout << "INFO:: Masking around " << n_selected_atoms << " atoms" << std::endl;
+   logger.log(log_t::INFO, logging::ltw("Masking around "), logging::ltw(n_selected_atoms), logging::ltw(" atoms"));
+   // std::cout << "INFO:: Masking around " << n_selected_atoms << " atoms" << std::endl;
 
    if (invert_flag == 0) {
       for (int i=0; i<n_selected_atoms; i++) {
@@ -1063,7 +1068,6 @@ coot::ligand::n_grid_limit_for_water_cluster() const {
 void
 coot::ligand::find_clusters_water_flood(float z_cut_off_in,
                                         const std::vector <clipper::Coord_orth> &sampled_protein_coords) {
-
    if (xmap_masked_stats.first == 0) {
       clipper::Map_stats stats(xmap_cluster);
       xmap_masked_stats.first  = 1;
@@ -2621,19 +2625,12 @@ coot::ligand::rigid_body_refine_ligand(std::vector<minimol::atom *> *atoms_p,
    int n_atoms = atoms_p->size();
    int round_max = 300;
    int iround = 0;
-   double move_by_length = 1.0; // just to past test initially
-   double angle_sum = 1.0;      // as above
+   int n_no_improvement = 0;
+   int max_no_improvement = 5; // allow this many backtrack-and-retry before giving up
    bool debug = false;
+   float ff = 0.1f;
 
-   auto mean_ligand_position = [] (const std::vector<minimol::atom *> &atoms) {
-                                  clipper::Coord_orth p(0,0,0);
-                                  for (unsigned int ii=0; ii<atoms.size(); ii++)
-                                     p += atoms[ii]->pos;
-                                  double sc = 1.0/static_cast<double>(atoms.size());
-                                  return clipper::Coord_orth(sc * p);
-                               };
-
-   auto apply_angles_to_ligand = [] (const clipper::Vec3<double> &angles ,
+   auto apply_angles_to_ligand = [] (const clipper::Vec3<double> &angles,
                                      const clipper::Coord_orth &mean_pos,
                                      const std::vector<minimol::atom *> *atoms_p) {
 
@@ -2664,32 +2661,29 @@ coot::ligand::rigid_body_refine_ligand(std::vector<minimol::atom *> *atoms_p,
                                     }
                                  };
 
+   // Score the initial configuration
+   double current_score = score_orientation(*atoms_p, xmap_fitting, ff).get_score();
 
-   while ((iround < round_max) &&
-          ((move_by_length > 0.002) || (angle_sum > 0.002))) {
+   if (debug)
+      std::cout << "rigid_body_refine_ligand: initial score " << current_score << std::endl;
+
+   while (iround < round_max && n_no_improvement < max_no_improvement) {
+
+      // Save atom positions so we can revert if the step doesn't improve the score
+      std::vector<clipper::Coord_orth> saved_positions(n_atoms);
+      for (int ii=0; ii<n_atoms; ii++)
+         saved_positions[ii] = (*atoms_p)[ii]->pos;
 
       clipper::Coord_orth midpoint(0,0,0);
-      float ff = 0.1; // doesn't matter, we don't want warning messages
-
-      if (debug)
-         std::cout << "---------------------  start of the rigid body round " << iround << "\n"
-                   << "   score is " << score_orientation(*atoms_p, xmap_fitting, ff) << std::endl;
-
-      for (unsigned int ii=0; ii<atoms_p->size(); ii++) {
+      for (unsigned int ii=0; ii<atoms_p->size(); ii++)
          midpoint += (*atoms_p)[ii]->pos;
-      }
 
       double scale = 1.0/double(atoms_p->size());
       clipper::Coord_orth mean_pos = clipper::Coord_orth(midpoint.x() * scale,
                                                          midpoint.y() * scale,
                                                          midpoint.z() * scale);
 
-      if (debug)
-         std::cout << "   iround " << iround << " real mean pos mid point in rigid_body: point 0"
-                   << mean_pos.format() << std::endl;
-
-      // Get the average gradient in orthogonal x, y, z directions:
-      //
+      // Get the average gradient in orthogonal x, y, z directions
       clipper::Grad_map<float> grad;
       clipper::Grad_frac<float> grad_frac;
       clipper::Grad_orth<float> grad_orth;
@@ -2702,75 +2696,60 @@ coot::ligand::rigid_body_refine_ligand(std::vector<minimol::atom *> *atoms_p,
          clipper::Interp_cubic::interp_grad(xmap_fitting, atom_pos_map, dv, grad);
          grad_frac = grad.grad_frac(xmap_pristine.grid_sampling());
          grad_orth = grad_frac.grad_orth(xmap_pristine.cell());
-         // std::cout << "gradients: " << grad_orth.format() << std::endl;
          sum_dx += grad_orth.dx();
          sum_dy += grad_orth.dy();
          sum_dz += grad_orth.dz();
          grad_vec[ii] = grad_orth;
       }
-      double datfrac = 1.0/double (n_atoms);
+      double datfrac = 1.0/double(n_atoms);
       clipper::Grad_orth<float> av_grad(sum_dx * datfrac,
                                         sum_dy * datfrac,
                                         sum_dz * datfrac);
 
+      // Apply translation
       clipper::Coord_orth moved_by = clipper::Coord_orth(gradient_scale*av_grad.dx(),
                                                          gradient_scale*av_grad.dy(),
                                                          gradient_scale*av_grad.dz());
-
-      if (debug)
-         std::cout << "   iround " << iround << " moving by " << moved_by.format() << std::endl;
-
-      clipper::Vec3<double> angles;
-      bool angles_are_valid = false;
-      if (atoms_p->size() > 1) {
-         angles = get_rigid_body_angle_components(*atoms_p, mean_pos, grad_vec,
-                                                  rotation_component, gradient_scale);
-         angles_are_valid = true;
-      }
-
-      move_by_length = sqrt(moved_by.lengthsq());
-
-      if (debug) {
-         std::cout << "   iround " << iround << " " << move_by_length
-                   << " " << moved_by.x()
-                   << " " << moved_by.y()
-                   << " " << moved_by.z() << "\n";
-         std::cout << "      mean pos in rigid body refine ligand: point 1 "
-                   << mean_pos.format() << std::endl;
-         std::cout << "      moved by: " <<  moved_by.format() << std::endl;
-         std::cout << "      mean by function: "
-                   << mean_ligand_position(*atoms_p).format() << std::endl;
-      }
-
       mean_pos += moved_by;
       for (int ii=0; ii<n_atoms; ii++)
          (*atoms_p)[ii]->pos += moved_by;
 
-      // Consider moving the generation (not application) of the
-      // angles above the application of the translations.
-      //
+      // Apply rotation
+      if (atoms_p->size() > 1) {
+         clipper::Vec3<double> angles = get_rigid_body_angle_components(*atoms_p, mean_pos, grad_vec,
+                                                                       rotation_component, gradient_scale);
+         apply_angles_to_ligand(angles, mean_pos, atoms_p);
+      }
+
+      // Score after the step
+      double new_score = score_orientation(*atoms_p, xmap_fitting, ff).get_score();
+
       if (debug)
-         std::cout << "   iround " << iround << " Now to apply the angles: "
-                   << clipper::Util::rad2d(angles[0]) << " "
-                   << clipper::Util::rad2d(angles[1]) << " "
-                   << clipper::Util::rad2d(angles[2]) << std::endl;
+         std::cout << "   iround " << iround << " score " << current_score
+                   << " -> " << new_score << " gradient_scale " << gradient_scale << std::endl;
 
-      if (angles_are_valid) {
-         apply_angles_to_ligand(angles,mean_pos, atoms_p);
-
-         // set angle_sum for next round
-         angle_sum = 0.0;
-         angle_sum += fabs(clipper::Util::rad2d(angles[0]));
-         angle_sum += fabs(clipper::Util::rad2d(angles[1]));
-         angle_sum += fabs(clipper::Util::rad2d(angles[2]));
+      if (new_score > current_score + 0.001) {
+         // Step improved the score - accept it
+         current_score = new_score;
+         n_no_improvement = 0;
+      } else {
+         // Step didn't improve - revert positions and halve the gradient scale
+         for (int ii=0; ii<n_atoms; ii++)
+            (*atoms_p)[ii]->pos = saved_positions[ii];
+         gradient_scale *= 0.5f;
+         n_no_improvement++;
          if (debug)
-            std::cout << "   iround " << iround << " moved: " << move_by_length
-                      << " angle_sum: " << angle_sum << std::endl;
+            std::cout << "   iround " << iround << " no improvement, reducing gradient_scale to "
+                      << gradient_scale << std::endl;
       }
 
       iround++;
 
    } // irounds
+
+   if (debug)
+      std::cout << "rigid_body_refine_ligand: final score " << current_score
+                << " after " << iround << " rounds" << std::endl;
 
 }
 

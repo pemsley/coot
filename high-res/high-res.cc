@@ -20,7 +20,7 @@
 
 #include <algorithm>
 #include <map>
-#include "coords/mmdb-extras.h" // for atom_selection_container_t used in coot-close
+#include "coords/mmdb-extras.hh" // for atom_selection_container_t used in coot-close
 #include "coords/mmdb.hh" // for formatting of mmdb::Atom
 #include "coords/coot-close.hh"
 #include "coot-utils/coot-coord-utils.hh"

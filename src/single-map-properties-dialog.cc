@@ -30,6 +30,7 @@
 #include "utils/coot-utils.hh"
 #include "single-map-properties-dialog.hh"
 #include "graphics-info.h"
+#include "c-interface-gtk-widgets.h"
 
 std::pair<GtkWidget *, GtkBuilder *> create_single_map_properties_dialog_gtk3() {
 
@@ -180,7 +181,7 @@ void fill_single_map_properties_dialog_gtk3(std::pair<GtkWidget *, GtkBuilder *>
    // GtkWidget *map_contour_frame = widget_from_builder("single_map_properties_map_histogram_frame");
    // GtkWidget *alignment = widget_from_builder("alignment_for_map_density_histogram");
    // fill_map_histogram_widget(imol, alignment);
-   
+
    // return; OK
 
    float contour_level = m.contour_level;
@@ -201,9 +202,21 @@ void fill_single_map_properties_dialog_gtk3(std::pair<GtkWidget *, GtkBuilder *>
 
    GtkWidget *colour_button = widget_from_builder("single_map_properties_colour_button");
    if (colour_button) {
-      g_object_set_data(G_OBJECT(colour_button), "imol",   GINT_TO_POINTER(imol));
-      g_object_set_data(G_OBJECT(colour_button), "parent", dialog);
-      
+      g_object_set_data(G_OBJECT(colour_button), "imol", GINT_TO_POINTER(imol));
+      GdkRGBA map_colour = get_map_colour(imol);
+      if (false)
+         std::cout << "DEBUG:: ---------------- got colour "
+                   << map_colour.red << " " << map_colour.green << " " << map_colour.blue << " " << map_colour.alpha << std::endl;
+      if (true) { // 2026-02-15-PE get_map_colour multiplies - so now we divide
+                  // (maybe just don't multiply?)
+         map_colour.red   /= 65535.0; 
+         map_colour.green /= 65535.0; 
+         map_colour.blue  /= 65535.0; 
+         map_colour.alpha /= 65535.0; 
+      }
+      gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(colour_button), &map_colour);
+   } else {
+      std::cout << "ERROR:: --------------- no colour_button found!" << std::endl;
    }
 
    // -------------------------------------------------------------------------------
@@ -336,21 +349,18 @@ on_single_map_properties_cancel_button_clicked(GtkButton       *button,
 
 }
 
-// This function is currently in c-interface-gui.cc - should it be there?
-// I think not.
-void show_map_colour_selector_with_parent(int imol, GtkWidget *parent);
-
-
 extern "C" G_MODULE_EXPORT
 void
-on_single_map_properties_colour_button_clicked(GtkButton       *button,
-                                               gpointer         user_data) {
+on_single_map_properties_colour_button_color_set(GtkColorButton *colorbutton,
+                                                 gpointer        user_data) {
 
-   int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "imol"));
-   // std::cout << ":::::::: on_single_map_properties_colour_button_clicked_gtkbuilder_callback() " << imol << std::endl;
-   GtkWidget *parent = GTK_WIDGET(g_object_get_data(G_OBJECT(button), "parent"));
-   if (parent)
-      show_map_colour_selector_with_parent(imol, parent);
+   int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(colorbutton), "imol"));
+   if (is_valid_map_molecule(imol)) {
+      GdkRGBA rgba;
+      gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(colorbutton), &rgba);
+      graphics_info_t::molecules[imol].set_map_colour(rgba);
+      graphics_draw();
+   }
 }
 
 

@@ -39,7 +39,7 @@
 
 #include "ideal/phi-psi.hh"
 
-namespace coot { 
+namespace coot {
 
    class residue_by_phi_psi : public ligand {
 
@@ -50,7 +50,13 @@ namespace coot {
 	 connecting_atoms_t(const clipper::Coord_orth &N_pos_in,
 			    const clipper::Coord_orth &CA_pos_in,
 			    const clipper::Coord_orth &C_pos_in) :
-	    N_pos(N_pos_in), CA_pos(CA_pos_in), C_pos(C_pos_in) { filled_flag = true; }
+	    N_pos(N_pos_in), CA_pos(CA_pos_in), C_pos(C_pos_in) {
+            filled_flag = true;
+            upstream_C.first = false;
+            upstream_C.second = clipper::Coord_orth(-1,-1,-1);
+            downstream_N.first = false;
+            downstream_N.second = clipper::Coord_orth(-1,-1,-1);
+         }
 	 void set_upstream_C(const clipper::Coord_orth &C_pos_in) {
 	    upstream_C.first = true;
 	    upstream_C.second = C_pos_in;

@@ -74,15 +74,18 @@ public:
 
    std::vector<mmdb::Link> links;
 
+   int user_data; // for debug: counting (say)
+
    atom_selection_container_t(mmdb::Manager *mol_in, int selhnd) : atom_selection(0) {
 
-     mol = mol_in;
-     mol->GetSelIndex(selhnd, atom_selection, n_selected_atoms);
-     SelectionHandle = selhnd;
-     UDDAtomIndexHandle = -1;
-     UDDOldAtomIndexHandle = -1;
-     read_success = 1;
-     fill_links();
+      mol = mol_in;
+      mol->GetSelIndex(selhnd, atom_selection, n_selected_atoms);
+      SelectionHandle = selhnd;
+      UDDAtomIndexHandle = -1;
+      UDDOldAtomIndexHandle = -1;
+      read_success = 1;
+      fill_links();
+      user_data = 0;
    }
 
    //! constructor
@@ -93,15 +96,16 @@ public:
       UDDAtomIndexHandle = -1;
       UDDOldAtomIndexHandle = -1;
       read_success = 1;
+      user_data = 0;
    }
 
    //! constructor
-   atom_selection_container_t() : mol(0), n_selected_atoms(0), atom_selection(0) {
-      mol = NULL;
+   atom_selection_container_t() : mol(NULL), n_selected_atoms(0), atom_selection(0) {
       SelectionHandle = -1;
       UDDAtomIndexHandle = -1;
       UDDOldAtomIndexHandle = -1;
       read_success = 0;
+      user_data = 0;
    }
 
    //! is this atom selection empty? (a null mol?)
@@ -117,16 +121,7 @@ public:
    }
 
    //! clear the atom selection of all pointers
-   void clear_up() {
-      if (read_success)
-         if (SelectionHandle)
-            if (mol)
-               mol->DeleteSelection(SelectionHandle);
-      delete mol;
-      atom_selection = 0;
-      mol = 0;
-      read_success = 0;
-   }
+   void clear_up();
 
    //! Delete atom selection - do this before modifying the internal mol
    void delete_atom_selection() {
@@ -180,6 +175,7 @@ public:
 
    mmdb::Residue *get_next(mmdb::Residue *) const;
    mmdb::Residue *get_previous(mmdb::Residue *) const;
+   void debug_write_pdb();
 };
 
 atom_selection_container_t make_asc(mmdb::Manager *mol, bool transfer_atom_indices_flag=false);

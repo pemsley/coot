@@ -45,9 +45,9 @@ namespace coot {
    // probably there is a better hhome for this function
    //
    float get_random_float_rd(); // betwween 0 and 1
-   float get_random_float_mt(dsfmt_t *dsfmt); 
+   float get_random_float_mt(dsfmt_t *dsfmt);
    float get_random_float(); // betwween 0 and 1
-   
+
    class new_residue_by_3_phi_psi {
 
       // this is copied from residue_by_phi_psi. Perhaps extract it.
@@ -58,7 +58,13 @@ namespace coot {
 	 connecting_atoms_t(const clipper::Coord_orth &N_pos_in,
 			    const clipper::Coord_orth &CA_pos_in,
 			    const clipper::Coord_orth &C_pos_in) :
-	    N_pos(N_pos_in), CA_pos(CA_pos_in), C_pos(C_pos_in) { filled_flag = true; }
+	    N_pos(N_pos_in), CA_pos(CA_pos_in), C_pos(C_pos_in) {
+            filled_flag = true;
+            upstream_C.first = false;
+            upstream_C.second = clipper::Coord_orth(0,0,0);
+            downstream_N.first = false;
+            downstream_N.second = clipper::Coord_orth(0,0,0);
+         }
 	 void set_upstream_C(const clipper::Coord_orth &C_pos_in) {
 	    upstream_C.first = true;
 	    upstream_C.second = C_pos_in;

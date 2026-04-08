@@ -44,9 +44,10 @@
 #include <iostream>
 
 #include <mmdb2/mmdb_manager.h>
-#include "coords/mmdb-extras.h"
+
+#include "coords/mmdb-extras.hh"
 #include "coords/mmdb.hh"
-#include "coords/mmdb-crystal.h"
+#include "coords/mmdb-crystal.hh"
 
 #include "graphics-info.h"
 #include "interface.h"
@@ -106,7 +107,6 @@ graphics_info_t::lsq_get_and_apply_matrix_maybe(int imol_ref, int imol_moving,
 		  std::cout << "INFO:: Rotation in CCP4 Polar Angles: "
 			    << clipper::Rotation(rtop_info.second.rot()).polar_ccp4().format()
 			    << std::endl;
-
 
 		  if (apply_matrix) {
 		     molecules[imol_moving].transform_by(rtop_info.second);

@@ -243,14 +243,13 @@ void main() {
 
             // specular_strength = specular_strength * 0.0;
 
-            // there is a mishmash of colouring schemes here. The vertex has a colour
+            // there is a mismatch of colouring schemes here. The vertex has a colour
             // but we also have access to the ambient and diffuse Material colours
             // (and they can be changed via the API, whereas the vertex colour cannot).
             // Let's try to handle both. A bit messy.
 
 	    vec4 ambient = light_sources[i].ambient * scale_factor_n_lights * colour_transfer * material.ambient;
 	    vec4 diffuse = light_sources[i].diffuse * scale_factor_n_lights * colour_transfer * material.diffuse * dp;
-	    // diffuse = dp * vec4(0.5, 0.5, 0.5, 1.0);
 
 #if 1 // largely from moleculestotriangles.shader, but using a different eye position space.
       // Also the same as meshes.shader.
@@ -309,9 +308,7 @@ void main() {
 
       if (do_fresnel) {
          // R can be calculated in the vertex shader
-         // vec3 eye_to_frag_pos_uv = normalize(frag_pos_transfer - eye_position_in_molecule_coordinates_space.xyz);
-         // 20221219-PE try the other coordinates system.. .Yes! That works
-         vec3 eye_to_frag_pos_uv = normalize(frag_pos_light_space_transfer.xyz - eye_position_in_molecule_coordinates_space.xyz);
+         vec3 eye_to_frag_pos_uv = normalize(frag_pos_transfer - eye_position_in_molecule_coordinates_space);
          float dp_eye = dot(normalize(normal_transfer), eye_to_frag_pos_uv);
          // (I.N) should be 1.0 if we are looking staight on to (perpendicular to) the surface.
          float I_dot_N = dp_eye;

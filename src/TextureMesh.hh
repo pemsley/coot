@@ -27,6 +27,7 @@
 #ifndef TEXTURE_MESH_HH
 #define TEXTURE_MESH_HH
 
+#include <chrono>
 #include <vector>
 #include <string>
 #include <epoxy/gl.h>
@@ -37,6 +38,7 @@
 
 #include "Shader.hh"
 #include "Texture.hh" // now TextureMesh contains a vector of Textures - I am not sure this is a good
+#include "stereo-eye.hh"
                       // arrangement (it is a result of load_from_glTF() which also fill/creates textures)
 
 class TextureMeshVertex {
@@ -90,6 +92,11 @@ class TextureMesh {
    unsigned int draw_count; // so that I can animate the happy faces depending on the draw_count
    unsigned int inst_positions_id;
    static std::string _(int err);
+   std::chrono::time_point<std::chrono::system_clock>  time_constructed;
+   bool do_animation;
+   float animation_A; // amplitude
+   float animation_k; // wave number (scaled by position along the spine)
+   float animation_w; // frequency
 
 public:
    TextureMesh() : vao(VAO_NOT_SET), index_buffer_id(VAO_NOT_SET), draw_this_mesh(true) {
@@ -98,6 +105,10 @@ public:
       is_instanced = false;
       inst_positions_id = -1;
       draw_count = 0;
+      std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
+      time_constructed = now;
+      do_animation = false;
+      set_animation_paramaters(0.05, 1.0, 1.0);
    }
    explicit TextureMesh(const std::string &n):
       vao(VAO_NOT_SET), index_buffer_id(VAO_NOT_SET), name(n), draw_this_mesh(true) {
@@ -106,12 +117,17 @@ public:
       is_instanced = false;
       inst_positions_id = -1;
       draw_count = 0;
+      std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
+      time_constructed = now;
+      do_animation = false;
+      set_animation_paramaters(0.05, 1.0, 1.0);
    }
    bool draw_this_mesh;
    std::vector<TextureInfoType> textures;
    void import(const IndexedModel &ind_model, float scale);
    void import(const std::vector<TextureMeshVertex> &vertices, const std::vector<g_triangle> &triangles_in);
    bool have_instances() const { return is_instanced; }
+   int get_n_instances() const { return n_instances; }
    void setup_tbn(unsigned int n_vertices); // tangent bitangent normal, pass the n_vertices for validation of indices.
    void setup_camera_facing_quad(float scale_x, float scale_y, float offset_x, float offset_y);
    // for the Z section x-offset_y and y_offset should be zero
@@ -158,6 +174,7 @@ public:
                         const glm::vec3 &atom_label_position,
                         const glm::vec4 &text_colour, // set using subbufferdata
                         Shader *shader,
+                        stereo_eye_t eye,
                         const glm::mat4 &mvp,
                         const glm::mat4 &view_rotation_matrix,
                         const glm::vec4 &background_colour,
@@ -177,6 +194,18 @@ public:
                               unsigned int draw_count, unsigned int draw_count_max);
 
    bool load_from_glTF(const std::string &file_name, bool include_call_to_setup_buffers=true);
+
+   // Holy Zarquon swimming fish
+   void set_animation_paramaters(float amplitide_overall, float wave_number, float freq);
+
+   //! return the time in milliseconds since this Model was constructed
+   float duration() const {
+      std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
+      float time = std::chrono::duration_cast<std::chrono::milliseconds>(now - time_constructed).count();
+      return time;
+   }
+
+   void set_do_animation(bool state) { do_animation = state; }
 };
 
 #endif // TEXTURE_MESH_HH

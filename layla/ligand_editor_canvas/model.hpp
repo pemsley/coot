@@ -64,6 +64,7 @@ enum class DisplayMode: unsigned char {
 };
 
 typedef std::map<unsigned int, std::string> SmilesMap;
+typedef std::map<unsigned int, std::string> InchiKeyMap;
 
 const char* display_mode_to_string(DisplayMode mode) noexcept;
 std::optional<DisplayMode> display_mode_from_string(const char*) noexcept;
@@ -107,7 +108,7 @@ class CanvasMolecule {
         std::string symbol;
         std::optional<std::string> name;
 
-      /// Appendix represents optional elements that appear after atom's symbol,
+        /// Appendix represents optional elements that appear after atom's symbol (i.e. superatoms),
         /// e.g. charge, hydrogens
         struct Appendix {
             /// Ionization
@@ -119,6 +120,7 @@ class CanvasMolecule {
             std::string superatoms;
             /// NH2 VS H2N, CH3 VS H3C, etc.
             bool reversed;
+            bool vertical;
             Appendix() noexcept;
         };
         /// Appendix is set when we draw groups.
@@ -211,12 +213,14 @@ class CanvasMolecule {
 
     typedef std::variant<CanvasMolecule::Atom,CanvasMolecule::Bond> AtomOrBond;
     typedef std::optional<AtomOrBond> MaybeAtomOrBond;
+    static const float BASE_SCALE_FACTOR;
+
     private:
 
     static const float BOND_DISTANCE_BOUNDARY;
     static const float ATOM_HITBOX_RADIUS;
-    static const float BASE_SCALE_FACTOR;
     static const float BOND_LINE_SEPARATION;
+    static const float VERTICAL_SUPERATOM_ANGLE_THRESHOLD;
 
     static BondType bond_type_from_rdkit(RDKit::Bond::BondType);
     static AtomColor atom_color_from_rdkit(const RDKit::Atom *) noexcept;
@@ -230,14 +234,11 @@ class CanvasMolecule {
     std::vector<std::shared_ptr<Bond>> bonds;
 
     /// X offset due to translation.
-    /// Has to be multiplied by scale to get on-screen coordinates
+    /// Has to be multiplied by scale and viewport offset must be added to get on-screen coordinates
     float x_canvas_translation;
     /// Y offset due to translation.
-    /// Has to be multiplied by scale to get on-screen coordinates
+    /// Has to be multiplied by scale and viewport offset must be added to get on-screen coordinates
     float y_canvas_translation;
-
-    /// Scale used by the widget
-    float canvas_scale;
 
     /// Determines if libcoordgen is to be used for determining atom coordinates.
     /// Uses RDDepict if false
@@ -262,15 +263,10 @@ class CanvasMolecule {
     /// QED info is updated while lowering from RDKit.
     std::optional<QEDInfo> qed_info;
 
-
-    /// Computes the scale used for drawing
-    /// And interfacing with screen coordinates
-    float get_scale() const noexcept;
-
     /// Uses RDDepict to get molecule depiction & geometry info
     ///
     /// Part of the lowering process.
-    RDGeom::INT_POINT2D_MAP compute_molecule_geometry() const;
+    RDGeom::INT_POINT2D_MAP compute_molecule_geometry(bool omit_stereochemistry) const;
 
     /// Builds the drawing-friendly 2D molecule representation
     /// based on geometry computed by RDKit.
@@ -290,6 +286,7 @@ class CanvasMolecule {
     /// Part of the lowering process.
     void shorten_double_bonds();
 
+    /// Updates the `qed_info` variable
     void update_qed_info();
     
     /// Manages error highlights
@@ -311,8 +308,9 @@ class CanvasMolecule {
     ///
     /// If `sanitize_after` is true, the molecule will get sanitized
     /// after lowering.
-    /// QED gets recomputed and updated if `with_qed` is true
-    void lower_from_rdkit(bool sanitize_after, bool with_qed = true);
+    /// QED gets recomputed and updated if `with_qed` is true (default).
+    /// By default, wedges/dashes are read from the RDKit molecule, unless `omit_stereochemistry_processing` is set to true.
+    void lower_from_rdkit(bool sanitize_after, bool with_qed = true, bool omit_stereochemistry_processing = false);
 
     /// Clears `cached_atom_coordinate_map`,
     /// forcing the subsequent call to `compute_molecule_geometry()`
@@ -325,26 +323,24 @@ class CanvasMolecule {
     /// in such a way as to prevent the cached molecule geometry from being broken
     void update_cached_atom_coordinate_map_after_atom_removal(unsigned int removed_atom_idx);
 
-    /// Sets the scale for drawing
-    void set_canvas_scale(float scale);
-
     /// Updates `use_coordgen` setting.
     void set_coordgen_enabled(bool value) noexcept;
 
-    void apply_canvas_translation(int delta_x, int delta_y) noexcept;
-    std::pair<float,float> get_on_screen_coords(float x, float y) const noexcept;
-    std::optional<std::pair<float,float>> get_on_screen_coords_of_atom(unsigned int atom_idx) const noexcept;
-    graphene_rect_t get_on_screen_bounding_rect() const noexcept;
+    void apply_canvas_translation(int delta_x, int delta_y, float scale) noexcept;
+    std::pair<float,float> get_on_screen_coords(float x, float y, const std::pair<int, int>& viewport_offset, float scale) const noexcept;
+    std::optional<std::pair<float,float>> get_on_screen_coords_of_atom(unsigned int atom_idx, const std::pair<int, int>& viewport_offset, float scale) const noexcept;
+    graphene_rect_t get_on_screen_bounding_rect(const std::pair<int, int>& viewport_offset, float scale) const noexcept;
     std::optional<QEDInfo> get_qed_info() const noexcept;
     void perform_flip(FlipMode flip_mode);
     void rotate_by_angle(double radians);
 
     /// Draws the molecule using the renderer
-    void draw(impl::Renderer& ren, DisplayMode display_mode) const noexcept;
+    void draw(impl::Renderer& ren, DisplayMode display_mode, const std::pair<int, int>& viewport_offset, float scale) const noexcept;
 
     /// Checks if any object matches the click coordinates passed as arguments.
     /// Returns the thing that was clicked on (or nullopt if there's no match).
-    MaybeAtomOrBond resolve_click(int x, int y) const noexcept;
+    /// Works on canvas coordinates, i.e. those acquired after viewport offset had been accounted for
+    MaybeAtomOrBond resolve_click(int x, int y, float scale) const noexcept;
 
     void add_atom_highlight(int atom_idx, HighlightType htype);
     void add_bond_highlight(unsigned int atom_a, unsigned int atom_b, HighlightType htype);

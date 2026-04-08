@@ -52,12 +52,19 @@
 
 void setup_python_basic(int argc, char **argv) {
 
+   // wretched python.
+
 #ifdef USE_PYTHON
 #ifdef USE_PYMAC_INIT
+
+  // does this actually happen?
+  // Is this actually useful in Python 3?
+  // I think no and no.
 
   //  (on Mac OS, call PyMac_Initialize() instead)
   //http://www.python.org/doc/current/ext/embedding.html
   //
+  Py_SetProgramName("MacCoot");
   PyMac_Initialize();
 
 #else
@@ -68,16 +75,102 @@ void setup_python_basic(int argc, char **argv) {
       _argv[i] = arg;
    }
    Py_InitializeEx(0);
+
+#if PY_VERSION_HEX > 0x030400F0
+
+// #if PY_VERSION_HEX > 0x030A00F0
+#if 0
+
+   // new python setup - it takes control of the command line.
+   // I don't want that.
+
+   PyConfig config;
+   PyConfig_InitPythonConfig(&config);
+   PyStatus status = PyConfig_SetBytesArgv(&config, argc, argv);
+   if (PyStatus_Exception(status)) {
+      Py_ExitStatusException(status);
+   }
+
+   status = Py_InitializeFromConfig(&config);
+   if (PyStatus_Exception(status)) {
+      Py_ExitStatusException(status);
+   }
+
+   // Now Python is initialized and argv is set
+
+   PyRun_SimpleString("import sys; print(sys.argv)");
+
+   Py_Finalize();
+
+   PyConfig_Clear(&config);
+
+#else
+   int update_path = 1;
+   PySys_SetArgvEx(argc, _argv, update_path);
+#endif
+
+#else
+   // ancient python
    PySys_SetArgv(argc, _argv);
+#endif
 
    // We expect these to be null because we are outside a python script.
-   PyObject *globals = PyEval_GetGlobals();
-   // std::cout << "in setup_python_basic() globals " << globals << std::endl;
-   PyObject *locals  = PyEval_GetLocals();
-   // std::cout << "in setup_python_basic() locals " << locals << std::endl;
-   
+   // PyObject *globals = PyEval_GetGlobals();
+   // std::cout << "DEBUG:: in setup_python_basic() globals " << globals << std::endl;
+   // PyObject *locals  = PyEval_GetLocals();
+   // std::cout << "DEBUG:: in setup_python_basic() locals " << locals << std::endl;
 
 #endif // USE_PYMAC_INIT
+
+   auto get_pythondir = [] () {
+                           std::string p = coot::prefix_dir();
+                           std::string dp   = coot::util::append_dir_dir(p,   "lib");
+                           std::string python_version = "python";
+                           python_version += coot::util::int_to_string(PY_MAJOR_VERSION);
+                           python_version += ".";
+                           python_version += coot::util::int_to_string(PY_MINOR_VERSION);
+                           std::string ddp  = coot::util::append_dir_dir(dp,  python_version);
+                           std::string dddp = coot::util::append_dir_dir(ddp, "site-packages");
+                           return dddp;
+                        };
+   auto get_pkgpythondir = [get_pythondir] () {
+                              std::string d = get_pythondir();
+                              std::string dp = coot::util::append_dir_dir(d, "coot");
+                              return dp;
+                           };
+
+   // std::string pkgpydirectory = PKGPYTHONDIR;
+   // std::string pydirectory = PYTHONDIR;
+   // use ${prefix}/lib/python3.9/site-package for PYTHONDIR
+   // use ${pythondir}/coot' for PKGPYTHONDIR (i.e. PYTHONDIR + "/coot")
+
+   std::string pkgpydirectory = get_pkgpythondir();
+   std::string    pydirectory = get_pythondir();
+
+   if (true) {
+      std::cout << "DEBUG:: in setup_python_basic()    pydirectory is " << pydirectory << std::endl;
+      std::cout << "DEBUG:: in setup_python_basic() pkgpydirectory is " << pkgpydirectory << std::endl;
+   }
+
+   PyObject* d_main = PyModule_GetDict(PyImport_AddModule("__main__"));
+   std::cout << "DEBUG:: in setup_python_basic(): d_main " << d_main << std::endl;
+
+   PyObject *sys_path = PySys_GetObject("path");
+   PyList_Append(sys_path, PyUnicode_FromString(pydirectory.c_str()));
+   PyList_Append(sys_path, PyUnicode_FromString(pkgpydirectory.c_str()));
+
+   PyObject *sys = PyImport_ImportModule("sys");
+   if (! sys) {
+      std::cout << "ERROR:: in setup_python_basic(): Null sys" << std::endl;
+   } else {
+      std::cout << "DEBUG:: in setup_python_basic(): sys imported" << std::endl;
+   }
+
+#endif // USE_PYTHON
+
+}
+
+void setup_python_coot_module() {
 
    auto get_pythondir = [] () {
                            std::string p = coot::prefix_dir();
@@ -96,37 +189,23 @@ void setup_python_basic(int argc, char **argv) {
                               return dp;
                            };
 
-   // std::string pkgpydirectory = PKGPYTHONDIR;
-   // std::string pydirectory = PYTHONDIR;
-   // use ${prefix}/lib/python3.9/site-package for PYTHONDIR
-   // use ${pythondir}/coot' for PKGPYTHONDIR (i.e. PYTHONDIR + "/coot")
-
    std::string pkgpydirectory = get_pkgpythondir();
    std::string    pydirectory = get_pythondir();
 
-   if (true) {
-      std::cout << "debug:: in setup_python()    pydirectory is " << pydirectory << std::endl;
-      std::cout << "debug:: in setup_python() pkgpydirectory is " << pkgpydirectory << std::endl;
-   }
-
+   std::cout << "DEBUG:: in setup_python_coot_module() appending to sys path: " << pydirectory << std::endl;
    PyObject *sys_path = PySys_GetObject("path");
    PyList_Append(sys_path, PyUnicode_FromString(pydirectory.c_str()));
+   std::cout << "DEBUG:: in setup_python_coot_module() appending to sys path: " << pkgpydirectory << std::endl;
    PyList_Append(sys_path, PyUnicode_FromString(pkgpydirectory.c_str()));
-
-   // int err = PyRun_SimpleString("import coot");
-
-#endif // USE_PYTHON
-
-}
-
-void setup_python_coot_module() {
-
    PyObject *coot = PyImport_ImportModule("coot");
+
    if (! coot) {
-      std::cout << "ERROR:: setup_python_coot_module() Null coot" << std::endl;
+      std::cout << "ERROR:: in setup_python_coot_module() Null coot" << std::endl;
+      PyErr_Print();
+      PyErr_Print();
    } else {
       if (false)
-         std::cout << "INFO:: setup_python_coot_module() good coot module" << std::endl;
+         std::cout << "INFO:: in setup_python_coot_module() good coot module" << std::endl;
    }
 }
 
@@ -159,35 +238,40 @@ void setup_python_with_coot_modules(int argc, char **argv) {
    std::string pkgpydirectory = get_pkgpythondir();
    std::string    pydirectory = get_pythondir();
 
-   g_debug("in setup_python()    pydirectory is %s ",pydirectory.c_str());
-   g_debug("in setup_python() pkgpydirectory is %s ",pkgpydirectory.c_str());
+   std::cout << "DEBUG:: in setup_python_with_coot_modules() pkgpydirectory: " << pkgpydirectory << std::endl;
+   std::cout << "DEBUG:: in setup_python_with_coot_modules()    pydirectory: " <<    pydirectory << std::endl;
 
-   // std::cout << "in setup_python_with_coot_modules() pkgpydirectory: " << pkgpydirectory << std::endl;
-   // std::cout << "in setup_python_with_coot_modules()    pydirectory: " <<    pydirectory << std::endl;
-
+   std::cout << "DEBUG:: in setup_python_with_coot_modules() appending to sys path: " << pydirectory << std::endl;
    PyObject *sys_path = PySys_GetObject("path");
    PyList_Append(sys_path, PyUnicode_FromString(pydirectory.c_str()));
+   std::cout << "DEBUG:: in setup_python_with_coot_modules() appending to sys path: " << pkgpydirectory << std::endl;
+   PyList_Append(sys_path, PyUnicode_FromString(pkgpydirectory.c_str()));
 
    // int err = PyRun_SimpleString("import coot");
+   // std::cout << "in setup_python_with_coot_modules(): import coot gives err:: " << err << std::endl;
 
    PyObject *sys = PyImport_ImportModule("sys");
    if (! sys) {
-      std::cout << "ERROR:: setup_python() Null sys" << std::endl;
+      std::cout << "ERROR:: in setup_python_with_coot_modules() Null sys" << std::endl;
    } else {
-      // std::cout << "sys imported" << std::endl;
+      std::cout << "DEBUG:: in setup_python_with_coot_modules() sys imported" << std::endl;
    }
 
    PyObject *coot = PyImport_ImportModule("coot");
-   // std::cout << "DEBUG:: setup_python_with_coot_modules() PyImport_ImportModule() coot: " << coot << std::endl;
+   std::cout << "DEBUG:: in setup_python_with_coot_modules() PyImport_ImportModule() coot: " << coot << std::endl;
 
    if (! coot) {
-      std::cout << "ERROR:: setup_python() Null coot" << std::endl;
+      std::cout << "ERROR:: in setup_python_with_coot_modules() Null coot" << std::endl;
    } else {
 
-      PyObject *coot_utils = PyImport_ImportModule("coot_utils");
+      initcoot_python_gobject(); // this is not a good name for this function. We need to say
+                                 // this this is the module that wraps the glue to get
+                                 // the status-bar, menu-bar etc. i.e. coot_gui_python_api
 
-      // std::cout << "DEBUG:: setup_python_with_coot_modules() PyImport_ImportModule() coot_utils: " << coot_utils << std::endl;
-         
+      PyObject *coot_utils = PyImport_ImportModule("coot_utils");
+      std::cout << "DEBUG:: in setup_python_with_coot_modules() PyImport_ImportModule() coot_utils: "
+                << coot_utils << std::endl;
+
       // This has do be done carefully - bit by bit. extension.py has many Python2/Python3
       // idioms.
       // PyImport_ImportModule("extensions");
@@ -195,13 +279,13 @@ void setup_python_with_coot_modules(int argc, char **argv) {
       // this should not be called if we are not starting the graphics. But for now, add
       // it without that test
       //
+      PyErr_Clear();
+      PyErr_Print();
       PyObject *gui_module = PyImport_ImportModule("coot_gui");
+      PyErr_Print();
 
-      // std::cout << "DEBUG:: setup_python_with_coot_modules() PyImport_ImportModule() for gui_module: " << gui_module << std::endl;
-
-      initcoot_python_gobject(); // this is not a good name for this function. We need to say
-                                 // this this is the module that wraps the glue to get
-                                 // the status-bar, menu-bar etc. i.e. coot_python_api
+      std::cout << "DEBUG:: in setup_python_with_coot_modules() PyImport_ImportModule() for gui_module: "
+                << gui_module << std::endl;
 
    }
 

@@ -31,7 +31,7 @@
 
 #include "coot-utils/coot-coord-utils.hh"
 
-#include "mmdb-extras.h" 
+#include "mmdb-extras.hh"
 #include "mmdb.hh"
 
 #include "compat/coot-sysdep.h"

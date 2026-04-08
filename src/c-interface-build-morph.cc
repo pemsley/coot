@@ -51,30 +51,29 @@
 
 
 #include <mmdb2/mmdb_manager.h>
-#include "coords/mmdb-extras.h"
+
+#include "utils/coot-utils.hh"  // for is_member_p
+#include "utils/coot-fasta.hh"
+#include "coords/mmdb-extras.hh"
 #include "coords/mmdb.hh"
-
-// just delete it?
-#include "globjects.h" //includes gtk/gtk.h
-
-#include "coords/mmdb-crystal.h"
-
-#include "coords/Cartesian.h"
-#include "coords/Bond_lines.h"
-
-#include "graphics-info.h"
+#include "coords/mmdb-crystal.hh"
+#include "coords/Cartesian.hh"
+#include "coords/Bond_lines.hh"
 
 #include "coot-utils/coot-coord-utils.hh"
-#include "utils/coot-fasta.hh"
+
+#include "graphics-info.h"
 
 #include "skeleton/BuildCas.h"
 #include "ligand/helix-placement.hh"
 #include "ligand/fast-ss-search.hh"
 
-#include "utils/coot-utils.hh"  // for is_member_p
 #include "coot-utils/coot-map-heavy.hh"  // for fffear
 
 #include "guile-fixups.h"
+
+// just delete it?
+#include "globjects.h" //includes gtk/gtk.h
 
 
 #include "c-interface.h"
@@ -83,6 +82,7 @@
 #include "cc-interface-scripting.hh"
 
 #include "ligand/ligand.hh" // for rigid body fit by atom selection.
+#include "ligand/molecular-replacement.hh"
 
 #include "cmtz-interface.hh" // for valid columns mtz_column_types_info_t
 #include "c-interface-mmdb.hh"
@@ -294,6 +294,7 @@ float fit_chain_to_map_by_random_jiggle(int imol, const char *chain_id, int n_tr
 
 
 float fit_molecule_to_map_by_random_jiggle_and_blur(int imol, int n_trials, float jiggle_scale_factor, float map_blur_factor) {
+
    float r = -100;
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
@@ -344,6 +345,51 @@ float fit_molecule_to_map_by_random_jiggle_and_blur(int imol, int n_trials, floa
       }
    }
    return r;
+}
+
+void molecular_replacement_fit_about_screen_centre(int imol, int n_top_rotations, int n_top_translations) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      int imol_map = g.Imol_Refinement_Map();
+      if (! is_valid_map_molecule(imol_map)) {
+         info_dialog("WARNING:: Refinement map is not set");
+         return;
+      }
+
+      mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+      const clipper::Xmap<float> &xmap = g.molecules[imol_map].xmap;
+      clipper::Coord_orth target_centre(graphics_info_t::RotationCentre_x(),
+                                        graphics_info_t::RotationCentre_y(),
+                                        graphics_info_t::RotationCentre_z());
+
+      std::vector<coot::mr_solution_t> solutions =
+         coot::molecular_replacement_search(xmap, mol, target_centre,
+                                            n_top_rotations, n_top_translations);
+
+      if (solutions.empty()) {
+         info_dialog("INFO:: No solutions");
+      } else {
+         // Take the best solution and replace the model coordinates
+         coot::mr_solution_t &best = solutions[0];
+         if (best.placed_mol) {
+            atom_selection_container_t asc = make_asc(best.placed_mol);
+            bool replace_zero_occ = true;
+            g.molecules[imol].replace_coords(asc, false, replace_zero_occ);
+            // placed_mol ownership transferred via asc, don't delete it
+            best.placed_mol = nullptr;
+         }
+         // Clean up remaining solutions
+         for (unsigned int i=1; i<solutions.size(); i++) {
+            if (solutions[i].placed_mol) {
+               delete solutions[i].placed_mol;
+               solutions[i].placed_mol = nullptr;
+            }
+         }
+         graphics_draw();
+      }
+   }
+
 }
 
 /*!  \brief jiggle fit the chain to the current refinment map

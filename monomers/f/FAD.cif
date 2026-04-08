@@ -1,0 +1,619 @@
+#
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+FAD     FAD      "FLAVIN-ADENINE DINUCLEOTIDE"     NON-POLYMER     84     53     .     
+#
+data_comp_FAD
+#
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+FAD     PA      P       P       0       20.714      1.770       23.791      
+FAD     O1A     O       O       0       19.737      0.994       22.985      
+FAD     O2A     O       OP      -1      20.556      3.244       23.868      
+FAD     O5B     O       O2      0       20.784      1.154       25.265      
+FAD     C5B     C       CH2     0       21.508      1.920       26.259      
+FAD     C4B     C       CH1     0       21.685      1.088       27.506      
+FAD     O4B     O       O2      0       22.496      1.819       28.451      
+FAD     C3B     C       CH1     0       20.398      0.757       28.265      
+FAD     O3B     O       OH1     0       20.556      -0.451      28.999      
+FAD     C2B     C       CH1     0       20.243      1.982       29.172      
+FAD     O2B     O       OH1     0       19.475      1.727       30.330      
+FAD     C1B     C       CH1     0       21.699      2.264       29.545      
+FAD     N9A     N       NR5     0       21.959      3.685       29.781      
+FAD     C8A     C       CR15    0       22.300      4.646       28.862      
+FAD     N7A     N       NRD5    0       22.466      5.839       29.380      
+FAD     C5A     C       CR56    0       22.214      5.654       30.732      
+FAD     C6A     C       CR6     0       22.225      6.545       31.827      
+FAD     N6A     N       NH2     0       22.509      7.843       31.720      
+FAD     N1A     N       NRD6    0       21.925      6.038       33.053      
+FAD     C2A     C       CR16    0       21.639      4.731       33.155      
+FAD     N3A     N       NRD6    0       21.600      3.805       32.197      
+FAD     C4A     C       CR56    0       21.899      4.330       30.993      
+FAD     N1      N       NRD6    0       21.477      -2.068      14.310      
+FAD     C2      C       CR6     0       21.990      -3.170      13.678      
+FAD     O2      O       O       0       23.119      -3.600      13.933      
+FAD     N3      N       NR16    0       21.215      -3.824      12.720      
+FAD     C4      C       CR6     0       19.939      -3.467      12.324      
+FAD     O4      O       O       0       19.331      -4.099      11.476      
+FAD     C4X     C       CR66    0       19.428      -2.318      12.997      
+FAD     N5      N       NRD6    0       18.223      -1.922      12.672      
+FAD     C5X     C       CR66    0       17.708      -0.822      13.305      
+FAD     C6      C       CR16    0       16.407      -0.419      12.939      
+FAD     C7      C       CR6     0       15.794      0.671       13.514      
+FAD     C7M     C       CH3     0       14.398      1.039       13.068      
+FAD     C8      C       CR6     0       16.505      1.416       14.514      
+FAD     C8M     C       CH3     0       15.889      2.619       15.180      
+FAD     C9      C       CR16    0       17.784      1.024       14.876      
+FAD     C9A     C       CR66    0       18.422      -0.094      14.291      
+FAD     N10     N       NR6     0       19.717      -0.536      14.620      
+FAD     C10     C       CR66    0       20.261      -1.663      13.986      
+FAD     "C1'"   C       CH2     0       20.546      0.156       15.638      
+FAD     "C2'"   C       CH1     0       20.455      -0.488      17.014      
+FAD     "O2'"   O       OH1     0       19.095      -0.421      17.451      
+FAD     "C3'"   C       CH1     0       21.373      0.159       18.058      
+FAD     "O3'"   O       OH1     0       22.723      0.097       17.602      
+FAD     "C4'"   C       CH1     0       21.301      -0.479      19.449      
+FAD     "O4'"   O       OH1     0       19.957      -0.463      19.936      
+FAD     "C5'"   C       CH2     0       22.167      0.224       20.481      
+FAD     "O5'"   O       O2      0       22.110      -0.483      21.743      
+FAD     P       P       P       0       22.951      0.052       22.986      
+FAD     O1P     O       O       0       22.742      -0.871      24.130      
+FAD     O2P     O       OP      -1      24.340      0.346       22.551      
+FAD     O3P     O       O2      0       22.191      1.429       23.280      
+FAD     H51A    H       H       0       21.005      2.745       26.481      
+FAD     H52A    H       H       0       22.397      2.180       25.905      
+FAD     H4B     H       H       0       22.151      0.249       27.259      
+FAD     H3B     H       H       0       19.629      0.687       27.645      
+FAD     HO3A    H       H       0       19.777      -0.616      29.334      
+FAD     H2B     H       H       0       19.868      2.745       28.663      
+FAD     HO2A    H       H       0       19.501      2.350       30.867      
+FAD     H1B     H       H       0       21.939      1.734       30.378      
+FAD     H8A     H       H       0       22.407      4.462       27.944      
+FAD     H61A    H       H       0       22.502      8.360       32.433      
+FAD     H62A    H       H       0       22.705      8.186       30.933      
+FAD     H2A     H       H       0       21.438      4.425       34.027      
+FAD     HN3     H       H       0       21.567      -4.529      12.329      
+FAD     H6      H       H       0       15.940      -0.918      12.276      
+FAD     HM71    H       H       0       14.059      1.787       13.584      
+FAD     HM72    H       H       0       13.809      0.276       13.191      
+FAD     HM73    H       H       0       14.414      1.282       12.127      
+FAD     HM81    H       H       0       16.515      3.008       15.814      
+FAD     HM82    H       H       0       15.082      2.352       15.651      
+FAD     HM83    H       H       0       15.664      3.283       14.507      
+FAD     H9      H       H       0       18.238      1.530       15.543      
+FAD     "H1'1"  H       H       0       20.293      1.095       15.702      
+FAD     "H1'2"  H       H       0       21.480      0.169       15.345      
+FAD     "H2'"   H       H       0       20.705      -1.452      16.929      
+FAD     "HO2'"  H       H       0       19.029      -0.034      18.222      
+FAD     "H3'"   H       H       0       21.118      1.116       18.145      
+FAD     "HO3'"  H       H       0       23.179      -0.185      18.222      
+FAD     "H4'"   H       H       0       21.600      -1.422      19.381      
+FAD     "HO4'"  H       H       0       19.930      -0.056      20.740      
+FAD     "H5'1"  H       H       0       21.854      1.142       20.606      
+FAD     "H5'2"  H       H       0       23.095      0.252       20.176      
+loop_
+_chem_comp_acedrg.comp_id
+_chem_comp_acedrg.atom_id
+_chem_comp_acedrg.atom_type
+FAD        PA    P(OC)(OP)(O)2
+FAD       O1A    O(PO3)
+FAD       O2A    O(PO3)
+FAD       O5B    O(CC[5]HH)(PO3)
+FAD       C5B    C(C[5]C[5]O[5]H)(OP)(H)2
+FAD       C4B    C[5](C[5]C[5]HO)(O[5]C[5])(CHHO)(H){1|N<3>,1|O<2>,2|H<1>}
+FAD       O4B    O[5](C[5]N[5a]C[5]H)(C[5]C[5]CH){2|C<3>,2|H<1>,2|O<2>}
+FAD       C3B    C[5](C[5]C[5]HO)(C[5]O[5]CH)(OH)(H){1|H<1>,1|N<3>}
+FAD       O3B    O(C[5]C[5]2H)(H)
+FAD       C2B    C[5](C[5]N[5a]O[5]H)(C[5]C[5]HO)(OH)(H){1|C<4>,1|H<1>,2|C<3>}
+FAD       O2B    O(C[5]C[5]2H)(H)
+FAD       C1B    C[5](N[5a]C[5a,6a]C[5a])(C[5]C[5]HO)(O[5]C[5])(H){1|C<3>,1|C<4>,1|O<2>,2|N<2>,3|H<1>}
+FAD       N9A    N[5a](C[5a,6a]C[5a,6a]N[6a])(C[5]C[5]O[5]H)(C[5a]N[5a]H){1|H<1>,1|O<2>,2|C<3>,2|C<4>}
+FAD       C8A    C[5a](N[5a]C[5a,6a]C[5])(N[5a]C[5a,6a])(H){1|C<3>,1|C<4>,1|H<1>,1|N<2>,1|O<2>}
+FAD       N7A    N[5a](C[5a,6a]C[5a,6a]C[6a])(C[5a]N[5a]H){1|C<4>,1|N<3>,2|N<2>}
+FAD       C5A    C[5a,6a](C[5a,6a]N[5a]N[6a])(C[6a]N[6a]N)(N[5a]C[5a]){1|C<3>,1|C<4>,1|H<1>}
+FAD       C6A    C[6a](C[5a,6a]C[5a,6a]N[5a])(N[6a]C[6a])(NHH){1|C<3>,1|H<1>,1|N<2>,1|N<3>}
+FAD       N6A    N(C[6a]C[5a,6a]N[6a])(H)2
+FAD       N1A    N[6a](C[6a]C[5a,6a]N)(C[6a]N[6a]H){1|C<3>,1|N<2>}
+FAD       C2A    C[6a](N[6a]C[5a,6a])(N[6a]C[6a])(H){1|C<3>,2|N<3>}
+FAD       N3A    N[6a](C[5a,6a]C[5a,6a]N[5a])(C[6a]N[6a]H){1|C<4>,1|N<2>,2|C<3>}
+FAD       C4A    C[5a,6a](C[5a,6a]C[6a]N[5a])(N[5a]C[5a]C[5])(N[6a]C[6a]){1|C<4>,1|N<2>,1|N<3>,1|O<2>,3|H<1>}
+FAD        N1    N[6a](C[6a,6a]C[6a,6a]N[6a])(C[6a]N[6a]O){1|C<4>,1|H<1>,1|N<2>,2|C<3>}
+FAD        C2    C[6a](N[6a]C[6a,6a])(N[6a]C[6a]H)(O){1|C<3>,1|N<3>,1|O<1>}
+FAD        O2    O(C[6a]N[6a]2)
+FAD        N3    N[6a](C[6a]C[6a,6a]O)(C[6a]N[6a]O)(H){1|C<3>,1|N<2>}
+FAD        C4    C[6a](C[6a,6a]C[6a,6a]N[6a])(N[6a]C[6a]H)(O){1|C<3>,1|N<2>,1|N<3>,1|O<1>}
+FAD        O4    O(C[6a]C[6a,6a]N[6a])
+FAD       C4X    C[6a,6a](C[6a,6a]N[6a]2)(N[6a]C[6a,6a])(C[6a]N[6a]O){1|C<4>,1|H<1>,3|C<3>}
+FAD        N5    N[6a](C[6a,6a]C[6a,6a]C[6a])2{1|H<1>,1|N<2>,1|O<1>,2|C<3>,2|N<3>}
+FAD       C5X    C[6a,6a](C[6a,6a]C[6a]N[6a])(N[6a]C[6a,6a])(C[6a]C[6a]H){1|H<1>,2|C<4>,3|C<3>}
+FAD        C6    C[6a](C[6a,6a]C[6a,6a]N[6a])(C[6a]C[6a]C)(H){1|C<4>,1|N<3>,2|C<3>}
+FAD        C7    C[6a](C[6a]C[6a,6a]H)(C[6a]C[6a]C)(CH3){1|C<3>,1|H<1>,1|N<2>}
+FAD       C7M    C(C[6a]C[6a]2)(H)3
+FAD        C8    C[6a](C[6a]C[6a,6a]H)(C[6a]C[6a]C)(CH3){1|C<3>,1|H<1>,1|N<3>}
+FAD       C8M    C(C[6a]C[6a]2)(H)3
+FAD        C9    C[6a](C[6a,6a]C[6a,6a]N[6a])(C[6a]C[6a]C)(H){1|N<2>,2|C<3>,2|C<4>}
+FAD       C9A    C[6a,6a](C[6a,6a]C[6a]N[6a])(N[6a]C[6a,6a]C)(C[6a]C[6a]H){1|C<4>,1|H<1>,1|N<2>,2|C<3>}
+FAD       N10    N[6a](C[6a,6a]C[6a,6a]C[6a])(C[6a,6a]C[6a,6a]N[6a])(CCHH){1|H<1>,1|N<2>,4|C<3>}
+FAD       C10    C[6a,6a](C[6a,6a]C[6a]N[6a])(N[6a]C[6a,6a]C)(N[6a]C[6a]){1|N<3>,2|C<3>,2|O<1>}
+FAD     "C1'"    C(N[6a]C[6a,6a]2)(CCHO)(H)2
+FAD     "C2'"    C(CN[6a]HH)(CCHO)(OH)(H)
+FAD     "O2'"    O(CCCH)(H)
+FAD     "C3'"    C(CCHO)2(OH)(H)
+FAD     "O3'"    O(CCCH)(H)
+FAD     "C4'"    C(CCHO)(CHHO)(OH)(H)
+FAD     "O4'"    O(CCCH)(H)
+FAD     "C5'"    C(CCHO)(OP)(H)2
+FAD     "O5'"    O(CCHH)(PO3)
+FAD         P    P(OC)(OP)(O)2
+FAD       O1P    O(PO3)
+FAD       O2P    O(PO3)
+FAD       O3P    O(PO3)2
+FAD      H51A    H(CC[5]HO)
+FAD      H52A    H(CC[5]HO)
+FAD       H4B    H(C[5]C[5]O[5]C)
+FAD       H3B    H(C[5]C[5]2O)
+FAD      HO3A    H(OC[5])
+FAD       H2B    H(C[5]C[5]2O)
+FAD      HO2A    H(OC[5])
+FAD       H1B    H(C[5]N[5a]C[5]O[5])
+FAD       H8A    H(C[5a]N[5a]2)
+FAD      H61A    H(NC[6a]H)
+FAD      H62A    H(NC[6a]H)
+FAD       H2A    H(C[6a]N[6a]2)
+FAD       HN3    H(N[6a]C[6a]2)
+FAD        H6    H(C[6a]C[6a,6a]C[6a])
+FAD      HM71    H(CC[6a]HH)
+FAD      HM72    H(CC[6a]HH)
+FAD      HM73    H(CC[6a]HH)
+FAD      HM81    H(CC[6a]HH)
+FAD      HM82    H(CC[6a]HH)
+FAD      HM83    H(CC[6a]HH)
+FAD        H9    H(C[6a]C[6a,6a]C[6a])
+FAD    "H1'1"    H(CN[6a]CH)
+FAD    "H1'2"    H(CN[6a]CH)
+FAD     "H2'"    H(CCCO)
+FAD    "HO2'"    H(OC)
+FAD     "H3'"    H(CCCO)
+FAD    "HO3'"    H(OC)
+FAD     "H4'"    H(CCCO)
+FAD    "HO4'"    H(OC)
+FAD    "H5'1"    H(CCHO)
+FAD    "H5'2"    H(CCHO)
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+FAD          PA         O1A      DOUBLE       n     1.485  0.0100     1.485  0.0100
+FAD          PA         O2A      SINGLE       n     1.485  0.0100     1.485  0.0100
+FAD          PA         O5B      SINGLE       n     1.598  0.0100     1.598  0.0100
+FAD          PA         O3P      SINGLE       n     1.600  0.0185     1.600  0.0185
+FAD         O5B         C5B      SINGLE       n     1.445  0.0200     1.445  0.0200
+FAD         C5B         C4B      SINGLE       n     1.509  0.0100     1.509  0.0100
+FAD         C4B         O4B      SINGLE       n     1.444  0.0100     1.444  0.0100
+FAD         C4B         C3B      SINGLE       n     1.532  0.0100     1.532  0.0100
+FAD         O4B         C1B      SINGLE       n     1.423  0.0100     1.423  0.0100
+FAD         C3B         O3B      SINGLE       n     1.422  0.0100     1.422  0.0100
+FAD         C3B         C2B      SINGLE       n     1.532  0.0103     1.532  0.0103
+FAD         C2B         O2B      SINGLE       n     1.412  0.0100     1.412  0.0100
+FAD         C2B         C1B      SINGLE       n     1.528  0.0100     1.528  0.0100
+FAD         C1B         N9A      SINGLE       n     1.462  0.0102     1.462  0.0102
+FAD         N9A         C8A      SINGLE       y     1.371  0.0100     1.371  0.0100
+FAD         N9A         C4A      SINGLE       y     1.374  0.0101     1.374  0.0101
+FAD         C8A         N7A      DOUBLE       y     1.311  0.0100     1.311  0.0100
+FAD         N7A         C5A      SINGLE       y     1.388  0.0100     1.388  0.0100
+FAD         C5A         C6A      SINGLE       y     1.407  0.0100     1.407  0.0100
+FAD         C5A         C4A      DOUBLE       y     1.382  0.0100     1.382  0.0100
+FAD         C6A         N6A      SINGLE       n     1.332  0.0107     1.332  0.0107
+FAD         C6A         N1A      DOUBLE       y     1.355  0.0106     1.355  0.0106
+FAD         N1A         C2A      SINGLE       y     1.338  0.0100     1.338  0.0100
+FAD         C2A         N3A      DOUBLE       y     1.329  0.0100     1.329  0.0100
+FAD         N3A         C4A      SINGLE       y     1.344  0.0100     1.344  0.0100
+FAD          N1          C2      SINGLE       y     1.369  0.0100     1.369  0.0100
+FAD          N1         C10      DOUBLE       y     1.317  0.0100     1.317  0.0100
+FAD          C2          O2      DOUBLE       n     1.235  0.0100     1.235  0.0100
+FAD          C2          N3      SINGLE       y     1.393  0.0104     1.393  0.0104
+FAD          N3          C4      SINGLE       y     1.377  0.0130     1.377  0.0130
+FAD          C4          O4      DOUBLE       n     1.218  0.0100     1.218  0.0100
+FAD          C4         C4X      SINGLE       y     1.398  0.0190     1.398  0.0190
+FAD         C4X          N5      DOUBLE       y     1.308  0.0122     1.308  0.0122
+FAD         C4X         C10      SINGLE       y     1.443  0.0100     1.443  0.0100
+FAD          N5         C5X      SINGLE       y     1.368  0.0100     1.368  0.0100
+FAD         C5X          C6      SINGLE       y     1.409  0.0100     1.409  0.0100
+FAD         C5X         C9A      DOUBLE       y     1.410  0.0100     1.410  0.0100
+FAD          C6          C7      DOUBLE       y     1.376  0.0100     1.376  0.0100
+FAD          C7         C7M      SINGLE       n     1.507  0.0100     1.507  0.0100
+FAD          C7          C8      SINGLE       y     1.417  0.0165     1.417  0.0165
+FAD          C8         C8M      SINGLE       n     1.504  0.0100     1.504  0.0100
+FAD          C8          C9      DOUBLE       y     1.379  0.0100     1.379  0.0100
+FAD          C9         C9A      SINGLE       y     1.403  0.0100     1.403  0.0100
+FAD         C9A         N10      SINGLE       y     1.392  0.0100     1.392  0.0100
+FAD         N10         C10      SINGLE       y     1.385  0.0119     1.385  0.0119
+FAD         N10       "C1'"      SINGLE       n     1.475  0.0100     1.475  0.0100
+FAD       "C1'"       "C2'"      SINGLE       n     1.518  0.0148     1.518  0.0148
+FAD       "C2'"       "O2'"      SINGLE       n     1.429  0.0132     1.429  0.0132
+FAD       "C2'"       "C3'"      SINGLE       n     1.529  0.0130     1.529  0.0130
+FAD       "C3'"       "O3'"      SINGLE       n     1.426  0.0100     1.426  0.0100
+FAD       "C3'"       "C4'"      SINGLE       n     1.528  0.0126     1.528  0.0126
+FAD       "C4'"       "O4'"      SINGLE       n     1.429  0.0111     1.429  0.0111
+FAD       "C4'"       "C5'"      SINGLE       n     1.518  0.0135     1.518  0.0135
+FAD       "C5'"       "O5'"      SINGLE       n     1.445  0.0200     1.445  0.0200
+FAD       "O5'"           P      SINGLE       n     1.592  0.0137     1.592  0.0137
+FAD           P         O1P      DOUBLE       n     1.485  0.0100     1.485  0.0100
+FAD           P         O2P      SINGLE       n     1.485  0.0100     1.485  0.0100
+FAD           P         O3P      SINGLE       n     1.600  0.0185     1.600  0.0185
+FAD         C5B        H51A      SINGLE       n     1.089  0.0100     0.991  0.0200
+FAD         C5B        H52A      SINGLE       n     1.089  0.0100     0.991  0.0200
+FAD         C4B         H4B      SINGLE       n     1.089  0.0100     0.990  0.0200
+FAD         C3B         H3B      SINGLE       n     1.089  0.0100     0.991  0.0200
+FAD         O3B        HO3A      SINGLE       n     0.970  0.0120     0.839  0.0200
+FAD         C2B         H2B      SINGLE       n     1.089  0.0100     0.991  0.0200
+FAD         O2B        HO2A      SINGLE       n     0.970  0.0120     0.839  0.0200
+FAD         C1B         H1B      SINGLE       n     1.089  0.0100     1.016  0.0200
+FAD         C8A         H8A      SINGLE       n     1.082  0.0130     0.942  0.0168
+FAD         N6A        H61A      SINGLE       n     1.016  0.0100     0.880  0.0200
+FAD         N6A        H62A      SINGLE       n     1.016  0.0100     0.880  0.0200
+FAD         C2A         H2A      SINGLE       n     1.082  0.0130     0.946  0.0200
+FAD          N3         HN3      SINGLE       n     1.016  0.0100     0.880  0.0100
+FAD          C6          H6      SINGLE       n     1.082  0.0130     0.952  0.0100
+FAD         C7M        HM71      SINGLE       n     1.089  0.0100     0.972  0.0144
+FAD         C7M        HM72      SINGLE       n     1.089  0.0100     0.972  0.0144
+FAD         C7M        HM73      SINGLE       n     1.089  0.0100     0.972  0.0144
+FAD         C8M        HM81      SINGLE       n     1.089  0.0100     0.972  0.0144
+FAD         C8M        HM82      SINGLE       n     1.089  0.0100     0.972  0.0144
+FAD         C8M        HM83      SINGLE       n     1.089  0.0100     0.972  0.0144
+FAD          C9          H9      SINGLE       n     1.082  0.0130     0.954  0.0100
+FAD       "C1'"      "H1'1"      SINGLE       n     1.089  0.0100     0.980  0.0162
+FAD       "C1'"      "H1'2"      SINGLE       n     1.089  0.0100     0.980  0.0162
+FAD       "C2'"       "H2'"      SINGLE       n     1.089  0.0100     1.000  0.0200
+FAD       "O2'"      "HO2'"      SINGLE       n     0.970  0.0120     0.864  0.0200
+FAD       "C3'"       "H3'"      SINGLE       n     1.089  0.0100     0.994  0.0118
+FAD       "O3'"      "HO3'"      SINGLE       n     0.970  0.0120     0.864  0.0200
+FAD       "C4'"       "H4'"      SINGLE       n     1.089  0.0100     0.991  0.0117
+FAD       "O4'"      "HO4'"      SINGLE       n     0.970  0.0120     0.864  0.0200
+FAD       "C5'"      "H5'1"      SINGLE       n     1.089  0.0100     0.978  0.0200
+FAD       "C5'"      "H5'2"      SINGLE       n     1.089  0.0100     0.978  0.0200
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+FAD         O1A          PA         O2A     118.805    3.00
+FAD         O1A          PA         O5B     109.340    2.31
+FAD         O1A          PA         O3P     109.053    3.00
+FAD         O2A          PA         O5B     109.340    2.31
+FAD         O2A          PA         O3P     109.053    3.00
+FAD         O5B          PA         O3P     100.137    3.00
+FAD          PA         O5B         C5B     116.362    1.50
+FAD         O5B         C5B         C4B     109.454    1.61
+FAD         O5B         C5B        H51A     109.882    1.50
+FAD         O5B         C5B        H52A     109.882    1.50
+FAD         C4B         C5B        H51A     109.589    1.50
+FAD         C4B         C5B        H52A     109.589    1.50
+FAD        H51A         C5B        H52A     108.471    1.50
+FAD         C5B         C4B         O4B     109.154    1.50
+FAD         C5B         C4B         C3B     115.288    1.50
+FAD         C5B         C4B         H4B     108.351    1.59
+FAD         O4B         C4B         C3B     105.318    1.50
+FAD         O4B         C4B         H4B     109.120    1.50
+FAD         C3B         C4B         H4B     109.322    2.54
+FAD         C4B         O4B         C1B     109.502    2.85
+FAD         C4B         C3B         O3B     110.713    3.00
+FAD         C4B         C3B         C2B     102.593    1.50
+FAD         C4B         C3B         H3B     110.577    3.00
+FAD         O3B         C3B         C2B     111.671    3.00
+FAD         O3B         C3B         H3B     110.541    2.08
+FAD         C2B         C3B         H3B     110.454    1.85
+FAD         C3B         O3B        HO3A     109.389    3.00
+FAD         C3B         C2B         O2B     112.677    3.00
+FAD         C3B         C2B         C1B     101.406    1.50
+FAD         C3B         C2B         H2B     110.788    1.91
+FAD         O2B         C2B         C1B     110.814    3.00
+FAD         O2B         C2B         H2B     110.904    1.50
+FAD         C1B         C2B         H2B     110.342    1.91
+FAD         C2B         O2B        HO2A     109.217    3.00
+FAD         O4B         C1B         C2B     106.114    1.65
+FAD         O4B         C1B         N9A     108.577    1.50
+FAD         O4B         C1B         H1B     109.833    2.53
+FAD         C2B         C1B         N9A     113.380    2.77
+FAD         C2B         C1B         H1B     109.222    1.50
+FAD         N9A         C1B         H1B     109.411    1.50
+FAD         C1B         N9A         C8A     127.072    3.00
+FAD         C1B         N9A         C4A     126.969    2.94
+FAD         C8A         N9A         C4A     105.958    1.50
+FAD         N9A         C8A         N7A     113.692    1.50
+FAD         N9A         C8A         H8A     122.949    1.50
+FAD         N7A         C8A         H8A     123.359    1.50
+FAD         C8A         N7A         C5A     103.906    1.50
+FAD         N7A         C5A         C6A     131.998    1.50
+FAD         N7A         C5A         C4A     110.646    1.50
+FAD         C6A         C5A         C4A     117.356    1.50
+FAD         C5A         C6A         N6A     123.773    1.50
+FAD         C5A         C6A         N1A     117.375    1.50
+FAD         N6A         C6A         N1A     118.852    1.50
+FAD         C6A         N6A        H61A     119.818    3.00
+FAD         C6A         N6A        H62A     119.818    3.00
+FAD        H61A         N6A        H62A     120.363    3.00
+FAD         C6A         N1A         C2A     118.603    1.50
+FAD         N1A         C2A         N3A     129.210    1.50
+FAD         N1A         C2A         H2A     115.363    1.50
+FAD         N3A         C2A         H2A     115.427    1.50
+FAD         C2A         N3A         C4A     111.101    1.50
+FAD         N9A         C4A         C5A     105.797    1.50
+FAD         N9A         C4A         N3A     127.848    1.50
+FAD         C5A         C4A         N3A     126.355    1.50
+FAD          C2          N1         C10     118.461    1.50
+FAD          N1          C2          O2     121.468    1.50
+FAD          N1          C2          N3     119.897    1.50
+FAD          O2          C2          N3     118.636    1.50
+FAD          C2          N3          C4     126.347    1.50
+FAD          C2          N3         HN3     117.238    1.50
+FAD          C4          N3         HN3     116.415    2.90
+FAD          N3          C4          O4     122.539    1.50
+FAD          N3          C4         C4X     112.794    1.50
+FAD          O4          C4         C4X     124.668    1.50
+FAD          C4         C4X          N5     117.421    1.50
+FAD          C4         C4X         C10     117.741    1.50
+FAD          N5         C4X         C10     124.838    1.50
+FAD         C4X          N5         C5X     117.454    1.50
+FAD          N5         C5X          C6     118.145    1.50
+FAD          N5         C5X         C9A     122.298    1.50
+FAD          C6         C5X         C9A     119.556    1.50
+FAD         C5X          C6          C7     121.774    1.50
+FAD         C5X          C6          H6     118.910    1.63
+FAD          C7          C6          H6     119.325    1.50
+FAD          C6          C7         C7M     119.966    1.50
+FAD          C6          C7          C8     119.488    1.50
+FAD         C7M          C7          C8     120.546    1.50
+FAD          C7         C7M        HM71     109.566    1.50
+FAD          C7         C7M        HM72     109.566    1.50
+FAD          C7         C7M        HM73     109.566    1.50
+FAD        HM71         C7M        HM72     109.334    1.91
+FAD        HM71         C7M        HM73     109.334    1.91
+FAD        HM72         C7M        HM73     109.334    1.91
+FAD          C7          C8         C8M     120.546    1.50
+FAD          C7          C8          C9     119.488    1.50
+FAD         C8M          C8          C9     119.966    1.50
+FAD          C8         C8M        HM81     109.566    1.50
+FAD          C8         C8M        HM82     109.566    1.50
+FAD          C8         C8M        HM83     109.566    1.50
+FAD        HM81         C8M        HM82     109.334    1.91
+FAD        HM81         C8M        HM83     109.334    1.91
+FAD        HM82         C8M        HM83     109.334    1.91
+FAD          C8          C9         C9A     120.779    1.50
+FAD          C8          C9          H9     119.551    1.50
+FAD         C9A          C9          H9     119.670    1.50
+FAD         C5X         C9A          C9     118.907    1.50
+FAD         C5X         C9A         N10     118.199    1.50
+FAD          C9         C9A         N10     122.894    1.50
+FAD         C9A         N10         C10     120.671    1.50
+FAD         C9A         N10       "C1'"     120.592    1.50
+FAD         C10         N10       "C1'"     118.737    1.50
+FAD          N1         C10         C4X     124.761    1.50
+FAD          N1         C10         N10     118.699    1.50
+FAD         C4X         C10         N10     116.541    1.50
+FAD         N10       "C1'"       "C2'"     112.123    2.65
+FAD         N10       "C1'"      "H1'1"     108.981    1.50
+FAD         N10       "C1'"      "H1'2"     108.981    1.50
+FAD       "C2'"       "C1'"      "H1'1"     109.180    1.50
+FAD       "C2'"       "C1'"      "H1'2"     109.180    1.50
+FAD      "H1'1"       "C1'"      "H1'2"     107.924    2.79
+FAD       "C1'"       "C2'"       "O2'"     109.718    2.99
+FAD       "C1'"       "C2'"       "C3'"     111.239    3.00
+FAD       "C1'"       "C2'"       "H2'"     108.435    1.50
+FAD       "O2'"       "C2'"       "C3'"     109.426    3.00
+FAD       "O2'"       "C2'"       "H2'"     108.176    3.00
+FAD       "C3'"       "C2'"       "H2'"     108.439    2.58
+FAD       "C2'"       "O2'"      "HO2'"     109.126    3.00
+FAD       "C2'"       "C3'"       "O3'"     109.426    3.00
+FAD       "C2'"       "C3'"       "C4'"     113.599    3.00
+FAD       "C2'"       "C3'"       "H3'"     108.439    2.58
+FAD       "O3'"       "C3'"       "C4'"     109.190    2.87
+FAD       "O3'"       "C3'"       "H3'"     108.315    1.83
+FAD       "C4'"       "C3'"       "H3'"     108.171    1.50
+FAD       "C3'"       "O3'"      "HO3'"     108.910    3.00
+FAD       "C3'"       "C4'"       "O4'"     109.920    2.94
+FAD       "C3'"       "C4'"       "C5'"     112.050    2.78
+FAD       "C3'"       "C4'"       "H4'"     108.859    1.50
+FAD       "O4'"       "C4'"       "C5'"     109.162    3.00
+FAD       "O4'"       "C4'"       "H4'"     108.709    1.50
+FAD       "C5'"       "C4'"       "H4'"     108.615    1.79
+FAD       "C4'"       "O4'"      "HO4'"     109.757    3.00
+FAD       "C4'"       "C5'"       "O5'"     109.303    3.00
+FAD       "C4'"       "C5'"      "H5'1"     109.594    1.50
+FAD       "C4'"       "C5'"      "H5'2"     109.594    1.50
+FAD       "O5'"       "C5'"      "H5'1"     108.621    3.00
+FAD       "O5'"       "C5'"      "H5'2"     108.621    3.00
+FAD      "H5'1"       "C5'"      "H5'2"     108.315    1.66
+FAD       "C5'"       "O5'"           P     119.008    2.40
+FAD       "O5'"           P         O1P     108.662    3.00
+FAD       "O5'"           P         O2P     108.662    3.00
+FAD       "O5'"           P         O3P     100.260    3.00
+FAD         O1P           P         O2P     118.805    3.00
+FAD         O1P           P         O3P     109.053    3.00
+FAD         O2P           P         O3P     109.053    3.00
+FAD          PA         O3P           P     133.108    3.00
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+FAD            sp3_sp3_27         C5B         O5B          PA         O1A      60.000    10.0     3
+FAD            sp3_sp3_30           P         O3P          PA         O1A      60.000    10.0     3
+FAD             sp2_sp3_1         C8A         N9A         C1B         O4B     150.000    10.0     6
+FAD              const_48         N7A         C8A         N9A         C1B     180.000     0.0     2
+FAD              const_80         C5A         C4A         N9A         C1B     180.000     0.0     2
+FAD              const_51         N9A         C8A         N7A         C5A       0.000     0.0     2
+FAD              const_54         C6A         C5A         N7A         C8A     180.000     0.0     2
+FAD              const_38         N7A         C5A         C6A         N6A       0.000     0.0     2
+FAD              const_55         N9A         C4A         C5A         N7A       0.000     0.0     2
+FAD            sp2_sp2_83         C5A         C6A         N6A        H61A     180.000      20     2
+FAD              const_40         N6A         C6A         N1A         C2A     180.000     0.0     2
+FAD              const_41         N3A         C2A         N1A         C6A       0.000     0.0     2
+FAD              const_43         N1A         C2A         N3A         C4A       0.000     0.0     2
+FAD              const_46         N9A         C4A         N3A         C2A     180.000     0.0     2
+FAD       const_sp2_sp2_2          O2          C2          N1         C10     180.000     0.0     2
+FAD              const_87         C4X         C10          N1          C2       0.000     0.0     2
+FAD       const_sp2_sp2_5          O2          C2          N3          C4     180.000     0.0     2
+FAD       const_sp2_sp2_9          O4          C4          N3          C2     180.000     0.0     2
+FAD              const_14          O4          C4         C4X          N5       0.000     0.0     2
+FAD              const_20          C4         C4X          N5         C5X     180.000     0.0     2
+FAD              const_15          N1         C10         C4X          C4       0.000     0.0     2
+FAD              const_22          C6         C5X          N5         C4X     180.000     0.0     2
+FAD              const_61          N5         C5X          C6          C7     180.000     0.0     2
+FAD              const_24          N5         C5X         C9A          C9     180.000     0.0     2
+FAD              const_64         C5X          C6          C7         C7M     180.000     0.0     2
+FAD             sp2_sp3_7          C6          C7         C7M        HM71     150.000    10.0     6
+FAD              const_70         C7M          C7          C8         C8M       0.000     0.0     2
+FAD            sp2_sp3_13          C7          C8         C8M        HM81     150.000    10.0     6
+FAD              const_73         C8M          C8          C9         C9A     180.000     0.0     2
+FAD              const_75          C8          C9         C9A         C5X       0.000     0.0     2
+FAD              const_28         C5X         C9A         N10       "C1'"     180.000     0.0     2
+FAD              const_34          N1         C10         N10       "C1'"       0.000     0.0     2
+FAD            sp2_sp3_20         C9A         N10       "C1'"       "C2'"     -90.000    10.0     6
+FAD            sp3_sp3_31         C4B         C5B         O5B          PA     180.000    10.0     3
+FAD            sp3_sp3_58         N10       "C1'"       "C2'"       "O2'"     180.000    10.0     3
+FAD            sp3_sp3_67       "C1'"       "C2'"       "O2'"      "HO2'"     180.000    10.0     3
+FAD            sp3_sp3_70       "C1'"       "C2'"       "C3'"       "O3'"     180.000    10.0     3
+FAD            sp3_sp3_79       "C2'"       "C3'"       "O3'"      "HO3'"     180.000    10.0     3
+FAD            sp3_sp3_82       "C2'"       "C3'"       "C4'"       "O4'"     180.000    10.0     3
+FAD            sp3_sp3_91       "C3'"       "C4'"       "O4'"      "HO4'"     180.000    10.0     3
+FAD            sp3_sp3_94       "C3'"       "C4'"       "C5'"       "O5'"     180.000    10.0     3
+FAD           sp3_sp3_103       "C4'"       "C5'"       "O5'"           P     180.000    10.0     3
+FAD           sp3_sp3_108       "C5'"       "O5'"           P         O1P      60.000    10.0     3
+FAD           sp3_sp3_110          PA         O3P           P       "O5'"     -60.000    10.0     3
+FAD            sp3_sp3_34         O4B         C4B         C5B         O5B     180.000    10.0     3
+FAD             sp3_sp3_2         C5B         C4B         O4B         C1B     -60.000    10.0     3
+FAD            sp3_sp3_47         O3B         C3B         C4B         C5B     180.000    10.0     3
+FAD             sp3_sp3_4         C2B         C1B         O4B         C4B     -60.000    10.0     3
+FAD            sp3_sp3_52         C4B         C3B         O3B        HO3A     180.000    10.0     3
+FAD            sp3_sp3_20         O2B         C2B         C3B         O3B     -60.000    10.0     3
+FAD            sp3_sp3_55         C3B         C2B         O2B        HO2A     180.000    10.0     3
+FAD             sp3_sp3_8         O4B         C1B         C2B         O2B     180.000    10.0     3
+loop_
+_chem_comp_chir.comp_id
+_chem_comp_chir.id
+_chem_comp_chir.atom_id_centre
+_chem_comp_chir.atom_id_1
+_chem_comp_chir.atom_id_2
+_chem_comp_chir.atom_id_3
+_chem_comp_chir.volume_sign
+FAD    chir_1    PA    O3P    O5B    O2A    both
+FAD    chir_2    C4B    O4B    C3B    C5B    negative
+FAD    chir_3    C3B    O3B    C4B    C2B    positive
+FAD    chir_4    C2B    O2B    C1B    C3B    negative
+FAD    chir_5    C1B    O4B    N9A    C2B    negative
+FAD    chir_6    "C2'"    "O2'"    "C3'"    "C1'"    positive
+FAD    chir_7    "C3'"    "O3'"    "C4'"    "C2'"    positive
+FAD    chir_8    "C4'"    "O4'"    "C3'"    "C5'"    negative
+FAD    chir_9    P    O3P    "O5'"    O2P    both
+loop_
+_chem_comp_plane_atom.comp_id
+_chem_comp_plane_atom.plane_id
+_chem_comp_plane_atom.atom_id
+_chem_comp_plane_atom.dist_esd
+FAD    plan-1         C1B   0.020
+FAD    plan-1         C4A   0.020
+FAD    plan-1         C5A   0.020
+FAD    plan-1         C6A   0.020
+FAD    plan-1         C8A   0.020
+FAD    plan-1         H8A   0.020
+FAD    plan-1         N3A   0.020
+FAD    plan-1         N7A   0.020
+FAD    plan-1         N9A   0.020
+FAD    plan-2         C2A   0.020
+FAD    plan-2         C4A   0.020
+FAD    plan-2         C5A   0.020
+FAD    plan-2         C6A   0.020
+FAD    plan-2         H2A   0.020
+FAD    plan-2         N1A   0.020
+FAD    plan-2         N3A   0.020
+FAD    plan-2         N6A   0.020
+FAD    plan-2         N7A   0.020
+FAD    plan-2         N9A   0.020
+FAD    plan-3         C10   0.020
+FAD    plan-3          C2   0.020
+FAD    plan-3          C4   0.020
+FAD    plan-3         C4X   0.020
+FAD    plan-3         HN3   0.020
+FAD    plan-3          N1   0.020
+FAD    plan-3         N10   0.020
+FAD    plan-3          N3   0.020
+FAD    plan-3          N5   0.020
+FAD    plan-3          O2   0.020
+FAD    plan-3          O4   0.020
+FAD    plan-4       "C1'"   0.020
+FAD    plan-4         C10   0.020
+FAD    plan-4          C4   0.020
+FAD    plan-4         C4X   0.020
+FAD    plan-4         C5X   0.020
+FAD    plan-4          C6   0.020
+FAD    plan-4          C9   0.020
+FAD    plan-4         C9A   0.020
+FAD    plan-4          N1   0.020
+FAD    plan-4         N10   0.020
+FAD    plan-4          N5   0.020
+FAD    plan-5         C5X   0.020
+FAD    plan-5          C6   0.020
+FAD    plan-5          C7   0.020
+FAD    plan-5         C7M   0.020
+FAD    plan-5          C8   0.020
+FAD    plan-5         C8M   0.020
+FAD    plan-5          C9   0.020
+FAD    plan-5         C9A   0.020
+FAD    plan-5          H6   0.020
+FAD    plan-5          H9   0.020
+FAD    plan-5         N10   0.020
+FAD    plan-5          N5   0.020
+FAD    plan-6         C6A   0.020
+FAD    plan-6        H61A   0.020
+FAD    plan-6        H62A   0.020
+FAD    plan-6         N6A   0.020
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+FAD  SMILES            ACDLabs               10.04  "O=C2C3=Nc1cc(c(cc1N(C3=NC(=O)N2)CC(O)C(O)C(O)COP(=O)(O)OP(=O)(O)OCC6OC(n5cnc4c(ncnc45)N)C(O)C6O)C)C"
+FAD  SMILES_CANONICAL  CACTVS                3.341  "Cc1cc2N=C3C(=O)NC(=O)N=C3N(C[C@H](O)[C@H](O)[C@H](O)CO[P@](O)(=O)O[P@@](O)(=O)OC[C@H]4O[C@H]([C@H](O)[C@@H]4O)n5cnc6c(N)ncnc56)c2cc1C"
+FAD  SMILES            CACTVS                3.341  "Cc1cc2N=C3C(=O)NC(=O)N=C3N(C[CH](O)[CH](O)[CH](O)CO[P](O)(=O)O[P](O)(=O)OC[CH]4O[CH]([CH](O)[CH]4O)n5cnc6c(N)ncnc56)c2cc1C"
+FAD  SMILES_CANONICAL  "OpenEye OEToolkits"  1.5.0  "Cc1cc2c(cc1C)N(C3=NC(=O)NC(=O)C3=N2)C[C@@H]([C@@H]([C@@H](CO[P@@](=O)(O)O[P@](=O)(O)OC[C@@H]4[C@H]([C@H]([C@@H](O4)n5cnc6c5ncnc6N)O)O)O)O)O"
+FAD  SMILES            "OpenEye OEToolkits"  1.5.0  "Cc1cc2c(cc1C)N(C3=NC(=O)NC(=O)C3=N2)CC(C(C(COP(=O)(O)OP(=O)(O)OCC4C(C(C(O4)n5cnc6c5ncnc6N)O)O)O)O)O"
+FAD  InChI             InChI                 1.03   "InChI=1S/C27H33N9O15P2/c1-10-3-12-13(4-11(10)2)35(24-18(32-12)25(42)34-27(43)33-24)5-14(37)19(39)15(38)6-48-52(44,45)51-53(46,47)49-7-16-20(40)21(41)26(50-16)36-9-31-17-22(28)29-8-30-23(17)36/h3-4,8-9,14-16,19-21,26,37-41H,5-7H2,1-2H3,(H,44,45)(H,46,47)(H2,28,29,30)(H,34,42,43)/t14-,15+,16+,19-,20+,21+,26+/m0/s1"
+FAD  InChIKey          InChI                 1.03   VWWQXMAJTJZDQX-UYBVJOGSSA-N
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+FAD acedrg               275         "dictionary generator"                  
+FAD acedrg_database      12          "data source"                           
+FAD rdkit                2019.09.1   "Chemoinformatics tool"
+FAD refmac5              5.8.0405    "optimization tool"                     

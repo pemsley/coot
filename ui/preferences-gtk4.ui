@@ -17,7 +17,7 @@
     <property name="title" translatable="yes">Coot: Preferences</property>
     <property name="default-width">820</property>
     <property name="default-height">480</property>
-    <signal name="destroy" handler="on_preferences_destroy" swapped="no"/>
+    <signal name="close-request" handler="on_preferences_close_request" swapped="no"/>
     <child>
       <object class="GtkBox" id="dialog-vbox77">
         <property name="visible">1</property>
@@ -293,9 +293,54 @@
                   </object>
                 </child>
 
+                <!--
                 <child>
                   <object class="GtkNotebookPage">
                     <property name="position">2</property>
+                    <property name="tab">
+                      <object class="GtkLabel">
+                        <property name="label" translatable="yes">Theme</property>
+                      </object>
+                    </property>
+                    <property name="child">
+                      <object class="GtkFrame" id="preferences_theme_frame">
+                        <child>
+                          <object class="GtkBox" id="vbox_for_theme">
+                            <property name="orientation">horizontal</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label" translatable="yes">Light</property>
+                                <property name="justify">center</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkSwitch" id="light-mode-dark-mode-switch">
+                                <property name="active">True</property>
+                                <property name="margin-top">4</property>
+                                <property name="margin-bottom">4</property>
+                                <property name="margin-start">4</property>
+                                <property name="margin-end">4</property>
+                                <property name="valign">center</property>
+                              </object>
+                            </child>
+
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label" translatable="yes">Dark</property>
+                                <property name="justify">center</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </property>
+                  </object>
+                </child>
+                -->
+
+                <child>
+                  <object class="GtkNotebookPage">
+                    <property name="position">3</property>
                     <property name="tab">
                       <object class="GtkLabel">
                         <property name="visible">1</property>
@@ -1314,7 +1359,7 @@ distances more than:</property>
                                       <object class="GtkLabel" id="label582">
                                         <property name="halign">center</property>
                                         <property name="visible">1</property>
-                                        <property name="label" translatable="yes">Size: </property>
+                                        <property name="label" translatable="yes">Scale: </property>
                                         <property name="justify">center</property>
                                       </object>
                                     </child>
@@ -1331,7 +1376,7 @@ distances more than:</property>
                                       <object class="GtkLabel" id="label583">
                                         <property name="halign">center</property>
                                         <property name="visible">1</property>
-                                        <property name="label" translatable="yes"> Ångström</property>
+                                        <property name="label" translatable="yes"></property>
                                         <property name="justify">center</property>
                                       </object>
                                     </child>

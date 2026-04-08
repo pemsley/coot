@@ -42,51 +42,51 @@ namespace coot {
       bool is_fixed_first;
       bool is_fixed_second;
       bonded_pair_t(mmdb::Residue *r1, mmdb::Residue *r2, bool is_fixed_first_in, bool is_fixed_second_in,
-		    const std::string &lt) {
-	 res_1 = r1;
-	 res_2 = r2;
-	 link_type = lt;
-	 is_fixed_first = is_fixed_first_in;
-	 is_fixed_second = is_fixed_second_in;
+                    const std::string &lt) {
+         res_1 = r1;
+         res_2 = r2;
+         link_type = lt;
+         is_fixed_first = is_fixed_first_in;
+         is_fixed_second = is_fixed_second_in;
       }
       bonded_pair_t() {
-	 res_1=0;
-	 res_2=0;
-	 is_fixed_first  = false;
-	 is_fixed_second = false;
+         res_1=0;
+         res_2=0;
+         is_fixed_first  = false;
+         is_fixed_second = false;
       } 
       bool matches(mmdb::Residue *r1, mmdb::Residue *r2) const {
-	 if (r1 == res_1 && r2 == res_2) {
-	    return true;
-	 } else{
-	    if (r1 == res_2 && r2 == res_1) {
-	       return true;
-	    } else {
-	       return false;
-	    } 
-	 }
+         if (r1 == res_1 && r2 == res_2) {
+            return true;
+         } else{
+            if (r1 == res_2 && r2 == res_1) {
+               return true;
+            } else {
+               return false;
+            } 
+         }
       }
       bonded_pair_t swapped() const {
-	 bonded_pair_t bp;
-	 bp.link_type = link_type;
-	 bp.res_1 = res_2;
-	 bp.res_2 = res_1;
-	 bp.is_fixed_first  = is_fixed_second;
-	 bp.is_fixed_second = is_fixed_first;
-	 return bp;
+         bonded_pair_t bp;
+         bp.link_type = link_type;
+         bp.res_1 = res_2;
+         bp.res_2 = res_1;
+         bp.is_fixed_first  = is_fixed_second;
+         bp.is_fixed_second = is_fixed_first;
+         return bp;
       }
       void reorder_as_needed();
       // matches?, swap-is-needed-to-match?
       std::pair<bool, bool> matches_info(mmdb::Residue *r1, mmdb::Residue *r2) const {
-	 if (r1 == res_1 && r2 == res_2) {
-	    return std::pair<bool, bool> (true, false);
-	 } else{
-	    if (r1 == res_2 && r2 == res_1) {
-	       return std::pair<bool, bool> (true, true);
-	    } else {
-	       return std::pair<bool, bool> (false, false);
-	    }
-	 }
+         if (r1 == res_1 && r2 == res_2) {
+            return std::pair<bool, bool> (true, false);
+         } else{
+            if (r1 == res_2 && r2 == res_1) {
+               return std::pair<bool, bool> (true, true);
+            } else {
+               return std::pair<bool, bool> (false, false);
+            }
+         }
       }
       void apply_chem_mods(const protein_geometry &geom);
    };
@@ -100,7 +100,7 @@ namespace coot {
       bonded_pair_match_info_t(bool state_in, bool swap_needed_in, const std::string &link_type_in) :
          state(state_in), swap_needed(swap_needed_in), link_type(link_type_in) {}
    };
-	 
+         
    class bonded_pair_container_t {
       void reorder();
    public:
@@ -115,28 +115,28 @@ namespace coot {
       friend std::ostream& operator<<(std::ostream &s, bonded_pair_container_t bpc);
       // test order switch too.
       bool matches(mmdb::Residue *r1, mmdb::Residue *r2) const {
-	 bool r = false;
-	 for (unsigned int i=0; i<bonded_residues.size(); i++) { 
-	    if (bonded_residues[i].matches(r1, r2)) {
-	       r = true;
-	       break;
-	    }
-	 }
-	 return r;
+         bool r = false;
+         for (unsigned int i=0; i<bonded_residues.size(); i++) { 
+            if (bonded_residues[i].matches(r1, r2)) {
+               r = true;
+               break;
+            }
+         }
+         return r;
       }
       bonded_pair_match_info_t match_info(mmdb::Residue *r1, mmdb::Residue *r2) const {
-	 bonded_pair_match_info_t mi(false, false, "");
-	 for (unsigned int i=0; i<bonded_residues.size(); i++) {
-	    std::pair<bool, bool> bb = bonded_residues[i].matches_info(r1, r2);
-	    if (bb.first) {
-	       mi.link_type = bonded_residues[i].link_type;
-	       mi.state = true;
-	       if (bb.second)
-		  mi.swap_needed = true;
-	       break;
-	    }
-	 }
-	 return mi;
+         bonded_pair_match_info_t mi(false, false, "");
+         for (unsigned int i=0; i<bonded_residues.size(); i++) {
+            std::pair<bool, bool> bb = bonded_residues[i].matches_info(r1, r2);
+            if (bb.first) {
+               mi.link_type = bonded_residues[i].link_type;
+               mi.state = true;
+               if (bb.second)
+                  mi.swap_needed = true;
+               break;
+            }
+         }
+         return mi;
       }
       void filter(); // remove residue X 1-3 bonds if residue X 1-2 or 2-3 bonds exist.
       bool closer_exists_p(const bonded_pair_t &bp) const;

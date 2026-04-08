@@ -28,7 +28,6 @@
 #include <gtk/gtk.h>
 
 #include "c-interface-sequence.hh"
-#include "coot-align.hh"
 
 #include "c-interface.h"
 #include "graphics-info.h"

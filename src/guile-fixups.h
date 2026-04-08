@@ -24,10 +24,16 @@
  *
  */
 #ifdef USE_GUILE
+
+#include <cstdio> /* for std::FILE in gmp.h for libguile.h */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
 #include <libguile.h>
+#pragma GCC diagnostic pop
+
 #if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7)
-// no fix up needed 
-#else    
+// no fix up needed
+#else
 #define scm_to_int gh_scm2int
 #define scm_to_locale_string SCM_STRING_CHARS
 #define scm_from_locale_string scm_makfrom0str
@@ -37,4 +43,3 @@
 #define scm_car SCM_CAR
 #endif // SCM version
 #endif // USE_GUILE
-

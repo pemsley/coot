@@ -60,9 +60,24 @@
 #include "gtkglarea-rama-plot.hh"
 #include "cc-interface-scripting.hh"
 
+void get_monomer_dictionary_in_subthread(const std::string &comp_id, bool state);
+
+
 // this from callbacks.h (which I don't want to include here)
 typedef const char entry_char_type;
 
+extern "C" G_MODULE_EXPORT
+gboolean on_about_dialog_close_request(GtkAboutDialog *dialog, gpointer user_data) {
+   gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
+   return TRUE; // Prevent the default close behavior (destruction)
+}
+
+extern "C" G_MODULE_EXPORT
+gboolean
+on_select_fitting_map_dialog_close_request(GtkAboutDialog *dialog, gpointer user_data) {
+   gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
+   return TRUE; // Prevent the default close behavior (destruction)
+}
 
 extern "C" G_MODULE_EXPORT
 void
@@ -297,6 +312,7 @@ on_symmetry_colour_patch_button_clicked (GtkButton       *button,
 
 
 
+// old code - delete on a rainy day
 extern "C" G_MODULE_EXPORT
 void
 on_show_aniso_ok_button_clicked        (GtkButton       *button,
@@ -495,7 +511,7 @@ on_go_to_atom_next_residue_button_clicked (GtkButton       *button,
 /*   goto_next_atom_maybe(chain_str, res_str, atom_name_str, residue_entry); */
 
   GtkWidget *window = widget_from_builder("goto_atom_window");
-  goto_next_atom_maybe_new(window);
+  goto_next_atom_maybe_new();
 }
 
 
@@ -527,7 +543,7 @@ on_go_to_atom_previous_residue_button_clicked (GtkButton       *button,
   GtkWidget *window = widget_from_builder("goto_atom_window");
   if (! window)
      printf("ERROR:: in on_go_to_atom_previous_residue_button_clicked NULL window\n");
-  goto_previous_atom_maybe_new(window);
+  goto_previous_atom_maybe_new();
 }
 
 extern "C" G_MODULE_EXPORT
@@ -781,15 +797,11 @@ void
 on_find_ligand_ok_button_clicked       (GtkButton       *button,
                                                             gpointer         user_data) {
 
-   int n_ligands = execute_get_mols_ligand_search(GTK_WIDGET(button));
-			                    	/* which then runs execute_ligand_search */
-   if (n_ligands > 0) {
-      GtkWidget *window = widget_from_builder("find_ligand_dialog");
-      // free_ligand_search_user_data(GTK_WIDGET(button)); // not if not destroyed? Needs checking.
-      gtk_widget_set_visible(window, FALSE);
-   } else {
-      info_dialog("WARNING:: No ligands were selected");
-   }
+   // execute_get_mols_ligand_search() no longer returns the number of ligands
+   execute_get_mols_ligand_search(GTK_WIDGET(button)); /* which then runs execute_ligand_search */
+   GtkWidget *window = widget_from_builder("find_ligand_dialog");
+   // free_ligand_search_user_data(GTK_WIDGET(button)); // not if not destroyed? Needs checking.
+   gtk_widget_set_visible(window, FALSE);
 }
 
 
@@ -870,29 +882,28 @@ void on_save_coords_filechooser_dialog_response(GtkDialog *dialog,
 
 }
 
+extern "C" G_MODULE_EXPORT
+void
+on_save_coords_cancel_clicked(G_GNUC_UNUSED GtkButton       *button,
+                              G_GNUC_UNUSED gpointer         user_data) {
 
+   GtkWidget *mol_selector_frame = widget_from_builder("save_coords_frame");
+   gtk_widget_set_visible(mol_selector_frame, FALSE);
+}
 
 extern "C" G_MODULE_EXPORT
 void
-on_save_coords_dialog_save_button_clicked(G_GNUC_UNUSED GtkButton       *button,
-                                          G_GNUC_UNUSED gpointer         user_data) {
+on_save_coords_save_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                   G_GNUC_UNUSED gpointer         user_data) {
 
    // we need to select the molecule to save - this is someone clicking on the
    // "Save Molecule" button in the save molecule chooser - not in a file selector
 
    GtkWidget *combobox = widget_from_builder("save_coordinates_combobox");
-   GtkWidget *mol_selector_dialog = widget_from_builder("save_coords_dialog");
+   GtkWidget *mol_selector_frame = widget_from_builder("save_coords_frame");
    if (! combobox) {
       std::cout << "ERROR:: on_save_coords_dialog_save_button_clicked: bad combobox\n";
    } else {
-
-#if 0 // 20230910-PE old - delete when no longer useful
-      int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
-      GtkWidget *chooser = coot_save_coords_chooser(); // uses builder
-      g_object_set_data(G_OBJECT(chooser), "imol", GINT_TO_POINTER(imol));
-      gtk_widget_set_visible(chooser, TRUE);
-      set_transient_and_position(COOT_UNDEFINED_WINDOW, chooser);
-#endif
 
       int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
       GtkWindow *parent_window = GTK_WINDOW(graphics_info_t::get_main_window());
@@ -920,7 +931,7 @@ on_save_coords_dialog_save_button_clicked(G_GNUC_UNUSED GtkButton       *button,
       add_filename_filter_button(file_chooser_dialog, COOT_SAVE_COORDS_FILE_SELECTION);
 
    }
-   gtk_widget_set_visible(mol_selector_dialog, FALSE);
+   gtk_widget_set_visible(mol_selector_frame, FALSE);
 
 }
 
@@ -1729,6 +1740,19 @@ on_residue_info_apply_button_clicked(GtkButton       *button,
    apply_residue_info_changes();
    // GtkWidget *widget = widget_from_builder("residue_info_dialog");
    // gtk_widget_set_visible(widget, FALSE);
+   add_status_bar_text("Occupancies and B-factors have been updated");
+   GtkWidget *label = widget_from_builder("occupancy_b_factors_updated_label");
+   if (label) {
+      gtk_widget_set_visible(label, TRUE);
+
+      auto label_callback = +[] (gpointer user_data) {
+         GtkWidget *w = GTK_WIDGET(user_data);
+         gtk_widget_set_visible(w, FALSE);
+         return 0;
+      };
+      g_timeout_add(1000, G_SOURCE_FUNC(label_callback), label);
+
+   }
 }
 
 
@@ -1787,6 +1811,22 @@ on_residue_info_master_atom_b_factor_entry_activate(GtkWidget *entry, gpointer u
 
 }
 
+extern "C" G_MODULE_EXPORT
+void
+on_keyboard_mutate_entry_changed(GtkEntry     *entry,
+                                 gpointer      user_data) {
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_keyboard_mutate_entry_activate(GtkWidget *entry, gpointer user_data) {
+
+   std::string s(gtk_editable_get_text(GTK_EDITABLE(entry)));
+   mutate_active_residue_to_single_letter_code(s);
+   GtkWidget *frame = widget_from_builder("keyboard_mutate_frame");
+   gtk_widget_set_visible(frame, FALSE);
+   graphics_info_t::graphics_grab_focus();
+}
 
 extern "C" G_MODULE_EXPORT
 void
@@ -1911,17 +1951,16 @@ on_unsaved_changes_continue_button_clicked
 
 extern "C" G_MODULE_EXPORT
 void
-on_environment_distance_label_atom_checkbutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
+on_environment_distance_label_atom_checkbutton_toggled(GtkCheckButton *checkbutton,
+                                                       gpointer        user_data) {
 
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    set_environment_distances_label_atom(1);
+  if (gtk_check_button_get_active(checkbutton)) {
+     set_environment_distances_label_atom(1);
+     graphics_info_t g;
+     g.try_label_unlabel_active_atom();
   } else {
-    set_environment_distances_label_atom(0);
+     set_environment_distances_label_atom(0);
   }
-
 }
 
 
@@ -2022,8 +2061,7 @@ on_environment_distance_dialog_ok_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-   GtkWidget *widget;
-   widget = widget_from_builder("environment_distance_dialog");
+   GtkWidget *widget = widget_from_builder("environment_distance_dialog");
    execute_environment_settings(GTK_WIDGET(button));
    gtk_widget_set_visible(widget, FALSE);
 
@@ -2255,9 +2293,9 @@ on_run_refmac_phase_combine_checkbutton_toggled (GtkToggleButton *togglebutton,
 
 extern "C" G_MODULE_EXPORT
 void
-on_baton_undo_button_clicked           (GtkButton       *button,
-                                        gpointer         user_data)
-{
+on_baton_undo_button_clicked(GtkButton       *button,
+                             gpointer         user_data) {
+
    baton_build_delete_last_residue();
 }
 
@@ -2266,11 +2304,15 @@ on_baton_undo_button_clicked           (GtkButton       *button,
 extern "C" G_MODULE_EXPORT
 void
 on_undo_molecule_chooser_ok_button_clicked (GtkButton       *button,
-					    gpointer         user_data)
-{
-   GtkWidget *widget = widget_from_builder("undo_molecule_chooser_dialog");
-   gtk_widget_set_visible(widget, FALSE);
+					    gpointer         user_data) {
 
+   GtkWidget *widget   = widget_from_builder("undo_molecule_chooser_dialog");
+   GtkWidget *combobox = widget_from_builder("undo_molecule_chooser_comboboxtext");
+   int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+   graphics_info_t g;
+   if (g.is_valid_model_molecule(imol))
+      set_undo_molecule(imol);
+   gtk_widget_set_visible(widget, FALSE);
 }
 
 
@@ -2544,10 +2586,19 @@ on_workflow_cancel_button_clicked      (GtkButton       *button,
 
 extern "C" G_MODULE_EXPORT
 void
-on_select_map_for_fitting_button_clicked(GtkButton       *button,
+on_select_map_for_fitting_cancel_button_clicked(GtkButton       *button,  // OK button
+                                                gpointer         user_data) {
+
+   GtkWidget *frame = widget_from_builder( "select_map_for_fitting_frame");
+   gtk_widget_set_visible(frame, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_select_map_for_fitting_button_clicked(GtkButton       *button,  // OK button
                                          gpointer         user_data) {
 
-   GtkWidget *dialog       = widget_from_builder( "select_fitting_map_dialog");
+   GtkWidget *frame       = widget_from_builder( "select_map_for_fitting_frame");
    GtkWidget *weight_entry = widget_from_builder("select_fitting_map_dialog_weight_entry");
 
    if (weight_entry) {
@@ -2556,7 +2607,7 @@ on_select_map_for_fitting_button_clicked(GtkButton       *button,
       graphics_info_t g;
       g.geometry_vs_map_weight = f;
    }
-   gtk_widget_set_visible(dialog, FALSE);
+   gtk_widget_set_visible(frame, FALSE);
 
 }
 
@@ -2568,7 +2619,7 @@ on_model_refine_dialog_map_select_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-   show_select_map_dialog();
+   show_select_map_frame();
 }
 
 
@@ -2686,14 +2737,11 @@ on_pointer_atom_type_other_button_clicked
 
 extern "C" G_MODULE_EXPORT
 void
-on_ligand_big_blob_dismiss_button_clicked
-                                        (GtkButton       *button,
-                                        gpointer         user_data)
-{
+on_ligand_big_blob_dismiss_button_clicked(GtkButton       *button,
+                                          gpointer         user_data) {
 
   GtkWidget *window = widget_from_builder( "ligand_big_blob_dialog");
   gtk_widget_set_visible(window, FALSE);
-
 }
 
 
@@ -3279,8 +3327,7 @@ on_column_labels_use_resolution_limits_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  GtkWidget *frame = widget_from_builder(
-				   "resolution_limits_hbox");
+  GtkWidget *frame = widget_from_builder("resolution_limits_hbox");
   if (gtk_toggle_button_get_active(togglebutton))
      gtk_widget_set_sensitive(frame, TRUE);
   else
@@ -3299,6 +3346,14 @@ on_merge_molecules_ok_button_clicked(GtkButton       *button,
    do_merge_molecules(w);
    gtk_widget_set_visible(w, FALSE);
 
+}
+
+
+extern "C" G_MODULE_EXPORT
+gboolean
+on_merge_molecules_dialog_close_request(GtkAboutDialog *dialog, gpointer user_data) {
+   gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
+   return TRUE; // Prevent the default close behavior (destruction)
 }
 
 
@@ -3838,11 +3893,11 @@ on_stereo_dialog_zalman_stereo_radiobutton_toggled
 
 extern "C" G_MODULE_EXPORT
 gboolean
-on_shader_settings_dialog_destroy(GtkWidget       *widget,
+on_shader_settings_dialog_close_request(GtkWidget       *widget,
                                   gpointer         user_data) {
 
-   // this doesn't happen
-   std::cout << "-------------- on_shader_settings_dialog_ destroy " << std::endl;
+   // 2026-02-21-PE this now does happen
+   gtk_widget_set_visible(widget, FALSE);
    return TRUE;
 }
 
@@ -3853,7 +3908,7 @@ on_shader_settings_dialog_close(GtkDialog *dialog,
 
    // The ::close signal is a keybinding signal which gets emitted when the user uses a keybinding to close the dialog.
    // The default binding for this signal is the Escape key.
-   
+
    std::cout << "-------------- on_shader_settings_dialog close  " << std::endl;
 }
 
@@ -3889,48 +3944,54 @@ on_generate_diff_map_peaks_cancel_button_clicked
 
 extern "C" G_MODULE_EXPORT
 void
-on_superpose_reference_chain_checkbutton_toggled(GtkToggleButton *togglebutton,
-                                                                     gpointer user_data) {
+on_superpose_reference_chain_checkbutton_toggled(GtkCheckButton *checkbutton,
+                                                 gpointer user_data) {
 
-  GtkWidget *combobox = widget_from_builder("superpose_dialog_reference_chain_combobox");
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    gtk_widget_set_sensitive(GTK_WIDGET(combobox), TRUE);
-    printf("calling fill_superpose_combobox_with_chain_options()\n");
-    fill_superpose_combobox_with_chain_options(combobox, 1);
-    printf("done fill_superpose_combobox_with_chain_options()\n");
-  } else {
-    gtk_widget_set_sensitive(GTK_WIDGET(combobox), FALSE);
-  }
+   GtkWidget *combobox = widget_from_builder("superpose_dialog_reference_chain_combobox");
+   if (gtk_check_button_get_active(checkbutton)) {
+      gtk_widget_set_sensitive(GTK_WIDGET(combobox), TRUE);
 
-  printf("done on_superpose_reference_chain_checkbutton_toggled()\n");
+      GtkWidget *combobox_1 = widget_from_builder("superpose_dialog_reference_mol_combobox");
+      GtkWidget *combobox_2 = widget_from_builder("superpose_dialog_moving_mol_combobox");
 
+      int imol1 = my_combobox_get_imol(GTK_COMBO_BOX(combobox_1));
+      int imol2 = my_combobox_get_imol(GTK_COMBO_BOX(combobox_2));
+      int imol_active = imol1;
+
+      fill_superpose_combobox_with_chain_options(imol_active, 1);
+   } else {
+      gtk_widget_set_sensitive(GTK_WIDGET(combobox), FALSE);
+   }
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
-on_superpose_moving_chain_checkbutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  GtkWidget *combobox = widget_from_builder("superpose_dialog_moving_chain_combobox");
+on_superpose_moving_chain_checkbutton_toggled(GtkCheckButton *checkbutton,
+                                              gpointer        user_data) {
 
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    fill_superpose_combobox_with_chain_options(combobox, 0);
-    gtk_widget_set_sensitive(GTK_WIDGET(combobox), TRUE);
-  } else {
-    gtk_widget_set_sensitive(GTK_WIDGET(combobox), FALSE);
-  }
+   GtkWidget *combobox = widget_from_builder("superpose_dialog_moving_chain_combobox");
+   if (gtk_check_button_get_active(checkbutton)) {
+      GtkWidget *combobox_2 = widget_from_builder("superpose_dialog_moving_mol_combobox");
+      int imol2 = my_combobox_get_imol(GTK_COMBO_BOX(combobox_2));
+      int imol_active = imol2;
+
+      fill_superpose_combobox_with_chain_options(imol_active, 0);
+      gtk_widget_set_sensitive(GTK_WIDGET(combobox), TRUE);
+   } else {
+      gtk_widget_set_sensitive(GTK_WIDGET(combobox), FALSE);
+   }
 }
 
-
+// is this used now?
 extern "C" G_MODULE_EXPORT
 void
 on_draw_ncs_ghosts_yes_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-/* Function no longer used.  Kept in glade (not visible) for historical reasons
+                                        gpointer         user_data) {
+/* Function no longer used. Handled in another dialog
+
+   Kept in glade (not visible) for historical reasons
 
    GtkWidget *w = widget_from_builder("bond_parameters_dialog");
    if (gtk_toggle_button_get_active(togglebutton)) {
@@ -3941,15 +4002,106 @@ on_draw_ncs_ghosts_yes_radiobutton_toggled
 }
 
 
+// is this used now?
 extern "C" G_MODULE_EXPORT
 void
-on_draw_ncs_ghosts_no_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
+on_draw_ncs_ghosts_no_radiobutton_toggled(GtkToggleButton *togglebutton,
+                                          gpointer         user_data) {
 
 }
 
+extern "C" G_MODULE_EXPORT
+void
+aniso_probability_hscale_value_changed(GtkScale* range,
+                                       gpointer user_data) {
+
+   GtkWidget *bond_parameters_molecule_comboboxtext  = widget_from_builder("bond_parameters_molecule_comboboxtext");
+   GtkWidget *draw_anisotropic_atoms_yes_radiobutton = widget_from_builder("draw_anisotropic_atoms_yes_radiobutton");
+   if (bond_parameters_molecule_comboboxtext) {
+      if (draw_anisotropic_atoms_yes_radiobutton) {
+         GtkAdjustment *adjustment = gtk_range_get_adjustment(GTK_RANGE(range));
+         float fvalue = gtk_adjustment_get_value(adjustment);
+         graphics_info_t g;
+         int n_molecules = g.n_molecules();
+         if (n_molecules > 0) { // protection from occuring at start-up
+            g.show_aniso_atoms_probability = fvalue;
+            int imol = g.combobox_get_imol(GTK_COMBO_BOX(bond_parameters_molecule_comboboxtext));
+            if (gtk_check_button_get_active(GTK_CHECK_BUTTON(draw_anisotropic_atoms_yes_radiobutton))) {
+               // std::cout << "\ncalling set_show_atoms_as_aniso() with prob " << g.show_aniso_atoms_probability << std::endl;
+               graphics_info_t::molecules[imol].make_bonds_type_checked("aniso_probability_hscale_value_changed");
+               g.graphics_draw();
+            }
+         }
+      }
+   }
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_draw_anisotropic_atoms_yes_radiobutton_toggled(GtkCheckButton *checkbutton,
+                                                  gpointer         user_data) {
+
+   GtkWidget *bond_parameters_molecule_comboboxtext =
+      widget_from_builder("bond_parameters_molecule_comboboxtext");
+   if (bond_parameters_molecule_comboboxtext) {
+      graphics_info_t g;
+      int imol = g.combobox_get_imol(GTK_COMBO_BOX(bond_parameters_molecule_comboboxtext));
+      if (gtk_check_button_get_active(checkbutton)) {
+         set_show_aniso_atoms(imol, 1);
+      } else {
+         set_show_aniso_atoms(imol, 0);
+      }
+   }
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_draw_anisotropic_atoms_no_radiobutton_toggled(GtkCheckButton *checkbutton,
+                                                 gpointer         user_data) {
+
+   // handled above
+
+}
+
+extern "C" G_MODULE_EXPORT
+void
+show_anisotropic_atoms_as_ortep_switch_state_set(GtkSwitch *switch_widget,
+                                                 gboolean   state,
+                                                 gpointer   user_data) {
+
+   GtkWidget *bond_parameters_molecule_comboboxtext =
+      widget_from_builder("bond_parameters_molecule_comboboxtext");
+
+   if (bond_parameters_molecule_comboboxtext) {
+      graphics_info_t g;
+      int imol = g.combobox_get_imol(GTK_COMBO_BOX(bond_parameters_molecule_comboboxtext));
+      set_show_aniso_atoms_as_ortep(imol, state);
+      if (state) {
+         // for the aniso button on:
+         GtkWidget *checkbutton = widget_from_builder("draw_anisotropic_atoms_yes_radiobutton");
+         if (checkbutton) {
+            gtk_check_button_set_active(GTK_CHECK_BUTTON(checkbutton), TRUE);
+         }
+      }
+   }
+}
+
+extern "C" G_MODULE_EXPORT
+void
+show_anisotropic_atoms_as_empty_switch_state_set(GtkSwitch *switch_widget,
+                                                 gboolean   state,
+                                                 gpointer   user_data) {
+
+   GtkWidget *bond_parameters_molecule_comboboxtext =
+      widget_from_builder("bond_parameters_molecule_comboboxtext");
+
+   if (bond_parameters_molecule_comboboxtext) {
+      graphics_info_t g;
+      int imol = g.combobox_get_imol(GTK_COMBO_BOX(bond_parameters_molecule_comboboxtext));
+      g.molecules[imol].set_show_aniso_atoms_as_empty(state);
+      g.graphics_draw();
+   }
+}
 
 extern "C" G_MODULE_EXPORT
 void
@@ -4337,7 +4489,7 @@ on_mutate_sequence_do_autofit_checkbutton_toggled(GtkCheckButton *checkbutton,
       imol_map = imol_refinement_map();
       if (imol_map == -1) {
 	 gtk_check_button_set_active(checkbutton, FALSE);
-	 show_select_map_dialog();
+	 show_select_map_frame();
 	 info_dialog("A map has not yet been assigned for Refinement/Fitting");
       }
    }
@@ -4432,14 +4584,42 @@ void
 on_residue_info_occ_apply_all_checkbutton_toggled(GtkCheckButton *checkbutton,
                                                   gpointer        user_data) {
 
-   GtkWidget *entry = widget_from_builder("residue_info_master_atom_occ_entry");
-   GtkWidget *alt_conf_checkbutton = widget_from_builder("residue_info_occ_apply_to_altconf_checkbutton");
+   GtkWidget *occ_entry           = widget_from_builder("residue_info_master_atom_occ_entry");
+   GtkWidget *alt_conf_checkbox     = widget_from_builder("residue_info_occ_apply_to_altconf_checkbutton");
+   GtkWidget *alt_conf_entry  = widget_from_builder("residue_info_occ_apply_to_altconf_entry");
 
    if (gtk_check_button_get_active(checkbutton)) {
-      gtk_widget_set_sensitive(entry, TRUE);
+      // Uncheck the mutually exclusive "apply to alt conf" checkbox
+      if (gtk_check_button_get_active(GTK_CHECK_BUTTON(alt_conf_checkbox))) {
+         gtk_check_button_set_active(GTK_CHECK_BUTTON(alt_conf_checkbox), FALSE);
+      }
+      gtk_widget_set_sensitive(occ_entry, TRUE);
+      gtk_widget_set_sensitive(alt_conf_entry, FALSE);
    } else {
-      if (! gtk_check_button_get_active(GTK_CHECK_BUTTON(alt_conf_checkbutton)))
-         gtk_widget_set_sensitive(entry, FALSE);
+      if (! gtk_check_button_get_active(GTK_CHECK_BUTTON(alt_conf_checkbox)))
+         gtk_widget_set_sensitive(occ_entry, FALSE);
+   }
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_residue_info_occ_apply_to_altconf_checkbutton_toggled(GtkCheckButton *checkbutton,
+                                                         gpointer        user_data) {
+
+   GtkWidget *occ_entry       = widget_from_builder("residue_info_master_atom_occ_entry");
+   GtkWidget *alt_conf_entry  = widget_from_builder("residue_info_occ_apply_to_altconf_entry");
+   GtkWidget *apply_all_cb    = widget_from_builder("residue_info_occ_apply_all_checkbutton");
+
+   if (gtk_check_button_get_active(checkbutton)) {
+      // Uncheck the mutually exclusive "apply to all" checkbox
+      if (gtk_check_button_get_active(GTK_CHECK_BUTTON(apply_all_cb)))
+         gtk_check_button_set_active(GTK_CHECK_BUTTON(apply_all_cb), FALSE);
+      gtk_widget_set_sensitive(occ_entry,      TRUE);
+      gtk_widget_set_sensitive(alt_conf_entry, TRUE);
+   } else {
+      gtk_widget_set_sensitive(alt_conf_entry, FALSE);
+      if (! gtk_check_button_get_active(GTK_CHECK_BUTTON(apply_all_cb)))
+         gtk_widget_set_sensitive(occ_entry, FALSE);
    }
 }
 
@@ -4492,16 +4672,6 @@ on_other_model_tools_dialog_destroy    (GtkWidget       *object,
    do_cis_trans_conversion_setup(0);
    unset_other_modelling_tools_dialog();
 }
-
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_ligand_big_blob_dialog_destroy(GtkWidget       *object,
-                                  gpointer         user_data) {
-  free_blob_dialog_memory(GTK_WIDGET(object));
-}
-
 
 extern "C" G_MODULE_EXPORT
 void
@@ -4900,7 +5070,7 @@ on_move_molecule_here_ok_button_clicked(GtkButton       *button,
                                         gpointer         user_data) {
 
   move_molecule_here_by_widget();
-  GtkWidget *w = widget_from_builder("move_molecule_here_dialog");
+  GtkWidget *w = widget_from_builder("move_molecule_here_frame");
   gtk_widget_set_visible(w, FALSE);
 
 }
@@ -4913,7 +5083,7 @@ on_move_molecule_here_cancel_button_clicked
                                         gpointer         user_data)
 {
 
-  GtkWidget *w = widget_from_builder("move_molecule_here_dialog");
+  GtkWidget *w = widget_from_builder("move_molecule_here_frame");
   gtk_widget_set_visible(w, FALSE);
 
 }
@@ -5281,16 +5451,16 @@ on_screendump_filechooser_dialog_response (GtkDialog * dialog,
                                            gint response_id,
                                            gpointer user_data) {
 
-   GtkWidget *file_chooser = widget_from_builder("screendump_filechooser_dialog");
+   //GtkWidget *file_chooser = widget_from_builder("screendump_filechooser_dialog");
    if (response_id == GTK_RESPONSE_OK) {
 
-      int image_type = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(file_chooser), "image_type"));
+      int image_type = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "image_type"));
       // const char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(file_chooser));
-      GFile *file = gtk_file_chooser_get_file(GTK_FILE_CHOOSER(file_chooser));
+      GFile *file = gtk_file_chooser_get_file(GTK_FILE_CHOOSER(dialog));
       GError *error = NULL;
-      GFileInfo *file_info = g_file_query_info(file, G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
-                                               G_FILE_QUERY_INFO_NONE, NULL, &error);
-      const char *file_name = g_file_info_get_name(file_info);
+//      GFileInfo *file_info = g_file_query_info(file, G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
+//                                               G_FILE_QUERY_INFO_NONE, NULL, &error);
+      const char *file_name = g_file_get_path(file);
 
       if (image_type == COOT_SCREENDUMP_SIMPLE) {
          screendump_tga(file_name);
@@ -5302,7 +5472,7 @@ on_screendump_filechooser_dialog_response (GtkDialog * dialog,
          make_image_raster3d(file_name);
       }
    }
-   gtk_widget_set_visible(file_chooser, FALSE);
+   gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
 }
 
 
@@ -5711,8 +5881,8 @@ on_move_molecule_here_big_molecules_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  GtkWidget *dialog = widget_from_builder("move_molecule_here_dialog");
-  fill_move_molecule_here_dialog(dialog);
+  GtkWidget *frame = widget_from_builder("move_molecule_here_frame");
+  fill_move_molecule_here_frame(frame);
 }
 
 extern "C" G_MODULE_EXPORT
@@ -5933,7 +6103,7 @@ on_multi_residue_torsion_start_button_clicked
 extern "C" G_MODULE_EXPORT
 void
 on_keyboard_go_to_residue_entry_changed(GtkEditable     *editable,
-                                                            gpointer         user_data) {
+                                        gpointer         user_data) {
 
 }
 
@@ -6090,31 +6260,25 @@ on_find_ligand_real_space_refine_solutions_checkbutton_toggled
 }
 
 
+
 extern "C" G_MODULE_EXPORT
 void
-on_copy_fragment_dialog_response(GtkDialog *dialog,
-                                 gint response_id,
-                                 gpointer user_data) {
+on_replace_fragment_dialog_response(GtkDialog *dialog,
+				    gint response_id,
+				    gpointer user_data) {
 
    if (response_id == GTK_RESPONSE_OK) {
       graphics_info_t g;
-      GtkWidget *entry = widget_from_builder("copy_fragment_atom_selection_entry");
+      GtkWidget *entry = widget_from_builder("replace_fragment_atom_selection_entry");
+      GtkWidget *combobox_from = widget_from_builder("replace_fragment_from_molecule_combobox");
+      GtkWidget *combobox_to   = widget_from_builder("replace_fragment_to_molecule_combobox");
       std::string text = gtk_editable_get_text(GTK_EDITABLE(GTK_ENTRY(entry)));
-      GtkWidget *combobox = GTK_WIDGET(g_object_get_data(G_OBJECT(dialog), "combobox"));
-      int imol = g.combobox_get_imol(GTK_COMBO_BOX(combobox));
-      int imol_new = new_molecule_by_atom_selection(imol, text.c_str());
-      GtkWidget *checkbutton = widget_from_builder("copy_fragment_move_molecule_here_checkbutton");
-      if (gtk_check_button_get_active(GTK_CHECK_BUTTON(checkbutton)))
-         move_molecule_to_screen_centre_internal(imol_new);
-      if (is_valid_model_molecule(imol_new))
-         gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
+      int imol_from = g.combobox_get_imol(GTK_COMBO_BOX(combobox_from));
+      int imol_to   = g.combobox_get_imol(GTK_COMBO_BOX(combobox_to));
+      replace_fragment(imol_to, imol_from, text.c_str()); // move this to C++ api one day
    }
-   if (response_id == GTK_RESPONSE_CANCEL) {
-      gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
-   }
-
+   gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
 }
-
 
 extern "C" G_MODULE_EXPORT
 void
@@ -6618,7 +6782,12 @@ on_validation_graph_model_combobox_changed(GtkComboBox* self, gpointer user_data
       gtk_tree_model_get(gtk_combo_box_get_model(self),&iter,1,&new_active_model,-1);
       graphics_info_t::update_active_validation_graph_model(new_active_model);
    } else {
-      g_warning("on_validation_graph_model_combobox_changed(): Could not get active iter in validation graph model ComboBox");
+      // this is noisy - and it seems possible that the active iter has not yet been set.
+      if (false) {
+         std::string mess = "on_validation_graph_model_combobox_changed(): ";
+         mess += "Could not get active iter in validation graph model ComboBox";
+         g_warning("%s", mess.c_str());
+      }
    }
 }
 
@@ -6690,6 +6859,14 @@ on_density_correlation_graph_toggled(GtkCheckButton* self, gpointer user_data) {
    on_validation_graph_checkbutton_toggled(self,coot::validation_graph_type::density_correlation);
 }
 
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_validation_graph_docked_checkbutton_toggled(GtkCheckButton* self, gpointer user_data) {
+   graphics_info_t::validation_graphs_is_docked = gtk_check_button_get_active(self);
+}
+
 extern "C" G_MODULE_EXPORT
 void
 on_ramachandran_plot_molecule_chooser_ok_button_clicked(GtkButton       *button,
@@ -6720,6 +6897,7 @@ on_ramachandran_plot_molecule_chooser_ok_button_clicked(GtkButton       *button,
       std::cout << "ERROR:: on_ramachandran_plot_molecule_chooser_ok_button_clicked() get active iter failed"
                 << std::endl;
    }
+   graphics_info_t::graphics_grab_focus();
 }
 
 
@@ -6729,6 +6907,7 @@ on_ramachandran_plot_molecule_chooser_cancel_button_clicked (GtkButton       *bu
                                                              gpointer         user_data) {
    GtkWidget *w = widget_from_builder("ramachandran_plot_molecule_chooser_dialog");
    gtk_widget_set_visible(w, FALSE);
+   graphics_info_t::graphics_grab_focus();
 
 }
 
@@ -6742,10 +6921,12 @@ on_map_properties_dialog_specularity_state_checkbutton_toggled(GtkCheckButton *c
    // was it set?
    int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(checkbutton), "imol"));
    handle_map_properties_specularity_change(imol, GTK_WIDGET(checkbutton));
+   graphics_info_t::graphics_grab_focus();
 
 }
 
-// ----------------------------------- updating maps 
+
+// ----------------------------------- updating maps -----
 
 extern "C" G_MODULE_EXPORT
 void
@@ -6754,6 +6935,7 @@ on_updating_maps_cancel_button_clicked(GtkButton       *button,
 
    GtkWidget *dialog = widget_from_builder("updating_maps_dialog");
    gtk_widget_set_visible(dialog, FALSE);
+   graphics_info_t::graphics_grab_focus();
 
 }
 
@@ -6786,6 +6968,7 @@ on_updating_maps_ok_button_clicked(GtkButton       *button,
 
    GtkWidget *points_button = widget_from_builder("coot-points-button");
    gtk_widget_set_visible(points_button, TRUE);
+   graphics_info_t::graphics_grab_focus();
 
 }
 
@@ -6797,6 +6980,7 @@ on_ligand_check_dialog_close_button_clicked(GtkButton       *button,
 
    GtkWidget *dialog = widget_from_builder("ligand_check_dialog");
    gtk_widget_set_visible(dialog, FALSE);
+   graphics_info_t::graphics_grab_focus();
 
 }
 
@@ -6812,6 +6996,248 @@ on_generic_validation_box_of_buttons_close_button_clicked(GtkButton       *butto
       g.clear_out_container(box);
    }
    gtk_widget_set_visible(dialog, FALSE);
+   graphics_info_t::graphics_grab_focus();
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_download_monomers_cancel_button_clicked(GtkButton       *button,
+					   gpointer         user_data) {
+
+   GtkWidget *dialog = widget_from_builder("download_monomers_dialog");
+   gtk_widget_set_visible(dialog, FALSE);
+
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_download_monomers_ok_button_clicked(GtkButton       *button,
+				       gpointer         user_data) {
+
+   GtkWidget *vbox = widget_from_builder("download_monomers_dialog_vbox_inner");
+   if (vbox) {
+      GtkWidget *item_widget = gtk_widget_get_first_child(vbox);
+      while (item_widget) {
+	 gchar *comp_id = static_cast<gchar *>(g_object_get_data(G_OBJECT(item_widget), "comp_id"));
+         std::cout << "debug:: on_download_monomers_ok_button_clicked comp_id is " << comp_id << std::endl;
+	 if (comp_id) {
+	    GtkWidget *dialog = widget_from_builder("download_monomers_dialog");
+	    int run_get_monomer_post_fetch_flag =
+	       GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "run_get_monomer_post_fetch_flag"));
+	    get_monomer_dictionary_in_subthread(comp_id, run_get_monomer_post_fetch_flag);
+	 }
+	 item_widget = gtk_widget_get_next_sibling(item_widget);
+      };
+
+   }
+
+   GtkWidget *dialog = widget_from_builder("download_monomers_dialog");
+   gtk_widget_set_visible(dialog, FALSE);
+}
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_add_other_solvent_molecules_new_residue_type_button_clicked(GtkButton  *button,
+                                                               gpointer    user_data) {
+
+   GtkWidget *entry = widget_from_builder("add_other_solvent_molecules_new_residue_type_entry");
+   int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(entry), "imol"));
+   std::cout << "DEBUG:: transfering imol " << imol << std::endl;
+   g_object_set_data(G_OBJECT(entry), "imol", GINT_TO_POINTER(imol));
+   gtk_widget_set_visible(entry, TRUE);
+}
+
+#include "get-monomer.hh"
+
+extern "C" G_MODULE_EXPORT
+void on_add_other_solvent_molecules_new_residue_type_entry_activate(GtkEntry *entry,
+                                                                    gpointer  user_data) {
+
+   // this callback is similar to the callback for the build-in residue type
+   // buttons in the dialog
+   const char *s = gtk_editable_get_text(GTK_EDITABLE(entry));
+   graphics_info_t g;
+   std::string type(s);
+   int imol_ligand = get_monomer(type);
+   fit_to_map_by_random_jiggle(imol_ligand, "A", 1, "", 100, 2.0);
+   if (g.is_valid_model_molecule(imol_ligand)) {
+      coot::residue_spec_t rspec("A", 1, "");
+      mmdb::Residue *residue_p = g.molecules[imol_ligand].get_residue(rspec);
+      if (residue_p) {
+         mmdb::Manager *mol = g.molecules[imol_ligand].atom_sel.mol;
+         std::vector<mmdb::Residue *> v;
+         std::string alt_conf;
+         v.push_back(residue_p);
+         short int save_state = g.refinement_immediate_replacement_flag;
+         g.refinement_immediate_replacement_flag = 1;
+         coot::refinement_results_t rr = g.refine_residues_vec(imol_ligand, v, alt_conf, mol);
+         g.refinement_immediate_replacement_flag = save_state;
+         c_accept_moving_atoms();
+         delete_hydrogen_atoms(imol_ligand);
+         int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(entry), "imol"));
+         if (g.is_valid_model_molecule(imol)) {
+            std::vector<atom_selection_container_t> add_molecules_at_sels;
+            add_molecules_at_sels.push_back(g.molecules[imol_ligand].atom_sel);
+            g.molecules[imol].merge_molecules(add_molecules_at_sels);
+            close_molecule(imol_ligand);
+         }
+      }
+   }
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_add_other_solvent_molecules_close_button_clicked(GtkButton       *button,
+						    gpointer         user_data) {
+
+   GtkWidget *dialog = widget_from_builder("add_other_solvent_molecules_dialog");
+   if (dialog) {
+      gtk_widget_set_visible(dialog, FALSE);
+   }
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_first_startup_cancel_button_clicked(GtkButton       *button,
+                                       gpointer         user_data) {
+
+   GtkWidget *dialog = widget_from_builder("first-startup-dialog");
+   gtk_widget_set_visible(dialog, FALSE);
+
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_first_startup_use_left_button_clicked(GtkButton       *button,
+                                       gpointer         user_data) {
+
+   GtkWidget *dialog = widget_from_builder("first-startup-dialog");
+   gtk_widget_set_visible(dialog, FALSE);
+
+   preferences_internal_change_value_int(PREFERENCES_VIEW_ROTATION_MOUSE_BUTTON, 1);
+   set_use_primary_mouse_button_for_view_rotation(1);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_first_startup_use_right_button_clicked(GtkButton       *button,
+                                      gpointer         user_data) {
+
+   GtkWidget *dialog = widget_from_builder("first-startup-dialog");
+   gtk_widget_set_visible(dialog, FALSE);
+
+   preferences_internal_change_value_int(PREFERENCES_VIEW_ROTATION_MOUSE_BUTTON, 0);
+   set_use_primary_mouse_button_for_view_rotation(0);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_material_lighting_ambient_colorbutton_color_set(GtkColorButton *colorbutton,
+                                                   gpointer        user_data) {
+
+   GdkRGBA rgba;
+   gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(colorbutton), &rgba);
+   GtkWidget *combobox = widget_from_builder("material_lighting_molecule_comboboxtext");
+   int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+   graphics_info_t g;
+   if (g.is_valid_model_molecule(imol)) {
+      glm::vec4 ambient(rgba.red, rgba.green, rgba.blue, 1.0f);
+      g.molecules[imol].material_for_models.ambient = ambient;
+      g.molecules[imol].model_molecule_meshes.set_material_ambient(ambient);
+      for (auto &mesh : g.molecules[imol].meshes)
+         mesh.set_material_ambient(ambient);
+      g.graphics_draw();
+   }
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_material_lighting_diffuse_colorbutton_color_set(GtkColorButton *colorbutton,
+                                                   gpointer        user_data) {
+
+   GdkRGBA rgba;
+   gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(colorbutton), &rgba);
+   GtkWidget *combobox = widget_from_builder("material_lighting_molecule_comboboxtext");
+   int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+   graphics_info_t g;
+   if (g.is_valid_model_molecule(imol)) {
+      glm::vec4 diffuse(rgba.red, rgba.green, rgba.blue, 1.0f);
+      g.molecules[imol].material_for_models.diffuse = diffuse;
+      g.molecules[imol].model_molecule_meshes.set_material_diffuse(diffuse);
+      for (auto &mesh : g.molecules[imol].meshes)
+         mesh.set_material_diffuse(diffuse);
+      g.graphics_draw();
+   }
+}
+
+// --------------------- EM Placement ------------------------------------
+
+extern "C" G_MODULE_EXPORT
+void
+on_emplacement_half_map_1_file_button_clicked(GtkButton       *button,
+                                              gpointer         user_data) {
+
+   GtkWindow *parent_window = GTK_WINDOW(graphics_info_t::get_main_window());
+   GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_OPEN;
+   GtkWidget *dialog = gtk_file_chooser_dialog_new("Coot: File Selector for Map",
+                                                   parent_window,
+                                                   action,
+                                                   ("_Cancel"),
+                                                   GTK_RESPONSE_CANCEL,
+                                                   ("_Open"),
+                                                   GTK_RESPONSE_ACCEPT,
+                                                   NULL);
+
+   auto on_map_filechooser_dialog_response = +[] (GtkDialog *dialog, int response) {
+
+      if (response == GTK_RESPONSE_ACCEPT) {
+         GtkFileChooser *chooser = GTK_FILE_CHOOSER(dialog);
+         GtkWidget *entry = widget_from_builder("emplacement_half_map_1_entry");
+         GFile *file   = gtk_file_chooser_get_file(chooser);
+         char *file_name = g_file_get_path(file);
+         gtk_editable_set_text(GTK_EDITABLE(entry), file_name);
+         gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
+      }
+
+   };
+   g_signal_connect(dialog, "response", G_CALLBACK(on_map_filechooser_dialog_response), NULL);
+   gtk_widget_set_visible(dialog, TRUE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_emplacement_half_map_2_file_button_clicked(GtkButton       *button,
+                                              gpointer         user_data) {
+
+   GtkWindow *parent_window = GTK_WINDOW(graphics_info_t::get_main_window());
+   GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_OPEN;
+   GtkWidget *dialog = gtk_file_chooser_dialog_new("Coot: File Selector for Map",
+                                                   parent_window,
+                                                   action,
+                                                   ("_Cancel"),
+                                                   GTK_RESPONSE_CANCEL,
+                                                   ("_Open"),
+                                                   GTK_RESPONSE_ACCEPT,
+                                                   NULL);
+
+
+   auto on_map_filechooser_dialog_response = +[] (GtkDialog *dialog, int response) {
+
+      if (response == GTK_RESPONSE_ACCEPT) {
+         GtkFileChooser *chooser = GTK_FILE_CHOOSER(dialog);
+         GtkWidget *entry = widget_from_builder("emplacement_half_map_2_entry");
+         GFile *file   = gtk_file_chooser_get_file(chooser);
+         char *file_name = g_file_get_path(file);
+         gtk_editable_set_text(GTK_EDITABLE(entry), file_name);
+         gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
+      }
+
+      gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
+
+   };
+   g_signal_connect(dialog, "response", G_CALLBACK(on_map_filechooser_dialog_response), NULL);
+   gtk_widget_set_visible(dialog, TRUE);
 }
 
 extern "C" G_MODULE_EXPORT
@@ -6821,5 +7247,6 @@ on_button_clicked(GtkButton       *button,
 
    GtkWidget *dialog = widget_from_builder("ligand_check_dialog");
    gtk_widget_set_visible(dialog, FALSE);
-
 }
+
+

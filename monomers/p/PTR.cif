@@ -1,0 +1,221 @@
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+PTR PTR O-PHOSPHOTYROSINE peptide 27 17 .
+
+data_comp_PTR
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.alt_atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+PTR N   N   N NT3  1  46.350 12.037 -0.916
+PTR CA  CA  C CH1  0  44.890 11.783 -0.769
+PTR C   C   C C    0  44.100 13.030 -1.188
+PTR O   O   O O    0  43.017 12.847 -1.779
+PTR OXT OXT O OC   -1 44.594 14.141 -0.909
+PTR CB  CB  C CH2  0  44.548 11.351 0.662
+PTR CG  CG  C CR6  0  45.023 12.282 1.750
+PTR CD1 CD1 C CR16 0  46.261 12.104 2.355
+PTR CD2 CD2 C CR16 0  44.234 13.341 2.182
+PTR CE1 CE1 C CR16 0  46.710 12.952 3.358
+PTR CE2 CE2 C CR16 0  44.657 14.207 3.182
+PTR CZ  CZ  C CR6  0  45.901 14.002 3.767
+PTR OH  OH  O O2   0  46.433 14.816 4.784
+PTR P   P   P P    0  45.690 15.980 5.574
+PTR O1P O1P O O    0  45.366 17.047 4.557
+PTR O2P O2P O OP   -1 46.593 16.541 6.633
+PTR O3P O3P O OP   -1 44.424 15.447 6.179
+PTR H   H   H H    0  46.822 11.395 -0.473
+PTR H2  HN2 H H    0  46.563 12.856 -0.574
+PTR H3  H3  H H    0  46.576 12.016 -1.798
+PTR HA  HA  H H    0  44.643 11.044 -1.382
+PTR HB2 HB2 H H    0  44.939 10.465 0.816
+PTR HB3 HB3 H H    0  43.575 11.260 0.730
+PTR HD1 HD1 H H    0  46.811 11.390 2.077
+PTR HD2 HD2 H H    0  43.390 13.479 1.784
+PTR HE1 HE1 H H    0  47.555 12.814 3.753
+PTR HE2 HE2 H H    0  44.102 14.918 3.453
+
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+PTR N   CA  SINGLE n 1.487 0.0100 1.487 0.0100
+PTR CA  C   SINGLE n 1.533 0.0100 1.533 0.0100
+PTR CA  CB  SINGLE n 1.531 0.0100 1.531 0.0100
+PTR C   O   DOUBLE n 1.247 0.0187 1.247 0.0187
+PTR C   OXT SINGLE n 1.247 0.0187 1.247 0.0187
+PTR CB  CG  SINGLE n 1.508 0.0100 1.508 0.0100
+PTR CG  CD1 DOUBLE y 1.385 0.0110 1.385 0.0110
+PTR CG  CD2 SINGLE y 1.385 0.0110 1.385 0.0110
+PTR CD1 CE1 SINGLE y 1.385 0.0100 1.385 0.0100
+PTR CD2 CE2 DOUBLE y 1.385 0.0100 1.385 0.0100
+PTR CE1 CZ  DOUBLE y 1.384 0.0100 1.384 0.0100
+PTR CE2 CZ  SINGLE y 1.384 0.0100 1.384 0.0100
+PTR CZ  OH  SINGLE n 1.398 0.0160 1.398 0.0160
+PTR OH  P   SINGLE n 1.592 0.0187 1.592 0.0187
+PTR P   O1P DOUBLE n 1.509 0.0200 1.509 0.0200
+PTR P   O2P SINGLE n 1.509 0.0200 1.509 0.0200
+PTR P   O3P SINGLE n 1.509 0.0200 1.509 0.0200
+PTR N   H   SINGLE n 1.036 0.0160 0.911 0.0200
+PTR N   H2  SINGLE n 1.036 0.0160 0.911 0.0200
+PTR N   H3  SINGLE n 1.036 0.0160 0.911 0.0200
+PTR CA  HA  SINGLE n 1.089 0.0100 0.991 0.0200
+PTR CB  HB2 SINGLE n 1.089 0.0100 0.980 0.0164
+PTR CB  HB3 SINGLE n 1.089 0.0100 0.980 0.0164
+PTR CD1 HD1 SINGLE n 1.082 0.0130 0.943 0.0173
+PTR CD2 HD2 SINGLE n 1.082 0.0130 0.943 0.0173
+PTR CE1 HE1 SINGLE n 1.082 0.0130 0.943 0.0169
+PTR CE2 HE2 SINGLE n 1.082 0.0130 0.943 0.0169
+
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+PTR CA  N   H   109.646 1.54
+PTR CA  N   H2  109.646 1.54
+PTR CA  N   H3  109.646 1.54
+PTR H   N   H2  109.028 2.41
+PTR H   N   H3  109.028 2.41
+PTR H2  N   H3  109.028 2.41
+PTR N   CA  C   109.448 1.50
+PTR N   CA  CB  110.494 1.50
+PTR N   CA  HA  108.601 1.50
+PTR C   CA  CB  111.331 2.53
+PTR C   CA  HA  108.450 1.50
+PTR CB  CA  HA  108.690 1.50
+PTR CA  C   O   117.228 2.13
+PTR CA  C   OXT 117.228 2.13
+PTR O   C   OXT 125.543 1.50
+PTR CA  CB  CG  114.745 1.55
+PTR CA  CB  HB2 108.434 1.50
+PTR CA  CB  HB3 108.434 1.50
+PTR CG  CB  HB2 108.862 1.50
+PTR CG  CB  HB3 108.862 1.50
+PTR HB2 CB  HB3 107.782 1.50
+PTR CB  CG  CD1 121.122 1.50
+PTR CB  CG  CD2 121.122 1.50
+PTR CD1 CG  CD2 117.756 1.50
+PTR CG  CD1 CE1 121.394 1.50
+PTR CG  CD1 HD1 119.357 1.50
+PTR CE1 CD1 HD1 119.249 1.50
+PTR CG  CD2 CE2 121.394 1.50
+PTR CG  CD2 HD2 119.357 1.50
+PTR CE2 CD2 HD2 119.249 1.50
+PTR CD1 CE1 CZ  118.985 1.50
+PTR CD1 CE1 HE1 120.283 1.50
+PTR CZ  CE1 HE1 120.731 1.50
+PTR CD2 CE2 CZ  118.985 1.50
+PTR CD2 CE2 HE2 120.283 1.50
+PTR CZ  CE2 HE2 120.731 1.50
+PTR CE1 CZ  CE2 121.485 1.50
+PTR CE1 CZ  OH  119.257 3.00
+PTR CE2 CZ  OH  119.257 3.00
+PTR CZ  OH  P   124.779 1.73
+PTR OH  P   O1P 114.838 3.00
+PTR OH  P   O2P 114.838 3.00
+PTR OH  P   O3P 114.838 3.00
+PTR O1P P   O2P 112.139 1.52
+PTR O1P P   O3P 112.139 1.52
+PTR O2P P   O3P 112.139 1.52
+
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+PTR sp3_sp3_1       C   CA  N   H  180.000 10.0 3
+PTR const_14        CD2 CE2 CZ  OH 180.000 10.0 2
+PTR sp2_sp2_1       CE1 CZ  OH  P  180.000 5.0  2
+PTR sp3_sp3_19      O1P P   OH  CZ 180.000 10.0 3
+PTR sp2_sp3_1       O   C   CA  N  0.000   10.0 6
+PTR sp3_sp3_10      N   CA  CB  CG 180.000 10.0 3
+PTR sp2_sp3_8       CD1 CG  CB  CA -90.000 10.0 6
+PTR const_sp2_sp2_2 CE1 CD1 CG  CB 180.000 5.0  2
+PTR const_22        CE2 CD2 CG  CB 180.000 10.0 2
+PTR const_sp2_sp2_5 CG  CD1 CE1 CZ 0.000   5.0  2
+PTR const_17        CG  CD2 CE2 CZ 0.000   10.0 2
+PTR const_10        CD1 CE1 CZ  OH 180.000 10.0 2
+
+loop_
+_chem_comp_chir.comp_id
+_chem_comp_chir.id
+_chem_comp_chir.atom_id_centre
+_chem_comp_chir.atom_id_1
+_chem_comp_chir.atom_id_2
+_chem_comp_chir.atom_id_3
+_chem_comp_chir.volume_sign
+PTR chir_1 CA N  C   CB  positive
+PTR chir_2 P  OH O2P O3P both
+
+loop_
+_chem_comp_plane_atom.comp_id
+_chem_comp_plane_atom.plane_id
+_chem_comp_plane_atom.atom_id
+_chem_comp_plane_atom.dist_esd
+PTR plan-1 CB  0.020
+PTR plan-1 CD1 0.020
+PTR plan-1 CD2 0.020
+PTR plan-1 CE1 0.020
+PTR plan-1 CE2 0.020
+PTR plan-1 CG  0.020
+PTR plan-1 CZ  0.020
+PTR plan-1 HD1 0.020
+PTR plan-1 HD2 0.020
+PTR plan-1 HE1 0.020
+PTR plan-1 HE2 0.020
+PTR plan-1 OH  0.020
+PTR plan-2 C   0.020
+PTR plan-2 CA  0.020
+PTR plan-2 O   0.020
+PTR plan-2 OXT 0.020
+
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+PTR SMILES           ACDLabs              10.04 O=P(Oc1ccc(cc1)CC(C(=O)O)N)(O)O
+PTR SMILES_CANONICAL CACTVS               3.341 N[C@@H](Cc1ccc(O[P](O)(O)=O)cc1)C(O)=O
+PTR SMILES           CACTVS               3.341 N[CH](Cc1ccc(O[P](O)(O)=O)cc1)C(O)=O
+PTR SMILES_CANONICAL "OpenEye OEToolkits" 1.5.0 c1cc(ccc1C[C@@H](C(=O)O)N)OP(=O)(O)O
+PTR SMILES           "OpenEye OEToolkits" 1.5.0 c1cc(ccc1CC(C(=O)O)N)OP(=O)(O)O
+PTR InChI            InChI                1.03  InChI=1S/C9H12NO6P/c10-8(9(11)12)5-6-1-3-7(4-2-6)16-17(13,14)15/h1-4,8H,5,10H2,(H,11,12)(H2,13,14,15)/t8-/m0/s1
+PTR InChIKey         InChI                1.03  DCWXELXMIBXGTH-QMMMGPOBSA-N
+
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+PTR acedrg          243       "dictionary generator"
+PTR acedrg_database 11        "data source"
+PTR rdkit           2017.03.2 "Chemoinformatics tool"
+PTR refmac5         5.8.0238  "optimization tool"

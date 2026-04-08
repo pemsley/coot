@@ -1,0 +1,86 @@
+#
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+PO4     PO4      "PHOSPHATE ION"     NON-POLYMER     5     5     .     
+#
+data_comp_PO4
+#
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+PO4     P       P       P       0       29.978      23.532      13.276      
+PO4     O1      O       O       0       31.126      22.989      14.118      
+PO4     O2      O       OP      -1      30.372      24.882      12.690      
+PO4     O3      O       OP      -1      29.672      22.557      12.145      
+PO4     O4      O       OP      -1      28.741      23.699      14.151      
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+PO4           P          O1      DOUBLE       n     1.524  0.0200     1.524  0.0200
+PO4           P          O2      SINGLE       n     1.524  0.0200     1.524  0.0200
+PO4           P          O3      SINGLE       n     1.524  0.0200     1.524  0.0200
+PO4           P          O4      SINGLE       n     1.524  0.0200     1.524  0.0200
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+PO4          O1           P          O2     109.461    1.50
+PO4          O1           P          O3     109.461    1.50
+PO4          O1           P          O4     109.461    1.50
+PO4          O2           P          O3     109.461    1.50
+PO4          O2           P          O4     109.461    1.50
+PO4          O3           P          O4     109.461    1.50
+loop_
+_chem_comp_chir.comp_id
+_chem_comp_chir.id
+_chem_comp_chir.atom_id_centre
+_chem_comp_chir.atom_id_1
+_chem_comp_chir.atom_id_2
+_chem_comp_chir.atom_id_3
+_chem_comp_chir.volume_sign
+PO4    chir_1    P    O2    O3    O4    both
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+PO4           SMILES              ACDLabs 10.04                       "[O-]P([O-])([O-])=O"
+PO4 SMILES_CANONICAL               CACTVS 3.341                     "[O-][P]([O-])([O-])=O"
+PO4           SMILES               CACTVS 3.341                     "[O-][P]([O-])([O-])=O"
+PO4 SMILES_CANONICAL "OpenEye OEToolkits" 1.5.0                       "[O-]P(=O)([O-])[O-]"
+PO4           SMILES "OpenEye OEToolkits" 1.5.0                       "[O-]P(=O)([O-])[O-]"
+PO4            InChI                InChI  1.03 InChI=1S/H3O4P/c1-5(2,3)4/h(H3,1,2,3,4)/p-3
+PO4         InChIKey                InChI  1.03                 NBIIXXVUZAFLBC-UHFFFAOYSA-K
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+PO4 acedrg               243         "dictionary generator"                  
+PO4 acedrg_database      11          "data source"                           
+PO4 rdkit                2017.03.2   "Chemoinformatics tool"
+PO4 refmac5              5.8.0238    "optimization tool"                     

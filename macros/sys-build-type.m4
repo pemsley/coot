@@ -27,7 +27,7 @@ AC_MSG_CHECKING([build type])
 
 
 OS=`uname`
-systype=unknown 
+systype=unknown
 if test "$OS" = "Darwin" ; then
    osversion=`sw_vers -productVersion`
    # uname -a gives processor type in last field on Darwin
@@ -39,7 +39,7 @@ if test "$OS" = "MINGW32_NT-5.1" ; then
    systype=`uname -m`
 fi
 
-if test "$OS" = Linux ; then 
+if test "$OS" = Linux ; then
 
   architecture=$(uname -i)
   # uname -i and uname -p (strangely) return unknown on my ubuntu
@@ -89,29 +89,41 @@ if test "$OS" = Linux ; then
     ;;
 
 
-    sl ) 
+    sl )
       systype=${architecture}-scientific-linux-${dist_ver}
-      ;; 
+      ;;
 
 
     * )
-      if test -r /etc/issue; then
 
-dnl     $1 and $2 were being substituted to "" (nothing) and I
-dnl     couldn't see how to protect them.  So use cut, tr and head
-dnl     instead.
-dnl         dist_name=`awk 'NR==1{print tolower($1)}' /etc/issue`
-dnl         dist_ver=`awk 'NR==1{print tolower($2)}' /etc/issue`
+      if test -r /etc/os-release ; then
 
-        dist_name=`cut -d" " -f 1 /etc/issue | tr A-Z a-z | head -1`
-        dist_ver=` cut -d" " -f 2 /etc/issue | tr A-Z a-z | head -1`
-
-        if test "$dist_name" = "debian" ; then
-	   dist_ver=$(cut -d" " -f 3 /etc/issue | tr A-Z a-z | tr / - | head -1)
-        fi
-        systype=${architecture}-${dist_name}-${dist_ver}
+          dist_name=$(grep '^NAME=' /etc/os-release | cut -d'=' -f2 | tr -d '"' | tr -d ' ')
+          dist_ver=$(grep '^VERSION_ID=' /etc/os-release | cut -d'=' -f2 | tr -d '"')
+          # arch linux doesn't have VERSION_ID
+          if test -z "$dist_ver" ; then
+              dist_ver=default
+          fi
+          systype=${architecture}-${dist_name}-${dist_ver}
       else
-        systype=${architecture}-unknown-Linux
+          if test -r /etc/issue; then
+
+dnl           $1 and $2 were being substituted to "" (nothing) and I
+dnl           couldn't see how to protect them.  So use cut, tr and head
+dnl           instead.
+dnl           dist_name=`awk 'NR==1{print tolower($1)}' /etc/issue`
+dnl           dist_ver=`awk 'NR==1{print tolower($2)}' /etc/issue`
+
+              dist_name=`cut -d" " -f 1 /etc/issue | tr A-Z a-z | head -1`
+              dist_ver=` cut -d" " -f 2 /etc/issue | tr A-Z a-z | head -1`
+
+              if test "$dist_name" = "debian" ; then
+                  dist_ver=$(cut -d" " -f 3 /etc/issue | tr A-Z a-z | tr / - | head -1)
+              fi
+              systype=${architecture}-${dist_name}-${dist_ver}
+          else
+              systype=${architecture}-unknown-Linux
+          fi
       fi
     ;;
   esac
@@ -123,7 +135,7 @@ dnl echo :::::: systype has been set to $systype
 if test "$coot_python" = true ; then
    # echo setting python_tag to -python
    python_tag=-python
-else 
+else
    # echo setting python_tag to blank
    python_tag=
 fi

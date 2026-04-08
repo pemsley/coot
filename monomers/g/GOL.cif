@@ -1,0 +1,134 @@
+#
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+GOL     GOL      GLYCEROL     NON-POLYMER     14     6     .     
+#
+data_comp_GOL
+#
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+GOL     C1      C       CH2     0       29.630      3.832       30.945      
+GOL     O1      O       OH1     0       28.425      3.137       31.257      
+GOL     C2      C       CH1     0       30.401      3.142       29.840      
+GOL     O2      O       OH1     0       31.484      3.970       29.416      
+GOL     C3      C       CH2     0       30.919      1.777       30.241      
+GOL     O3      O       OH1     0       31.679      1.174       29.197      
+GOL     H11     H       H       0       30.196      3.882       31.753      
+GOL     H12     H       H       0       29.411      4.753       30.662      
+GOL     HO1     H       H       0       28.030      3.557       31.876      
+GOL     H2      H       H       0       29.790      3.020       29.074      
+GOL     HO2     H       H       0       32.019      4.078       30.068      
+GOL     H31     H       H       0       30.155      1.193       30.467      
+GOL     H32     H       H       0       31.486      1.869       31.045      
+GOL     HO3     H       H       0       31.160      1.020       28.546      
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+GOL          C1          O1      SINGLE       n     1.425  0.0100     1.425  0.0100
+GOL          C1          C2      SINGLE       n     1.514  0.0105     1.514  0.0105
+GOL          C2          O2      SINGLE       n     1.427  0.0100     1.427  0.0100
+GOL          C2          C3      SINGLE       n     1.514  0.0105     1.514  0.0105
+GOL          C3          O3      SINGLE       n     1.425  0.0100     1.425  0.0100
+GOL          C1         H11      SINGLE       n     1.089  0.0100     0.988  0.0200
+GOL          C1         H12      SINGLE       n     1.089  0.0100     0.988  0.0200
+GOL          O1         HO1      SINGLE       n     0.970  0.0120     0.846  0.0200
+GOL          C2          H2      SINGLE       n     1.089  0.0100     0.987  0.0186
+GOL          O2         HO2      SINGLE       n     0.970  0.0120     0.848  0.0200
+GOL          C3         H31      SINGLE       n     1.089  0.0100     0.988  0.0200
+GOL          C3         H32      SINGLE       n     1.089  0.0100     0.988  0.0200
+GOL          O3         HO3      SINGLE       n     0.970  0.0120     0.846  0.0200
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+GOL          O1          C1          C2     111.586    1.51
+GOL          O1          C1         H11     109.268    1.50
+GOL          O1          C1         H12     109.268    1.50
+GOL          C2          C1         H11     109.193    1.50
+GOL          C2          C1         H12     109.193    1.50
+GOL         H11          C1         H12     108.313    1.50
+GOL          C1          O1         HO1     108.280    3.00
+GOL          C1          C2          O2     110.247    1.72
+GOL          C1          C2          C3     113.504    1.50
+GOL          C1          C2          H2     108.441    1.50
+GOL          O2          C2          C3     110.247    1.72
+GOL          O2          C2          H2     108.721    1.50
+GOL          C3          C2          H2     108.441    1.50
+GOL          C2          O2         HO2     107.936    3.00
+GOL          C2          C3          O3     111.586    1.51
+GOL          C2          C3         H31     109.193    1.50
+GOL          C2          C3         H32     109.193    1.50
+GOL          O3          C3         H31     109.268    1.50
+GOL          O3          C3         H32     109.268    1.50
+GOL         H31          C3         H32     108.313    1.50
+GOL          C3          O3         HO3     108.280    3.00
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+GOL             sp3_sp3_1          C2          C1          O1         HO1     180.000    10.0     3
+GOL             sp3_sp3_4          O1          C1          C2          O2     180.000    10.0     3
+GOL            sp3_sp3_14          C1          C2          O2         HO2      60.000    10.0     3
+GOL            sp3_sp3_16          C1          C2          C3          O3     180.000    10.0     3
+GOL            sp3_sp3_25          C2          C3          O3         HO3     180.000    10.0     3
+loop_
+_chem_comp_chir.comp_id
+_chem_comp_chir.id
+_chem_comp_chir.atom_id_centre
+_chem_comp_chir.atom_id_1
+_chem_comp_chir.atom_id_2
+_chem_comp_chir.atom_id_3
+_chem_comp_chir.volume_sign
+GOL    chir_1    C2    O2    C1    C3    both
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+GOL           SMILES              ACDLabs 12.01                                 OCC(O)CO
+GOL SMILES_CANONICAL               CACTVS 3.370                                 OCC(O)CO
+GOL           SMILES               CACTVS 3.370                                 OCC(O)CO
+GOL SMILES_CANONICAL "OpenEye OEToolkits" 1.7.0                               C(C(CO)O)O
+GOL           SMILES "OpenEye OEToolkits" 1.7.0                               C(C(CO)O)O
+GOL            InChI                InChI  1.03 InChI=1S/C3H8O3/c4-1-3(6)2-5/h3-6H,1-2H2
+GOL         InChIKey                InChI  1.03              PEDCQBHIVMGVHV-UHFFFAOYSA-N
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+GOL acedrg               243         "dictionary generator"                  
+GOL acedrg_database      11          "data source"                           
+GOL rdkit                2017.03.2   "Chemoinformatics tool"
+GOL refmac5              5.8.0238    "optimization tool"                     

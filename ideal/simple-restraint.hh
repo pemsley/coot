@@ -29,9 +29,9 @@
 #include <list>
 #include <string>
 #include <stdexcept>
-#include <memory>
 
 #ifndef __NVCC__
+#include <memory>
 #include <thread>
 #include <atomic>
 #endif // __NVCC__
@@ -62,18 +62,12 @@ extern int getopt ();
 #endif // HAVE_BOOST
 #endif // __NVCC__
 
-#include "refinement-results-t.hh"
-
 #include <mmdb2/mmdb_manager.h>
-#include "coot-utils/bonded-pairs.hh"
-
-#include "parallel-planes.hh"
-
-#include "extra-restraints.hh"
-
-#include "model-bond-deltas.hh"
-
 #include "compat/coot-sysdep.h"
+#include "coot-utils/bonded-pairs.hh"
+#include "extra-restraints.hh"
+#include "model-bond-deltas.hh"
+#include "refinement-results-t.hh"
 
 // refinement_results_t is outside of the GSL test because it is
 // needed to make the accept_reject_dialog, and that can be compiled
@@ -167,6 +161,8 @@ namespace coot {
 
 #include "new-linked-residue-t.hh"
 
+#include "refinement-results-mini-stats.hh"
+
 
 // For Kevin's (Log) Ramachandran Plot and derivatives
 #include "lograma.h"
@@ -184,19 +180,6 @@ namespace coot {
 #define ATOM_INDEX_MAX 500000 // is that enough?
 
 namespace coot {
-
-
-   // restraint types:
-   //
-   enum restraint_type_t {BOND_RESTRAINT=1, ANGLE_RESTRAINT=2, TORSION_RESTRAINT=4, PLANE_RESTRAINT=8,
-                          NON_BONDED_CONTACT_RESTRAINT=16, CHIRAL_VOLUME_RESTRAINT=32, RAMACHANDRAN_RESTRAINT=64,
-                          START_POS_RESTRAINT=128,
-                          TARGET_POS_RESTRAINT=256, // restraint to make an atom be at a position
-                          PARALLEL_PLANES_RESTRAINT=512,
-                          GEMAN_MCCLURE_DISTANCE_RESTRAINT=1024,
-                          TRANS_PEPTIDE_RESTRAINT=2048,
-                          IMPROPER_DIHEDRAL_RESTRAINT=4096
-   };
 
    enum pseudo_restraint_bond_type {NO_PSEUDO_BONDS, HELIX_PSEUDO_BONDS,
                                     STRAND_PSEUDO_BONDS};
@@ -860,6 +843,7 @@ namespace coot {
       double distortion_score;
       simple_restraint restraint;
       std::vector<int> atom_indices;
+      std::vector<atom_spec_t> atom_specs;
       residue_spec_t residue_spec;
       friend std::ostream &operator<<(std::ostream &s, geometry_distortion_info_t);
 
@@ -884,6 +868,36 @@ namespace coot {
       bool initialised_p() const { return is_set; }
    };
    std::ostream &operator<<(std::ostream &s, geometry_distortion_info_t);
+
+   class geometry_distortion_info_pod_t {
+   public:
+      geometry_distortion_info_pod_t(double distortion_in,
+                                     const simple_restraint &rest_in,
+                                     const residue_spec_t &residue_spec_in) :
+         restraint(rest_in), residue_spec(residue_spec_in) {
+         distortion_score = distortion_in;
+         is_set = true;
+      }
+      geometry_distortion_info_pod_t(const simple_restraint &rest_in,
+                                     const refinement_results_mini_stats_t &mini_stats_in,
+                                     const residue_spec_t &residue_spec_in) :
+         restraint(rest_in), mini_stats(mini_stats_in), residue_spec(residue_spec_in) {
+         distortion_score = mini_stats.distortion;
+         is_set = true;
+      }
+      geometry_distortion_info_pod_t() {
+         is_set = false;
+         distortion_score = 0.0;
+      }
+      bool initialised_p; // chose one!
+      bool is_set;
+      simple_restraint restraint;
+      refinement_results_mini_stats_t mini_stats;
+      std::vector<atom_spec_t> atom_specs;
+      residue_spec_t residue_spec;
+      double distortion_score;
+      double get_distortion() const { return distortion_score; }
+   };
 
    class geometry_distortion_info_container_t {
    public:
@@ -919,12 +933,40 @@ namespace coot {
          min_resno = min_resno_in;
          max_resno = max_resno_in;
       }
-      int size () const { return geometry_distortion.size(); }
+      unsigned int size () const { return geometry_distortion.size(); }
       double print() const;  // return the total distortion
+      double print_using_atom_specs() const;  // safe version using stored atom_specs
       double distortion() const;  // return the total distortion
+      double distortion_sum() const; // return the sum of the distortions from the restraints - no calculation
+      geometry_distortion_info_t get_geometry_distortion_info(unsigned int idx) const;
       friend std::ostream &operator<<(std::ostream &s, geometry_distortion_info_container_t);
    };
    std::ostream &operator<<(std::ostream &s, geometry_distortion_info_container_t gdic);
+
+   class geometry_distortion_info_pod_container_t {
+   public:
+      std::vector<geometry_distortion_info_pod_t> geometry_distortion;
+      std::string chain_id;
+      int n_atoms;
+      int min_resno;
+      int max_resno;
+      geometry_distortion_info_pod_container_t() {
+         n_atoms = 0;
+         max_resno = 0;
+         min_resno = 0;
+      }
+      geometry_distortion_info_pod_container_t(const std::vector<geometry_distortion_info_pod_t> &geometry_distortion_in,
+                                               const std::string &chain_id_in) :
+         geometry_distortion(geometry_distortion_in), chain_id(chain_id_in) {
+         n_atoms = 0; // this is worrying - why is this not passed. Who uses this constructor?
+         max_resno = 0;
+         min_resno = 0;
+      }
+      double print() const;  // return the total distortion
+      unsigned int size () const { return geometry_distortion.size(); }
+      geometry_distortion_info_pod_t get_geometry_distortion_info(unsigned int idx) const;
+      double get_distortion() const;
+   };
 
    class omega_distortion_info_t {
    public:
@@ -972,11 +1014,17 @@ namespace coot {
                                        int idx_start, int idx_end, double *distortion);
    double distortion_score_bond(const simple_restraint &bond_restraint,
                                 const gsl_vector *v);
+   refinement_results_mini_stats_t
+   distortion_bond_mini_stats(const coot::simple_restraint &bond_restraint,
+                              const gsl_vector *v);
    double distortion_score_geman_mcclure_distance(const simple_restraint &bond_restraint,
                                                   const gsl_vector *v,
                                                   const double &alpha);
    double distortion_score_angle(const simple_restraint &angle_restraint,
                                  const gsl_vector *v);
+   refinement_results_mini_stats_t
+   distortion_angle_mini_stats(const coot::simple_restraint &bond_restraint,
+                               const gsl_vector *v);
    // torsion score can throw a std::runtime_error if there is a problem calculating the torsion.
 
    double distortion_score_torsion(unsigned int idx_restraint,
@@ -1143,15 +1191,7 @@ namespace coot {
             n_torsion_restr += r.n_torsion_restr;
             n_improper_dihedral_restr += r.n_improper_dihedral_restr;
          }
-         void report(bool do_residue_internal_torsions) {
-            std::cout << "created " << n_bond_restraints   << " bond       restraints " << std::endl;
-            std::cout << "created " << n_angle_restraints  << " angle      restraints " << std::endl;
-            std::cout << "created " << n_plane_restraints  << " plane      restraints " << std::endl;
-            std::cout << "created " << n_chiral_restr      << " chiral vol restraints " << std::endl;
-            std::cout << "created " << n_improper_dihedral_restr << " improper dihedral restraints " << std::endl;
-            if (do_residue_internal_torsions)
-               std::cout << "created " << n_torsion_restr << " torsion restraints " << std::endl;
-         }
+         void report(bool do_residue_internal_torsions) const;
       };
 
    private:
@@ -1724,6 +1764,15 @@ namespace coot {
       make_link_restraints_from_res_vec(const protein_geometry &geom,
                                         bool do_rama_plot_retraints,
                                         bool do_trans_peptide_restraints);
+
+      bonded_pair_container_t
+      make_link_restraints_by_distance(const protein_geometry &geom,
+                                        bool do_rama_plot_retraints,
+                                        bool do_trans_peptide_restraints);
+
+      bonded_pair_container_t
+      make_link_restraints_from_links(const protein_geometry &geom);
+
       // both of which use:
       int make_link_restraints_by_pairs(const protein_geometry &geom,
                                         const bonded_pair_container_t &bonded_residue_pairs,
@@ -1890,12 +1939,7 @@ namespace coot {
             n_link_torsion_restr += lrc.n_link_torsion_restr;
             n_link_improper_dihedral_restr += lrc.n_link_improper_dihedral_restr;
          }
-         void report() const {
-            std::cout << "   Made " << n_link_bond_restr    << " " << link_type << " bond restraints\n";
-            std::cout << "   Made " << n_link_angle_restr   << " " << link_type << " angle restraints\n";
-            std::cout << "   Made " << n_link_plane_restr   << " " << link_type << " plane restraints\n";
-            std::cout << "   Made " << n_link_trans_peptide << " " << link_type << " trans-peptide restraints\n";
-         }
+         void report() const;
       };
 
       class reduced_angle_info_container_t {
@@ -1923,6 +1967,7 @@ namespace coot {
                                  std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > *residue_link_count_map_p,
                                  std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > *residue_pair_link_set_p);
       bool N_and_C_are_close_ng(mmdb::Residue *res_1, mmdb::Residue *res_2, float d_crit) const;
+      bool O3prime_and_P_are_close_ng(mmdb::Residue *res_1, mmdb::Residue *res_2, float d_crit) const;
 
       std::pair<bool, link_restraints_counts> try_make_peptide_link_ng(const coot::protein_geometry &geom,
                                                                        std::pair<bool, mmdb::Residue *> res_1,
@@ -2310,8 +2355,12 @@ namespace coot {
       // geometric_distortions(restraint_usage_Flags flags);
 
       // Here we use the internal flags.  Causes crash currently (no inital atom positions?)
-      // 
+      //
       geometry_distortion_info_container_t geometric_distortions(bool keep_distortion_for_hydrogen_atom_restraints=true);
+
+      // Here we use the internal flags.
+      //
+      geometry_distortion_info_pod_container_t geometric_distortions_pod(bool include_distortion_for_hydrogen_atom_restraints=true);
 
       omega_distortion_info_container_t
       omega_trans_distortions(const protein_geometry &geom,
@@ -2448,12 +2497,13 @@ namespace coot {
       // We now have access to n_times_called: we want to do pre-sanitization
       // only when n_times_called is 1.
       //
+      // print_chi_sq_flag is not used, so one of these functions is redundant.
       refinement_results_t minimize(restraint_usage_Flags, int n_steps_max = 1000);
       refinement_results_t minimize(restraint_usage_Flags, int nsteps, short int print_chi_sq_flag);
       refinement_results_t minimize(int imol, restraint_usage_Flags usage_flags,
                                     int nsteps_max, short int print_initial_chi_sq_flag,
                                     const protein_geometry &geom);
-      refinement_results_t minimize_inner(restraint_usage_Flags, int nsteps, short int print_chi_sq_flag);
+      refinement_results_t minimize_inner(restraint_usage_Flags, int nsteps);
 
       refinement_results_t get_refinement_results(); // not const because setup_minimize()
 
