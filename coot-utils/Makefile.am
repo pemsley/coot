@@ -185,7 +185,8 @@ check_PROGRAMS = test-h-bonds testshelxreader test-hole test-elastic \
 		 make-cablam-like-stats test-cod-atom-types-from-sm-cif test-parse-pisa \
 		 test-coot-utils test-pae servalcat-tracker test-zd test-grid-balls \
 		 test-dirichlet-process test-born test-gmm test-nef-utils test-zernike \
-		 test-zernike-params test-zernike-nxmap test-zernike-search
+		 test-zernike-params test-zernike-nxmap test-zernike-search \
+		 test-coord-utils
 
 # wrong build order - delete from make check for now.
 # test-emma test-convolute test-coot-utils test-segmap
@@ -277,6 +278,17 @@ testshelxreader_LDADD =  ./libcoot-coord-utils.la    \
 # # other test binaries may need to be linked like this too
 test_coot_utils_SOURCES = test-coot-utils.cc
 test_coot_utils_LDADD = \
+	./libcoot-map-heavy.la    \
+	./libcoot-map-utils.la    \
+	./libcoot-coord-extras.la \
+	./libcoot-coord-utils.la  \
+	$(top_builddir)/mini-mol/libcoot-mini-mol.la \
+	$(top_builddir)/geometry/libcoot-geometry.la \
+	$(top_builddir)/utils/libcoot-utils.la \
+	$(CLIPPER_LIBS) $(CCP4SRS_LIBS) -lpthread
+
+test_coord_utils_SOURCES = test-coord-utils.cc
+test_coord_utils_LDADD = \
 	./libcoot-map-heavy.la    \
 	./libcoot-map-utils.la    \
 	./libcoot-coord-extras.la \
