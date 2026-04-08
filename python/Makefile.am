@@ -40,7 +40,7 @@ dist_pkgpython_PYTHON = \
    enhanced_ligand.py	gui_ligand_sliders.py coot_sharpen_blur.py    \
    coot_acedrg_link.py coot_toolbuttons.py rcrane_loader.py add_linked_cho.py coot_find_baddies.py \
    coot_chemical_feature_clusters.py coot_res_spec_utils.py coot_output_to_window.py \
-   populate_python_menus.py coot_hole.py refine.py what_check.py \
+   populate_python_menus.py coot_hole.py refine.py what_check.py coot_servalcat_outliers.py \
    coot_testing_utils.py point_group_symmetry.py gphl_screen.py \
    $(TEXI_FILE)
 
