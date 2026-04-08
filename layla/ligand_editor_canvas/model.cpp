@@ -564,11 +564,12 @@ RDGeom::INT_POINT2D_MAP CanvasMolecule::compute_molecule_geometry(bool omit_ster
     try {
         if(this->use_coordgen) {
             auto params = RDKit::CoordGen::defaultParams;
-            // params.templateMol = this->rdkit_molecule.get();
             params.dbg_useConstrained = true;
             params.dbg_useFixed = true;
+            // Match RDDepict's bond length (1.5 units).
+            // Coordgen uses ~50 internal units, so 50/1.5 = 33.33
+            params.coordgenScaling = 100.0 / 3.0;
             if(previous_coordinate_map) {
-                g_warning("TODO: Fix molecules flying around with Coordgen");
                 params.coordMap = *previous_coordinate_map;
             }
             conformer_id = RDKit::CoordGen::addCoords(*this->rdkit_molecule.get(), &params);
