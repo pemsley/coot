@@ -33,9 +33,12 @@ find_package(Python 3
   REQUIRED COMPONENTS Interpreter Development.Module
   OPTIONAL_COMPONENTS Development.SABIModule)
 
-# This is flaky.
-# If it doesn't work, first try setting nanobind_DIR to wherever_your_python_is/lib/python3.$your_python_version/site-packages/nanobind/cmake
-# If that doesn't work, make sure that CMAKE_INSTALL_PREFIX is set
+# Prefer nanobind's own cmake directory inside its Python package so that
+# NB_DIR resolves correctly and the bundled robin_map is found.
+# The system /usr/lib/cmake/nanobind/ breaks NB_DIR's relative path logic.
+if(NOT nanobind_DIR)
+  set(nanobind_DIR "${Python_SITELIB}/nanobind/cmake")
+endif()
 find_package(nanobind CONFIG REQUIRED)
 
 # only via homebrew on macOS (not tried to compile them myself) - see below also though.
