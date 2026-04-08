@@ -37,7 +37,9 @@ find_package(Python 3
 # NB_DIR resolves correctly and the bundled robin_map is found.
 # The system /usr/lib/cmake/nanobind/ breaks NB_DIR's relative path logic.
 if(NOT nanobind_DIR)
-  set(nanobind_DIR "${Python_SITELIB}/nanobind/cmake")
+  # Use Python_STDLIB (not Python_SITELIB) so this works inside venvs too,
+  # since venvs share the system stdlib but have their own site-packages.
+  set(nanobind_DIR "${Python_STDLIB}/site-packages/nanobind/cmake")
 endif()
 find_package(nanobind CONFIG REQUIRED)
 
