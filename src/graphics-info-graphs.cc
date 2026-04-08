@@ -608,6 +608,52 @@ graphics_info_t::get_validation_data_for_geometry_analysis(int imol) {
 }
 
 coot::validation_information_t
+get_validation_data_for_ncs_analysis(int imol) {
+
+   coot::validation_information_t vi;
+   vi.name = "NCS Differences";
+   vi.type = coot::graph_data_type::UNSET;
+
+   graphics_info_t g;
+   if (! g.is_valid_model_molecule(imol)) return vi;
+
+   std::pair<bool, std::string> master_info = g.molecules[imol].first_ncs_master_chain_id();
+   if (! master_info.first) return vi;
+
+   std::string master_chain_id = master_info.second;
+   float main_chain_weight = 1.0;
+   coot::ncs_differences_t diff = g.molecules[imol].ncs_chain_differences(master_chain_id, main_chain_weight);
+
+   for (unsigned int i=0; i<diff.diffs.size(); i++) {
+      const coot::ncs_chain_difference_t &chain_diff = diff.diffs[i];
+      coot::chain_validation_information_t cvi(chain_diff.peer_chain_id);
+      cvi.name = chain_diff.peer_chain_id + " vs " + master_chain_id;
+      for (unsigned int j=0; j<chain_diff.residue_info.size(); j++) {
+         const coot::ncs_residue_info_t &ri = chain_diff.residue_info[j];
+         if (ri.filled) {
+            coot::residue_spec_t res_spec(chain_diff.peer_chain_id, ri.resno, ri.inscode);
+            res_spec.int_user_data = imol;
+            mmdb::Atom *at = g.molecules[imol].atom_intelligent(chain_diff.peer_chain_id, ri.resno, ri.inscode);
+            std::string atom_name = " CA ";
+            std::string altconf = "";
+            if (at) {
+               atom_name = at->name;
+               altconf = at->altLoc;
+            }
+            coot::atom_spec_t atom_spec(chain_diff.peer_chain_id, ri.resno, ri.inscode, atom_name, altconf);
+            std::string res_label = std::to_string(ri.resno) + chain_diff.peer_chain_id;
+            coot::residue_validation_information_t rvi(res_spec, atom_spec, ri.mean_diff, res_label);
+            cvi.add_residue_validation_information(rvi);
+         }
+      }
+      vi.cviv.push_back(cvi);
+   }
+
+   vi.set_min_max();
+   return vi;
+}
+
+coot::validation_information_t
 get_validation_data(int imol, coot::validation_graph_type type) {
 
    graphics_info_t g;
@@ -629,6 +675,8 @@ get_validation_data(int imol, coot::validation_graph_type type) {
       vi = get_validation_data_for_peptide_omega_analysis(imol);
    if (type == coot::validation_graph_type::geometry)
       vi = g.get_validation_data_for_geometry_analysis(imol);
+   if (type == coot::validation_graph_type::ncs)
+      vi = get_validation_data_for_ncs_analysis(imol);
 
    return vi;
 
