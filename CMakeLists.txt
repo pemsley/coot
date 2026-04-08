@@ -505,8 +505,8 @@ find_library(MAEPARSER_LIBS maeparser)
 if(MAEPARSER_LIBS)
     get_filename_component(MAEPARSER_DIR ${MAEPARSER_LIBS} DIRECTORY)
     target_link_directories(cootapi PUBLIC ${MAEPARSER_DIR})
+    target_link_libraries(cootapi PUBLIC ${MAEPARSER_LIBS})
 endif()
-target_link_libraries(cootapi PUBLIC ${MAEPARSER_LIBS})
 
 nanobind_add_module(coot_headless_api ${coot_src}/api/molecules-container-nanobind.cc
                                       ${coot_src}/api/molecules-container-nanobind-functions.cc)
