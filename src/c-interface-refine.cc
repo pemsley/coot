@@ -412,7 +412,7 @@ PyObject *residues_distortions_py(int imol, PyObject *residue_specs_list_py) {
 	 if (residues.size() > 0) {
 	    graphics_info_t g;
 	    int imol_map = g.Imol_Refinement_Map();
-	    if (! is_valid_map_molecule(imol_map)) { 
+	    if (! is_valid_map_molecule(imol_map)) {
 	       add_status_bar_text("Refinement map not set");
 	    } else {
 	       // normal

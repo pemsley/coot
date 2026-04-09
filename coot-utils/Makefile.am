@@ -48,7 +48,7 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
 	stb_image.h stb_image_write.h glyco-tree.hh positron.hh mini-texture.hh texture-as-floats.hh pae.hh q-score.hh \
 	acedrg-types-for-residue.hh gl-matrix.h ortep.hh coot-align.hh grid-balls.hh dict-link-info.hh \
         dirichlet-process.hh cfc.hh cremer-pople.hh born.hh inchikey-store.hh cylinder-utils.hh gmm.hh nef-utils.hh ptm-database.hh \
-	read-amber-trajectory.hh
+	read-amber-trajectory.hh rebox-map.hh
 
 
 pkgincludedir = $(includedir)/coot/coot-utils
@@ -144,7 +144,8 @@ libcoot_coord_extras_la_LDFLAGS = $(SHARED_LDFLAGS)
 libcoot_map_utils_la_SOURCES = coot-map-utils.cc peak-search.cc peak-search-from-list.cc trim.cc \
 	xmap-stats.cc maps-spherical.cc pepflip-using-difference-map.cc exp-fit.cc blob-line.cc \
         slurp-map.cc find-water-baddies.cc diff-diff-map-peaks.cc mini-texture.cc positron.cc \
-        texture-as-floats.cc merge-C-and-N-terminii.cc born.cc
+        texture-as-floats.cc merge-C-and-N-terminii.cc born.cc rebox-map.cc \
+        crowther.cc patterson.cc
 
 
 # should libcoot-coord-utils link $CLIPPER_LIBS directly? (Hence CLIPPER_LIBS is not needed here)
@@ -184,7 +185,8 @@ check_PROGRAMS = test-h-bonds testshelxreader test-hole test-elastic \
 		 make-cablam-like-stats test-cod-atom-types-from-sm-cif test-parse-pisa \
 		 test-coot-utils test-pae servalcat-tracker test-zd test-grid-balls \
 		 test-dirichlet-process test-born test-gmm test-nef-utils test-zernike \
-		 test-zernike-params test-zernike-nxmap test-zernike-search
+		 test-zernike-params test-zernike-nxmap test-zernike-search \
+		 test-coord-utils
 
 # wrong build order - delete from make check for now.
 # test-emma test-convolute test-coot-utils test-segmap
@@ -276,6 +278,17 @@ testshelxreader_LDADD =  ./libcoot-coord-utils.la    \
 # # other test binaries may need to be linked like this too
 test_coot_utils_SOURCES = test-coot-utils.cc
 test_coot_utils_LDADD = \
+	./libcoot-map-heavy.la    \
+	./libcoot-map-utils.la    \
+	./libcoot-coord-extras.la \
+	./libcoot-coord-utils.la  \
+	$(top_builddir)/mini-mol/libcoot-mini-mol.la \
+	$(top_builddir)/geometry/libcoot-geometry.la \
+	$(top_builddir)/utils/libcoot-utils.la \
+	$(CLIPPER_LIBS) $(CCP4SRS_LIBS) -lpthread
+
+test_coord_utils_SOURCES = test-coord-utils.cc
+test_coord_utils_LDADD = \
 	./libcoot-map-heavy.la    \
 	./libcoot-map-utils.la    \
 	./libcoot-coord-extras.la \

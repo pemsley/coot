@@ -4,6 +4,7 @@
 
 #include "utils/base64-encode-decode.hh"
 #include "ligand/wligand.hh"
+#include "coot-utils/json.hpp"
 
 #include "molecules-container.hh"
 
@@ -508,6 +509,75 @@ molecules_container_t::get_eigenvalues(int imol, const std::string &chain_id, in
    return v;
 }
 
+std::string
+molecules_container_t::get_eigenvectors_and_eigenvalues(int imol, const std::string &cid) {
+
+   using json = nlohmann::json;
+   if (!is_valid_model_molecule(imol)) return std::string();
+
+   mmdb::Manager *mol = molecules[imol].atom_sel.mol;
+   if (!mol) return std::string();
+
+   int selhandle = mol->NewSelection();
+   mol->Select(selhandle, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_NEW);
+
+   mmdb::Atom **selected_atoms = nullptr;
+   int n_selected = 0;
+   mol->GetSelIndex(selhandle, selected_atoms, n_selected);
+
+   std::vector<double> x, y, z;
+   for (int i=0; i<n_selected; i++) {
+      mmdb::Atom *at = selected_atoms[i];
+      if (!at->isTer()) {
+         x.push_back(at->x);
+         y.push_back(at->y);
+         z.push_back(at->z);
+      }
+   }
+   mol->DeleteSelection(selhandle);
+
+   if (x.empty()) return std::string();
+
+   coot::stats::single stats_x(x);
+   coot::stats::single stats_y(y);
+   coot::stats::single stats_z(z);
+   double x_mean = stats_x.mean();
+   double y_mean = stats_y.mean();
+   double z_mean = stats_z.mean();
+
+   clipper::Matrix<double> mat(3,3);
+   for (unsigned int i=0; i<x.size(); i++) {
+      double dx = x[i] - x_mean;
+      double dy = y[i] - y_mean;
+      double dz = z[i] - z_mean;
+      mat(0,0) += dx * dx;
+      mat(1,1) += dy * dy;
+      mat(2,2) += dz * dz;
+      mat(0,1) += dx * dy;
+      mat(0,2) += dx * dz;
+      mat(1,2) += dy * dz;
+   }
+   mat(1,0) = mat(0,1);
+   mat(2,0) = mat(0,2);
+   mat(2,1) = mat(1,2);
+
+   // sort_eigenvalues=true: ascending order (smallest first).
+   // After the call, mat contains the eigenvectors as columns.
+   std::tuple<double, double, double> eigens = coot::fast_eigens(mat, true);
+
+   // mat columns are eigenvectors: column i is (mat(0,i), mat(1,i), mat(2,i))
+   // eigenvalue[0] is smallest (thinnest axis), eigenvalue[2] is largest.
+   json j;
+   j["centroid"] = {x_mean, y_mean, z_mean};
+   j["eigenvalues"] = {std::get<0>(eigens), std::get<1>(eigens), std::get<2>(eigens)};
+   j["eigenvectors"] = {
+      {mat(0,0), mat(1,0), mat(2,0)},
+      {mat(0,1), mat(1,1), mat(2,1)},
+      {mat(0,2), mat(1,2), mat(2,2)}
+   };
+
+   return j.dump();
+}
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #include "lidia-core/rdkit-interface.hh"

@@ -37,6 +37,7 @@
 #include "phi-psi-prob.hh"
 #include "instancing.hh"
 #include "coot-colour.hh" // put this in utils
+#include "ligand/molecular-replacement.hh"  // coot::mr_solution_t, glm/gtc/quaternion.hpp
 #include "saved-strand-info.hh"
 #include "svg-store-key.hh"
 #include "moorhen-h-bonds.hh"
@@ -50,6 +51,7 @@ class molecules_container_t {
    std::vector<coot::molecule_t> molecules;
    coot::protein_geometry geom;
    coot::rotamer_probability_tables rot_prob_tables;
+   bool ospray_is_initialized;
    ramachandrans_container_t ramachandrans_container;
    static std::atomic<bool> on_going_updating_map_lock;
    bool draw_missing_residue_loops_flag;
@@ -596,6 +598,19 @@ public:
    //! @return the eigenvalues of the atoms in the specified residue
    std::vector<double> get_eigenvalues(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
 
+   //! Get the eigenvectors and eigenvalues for atoms matching an mmdb CID selection.
+   //!
+   //! The eigenvectors and eigenvalues are computed from the covariance matrix of the atomic
+   //! coordinates. The eigenvalues are sorted in ascending order (smallest first), so
+   //! eigenvector[0] corresponds to the thinnest axis and eigenvector[2] to the widest.
+   //!
+   //! @param imol is the model molecule index
+   //! @param cid is an mmdb selection CID, e.g. "//C/405"
+   //!
+   //! @return a JSON string with keys "centroid" (3-array), "eigenvalues" (3-array, ascending),
+   //! "eigenvectors" (array of 3 vectors, each a 3-array). Returns empty string if no atoms found.
+   std::string get_eigenvectors_and_eigenvalues(int imol, const std::string &cid);
+
    //! Get a simple test mesh
    //!
    //! @return the mesh of a unit solid cube at the origin
@@ -614,6 +629,13 @@ public:
 #else
    //! don't use this in ecmascript
    mmdb::Manager *get_mol(unsigned int imol) const;
+#endif
+
+// we don't want this in the nanobinds
+#ifdef NB_VERSION_MAJOR
+#else
+   // no protection, for testing only
+   clipper::Xmap<float> get_xmap(int imol) const;
 #endif
 
    //! Fill the rotamer probability tables (currently not ARG and LYS)
@@ -932,6 +954,17 @@ public:
    //!   "element"
    std::string get_molecule_selection_as_json(int imol, const std::string &cid) const;
 
+   //! Get torsion angles (phi, psi, tau, chi) for residues in a chain
+   //!
+   //! Residues are omitted if phi/psi cannot be calculated (terminal residues) or if any atom has an alt-conf.
+   //! Tau is the N-CA-C bond angle.
+   //!
+   //! @param imol is the model molecule index
+   //! @param chain_id e.g. "A"
+   //!
+   //! @return a JSON string containing an array of residue torsion angle data
+   std::string get_torsions_for_residues_in_chain(int imol, const std::string &chain_id) const;
+
    //! Write a PNG for the given compound_id.
    //!
    //! Currently this function does nothing (drawing is done with the not-allowed cairo)
@@ -1088,6 +1121,42 @@ public:
    //! @param imol is the model molecule index
    //! @param metalicity is the factor for the roughness (0.0 to 1.0)
    void set_gltf_pbr_metalicity_factor(int imol, float metalicity);
+
+   //! Initialise the OSPRay ray-tracing engine. Call this before ray_trace_image().
+   void ray_trace_init();
+
+   //! Shut down the OSPRay ray-tracing engine.
+   void ray_trace_shutdown();
+
+   //! Ray-trace molecules using OSPRay and write a PNG image file
+   //!
+   //! @param json_str is a JSON string specifying the molecules and rendering parameters.
+   //!
+   //! Example JSON:
+   //! ```json
+   //! {
+   //!    "molecules": {
+   //!       "0": {"style": "bonds", "colour_mode": "COLOUR-BY-CHAIN-AND-DICTIONARY",
+   //!             "bonds_width": 0.12, "atom_radius_to_bond_width_ratio": 1.5},
+   //!       "1": {"style": "lines", "map_radius": 12.0, "map_contour_level": 1.5,
+   //!             "map_line_width": 0.02, "map_colour": [0.3, 0.5, 0.8]},
+   //!       "2": {"style": "Ribbon", "colour_scheme": "colorRampChainsScheme",
+   //!             "cid": "//", "secondary_structure_usage_flag": 2}
+   //!    },
+   //!    "image_width": 1024,
+   //!    "image_height": 768,
+   //!    "output_file": "coot-ray-trace.png",
+   //!    "background_colour": [1.0, 1.0, 1.0, 1.0],
+   //!    "n_accumulation_frames": 16,
+   //!    "eigenvectors": [[e0x, e0y, e0z], [e1x, e1y, e1z], [e2x, e2y, e2z]]
+   //! }
+   //! ```
+   //!
+   //! When "eigenvectors" is provided (sorted by ascending eigenvalue) and "orthogonal_views"
+   //! is true, the views are oriented along the principal axes: front looks along the thinnest
+   //! axis (eigenvector[0]), side along the widest (eigenvector[2]), top along the middle
+   //! (eigenvector[1]).
+   void ray_trace_image(const std::string &json_str);
 
    //! Get colour table (for testing)
    //!
@@ -2352,6 +2421,41 @@ public:
    //! was a problem finding the molecule or atoms.
    double get_radius_of_gyration(int imol) const;
 
+   //! A single molecular replacement solution
+   struct mr_solution_t {
+      glm::quat rotation;              ///< orientation (quaternion)
+      float rotation_score;             ///< rotation function score
+      clipper::Coord_orth translation;  ///< position in map coordinates
+      float translation_score;          ///< translation function sigma score
+      float mean_density_at_ca;         ///< mean map density at CA (protein) and C1' (nucleic acid) positions
+      int imol;                         ///< molecule index of the placed model (-1 if not written)
+      std::string pdb_filename;         ///< filename of the written PDB
+      mr_solution_t() : rotation(glm::quat(1,0,0,0)), rotation_score(0.0f),
+                         translation(0,0,0), translation_score(0.0f),
+                         mean_density_at_ca(0.0f), imol(-1) {}
+   };
+
+   //! Molecular replacement: fit a model into a cryo-EM map
+   //!
+   //! Given a map molecule, a model molecule, and a target position (the user's
+   //! screen centre), determine the orientation and position that best fit the
+   //! model into the density around that point.
+   //!
+   //! @param imol_map is the map molecule index (cryo-EM map)
+   //! @param imol_model is the model molecule index (search fragment)
+   //! @param x the x-coordinate of the target position
+   //! @param y the y-coordinate of the target position
+   //! @param z the z-coordinate of the target position
+   //! @param n_rotation_solutions the number of top rotation solutions to refine and translate (default 10)
+   //! @param n_translation_solutions the number of top translation solutions per rotation (default 10)
+   //!
+   //! @return a vector of MR solutions sorted by translation score, with PDB files written
+   //!         for the top solutions. Also writes a summary table to stdout.
+   std::vector<mr_solution_t> molecular_placement_fit(int imol_map, int imol_model,
+                                                      float x, float y, float z,
+                                                      int n_rotation_solutions = 10,
+                                                      int n_translation_solutions = 10);
+
    //! Copy the molecule
    //!
    //! @param imol the specified molecule
@@ -2400,6 +2504,16 @@ public:
                                               float m20, float m21, float m22,
                                               float c0, float c1, float c2, // the centre of the rotation
                                               float t0, float t1, float t2); // translation
+
+   //! Apply a translation to all the atoms in the molecule
+   //!
+   //! @param imol is the model molecule index
+   //! @param tx is the x component of the translation in Angstroms
+   //! @param ty is the y component of the translation in Angstroms
+   //! @param tz is the z component of the translation in Angstroms
+   //!
+   //! @return true on success, false on failure
+   bool apply_translation_to_molecule(int imol, float tx, float ty, float tz);
 
    //! Update the positions of the atoms in the residue
    //!
@@ -3831,6 +3945,23 @@ public:
    // -------------------------------- Other ---------------------------------------
 
    void test_function(const std::string &s);
+
+   //! Rebox a map to a cubic box around the atoms in the model selection.
+   //!
+   //! Create a new P1 cubic map whose grid spacing matches the original map, tightly enclosing
+   //! the selected atoms plus a border. The map density is filled by cubic interpolation from
+   //! the original map.
+   //!
+   //! @param imol_model is the model molecule index
+   //! @param atom_selection_cid is the atom selection CID, e.g. "//A" for chain A, "//" for all atoms
+   //! @param imol_map is the map molecule index
+   //! @param border is the padding in Angstroms beyond the atom extents
+   //! @param n_pixels_per_edge is the number of grid points along each edge (0 = auto-determine from grid spacing)
+   //!
+   //! @return a JSON string containing "molecule_number" (the new map index) and "offset" (the translation
+   //!         applied to the map origin as [x, y, z])
+   std::string rebox_map(int imol_model, const std::string &atom_selection_cid,
+                         int imol_map, float border, unsigned int n_pixels_per_edge);
 
 #if NB_VERSION_MAJOR
    // skip this (old) block for nanobinds

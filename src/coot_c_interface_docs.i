@@ -1158,6 +1158,22 @@ istate : int
 return the state model-fit-refine dialog stays on top
 ";
 
+%feature("docstring") set_accept_reject_dialog_docked "
+set the accept/reject dialog docked state - no longer functional
+
+Parameters
+----------
+state : int
+";
+
+%feature("docstring") set_accept_reject_dialog_docked_show "
+set the accept/reject dialog docked show state - no longer functional
+
+Parameters
+----------
+state : int
+";
+
 %feature("docstring") quanta_buttons "
 quanta-like buttons
 
@@ -1904,7 +1920,7 @@ imol : int
 %feature("docstring") set_map_sampling_rate_text "
 sampling rate
 
-find the molecule for which the single map dialog applies and set the contour level and redraw
+find the molecule for which the single map dialog applies and set the contour level and redraw. This is for use by a GUI callback - not for user use
 
 Parameters
 ----------
@@ -1912,7 +1928,15 @@ text : str
 ";
 
 %feature("docstring") set_map_sampling_rate "
-set the map sampling rate (default 1.5)
+set the map sampling rate (default 1.8)
+
+set_map_sampling_rate(float r)
+
+Set the Shannon Limit multiplier for map sampling (default 1.8).
+
+The Shannon (Nyquist) sampling theorem requires that a map be sampled at least twice per resolution cycle (d_min/2) to faithfully represent all frequencies present. This parameter sets the multiplier above that theoretical minimum — so the default of 1.5 means maps are sampled at 1.5 × the Shannon limit (i.e., grid spacing = d_min / 3.0).
+
+Higher values (e.g. 2.0–2.5) produce more finely sampled maps, which can be useful for low-resolution baton-building or visual inspection, since they are more visually attractive-looking, at the cost of larger map files and slower computation.
 
 Set to something like 2.0 or 2.5 for more finely sampled maps. Useful for baton-building low resolution maps.
 
@@ -4827,12 +4851,16 @@ alt_conf : str
 %feature("docstring") refine_residues_py "
 refine the residues in the given residue spec list
 
-the refinement summary statistics
+  imol  is the molecule index   rl  is a Python list of residue specs, where a residue spec is a list of [ chain_id , res_no , ins_code ] When using this function from scripting, make sure that set_refinement_immediate_replacement(1) is called first.
+
+False if restraints could not be set up, or a list of 3 elements on success:  [0] info_text (string): refinement information text [1] progress (int): refinement progress indicator. 0: GSL_SUCCESS: means refinement was successfully completed -2: GSL_CONTINUE: means refinement was successful, but didn't terminate (so more cycles needed) 27: GSL_ENOPROG: iteration is not making progress towards solution [2] lights (list or False): False if empty, otherwise a list of [ name , label , value ] triples where name and label are strings and value is a float
 
 Parameters
 ----------
 imol : int
-r : object
+    is the molecule index
+rl : object
+    is a Python list of residue specs, where a residue spec is a list of [ chain_id , res_no , ins_code ]
 ";
 
 %feature("docstring") refine_residues_with_modes_with_alt_conf_py "
@@ -5267,7 +5295,9 @@ set the type of secondary structure restraints
 
 1 alpha helix restraints
 
-2 beta strand restraints
+2 beta strand restraints.
+
+Call this before refine_residues_py() to maintain secondary structure geometry during real-space refinement. Reset to 0 after refinement to avoid affecting subsequent refinement operations.
 
 Parameters
 ----------
@@ -5281,7 +5311,7 @@ return the secondary structure restraints type
 %feature("docstring") imol_refinement_map "
 the molecule number of the map used for refinement
 
-the map number, if it has been set or there is only one map, return -1 on no map set (ambiguous) or no maps.
+the map number, if it has been set or there is only one map, otherwise return -1 on no map set (ambiguous) or no maps.
 ";
 
 %feature("docstring") set_imol_refinement_map "
@@ -7302,6 +7332,16 @@ return -1 on bad imol.
 Parameters
 ----------
 imol : int
+";
+
+%feature("docstring") get_hydrogen_bonds_py "
+
+Parameters
+----------
+imol : int
+selection_1 : str
+selection_2 : str
+mcdonald_and_thornton_algoritnm : int
 ";
 
 %feature("docstring") set_draw_stick_mode_atoms "

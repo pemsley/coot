@@ -5,9 +5,9 @@
 @c %**start of header
 @setfilename coot.info
 @settitle The Coot User Manual
-@c %**end of header 
+@c %**end of header
 
-@dircategory The molecular graphics application Coot 
+@dircategory The molecular graphics application Coot
 @direntry
 * Coot: (coot-user-manual).  The Coot User Manual.
 @end direntry
@@ -31,9 +31,9 @@
 @c generates a table of contents.
 
 @copying
-This Manual is for Coot version 0.7 and beyond
+This Manual is for Coot version 1.2 and beyond
 
-Copyright @copyright{} 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 Paul Emsley
+Copyright @copyright{} 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2026 Paul Emsley
 
 @end copying
 
@@ -42,7 +42,7 @@ Copyright @copyright{} 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 201
 @title The Coot User Manual
 
 @flushright
-Paul Emsley 
+Paul Emsley
 @email{pemsley at mrc dash lmb dot cam dot ac dot uk}
 @end flushright
 
@@ -50,14 +50,12 @@ Paul Emsley
 
 @image{coot-plain-2,127mm}
 
-     
-@c The following two commands start the copyright page. 
+@c The following two commands start the copyright page.
 @page
 @vskip 0pt plus 1filll
 @insertcopying
 @end titlepage
 
-     
 @c Output the table of contents at the beginning.
 @contents
 
@@ -90,7 +88,6 @@ Paul Emsley
 * Scripting Functions::
 * More Scripting Functions::
 * More Refinement Scripting Functions::
-* Scheme Scripting Functions::
 * Concept Index::   Concept index.
 * Function Index::   Function index.
 
@@ -148,7 +145,6 @@ General Features
 Scripting
 
 * Python::
-* Scheme::
 * Coot State::
 * Key Binding::
 * User-Defined Functions::
@@ -229,7 +225,7 @@ Modelling and Building
 * Moving Molecules/Ligands::
 * Modifying the Labels on the Model/Fit/Refine dialog::
 
-Regularization and Real Space Refinement 
+Regularization and Real Space Refinement
 
 * Dictionary::
 * Sphere Refinement::
@@ -238,7 +234,7 @@ Regularization and Real Space Refinement
 * The UNK residue type::
 * Moving Zero Occupancy Atoms::
 
-Map-Related Features 
+Map-Related Features
 
 * Maps in General::
 * Create a Map::
@@ -261,7 +257,7 @@ Map-Related Features
 * Map Transformation::
 * Export Map::
 
-Validation 
+Validation
 
 * Ramachandran Plots::
 * Chiral Volumes::
@@ -297,7 +293,7 @@ Other Programs
 @node    Introduction
 @chapter Introduction
 @c -------------------------------------------------------------
-     
+
 This document is the Coot User Manual, giving an overview of the
 interactive features.  Other documentation includes the
 @cindex reference manual
@@ -363,11 +359,11 @@ If using "SSM Superposition", please cite:
 
 
 
-The reference for the the Electron Density Server is: 
+The reference for the the Electron Density Server is:
 
 @quotation
 GJ Kleywegt, MR Harris, JY Zou, TC Taylor, A W@"ahlby,  TA Jones (2004),
-"The Uppsala Electron-Density Server", 
+"The Uppsala Electron-Density Server",
 @emph{Acta Crystallographica Section D-Biological Crystallography} @strong{60}, 2240-2249.
 
 Please also cite the primary literature for the received structures.
@@ -419,7 +415,7 @@ Coot certainly runs on RedHat Linux of various sorts, Fedora, Ubuntu,
 Debian, SuSe Linux and MacOS X.  There is also a Window port (called
 WinCoot).
 
-@c @footnote{including Cygwin, but currently coot is ``unstable'' on a Cygwin system.}.  
+@c @footnote{including Cygwin, but currently coot is ``unstable'' on a Cygwin system.}.
 
 If you want to port to some other operating system, you are welcome
 @footnote{it's Free Software after all and I could give you a
@@ -438,25 +434,20 @@ Coot responds to several environment variables that modify its
 behaviour.
 
 @itemize
-@item @env{COOT_STANDARD_RESIDUES} 
+@item @env{COOT_STANDARD_RESIDUES}
   The filename of the pdb file
   containing the standard amino acid residues in ``standard
   conformation'' @footnote{as it is known in Clipper.}
-@item @env{COOT_SCHEME_DIR} 
-  The directory containing standard (part of the distribution) scheme
-  files 
-@item @env{COOT_SCHEME_EXTRAS_DIR} 
-  A ':'-separated list of directories containing bespoke scheme files.
+@item @env{COOT_PYTHON_DIR}
+  The directory containing standard (part of the distribution) Python
+  files
+@item @env{COOT_PYTHON_EXTRAS_DIR}
+  A ':'-separated list of directories containing bespoke Python files.
   This variable is not set by default.  If you set it, Coot will test
-  each ':'-separated string that it points to a directory, and if it does, 
-  Coot will load all the @t{.scm} files in that directory.
-@item @env{COOT_PYTHON_EXTRAS_DIR} 
-  A ':'-separated list of directories containing bespoke python files.
-  This variable is not set by default.  If you set it, Coot will test
-  each ':'-separated string that it points to a directory, and if it does, 
+  each ':'-separated string that it points to a directory, and if it does,
   Coot will load all the @t{.py} files in that directory.
-@item @env{COOT_REF_STRUCTS} 
-  The directory containing a set of high resolution pdb files used as 
+@item @env{COOT_REF_STRUCTS}
+  The directory containing a set of high resolution pdb files used as
 @cindex reference structures
   reference structures to build backbone atoms from
   C@math{\alpha} positions
@@ -483,11 +474,10 @@ behaviour.
   was started).
 @end itemize
   
-And of course extension language environment variables are used too:
+And of course the Python extension language environment variable is used too:
 
 @itemize
-@item @env{PYTHONPATH} (for python modules)
-@item @env{GUILE_LOAD_PATH} (for guile modules)
+@item @env{PYTHONPATH} (for Python modules)
 @end itemize
 
 Normally, these environment variables will be set correctly in the coot
@@ -501,7 +491,7 @@ following command line arguments:
 @itemize
 @item @code{--c @emph{cmd}} to run a command @code{@emph{cmd}} on start up
 @item @code{--script @emph{filename}} to run a script on start up (but see Section @ref{Scripting})
-@item @code{--no-state-script} don't run the @t{0-coot.state.scm} script on start up.  
+@item @code{--no-state-script} don't run the @t{0-coot.state.py} script on start up.
    Don't save a state script on exit either.
 @item @code{--pdb @emph{filename}}  for pdb/coordinates file
 @item @code{--coords @emph{filename}}  for SHELX .ins/.res and CIF files
@@ -519,8 +509,8 @@ following command line arguments:
 @item @code{--side-by-side} start in side-by-side stereo mode
 @item @code{--update-self} command-line mode to update the coot to the latest 
     pre-release on the server
-@item @code{--python} an argument with no parameters - used to tell Coot that 
-    the -c arguments should be process as python (rather than as scheme).
+@item @code{--python} an argument with no parameters - used to tell Coot that
+    the -c arguments should be processed as Python.
 @item @code{--small-screen} start with smaller icons and font to fit on small
     screen displays
 @item @code{--zalman-stereo} start in Zalman stereo mode
@@ -548,7 +538,7 @@ general and other projects which are important for Coot @footnote{coot
 @node Crash
 @section Crash
 @cindex crash
-Coot might crash on you - it shouldn't.  
+Coot might crash on you - it shouldn't.
 
 @cindex recover session
 @cindex crash recovery
@@ -591,18 +581,20 @@ How do we move around and select things?
 @c \vspace{0.5cm}
 
 @table @command
-@item    Left-mouse Drag
+@item    Right-mouse Drag
    Rotate view
-@item    Ctrl Left-Mouse Drag
+@item    Ctrl Right-Mouse Drag
   Translates view
-@item    Shift Left-Mouse 
+@item    Shift Left-Mouse
   Label Atom
-@item    Right-Mouse Drag
+@item    Shift Right-Mouse Drag
   Zoom in and out@c @cindex{zoom}
 @item   Ctrl Shift Right-Mouse Drag
   Rotate View around Screen Z axis
-@item   Middle-mouse 
+@item   Middle-mouse click
    Centre on atom
+@item   Middle-mouse click and drag
+   Pan View
 @item   Scroll-wheel Forward
   Increase map contour level
 @item    Scroll-wheel Backward
@@ -627,7 +619,7 @@ See also Chapter @ref{Hints and Usage Tips} for more help.
 @section Next Residue
 
 @table @command
-@item  ``Space''  
+@item  ``Space''
    Next Residue
 @item  ``Shift'' ``Space''
    Previous Residue
@@ -649,10 +641,8 @@ scroll-wheel.
 Here we can change the clipping and Translate in Screen Z
 
 @table @command
-@item  Ctrl Right-Mouse Drag Up/Down
+@item  Keyboard 1,2,3 and 4 keys:
     changes the slab (clipping planes)
-@item   Ctrl Right-Mouse Drag Left/Right
-    translates the view in screen Z
 @end table
 
 @node Keyboard Z Translation
@@ -660,9 +650,9 @@ Here we can change the clipping and Translate in Screen Z
 @cindex translation, keyboard
 
 @table @command
-@item  Keypad 3 
+@item  Keyboard W
  Push View (+Z translation)
-@item  Keypad . 
+@item  Keybard S
  Pull View (-Z translation)
 @end table
 
@@ -671,20 +661,16 @@ Here we can change the clipping and Translate in Screen Z
 @section Keyboard Zoom and Clip
 
 @table @command
-@item  N 
-   Zoom out  
+@item  N
+   Zoom out
 @item  M
-   Zoom in    
-@item  D 
-   Slim clip  
-@item  F 
-   Fatten clip
+   Zoom in
 @end table
 
 @node Scrollwheel
 @section Scrollwheel
 When there is no map, using the scroll-wheel has no effect.  If there
-is exactly one map displayed, 
+is exactly one map displayed,
 @cindex contouring, map
 @cindex scroll, map contour change by
 @cindex map scrolling
@@ -698,7 +684,7 @@ maps, the map for which the contour level is changed can be set using either
 
 You can turn off the map contour level changing by the scroll wheel using:
 
-@code{(set-scroll-by-wheel-mouse 0)}
+@code{coot.set_scroll_by_wheel_mouse(0)}
 
 (the default is 1 [on]).
 
@@ -712,7 +698,7 @@ See also Picking (Section @ref{sec_picking}).
 
 Use the scripting function
 @c @cindex{quanta-buttons}
-@code{(quanta-buttons)} to make the mouse
+@code{coot.quanta_buttons()} to make the mouse
 functions more like other molecular graphics programs to which you may
 be more accustomed @footnote{See also @ref{more on zooming}}.
 
@@ -725,8 +711,8 @@ molecule is moved by the mouse movement @footnote{Mouse movement in
   undesirable) screen z-rotation, particularly noticeable when the
   mouse is at the edge of the screen.}.  To change this, try:
 @command{HID -> Virtual Trackball -> Flat}.  To
-do this from the scripting interface: @code{(vt-surface
-  1)} @footnote{@code{(vt-surface 0)} to turn it back to ``Spherical''
+do this from the scripting interface: @code{coot.vt_surface(1)}
+@footnote{@code{coot.vt_surface(0)} to turn it back to ``Spherical''
   mode.}.
 
 If you @emph{do} want @command{screen-z rotation}
@@ -738,7 +724,7 @@ along the bottom edge of the screen.
 
 @node more on zooming
 @section More on Zooming
-The function @code{(quanta-like-zoom)} adds the ability to zoom the
+The function @code{coot.quanta_like_zoom()} adds the ability to zoom the
 view using just Shift + Mouse movement @footnote{this is off by default
   because I find it annoying.}.
 
@@ -812,14 +798,14 @@ This will return the version of coot:
 
 There is also a script function to return the version of coot:
 
-@code{(coot-version)}
+@code{coot_version()}
 
 @node Antialiasing
 @section Antialiasing
 
 The built-in antialiasing (for what it's worth) can be enabled using:
 
-@code{(set-do-anti-aliasing 1)}
+@code{coot.set_do_anti_aliasing(1)}
 
 The default is @code{0} (off).
 
@@ -881,7 +867,7 @@ Hardware Stereo -> OK}), side-by-side stereo is not an option.
 The angle between the stereo pairs (the stereo separation) can be
 changed to suit your personal tastes using:
 
-@code{(set-hardware-stereo-angle-factor @emph{angle-factor})}
+@code{coot.set_hardware_stereo_angle_factor(@emph{angle_factor})}
 
 where @code{@emph{angle-factor}} would typically be between 1.0 and 2.0
 
@@ -890,7 +876,7 @@ When asked to pick a residue or atom, the cursor changes from the normal
 arrow shape to a "pick" cursor.  Sometimes it is difficult to see the
 default pick cursor, so you can change it using the function
 
-@code{(set-pick-cursor-index @emph{i})}
+@code{coot.set_pick_cursor_index(@emph{i})}
 
 where @code{@emph{i}} is an integer less than 256.  The cursors can be
 viewed using an external X program:
@@ -907,11 +893,11 @@ marker''
 @cindex origin marker
  marks the origin.  It can be removed using:
 
-@code{(set-show-origin-marker 0)}
+@code{coot.set_show_origin_marker(0)}
 
 Its state can be queried like this:
 
-@code{(show-origin-marker-state)}
+@code{coot.show_origin_marker_state()}
 
 which returns an number (0 if it is not displayed, 1 if it is).
 
@@ -932,7 +918,7 @@ Output suitable for use by Raster3D's
 @cindex render
 can be generated using the scripting function
 
-@code{(raster3d @emph{file-name})}
+@code{coot.raster3d(@emph{file_name})}
 
 where @code{@emph{file-name}} is such as @code{"test.r3d"}
 @footnote{Povray support is only semi-working, there is a problem
@@ -943,37 +929,37 @@ display the image: Function key F8.
 
 You can also use the function
 
-@code{(render-image)}
+@code{coot.render_image()}
 
 which will create a file @file{coot.r3d}, from which ``render'' produces
 @file{coot.png}. This png file is displayed using ImageMagick's display
 program (by default).  Use something like:
 
-@code{(set! coot-png-display-program "gqview")}
+@code{coot.coot_png_display_program = "gqview"}
 
 to change that to different display program ("gqview" in this case).
 
-@code{(set! coot-png-display-program "open")} 
+@code{coot.coot_png_display_program = "open"}
 
 would use Preview (by default) on Macintosh.
 @c thanks for that info Bill Scott.
 
 To change the widths of the bonds and density ``lines'' use (for example):
 
-@code{(set-raster3d-bond-thickness 0.1)}
+@code{coot.set_raster3d_bond_thickness(0.1)}
 
 and 
 
-@code{(set-raster3d-density-thickness 0.01)}
+@code{coot.set_raster3d_density_thickness(0.01)}
 
 Similarly for bones:
 
-@code{(set-raster3d-bone-thickness 0.05)}
+@code{coot.set_raster3d_bone_thickness(0.05)}
 
 
 To turn off the representations of the atoms (spheres):
 
-@code{(set-renderer-show-atoms 0)}
+@code{coot.set_renderer_show_atoms(0)}
 
 
 @node Display Manager
@@ -997,7 +983,7 @@ changed by scrolling the mouse scroll wheel.
 By default, the path names of the files are not displayed in the
 Display Manager.  To turn them on:
 
-@code{(set-show-paths-in-display-manager 1)}
+@code{coot.set_show_paths_in_display_manager(1)}
 
 @cindex colour by chain
 @cindex atom colouring
@@ -1019,11 +1005,11 @@ You might not want to have the right-hand-side vertical toolbar that
 contains icons for some modelling operations @footnote{British
 modelling, of course} displayed:
 
-@code{(hide-modelling-toolbar)}
+@code{coot.hide_modelling_toolbar()}
 
 to bring it back again:
 
-@code{(show-modelling-toolbar)}
+@code{coot.show_modelling_toolbar()}
 
 
 
@@ -1039,23 +1025,23 @@ the extensions are ``.pdb'' ``.brk'' ``.mmcif'' and others.  For data:
 following functions are available:
 
 @itemize 
-@item @code{(add-coordinates-glob-extension @emph{extension})}
-@item @code{(add-data-glob-extension @emph{extension})}
-@item @code{(add-map-glob-extension @emph{extension})}
-@item @code{(add-dictionary-glob-extension @emph{extension})}
+@item @code{coot.add_coordinates_glob_extension(@emph{extension})}
+@item @code{coot.add_data_glob_extension(@emph{extension})}
+@item @code{coot.add_map_glob_extension(@emph{extension})}
+@item @code{coot.add_dictionary_glob_extension(@emph{extension})}
 @end itemize
 where @code{@emph{extension}} is something like: @code{".mycif"}.
 
 If you want the fileselection to be filtered without having to use the
 "Filter" button, use the scripting function
 
-@code{(set-filter-fileselection-filenames 1)}
+@code{set_filter_fileselection_filenames(1)}
 
 @subsection Filename Sorting
 If you like your files initially sorted by date (rather than
 lexicographically, which is the default) use:
 
-@code{(set-sticky-sort-by-date)}
+@code{coot.set_sticky_sort_by_date()}
 
 @c this should be a GUI option.
 @subsection Save Coordinates Directory
@@ -1066,7 +1052,7 @@ Some people prefer that the fileselection for saving coordinates starts
 in the original directory (rather than the directory from which they
 last imported coordinates).  This option is for them:
 
-@code{(set-save-coordinates-in-original-directory 1)}
+@code{coot.set_save_coordinates_in_original_directory(1)}
 
 
 @node    Scripting
@@ -1075,23 +1061,18 @@ last imported coordinates).  This option is for them:
 
 @menu
 * Python::
-* Scheme::
 * Coot State::
 * Key Binding::
 * User-Defined Functions::
 @end menu
 
-There is an compile-time option of adding a script interpreter.
-Currently the options are python and guile.  It seems possible that in
-future you will be able to use both in the same executable.  The binary
-distribution of Coot are linked with guile, others with python.
-
+Coot has an embedded Python interpreter for scripting.
 Hundreds of commands are made available for use in scripting by using
 SWIG, some of which are documented here. Other functions documented less
 well, but descriptions for them can be found at the end of this manual.
 
-Commands described throughout this manual (such as @code{(vt-surface
-  1))} can be evaluated
+Commands described throughout this manual (such as @code{coot.vt_surface(1)})
+can be evaluated
 @cindex executing commands
 directly by Coot by using the ``Scripting Window'' (@command{Calculate
 -> Scripting@dots{}}). Note that you type the commands in the upper
@@ -1100,73 +1081,33 @@ and any output is displayed in the text widget lower (green).  The typed
 command should be terminated with a carriage return @footnote{which
 causes the evaluation of the command.}.  Files @footnote{such as the Coot
 state file (Section @ref{Coot State}).} can be evaluated (executed)
-using @command{Calculate -> Run Script@dots{}}.  
-
-Note that in scheme (the usual scripting language of Coot), the
-parentheses are important.
+using @command{Calculate -> Run Script@dots{}}.
 
 To execute a script file from the command line use the @code{--script
-@emph{filename}} arguments 
-@c % this seems not to be the case (any more), --script works 
+@emph{filename}} arguments
+@c % this seems not to be the case (any more), --script works
 @c % fine with --no-graphics
 (except when also using the command line
 argument @code{--no-graphics}, in which case you should use @code{-s
 @emph{filename}}).
 
-After you have used the scripting window, you may have noticed that you
-can no longer kill Coot by using Ctrl-C in the console.  To recover this
-ability:
-
-@code{(exit)}
-
-in the scripting window.
-
 @node       Python
 @subsection Python
 @cindex python
+@cindex initialization file
 
-@menu
- * Python Commands
-@end menu
-
-Coot has an (optional) embedded python interpreter.
-Thus the full power of python is available to you.  Coot will look for
-an initialization script 
+Coot has an embedded Python interpreter.
+Thus the full power of Python is available to you.  Coot will look for
+an initialization script
 @cindex startup settings (python)
 @cindex @code{.coot.py}
 (@code{$HOME/.coot.py}) and
-will execute it if found.  This file should contain python commands
+will execute it if found.  This file should contain Python commands
 that set your personal preferences.
 
+The scripting functions described in this manual use the format:
 
-@subsubsection Python Commands
-The scripting functions described in this manual are formatted
-suitable for use with guile, @emph{i.e.}:
-
-@code{(@emph{function} @emph{arg1} @emph{arg2@dots{}})}
-
-If you are using Python instead: the format needs to be changed to:
-
-@code{@emph{function}(@emph{arg1},@emph{arg2@dots{}})}
-
-Note that dashes in guile function names become underscores for
-python, so that (for example) @code{(raster-screen-shot)} becomes
-@code{raster_screen_shot()}.
-
-
-@c --------------------------------------------------------
-@node       Scheme
-@c --------------------------------------------------------
-@subsection Scheme
-@cindex guile
-@cindex scheme
-@cindex initialization file
-The scheme interpreter is made available by embedding
-guile.  The initialization script used by this interpreter is
-@cindex startup settings (scheme) 
-@cindex @code{.coot}
-@code{$HOME/.coot}.  This file should contain scheme commands that
-set your personal preferences.
+@code{@emph{function}(@emph{arg1}, @emph{arg2}, @dots{})}
 
 @c --------------------------------------------------------
 @node       Coot State
@@ -1175,8 +1116,7 @@ set your personal preferences.
 The ``state''
 @cindex state
 of Coot is saved on Exit and written to a
-file called @code{0-coot.state.scm} (scheme)
-@code{0-coot.state.py} (python).   This
+file called @code{0-coot.state.py}.  This
 state file contains information about the screen centre, the
 clipping, colour map rotation size, the symmetry radius, and other
 molecule related parameters such as filename, column labels,
@@ -1185,17 +1125,17 @@ coordinate filename @emph{etc.}.
 Use @command{Calculate -> Run Script@dots{}} to use this file
 to re-create the loaded maps and models that you had when you finished
 using Coot @footnote{in that particular directory.} last time.
-A state file can be saved at any time using @code{(save-state)}
-which saves to file @code{0-coot.state.scm} or
-@code{(save-state-filename "thing.scm")} which saves to file
-@code{thing.scm}.
+A state file can be saved at any time using @code{save_state()}
+which saves to file @code{0-coot.state.py} or
+@code{save_state_filename("thing.py")} which saves to file
+@code{thing.py}.
 
 When Coot starts it can optionally run the commands in
-@code{0-coot.state.scm}.  
+@code{0-coot.state.py}.
 
-Use @code{(set-run-state-file-status i)}
+Use @code{set_run_state_file_status(i)}
 to change the behaviour: @code{i} is @code{0} to never run this
-state file at 
+state file at
 @cindex startup dialog (state)
 startup, @code{i} is
 @code{1} to get a dialog option (this is the default) and @code{i}
@@ -1209,9 +1149,9 @@ is @code{2} to run the commands without question.
 ``Power users'' of Coot might like to write their own functions and bind
 that function to a keyboard key.  How do they do that?
 
-By using the add-key-binding function:
+By using the add_key_binding function:
 
-@code{(add-key-binding @emph{function-name key function})}
+@code{coot.add_key_binding_gtk4_py(@emph{function_name}, @emph{key}, @emph{function})}
 
 where @code{@emph{key}} is a quoted string (note that upper case and
 lower case keys are distinguished - activate get upper case key binding
@@ -1219,7 +1159,7 @@ you need to chord the shift key @footnote{funny that}).
 
 for example:
 
-@code{(add-key-binding "Refine Active Residue with Auto-accept" "x" refine-active-residue)}
+@code{add_key_binding("Refine Active Residue with Auto-accept", "x", refine_active_residue)}
  
 Have a look at the key bindings section on the Coot wiki for several
 more examples.
@@ -1232,7 +1172,7 @@ more examples.
 ``Power users'' of Coot might also like to write their own functions
 that occur after picking an atom (or a number of atoms)
 
-@code{(user-defined-click @emph{n_clicks} @emph{udfunc})}
+@code{coot.user_defined_click(@emph{n_clicks}, @emph{udfunc})}
 
 define a function @code{@emph{func}} which runs after the user has
 made @code{@emph{n_clicked}} atom picks.  @code{@emph{func}} is called
@@ -1262,7 +1202,7 @@ pdb format - that's OK, isn't it?.}).  The ``Undo'' function discards
 the current molecule and loads itself from the most recent backup
 coordinates.  Thus you do not have to remember to ``Save Changes'' -
 coot will do it for you @footnote{unless you tell it not to, of course -
-use (@emph{e.g.})  @code{(turn-off-backup 0)} to turn off the backup
+use (@emph{e.g.})  @code{coot.turn_off_backup(0)} to turn off the backup
 (for molecule 0 in this case).}.
 
 If you have made changes to more than one molecule, Coot will pop-up a
@@ -1276,13 +1216,13 @@ one, then another Undo selection dialog will be displayed.
 
 You can set the undo molecule using the scripting function:
 
-@code{(set-undo-molecule @emph{imol})}
+@code{coot.set_undo_molecule(@emph{imol})}
 
 If for reasons of strange system@footnote{or system manager.}
 requirements you want to remove the path components of the backup file
 name you can do so using:
 
-@code{(set-unpathed-backup-file-names 1)}
+@code{set_unpathed_backup_file_names(1)}
 
 @subsection Redo
 @cindex redo
@@ -1315,25 +1255,25 @@ It is sometimes useful to use this to orient the
 view and export this orientation to other programs.  The orientation
 matrix of the view can be displayed (in the console) using:
 
-@code{(view-matrix)}
+@code{coot.view_matrix()}
 
 Also, the internal representation of the view can be returned and set
 using:
 
-@code{(view-quaternion)} to return a 4-element list
+@code{coot.view_quaternion()} to return a 4-element list
 
-@code{(set-view-quaternion i j k l)} which sets the view quaternion.
+@code{coot.set_view_quaternion(i, j, k, l)} which sets the view quaternion.
 
 So the usage of these functions would be something like:
 
 @verbatim
-(let ((v (view-quaternion)))
-   ;; manipulate v here, maybe
-   (apply set-view-quaternion v))
+v = view_quaternion()
+# manipulate v here, maybe
+set_view_quaternion(*v)
 @end verbatim
 
-@node Space Group and Symmetry 
-@section Space Group and Symmetry 
+@node Space Group and Symmetry
+@section Space Group and Symmetry
 Occasionally you may want to know the space group of a particular
 molecule.  Interactively (for maps) you can see it using the Map
 Properties button in the Molecule Display Control dialog.
@@ -1342,11 +1282,11 @@ There is a scripting interface function that returns the space group
 for a given molecule  @footnote{if no space group has been assigned it
   returns @code{``No spacegroup for this molecule''}}:
 
-@code{(show-spacegroup @emph{imol})}
+@code{coot.show_spacegroup(@emph{imol})}
 
 You can force a space group onto a molecule using the following:
 
-@code{(set-space-group @emph{imol} @emph{space-group})}
+@code{coot.set_space_group(@emph{imol}, @emph{space_group})}
 
 where @code{@emph{space-group}} is one of the standard CCP4 space group
 names (@emph{e.g.} @code{@t{"P 21 21 21"}}).
@@ -1354,7 +1294,7 @@ names (@emph{e.g.} @code{@t{"P 21 21 21"}}).
 @cindex space group operators
 @cindex symmetry operators
 To show the symmetry operators of a particular molecule use:
-@code{(get-symmetry @emph{imol})}
+@code{coot.get_symmetry(@emph{imol})}
 which will return a list of strings.
 
 Sometimes molecular replacement solutions (for example) create models
@@ -1369,7 +1309,7 @@ Centre on an atom in the symmetry-related B chain (where you want the B chain to
 
 @node Recentring View
 @section Recentring View
-@cindex recentring view 
+@cindex recentring view
 @itemize
 @item Use Control + left-mouse to drag around the view
 @item or
@@ -1385,14 +1325,14 @@ Centre on an atom in the symmetry-related B chain (where you want the B chain to
 @cindex set-rotation-centre
 @cindex rotation centre
 @item To centre on an arbitrary position (x,y,z), use the scripting function
-   @code{(set-rotation-centre x y z)}.
+   @code{set_rotation_centre(x, y, z)}.
 @item or
 @item Use the keyboard: [Ctrl G] then key in a residue number and (optionally) a chainid 
       and press Return
 @end itemize
 
 If you don't want smooth recentring (sliding)
-@cindex sliding 
+@cindex sliding
 @command{Edit -> Preferences -> Smooth Recentring -> Off}.  You
 can also use this dialog to speed it up a bit (by decreasing the
 number of steps instead of turning it off).
@@ -1412,7 +1352,7 @@ The views interface can be found under the Extensions menu item.
 @section Clipping Manipulation
 @cindex clipping
 The clipping planes (a.k.a. ``slab''
-@cindex slab 
+@cindex slab
 ) can
 be adjusted using @command{Edit -> Clipping} and adjusting
 the slider.  There is only one parameter to change and it affects both
@@ -1420,7 +1360,7 @@ the front and the back clipping planes @footnote{I find a clipping
   level of about 3.5 to 4 comfortable for viewing electron density
   maps - it is a little ``thinner'' than the default startup
   thickness.}.
-The clipping can also be changed using keyboard ``D'' and ``F''.  
+The clipping can also be changed using keyboard ``D'' and ``F''.
 
 It can also be changed with Ctrl + Right-mouse drag up and down.
 Likewise the screen-Z can be changed with Ctrl + Right-mouse left and
@@ -1436,7 +1376,7 @@ keypad 3 and keypad ``.'' (see Section @ref{Keyboard Z Translation}).
 @cindex background colour
 The background colour can be set either using a GUI dialog
 (@command{Edit$ -> Background Colour}) or the function
-@code{(set-background-colour 0.00 0.00 0.00)}, where the arguments
+@code{coot.set_background_colour(0.00, 0.00, 0.00)}, where the arguments
 are 3 numbers between 0.0 and 1.0, which respectively represent the
 red, green and blue components of the background colour.  The default
 is (0.0, 0.0, 0.0) (black).
@@ -1456,7 +1396,7 @@ There is a pink pointer
 at the centre of the screen that marks the rotation centre.
 The size of the pointer can be changed using @command{Edit
   -> Pink Pointer Size@dots{}} or using scripting commands:
-@code{(set-rotation-centre-size 0.3)}.
+@code{coot.set_rotation_centre_size(0.3)}.
 
 @node  Orientation Axes
 @section Orientation Axes
@@ -1465,7 +1405,7 @@ The size of the pointer can be changed using @command{Edit
 The green axes showing the orientation of the molecule are displayed
 by default.  To remove them use the scripting function;
 
-@code{(set-draw-axes 0)}
+@code{coot.set_draw_axes(0)}
 
 
 @node Pointer Distances
@@ -1575,10 +1515,9 @@ have been read can be turned off by unclicking the "Recentre?"
 radio-button.
 
 To disable the recentring of the view on reading a coordinates file via
-scripting, use: @code{(set-recentre-on-read-pdb 0)}.  However, when
+scripting, use: @code{coot.set_recentre_on_read_pdb(0)}.  However, when
 reading a coordinates file from a script it is just as good (if not
-better) to use @code{(handle-read-draw-molecule-with-recentre
-@emph{filename} 0)} - the additional @code{0} means ``don't recentre''.
+better) to use @code{coot.handle_read_draw_molecule_with_recentre(@emph{filename}, 0)} - the additional @code{0} means ``don't recentre''.
 And that affects just the reading of @code{@emph{filename}} and not
 subsequent files.
 
@@ -1586,7 +1525,7 @@ By default coot does not allow reading coordinates with duplicated
 sequence numbers.  To enable the reading of files with duplicated
 sequence numbers use the function:
 
-@code{(allow-duplicate-sequence-numbers)}
+@code{coot.allow_duplicate_sequence_numbers()}
 
 Coot can read MDL mol files.
 
@@ -1603,16 +1542,16 @@ should be used in preference to @t{"H32"}.
 The reading multiple files using the GUI is not available (at the
 moment).  However the following scripting functions are available:
 
-@code{(read-pdb-all)}
+@code{coot.read_pdb_all()}
 
 which reads all the ``*.pdb'' files in the current directory
 
-@code{(multi-read-pdb @emph{glob-pattern} @emph{dir})}
+@code{coot.multi_read_pdb(@emph{glob_pattern}, @emph{dir})}
 
 which reads all the files matching @code{@emph{glob-pattern}} in
 directory @code{@emph{dir}}.  Typical usage of this might be:
 
-@code{(multi-read-pdb "a*.pdb" ".")}
+@code{coot.multi_read_pdb("a*.pdb", ".")}
 
 Alternatively you can specify the files to be opened on the command
 line when you start coot (see Section
@@ -1626,7 +1565,7 @@ SHELX ".res" (and ".ins" of course) files can be read into Coot, either
 using the GUI @command{File -> Open Coordinates@dots{}} or by the
 scripting function:
 
-@code{(read-shelx-ins-file @emph{file-name})}
+@code{coot.read_shelx_ins_file(@emph{file_name})}
 
 where @code{@emph{file-name}} is quoted, such as @code{"thox.ins"}.
 
@@ -1639,7 +1578,7 @@ configuration identifiers in lower case.
 
 To write a SHELX ".ins" file:
 
-@code{(write-shelx-ins-file @emph{imol} @emph{file-name})}
+@code{coot.write_shelx_ins_file(@emph{imol}, @emph{file_name})}
 
 where @code{@emph{imol}} is the number of the molecule you wish to
 export.
@@ -1675,24 +1614,24 @@ label.  The font size is changeable using @command{Edit ->
   Font Size@dots{}}.  The newly centred atom is labelled by default.
 To turn this off use:
 
-@code{(set-label-on-recentre-flag 0)}
+@code{coot.set_label_on_recentre_flag(0)}
 
-@cindex atom label, brief 
+@cindex atom label, brief
 Some people prefer to have atom labels that
 are shorter, without the slashes and residue name:
 
-@code{(set-brief-atom-labels 1)}
+@code{coot.set_brief_atom_labels(1)}
 
 To change the atom label colour, use:
 
-@code{(set-font-colour 0.9 0.9 0.9)}
+@code{coot.set_font_colour(0.9, 0.9, 0.9)}
 
 
 @node Atom Colouring
 @section Atom Colouring
-The atom colouring 
+The atom colouring
 @cindex colouring, atoms
-@cindex atom colouring 
+@cindex atom colouring
 system in coot is unsophisticated. Typically, atoms are coloured by
 element: carbons are yellow, oxygens red, nitrogens blue, hydrogens
 white and everything else green (see Section @ref{Display Manager}
@@ -1703,14 +1642,13 @@ HSV @footnote{Hue Saturation Value (Intensity).}  colour system).  The
 amount of the rotation depends on the molecule number and a
 user-settable parameter:
 @itemize
-@item @code{(set-colour-map-rotation-on-read-pdb 30)}.
+@item @code{set_colour_map_rotation_on_read_pdb(30)}.
 @end itemize
 
 The default value is 31@math{^\circ}.
 
 Also one is able to select only the Carbon atoms to change colour in
-this manner: @code{(set-colour-map-rotation-on-read-pdb-c-only-flag
-  1)}.
+this manner: @code{set_colour_map_rotation_on_read_pdb_c_only_flag(1)}.
 
 The colour map rotation can be set individually for each molecule by
 using the GUI: @code{Edit -> Bond Colours@enddots{}}.
@@ -1721,25 +1659,25 @@ The various bond parameters can be set using the GUI dialog
 @command{Draw -> Bond Parameters} or @emph{via} scripting
 functions.
 
-The represention style of the molecule that has the active residue (if any) 
+The represention style of the molecule that has the active residue (if any)
 can be changed using the scroll wheel with Ctrl and Shift.
 
 @subsection Bond Thickness
-@cindex bond thickness 
+@cindex bond thickness
 @cindex width, bonds
 The thickness (width) of
 bonds of individual molecules can be changed.  This can be done via the
 @command{Bond Parameters} dialog or the scripting interface:
 
-@code{(set-bond-thickness @emph{thickness imol})}
+@code{coot.set_bond_thickness(@emph{thickness imol})}
 
-where @code{imol} is the molecule number. 
+where @code{imol} is the molecule number.
 
 The default thickness is 3 pixels. The bond thickness also applies to
 the symmetry atoms of the molecule. The default bond thickness for new
 molecules can be set using:
 
-@code{(set-default-bond-thickness @emph{thick})}
+@code{coot.set_default_bond_thickness(@emph{thick})}
 
 where @code{@emph{thick}} is an integer.
 
@@ -1749,17 +1687,17 @@ bond thickness of a residue selection within a molecule.
 @subsection Display Hydrogens
 @cindex hydrogens
 Initially, hydrogens are displayed.  They can be
-undisplayed using 
+undisplayed using
 
-@code{(set-draw-hydrogens @emph{mol-no} 0)} @footnote{they
-  can be redisplayed using @code{(set-draw-hydrogens @emph{mol-no} 1)}.}
+@code{set_draw_hydrogens(@emph{mol_no}, 0)} @footnote{they
+  can be redisplayed using @code{set_draw_hydrogens(@emph{mol_no}, 1)}.}
 
 where @code{@emph{mol-no}} is the molecule number.
 
 There is a GUI to control this too, under ``Edit -> Bond Parameters''.
 
 @subsection NCS Ghosts Coordinates
-@cindex NCS 
+@cindex NCS
 It is occasionally useful when analysing non-crystallographically
 related molecules to have ``images'' of the other related molecules
 appear matched onto the current coordinates.  It is important to
@@ -1781,7 +1719,7 @@ Range@dots{}}.
 
 The scripting function is used like this:
 
-@code{(manual-ncs-ghosts @emph{imol resno-start resno-end ncs-chain-ids})}
+@code{coot.manual_ncs_ghosts(@emph{imol resno_start resno_end ncs_chain_ids})}
 
  Typical usage: @t{(manual-ncs-ghosts 0 1 10 (list "A" "B" "C"))}
 
@@ -1811,7 +1749,7 @@ Coot can use a set of strict NCS matrices to specify NCS which means
 that NCS-related molecules can appear like convention symmetry-related
 molecules.
 
-@code{(add-strict-ncs-matrix @emph{imol ncs-chain-id ncs-target-chain-id m11 m12 m13 m21 m22 m23 m31 m32 m33 t1 t2 t3})}
+@code{coot.add_strict_ncs_matrix(@emph{imol ncs_chain_id ncs_target_chain_id m11 m12 m13 m21 m22 m23 m31 m32 m33 t1 t2 t3})}
 
 where @code{@emph{ncs-chain-id}} might be "B", "C" "D" (etc.) and
 @code{@emph{ncs-target-chain-id}} is "A", i.e. the B, C, D molecules are
@@ -1827,9 +1765,9 @@ displayed symmetry object type to "Display Near Chains".
 @node Download coordinates
 @section Download coordinates
 Coot provides the possibility to download coordinates from an
-@cindex OCA 
+@cindex OCA
 OCA @footnote{OCA is ``goose'' in Spanish (and Italian)}.
-@cindex goose 
+@cindex goose
 (@emph{e.g.} EBI) server @footnote{the default is the
   Weizmann Institute - which for reasons I won't go into here is
   currently much faster than the EBI server.} (@command{File
@@ -1882,11 +1820,11 @@ If for some reason, the pdb file that you read does not have a space
 group, or has the wrong space group, then you can set it using the
 following function:
 
-@code{(set-space-group @emph{imol} @emph{symbol})}
+@code{coot.set_space_group(@emph{imol}, @emph{symbol})}
 
 e.g.:
 
-@code{(set-space-group 0 "P 41 21 2")}
+@code{coot.set_space_group(0, "P 41 21 2")}
 
 @node Anisotropic Atoms
 @section Anisotropic Atoms
@@ -1895,7 +1833,7 @@ By default anisotropic atom information is
 not represented @footnote{using thermal ellipsoids}.  To turn them on,
 use @command{Draw -> Anisotropic Atoms -> Show
   Anisotropic Atoms?  -> Yes}, or the command:
-@code{(set-show-aniso 1)}.
+@code{coot.set_show_aniso(1)}.
 
 You cannot currently display thermal ellipsoids @footnote{in the case
   of isotropic atoms, ellipsoids are spherical, of course.} for
@@ -1924,9 +1862,9 @@ displayed in curly braces, e.g. ``@{1 -1 0@}''.
 By default symmetry atoms are not displayed.  
 
 If you want coot to display symmetry coordinates without having to use
-the gui, add to your @file{~/.coot} the following:
+the gui, add to your @file{~/.coot.py} the following:
 
-@code{(set-show-symmetry-master 1)}
+@code{coot.set_show_symmetry_master(1)}
 
 
 The symmetry can be represented as C@math{\alpha}s.
@@ -1942,7 +1880,7 @@ a packing diagram.
 Sometimes (rarely) coot misses symmetry-related molecules that should be
 displayed.  In that case you need to expand the shift search (the default is 1):
 
-@code{(set-symmetry-shift-search-size 2)}
+@code{set_symmetry_shift_search_size(2)}
 
 This is a hack, until the symmetry search algorithm is improved.
        
@@ -1963,7 +1901,7 @@ The single letter code (of the @code{@emph{imol}}th molecule) is written
 out to the console in FASTA format.  Use can use this to cut and paste
 into other applications:
 
-@code{(print-sequence @emph{imol})}
+@code{coot.print_sequence(@emph{imol})}
 
 @node Environment Distances
 @section Environment Distances
@@ -1988,7 +1926,7 @@ console.
 Atoms of zero occupancy are marked with a grey
 spot. To turn off these markers, use:
 
-@code{(set-draw-zero-occ-markers 0)}
+@code{coot.set_draw_zero_occ_markers(0)}
 
 Use an argument of 1 to turn them on.
 
@@ -1998,14 +1936,14 @@ Use an argument of 1 to turn them on.
 
 You can draw dots round arbitrary atom selections
 
-@code{(dots @emph{imol atom-selection dot-density radius})}
+@code{dots(@emph{imol atom_selection dot_density radius})}
 The function returns a handle.
 
 @emph{e.g.} put a sphere of dots around all atoms of the 0th molecule
 (it might be a set of heavy atom coordinates) at the default dot density
 and radius:
 
-@code{(dots 0 "/1"  "heavy-atom-sites" 1 1)}
+@code{coot.dots(0, "/1", "heavy-atom-sites", 1, 1)}
 
 You can't change the colour of the dots.  
 
@@ -2016,12 +1954,12 @@ several times and change the radius according to the atom selection.
 There is a function to clear up the dots for a particular molecule
 @code{@emph{imol}} and dots set identifier @code{@emph{dots-handle}}
 
-@code{(clear-dots @emph{imol dots-handle})}
+@code{coot.clear_dots(@emph{imol dots_handle})}
 
 There is a function to return how many dots sets there are for a 
 particular molecule @code{@emph{imol}}:
 
-@code{(n-dots-set @emph{imol})}
+@code{coot_dots_set(@emph{imol})}
 
 @node Ball and Stick Representation
 @section Ball and Stick Representation
@@ -2029,14 +1967,14 @@ particular molecule @code{@emph{imol}}:
 
 Fragments of the molecule can be rendered as a ``ball and stick'' molecule:
 
-@code{(make-ball-and-stick @emph{imol atom-selection bond-thickness sphere-size draw-spheres-flag})}
+@code{coot.make_ball_and_stick(@emph{imol atom_selection bond_thickness sphere_size draw_spheres_flag})}
 
 e.g. 
-@code{(make-ball-and-stick 0 "/1/A/10-20" 0.3 0.4 1)}
+@code{coot.make_ball_and_stick(0, "/1/A/10-20", 0.3, 0.4, 1)}
 
 The ball-and-stick representation can be cleared using:
 
-@code{(clear-ball-and-stick @emph{imol})}
+@code{coot.clear_ball_and_stick(@emph{imol})}
 
 
 
@@ -2049,9 +1987,9 @@ and
 @cindex median B-factor
 median temperatures factors:
 
-@code{(average-temperature-factor @emph{imol})}
+@code{coot.average_temperature_factor(@emph{imol})}
 
-@code{(median-temperature-factor @emph{imol})}
+@code{coot.median_temperature_factor(@emph{imol})}
 
 @math{-1} is returned if there was a problem @footnote{@emph{e.g.} this
 molecule was a map or a closed molecule.}.
@@ -2069,13 +2007,13 @@ using the "Use Specific Chain" check-button.
 
 There is a scripting level function which gives even finer control:
 
-@code{(superpose-with-atom-selection @emph{imol1 imol2
-mmdb-atom-selection-string-1 mmdb-atom-selection-string-2
-move-copy-flag} )}
+@code{coot.superpose_with_atom_selection(@emph{imol1}, @emph{imol2},
+@emph{mmdb_atom_selection_string_1}, @emph{mmdb_atom_selection_string_2},
+@emph{move_copy_flag})}
 
-the @code{@emph{move-copy-flag}} should be 1 if you want to apply the
+the @code{@emph{move_copy_flag}} should be 1 if you want to apply the
 transformation to a copy of @code{@emph{imol2}} (rather than
-@code{@emph{imol2}} itself). Otherwise, @code{@emph{move-copy-flag}}
+@code{@emph{imol2}} itself). Otherwise, @code{@emph{move_copy_flag}}
 should be 0.
 
 mmdb atom selection strings (Coordinate-IDs) are explained in detail in
@@ -2100,59 +2038,50 @@ There is a simple GUI for this @command{Calculate -> LSQ Superpose@dots{}}
 
 The scripting interface to LSQ fitting is as follows:
 
-@code{(simple-lsq-match @emph{ref-start-resno ref-end-resno ref-chain-id imol-ref
-           mov-start-resno mov-end-resno mov-chain-id imol-mov
-           match-type})}
+@code{coot.simple_lsq_match(@emph{ref_start_resno}, @emph{ref_end_resno}, @emph{ref_chain_id}, @emph{imol_ref},
+           @emph{mov_start_resno}, @emph{mov_end_resno}, @emph{mov_chain_id}, @emph{imol_mov},
+           @emph{match_type})}
 
 where:
 @itemize
-@item @code{@emph{ref-start-resno}} is the starting residue number
+@item @code{@emph{ref_start_resno}} is the starting residue number
   of the reference molecule
-@item @code{@emph{ref-end-resno}} is the last residue number
+@item @code{@emph{ref_end_resno}} is the last residue number
   of the reference molecule
-@item @code{@emph{mov-start-resno}} is the starting residue number
+@item @code{@emph{mov_start_resno}} is the starting residue number
   of the moving molecule
-@item @code{@emph{mov-end-resno}} is the last residue number
+@item @code{@emph{mov_end_resno}} is the last residue number
   of the moving molecule
-@item @code{@emph{match-type}} is one of @code{'CA},
-  @code{'main}, or @code{'all}.
+@item @code{@emph{match_type}} is one of @code{"CA"},
+  @code{"main"}, or @code{"all"}.
 @end itemize
 
-@emph{e.g.}: 
-@code{(simple-lsq-match 940 950 "A" 0 940 950 "A" 1 'main)}
+@emph{e.g.}:
+@code{coot.simple_lsq_match(940, 950, "A", 0, 940, 950, "A", 1, "main")}
 
 More sophisticated (match molecule number 1 chain ``B'' on to molecule
 number 0 chain ``A''):
 
-@code{(define match1 (list 840 850 "A" 440 450 "B" 'all))}
+@code{match1 = [840, 850, "A", 440, 450, "B", "all"]}
 
-@code{(define match2 (list 940 950 "A" 540 550 "B" 'main))}
+@code{match2 = [940, 950, "A", 540, 550, "B", "main"]}
 
-@code{(clear-lsq-matches)}
+@code{coot.clear_lsq_matches()}
 
-@code{(set-match-element match1)}
+@code{coot.set_match_element(match1)}
 
-@code{(set-match-element match2)}
+@code{coot.set_match_element(match2)}
 
-@code{(apply-lsq-matches 0 1)} ; match molecule number 1 onto molecule number 0.
-
-@c %% @itemize 
-@c %% @item @code{(define match1 (list 840 850 "A" 440 450 "B" 'all))}
-@c %% @item @code{(define match2 (list 940 950 "A" 540 550 "B" 'main))}
-@c %% @item @code{(clear-lsq-matches)}
-@c %% @item @code{(set-match-element match1)}
-@c %% @item @code{(set-match-element match2)}
-@c %% @item @code{(lsq-match 0 1)}
-@c %% @end itemize
+@code{coot.apply_lsq_matches(0, 1)}  # match molecule number 1 onto molecule number 0.
 
 @node  Ligand Overlaying
 @section Ligand Overlaying
 @cindex ligand, overlay
 @cindex overlaying ligands
 
-The scripting function 
+The scripting function
 
-@code{(overlap-ligands @emph{imol-ligand imol-ref chain-id-ref resno-ref})}
+@code{overlap_ligands(@emph{imol_ligand imol_ref chain_id_ref resno_ref})}
 
 returns a rotation+translation operator which can be applied to other
 molecules (and maps).  Here, @code{@emph{imol-ligand}} is the molecule
@@ -2161,11 +2090,11 @@ Coot simply takes the first residue that it finds). @code{@emph{imol-ref
 chain-id-ref resno-ref}} collectively describe the target position for
 the moving @code{@emph{imol-ligand}} molecule.
 
-The convenience function 
+The convenience function
 
-@code{(overlay-my-ligands @emph{imol-mov chain-id-mov resno-mov imol-ref chain-id-ref resno-ref})} 
+@code{overlay_my_ligands(@emph{imol_mov chain_id_mov resno_mov imol_ref chain_id_ref resno_ref})} 
 
-wraps @code{overlap-ligands}.  
+wraps @code{overlap_ligands}.
 
 The GUI for the function can be found under 
 
@@ -2178,15 +2107,15 @@ The GUI for the function can be found under
 As well as the GUI option @command{File -> Save Coordinates@dots{}} there
 is a scripting options available:
 
-@code{(write-pdb-file @emph{imol pdb-file-name})}
+@code{coot.write_pdb_file(@emph{imol pdb_file_name})}
 
 which writes the @code{@emph{imol}}th coordinates molecule to
 @code{@emph{filename}}.
 
 To write a specific residue range: 
 
-@code{(write-residue-range-to-pdb-file @emph{imol chain-id start-resno
-endresno pdb-file-name})}
+@code{coot.write_residue_range_to_pdb_file(@emph{imol}, @emph{chain_id}, @emph{start_resno},
+@emph{endresno}, @emph{pdb_file_name})}
 
 
 @c % -----------------------------------------------------------
@@ -2248,7 +2177,7 @@ molecules and can be found under @command{Calculate ->
   manager}.  Some people think that this is not always desirable, so
   this behaviour can be undone using:
 
-@code{(set-model-fit-refine-dialog-stays-on-top 0)}
+@code{set_model_fit_refine_dialog_stays_on_top(0)}
 
 
 @node    Regularization and Real Space Refinement 
@@ -2304,10 +2233,10 @@ it explicitly).
 
 
 Use, for example, 
-@cindex @code{set-matrix}
+@cindex @code{coot.set_matrix}
 @cindex weight, real space refinement
 @cindex refinement weight
-@code{(set-matrix 20.0)}
+@code{coot.set_matrix(20.0)}
 
 
 to change the weight of the map gradients to geometric gradients.  The
@@ -2325,8 +2254,7 @@ refine a residue range.  Pressing @key{A} on the keyboard while
 selecting an atom in a residue will automatically create a residue
 range with that residue in the middle.  By default the zone is
 extended one residue either size of the central residue.  This can be
-changed to 2 either side using @code{(set-refine-auto-range-step
-  2)}.
+changed to 2 either side using @code{coot.set_refine_auto_range_step(2)}.
 
 Intermediate (white) atoms can be moved around with the mouse (click
 and drag with left-mouse, by default).  
@@ -2346,12 +2274,6 @@ representing the chi squared values of each
 of types of geometric feature refined.  Typically ``5 greens'' is the
 thing to aim for, the colour changes occurring at chi squared values 2, 5
 and 8 (8 being the most red).
-
-To prevent the unintentional refinement of a large number of residues,
-there is a ``heuristic fencepost'' of 20 residues.  A selection of
-than 20 residues will not be regularized or refined.  The limit can be
-changed using the scripting function: @emph{e.g.}
-@code{(set-refine-max-residues 30)}.
 
 @node Dictionary
 @subsection Dictionary
@@ -2387,7 +2309,7 @@ consists of INH, LIG, DRG, XXX, and the series LG0-9.
 Alternatively, you can use
 the function:
 
-@code{(read-cif-dictionary @emph{filename})}
+@code{coot.read_cif_dictionary(@emph{filename})}
 
 and add this to your @code{.coot} file (this may be the preferred
 method if you want to read the file on more than one occasion).  
@@ -2413,17 +2335,17 @@ The following adds a key binding (Shift-R) that refines resides that are
 within 3.5@AA{} of the residue at the centre of the screen:
 
 @verbatim
-        
-(define *sphere-refine-radius* 3.5)
 
-(add-key-binding "Refine residues in a sphere" "R"
-    (lambda ()
-     (using-active-atom
-      
-      (let* ((rc-spec (list aa-chain-id aa-res-no aa-ins-code))
-	     (ls (residues-near-residue aa-imol rc-spec *sphere-refine-radius*)))
-	(refine-residues aa-imol (cons rc-spec ls))))))
+sphere_refine_radius = 3.5
 
+def sphere_refine():
+    with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code,
+                               aa_atom_name, aa_alt_conf]:
+        rc_spec = [aa_chain_id, aa_res_no, aa_ins_code]
+        ls = residues_near_residue(aa_imol, rc_spec, sphere_refine_radius)
+        refine_residues(aa_imol, [rc_spec] + ls)
+
+add_key_binding("Refine residues in a sphere", "R", sphere_refine)
 
 @end verbatim
 
@@ -2433,9 +2355,9 @@ within 3.5@AA{} of the residue at the centre of the screen:
 @cindex refining residues
 
 You can specify the residues that you want to refine without using a
-linear or sphere selection usine @code{refine-residues}.   For example:
+linear or sphere selection using @code{coot.refine_residues}.  For example:
 
-@code{(refine-residues 0 '(("L" 501 "") ("L" 503 "")))}
+@code{coot.refine_residues(0, [["L", 501, ""], ["L", 503, ""]])}
 
 will refine residues A501 and A503 (and residue A502 (if it exists)
 will be an anchoring residue - used in optimizing the link geometry of
@@ -2464,9 +2386,9 @@ Bonds between protein and carbohydrate and branched carbohydrates can be
 refined using ``Sphere Refinement''.
 
 Instead of using a sphere to make a residue selection, you can specify
-the residues directly using @code{refine-residues}, for example:
+the residues directly using @code{coot.refine_residues}, for example:
 
-@code{(refine-residues 0 '(("L" 501 "") ("L" 503 "")))}
+@code{coot.refine_residues(0, [["L", 501, ""], ["L", 503, ""]])}
 
 LINK and LINKR cards are not yet used to determine the geometry of the
 restraints.
@@ -2483,11 +2405,11 @@ peptide restraints.  These restraints should help in low resolution
 fitting (the main-chains becomes less distorted), reduce accidental
 cis-peptides and may help ``clean up'' Ramachandran plots.
 
-@code{(add-planar-peptide-restraints)}
+@code{coot.add_planar_peptide_restraints()}
 
 And similarly they can be removed:
 
-@code{(remove-planar-peptide-restraints)}
+@code{coot.remove_planar_peptide_restraints()}
 
 There is also a GUI to add and remove these restraints in
 @code{Extensions -> Refine@dots{} -> Peptide Restraints@dots{}} 
@@ -2512,7 +2434,7 @@ By default, atoms with zero occupancy are moved when refining and
 regularizing.  This can sometimes be inconvenient.  To turn of the
 movement of atoms with zero occupancy when refining and regularizing:
 
-@code{(set-refinement-move-atoms-with-zero-occupancy 0)}
+@code{coot.set_refinement_move_atoms_with_zero_occupancy(0)}
 
 
 @c --------------------------------------------------
@@ -2551,7 +2473,7 @@ Click ``OK'' (or press Return) when the transformation is complete.
 To change the rotation point to the centre of the intermediate atoms
 (rather than the second clicked atom), use the setting:
 
-@code{(set-rotate-translate-zone-rotates-about-zone-centre 1)}
+@code{coot.set_rotate_translate_zone_rotates_about_zone_centre(1)}
 
 @node Rigid Body Refinement  
 @section Rigid Body Refinement
@@ -2568,7 +2490,7 @@ negative density.  If you want to over-rule the default fraction of
 atoms in the zone that have an acceptable fit (0.75), to be (say)
 0.25:
 
-@code{(set-rigid-body-fit-acceptable-fit-fraction 0.25)}
+@code{coot.set_rigid_body_fit_acceptable_fit_fraction(0.25)}
 
 @node    Simplex Refinement 
 @section Simplex Refinement
@@ -2583,8 +2505,8 @@ refinement for a residue range @code{@emph{start-resno}} to
 @code{@emph{end-resno}} (inclusive) in chain @code{@emph{chain-id}} can
 be accessed as follows:
 
-@code{(fit-residue-range-to-map-by-simplex @emph{start-resno end-resno alt-loc 
-        chain-id imol imol-for-map})}
+@code{fit_residue_range_to_map_by_simplex(@emph{start_resno}, @emph{end_resno}, @emph{alt_loc},
+        @emph{chain_id}, @emph{imol}, @emph{imol_for_map})}
 
 There is currently no GUI interface to Simplex refinement.
 
@@ -2596,10 +2518,10 @@ If you wanted automatically run a function after a model has been
 manipulated then you can do so using by creating a function that takes
 2 arguments, such as:
 
-@code{(post-manipulation-hook @emph{imol manipulation-mode})}
+@code{coot.post_manipulation_hook(@emph{imol manipulation_mode})}
 
-@code{@emph{manipulation-mode}} is one of @code{@emph{(DELETED)}},
-@code{@emph{(MUTATED)}} or @code{@emph{(MOVINGATOMS)}}.
+@code{@emph{manipulation_mode}} is one of @code{DELETED},
+@code{MUTATED} or @code{MOVINGATOMS}.
 
 And of course @code{@emph{imol}} is the model number of the maniplated
 molecule.
@@ -2662,7 +2584,7 @@ If you try to trace a high resolution map (1.5@AA{}  or better) you will
 need to increase the skeleton search depth from the default (10), for
 example:
 
-@code{(set-max-skeleton-search-depth 20)}
+@code{coot.set_max_skeleton_search_depth(20)}
 
 Alternatively, you could generate a new map using data
 to a more moderate resolution (2@AA{}), the map may be easier to
@@ -2703,12 +2625,12 @@ that?
 @itemize
 @item Use the command: 
 
-@code{(set-baton-build-params @emph{start-resno}
-    @emph{chain-id} "backwards")}
+@code{coot.set_baton_build_params(@emph{start_resno},
+    @emph{chain_id}, "backwards")}
 
-where @code{@emph{start-resno}} would typically
+where @code{@emph{start_resno}} would typically
     be 0 @footnote{@emph{i.e.} one less than the starting residue in the
-    forward direction (defaults to 1).} and @code{@emph{chain-id}} would be
+    forward direction (defaults to 1).} and @code{@emph{chain_id}} would be
     @code{""} (default).
 @item Recentre the graphics window on the first atom of the just-build
   fragment
@@ -2765,12 +2687,12 @@ helices and strands, but less well @footnote{@emph{i.e.}  there are
 
 This function is also available from the scripting interface:
 
-@code{(db-mainchain @emph{imol chain-id resno-start resno-end direction})}
+@code{coot.db_mainchain(@emph{imol chain_id resno_start resno_end direction})}
     
 where direction is either @code{"backwards"} or @code{"forwards"}. 
 
-Recall that the @code{@emph{chain-id}} needs to be quoted, @emph{i.e.}
-use @code{"A"} not @code{A}.  Note that @code{@emph{chain-id}} is
+Recall that the @code{@emph{chain_id}} needs to be quoted, @emph{i.e.}
+use @code{"A"} not @code{A}.  Note that @code{@emph{chain_id}} is
 @code{""} when the C@math{\alpha}s have been built with Baton Mode in
 Coot.
 
@@ -2784,7 +2706,7 @@ Coot.
 @c %the plot and the coordinates in the graphics window will change to the
 @c %$\phi/\psi$ values in the Ramachandran plot.
 
-@node    Backbone Torsion Angles 
+@node    Backbone Torsion Angles
 @section Backbone Torsion Angles
 @cindex mainchain torsions
 It is possible to edit the backbone @math{\phi} and @math{\psi} angles
@@ -2854,48 +2776,48 @@ residue too close to them, if they are not then there should be no
 restriction from the other atoms as to the position of this residue -
 the default is ``are sensible'', which means that the algorithm is
 prevented from finding solutions that are too close to the atoms of
-other residues. @code{(set-rotamer-check-clashes 0)} will stop this.
+other residues. @code{coot.set_rotamer_check_clashes(0)} will stop this.
 
 
 There is a scripting interface to auto-fitting rotamers:
 
-@code{(auto-fit-best-rotamer @emph{resno alt-loc ins-code chain-id
-imol-coords
-imol-map clash-flag lowest-rotamer-probability})}
+@code{coot.auto_fit_best_rotamer(@emph{chain_id}, @emph{resno}, @emph{alt_loc}, @emph{ins_code},
+@emph{imol_coords},
+@emph{imol_map}, @emph{clash_flag}, @emph{lowest_rotamer_probability})}
 
 where:
 
 @code{@emph{resno}} is the residue number
 
-@code{@emph{alt-loc}} is the alternate/alternative location symbol
+@code{@emph{alt_loc}} is the alternate/alternative location symbol
 (@emph{e.g.} @code{"A"} or @code{"B"}, but most often @code{""})
 
-@code{@emph{ins-code}} is the insertion code (usually @code{""})
+@code{@emph{ins_code}} is the insertion code (usually @code{""})
 
-@code{@emph{imol-coords}} is the molecule number of the coordinates molecule
+@code{@emph{imol_coords}} is the molecule number of the coordinates molecule
 
-@code{@emph{imol-map}} is the molecule number of the map to which
+@code{@emph{imol_map}} is the molecule number of the map to which
 you wish to fit the side chains
 
-@code{@emph{clash-flag}} should the positions of other residues be
+@code{@emph{clash_flag}} should the positions of other residues be
 included in the scoring of the rotamers (@emph{i.e.} clashing with other
 other atoms gets marked as bad/unlikely)
 
-@code{@emph{lowest-rotamer-probability}}: some rotamers of some side
+@code{@emph{lowest_rotamer_probability}}: some rotamers of some side
 chains are so unlikely that they shouldn't be considered - typically
 0.01 (1%).
 
 
 You can change the auto-fit rotamer fitting algorithms using
 
-@code{(set-rotamer-search-mode @emph{mode})}
- 
-where @code{@emph{mode}} is one of @code{(ROTAMERSEARCHAUTOMATIC)},
-@code{(ROTAMERSEARCHLOWRES)} (@emph{i.e.} "Backrub Rotamers"
-(@emph{vide infra})) or @code{(ROTAMERSEARCHHIGHRES)} (the
+@code{coot.set_rotamer_search_mode(@emph{mode})}
+
+where @code{@emph{mode}} is one of @code{ROTAMERSEARCHAUTOMATIC},
+@code{ROTAMERSEARCHLOWRES} (@emph{i.e.} "Backrub Rotamers"
+(@emph{vide infra})) or @code{ROTAMERSEARCHHIGHRES} (the
 conventional/high-resolution method using rigid-body fitting).
 
-By default, the auto-fit rotamer method is @code{(ROTAMERSEARCHAUTOMATIC)}.
+By default, the auto-fit rotamer method is @code{ROTAMERSEARCHAUTOMATIC}.
 
 @subsubsection Backrub Rotamers
 @cindex backrub rotamers
@@ -2922,19 +2844,19 @@ clashing residues
 residue range) and you need to rotate side-chains to a non-clashing
 rotamer.  There is a scripting interface:
 
-@code{(de-clash @emph{imol chain-id start-resno end-resno})}
+@code{coot.de_clash(@emph{imol chain_id start_resno end_resno})}
 
-@code{@emph{start-resno}} is the residue number of the first residue
+@code{@emph{start_resno}} is the residue number of the first residue
 you wish to de-clash
 
-@code{@emph{end-resno}} is the residue number of the last residue
+@code{@emph{end_resno}} is the residue number of the last residue
 you wish to de-clash
 
 @code{@emph{imol}} is the molecule number of the coordinates molecule
 
 This interface will not change residues with insertion codes or
 alternate conformation.  The
-@code{@emph{lowest-rotamer-probability}} is set to 0.01.
+@code{@emph{lowest_rotamer_probability}} is set to 0.01.
 
 @node Editing Chi Angles
 @section Editing chi Angles
@@ -2966,7 +2888,7 @@ you click!
 
 By default torsions for hydrogen atoms are turned off.  To turn them on:
 
-@code{(set-find-hydrogen-torsions 1)}
+@code{set_find_hydrogen_torsions(1)}
 
 To edit the rotatable bonds of a ligand using this tool, you will need
 to have read in the mmCIF dictionary beforehand.
@@ -3022,7 +2944,7 @@ The default occupancy for new atoms is 0.5.  This can be changed by
 using use slider on the rotamer selection window or by using the
 scripting function:
 
-@code{(set-add-alt-conf-new-atoms-occupancy 0.4)}
+@code{coot.set_add_alt_conf_new_atoms_occupancy(0.4)}
 
 The remaining occupancy of the atoms (after the new occupancy has been
 added) is split amongst the atoms that existed in the residue before
@@ -3031,13 +2953,13 @@ sane occupancies before adding an alternative conformation.
 
 @c % The intermediate atoms interface can be forced using:
 
-@c % @code{(set-show-alt-conf-intermediate-atoms 1)}
+@c % @code{set_show_alt_conf_intermediate_atoms(1)}
 
 The default Split Type is to split the whole residue.  If you want the
 default to be to split a residue after (and including) the CA, then add
 to your @file{.coot} file:
 
-@code{(set-add-alt-conf-split-type-number 0)}
+@code{set_add_alt_conf_split_type_number(0)}
 
 @node Mutation
 @section Mutation
@@ -3078,9 +3000,9 @@ the scripting interface.  Unlike the single residue mutation function,
 a residue type match @emph{will} prevent a modification of the
 residue @footnote{@emph{i.e.} the residue atoms will remain untouched}.
 Two functions are provided: To mutate a whole chain, use
-@code{(mutate-chain @emph{imol} @emph{chain-id sequence})} where:
+@code{coot.mutate_chain(@emph{imol}, @emph{chain_id}, @emph{sequence})} where:
 
-@code{@emph{chain-id}} is the chain identifier of the chain that you wish
+@code{@emph{chain_id}} is the chain identifier of the chain that you wish
 to mutate (@emph{e.g.} @code{"A"}) and 
 
 @code{@emph{imol}} is molecule number.  
@@ -3098,8 +3020,8 @@ To mutate a residue range, use
 
 @itemize
 @item 
-@code{(mutate-residue-range @emph{imol} @emph{chain-id}
-  @emph{start-res-no} @emph{stop-res-no sequence})}
+@code{mutate_residue_range(@emph{imol}, @emph{chain_id},
+  @emph{start_res_no}, @emph{stop_res_no}, @emph{sequence})}
 @end itemize
 
 where
@@ -3115,8 +3037,8 @@ length.  Note also that this is a protein sequence - not nucleic acid.
 
 For mutation of nucleic acids, use: 
 
-@code{(mutate-nucleotide-range @emph{imol chain-id resno-start
-      resno-end sequence})}
+@code{coot.mutate_nucleotide_range(@emph{imol}, @emph{chain_id}, @emph{resno_start},
+      @emph{resno_end}, @emph{sequence})}
 
 @subsection Mutating to a Non-Standard Residue
 
@@ -3126,7 +3048,7 @@ the standard residue types?
  
 There is a scripting function: 
 
-@code{(mutate-by-overlap @emph{imol chain-id resno new-three-letter-code})}
+@code{coot.mutate_by_overlap(@emph{imol chain_id resno new_three_letter_code})}
 
 This imports a model residue for the new residue type and overlays it on
 to the given residue by using graph-matching to determine the equivalent
@@ -3157,8 +3079,8 @@ Renumbering is straightforward using the
 renumber dialog available under @command{Calculate ->
   Renumber Residue Range@dots{}}.  There is also a scripting interface:
 
-@code{(renumber-residue-range @emph{imol chain-id start-res-no
-    last-resno offset})}
+@code{coot.renumber_residue_range(@emph{imol}, @emph{chain_id}, @emph{start_res_no},
+    @emph{last_resno}, @emph{offset})}
 
 
 @node    Importing Ligands/Monomers
@@ -3215,7 +3137,7 @@ map is searched for clusters using a default cut-off of 1.0@math{\sigma}.
 In weak density this cut-off may be too high and in such a case the
 cut-off value can be changed using something such as:
 
-@code{(set-ligand-cluster-sigma-level 0.8)}
+@code{coot.set_ligand_cluster_sigma_level(0.8)}
 
 However, if the map to be searched for ligands is a difference map, a
 cluster level of 2.0 or 3.0 would probably be more appropriate (less
@@ -3231,7 +3153,7 @@ index and residue type of the best fit ligand in that site.
 By default, the top 10 sites are tested for ligands - to increase this
 use:
 
-@code{(set-ligand-n-top-ligands 20)}
+@code{coot.set_ligand_n_top_ligands(20)}
 
 @subsection Flexible Ligands
 @cindex ligands, flexible
@@ -3248,7 +3170,7 @@ dictionary for that particular ligand residue type (@command{File
 
 Use:
 
-@code{(set-ligand-flexible-ligand-n-samples @emph{n-samples})}
+@code{coot.set_ligand_flexible_ligand_n_samples(@emph{n_samples})}
 
 where @code{@emph{n-samples}} is the number of samples of flexibility
 made for each ligand.  Generally speaking, The more the number of
@@ -3257,7 +3179,7 @@ rotatable bonds, the bigger this number should be.
 By default the options to change these values are not in the GUI.  To
 enable these GUI options, use the scripting function:
 
-@code{(ligand-expert)}
+@code{ligand_expert()}
 
 @subsection Adding Ligands to Model
 After successful ligand searching, one may well want to add that
@@ -3274,7 +3196,7 @@ Sometimes a ligand is placed more or less in the correct position, but
 the orientation is wrong - or at least you might want to explore other
 possible orientation.  To do that easily a function has been provided:
 
-@code{(flip-ligand @emph{imol chain-id residue-number})}
+@code{coot.flip_ligand(@emph{imol chain_id residue_number})}
 
 This will flip the orientation of the residue around the Eigen vector
 corresponding to the largest Eigen value, exploring 4 possible
@@ -3283,7 +3205,7 @@ orientations.
 This function has been further wrapped to provide flipping for the active
 residue: 
 
-@code{(flip-active-ligand)}
+@code{coot.flip_active_ligand()}
 
 This function can easily be bound to a key.
 
@@ -3308,7 +3230,7 @@ optionally created in a new molecule called ``Waters''.
 
 You have control over several parameters used in the water finding:
 
-@code{(set-write-peaksearched-waters)} 
+@code{coot.set_write_peaksearched_waters()}
 
 which writes @code{ligand-waters-peaksearch-results.pdb}, which
 contains the water peaks (from the clusters) without any filtering and
@@ -3316,11 +3238,11 @@ contains the water peaks (from the clusters) without any filtering and
 have been either added to the molecule or from which a new molecule
 has been created.
 
-@code{(set-ligand-water-to-protein-distance-limits @emph{min-d max-d})} sets
+@code{coot.set_ligand_water_to_protein_distance_limits(@emph{min_d max_d})} sets
 the minimum and maximum allowable distances between new waters and the
 masking molecule (usually the protein).  Defaults are 2.4 and 3.2@AA{}.
 
-@code{(set-ligand-water-spherical-variance-limit @emph{varlim})} sets the
+@code{coot.set_ligand_water_spherical_variance_limit(@emph{varlim})} sets the
 upper limit for the density variance around water atoms. The default
 is 0.12.
 @c % $electrons^2/@AA{}^6$.
@@ -3328,7 +3250,7 @@ is 0.12.
 The map that is marked by the protein and is searched to find the
 waters is written out in CCP4 format as @code{"masked-for-waters.map"}.
 
-@subsection Refinement Failure 
+@subsection Refinement Failure
 
 Sometimes as a result of water fitting, you may see something like:
 
@@ -3380,7 +3302,7 @@ addressed in a number of ways:
 @enumerate
 
 @item 
-@code{(set-terminal-residue-do-rigid-body-refine 0)} will disable
+@code{set_terminal_residue_do_rigid_body_refine(0)} will disable
 rigid body fitting of the terminal residue fragment for
 each trial residue position (the default is 1 (on)) - this may help if
 the search does not provide good results.
@@ -3388,10 +3310,10 @@ the search does not provide good results.
 @item
 to anneal the newly added residue back to the clicked residue (no
 matter where it ended up being positioned):
-@code{(set-add-terminal-residue-do-post-refine 1)}
+@code{coot.set_add_terminal_residue_do_post_refine(1)}
 
 @item
-@code{(set-add-terminal-residue-n-phi-psi-trials 200)} will change the
+@code{set_coot.add_terminal_residue_n_phi_psi_trials(200)} will change the
 number of trials (default is 100).  This is useful if you think that
 Coot needs to search harder to find a good solution to the positioning
 of the next residue.
@@ -3414,10 +3336,10 @@ the residue.
 
 Scripting usage:
 
-@code{(add-OXT-to-residue imol residue-number insertion-code
-  chain-id)} @footnote{@emph{e.g.} @code{(add-OXT-to-residue 0 428 "" "A")}}, 
+@code{coot.add_OXT_to_residue(@emph{imol}, @emph{chain_id}, @emph{residue_number}, @emph{insertion_code})}
+@footnote{@emph{e.g.} @code{coot.add_OXT_to_residue(0, 428, "", "A")}},
 
-where @code{insertion-code} is typically @code{""}.  
+where @code{insertion_code} is typically @code{""}.  
 
 Note, in order to place OXT, the N, CA, C and O atoms must be present
 in the residue - if (for example) the existing carbonyl oxygen atom is
@@ -3429,7 +3351,7 @@ By default, ``Add Atom At Pointer'' will pop-up a dialog from which
 you can choose the atom type you wish to insert @footnote{including
   sulfate or phosphate ions (in such a case, it is probably useful to
 do a ``Rigid Body Fit Zone'' on that new residue).}.  Using
-@code{(set-pointer-atom-is-dummy 1)} you can by-pass this dialog and
+@code{coot.set_pointer_atom_is_dummy(1)} you can by-pass this dialog and
 immediately create a dummy atom at the pointer position.  Use an
 argument of @code{0} to revert to using the atom type selection
 pop-up on a button press.
@@ -3454,7 +3376,7 @@ can build the majority of a helical protein in a few minutes using this
 method (you will of course have to assemble the helices and assign
 residue numbers and sequence later).
 
-This is available as a scripting function @code{(place-helix-here)} and
+This is available as a scripting function @code{place_helix_here()} and
 in the GUI (in the ``Other Modelling Tools'' dialog).
 
 @node    Building Ideal DNA and RNA
@@ -3468,7 +3390,7 @@ pressing the ``Ideal RNA/DNA@dots{}'' button on the ``Other Modelling
 Tools'' dialog.
 
 For a given sequence, a choice of DNA or RNA, A or B form, single or
-double stranded is presented.  
+double stranded is presented.
 
 The interface may not gracefully handle uracils in DNA, thymines in
 RNA or B form RNA.
@@ -3490,11 +3412,11 @@ residues that are in one molecule to the ``working'' coordinates
 
 The scripting interface is used like this
 
-@code{(merge-molecules @emph{molecule-list} @emph{target-molecule})}
+@code{coot.merge_molecules(@emph{molecule_list}, @emph{target_molecule})}
 
 @emph{e.g.}
 
-@code{(merge-molecules (list 1 2 ) 0)}
+@code{coot.merge_molecules([1, 2], 0)}
 
 merges molecules 1 and 2 into molecule 0.
 
@@ -3505,7 +3427,7 @@ merges molecules 1 and 2 into molecule 0.
 The default temperature factor for new atoms is 30.0.  This can be
 changed by the following
 
-@code{(set-default-temperature-factor-for-new-atoms 50.0)}
+@code{coot.set_default_temperature_factor_for_new_atoms(50.0)}
 
 @node    Applying NCS Edits
 @section Applying NCS Edits
@@ -3521,22 +3443,22 @@ done?
 There are now guis to NCS command to help you out (under Extensions).
 However, for completeness here are the scripting versions:
 
-@code{(copy-from-ncs-master-to-others @emph{imol} @emph{master-chain-id})}
+@code{coot.copy_from_ncs_master_to_others(@emph{imol}, @emph{master_chain_id})}
 
 If you have only a range of residues, rather than a whole chain to replace:
 
-@code{(copy-residue-range-from-ncs-master-to-others @emph{imol} 
-        @emph{master-chain-id start-resno end-resno})}
+@code{coot.copy_residue_range_from_ncs_master_to_others(@emph{imol},
+        @emph{master_chain_id}, @emph{start_resno}, @emph{end_resno})}
 
 e.g.
 
-@code{(copy-residue-range-from-ncs-master-to-others 0 "A" 1 5)}
+@code{coot.copy_residue_range_from_ncs_master_to_others(0, "A", 1, 5)}
 
 If you want to copy a residue range to a specific chain, or specific
 list of chains (rather than all NCS peer chains) then make a list of
 the chain-ids that you wish replaced:
 
-@code{(copy-residue-range-from-ncs-master-to-chains 0 "A" 1 5 (list "C"))}
+@code{coot.copy_residue_range_from_ncs_master_to_chains(0, "A", 1, 5, ["C"])}
 
 in this case, just the residues in the "C" chain is replaced.
 
@@ -3557,14 +3479,14 @@ You can add extra parameters
 @cindex refmac parameters
 (data lines) to
 refmac's input by storing them in a file called
-@code{refmac-extra-params} in the directory in which you started
+@code{refmac_extra_params} in the directory in which you started
 coot.
 
 You can also provide extra/replacement parameters for refmac by setting
-the variable @code{refmac-extra-params} to a list of strings, for
+the variable @code{refmac_extra_params} to a list of strings, for
 example:
 
-@code{(set! refmac-extra-params (list "REFINE MATRIX 0.1" "MAKE HYDROGENS NO"))}
+@code{refmac_extra_params = ["REFINE MATRIX 0.1", "MAKE HYDROGENS NO"]}
 
 
 Coot ``blocks'' @footnote{@emph{i.e.} Coot is idle and ignores all
@@ -3579,9 +3501,9 @@ The default refmac executable
 is @code{refmac5} it is presumed to be in the
 path.  If you don't want this, it can be overridden using a
 re-definition either at the scripting interface or in one's
-@code{~/.coot} file @emph{e.g.}:
+@code{~/.coot.py} file @emph{e.g.}:
 @itemize
-@item @code{(define refmac-exec "/e/refmac-new/bin/refmac5.6.3")}
+@item @code{refmac_exec = "/e/refmac-new/bin/refmac5.6.3"}
 @end itemize
 
 @cindex refmac map colour
@@ -3590,7 +3512,7 @@ find that you prefer if the new map that refmac creates (after refmac
 refinement) is the same colour as the previous one (from before this
 refmac refinement).  If so, use:
 
-@code{(set-keep-map-colour-after-refmac 1)}
+@code{set_keep_map_colour_after_refmac(1)}
 
 which will swap the colours of then new and old refmac map so that the
 post-refmac map has the same colour as the pre-refmac map and the
@@ -3604,17 +3526,17 @@ pre-refmac map is coloured with a different colour.
 Coot can read shelx @t{.res} files and write @t{.ins} files, and thus
 one can refine using SHELXL in a convenient manner using the function 
 
-@code{(shelxl-refine @emph{imol} . @emph{hkl-file-name})}
+@code{coot.shelxl_refine(@emph{imol}, @emph{hkl_file_name})}
 
-(the @code{@emph{hkl-file-name}} is an optional argument)
+(the @code{@emph{hkl_file_name}} is an optional argument)
 
 @emph{e.g.}
 
-@code{(shelxl-refine 0)}
+@code{coot.shelxl_refine(0)}
 
 or 
 
-@code{(shelxl-refine 0 "insulin.hkl")}
+@code{coot.shelxl_refine(0, "insulin.hkl")}
 
 In the former case, coot will presume that there is a SHELX @t{hkl} file
 corresponding to the @t{res} file that you read in; if there is not coot
@@ -3675,33 +3597,33 @@ open, ready for deletion of next item.
 
 An atom can be delete using the scripting
 
-@code{(delete-atom @emph{imol chain-id residue-no ins-code atom-name alt-conf})}
+@code{coot.delete_atom(@emph{imol chain_id residue_no ins_code atom_name alt_conf})}
 
 Residues can be deleted using the scripting
 
-@code{(delete-residue @emph{imol chain-id residue-no ins-code})}
+@code{coot.delete_residue(@emph{imol chain_id residue_no ins_code})}
 
 Residue ranges can be deleted using the scripting
 
-@code{(delete-residue-range @emph{imol chain-id residue-no-start residue-no-end})}
+@code{coot.delete_residue_range(@emph{imol chain_id residue_no_start residue_no_end})}
 
 Chains can be deleted using the scripting
 
-@code{(delete-chain @emph{imol chain-id})}
+@code{coot.delete_chain(@emph{imol chain_id})}
 
 Sidechains can be deleted from a region:
 
-@code{(delete-side-chain-range @emph{imol chain-id residue-no-start residue-no-end})}
+@code{coot.delete_side_chain_range(@emph{imol chain_id residue_no_start residue_no_end})}
 
 or for a chain
 
-@code{(delete-sidechains-for-chain @emph{imol chain-id})}
+@code{delete_sidechains_for_chain(@emph{imol chain_id})}
 
 @node    Sequence Assignment 
 @section Sequence Assignment 
 You can assign a (FASTA format) sequence to a molecule using:
 
-@code{(assign-fasta-sequence imol chain-id fasta-seq)}
+@code{coot.assign_fasta_sequence(imol, chain-id, fasta-seq)}
 
 This function has been provided as a precursor to functions that will
 (as automatically as possible) mutate your current coordinates to one
@@ -3716,11 +3638,11 @@ Coot can build missing linking regions or loops
 in tests}. The function can be found under  @command{Calculate -> Fit Loop -> Fit Loop by Rama Search} 
 or the scripting function:
 
-@code{(fit-gap @emph{imol} @emph{chain-id} @emph{start-resno} @emph{stop-resno})}
+@code{coot.fit_gap(@emph{imol}, @emph{chain_id}, @emph{start_resno}, @emph{stop_resno})}
 
 and 
 
-@code{(fit-gap @emph{imol} @emph{chain-id} @emph{start-resno} @emph{stop-resno} @emph{sequence})}
+@code{coot.fit_gap(@emph{imol}, @emph{chain_id}, @emph{start_resno}, @emph{stop_resno}, @emph{sequence})}
 
 the second form will also mutate and try to rotamer fit the provided sequence.
 
@@ -3728,7 +3650,7 @@ Example usage: let's say for molecule number 0 in chain @code{"A"}
 we have residues up to 56 and then a gap after which we have residues
 62 and beyond:
 
-@code{(fit-gap 0 "A" 57 61 "TYPWS")}
+@code{coot.fit_gap(0, "A", 57, 61, "TYPWS")}
 
 @node    Fill Partial Residues
 @section Fill Partial Residues
@@ -3738,14 +3660,14 @@ After molecular replacement, the residues of your protein could well
 have the correct sequence but be chopped back to CG or CB atoms. There
 is a function to fill such partially-filled residues:
 
-@code{(fill-partial-residues @emph{imol})}
+@code{coot.fill_partial_residues(@emph{imol})}
 
 This identifies residues with missing atoms, then fills them and does a
 rotamer fit and real-space refinement.
 
 If you want to fill the side chain of just one residue
 
-@code{(fill-partial-residue @emph{imol chain-id res-no ins-code})}
+@code{coot.fill_partial_residue(@emph{imol chain_id res_no ins_code})}
 
 this does a auto-fit-best-rotamer and a refinement on the resulting
 side-chain position.
@@ -3759,7 +3681,7 @@ side-chain position.
 You can change the chain ids of chains using @command{Calculate ->
 Change Chain IDs@dots{}}.  Coot will block an attempt to change the
 whole of a chain and the target chain id already exists in the
-molecule.  
+molecule.
 
 If you use the "Residue Range" option then you can insert residues
 with non-conflicting residue number into pre-existing chains.
@@ -3772,13 +3694,13 @@ individual atoms, one can use a scripting function to change
 occupancies of a whole residue range:
 
 @itemize 
-@item @code{(zero-occupancy-residue-range @emph{imol chain-id 
-resno-start resno-last})}
+@item @code{coot.zero_occupancy_residue_range(@emph{imol}, @emph{chain_id},
+@emph{resno_start}, @emph{resno_last})}
 @end itemize
 
 example usage:
 
-@code{(zero-occupancy-residue-range 0 "A" 23 28)}
+@code{coot.zero_occupancy_residue_range(0, "A", 23, 28)}
 
 This is often useful to zero out a questionable loop before submitting
 for refinement.  After refinement (with refmac) there should be
@@ -3788,8 +3710,8 @@ difference maps.
 Similarly there is a function to reverse this operation:
 
 @itemize
-@item @code{(fill-occupancy-residue-range @emph{imol chain-id 
-      resno-start resno-last})}
+@item @code{coot.fill_occupancy_residue_range(@emph{imol}, @emph{chain_id},
+      @emph{resno_start}, @emph{resno_last})}
 @end itemize
 
 
@@ -3798,7 +3720,7 @@ Similarly there is a function to reverse this operation:
 
 Currently this is available only in scripting form:
 
-@code{(fix-nomenclature-errors @emph{imol})}
+@code{coot.fix_nomenclature_errors(@emph{imol})}
 
 This will fix atoms nomenclature problems in molecule number
 @code{@emph{imol}} according to the same criteria as WATCHECK
@@ -3813,7 +3735,7 @@ protein structures.  @emph{Nature} (1996) @strong{381}, 272-272.}
        
 There is an experimental scripting function
 
-@code{(fit-protein @emph{imol})}
+@code{fit_protein(@emph{imol})}
 
 which does a auto-fit rotamer and Real Space Refinement for each
 residue.  The graphics follow the refinement.
@@ -3825,7 +3747,7 @@ residue.  The graphics follow the refinement.
 All the waters in a model can be refined (that is, moved to the local
 density peak) using
 
-@code{(fit-waters @emph{imol})}
+@code{coot.fit_waters(@emph{imol})}
 
 This is a non-interactive function (the waters are moved without user
 intervention).
@@ -3843,20 +3765,20 @@ Here}.
 
 There are scripting functions available for this sort of thing:
 
-@code{(molecule-centre @emph{imol})} 
+@code{coot.molecule_centre(@emph{imol})} 
 
 will tell you the molecule centre 
 @cindex molecule centre
  of the
 @code{@emph{imol}}th molecule.
 
-@code{(translate-molecule-by @code{imol x-shift y-shift z-shift})}
+@code{translate_molecule_by(@code{imol x-shift y-shift z-shift})}
 
 will translate all the atoms in molecule @code{@emph{imol}} by the
 given amount (in @AA{}ngstr@"{o}ms).
 @cindex translate molecule
 
-@code{(move-molecule-to-screen-centre @emph{imol})}
+@code{coot.move_molecule_to_screen_centre(@emph{imol})}
 
 will move the @code{@emph{imol}}th molecule to the current centre of
 the screen (sometimes useful for imported ligands).  Note that this
@@ -3870,11 +3792,11 @@ If you don't like the labels "Rotate/Translate Zone" or "Place Atom at
 Pointer" and rather they said something else, you can change the button
 names using:
 
-@code{(set-model-fit-refine-rotate-translate-zone-label "Move Zone")}
+@code{coot.set_model_fit_refine_rotate_translate_zone_label("Move Zone")}
 
 and
 
-@code{(set-model-fit-refine-place-atom-at-pointer "Add Atom")}
+@code{coot.set_model_fit_refine_place_atom_at_pointer("Add Atom")}
 
 
 
@@ -3957,26 +3879,26 @@ map, "DELFWT" and "PHDELWT" for the difference map.  You can change the
 column labels that Coot uses for auto-reading - here is an example of
 how to do that:
 
-@code{(set-auto-read-column-labels "2FOFCWT" "PHIWT" 0)}
-@code{(set-auto-read-column-labels "FOFCWT" "DELPHIWT" 1)}
+@code{coot.set_auto_read_column_labels("2FOFCWT", "PHIWT", 0)}
+@code{coot.set_auto_read_column_labels("FOFCWT", "DELPHIWT", 1)}
 
 By default the difference map is created in auto-reading the MTZ file.
 If you don't want a difference map, you can use the function:
 
-@code{(set-auto-read-do-difference-map-too 0)}
+@code{coot.set_auto_read_do_difference_map_too(0)}
 
 @subsection Reading CIF data
 There are several maps that can be generated from CIF files that
 contain observed Fs, calculated Fs and calculated phases:
 
 @itemize 
-@item @code{(read-cif-data-with-phases-fo-alpha-calc
-    @emph{cif-file-name})} Calculate an atom map using @math{F_obs} and
+@item @code{coot.read_cif_data_with_phases_fo_alpha_calc(@emph{cif_file_name})}
+    Calculate an atom map using @math{F_obs} and
     @math{\alpha_calc}
-@item @code{(read-cif-data-with-phases-2fo-fc @emph{cif-file-name})}
+@item @code{coot.read_cif_data_with_phases_2fo_fc(@emph{cif_file_name})}
  Calculate an atom map using @math{F_obs}, @math{F_calc} and
   @math{\alpha_calc}
-@item @code{(read-cif-data-with-phases-fo-fc @emph{cif-file-name})}
+@item @code{coot.read_cif_data_with_phases_fo_fc(@emph{cif_file_name})}
  Calculate an difference map using @math{F_obs}, @math{F_calc} and
   @math{\alpha_calc}.
 @end itemize
@@ -3986,9 +3908,9 @@ contain observed Fs, calculated Fs and calculated phases:
 
 There are 2 ways to read data by scripting:
 
-@code{(read-phs-and-make-map-using-cell-symm @emph{phs-file-name space-group-name a b c alpha beta gamma})}
+@code{coot.read_phs_and_make_map_using_cell_symm(@emph{phs_file_name space_group_name a b c alpha beta gamma})}
 
-@code{(read-pdb-and-make-map-with-reso-limits @emph{imol-previous phs-file-name reso-limit-low reso-limit-high})}
+@code{coot.ead_pdb_and_make_map_with_reso_limits(@emph{imol_previous phs_file_name reso_limit_low reso_limit_high})}
 
 The first specifies the cell explicitly, and @code{@emph{alpha, beta}}
 and @code{@emph{gamma}} are specified in degrees. 
@@ -4030,7 +3952,7 @@ map
 @cindex difference map colours
 after it has been read, use:
 
-@code{(set-map-is-difference-map @emph{imol})}
+@code{coot.set_map_is_difference_map(@emph{imol})}
 
 where @code{@emph{imol}} is the molecule number.
 
@@ -4038,7 +3960,7 @@ By default the change of the contour level is determined from the sigma
 of the map.  You can change this in the map properties dialog or by
 using the scripting function:
 
-@code{(set-contour-by-sigma-step-by-mol @emph{step on/off? imol})}
+@code{coot.set_contour_by_sigma_step_by_mol(@emph{step on/off? imol})}
 
 where 
 
@@ -4064,7 +3986,7 @@ The extent of the map can be set using the GUI (@command{Edit -> Map
 Parameters -> Map Radius}) or by using the scripting function,
 @emph{e.g.}:
 
-@code{(set-map-radius 13.2)}
+@code{coot.set_map_radius(13.2)}
 
 @node    Map Contour ``Scrolling'' Limits
 @section Map Contour ``Scrolling'' Limits
@@ -4077,17 +3999,17 @@ negative contour levels of a map@footnote{in a coot
 Coot has by default a limit that stops the contour level going beyond
 (less than) 0.  To remove the limit:
 
-@code{(set-stop-scroll-iso-map 0)} for a 2Fo-Fc style map
+@code{coot.set_stop_scroll_iso_map(0)} for a 2Fo-Fc style map
 
-@code{(set-stop-scroll-diff-map 0)} for a difference map
+@code{coot.set_stop_scroll_diff_map(0)} for a difference map
 
 To set the limits to negative (@emph{e.g.} -0.6) levels:
 
-@code{(set-stop-scroll-iso-map-level -0.6)}
+@code{coot.set_stop_scroll_iso_map_level(-0.6)}
 
 and similarly: 
 
-@code{(set-stop-scroll-diff-map-level -0.6)}
+@code{coot.set_stop_scroll_diff_map_level(-0.6)}
 
 where the level is specified in @math{e^-/\AA^3}.
 
@@ -4097,11 +4019,11 @@ where the level is specified in @math{e^-/\AA^3}.
 @cindex density line thickness 
 @cindex thickness of density lines
 The width of the lines that describe the density can
-be changed like this:
+sometimes be changed like this:
 
-@code{(set-map-line-width 2)}
+@code{coot.set_map_line_width(2)}
 
-The default line width is 1.
+The default line width is 1. That's the only option on macOS.
 
 @node     Map colouring 
 @section ``Dynamic'' Map colouring 
@@ -4117,7 +4039,7 @@ As subsequent maps are read, they are coloured by rotation round a
 colour wheel.  The default colour map step is 31 degrees.  You can
 change this using:
 
-@code{(set-colour-map-rotation-for-map @emph{step})}
+@code{coot.set_colour_map_rotation_for_map(@emph{step})}
 
 @node    Difference Map Colouring
 @section Difference Map Colouring
@@ -4125,7 +4047,7 @@ For some strange reason, some crystallographers @footnote{Jan Dohnalek,
   for instance.} like to have their difference maps coloured with red
 as positive and green as negative, this option is for them:
 
-@code{(set-swap-difference-map-colours 1)}
+@code{coot.set_swap_difference_map_colours(1)}
 
 This option will allow the ``blue is positive, red is negative'' colour
 scheme on ``Edit -> Map Colour''.
@@ -4149,9 +4071,9 @@ above, the maps need not be on the same grid or in the same space group.
 The resulting map will have the same gridding and space group as the
 first map in the list.  Typical usage:
 
-@code{(average-map '((1 1.0) (2 1.0))))}
+@code{coot.average_map([[1, 1.0], [2, 1.0]])}
 
-The argument to @code{(average-map} is a list of lists, each list
+The argument to @code{average_map} is a list of lists, each list
 element is a list of the map number and a weighting factor (1.0 in this
 case).
 
@@ -4165,7 +4087,7 @@ larger values (@command{Edit -> Map Parameters ->
 
 This value can be set by the scripting command
 
-@code{(set-map-sampling-rate 2.5)}
+@code{coot.set_map_sampling_rate(2.5)}
 
 @node    Dragged Map 
 @section Dragged Map 
@@ -4176,7 +4098,7 @@ possible to turn it off: @command{Draw -> Dragged Map
 
 To change this by scripting:
 
-@code{(set-active-map-drag-flag 0)}
+@code{coot.set_active_map_drag_flag(0)}
 
 @node Dynamic Map Sampling and Display Size
 @section Dynamic Map Sampling and Display Size 
@@ -4190,10 +4112,10 @@ big maps (many
 unit cells) and the graphics still remain rotatable.
 
 If you want to have these functions active for all maps, add the
-following to your initialization file @ref{Scheme}:
+following to your initialization file @ref{Python}:
 
-@code{(set-dynamic-map-sampling-on)}
-@code{(set-dynamic-map-size-display-on)}
+@code{coot.set_dynamic_map_sampling_on()}
+@code{coot.set_dynamic_map_size_display_on()}
 
 @node Skeletonization
 @section Skeletonization
@@ -4242,16 +4164,16 @@ reflection data file.
 @section Pattersons
 @cindex Patterson
 
-Pattersons can be generated using the @code{make-and-draw-patterson}
+Pattersons can be generated using the @code{make_and_draw_patterson}
 function.  Example usage:
 
-@code{(make-and-draw-patterson @emph{mtz-file-name f-col sig-f-col})}
+@code{coot.make_and_draw_patterson(@emph{mtz_file_name f_col sig_f_col})}
 
 where @code{@emph{use-weights-flag}} is either @code{0} or @code{1}.
 
 @emph{e.g.}
 
-@code{(make-and-draw-patterson "native.mtz" "FP_nat" "SIGFP_nat")}
+@code{coot.make_and_draw_patterson("native.mtz", "FP_nat", "SIGFP_nat")}
 
 @node Map Re-Interpolation
 @section Map Re-Interpolation
@@ -4259,7 +4181,7 @@ where @code{@emph{use-weights-flag}} is either @code{0} or @code{1}.
 
 Maps can be re-interpolated to match a reference map.
 
-@code{(reinterp-map @emph{map-no reference-map-no})}
+@code{reinterp_map(@emph{map_no reference_map_no})}
 
 will create a copy of  @code{@emph{map-no}} in the same cell, spacegroup and grid spacing as  
 the @code{@emph{reference-map-no}} map.
@@ -4271,7 +4193,7 @@ the @code{@emph{reference-map-no}} map.
 A map can be masked by a set of coordinates. Use the
 scripting function: 
 
-@code{(mask-map-by-molecule @emph{imol-map} @emph{imol-model} @emph{invert-mask?})}
+@code{coot.mask_map_by_molecule(@emph{imol_map}, @emph{imol_model}, @emph{invert_mask?})}
 
 If @code{@emph{invert-mask?}} is 0, this will create a new map that has
 density only where there are no (close) coordinates.  If
@@ -4282,7 +4204,7 @@ to zero everywhere @emph{except} close to the atoms of molecule number
 The radius of the mask around each atom is 2.0@AA{} by default.  You can
 change this using:
 
-@code{(set-map-mask-atom-radius @emph{radius})}
+@code{coot.set_map_mask_atom_radius(@emph{radius})}
 
 There is a GUI interface to Map Masking under the Extensions menu. 
 
@@ -4297,7 +4219,7 @@ If one wanted to show just the density around a ligand:
   Let's say this map is molecule number 2.
 @item Mask the map:
 
-@code{(mask-map-by-molecule 2 1 1)}
+@code{coot.mask_map_by_molecule(2, 1, 1)}
 
 This creates a new map.  Turn the other maps off, leaving only the
 masked map.
@@ -4312,7 +4234,7 @@ To get a nice rendered image, press F8 (see Section @ref{Raster3D}).
 If you want to remove all the atoms @footnote{or set their occupancy to
   zero} that lie ``outside the map'' (@emph{i.e.} in low density) you can use
 
-@code{(trim-molecule-by-map @emph{imol-coords imol-map density-level delete/zero-occ?})}
+@code{coot.trim_molecule_by_map(@emph{imol_coords imol_map density_level delete/zero_occ?})}
 
 where @code{@emph{delete/zero-occ?}} is @code{0} to remove the atoms and
 @code{1} to set their occupancy to zero.
@@ -4326,7 +4248,7 @@ item.
 
 If you want to transform a map, you can do it thusly:
 
-@code{(transform-map @emph{imol} @emph{rotation-matrix} @emph{trans} @emph{point radius})}
+@code{coot.transform_map(@emph{imol}, @emph{rotation_matrix}, @emph{trans}, @emph{point radius})}
 
 where:
 
@@ -4346,7 +4268,7 @@ transformation is applied the centre of the new map is at
 
 Example usage:
 
-@code{(transform-map 2 '(1 0 0 0 1 0 0 0 1) '(0 0 1) (rotation-centre) 10)}
+@code{coot.transform_map(2, [1, 0, 0, 0, 1, 0, 0, 0, 1], [0, 0, 1], rotation_centre(), 10)}
 
 which transforms map number 2 by a translation of 1@AA{} along the Z
 axis, centred at the screen centre for 10@AA{} around that centre.
@@ -4369,9 +4291,9 @@ In the terminal output we get:
 
 The centre of the ``A'' molecule is at (58.456, 5.65, 11.108).  So we do:
 
-@code{(transform-map 3 (list 0.9707 0.2351 0.05033 -0.04676 0.39 -0.9196
--0.2358 0.8903 0.3896) (list -33.34 21.14 18.82) (list 58.456 5.65
-11.108) 8)}
+@code{coot.transform_map(3, [0.9707, 0.2351, 0.05033, -0.04676, 0.39, -0.9196,
+-0.2358, 0.8903, 0.3896], [-33.34, 21.14, 18.82], [58.456, 5.65,
+11.108], 8)}
 
 Which creates a map over the middle of the ``A'' molecule.  Note that
 using a too high @code{@emph{radius}} can cause overlap problems, so try
@@ -4380,18 +4302,18 @@ looks problematic.
 
 Alternatively, instead of typing the whole matrix, you can use a
 coordinates least-squares fit to generate the matrix for you.
-@code{(transform-map-using-lsq-matrix)} does just that.
+@code{coot.transform_map_using_lsq_matrix()} does just that.
 
 Heres how to use it:
 
-@code{(transform-map-using-lsq-matrix @emph{imol-ref ref-chain
-ref-resno-start ref-resno-end imol-mov mov-chain mov-resno-start
-mov-resno-end imol-map about-pt radius})}
+@code{coot.transform_map_using_lsq_matrix(@emph{imol_ref}, @emph{ref_chain},
+@emph{ref_resno_start}, @emph{ref_resno_end}, @emph{imol_mov}, @emph{mov_chain}, @emph{mov_resno_start},
+@emph{mov_resno_end}, @emph{imol_map}, @emph{about_pt}, @emph{radius})}
 
 
 Hopefully the arguments are self explanatory (@code{@emph{ref}} refers
-to the reference molecule, of course and @code{@emph{about-pt}} is a
-3-number list such as is returned by @code{(rotation-centre)}).
+to the reference molecule, of course and @code{@emph{about_pt}} is a
+3-number list such as is returned by @code{rotation_centre()}).
 
 We can now export that map, if we want.
 
@@ -4404,11 +4326,11 @@ We can now export that map, if we want.
 You can write out a map from Coot (e.g. one from NCS averaging, or
 masking or general transformation) using the export map function:
 
-@code{(export-map @emph{imol} @emph{filename})}
+@code{coot.export_map(@emph{imol}, @emph{filename})}
 
 @emph{e.g.}
 
-@code{(export-map 4 "ncs-averaged.map")}
+@code{coot.export_map(4, "ncs-averaged.map")}
 
 @c % -----------------------------------------------------------
 @node    Validation
@@ -4460,12 +4382,12 @@ The probability levels for acceptable (yellow) and preferred (red) are
 
 You can change the contour levels:
 
-@code{(set-ramachandran-plot-contour-levels 0.025 0.003)}
+@code{coot.set_ramachandran_plot_contour_levels(0.025, 0.003)}
 
 You can change the ``blocksize'' (the default is 10 degrees) of the
 contours using
 
-@code{(set-ramachandran-plot-background-block-size 5)}
+@code{coot.set_ramachandran_plot_background_block_size(5)}
 
 These comes into effect when a new plot is created (it doesn't change
 plots currently displayed).
@@ -4492,7 +4414,7 @@ about chiral volume errors - if you have them.  This can be annoying
 @footnote{but that's partly the idea, I suppose.}. You can inhibit this
 dialog like this:
 
-@code{(set-show-chiral-volume-errors-dialog 0)}
+@code{coot.set_show_chiral_volume_errors_dialog(0)}
 
 
 @subsection Fixing Chiral Volume Errors
@@ -4541,11 +4463,11 @@ peaks around a central peak.
 
 This value can be queried:
 
-@code{(difference-map-peaks-max-closeness)}
+@code{coot.difference_map_peaks_max_closeness()}
 
 and adjusted:
 
-@code{(set-difference-map-peaks-max-closeness 0.1)}
+@code{coot.set_difference_map_peaks_max_closeness(0.1)}
 
 
 @node Check Waters by Difference Map
@@ -4565,17 +4487,17 @@ anomalously this can be identified and corrected.
 By default the waters with a map variance greater than 3.5@math{\sigma}
 are listed.  One can be more rigorous by using a lower cut-off:
 
-@code{(set-check-waters-by-difference-map-sigma-level 3.0)}
+@code{coot.set_check_waters_by_difference_map_sigma_level(3.0)}
 
 The scripting interface is: 
 
-@code{(check-waters-by-difference-map @emph{imol-coords}
-  @emph{imol-diff-map})}
+@code{coot.check_waters_by_difference_map(@emph{imol_coords},
+  @emph{imol_diff_map})}
 
-where @code{@emph{imol-coords}} is the molecule number of the
+where @code{@emph{imol_coords}} is the molecule number of the
 coordinates that contain the waters to be checked
 
-@code{@emph{imol-diff-map}} is the molecule number of the difference
+@code{@emph{imol_diff_map}} is the molecule number of the difference
 map (it must be a difference map, not an ``ordinary'' map).  This
 difference map must have been calculated using the waters. So there is
 no point in doing this check immediately after ``Find Waters''.  You
@@ -4595,17 +4517,17 @@ might be).  However, the tools are useful and can be used in the
 following way:
 
 first we need to tell Coot where to find the relevant executables
-(typically you would add the following lines to you @file{~/.coot}
+(typically you would add the following lines to your @file{~/.coot.py}
 file):
 
-@code{(define *probe-command* "/path/to/probe/executable")}
+@code{probe_command = "/path/to/probe/executable"}
 
-@code{(define *reduce-command* "/path/to/reduce/executable")}
+@code{reduce_command = "/path/to/reduce/executable"}
  
 now the probe hydrogens and probe dots can be generated using
 @command{Validate -> Probe Clashes} (or in the Scripting Window):
 
-@code{(probe @emph{imol})}
+@code{probe(@emph{imol})}
 
 where @code{@emph{imol}} is the molecule number of coordinates to be
 probed.  A new molecule with Hydrogens is created (by @file{reduce}) and
@@ -4614,7 +4536,7 @@ read in.
 By default Coot creates a new molecule for the molecule that now has
 hydrogens.  To change this:
 
-@code{(set! reduce-molecule-updates-current #t)}
+@code{reduce_molecule_updates_current = True}
 
 and that, as you can guess, replaces, rather than adds to the
 ``probed'' molecule.
@@ -4622,14 +4544,14 @@ and that, as you can guess, replaces, rather than adds to the
 This gives a "static" view of the molecule's interactions.
 
 To get a dynamic view (which is currently only enabled on rotating chi
-angles) add these to your @file{~/.coot} file:
+angles) add these to your @file{~/.coot.py} file:
 
-@code{(set-do-probe-dots-on-rotamers-and-chis 1)}
+@code{coot.set_do_probe_dots_on_rotamers_and_chis(1)}
 
 To get a semi-static view (dots are regenerated in the region of zone
 after a "Real Space Refinement"):
 
-@code{(set-do-probe-dots-post-refine 1)}
+@code{coot.set_do_probe_dots_post_refine(1)}
 
 
 @node GLN and ASN B-factor Outliers
@@ -4672,12 +4594,12 @@ with density levels considerably different to this, which makes the
 residue density fit graph less useful.  To correct for this you can
 use the scripting function:
 
-@code{(set-residue-density-fit-scale-factor @emph{factor})}
+@code{coot.set_residue_density_fit_scale_factor(@emph{factor})}
 
 where @code{@emph{factor}} would be @math{1/(4* rmd_{map})} (as a rule
 of thumb).
 
-@code{(residue-density-fit-scale-factor)} returns the current scale
+@code{coot.residue_density_fit_scale_factor()} returns the current scale
 factor (default 1.0).
 
 There is also a GUI to this: 
@@ -4692,7 +4614,7 @@ nomenclature error) this can lead to large red blocks in the graph
 residues that can have nomenclature errors like this.  To fix these
 problems use 
 
-@code{(fix-nomenclature-errors @emph{imol})}
+@code{coot.fix_nomenclature_errors(@emph{imol})}
 
 @subsection Temperature Factor Variance 
 
@@ -4793,21 +4715,21 @@ from side-chains charged at physiological pH (Arg, Lys, Asp, Glu).
 @node    Documentation
 @section Documentation
 
-This manual is on the web where it can be searched:
-@itemize
-@item @url{http://www.biop.ox.ac.uk/coot/doc/user-manual.html} monolithic version
-@item @url{http://www.biop.ox.ac.uk/coot/doc/chapters/user-manual_toc.html} which is 
-        split into sections
-@end itemize
+@c This manual is on the web where it can be searched:
+@c @itemize
+@c @item @url{http://www.biop.ox.ac.uk/coot/doc/user-manual.html} monolithic version
+@c @item @url{http://www.biop.ox.ac.uk/coot/doc/chapters/user-manual_toc.html} which is 
+@c         split into sections
+@c @end itemize
 
-In the Menu item ``About'', under ``Online Docs URL...'' there is a
-entry bar that can be used to search the Coot documentation via Google.
-The results are returned as a web page in web browser. The browser type
-can be specified as in this example:
+@c In the Menu item ``About'', under ``Online Docs URL...'' there is a
+@c entry bar that can be used to search the Coot documentation via Google.
+@c The results are returned as a web page in web browser. The browser type
+@c can be specified as in this example:
 
-@code{(set-browser-interface "firefox")}
+@c @code{set_browser_interface("firefox")}
 
-Example usage can be found in @file{xxx/share/coot/scheme/group-settings.scm}
+@c Example usage can be found in @file{xxx/share/coot/python/group_settings.py}
 
 
 @node    Low Resolution
@@ -4821,7 +4743,7 @@ do now.
 @item [Add Planar Peptide Restraints] Add restraints via scripting command
 @item [Use Secondary Structure Restraints] where appropriate under Refinement Control
 @item [Check Chirals] Check Chiral Volumes regularly
-@item [Change the Weighing Scheme] @code{(set-matrix 20.0)}
+@item [Change the Weighing Scheme] @code{set_matrix(20.0)}
 [Default is 60, the lower the number the more the geometry is idealised]
 @end itemize
 
@@ -4832,7 +4754,7 @@ do now.
 
 This describes the files and directory that coot leaves behind after it
 has been fed (sorry, I mean ``used'').  Everything except the
-@t{0-coot.state.scm} state file can comfortably be deleted if needed
+@t{0-coot.state.py} state file can comfortably be deleted if needed
 after coot has finished.
 
 @cindex guano
@@ -4840,19 +4762,16 @@ You can stop the state and history files being written if you start coot
 with the @code{--no-guano} option.
 
 @itemize
-@item @t{0-coot.state.scm}  The most important file.  This contains the state of 
-        coot when you last exited. It contains things like which molecules  
-        were read, the maps, the colours of the molecules and map, the screen 
+@item @t{0-coot.state.py}  The most important file.  This contains the state of
+        coot when you last exited. It contains things like which molecules
+        were read, the maps, the colours of the molecules and map, the screen
         centre, map size and so on.  When restarting a coot session, this file
-        should usually be used.  
+        should usually be used.
 
-@item @t{0-coot-history.scm} The history of coot commands you used in your last 
-        coot session in scheme format.  Incomplete history.  One day this will be 
-        a complete history of the session suitable for uploading into a database 
+@item @t{0-coot-history.py} The history of coot commands you used in your last
+        coot session.  Incomplete history.  One day this will be
+        a complete history of the session suitable for uploading into a database
         describing the model modification.
-
-@item @t{0-coot-history.py} The history of coot commands you used in your last 
-        coot session in python format.
 
 @item @t{coot-download} directory where the files downloaded from the network (e.g. 
         from the EBI and EDS) go.
@@ -4877,22 +4796,23 @@ Coot will occasionally ask you to clear up the @file{coot-backup}
 directory.  You can adjust the behaviour in a number of ways:
 
 @itemize
-@item @code{(define *clear-out-backup-run-n-days* 3)} will run the backup clearance every 3 days (the default is every 7).
-@item @code{(define *clear-out-backup-old-days* 1)} will clear out files older then 1 day (rather than the default 7 days).
+@item @code{clear_out_backup_run_n_days = 3} will run the backup clearance every 3 days (the default is every 7).
+@item @code{clear_out_backup_old_days = 1} will clear out files older then 1 day (rather than the default 7 days).
 @item You can create your own version of the function that is run on exiting Coot:
-   @code{(clear-backups-maybe)}
+   @code{clear_backups_maybe()}
 @end itemize
 
 So, if you wanted to clear out everything more than 1 day old, every
 time, without Coot asking you about it:
 
-@smalllisp
-(define *clear-out-backup-run-n-days* 0)
-(define *clear-out-backup-old-days* 1)
-(define (clear-backups-maybe) 
-  (delete-coot-backup-files 'delete)
-  (coot-real-exit 0))
-@end smalllisp
+@verbatim
+clear_out_backup_run_n_days = 0
+clear_out_backup_old_days = 1
+
+def clear_backups_maybe():
+    delete_coot_backup_files("delete")
+    coot_real_exit(0)
+@end verbatim
 
 
 @node Getting out of ``Translate'' Mode 
@@ -4948,14 +4868,11 @@ because they are reasonable on my ``middle-ground'' development
 machine.  However, these parameters can be tweaked so that slower
 computers perform better:
 
-@itemize 
-@item @code{(set-use-stroke-characters 1) ; default is to use bitmap characters }
-@item @code{(set-smooth-scroll-steps 8) ; default 40 }
-@item @code{(set-smooth-scroll-limit 30) ; Angstroms}
-@item @code{(set-residue-selection-flash-frames-number 3);}
-@item @code{(set-skeleton-box-size 20.0) ; A (default 40).}
-@item @code{(set-active-map-drag-flag 0) ; turn off recontouring every step}
-@item @code{(set-idle-function-rotate-angle 1.5) ; continuous spin speed}
+@itemize
+@item @code{coot.set_smooth_scroll_steps(8)  # default 40}
+@item @code{coot.set_smooth_scroll_limit(30)  # Angstroms}
+@item @code{coot.set_skeleton_box_size(20.0)  # A (default 40)}
+@item @code{coot.set_active_map_drag_flag(0)  # turn off recontouring every step}
 @end itemize
 
 @c % -----------------------------------------------------------
@@ -4963,7 +4880,7 @@ computers perform better:
 @chapter Other Programs
 @c % -----------------------------------------------------------
 
-@menu 
+@menu
 * findligand::
 @end menu
 
@@ -5040,23 +4957,6 @@ are given at the end of the command line.
 @chapter More Refinement Scripting Functions
 @include c-interface-refine_8hh.texi
 
-
-
-
-@c % -----------------------------------------------------------
-@c % -----------------------------------------------------------
-@node    Scheme Scripting Functions
-@chapter Scheme Scripting Functions
-@c % -----------------------------------------------------------
-@c % -----------------------------------------------------------
-
-@c The documentation from snarfing scheme docs.
-@c
-@c Lets not include this yet, there are problems with duplicate
-@c nodes (mutate, povray) and (e.g.) `tips-gui', but has no menu entry for this node
-@c
-
-@include coot-scheme-functions.texi
 
 
 

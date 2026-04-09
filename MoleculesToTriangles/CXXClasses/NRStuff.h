@@ -46,6 +46,8 @@ class CoordSpline {
             idx = spline_size -1;
         return spline[idx];
     }
+    int nCtlPts() const { return ctlPts.size(); }
+    int nSplinePts() const { return spline.size(); }
     void clearSpline(){
         ctlPts.clear();
         spline.clear();

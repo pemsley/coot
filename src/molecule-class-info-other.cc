@@ -24,6 +24,7 @@
 
 #include <stdlib.h>
 #include <cstddef>
+#include <stdexcept>
 
 #if !defined WINDOWS_MINGW && !defined _MSC_VER
 #  include <glob.h>
@@ -2484,8 +2485,14 @@ void
 molecule_class_info_t::backrub_rotamer_residue_range(const std::string &chain_id, int resno_start, int resno_end,
                                                      const coot::protein_geometry &pg) {
 
-   for (int resno=resno_start; resno<=resno_end; resno++)
-      backrub_rotamer(chain_id, resno, "", "", pg);
+   try {
+      for (int resno=resno_start; resno<=resno_end; resno++) {
+         backrub_rotamer(chain_id, resno, "", "", pg);
+      }
+   }
+   catch (const std::runtime_error &rte) {
+      logger.log(log_t::WARNING, logging::function_name_t(__FUNCTION__), rte.what());
+   }
 }
 
 
@@ -3840,7 +3847,10 @@ molecule_class_info_t::recent_backup_file_info() const {
 
       // c.f. make_backup():
       char *es = getenv("COOT_BACKUP_DIR");
-      std::string backup_name_glob = "coot-backup/";
+      // hacking new xdg code into ancient code. Needs a clean-up.
+      xdg_t xdg;
+      // std::string backup_name_glob = "coot-backup/";
+      std::string backup_name_glob = xdg.get_cache_home().string() + "/coot-backup/";
       // very first check if COOT_BACKUP_DIR is defined
       if (es) {
         // first we shall check if es, i.e. COOT_BACKUP_DIR actually exists
@@ -6893,7 +6903,7 @@ void
 molecule_class_info_t::assign_sequence(const clipper::Xmap<float> &xmap,
                                        const std::string &chain_id) {
 
-   std::cout << "debug:: in assign_sequence() there are " << input_sequence.size() << " sequences input "
+   std::cout << "DEBUG:: in assign_sequence() there are " << input_sequence.size() << " sequences input "
              << "for imol " << imol_no << std::endl;
 
    for (unsigned int i=0; i<input_sequence.size(); i++) {

@@ -275,6 +275,8 @@ void set_model_material_diffuse(int imol, float r, float g, float b, float a) {
       glm::vec4 d(r,g,b,a);
       m.material_for_models.diffuse = d;
       m.model_molecule_meshes.set_material_diffuse(d);
+      for (auto &mesh : m.meshes)
+         mesh.set_material_diffuse(d);
       graphics_draw();
    }
 }
@@ -287,6 +289,8 @@ void set_model_material_ambient(int imol, float r, float g, float b, float a) {
       glm::vec4 ambient(r,g,b,a);
       m.material_for_models.ambient = ambient;
       m.model_molecule_meshes.set_material_ambient(ambient);
+      for (auto &mesh : m.meshes)
+         mesh.set_material_ambient(ambient);
    }
    graphics_draw();
 }

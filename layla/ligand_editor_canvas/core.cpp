@@ -248,7 +248,7 @@ coot::ligand_editor_canvas::SmilesMap WidgetCoreData::build_smiles() const {
         const auto& mol_ptr_opt = *it;
         if(mol_ptr_opt.has_value()) {
             RDKit::RWMol* mol_ptr = mol_ptr_opt->get();
-            ret.emplace(idx, RDKit::MolToSmiles(*mol_ptr));
+            ret.emplace(idx, RDKit::MolToSmiles(*mol_ptr, true));
         }
     };
 
@@ -273,6 +273,7 @@ coot::ligand_editor_canvas::InchiKeyMap WidgetCoreData::build_inchi_keys() const
             ret.emplace(idx, RDKit::MolToInchiKey(*mol_ptr));
             #else
             ret.emplace(idx, "");
+            g_warning("Your version of RDKit was built without InChI support. Molecule InChI key lookup will not be available.");
             #warning Your version of RDKit was built without InChI support. Molecule InChI key lookup will not be available.
             #endif
         }
@@ -401,9 +402,9 @@ void CootLigandEditorCanvas::redo() noexcept {
     coot_ligand_editor_canvas_redo_edition(this);
 }
 
-// const RDKit::ROMol& CanvasMolecule::get_rdkit_molecule(unsigned int index) noexcept {
-//     RDKit::ROMol* coot_ligand_editor_canvas_get_rdkit_molecule(CootLigandEditorCanvas* self, unsigned int index) noexcept;
-// }
+const RDKit::ROMol& CootLigandEditorCanvas::get_rdkit_molecule(unsigned int index) noexcept {
+    return *coot_ligand_editor_canvas_get_rdkit_molecule(this, index);
+}
 
 unsigned int CootLigandEditorCanvas::get_molecule_count() noexcept {
     return coot_ligand_editor_canvas_get_molecule_count(this);
@@ -459,6 +460,11 @@ std::string CootLigandEditorCanvas::get_pickled_molecule_base64(unsigned int mol
 
 void CootLigandEditorCanvas::clear_molecules() noexcept {
     coot_ligand_editor_canvas_clear_molecules(this);
+}
+
+void CootLigandEditorCanvas::set_minimum_dimensions(unsigned int width, unsigned int height) noexcept {
+    this->minimum_dimensions.width = width;
+    this->minimum_dimensions.height = height;
 }
 
 void CootLigandEditorCanvas::connect(std::string signal_name, emscripten::val callback) {

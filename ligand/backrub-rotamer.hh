@@ -22,6 +22,7 @@
 #ifndef BACKRUB_ROTAMER_HH
 #define BACKRUB_ROTAMER_HH
 
+#include <stdexcept>
 #include <string>
 
 #include <clipper/core/xmap.h>

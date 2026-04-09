@@ -23,6 +23,10 @@
 
 #include <thread>
 #include <iomanip>
+#include <random>
+
+#include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 #include "clipper/core/map_interp.h"
 #include "clipper/core/hkl_compute.h"
@@ -459,47 +463,56 @@ clipper::RTop_orth
 coot::util::make_rtop_orth_for_jiggle_atoms(float jiggle_trans_scale_factor,
                                             float annealing_factor) {
 
-   // Read this:
-   // https://en.wikipedia.org/wiki/Rotation_matrix#Uniform_random_rotation_matrices
-   // make a quaternion where the 4 q values are sampled from a normal distribution
-   // normalize
-   // convert to 3x3 matrix
+   // Uniform random rotation via quaternion sampling:
+   // Sample 4 values from a normal distribution, normalize to get a uniform
+   // random unit quaternion, then convert to a rotation matrix.
+   // See: https://en.wikipedia.org/wiki/Rotation_matrix#Uniform_random_rotation_matrices
+
+   static thread_local std::mt19937 rng(std::random_device{}());
+   std::normal_distribution<double> normal(0.0, 1.0);
 
    float rmi = 1.0/float(RAND_MAX);
    float small_frac = coot::util::random() * rmi;
 
-   double scaling_factor = 1.0;
-   bool small_rot_flag = false;
-   if (small_frac < 0.1) {
-      scaling_factor = 0.01;
-      small_rot_flag = true;
-   }
+   bool small_rot_flag = (small_frac < 0.1);
 
-   // If these angles are small, then we get small rotations of the model
-   //
-   double rand_ang_1 = 2.0 * M_PI * coot::util::random() * rmi;
-   double rand_ang_2 = 2.0 * M_PI * coot::util::random() * rmi;
-   double rand_ang_3 = 2.0 * M_PI * coot::util::random() * rmi;
-
+   glm::dquat q;
    if (small_rot_flag) {
-      rand_ang_1 -= M_PI;
-      rand_ang_2 -= M_PI;
-      rand_ang_3 -= M_PI;
-      rand_ang_1 *= scaling_factor;
-      rand_ang_2 *= scaling_factor;
-      rand_ang_3 *= scaling_factor;
+      // Small rotation: random axis, small angle (scaled by 0.01)
+      double ax = normal(rng);
+      double ay = normal(rng);
+      double az = normal(rng);
+      double len = std::sqrt(ax*ax + ay*ay + az*az);
+      if (len < 1e-10) { ax = 1.0; ay = 0.0; az = 0.0; len = 1.0; }
+      ax /= len; ay /= len; az /= len;
+      double angle = 2.0 * M_PI * coot::util::random() * rmi;
+      angle *= 0.01;
+      q = glm::angleAxis(angle, glm::dvec3(ax, ay, az));
+   } else {
+      // Uniform random rotation: 4 normally-distributed values, normalized
+      double q0 = normal(rng);
+      double q1 = normal(rng);
+      double q2 = normal(rng);
+      double q3 = normal(rng);
+      double len = std::sqrt(q0*q0 + q1*q1 + q2*q2 + q3*q3);
+      if (len < 1e-10) { q0 = 1.0; q1 = 0.0; q2 = 0.0; q3 = 0.0; len = 1.0; }
+      q = glm::normalize(glm::dquat(q0, q1, q2, q3));
    }
 
-   double r1 = (2.0 * coot::util::random() -1.0) * rmi;
-   double r2 = (2.0 * coot::util::random() -1.0) * rmi;
-   double r3 = (2.0 * coot::util::random() -1.0) * rmi;
+   glm::dmat3 rot_glm = glm::mat3_cast(q);
+   clipper::Mat33<double> r(rot_glm[0][0], rot_glm[1][0], rot_glm[2][0],
+                            rot_glm[0][1], rot_glm[1][1], rot_glm[2][1],
+                            rot_glm[0][2], rot_glm[1][2], rot_glm[2][2]);
 
-   double rand_pos_1 = r1 * 1.1 * jiggle_trans_scale_factor * annealing_factor * scaling_factor;
-   double rand_pos_2 = r2 * 1.1 * jiggle_trans_scale_factor * annealing_factor * scaling_factor;
-   double rand_pos_3 = r3 * 1.1 * jiggle_trans_scale_factor * annealing_factor * scaling_factor;
+   // Translation: independent of rotation scaling
+   double r1 = (2.0 * coot::util::random() - 1.0) * rmi;
+   double r2 = (2.0 * coot::util::random() - 1.0) * rmi;
+   double r3 = (2.0 * coot::util::random() - 1.0) * rmi;
 
-   clipper::Euler<clipper::Rotation::EulerXYZr> e(rand_ang_1, rand_ang_2, rand_ang_3);
-   clipper::Mat33<double> r = e.rotation().matrix();
+   double rand_pos_1 = r1 * 1.1 * jiggle_trans_scale_factor * annealing_factor;
+   double rand_pos_2 = r2 * 1.1 * jiggle_trans_scale_factor * annealing_factor;
+   double rand_pos_3 = r3 * 1.1 * jiggle_trans_scale_factor * annealing_factor;
+
    clipper::Coord_orth shift(rand_pos_1, rand_pos_2, rand_pos_3);
    clipper::RTop_orth rtop(r, shift);
    return rtop;

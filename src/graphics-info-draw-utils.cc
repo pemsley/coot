@@ -196,12 +196,15 @@ graphics_info_t::generic_objects_dialog_grid_add_object_internal(const meshed_ge
       std::string toggle_button_name = stub + "_toggle_button";
       std::string label_name = stub + "_label";
 
+      // std::cout << "DEBUG:: add_object toggle_button_name: " << toggle_button_name << std::endl;
+
       // set the names of these widgets so that they can be
       // looked up and toggled/hidden dynamically.
 
       if (dialog) {
          g_object_set_data(G_OBJECT(dialog), toggle_button_name.c_str(), checkbutton);
          g_object_set_data(G_OBJECT(dialog), label_name.c_str(), label);
+         // std::cout << "DEBUG:: attaching toggle button " << checkbutton << " to dialog " << dialog << " for name " << toggle_button_name << std::endl;
       } else {
          std::cout << "WARNING:: null dialog in generic_objects_dialog_grid_add_object_internal()" << std::endl;
       }

@@ -21,6 +21,7 @@
  */
 
 #include "rigid-body.hh"
+#include "ligand.hh"
 #include "clipper/core/map_interp.h"
 
 #include "utils/coot-utils.hh"
@@ -350,4 +351,27 @@ coot::get_rigid_body_fit_rtop(coot::minimol::molecule *mol_in,
 
    return shifted_rtop;
 
-} 
+}
+
+
+coot::minimol::molecule
+coot::rigid_body_fit_with_masking(const coot::minimol::molecule &mol_without_moving_atoms,
+                                  const coot::minimol::molecule &mol_for_moving_atoms,
+                                  const clipper::Xmap<float> &xmap) {
+
+   coot::ligand lig;
+   bool mask_water_flag = false;
+   float sigma = 0.4;
+   lig.import_map_from(xmap, sigma);
+   lig.install_ligand(mol_for_moving_atoms);
+   lig.find_centre_by_ligand(0);
+   lig.mask_map(mol_without_moving_atoms, mask_water_flag);
+   lig.set_dont_write_solutions();
+   lig.set_dont_test_rotations();
+   lig.set_acceptable_fit_fraction(0.5);
+   lig.fit_ligands_to_clusters(1);
+   unsigned int iclust = 0;
+   unsigned int isol   = 0;
+   coot::minimol::molecule moved_mol = lig.get_solution(iclust, isol);
+   return moved_mol;
+}

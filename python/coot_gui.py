@@ -5382,6 +5382,7 @@ def refmac_multi_sharpen_gui():
 
 def auto_assign_sequence_from_map():
 
+    print("********************************** auto_assign_sequence_from_map() *********")
     active_atom = coot.active_residue_py()
     # get these from the current fragment
     imol  = active_atom[0]
@@ -5391,6 +5392,7 @@ def auto_assign_sequence_from_map():
     imol_map = coot.imol_refinement_map()
     fragment_residues = coot.linked_residues_py(res_spec, imol, 1.7)
     residue_number_list = [spec[2] for spec in fragment_residues] # bleugh. Should be spec[1]
+    print("residue_number_list", residue_number_list)
     resno_start = min(residue_number_list)
     resno_end   = max(residue_number_list)
     new_sequence = coot.sequence_from_map(imol, ch_id, resno_start, resno_end, imol_map)

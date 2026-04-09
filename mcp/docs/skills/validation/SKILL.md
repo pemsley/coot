@@ -449,8 +449,10 @@ def assess_rotamer_severity(chain, resno, score, resname):
 1. **Severe atom overlaps (>5 Å³)** - atoms deeply interpenetrating
 2. **Poor rotamer + poor density + clashes** - triple failure
    - Example: Score < 5% for 2-chi residue, correlation < 0.5, clashes > 2 Å³
+     Rotamer score = 0% with poor density correlation** - side-chain is almost certainly wrong
 3. **Ramachandran outliers with poor density correlation** - backbone is wrong
 4. **Large difference map blobs (>4σ)** - definitely missing features
+5. **Moderate atom overlaps (2-5 Å³) between distant residues** - packing problems
 
 **Priority 2: Single severe issues**
 1. **Context-aware rotamer outliers with poor density**:
@@ -586,14 +588,57 @@ for position, score in missing_residue_candidates:
 2. **Always run blob detection** when you have both model and map
 3. **Use difference maps** (mFo-DFc) for most sensitive blob detection
 4. **Combine all three validation types** (model-to-map, overlaps, map-to-model) for complete picture
-5. **Context-aware rotamer validation** - never use absolute thresholds:
-   - Understand the difference between `rotamer_graphs_py()` (continuous density) and `score_rotamers_py()` (discrete bins)
-   - Use `rotamer_graphs_py()` scores for validation (measures actual chi angles)
-   - Consider number of possible rotamers: 5% is terrible for VAL but good for ARG
-   - Always check density correlation and available alternatives before "fixing"
-6. **Prioritize by severity AND confidence** - fix issues with multiple red flags first
-7. **Iterate** - fixing one issue may reveal others
-8. **Document** - keep track of what you fixed and why
+5. **Prioritize by severity** - fix severe clashes and high-confidence issues first
+6. **Iterate** - fixing one issue may reveal others
+7. **Document** - keep track of what you fixed and why
+
+## Hydrogen Bond Analysis
+
+### `get_hydrogen_bonds_py()`
+
+```python
+coot.get_hydrogen_bonds_py(imol, selection_1, selection_2, mcdonald_and_thornton)
+```
+
+**Parameters:**
+- `imol`: model molecule index
+- `selection_1`: MMDB selection string for first group (e.g. `"//A/35"`)
+- `selection_2`: MMDB selection string for second group (e.g. `"//A/34-56"`)
+- `mcdonald_and_thornton`: 1 = use McDonald & Thornton algorithm (requires H atoms); 0 = geometry-only
+
+**Returns**: list of H-bond candidates. Each entry is a list of 12 elements:
+```
+[0]  hydrogen atom (dict, or None if no H)
+[1]  donor atom (dict)
+[2]  acceptor atom (dict)
+[3]  donor neighbour/antecedent atom (dict, or None)
+[4]  acceptor neighbour/antecedent atom (dict, or None)
+[5]  angle_1 (float, degrees)
+[6]  angle_2 (float, degrees)
+[7]  angle_3 (float, degrees)
+[8]  distance (float, Å)
+[9]  ligand_atom_is_donor (bool)
+[10] hydrogen_is_ligand_atom (bool)
+[11] bond_has_hydrogen_flag (bool)
+```
+Each atom dict has keys: `x, y, z, charge, occ, b_iso, element, name, model, chain, altLoc, residue_name`
+
+**IMPORTANT**: Always use `mcdonald_and_thornton=0` unless the model has explicit hydrogens.
+The function returns all geometrically plausible H-bond candidates — distance alone is not
+sufficient to confirm a hydrogen bond; the angles must also be checked.
+
+**Example**:
+```python
+hbonds = coot.get_hydrogen_bonds_py(0, "//A/35", "//A/50-56", 0)
+for hb in hbonds:
+    donor    = hb[1]
+    acceptor = hb[2]
+    dist     = hb[8]
+    has_H    = hb[11]
+    d_str = donor['chain'] + " " + donor['residue_name'] + " " + donor['name'].strip()
+    a_str = acceptor['chain'] + " " + acceptor['residue_name'] + " " + acceptor['name'].strip()
+    print("H-bond: " + d_str + " -> " + a_str + "  dist=" + str(dist) + "  has_H=" + str(has_H))
+```
 
 ## Function Reference
 
@@ -617,6 +662,9 @@ blobs = coot.find_blobs_py(imol_model, imol_map, sigma_cutoff)
 
 # Ramachandran validation
 rama = coot.all_molecule_ramachandran_score_py(imol)
+
+# Rotamer validation  
+rotamers = coot.rotamer_graphs_py(imol)
 
 # Density correlation (model-to-map)
 corr = coot.map_to_model_correlation_stats_per_residue_range_py(

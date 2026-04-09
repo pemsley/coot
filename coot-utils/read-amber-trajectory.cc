@@ -125,7 +125,12 @@ namespace coot {
                   for (int ir = 0; ir < n_res; ir++) {
                      mmdb::Residue *res = chain->GetResidue(ir);
                      if (res) {
-                        n_atoms_topology += res->GetNumberOfAtoms();
+                        int n_at = res->GetNumberOfAtoms();
+                        for (int ia = 0; ia < n_at; ia++) {
+                           mmdb::Atom *at = res->GetAtom(ia);
+                           if (at && !at->Ter)
+                              n_atoms_topology++;
+                        }
                      }
                   }
                }
@@ -238,6 +243,7 @@ namespace coot {
                for (int ia = 0; ia < n_at; ia++) {
                   mmdb::Atom *template_atom = template_res->GetAtom(ia);
                   if (!template_atom) continue;
+                  if (template_atom->Ter) continue; // skip TER pseudo-atoms
 
                   mmdb::Atom *new_atom = new mmdb::Atom();
                   new_atom->Copy(template_atom);

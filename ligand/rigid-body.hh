@@ -52,6 +52,15 @@ namespace coot {
 			   const clipper::Xmap<float> &xmap,
 			   float map_rmsd);
 
+   //! Rigid-body fit using ligand fitting machinery with map masking.
+   //! \c mol_without_moving_atoms is used to mask the map,
+   //! \c mol_for_moving_atoms is the fragment to fit.
+   //! Returns the fitted molecule.
+   minimol::molecule
+   rigid_body_fit_with_masking(const minimol::molecule &mol_without_moving_atoms,
+                               const minimol::molecule &mol_for_moving_atoms,
+                               const clipper::Xmap<float> &xmap);
+
 }
 
 #endif // COOT_RIGID_BODY_HH

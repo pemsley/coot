@@ -14,23 +14,27 @@
 ;; this is configured now, we don't need it on the command line
 ;;  "HAVE_BOOST_BASED_THREAD_POOL_LIBRARY=1"
 
-(setq flycheck-gcc-args   '("-Wno-unknown-pragmas" "-std=c++17"))
-(setq flycheck-clang-args '("-Wno-unknown-pragmas" "-std=c++17"))
-(setq flycheck-gcc-language-standard   "c++17")
-(setq flycheck-clang-language-standard "c++17")
+;; (setq flycheck-gcc-args   '("-Wno-unknown-pragmas" "-std=c++17"))
+;; (setq flycheck-clang-args '("-Wno-unknown-pragmas" "-std=c++17"))
+;; (setq flycheck-gcc-language-standard   "c++17")
+;; (setq flycheck-clang-language-standard "c++17")
+(setq flycheck-gcc-args   '("-Wno-unknown-pragmas" "-std=c++20"))
+(setq flycheck-clang-args '("-Wno-unknown-pragmas" "-std=c++20"))
+(setq flycheck-gcc-language-standard   "c++20")
+(setq flycheck-clang-language-standard "c++20")
 
 (setq build-path-list
   (list
 
    "." ".." "../.."
    "/usr/lib/x86_64-linux-gnu/glib-2.0/include"
-   "/home/paule/autobuild/Linux-penelope-arch-gtk4/include"
-   "/home/paule/autobuild/Linux-penelope-arch-gtk4/include/coot"
-   "/home/paule/autobuild/Linux-penelope-arch-gtk4/include/rdkit"
-   "/home/paule/autobuild/Linux-penelope-arch-gtk4/include/boost"
-   "/home/paule/autobuild/Linux-penelope-arch-gtk4/include/python3.11"
-   "/home/paule/autobuild/Linux-penelope-arch-gtk4/include/MoleculesToTriangles"
-   "/home/paule/autobuild/Linux-penelope-arch-gtk4/include/gsl"
+   "/home/paule/autobuild/Linux-penelope-arch/include"
+   "/home/paule/autobuild/Linux-penelope-arch/include/coot"
+   "/home/paule/autobuild/Linux-penelope-arch/include/rdkit"
+   "/home/paule/autobuild/Linux-penelope-arch/include/boost"
+   "/home/paule/autobuild/Linux-penelope-arch/include/python3.11"
+   "/home/paule/autobuild/Linux-penelope-arch/include/MoleculesToTriangles"
+   "/home/paule/autobuild/Linux-penelope-arch/include/gsl"
    "/home/paule/python3/include/python3.8"
    "/home/paule/glm/include"
    "/home/paule/ogg-vorbis/include"
@@ -45,7 +49,7 @@
    "/home/paule/python3/include/python3.9"
    "/home/paule/autobuild/build-for-chapi-gtk4/lib/python3.10/site-packages/nanobind/include"
    "/home/paule/autobuild/build-for-chapi-arch-gtk4/lib/python3.12/site-packages/nanobind/include"
-   "/home/paule/autobuild/Linux-penelope-gtk4-python/include"
+   "/home/paule/autobuild/Linux-penelope-arch/include"
 
    "/lmb/home/pemsley/autobuild/coot-stable/include/rdkit"
 

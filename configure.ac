@@ -26,7 +26,7 @@ dnl
 dnl Process this file with autoconf to produce a configure script.
 
 
-AC_INIT([coot],[1.1.x-pre])
+AC_INIT([coot],[1.2.x-pre])
 AC_CONFIG_SRCDIR(src/main.cc)
 AM_INIT_AUTOMAKE
 
@@ -528,6 +528,29 @@ else
    ])
    AC_SUBST(NETCDF_CFLAGS)
    AC_SUBST(NETCDF_LIBS)
+fi
+
+
+AC_ARG_WITH([vte],
+            AS_HELP_STRING([--with-vte], [compile with VTE terminal widget for Python scripting]),
+            with_vte="$withval",
+            with_vte=no)
+AC_MSG_CHECKING([for VTE terminal support])
+if test "x$with_vte" = xno ; then
+   AC_MSG_RESULT(no)
+   AC_SUBST(VTE_CFLAGS, "")
+   AC_SUBST(VTE_LIBS, "")
+else
+   AC_MSG_RESULT(yes)
+   if test "x$with_vte" != xyes ; then
+      export PKG_CONFIG_PATH="$with_vte/lib/pkgconfig:$with_vte/lib64/pkgconfig:$PKG_CONFIG_PATH"
+   fi
+   PKG_CHECK_MODULES([VTE], [vte-2.91-gtk4], [], [
+      AC_MSG_ERROR([VTE GTK4 library not found. Install vte-2.91-gtk4 or use --without-vte])
+   ])
+   VTE_CFLAGS="$VTE_CFLAGS -DHAVE_VTE"
+   AC_SUBST(VTE_CFLAGS)
+   AC_SUBST(VTE_LIBS)
 fi
 
 

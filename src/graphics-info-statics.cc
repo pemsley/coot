@@ -1485,7 +1485,7 @@ framebuffer graphics_info_t::blur_x_framebuffer;
 framebuffer graphics_info_t::blur_y_framebuffer;
 framebuffer graphics_info_t::combine_textures_using_depth_framebuffer;
 framebuffer graphics_info_t::blur_framebuffer; // 2020
-unsigned int graphics_info_t::framebuffer_scale = 1; // on supersampling by default.
+unsigned int graphics_info_t::framebuffer_scale = 1; // no supersampling by default.
 GLuint graphics_info_t::screendump_target_framebuffer = 0;
 
 bool graphics_info_t::perspective_projection_flag = false;
@@ -1620,6 +1620,7 @@ bool graphics_info_t::draw_missing_loops_flag = true;
 bool graphics_info_t::sequence_view_is_docked_flag = true;
 
 bool graphics_info_t::validation_graphs_is_docked = true;
+GtkWidget *graphics_info_t::validation_graphs_undocked_window = nullptr;
 
 int graphics_info_t::tick_function_id = -1; // unset
 bool graphics_info_t::do_tick_particles = false;

@@ -821,11 +821,13 @@ int clear_and_update_model_molecule_from_file(int molecule_number,
 /* atom_selection_container_t  */
 /* make_atom_selection(int imol, const coot::minimol::molecule &mol);  */
 
-/*! \brief dump the current screen image to a file.  Format ppm
-
-You can use this, in conjunction with spinning and view moving functions to
-make movies */
-void screendump_image(const char *filename);
+/*! \brief dump the current screen image to a file.  Format tga
+*
+* make a copy of the screen image and write it to the file system
+*
+* You can use this, in conjunction with spinning and view moving functions to
+* make movies */
+void screendump_image(const char *tga_filename);
 
 /*! \brief give a warning dialog if density it too dark (blue) */
 void check_for_dark_blue_density();
@@ -970,6 +972,12 @@ void set_model_fit_refine_dialog_stays_on_top(int istate);
 /*! \brief return the state model-fit-refine dialog stays on top */
 int model_fit_refine_dialog_stays_on_top_state();
 
+/* Legacy functions for the accept/reject dialog docking - no longer functional but
+   retained for backwards compatibility with user startup scripts */
+/*! \brief set the accept/reject dialog docked state - no longer functional */
+void set_accept_reject_dialog_docked(int state);
+/*! \brief set the accept/reject dialog docked show state - no longer functional */
+void set_accept_reject_dialog_docked_show(int state);
 
 
 /*! \} */
@@ -1683,6 +1691,9 @@ void set_display_intro_string(const char *str);
 /*! \brief return the extent of the box/radius of electron density contours */
 float get_map_radius();
 
+/*! \brief return the extent of the box/radius of electron density contours */
+float get_map_radius_em();
+
 /*! \brief not everyone likes coot's esoteric depth cueing system
 
   Pass an argument istate=1 to turn it off
@@ -2195,6 +2206,12 @@ void set_console_display_commands_hilights(short int bold_flag, short int colour
 /* info */
 /*! \name State Functions */
 /*! \{ */
+
+/*! \brief scale up graphics - now available in scripting */
+void scale_up_graphics();
+
+/*! \brief scale down graphics - now available in scripting */
+void scale_down_graphics();
 
 /*! \brief save the current state to the default filename */
 void save_state();
@@ -3613,9 +3630,25 @@ SCM regularize_residues_with_alt_conf_scm(int imol, SCM r, const char *alt_conf)
 #endif
 #ifdef USE_PYTHON
 /*! \brief refine the residues in the given residue spec list
+ *
+ * @param imol is the molecule index
+ * @param rl is a Python list of residue specs, where a residue spec is a list of
+ *  [`chain_id`, `res_no`, `ins_code`]
+ *
+ *  When using this function from scripting, make sure that
+ *  set_refinement_immediate_replacement(1) is called first.
+ *
+ *  @return False if restraints could not be set up, or a list of 3 elements on success:
+ *  - [0] info_text (string): refinement information text
+ *  - [1] progress (int): refinement progress indicator.
+ *          0: GSL_SUCCESS: means refinement was successfully completed
+ *         -2: GSL_CONTINUE: means refinement was successful, but didn't terminate (so more cycles needed)
+ *         27: GSL_ENOPROG: iteration is not making progress towards solution
+ *  - [2] lights (list or False): False if empty, otherwise a list of
+ *    [`name`, `label`, `value`] triples where `name` and `label` are strings
+ *    and `value` is a float  */
+PyObject *refine_residues_py(int imol, PyObject *rl);  /* presumes the alt_conf is "". */
 
-@return the refinement summary statistics  */
-PyObject *refine_residues_py(int imol, PyObject *r);  /* presumes the alt_conf is "". */
 PyObject *refine_residues_with_modes_with_alt_conf_py(int imol, PyObject *r, const char *alt_conf,
 						      PyObject *mode_1,
 						      PyObject *mode_2,
@@ -4478,6 +4511,8 @@ void do_sequence_view(int imol);
 /*!  \brief update the sequnce view current position highlight based on active atom */
 void update_sequence_view_current_position_highlight_from_active_atom();
 
+void remove_sequence_view_from_sequence_view_box(int imol);
+
 /*! \} */
 
 /*  ----------------------------------------------------------------------- */
@@ -5010,6 +5045,54 @@ void set_draw_hydrogens(int imol, int istat);
 
 return -1 on bad imol.  */
 int draw_hydrogens_state(int imol);
+
+/*! \brief get hydrogen bonds
+ *
+ * \detailed
+ * For the returned value, an "atom" here looks like:
+ *
+ *    PyDict_SetItemString(at_py, "x", PyFloat_FromDouble(at->x));
+ *    PyDict_SetItemString(at_py, "y", PyFloat_FromDouble(at->y));
+ *    PyDict_SetItemString(at_py, "z", PyFloat_FromDouble(at->z));
+ *    PyDict_SetItemString(at_py, "charge",       PyFloat_FromDouble(at->charge));
+ *    PyDict_SetItemString(at_py, "occ",          PyFloat_FromDouble(at->occupancy));
+ *    PyDict_SetItemString(at_py, "b_iso",        PyFloat_FromDouble(at->tempFactor));
+ *    PyDict_SetItemString(at_py, "element",      myPyString_FromString(at->element));
+ *    PyDict_SetItemString(at_py, "name",         myPyString_FromString(at->name));
+ *    PyDict_SetItemString(at_py, "model",        PyFloat_FromDouble(at->GetModelNum()));
+ *    PyDict_SetItemString(at_py, "chain",        myPyString_FromString(at->GetChainID()));
+ *    PyDict_SetItemString(at_py, "altLoc",       myPyString_FromString(at->altLoc));
+ *    PyDict_SetItemString(at_py, "residue_name", myPyString_FromString(at->GetResidue()->GetResName()));
+ *
+ *    For the returned value, a hydrogen bond looks like this:
+ *
+ *    PyList_SetItem(l, 0, hb_hydrogen_py);       // an atom
+ *    PyList_SetItem(l, 1, donor_py);             // an atom
+ *    PyList_SetItem(l, 2, acceptor_py);          // an atom
+ *    PyList_SetItem(l, 3, donor_neigh_py);       // an atom, possibly None
+ *    PyList_SetItem(l, 4, acceptor_neigh_py);    // an atom, possibly None
+ *
+ *    PyList_SetItem(l, 5, PyFloat_FromDouble(h_bond.angle_1));
+ *    PyList_SetItem(l, 6, PyFloat_FromDouble(h_bond.angle_2));
+ *    PyList_SetItem(l, 7, PyFloat_FromDouble(h_bond.angle_3));
+ *    PyList_SetItem(l, 8, PyFloat_FromDouble(h_bond.dist));
+ *
+ *    PyList_SetItem(l,  9, PyBool_FromLong(h_bond.ligand_atom_is_donor));
+ *    PyList_SetItem(l, 10, PyBool_FromLong(h_bond.hydrogen_is_ligand_atom));
+ *    PyList_SetItem(l, 11, PyBool_FromLong(h_bond.bond_has_hydrogen_flag));
+ *
+ * @param imol the molecule index
+ * @param imol selection_1  the atom selection of the "from" atoms
+ * @param imol selection_2  the atom selection of the "to" atoms.
+ *              Note that often atom_selection_1 and atom_selection_2 are the same,
+ *              e.g. "//A"
+ * @param mcdonald_and_thornton_algoritnm use 0 if the model does not have hydrogen atoms
+                                          use 1 if the model has hydrogen atoms.
+ * @return the hydrogen bonds as a python list object, or False if
+ *         imol is not a valid model molecule
+ *
+ */
+PyObject *get_hydrogen_bonds_py(int imol, const char *selection_1, const char *selection_2, short int mcdonald_and_thornton_algoritnm);
 
 /*! \brief draw little coloured balls on atoms
 
@@ -7323,17 +7406,20 @@ void pisa_clear_interfaces();
 /*  ----------------------------------------------------------------------- */
 /*! \name Jiggle Fit */
 /*! \{ */
-/*!  \brief jiggle fit to the current refinment map.  return < -100 if
-  not possible, else return the new best fit for this residue.  */
+
+/*!  \brief jiggle fit to the current refinment map
+ *
+ * @return < -100 if not possible, else return the new best fit for this residue.  */
 float fit_to_map_by_random_jiggle(int imol, const char *chain_id, int resno, const char *ins_code,
                                   int n_trials, float jiggle_scale_factor);
 
 /*!  \brief jiggle fit the molecule to the current refinment map.  return < -100 if
   not possible, else return the new best fit for this molecule.  */
 float fit_molecule_to_map_by_random_jiggle(int imol, int n_trials, float jiggle_scale_factor);
-/*!  \brief jiggle fit the molecule to the current refinment map.  return < -100 if
-  not possible, else return the new best fit for this molecule - create a map that is blurred
-  by the given factor for fitting  */
+/*!  \brief jiggle fit the molecule to the current refinment map
+ * @return < -100 if
+ *  not possible, else return the new best fit for this molecule - create a map that is blurred
+ *  by the given factor for fitting  */
 float fit_molecule_to_map_by_random_jiggle_and_blur(int imol, int n_trials, float jiggle_scale_factor, float map_blur_factor);
 
 /*!  \brief jiggle fit the chain to the current refinment map.  return < -100 if
@@ -7343,8 +7429,19 @@ float fit_chain_to_map_by_random_jiggle(int imol, const char *chain_id, int n_tr
 /*!  \brief jiggle fit the chain to the current refinment map
  *
  * Use a map that is blurred by the give factor for fitting.
+ *
  * @return < -100 if not possible, else return the new best fit for this chain.  */
 float fit_chain_to_map_by_random_jiggle_and_blur(int imol, const char *chain_id, int n_trials, float jiggle_scale_factor, float map_blur_factor);
+
+/*! \brief Patterson overlap plus phased translationn function MR-like local fitting
+ *
+ * Use the imol_refinement map
+ *
+ * @param imol the molecule index
+ * @param n_top_rotations use only the top n_top_rotations rotation solutions
+ * @param n_top_translations use only the top n_top_translation translation solutions
+ * */
+void molecular_replacement_fit_about_screen_centre(int imol, int n_top_rotations, int n_top_translations);
 
 /*! \} */
 

@@ -31,6 +31,10 @@
 #include "utils/coot-utils.hh"
 #include "widget-from-builder.hh"
 
+#ifdef HAVE_VTE
+#include "vte.hh"
+#endif
+
 // this function is both defined and implemented here.
 // No other files should ever need it.
 inline GMenuModel* menu_model_from_builder(const std::string& m_name) {
@@ -319,8 +323,9 @@ on_python_scripting_entry_key_pressed(GtkEventControllerKey *controller,
    gboolean handled = TRUE;
    bool control_is_pressed = (modifiers & GDK_CONTROL_MASK);
 
-   std::cout << "on_python_scripting_entry_key_pressed() keyval: " << keyval
-             << " keycode: " << keycode << std::endl;
+   if (false)
+      std::cout << "on_python_scripting_entry_key_pressed() keyval: " << keyval
+                << " keycode: " << keycode << std::endl;
 
    switch(keyval) {
       case GDK_KEY_Up: {
@@ -559,7 +564,11 @@ void setup_gui_components() {
    setup_ramachandran_plot_chooser_dialog();
    setup_get_monomer();
    setup_accession_code_frame();
+#ifdef HAVE_VTE
+   setup_python_vte_terminal();
+#else
    setup_python_scripting_entry();
+#endif
    setup_curlew_banner();
    setup_tomo_widgets();
    setup_preferences();

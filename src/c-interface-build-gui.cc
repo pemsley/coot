@@ -596,6 +596,7 @@ void recover_session() {
    for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
       if (graphics_info_t::molecules[imol].has_model()) {
 	 coot::backup_file_info_t info = graphics_info_t::molecules[imol].recent_backup_file_info();
+
 	 if (info.valid_status) {
 
 	    coot::backup_file_info_t *info_copy = new coot::backup_file_info_t;

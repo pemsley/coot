@@ -11,10 +11,16 @@ This skill provides guidance for effective and safe structure refinement in Coot
 
 ### Set Immediate Replacement Mode for Scripting
 
-**ALWAYS** call this before any refinement operations in scripts:
+**ALWAYS** call these two before any refinement operations in scripts:
 
 ```python
 coot.set_refinement_immediate_replacement(1)
+# Makes refinement synchronous — results are committed immediately.
+
+coot.set_imol_refinement_map(imol_map)
+# Tells Coot which map to refine against.
+# CRITICAL: without this, refine_residues_py() silently fails (returns -2 with no atoms moved).
+# Call once per session, or whenever the active map changes.
 ```
 
 **Why:** Enables synchronous operation where refinement directly updates coordinates. Without this:
@@ -44,6 +50,24 @@ neigbs = coot.residues_near_residue(imol, central_residue_spec)
 residue_spec = neigbs
 residue_specs.append(central_residue_spec)
 result = coot.refine_residues_py(imol, residue_specs)
+
+### Hard-Mode-Soft-Mode-Hard-Mode
+
+Some problems are of the kind where the geometry restraints "get in the way" of the
+atoms moving to the correct minimum. In such cases, you can try letting the refinement
+"go soft" - ie.
+
+ o Mediocre Refinement
+ o increase the map weight (weight_matrix) by a factor of 10 or so.
+ o Refine the same residues again
+ o Restore the previous map weight
+ o Refine the same residues again
+
+This can sometimes be helpful to remove bad geometry or bad fit - atom clashes in particular.
+
+Additionally, or perhaps at the same time, you can try to reduce LJ epsilon
+using coot.set_refinement_lennard_jones_epsilon() by a factor of 100 or so.
+And then restore it and re-refine the same residues.
 
 ### Zone Refinement
 
@@ -101,6 +125,22 @@ gtk_gl_area_snapshot
 **Solution:** Use `set_refinement_immediate_replacement(1)` for synchronous operation
 
 ### Asynchronous Refinement Without Accept
+
+## Handling refine_residues_py() Return Values
+
+`refine_residues_py()` returns `['', status, lights]` where status is a GSL minimiser code:
+- **0** (`GSL_SUCCESS`): converged — done.
+- **-2** (`GSL_CONTINUE`): not yet converged — **call refine_residues_py() again** (once or twice more as needed).
+- **27** (`GSL_ENOPROG`): no progress — stop, refinement is stuck.
+
+```python
+# Correct pattern for robust refinement:
+for _ in range(3):
+    result = coot.refine_residues_py(imol, residue_specs)
+    if result and result[1] != -2:
+        break
+lights = result[2] if result else []
+```
 
 ## Multi-Line Code Limitation
 

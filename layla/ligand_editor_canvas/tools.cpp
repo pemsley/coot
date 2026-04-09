@@ -698,11 +698,15 @@ void GeometryModifier::on_bond_click(MoleculeClickContext& ctx, CanvasMolecule::
 
     auto bond_geometry = CanvasMolecule::bond_geometry_from_rdkit(rdkit_bond->getBondDir());
     auto new_bond_geometry = CanvasMolecule::cycle_bond_geometry(bond_geometry);
-    g_debug("Target bond geometry: %u",static_cast<unsigned int>(new_bond_geometry));
+    g_debug("Original bond geometry: %u, New bond geometry: %u", static_cast<unsigned int>(bond_geometry), static_cast<unsigned int>(new_bond_geometry));
     rdkit_bond->setBondDir(CanvasMolecule::bond_geometry_to_rdkit(new_bond_geometry));
 
+    // Now we need to go from bond direction info to chirality info, somehow.
+    RDKit::MolOps::assignChiralTypesFromBondDirs(*ctx.rdkit_mol.get());
+    RDKit::MolOps::assignStereochemistry(*ctx.rdkit_mol.get(), true, true); // full stereo perception + CIP labels
+
     ctx.widget_data.update_status("Geometry of bond has been altered.");
-    ctx.canvas_mol.lower_from_rdkit(!ctx.widget_data.allow_invalid_molecules);
+    ctx.canvas_mol.lower_from_rdkit(!ctx.widget_data.allow_invalid_molecules, true, true);
     g_debug("Final bond geometry: %u",static_cast<unsigned int>(CanvasMolecule::bond_geometry_from_rdkit(rdkit_bond->getBondDir())));
     ctx.widget_data.finalize_edition();
 }

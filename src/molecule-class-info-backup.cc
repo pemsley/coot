@@ -29,12 +29,19 @@ int molecule_class_info_t::make_backup_checkpoint(const std::string &description
  */
 int molecule_class_info_t::restore_to_backup_checkpoint(int backup_index) {
 
+   // backup_index is the value returned by make_backup_checkpoint(), which is
+   // history_index after the increment in make_backup(). The actual file is
+   // stored at history_filename_vec[backup_index - 1].
    std::string cwd = coot::util::current_working_dir();
-   bool status = restore_from_backup(backup_index, cwd);
-   if (status)
+   int target_vec_index = backup_index - 1;
+   int offset = target_vec_index - history_index;
+   bool status = restore_from_backup(offset, cwd);
+   if (status) {
+      history_index = target_vec_index;
       return backup_index;
-   else
+   } else {
       return -1;
+   }
 }
 
 /*! \brief Compare current model to backup

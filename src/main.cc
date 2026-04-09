@@ -139,13 +139,13 @@ windows_set_error_mode() {
 #include "widget-from-builder.hh"
 #include "coot-application.hh"
 
-int new_startup(int argc, char **argv);
+int startup(int argc, char **argv);
 
 // This main is used for both python/guile useage and unscripted.
 int
 main(int argc, char *argv[]) {
 
-   new_startup(argc, argv);
+   startup(argc, argv);
    return 0;
 
 }

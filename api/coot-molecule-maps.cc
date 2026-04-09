@@ -1257,7 +1257,7 @@ coot::molecule_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
       for (int itrial=0; itrial<n_trials; itrial++) {
          float annealing_factor = 1 - float(itrial)/float(n_trials);
          std::pair<clipper::RTop_orth, std::vector<mmdb::Atom> > jiggled_atoms =
-         coot::util::jiggle_atoms(initial_atoms, centre_pt, jiggle_scale_factor);
+         coot::util::jiggle_atoms(initial_atoms, centre_pt, jiggle_scale_factor, annealing_factor);
          coot::minimol::molecule jiggled_mol(atom_selection, n_atoms, jiggled_atoms.second);
          if (false) { // debug solutions
             std::string jfn = "jiggled-" + std::to_string(itrial) + ".pdb";
@@ -1505,7 +1505,48 @@ coot::molecule_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
       }
       // save_info.new_modification("fit_to_map_by_random_jiggle");
    } else {
-      std::cout << " nothing better found " << std::endl;
+
+      // No jiggle trial beat the initial score. This can happen when the model
+      // is at the edge of the density — no orientation from this centre fits well.
+      // Compute a translational bias from the top-scoring trials: if the best
+      // trials consistently shifted in a similar direction, that direction points
+      // toward higher density. Apply the bias to give the next stage a better
+      // starting position.
+
+      int n_for_bias = std::min(static_cast<int>(trial_results.size()), 20);
+      if (n_for_bias > 0) {
+         double sum_x = 0.0, sum_y = 0.0, sum_z = 0.0;
+         for (int i=0; i<n_for_bias; i++) {
+            const clipper::Coord_orth t(trial_results[i].first.trn());
+            sum_x += t.x();
+            sum_y += t.y();
+            sum_z += t.z();
+         }
+         double inv_n = 1.0 / double(n_for_bias);
+         clipper::Coord_orth bias(sum_x * inv_n, sum_y * inv_n, sum_z * inv_n);
+         double bias_length = std::sqrt(bias.lengthsq());
+
+         if (bias_length > 0.3) {
+            std::cout << "INFO:: fit_to_map_by_random_jiggle(): no improvement found, "
+                      << "applying translational bias of " << bias_length
+                      << " A toward higher density" << std::endl;
+
+            if (!chains_for_moving.empty()) {
+               clipper::Mat33<double> identity(1,0,0, 0,1,0, 0,0,1);
+               clipper::RTop_orth bias_rtop(identity, bias);
+               for (unsigned int ich=0; ich<chains_for_moving.size(); ich++)
+                  coot::util::transform_chain(chains_for_moving[ich], bias_rtop);
+            } else {
+               for (int iat=0; iat<n_atoms; iat++) {
+                  atom_selection[iat]->x += bias.x();
+                  atom_selection[iat]->y += bias.y();
+                  atom_selection[iat]->z += bias.z();
+               }
+            }
+         } else {
+            std::cout << " nothing better found " << std::endl;
+         }
+      }
    }
    return v;
 }

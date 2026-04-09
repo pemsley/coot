@@ -614,7 +614,7 @@ main(int argc, char **argv) {
 	       // think.
 	       float frac_lim = 0.7;
 	       float correl_frac_lim = 0.9;
-	       
+
 	       // nino-mode
 	       unsigned int nlc = 1;
 	       wlig.score_and_resort_using_correlation(iclust, nlc);
@@ -626,8 +626,8 @@ main(int argc, char **argv) {
 	       // limit_solutions should be run only after a post-correlation sort.
 	       //
 	       wlig.limit_solutions(iclust, correl_frac_lim, nlc, tolerance, true);
-			   
-	       for (unsigned int isol=0; isol<nlc; isol++) { 
+
+	       for (unsigned int isol=0; isol<nlc; isol++) {
 
 		  m = wlig.get_solution(isol, iclust);
 		  if (! m.is_empty()) {
@@ -638,7 +638,7 @@ main(int argc, char **argv) {
                      if (output_files_in_mmcif) ext = ".cif";
 
 		     std::string file_name = "fitted-ligand-" +
-			coot::util::int_to_string(iclust) + std::string("-") + 
+			coot::util::int_to_string(iclust) + std::string("-") +
 			coot::util::int_to_string(isol) + ext;
                      if (output_files_in_mmcif)
                         ligand_mol->WriteCIFASCII(file_name.c_str());

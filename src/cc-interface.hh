@@ -737,6 +737,24 @@ void add_an_atom(const std::string &element);
 #ifdef USE_PYTHON
 void nudge_the_temperature_factors_py(int imol, PyObject *residue_spec_py, float amount);
 #endif
+
+//! \brief convert AlphaFold pLDDT to crystallographic B-factors
+//!
+//! AlphaFold models store pLDDT confidence scores (0-100) in the
+//! B-factor column. This function converts them to crystallographic
+//! B-factors using the Hiranuma et al. (2021) formula:
+//!
+//!   RMSD = 1.5 * exp(4 * (0.7 - pLDDT/100))
+//!
+//!   B = (8 * pi^2 / 3) * RMSD^2
+//!
+//! After conversion, high-confidence regions (pLDDT ~90) get
+//! B-factors of ~8 A^2, while low-confidence regions (pLDDT ~50)
+//! get B-factors of ~440 A^2.
+//!
+//! @param imol is the molecule index of the AlphaFold model
+void hiranuma_inversion(int imol);
+
 //! \}
 
 
@@ -2277,7 +2295,16 @@ topological_equivalence_chiral_centres(const std::string &residue_type);
 /*  ----------------------------------------------------------------------- */
 /*                  New Screendump                                          */
 /*  ----------------------------------------------------------------------- */
+
+/*! \brief - "save image" / "export image" / "screenshot" / "take a picture" → screendump_image()
+ *
+ * This is the same thing as screendump_image()
+ *
+ */
 void screendump_tga(const std::string &file_name);
+
+/*! \brief set the framebuffer scale factor
+ */
 void set_framebuffer_scale_factor(unsigned int sf);
 
 /*  ----------------------------------------------------------------------- */
@@ -2638,9 +2665,26 @@ protein_db_loop_specs_to_atom_selection_string(const std::vector<coot::residue_s
 #ifdef USE_GUILE
 SCM protein_db_loops_scm(int imol_coords, SCM residues_specs, int imol_map, int nfrags, bool preserve_residue_names);
 #endif
+
 #ifdef USE_PYTHON
+//! \brief Cowtan's protein_db loops
+//!
+//! return in the first pair, the imol of the new molecule generated
+//! from an atom selection of the imol_coords for the residue selection
+//! of the loop and the molecule number of the consolidated solutions
+//! (displayed in purple).  and the second of the outer pair, there is
+//! vector of molecule indices for each of the candidate loops.
+//!
+//! Use this to create hypotheses about where the atoms of the missing
+//! residues could be. Often the top/first solution is the best one.
+//! This fragment will then need to be patched back into molecule
+//! imol_coords using copy_fragment().
+//!
+//! return -1 in the first of the pair on failure
+//!
 PyObject *protein_db_loops_py(int imol_coords, PyObject *residues_specs, int imol_map, int nfrags, bool preserve_residue_names);
 #endif
+
 /* \} */
 
 

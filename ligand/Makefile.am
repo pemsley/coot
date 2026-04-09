@@ -40,7 +40,7 @@ pkginclude_HEADERS = ligand.hh residue_by_phi_psi.hh wligand.hh monomer-utils.hh
 	side-chain-densities.hh tube-finder.hh smith-waterman.hh side-chain.hh \
 	new-residue-by-3-phi-psi.hh refine-isolated-chain.hh libres-tracer.hh \
 	dSFMT.h dSFMT-params.h dSFMT-params19937.h dSFMT-common.h scored-node.hh \
-        rama-rsr-extend-fragments.hh
+        rama-rsr-extend-fragments.hh molecular-replacement.hh
 
 pkgincludedir = $(includedir)/coot/ligand
 
@@ -51,7 +51,8 @@ libcoot_ligand_la_SOURCES = ligand.cc ligand-extras.cc  residue_by_phi_psi.cc \
 	torsion-general.cc rotamer-tables.cc primitive-chi-angles.cc dipole.cc\
         base-pairing.cc backrub-rotamer.cc trace.cc trace-2.cc multi-peptide.cc \
         ligands-db.cc joining-residues.cc ligand-score-card.cc side-chain-densities.cc \
-	tube-finder.cc smith-waterman.cc side-chain.cc refine-isolated-chain.cc
+	tube-finder.cc smith-waterman.cc side-chain.cc refine-isolated-chain.cc \
+	molecular-replacement.cc
 
 # chi-angles, monomer-utils, rotamer torsion-general use coot::Cartesian
 # from libcoot-coords

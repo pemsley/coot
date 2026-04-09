@@ -35,11 +35,26 @@ std::unique_ptr<RDKit::RWMol> rdkit_mol_from_pickle(std::string pickle_string);
 
 std::string rdkit_mol_to_smiles(RDKit::ROMol& mol);
 
+enum class CheminformaticsFileFormat {
+    Molfile,
+    SDF, 
+    InChI, 
+    CDXML
+};
+
 unsigned int append_from_smiles(CootLigandEditorCanvas& canvas, std::string smiles);
+unsigned int append_from_import(CootLigandEditorCanvas& canvas, std::string data, CheminformaticsFileFormat format);
 unsigned int append_from_pickle_base64(CootLigandEditorCanvas& canvas, std::string pickle_string);
 
 std::unique_ptr<coot::ligand_editor_canvas::ActiveTool> make_active_tool(emscripten::val t);
 coot::ligand_editor_canvas::ElementInsertion element_insertion_from_symbol(std::string sym);
+
+
+
+
+
+/// Generic export function for non-smiles data formats, writing exported files to string, then to be further handled by JS
+std::string export_mol(CootLigandEditorCanvas& canvas, unsigned int molecule_idx, CheminformaticsFileFormat format);
 
 }
 

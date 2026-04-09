@@ -96,6 +96,7 @@ molecules_container_t::init() {
 
    map_sampling_rate = 1.8;
    draw_missing_residue_loops_flag = true;
+   ospray_is_initialized = false;
 
    read_standard_residues();
    interrupt_long_term_job = false;
@@ -4401,6 +4402,33 @@ molecules_container_t::apply_transformation_to_atom_selection(int imol, const st
 
 }
 
+bool
+molecules_container_t::apply_translation_to_molecule(int imol, float tx, float ty, float tz) {
+
+   bool status = false;
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Manager *mol = molecules[imol].atom_sel.mol;
+      int selHnd = mol->NewSelection(); // d
+      mol->SelectAtoms(selHnd, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*", "*", "*", "*", "*");
+      mmdb::Atom **atoms = nullptr;
+      int n_atoms = 0;
+      mol->GetSelIndex(selHnd, atoms, n_atoms);
+      if (n_atoms > 0) {
+         for (int i=0; i<n_atoms; i++) {
+            atoms[i]->x += tx;
+            atoms[i]->y += ty;
+            atoms[i]->z += tz;
+         }
+         mol->FinishStructEdit();
+         set_updating_maps_need_an_update(imol);
+         status = true;
+      }
+      mol->DeleteSelection(selHnd);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return status;
+}
 
 int
 molecules_container_t::new_positions_for_residue_atoms(int imol, const std::string &residue_cid, std::vector<coot::api::moved_atom_t> &moved_atoms) {
@@ -5166,7 +5194,6 @@ molecules_container_t::get_symmetry(int imol, float symmetry_search_radius, floa
    }
    return si;
 }
-
 
 //! set the colour wheel rotation base for the specified molecule
 void
@@ -6908,6 +6935,19 @@ std::string molecules_container_t::get_molecule_selection_as_json(int imol, cons
    } else {
       logger.log(log_t::WARNING, logging::function_name_t(__FUNCTION__),
 		 "not a valid model molecule", imol);
+   }
+   return s;
+}
+
+std::string
+molecules_container_t::get_torsions_for_residues_in_chain(int imol, const std::string &chain_id) const {
+
+   std::string s;
+   if (is_valid_model_molecule(imol)) {
+      s = molecules[imol].get_torsions_for_residues_in_chain_as_json(chain_id);
+   } else {
+      logger.log(log_t::WARNING, logging::function_name_t(__FUNCTION__),
+                 "not a valid model molecule", imol);
    }
    return s;
 }

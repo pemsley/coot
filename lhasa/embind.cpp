@@ -43,7 +43,14 @@ EMSCRIPTEN_BINDINGS(lhasa) {
   // TODO: RDKit typedefinitions
   // function("remove_non_polar_hydrogens", &coot::layla::remove_non_polar_hydrogens);
   function("append_from_smiles", &lhasa::append_from_smiles);
+  function("append_from_import", &lhasa::append_from_import);
   function("append_from_pickle_base64", &lhasa::append_from_pickle_base64);
+  function("export_mol", &lhasa::export_mol);
+  enum_<lhasa::CheminformaticsFileFormat>("CheminformaticsFileFormat")
+    .value("Molfile", lhasa::CheminformaticsFileFormat::Molfile)
+    .value("SDF", lhasa::CheminformaticsFileFormat::SDF)
+    .value("InChI", lhasa::CheminformaticsFileFormat::InChI)
+    .value("CDXML", lhasa::CheminformaticsFileFormat::CDXML);
   // TODO: RDKit typedefinitions
   // function("rdkit_mol_from_smiles", &lhasa::rdkit_mol_from_smiles);
   // TODO: RDKit typedefinitions
@@ -200,10 +207,8 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .constructor<>();
   function("make_active_tool", &lhasa::make_active_tool);
   value_object<CootLigandEditorCanvas::SizingInfo>("SizingInfo")
-    .field("requested_size", &CootLigandEditorCanvas::SizingInfo::requested_size);
-  enum_<CootLigandEditorCanvas::MeasurementDirection>("MeasurementDirection")
-    .value("HORIZONTAL", CootLigandEditorCanvas::MeasurementDirection::HORIZONTAL)
-    .value("VERTICAL", CootLigandEditorCanvas::MeasurementDirection::VERTICAL);
+    .field("width", &CootLigandEditorCanvas::SizingInfo::width)
+    .field("height", &CootLigandEditorCanvas::SizingInfo::height);
   value_object<CanvasMolecule::QEDInfo>("QEDInfo")
     .field("number_of_hydrogen_bond_acceptors", &CanvasMolecule::QEDInfo::number_of_hydrogen_bond_acceptors)
     .field("number_of_hydrogen_bond_donors",&CanvasMolecule::QEDInfo:: number_of_hydrogen_bond_donors)
@@ -238,6 +243,8 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .function("get_scale", &CootLigandEditorCanvas::get_scale)
     .function("undo_edition", &CootLigandEditorCanvas::undo)
     .function("redo_edition", &CootLigandEditorCanvas::redo)
+    // TODO: RDKit typedefinitions
+    // .function("get_rdkit_molecule", &CootLigandEditorCanvas::get_rdkit_molecule)
     .function("get_molecule_count", &CootLigandEditorCanvas::get_molecule_count)
     .function("get_idx_of_first_molecule", &CootLigandEditorCanvas::get_idx_of_first_molecule)
     .function("get_max_molecule_idx", &CootLigandEditorCanvas::get_max_molecule_idx)
@@ -260,5 +267,6 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .function("on_right_click_released", &CootLigandEditorCanvas::on_right_click_released)
     .function("render", &CootLigandEditorCanvas::render)
     .function("measure", &CootLigandEditorCanvas::measure)
+    .function("set_minimum_dimensions", &CootLigandEditorCanvas::set_minimum_dimensions)
     .function("connect", &CootLigandEditorCanvas::connect);
 }

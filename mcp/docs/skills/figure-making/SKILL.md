@@ -84,7 +84,13 @@ def setup_colors():
     coot.set_user_defined_atom_colour_by_selection_py(imol, color_assignments)
     
     # Step 4: Create representation
-    coot.add_ribbon_representation_with_user_defined_colours(imol, "My Figure")
+    # //! @param secondary_structure_usage_flag  0 (USE_HEADER) i.e. use the secondary structure defined in the header (if any),
+    # //                                         1 (DONT_USE) or
+    # //                                         2 (CALC_SECONDARY_STRUCTURE)
+    # //                                         the DONT_USE case will give a worm-like backbone representation
+    # as a rule of thumb, use 2 when there is no HELIX/SHEET records in the input file.
+    # if the user wants "worm-like" then they will (should) make it clear that that is the case.
+    coot.add_ribbon_representation_with_user_defined_colours(imol, "My Figure", secondary_structure_usage_flag)
     
     return "Colors applied"
 ```
@@ -137,7 +143,7 @@ def color_by_secondary_structure(imol):
     coot.set_user_defined_atom_colour_by_selection_py(imol, all_assignments)
     
     # Create ribbon
-    coot.add_ribbon_representation_with_user_defined_colours(imol, "Secondary Structure")
+    coot.add_ribbon_representation_with_user_defined_colours(imol, "Secondary Structure", secondary_structure_usage_flag)
     
     return f"{len(strand_selections)} strands, {len(helix_selections)} helices"
 ```
@@ -165,7 +171,7 @@ def add_missing_helix(imol):
     coot.set_user_defined_colours_py([...])
     all_assignments = strand_assignments + helix_assignments
     coot.set_user_defined_atom_colour_by_selection_py(imol, all_assignments)
-    coot.add_ribbon_representation_with_user_defined_colours(imol, "Updated")
+    coot.add_ribbon_representation_with_user_defined_colours(imol, "Updated", secondary_structure_usage_flag)
     
     return "Helix added"
 ```
@@ -177,12 +183,12 @@ def add_missing_helix(imol):
 ```python
 # ❌ BAD - Only assigns new helix, strands lose their color
 coot.set_user_defined_atom_colour_by_selection_py(imol, [("//A/135-139", 61)])
-coot.add_ribbon_representation_with_user_defined_colours(imol, "New")
+coot.add_ribbon_representation_with_user_defined_colours(imol, "New", secondary_structure_usage_flag)
 
 # ✅ GOOD - Reassigns everything
 all_assignments = strand_assignments + helix_assignments + new_helix
 coot.set_user_defined_atom_colour_by_selection_py(imol, all_assignments)
-coot.add_ribbon_representation_with_user_defined_colours(imol, "New")
+coot.add_ribbon_representation_with_user_defined_colours(imol, "New", secondary_structure_usage_flag)
 ```
 
 ## Highlighting Specific Features
@@ -207,11 +213,19 @@ def highlight_feature(imol, selection, color_rgb, bond_thickness=10.0):
     coot.set_user_defined_atom_colour_by_selection_py(feature_imol, [(selection, color_index)])
     
     # Add representation with thick bonds
+    #
+    # //! @param secondary_structure_usage_flag  0 (USE_HEADER) i.e. use the secondary structure defined in the header (if any),
+    # //                                         1 (DONT_USE) or
+    # //                                         2 (CALC_SECONDARY_STRUCTURE)
+    # //                                         the DONT_USE case will give a worm-like backbone representation
+    # as a rule of thumb, use 2 when there is no HELIX/SHEET records in the input file.
+    # if the user wants "worm-like" then they will (should) make it clear that that is the case.
     coot.add_molecular_representation_py(
         feature_imol,
         selection,
         "userDefined",  # Use user-defined colors
         "Bonds"
+        secondary_structure_usage_flag
     )
     
     # Make bonds thicker for emphasis
@@ -303,7 +317,7 @@ def make_gfp_figure():
     coot.set_user_defined_atom_colour_by_selection_py(imol, all_assignments)
     
     # Create ribbon
-    coot.add_ribbon_representation_with_user_defined_colours(imol, "GFP Barrel")
+    coot.add_ribbon_representation_with_user_defined_colours(imol, "GFP Barrel", secondary_structure_usage_flag)
     
     # Hide bonds
     coot.set_mol_displayed(imol, 0)
@@ -311,7 +325,7 @@ def make_gfp_figure():
     # Extract and highlight chromophore
     chrom_imol = coot.new_molecule_by_atom_selection(imol, "//A/66")
     coot.set_user_defined_atom_colour_by_selection_py(chrom_imol, [("//A/66", 62)])
-    coot.add_molecular_representation_py(chrom_imol, "//A/66", "userDefined", "Bonds")
+    coot.add_molecular_representation_py(chrom_imol, "//A/66", "userDefined", "Bonds", secondary_structure_usage_flag)
     coot.set_bond_thickness(chrom_imol, 10.0)
     
     # Center view

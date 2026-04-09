@@ -4722,7 +4722,7 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
       gtk_widget_get_allocation(GTK_WIDGET(gl_area), &allocation);
       int w = allocation.width;
       int h = allocation.height;
-      unsigned int sf = 2; // hardcoded 2x for high-res screenshots
+      unsigned int sf = framebuffer_scale;
 
       bool show_basic_scene_state = (displayed_image_type == SHOW_BASIC_SCENE);
 

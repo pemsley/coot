@@ -4022,12 +4022,15 @@ aniso_probability_hscale_value_changed(GtkScale* range,
          GtkAdjustment *adjustment = gtk_range_get_adjustment(GTK_RANGE(range));
          float fvalue = gtk_adjustment_get_value(adjustment);
          graphics_info_t g;
-         g.show_aniso_atoms_probability = fvalue;
-         int imol = g.combobox_get_imol(GTK_COMBO_BOX(bond_parameters_molecule_comboboxtext));
-         if (gtk_check_button_get_active(GTK_CHECK_BUTTON(draw_anisotropic_atoms_yes_radiobutton))) {
-            // std::cout << "\ncalling set_show_atoms_as_aniso() with prob " << g.show_aniso_atoms_probability << std::endl;
-            graphics_info_t::molecules[imol].make_bonds_type_checked("aniso_probability_hscale_value_changed");
-            g.graphics_draw();
+         int n_molecules = g.n_molecules();
+         if (n_molecules > 0) { // protection from occuring at start-up
+            g.show_aniso_atoms_probability = fvalue;
+            int imol = g.combobox_get_imol(GTK_COMBO_BOX(bond_parameters_molecule_comboboxtext));
+            if (gtk_check_button_get_active(GTK_CHECK_BUTTON(draw_anisotropic_atoms_yes_radiobutton))) {
+               // std::cout << "\ncalling set_show_atoms_as_aniso() with prob " << g.show_aniso_atoms_probability << std::endl;
+               graphics_info_t::molecules[imol].make_bonds_type_checked("aniso_probability_hscale_value_changed");
+               g.graphics_draw();
+            }
          }
       }
    }
@@ -4581,14 +4584,42 @@ void
 on_residue_info_occ_apply_all_checkbutton_toggled(GtkCheckButton *checkbutton,
                                                   gpointer        user_data) {
 
-   GtkWidget *entry = widget_from_builder("residue_info_master_atom_occ_entry");
-   GtkWidget *alt_conf_checkbutton = widget_from_builder("residue_info_occ_apply_to_altconf_checkbutton");
+   GtkWidget *occ_entry           = widget_from_builder("residue_info_master_atom_occ_entry");
+   GtkWidget *alt_conf_checkbox     = widget_from_builder("residue_info_occ_apply_to_altconf_checkbutton");
+   GtkWidget *alt_conf_entry  = widget_from_builder("residue_info_occ_apply_to_altconf_entry");
 
    if (gtk_check_button_get_active(checkbutton)) {
-      gtk_widget_set_sensitive(entry, TRUE);
+      // Uncheck the mutually exclusive "apply to alt conf" checkbox
+      if (gtk_check_button_get_active(GTK_CHECK_BUTTON(alt_conf_checkbox))) {
+         gtk_check_button_set_active(GTK_CHECK_BUTTON(alt_conf_checkbox), FALSE);
+      }
+      gtk_widget_set_sensitive(occ_entry, TRUE);
+      gtk_widget_set_sensitive(alt_conf_entry, FALSE);
    } else {
-      if (! gtk_check_button_get_active(GTK_CHECK_BUTTON(alt_conf_checkbutton)))
-         gtk_widget_set_sensitive(entry, FALSE);
+      if (! gtk_check_button_get_active(GTK_CHECK_BUTTON(alt_conf_checkbox)))
+         gtk_widget_set_sensitive(occ_entry, FALSE);
+   }
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_residue_info_occ_apply_to_altconf_checkbutton_toggled(GtkCheckButton *checkbutton,
+                                                         gpointer        user_data) {
+
+   GtkWidget *occ_entry       = widget_from_builder("residue_info_master_atom_occ_entry");
+   GtkWidget *alt_conf_entry  = widget_from_builder("residue_info_occ_apply_to_altconf_entry");
+   GtkWidget *apply_all_cb    = widget_from_builder("residue_info_occ_apply_all_checkbutton");
+
+   if (gtk_check_button_get_active(checkbutton)) {
+      // Uncheck the mutually exclusive "apply to all" checkbox
+      if (gtk_check_button_get_active(GTK_CHECK_BUTTON(apply_all_cb)))
+         gtk_check_button_set_active(GTK_CHECK_BUTTON(apply_all_cb), FALSE);
+      gtk_widget_set_sensitive(occ_entry,      TRUE);
+      gtk_widget_set_sensitive(alt_conf_entry, TRUE);
+   } else {
+      gtk_widget_set_sensitive(alt_conf_entry, FALSE);
+      if (! gtk_check_button_get_active(GTK_CHECK_BUTTON(apply_all_cb)))
+         gtk_widget_set_sensitive(occ_entry, FALSE);
    }
 }
 
@@ -6832,6 +6863,12 @@ on_density_correlation_graph_toggled(GtkCheckButton* self, gpointer user_data) {
 
 extern "C" G_MODULE_EXPORT
 void
+on_validation_graph_docked_checkbutton_toggled(GtkCheckButton* self, gpointer user_data) {
+   graphics_info_t::validation_graphs_is_docked = gtk_check_button_get_active(self);
+}
+
+extern "C" G_MODULE_EXPORT
+void
 on_ramachandran_plot_molecule_chooser_ok_button_clicked(GtkButton       *button,
                                                         gpointer         user_data) {
 
@@ -6886,25 +6923,6 @@ on_map_properties_dialog_specularity_state_checkbutton_toggled(GtkCheckButton *c
    handle_map_properties_specularity_change(imol, GTK_WIDGET(checkbutton));
    graphics_info_t::graphics_grab_focus();
 
-}
-
-// ----------------------------------- undocked validation graphs -----
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_validation_graphs_dialog_close_button_clicked(GtkButton       *button,
-                                                 gpointer         user_data) {
-
-   GtkWidget *dialog = widget_from_builder("validation_graphs_dialog");
-   gtk_widget_set_visible(dialog, FALSE);
-}
-
-extern "C" G_MODULE_EXPORT
-void
-on_validation_graphs_dialog_destroy(GtkWidget       *widget,
-                                    gpointer         user_data) {
-   gtk_widget_set_visible(widget, FALSE);
 }
 
 
@@ -7127,6 +7145,8 @@ on_material_lighting_ambient_colorbutton_color_set(GtkColorButton *colorbutton,
       glm::vec4 ambient(rgba.red, rgba.green, rgba.blue, 1.0f);
       g.molecules[imol].material_for_models.ambient = ambient;
       g.molecules[imol].model_molecule_meshes.set_material_ambient(ambient);
+      for (auto &mesh : g.molecules[imol].meshes)
+         mesh.set_material_ambient(ambient);
       g.graphics_draw();
    }
 }
@@ -7143,8 +7163,10 @@ on_material_lighting_diffuse_colorbutton_color_set(GtkColorButton *colorbutton,
    graphics_info_t g;
    if (g.is_valid_model_molecule(imol)) {
       glm::vec4 diffuse(rgba.red, rgba.green, rgba.blue, 1.0f);
-      g.molecules[imol].material_for_models.ambient = diffuse;
+      g.molecules[imol].material_for_models.diffuse = diffuse;
       g.molecules[imol].model_molecule_meshes.set_material_diffuse(diffuse);
+      for (auto &mesh : g.molecules[imol].meshes)
+         mesh.set_material_diffuse(diffuse);
       g.graphics_draw();
    }
 }

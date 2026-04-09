@@ -632,7 +632,8 @@ graphics_info_t::refinement_loop_threaded() {
          // Maybe It shouldn't go off if there is no intervention.
          // Unless it's really good.
          //
-         std::pair<bool, std::string> hooray = rr.hooray();
+         // std::pair<bool, std::string> hooray = rr.hooray();
+         std::pair<bool, std::string> hooray(false, ""); // turn off hooray for now
 
          if (hooray.first) {
             // we can't touch Gtk or OpenGL because this we are in a thread

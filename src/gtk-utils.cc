@@ -23,6 +23,7 @@
 
 #include "src/gtk-utils.hh"
 #include <string>
+#include "gtk/gtk.h"
 #include "src/graphics-info.h"
 
 ProgressBarPopUp::ProgressBarPopUp(const std::string &title, const std::string &description) noexcept {
@@ -58,8 +59,12 @@ void ProgressBarPopUp::pulse() noexcept {
 }
 
 void ProgressBarPopUp::set_fraction(float frac) noexcept {
+
+   // closing thie window using the window manager button
+   // deletes the widgets, I think, so this pointer goes bad.
    if(this->progress_bar) {
-      gtk_progress_bar_set_fraction(this->progress_bar, frac);
+      if (GTK_IS_PROGRESS_BAR(this->progress_bar))
+         gtk_progress_bar_set_fraction(this->progress_bar, frac);
    }
 }
 

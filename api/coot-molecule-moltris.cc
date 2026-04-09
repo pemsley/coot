@@ -389,8 +389,7 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
                   mmdb::Residue *residue_p = chain_p->GetResidue(ires);
                   if (residue_p) {
                      int res_no = residue_p->GetSeqNum();
-                     std::string res_name(residue_p->GetResName());
-                     if (res_name != "HOH") {
+                     if (residue_p->isAminoacid()) {
                         if (res_no > resno_max) resno_max = res_no;
                         if (res_no < resno_min) resno_min = res_no;
                      }
@@ -413,20 +412,26 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
        const std::vector<std::pair<std::string, int> > &M2T_int_params) {
 
       coot::simple_mesh_t mesh;
-      auto ramp_cs  = ColorScheme::colorRampChainsScheme();
 
       std::vector<chain_info_t> ci = get_chains_in_selection(my_mol, atom_selection_str);
 
       for (const auto &ch : ci) {
 
-         std::string atom_selection_str = "//" + std::string(ch.chain_p->GetChainID());
-         AtomPropertyRampColorRule apcrr;
-         apcrr.setStartValue(ch.resno_min);
-         apcrr.setEndValue(ch.resno_max);
-         auto apcrr_p = std::make_shared<AtomPropertyRampColorRule> (apcrr);
+         if (ch.resno_max <= ch.resno_min) continue;
+         std::string chain_sel = "//" + std::string(ch.chain_p->GetChainID());
+
+         auto ramp_cs = std::shared_ptr<ColorScheme>(new ColorScheme());
+         auto apcrr_p = std::make_shared<AtomPropertyRampColorRule>();
+         int n_ramp_points = ch.resno_max - ch.resno_min;
+         apcrr_p->setNumberOfRampPoints(n_ramp_points);
+         apcrr_p->setStartValue(ch.resno_min);
+         apcrr_p->setEndValue(ch.resno_max);
+         apcrr_p->setCompoundSelection(
+            std::shared_ptr<CompoundSelection>(new CompoundSelection(chain_sel + "/*.*/*:*")));
          ramp_cs->addRule(apcrr_p);
+
          std::shared_ptr<MolecularRepresentationInstance> molrepinst =
-            MolecularRepresentationInstance::create(my_mol, ramp_cs, atom_selection_str, style);
+            MolecularRepresentationInstance::create(my_mol, ramp_cs, chain_sel, style);
          coot::simple_mesh_t submesh = molecular_representation_instance_to_mesh(molrepinst, M2T_float_params, M2T_int_params);
          mesh.add_submesh(submesh);
       }
@@ -507,7 +512,7 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
             if (colour_scheme == "Element")   this_cs = ele_cs;
             if (colour_scheme == "BFactor")   this_cs = bf_cs;
             if (colour_scheme == "Secondary") this_cs = ss_cs;
-            if (colour_scheme == "RampChains") {
+            if (colour_scheme == "RampChains" || colour_scheme == "colorRampChainsScheme") {
                mesh = ramp_chains(my_mol, atom_selection_str, style, M2T_float_params, M2T_int_params);
             } else {
 
