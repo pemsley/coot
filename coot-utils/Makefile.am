@@ -307,7 +307,7 @@ test_coord_utils_gemmi_LDADD = \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la \
 	$(top_builddir)/geometry/libcoot-geometry.la \
 	$(top_builddir)/utils/libcoot-utils.la \
-	$(CLIPPER_LIBS) $(CCP4SRS_LIBS) -lpthread
+	$(CLIPPER_LIBS) $(GEMMI_LIBS) $(CCP4SRS_LIBS) -lpthread
 
 # test_segmap_SOURCES = test-segmap.cc
 # test_segmap_LDADD = \
