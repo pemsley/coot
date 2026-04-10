@@ -408,7 +408,9 @@ void TransformManager::apply_current_transform_state(impl::WidgetCoreData* widge
         auto angle = rot->get_current_angle_diff(snap_to_angle);
         auto abs_angle = rot->get_current_absolute_angle(snap_to_angle) / M_PI * 180;
         mol.rotate_by_angle(angle);
-        mol.lower_from_rdkit(!widget_data->allow_invalid_molecules, false);
+        CanvasMolecule::LoweringOptions options;
+        options.with_qed = false; // no need to recompute qed after rotation
+        mol.lower_from_rdkit(!widget_data->allow_invalid_molecules, widget_data->use_coordgen, options);
         std::string msg;
         if (about_to_end) {
             msg = "Molecule rotated by: " + std::to_string(abs_angle) + " degrees.";
@@ -538,7 +540,7 @@ void ElementInsertion::on_atom_click(MoleculeClickContext& ctx, CanvasMolecule::
 }
 
 void ElementInsertion::after_molecule_click(MoleculeClickContext& ctx) {
-    ctx.canvas_mol.lower_from_rdkit(!ctx.widget_data.allow_invalid_molecules);
+    ctx.canvas_mol.lower_from_rdkit(!ctx.widget_data.allow_invalid_molecules, ctx.widget_data.use_coordgen);
     ctx.widget_data.finalize_edition();
 }
 
@@ -591,7 +593,7 @@ void BondModifier::on_bond_click(MoleculeClickContext& ctx, CanvasMolecule::Bond
         throw std::runtime_error(std::string("Invalid bond modification: ") + e.what());
     }
     ctx.widget_data.update_status("Bond has been altered.");
-    ctx.canvas_mol.lower_from_rdkit(!ctx.widget_data.allow_invalid_molecules);
+    ctx.canvas_mol.lower_from_rdkit(!ctx.widget_data.allow_invalid_molecules, ctx.widget_data.use_coordgen);
     ctx.widget_data.finalize_edition();
 }
 
@@ -673,7 +675,7 @@ void BondModifier::on_release(ClickContext& ctx, int x, int y) {
                 }
                 this->sanitize_molecule(widget_data, *rdkit_mol.get());
                 auto& canvas_mol = *widget_data.molecules->at(molecule_idx);
-                canvas_mol.lower_from_rdkit(!widget_data.allow_invalid_molecules);
+                canvas_mol.lower_from_rdkit(!widget_data.allow_invalid_molecules, widget_data.use_coordgen);
                 widget_data.finalize_edition();
             } else {
                 widget_data.update_status("Can't link bond to a bond!");
@@ -706,7 +708,9 @@ void GeometryModifier::on_bond_click(MoleculeClickContext& ctx, CanvasMolecule::
     RDKit::MolOps::assignStereochemistry(*ctx.rdkit_mol.get(), true, true); // full stereo perception + CIP labels
 
     ctx.widget_data.update_status("Geometry of bond has been altered.");
-    ctx.canvas_mol.lower_from_rdkit(!ctx.widget_data.allow_invalid_molecules, true, true);
+    CanvasMolecule::LoweringOptions options;
+    options.omit_stereochemistry_processing = true;
+    ctx.canvas_mol.lower_from_rdkit(!ctx.widget_data.allow_invalid_molecules, ctx.widget_data.use_coordgen, options);
     g_debug("Final bond geometry: %u",static_cast<unsigned int>(CanvasMolecule::bond_geometry_from_rdkit(rdkit_bond->getBondDir())));
     ctx.widget_data.finalize_edition();
 }
@@ -727,7 +731,7 @@ void ChargeModifier::on_atom_right_click(MoleculeClickContext& ctx, CanvasMolecu
     ctx.widget_data.update_status("Charge of atom has been increased.");
 
     Tool::sanitize_molecule(ctx.widget_data, *ctx.rdkit_mol.get());
-    ctx.canvas_mol.lower_from_rdkit(!ctx.widget_data.allow_invalid_molecules);
+    ctx.canvas_mol.lower_from_rdkit(!ctx.widget_data.allow_invalid_molecules, ctx.widget_data.use_coordgen);
 
     ctx.widget_data.finalize_edition();
 }
@@ -789,7 +793,7 @@ void ChargeModifier::on_atom_click(MoleculeClickContext& ctx, CanvasMolecule::At
     ctx.widget_data.update_status("Charge of atom has been decreased.");
 
     Tool::sanitize_molecule(ctx.widget_data, *ctx.rdkit_mol.get());
-    ctx.canvas_mol.lower_from_rdkit(!ctx.widget_data.allow_invalid_molecules);
+    ctx.canvas_mol.lower_from_rdkit(!ctx.widget_data.allow_invalid_molecules, ctx.widget_data.use_coordgen);
 
     ctx.widget_data.finalize_edition();
 }
@@ -1020,7 +1024,7 @@ void DeleteTool::on_atom_click(MoleculeClickContext& ctx, CanvasMolecule::Atom& 
 void DeleteTool::after_molecule_click(MoleculeClickContext& ctx) {
     if(ctx.widget_data.is_in_edition()) {
         Tool::sanitize_molecule(ctx.widget_data, *ctx.rdkit_mol.get());
-        ctx.canvas_mol.lower_from_rdkit(!ctx.widget_data.allow_invalid_molecules);
+        ctx.canvas_mol.lower_from_rdkit(!ctx.widget_data.allow_invalid_molecules, ctx.widget_data.use_coordgen);
         ctx.widget_data.finalize_edition();
     } else {
         ctx.widget_data.delete_molecule_with_idx(ctx.mol_idx);
@@ -1162,7 +1166,7 @@ void StructureInsertion::on_atom_click(MoleculeClickContext& ctx, CanvasMolecule
 
 void StructureInsertion::after_molecule_click(MoleculeClickContext& ctx) {
     this->sanitize_molecule(ctx.widget_data, *ctx.rdkit_mol);
-    ctx.canvas_mol.lower_from_rdkit(!ctx.widget_data.allow_invalid_molecules);
+    ctx.canvas_mol.lower_from_rdkit(!ctx.widget_data.allow_invalid_molecules, ctx.widget_data.use_coordgen);
     ctx.widget_data.finalize_edition();
 }
 
@@ -1203,7 +1207,7 @@ bool RemoveHydrogensTool::on_molecule_click(MoleculeClickContext& ctx) {
     ctx.widget_data.begin_edition();
     layla::remove_non_polar_hydrogens(*ctx.rdkit_mol);
     this->sanitize_molecule(ctx.widget_data, *ctx.rdkit_mol);
-    ctx.canvas_mol.lower_from_rdkit(!ctx.widget_data.allow_invalid_molecules);
+    ctx.canvas_mol.lower_from_rdkit(!ctx.widget_data.allow_invalid_molecules, ctx.widget_data.use_coordgen);
     ctx.widget_data.finalize_edition();
     ctx.widget_data.update_status("Non-polar hydrogens have been removed.");
     return false;
@@ -1240,7 +1244,7 @@ void FlipTool::on_load(impl::WidgetCoreData& widget_data) {
 bool FlipTool::on_molecule_click(MoleculeClickContext& ctx) {
     ctx.widget_data.begin_edition();
     ctx.canvas_mol.perform_flip(this->mode);
-    ctx.canvas_mol.lower_from_rdkit(!ctx.widget_data.allow_invalid_molecules);
+    ctx.canvas_mol.lower_from_rdkit(!ctx.widget_data.allow_invalid_molecules, ctx.widget_data.use_coordgen);
     ctx.widget_data.finalize_edition();
     ctx.widget_data.update_status("Molecule has been flipped.");
     return false;
@@ -1265,7 +1269,9 @@ void FormatTool::on_load(impl::WidgetCoreData& widget_data) {
 bool FormatTool::on_molecule_click(MoleculeClickContext& ctx) {
     ctx.widget_data.begin_edition();
     ctx.canvas_mol.clear_cached_atom_coordinate_map();
-    ctx.canvas_mol.lower_from_rdkit(!ctx.widget_data.allow_invalid_molecules, false);
+    CanvasMolecule::LoweringOptions options;
+    options.with_qed = false;
+    ctx.canvas_mol.lower_from_rdkit(!ctx.widget_data.allow_invalid_molecules, ctx.widget_data.use_coordgen, options);
     ctx.widget_data.finalize_edition();
     ctx.widget_data.update_status("Molecule has been formatted.");
     return false;

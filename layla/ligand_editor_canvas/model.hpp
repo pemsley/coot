@@ -215,6 +215,14 @@ class CanvasMolecule {
     typedef std::optional<AtomOrBond> MaybeAtomOrBond;
     static const float BASE_SCALE_FACTOR;
 
+    struct LoweringOptions {
+        bool with_qed;
+        bool omit_stereochemistry_processing;
+
+        LoweringOptions() noexcept;
+    };
+
+
     private:
 
     static const float BOND_DISTANCE_BOUNDARY;
@@ -240,10 +248,6 @@ class CanvasMolecule {
     /// Has to be multiplied by scale and viewport offset must be added to get on-screen coordinates
     float y_canvas_translation;
 
-    /// Determines if libcoordgen is to be used for determining atom coordinates.
-    /// Uses RDDepict if false
-    bool use_coordgen;
-
     /// The top-left and bottom-right points, in between which the molecule lies.
     /// The coordinates are in "RDKit space".
     /// They have to be multiplied by scale and added to the offsets to get on-screen coordinates
@@ -266,7 +270,7 @@ class CanvasMolecule {
     /// Uses RDDepict to get molecule depiction & geometry info
     ///
     /// Part of the lowering process.
-    RDGeom::INT_POINT2D_MAP compute_molecule_geometry(bool omit_stereochemistry) const;
+    RDGeom::INT_POINT2D_MAP compute_molecule_geometry(bool omit_stereochemistry, bool use_coordgen) const;
 
     /// Builds the drawing-friendly 2D molecule representation
     /// based on geometry computed by RDKit.
@@ -310,7 +314,7 @@ class CanvasMolecule {
     /// after lowering.
     /// QED gets recomputed and updated if `with_qed` is true (default).
     /// By default, wedges/dashes are read from the RDKit molecule, unless `omit_stereochemistry_processing` is set to true.
-    void lower_from_rdkit(bool sanitize_after, bool with_qed = true, bool omit_stereochemistry_processing = false);
+    void lower_from_rdkit(bool sanitize_after, bool use_coordgen, const LoweringOptions& options = LoweringOptions());
 
     /// Clears `cached_atom_coordinate_map`,
     /// forcing the subsequent call to `compute_molecule_geometry()`
@@ -322,9 +326,6 @@ class CanvasMolecule {
     /// Updates the `cached_atom_coordinate_map` after an atom has been removed
     /// in such a way as to prevent the cached molecule geometry from being broken
     void update_cached_atom_coordinate_map_after_atom_removal(unsigned int removed_atom_idx);
-
-    /// Updates `use_coordgen` setting.
-    void set_coordgen_enabled(bool value) noexcept;
 
     void apply_canvas_translation(int delta_x, int delta_y, float scale) noexcept;
     std::pair<float,float> get_on_screen_coords(float x, float y, const std::pair<int, int>& viewport_offset, float scale) const noexcept;

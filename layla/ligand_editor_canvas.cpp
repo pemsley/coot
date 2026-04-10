@@ -619,7 +619,7 @@ void coot_ligand_editor_canvas_update_molecule_from_smiles(CootLigandEditorCanva
             *target_mol_opt->get() = std::move(*mol_ptr);
             auto& widget_mol = (*self->molecules)[molecule_idx];
             widget_mol->clear_cached_atom_coordinate_map();
-            widget_mol->lower_from_rdkit(!self->allow_invalid_molecules);
+            widget_mol->lower_from_rdkit(!self->allow_invalid_molecules, self->use_coordgen);
             self->finalize_edition();
             self->update_status("Molecule updated from SMILES.");
             delete mol_ptr;
@@ -686,11 +686,6 @@ bool coot_ligand_editor_canvas_get_allow_invalid_molecules(CootLigandEditorCanva
 void coot_ligand_editor_canvas_set_coordgen_mode_enabled(CootLigandEditorCanvas* self, bool value) noexcept {
     g_debug("Coordgen mode set to %s", value ? "true" : "false");
     self->use_coordgen = value;
-    for(auto& mol_opt: *self->molecules) {
-        if(mol_opt) {
-            mol_opt->set_coordgen_enabled(value);
-        }
-    }
 }
 bool coot_ligand_editor_canvas_get_coordgen_mode_enabled(CootLigandEditorCanvas* self) noexcept {
     return self->use_coordgen;
