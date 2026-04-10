@@ -28,13 +28,13 @@ pkginclude_HEADERS =  protein-geometry.hh read-sbase.hh lbg-graph.hh srs-interfa
    dict-utils.hh dict-mismatches.hh energy-lib.hh match-results.hh hb-types.hh main-chain.hh \
    residue-and-atom-specs.hh chem_mods.hh mol-utils.hh mol-utils-2.hh bonded-quad.hh hydrophobic.hh \
    metal-ligand.hh pdbe-chem-comp-atom-depiction.hh pdbx-chem-comp-description-generator.hh \
-   gphl-chem-comp-info.hh
+   gphl-chem-comp-info.hh residue-and-atom-specs-gemmi.hh
 
 
 pkgincludedir = $(includedir)/coot/geometry
 
 AM_CPPFLAGS = -I$(top_srcdir) \
-	 $(CLIPPER_CXXFLAGS) $(CCP4SRS_CXXFLAGS) $(MMDB_CXXFLAGS) $(gsl_CFLAGS)
+	 $(CLIPPER_CXXFLAGS) $(CCP4SRS_CXXFLAGS) $(MMDB_CXXFLAGS) $(GEMMI_CXXFLAGS) $(gsl_CFLAGS)
 
 AM_CXXFLAGS = \
 	-DXDATADIR='"$(datadir)"'       \
@@ -46,13 +46,14 @@ libcoot_geometry_la_SOURCES = cif-parse.cc protein-geometry.cc protein-geometry-
     read-sbase.cc energy-lib.cc mol-utils.cc dictionary-residue.cc link.cc glyco-tools.cc dict-utils.cc \
     chem_mods.cc srs-interface.cc protein-donor-acceptors.cc protein-donor-acceptors.hh \
     lbg-graph.cc  dreiding.cc main-chain.cc residue-and-atom-specs.cc intercept-3GP.cc \
-    mol-utils-2.cc hydrophobic.cc cif-parse-link.cc cif-parse-mon-lib.cc read-metals-json.cc 
+    mol-utils-2.cc hydrophobic.cc cif-parse-link.cc cif-parse-mon-lib.cc read-metals-json.cc \
+    residue-and-atom-specs-gemmi.cc
 
 libcoot_geometry_la_LIBADD = \
         $(top_builddir)/mini-mol/libcoot-mini-mol.la \
         $(top_builddir)/utils/libcoot-utils.la       \
         $(top_builddir)/compat/libcoot-compat.la     \
-        $(CLIPPER_LIBS) $(CCP4SRS_LIBS) $(MMDB_LIBS)
+        $(CLIPPER_LIBS) $(CCP4SRS_LIBS) $(GEMMI_LIBS) $(MMDB_LIBS)
 
 libcoot_geometry_la_LDFLAGS = $(SHARED_LDFLAGS)
 
