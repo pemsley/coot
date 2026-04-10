@@ -48,7 +48,7 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
 	stb_image.h stb_image_write.h glyco-tree.hh positron.hh mini-texture.hh texture-as-floats.hh pae.hh q-score.hh \
 	acedrg-types-for-residue.hh gl-matrix.h ortep.hh coot-align.hh grid-balls.hh dict-link-info.hh \
         dirichlet-process.hh cfc.hh cremer-pople.hh born.hh inchikey-store.hh cylinder-utils.hh gmm.hh nef-utils.hh ptm-database.hh \
-	read-amber-trajectory.hh rebox-map.hh
+	read-amber-trajectory.hh rebox-map.hh coot-coord-utils-gemmi.hh
 
 
 pkgincludedir = $(includedir)/coot/coot-utils
@@ -78,7 +78,7 @@ endif
 # for pure coordinates (mmdb) things
 # - note to self: don't some of these include usage of clipper::Coord_orth - which
 # means that we should add $CLIPPER_LIBS to libcoot_coord_utils_la_LDADD
-libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
+libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc coot-coord-utils-gemmi.cc \
 	coot-coord-utils-nucleotides.cc coot-rama.cc coot-h-bonds.cc hole.cc read-sm-cif.cc \
 	bonded-pairs.cc helix-analysis.cc elastic.cc glyco-torsions.cc coot-least-squares.cc \
 	atom-overlaps.cc reduce.cc atom-selection-container.cc contact-info.cc coot-shelx-ins.cc \
@@ -186,7 +186,7 @@ check_PROGRAMS = test-h-bonds testshelxreader test-hole test-elastic \
 		 test-coot-utils test-pae servalcat-tracker test-zd test-grid-balls \
 		 test-dirichlet-process test-born test-gmm test-nef-utils test-zernike \
 		 test-zernike-params test-zernike-nxmap test-zernike-search \
-		 test-coord-utils
+		 test-coord-utils test-coord-utils-gemmi
 
 # wrong build order - delete from make check for now.
 # test-emma test-convolute test-coot-utils test-segmap
@@ -289,6 +289,17 @@ test_coot_utils_LDADD = \
 
 test_coord_utils_SOURCES = test-coord-utils.cc
 test_coord_utils_LDADD = \
+	./libcoot-map-heavy.la    \
+	./libcoot-map-utils.la    \
+	./libcoot-coord-extras.la \
+	./libcoot-coord-utils.la  \
+	$(top_builddir)/mini-mol/libcoot-mini-mol.la \
+	$(top_builddir)/geometry/libcoot-geometry.la \
+	$(top_builddir)/utils/libcoot-utils.la \
+	$(CLIPPER_LIBS) $(CCP4SRS_LIBS) -lpthread
+
+test_coord_utils_gemmi_SOURCES = test-coord-utils-gemmi.cc
+test_coord_utils_gemmi_LDADD = \
 	./libcoot-map-heavy.la    \
 	./libcoot-map-utils.la    \
 	./libcoot-coord-extras.la \
