@@ -13,12 +13,12 @@ jobs:
 
       - uses: actions/checkout@v4
 
-      # - name: Cache test data tar
-      #   id: test-libcootapi-data-cache
-      #   uses: actions/cache@v4
-      #   with:
-      #     path: test-molecule-container-test-data-20260407.tar.gz
-      #     key: ubuntu-test-data-cache
+      - name: Cache test data tar
+        id: test-libcootapi-data-cache
+        uses: actions/cache@v4
+        with:
+          path: test-molecule-container-test-data-20260407.tar.gz
+          key: ubuntu-test-data-cache
 
       - name: download test data
         run:  wget -N -nv https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/data/test-molecule-container-test-data-20260407.tar.gz
