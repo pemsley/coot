@@ -358,7 +358,8 @@ on_single_map_properties_colour_button_color_set(GtkColorButton *colorbutton,
    if (is_valid_map_molecule(imol)) {
       GdkRGBA rgba;
       gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(colorbutton), &rgba);
-      graphics_info_t::molecules[imol].set_map_colour(rgba);
+      bool swap = graphics_info_t::swap_difference_map_colours;
+      graphics_info_t::molecules[imol].set_map_colour(rgba, swap);
       graphics_draw();
    }
 }
@@ -375,7 +376,8 @@ void on_colour_chooser_dialog_response(GtkDialog *dialog,
       int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "imol"));
       if (is_valid_map_molecule(imol)) {
          graphics_info_t g;
-         g.molecules[imol].set_map_colour(color);
+         bool swap = g.swap_difference_map_colours;
+         g.molecules[imol].set_map_colour(color, swap);
          // std::cout << "set map colour to " << color.red << " " << color.green << " " << color.blue << std::endl;
          graphics_draw();
       }

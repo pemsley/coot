@@ -4,15 +4,16 @@ A molecular replacement (MR) pipeline has been implemented for
 local fitting known structures into cryo-EM density maps.
 We have previously discussed the implementation of "Jiggle Fit"
 \cite{casanal-protein-science} to address the same problem.
-Here, the method is extented with the hope of increasing
-the distance between initial centre and true position.
+Here, the method is extended with the hope of increasing
+the robustness of the method by increasing the distance
+between initial centre and true position.
 
 Discuss Molrep, EM Placement, Situs, see Google Docs EM notes
 
 This method adapts
 the fast rotation function of Crowther~\cite{Crowther1972} to operate
 on real-space density maps rather than crystallographic structure
-factors, combined with a phased translation function and
+factors, combined with a phased translation function \cite({} and
 density-weighted recentring to handle the difference between user input
 and user input. The implementation is designed for interactive use:
 the user identifies a region of unmodelled density on screen and supplies

@@ -61,12 +61,12 @@ coot::daca::box_index_t::d() const {
 
 bool
 coot::daca::box_index_t::operator<(const coot::daca::box_index_t &other) const {
-   if (other.idx_x < idx_x) return true;
-   if (other.idx_x > idx_x) return false;
-   if (other.idx_y < idx_y) return true;
-   if (other.idx_y > idx_y) return false;
-   if (other.idx_z < idx_z) return true;
-   if (other.idx_z > idx_z) return false;
+   if (idx_x < other.idx_x) return true;
+   if (idx_x > other.idx_x) return false;
+   if (idx_y < other.idx_y) return true;
+   if (idx_y > other.idx_y) return false;
+   if (idx_z < other.idx_z) return true;
+   if (idx_z > other.idx_z) return false;
    return false;
 }
 
@@ -354,7 +354,7 @@ coot::daca::atom_names_for_fragments(const std::string &res_name) const {
    if (res_name == "MSE") {
       std::vector<std::string> s1{" N  ", " C  ", " CA ", " CB "};
       std::vector<std::string> s2{" CA ", " CB ", " CG "};
-      std::vector<std::string> s3{" CB ", " CG ", " SD "};
+      std::vector<std::string> s3{" CB ", " CG ", " SE "};
       std::vector<std::string> s4{" CG ", " SE ", " CE "};
       v.push_back(s1);
       v.push_back(s2);
@@ -785,7 +785,7 @@ coot::daca::atom_is_close_to_a_residue_atom(mmdb::Atom *at, mmdb::Residue *refer
       float dd =
          (at->x - ref_at->x) * (at->x - ref_at->x) +
          (at->y - ref_at->y) * (at->y - ref_at->y) +
-         (at->z - ref_at->z) * (at->z - ref_at->x);
+         (at->z - ref_at->z) * (at->z - ref_at->z);
       if (dd < dd_close) {
          status = true;
          break;
@@ -854,8 +854,6 @@ coot::daca::calculate_daca(mmdb::Residue *reference_residue_p,
 
    double d_crit = 8.0; // or something
    double dd_crit = d_crit * d_crit;
-
-   presize_boxes();
 
    int reference_counts = 0;
 
@@ -1182,7 +1180,7 @@ coot::daca::normalize() {
                          << "frag-index " << idx_frag << " "
                          << "atom_type " << atom_type << " "
                          << n_count_sum << std::endl;
-            float scale_factor = static_cast<int>(1000000.0/static_cast<float>(n_count_sum));
+            float scale_factor = 1000000.0f / static_cast<float>(n_count_sum);
             std::map<box_index_t, unsigned int>::iterator it_counts;
             for (it_counts=m2.begin(); it_counts!=m2.end(); it_counts++) {
                unsigned int counts = it_counts->second;
@@ -1504,14 +1502,17 @@ coot::daca::solvent_exposure(mmdb::Manager *mol, bool side_chain_only) const {
             }
 
             {
-               std::cout << "contact map:"  << std::endl;
-               std::map<mmdb::Residue *, int>::const_iterator it_rc;
-               for (it_rc=residue_count_map.begin(); it_rc!=residue_count_map.end(); ++it_rc) {
-                  std::string rn = it_rc->first->GetResName();
-                  std::cout << "    " << residue_spec_t(it->first) << " " << rn << " "
-                            << it_rc->second << std::endl;
+               if (false) {
+                  std::cout << "contact map:"  << std::endl;
+                  std::map<mmdb::Residue *, int>::const_iterator it_rc;
+                  for (it_rc=residue_count_map.begin(); it_rc!=residue_count_map.end(); ++it_rc) {
+                     std::string rn = it_rc->first->GetResName();
+                     std::cout << "    " << residue_spec_t(it->first) << " " << rn << " "
+                               << it_rc->second << std::endl;
+                  }
                }
 
+               std::map<mmdb::Residue *, int>::const_iterator it_rc;
                for (it_rc=residue_count_map.begin(); it_rc!=residue_count_map.end(); ++it_rc) {
                   std::pair<mmdb::Residue *, float> p(it_rc->first, it_rc->second);
                   v.push_back(p);

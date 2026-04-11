@@ -346,28 +346,61 @@ chains = coot_utils.chain_ids(0)  # Convenience wrapper
 ```
 ## MMDB Atom Selection Syntax
 
-When using functions like `new_molecule_by_atom_selection()` or `superpose_with_atom_selection()`, use MMDB atom selection strings to specify which atoms to include.
+When using functions like `new_molecule_by_atom_selection()`, `superpose_with_atom_selection()`,
+or `get_hydrogen_bonds_py()`, use MMDB CID (Coordinate ID) strings to specify which atoms
+to include.
 
 ### Format
 ```
-//chn/seq(res).ic/atm[elm]:aloc
+/mdl/chn/s1.i1-s2.i2/atm[elm]:aloc
+```
+or for residue-name-based selection:
+```
+/mdl/chn/*(res)/atm[elm]:aloc
 ```
 
 ### Components
 
-- **`//`** - Model specifier (typically `//` for single-model structures, or `/1/` for model 1)
+- **`mdl`** - Model number (`0` or `*` for any model; `/1/` for model 1; `//` is shorthand for any model)
 - **`chn`** - Chain ID (e.g., `A`, `B`, `X`)
-  - Multiple chains can be specified with commas: `A,B,C`
-- **`seq`** - Residue number or range:
+  - Comma-separated list: `A,B,C`
+  - Negation with `!`: `!A,B` selects all chains except A and B
+  - `*` for all chains (default)
+- **`s1-s2`** - Residue sequence number range:
   - Single: `50`
   - Range: `10-20`
-- **`res`** - Residue name in parentheses (e.g., `(HIS)`, `(ALA)`, `(GLY)`)
-- **`ic`** - Insertion code
+  - With insertion codes: `33.A-120.B` (residue 33 ins A through residue 120 ins B)
+  - `*` for all residues (default)
+- **`(res)`** - Residue name filter in parentheses
+  - Single: `(HIS)`
+  - Comma-separated list: `(ALA,SER,GLY)`
+  - Negation: `(!ALA,SER)` selects everything except ALA and SER
+- **`.ic`** - Insertion code (e.g., `.A`)
 - **`atm`** - Atom name (e.g., `CA`, `N`, `O`)
-- **`elm`** - Element in square brackets (e.g., `[C]`, `[N]`)
-- **`aloc`** - Alternate location indicator
+  - Comma-separated list: `CA,N,O`
+  - Negation: `!CA,CB` selects all atoms except CA and CB
+- **`[elm]`** - Element in square brackets (e.g., `[C]`, `[N]`, `[FE]`)
+  - Useful for disambiguation: `CA[C]` selects C-alpha (carbon), not calcium
+  - Comma-separated list: `[C,N,O]`
+  - Negation: `[!H]` selects all non-hydrogen atoms
+- **`:aloc`** - Alternate location indicator
+  - `:A` selects alt-loc A
+  - `:,A` selects atoms with no alt-loc or alt-loc A
+  - Defaults to `""` (no alt-loc) when atom or element is specified
 
-All components are optional - you only need to specify what you want to filter.
+All components are optional and default to `*` (match everything) when omitted.
+
+### Negation
+
+Any of the comma-separated list fields (chain, residue name, atom name, element, alt-loc)
+can be negated by prefixing with `!`:
+
+```python
+"//!A"                         # All chains except A
+"//A/(!GLY,ALA)"               # Non-GLY, non-ALA residues in chain A
+"//A/*/!CA,CB"                 # All atoms except CA and CB in chain A
+"//A/*/[!H]"                   # All non-hydrogen atoms in chain A
+```
 
 ### Examples
 ```python
@@ -378,40 +411,54 @@ All components are optional - you only need to specify what you want to filter.
 # Select residue range
 "//A/12-130"                   # Residues 12-130 in chain A
 "//A/12-130/CA"                # CA atoms from residues 12-130 in chain A
+"//A/33.A-120.B"               # Residue range with insertion codes
 
-# Select specific residue type
+# Select by residue type
 "//B/10-20(GLY)"               # GLY residues 10-20 in chain B
 "//A/*(HIS)"                   # All HIS residues in chain A
+"//A/(GLU,ASP)"                # All glutamate and aspartate in chain A
+"//A/(!ALA,GLY)"               # All residues except ALA and GLY in chain A
 
 # Select specific atom
 "//A/50/CA"                    # CA atom of residue 50 in chain A
 "//A/50(HIS)/CA"               # CA atom of HIS 50 in chain A
 
-# Select multiple chains in one selection
-"//X,Y,1,2"                    # All atoms in chains X, Y, 1, and 2
+# Element disambiguation
+"CA[C]"                        # C-alpha atoms (carbon), not calcium
+"//A/*/[C]"                    # All carbon atoms in chain A
+"//A/*/[!H]"                   # All non-hydrogen atoms in chain A
+
+# Alt-loc selection
+"//A/50/CA:A"                  # CA in alt-loc A
+"[C]:,A"                       # Carbons with no alt-loc or alt-loc A
+
+# Wildcards
+"*"                            # All atoms in the structure
+"/1"                           # All atoms in model 1
+"33-120"                       # Residues 33-120 in any chain
 ```
+
+**Note:** Selections containing commas must be quoted.
 
 ### Usage Examples
 ```python
-import coot
-
 # Create a new molecule with chains A and B
 imol_ab = coot.new_molecule_by_atom_selection(0, "//A,B")
 
 # Create a new molecule with CA atoms from residues 10-50 in chain A
 imol_ca = coot.new_molecule_by_atom_selection(0, "//A/10-50/CA")
 
-# Create molecule with transcription factor (chains X, Y) and DNA (chains 1, 2)
-imol_complex = coot.new_molecule_by_atom_selection(0, "//X,Y,1,2")
-
-# Superpose using atom selection
+# Superpose using CA atoms
 coot.superpose_with_atom_selection(
     imol1=0,
     imol2=1,
-    mmdb_atom_sel_str_1="//A/10-100",
-    mmdb_atom_sel_str_2="//A/10-100",
+    mmdb_atom_sel_str_1="//A/10-100/CA",
+    mmdb_atom_sel_str_2="//A/10-100/CA",
     move_imol2_copy_flag=0
 )
+
+# Hydrogen bonds between a residue and a chain
+coot.get_hydrogen_bonds_py(0, "//A/35", "//A", 0)
 ```
 
 ## Code Execution Patterns
@@ -442,73 +489,6 @@ mols  # Final expression is returned
 # ✅ ALSO CORRECT: List comprehension (single expression)
 [i for i in range(3)]
 ```
-
-## MMDB Atom Selection Syntax
-
-When using functions like `new_molecule_by_atom_selection()` or `superpose_with_atom_selection()`, use MMDB atom selection strings to specify which atoms to include.
-
-### Format
-```
-//chn/seq(res).ic/atm[elm]:aloc
-```
-
-### Components
-
-- **`//`** - Model specifier (typically `//` for single-model structures, or `/1/` for model 1)
-- **`chn`** - Chain ID (e.g., `A`, `B`, `X`)
-- **`seq`** - Residue number or range:
-  - Single: `50`
-  - Range: `10-20`
-- **`res`** - Residue name in parentheses (e.g., `(HIS)`, `(ALA)`, `(GLY)`)
-- **`ic`** - Insertion code
-- **`atm`** - Atom name (e.g., `CA`, `N`, `O`)
-- **`elm`** - Element in square brackets (e.g., `[C]`, `[N]`)
-- **`aloc`** - Alternate location indicator
-
-All components are optional - you only need to specify what you want to filter.
-
-### Examples
-```python
-# Select entire chain
-"//A"                          # All atoms in chain A
-
-# Select residue range
-"//A/12-130"                   # Residues 12-130 in chain A
-"//A/12-130/CA"                # CA atoms from residues 12-130 in chain A
-
-# Select specific residue type
-"//B/10-20(GLY)"               # GLY residues 10-20 in chain B
-"//A/(HIS)"                    # All HIS residues in chain A
-
-# Select specific atom
-"//A/50/CA"                    # CA atom of residue 50 in chain A
-"//A/50(HIS)/CA"               # CA atom of HIS 50 in chain A
-
-# Multiple chains (create separate selections and merge)
-imol_a = coot.new_molecule_by_atom_selection(imol, "//A")
-imol_b = coot.new_molecule_by_atom_selection(imol, "//B")
-```
-
-### Usage Example
-```python
-import coot
-
-# Create a new molecule with only chain A
-imol_chain_a = coot.new_molecule_by_atom_selection(0, "//A")
-
-# Create a new molecule with CA atoms from residues 10-50
-imol_ca = coot.new_molecule_by_atom_selection(0, "//A/10-50/CA")
-
-# Superpose using atom selection
-coot.superpose_with_atom_selection(
-    imol1=0,
-    imol2=1,
-    mmdb_atom_sel_str_1="//A/10-100/CA",
-    mmdb_atom_sel_str_2="//A/10-100/CA",
-    move_imol2_copy_flag=0
-)
-```
-
 
 ## Common Tasks Reference
 

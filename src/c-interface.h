@@ -4011,10 +4011,10 @@ void set_auto_clear_atom_pull_restraint(int state);
 /*! \brief get auto-clear atom pull restraint state */
 int  get_auto_clear_atom_pull_restraint_state();
 
-/*! \brief iscrease the proportional editing radius*/
+/*! \brief increase the proportional editing radius*/
 void increase_proportional_editing_radius();
 
-/*! \brief descrease the proportional editing radius*/
+/*! \brief decrease the proportional editing radius*/
 void decrease_proportional_editing_radius();
 
 
