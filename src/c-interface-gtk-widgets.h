@@ -75,20 +75,6 @@
 #endif /*  USE_GUILE */
 #endif /* c++ */
 
-#ifndef BEGIN_C_DECLS
-
-#ifdef __cplusplus
-#define BEGIN_C_DECLS extern "C" {
-#define END_C_DECLS }
-
-#else
-#define BEGIN_C_DECLS
-#define END_C_DECLS
-#endif
-#endif /* BEGIN_C_DECLS */
-
-BEGIN_C_DECLS
-
 #define COOT_SCHEME_DIR "COOT_SCHEME_DIR"
 #define COOT_PYTHON_DIR "COOT_PYTHON_DIR"
 
@@ -892,7 +878,5 @@ void handle_phs_cell_choice_ok_button_clicked(GtkWidget *button);
 
 /* handle_read_ccp4_map is now a .hh/c++ interface function, so give the callback an internal c function */
 int handle_read_ccp4_map_internal(const char *fn, int is_difference_map);
-
-END_C_DECLS
 
 #endif /* C_INTERFACE_GTK_WIDGETS_H */

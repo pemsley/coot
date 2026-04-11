@@ -47,6 +47,8 @@
 #include "c-interface-preferences.h"
 #include "boot-python.hh"
 #include "layla/layla_embedded.hpp"
+#include "c-interface.h" // for run_script()
+#include "git-revision.hh"
 
 #include "testing.hh" // for test_internal();
 
@@ -108,8 +110,6 @@ void init_framebuffers(GtkWidget *glarea) {
 #include "text-rendering-utils.hh"
 #include "stringify-error-code.hh"
 // from c-inteerface.cc
-extern "C" void run_command_line_scripts();
-
 
 void
 startup_realize(GtkWidget *gl_area) {
@@ -239,7 +239,8 @@ startup_realize(GtkWidget *gl_area) {
                 << std::endl;
 
    auto run_command_line_scripts_callback = +[] (gpointer user_data) {
-      run_command_line_scripts();
+
+      // run_command_line_scripts();
       return G_SOURCE_REMOVE;
    };
    g_idle_add(run_command_line_scripts_callback, nullptr);
@@ -271,7 +272,6 @@ startup_on_glarea_render(GtkGLArea *glarea) {
 }
 
 
-#include "c-interface.h" // for run_script()
 void
 startup_on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
 

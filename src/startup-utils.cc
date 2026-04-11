@@ -26,7 +26,7 @@
 
 #include "utils/coot-utils.hh"
 #include "startup-utils.hh"
-extern "C" int git_revision_count(); // 20220612-PE doesn this need to be extern now?
+#include "git-revision.hh"
 
 std::string
 make_main_window_title() {

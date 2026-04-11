@@ -444,6 +444,7 @@ libcootsumo_la_SOURCES = \
 	boot-python.hh           \
 	boot-python.cc           \
 	atom-overlaps.cc         \
+	git-revision.hh 	 \
 	git-revision-count.cc	 \
 	scm-boot-guile.hh	 \
 	scm-boot-guile.cc	 \
@@ -793,7 +794,7 @@ libcootsumo_la_SOURCES = \
 	rail-points.hh           \
         read-molecule.hh         \
 	read-phs.h		 \
-	read-phs.c		 \
+	read-phs.cc		 \
 	read-cif.h		 \
 	read-cif.cc		 \
 	rama_mousey.cc		 \

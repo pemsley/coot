@@ -24,21 +24,6 @@
 #ifndef GENERIC_DISPLAY_OBJECTS_C_H
 #define GENERIC_DISPLAY_OBJECTS_C_H
 
-#ifndef BEGIN_C_DECLS
-
-#ifdef __cplusplus
-#define BEGIN_C_DECLS extern "C" {
-#define END_C_DECLS }
-
-#else
-#define BEGIN_C_DECLS
-#define END_C_DECLS     
-#endif
-#endif /* BEGIN_C_DECLS */
-
-BEGIN_C_DECLS
-
-
 /*! \file
   \brief Coot Scripting Interface - Generic objects
 */
@@ -55,6 +40,5 @@ void generic_objects_gui_wrapper();
 /*! \brief close all generic display objects  */
 void close_all_generic_objects();
 
-END_C_DECLS
 
 #endif /* GENERIC_DISPLAY_OBJECTS_C_H */

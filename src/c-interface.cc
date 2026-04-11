@@ -151,6 +151,7 @@
 #include "widget-from-builder.hh"
 #include "gtk-manual.hh"
 #include "glarea_tick_function.hh"
+#include "git-revision.hh"
 
 #include "validation-graphs/sequence-view-widget.hh"
 
