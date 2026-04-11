@@ -769,8 +769,7 @@ save_coordinates_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    // this is the molecule chooser, not the file chooser
    //
-   // GtkWidget *widget = widget_from_builder("save_coords_dialog");
-   GtkWidget *widget = widget_from_builder("save_coords_frame");
+   GtkWidget *frame = widget_from_builder("save_coords_frame");
    GtkWidget *combobox = widget_from_builder("save_coordinates_combobox");
 
    if (combobox) {
@@ -778,9 +777,7 @@ save_coordinates_action(G_GNUC_UNUSED GSimpleAction *simple_action,
       int imol_active = imol;
       auto mol_vec = get_model_molecule_vector();
       g.fill_combobox_with_molecule_options(combobox, callback_func, imol_active, mol_vec);
-      set_transient_and_position(COOT_UNDEFINED_WINDOW, widget);
-      gtk_widget_set_visible(widget, TRUE);
-      gtk_window_present(GTK_WINDOW(widget));
+      gtk_widget_set_visible(frame, TRUE);
    } else {
       std::cout << "ERROR:: in on_save_coordinates1_activate() bad combobox!\n";
    }
