@@ -5,6 +5,31 @@ WARNING:: in init_refmac_mon_lib() unhandled category "_pdbe_chem_comp_rdkit_pro
 file: /Users/pemsley/Projects/coot/git/coot-main/build-chapi-with-homebrew-deps/A1DAP.cif
 Read 63 atoms/links in restraints from /Users/pemsley/Projects/coot/git/coot-main/build-chapi-with-homebrew-deps/A1DAP.cif
 
+o DACA
+
+o strip Aniso from pdb on write - add a button to the dialog
+* Done
+
+o changing the diff map colour should change the negative level also.
+* Done.
+
+o rotate/translate of an atom selects the whole residue
+
+o add NCS ligands
+
+o delete symmetry waters
+
+o bring back reorder chain. (What did it do?)
+
+o adjust the front blur shader.
+
+o Fix the Fresel in the Fancy shader path
+
+o NBC update in minimizer
+* Done.
+
+o try adding a PTM - it is not clear what is happening. Needs twice
+
 o bring worm-B-factor-view to Coot and compare
   and contrast correct B-factors vs AlphaFold B-factors
 
@@ -209,6 +234,20 @@ o shift-click should put atom info in status bar
 * Fixed.
 
 o front clipping plane steps are too big in perspective
+* Done.
+
+o Test data update:
+Starting test_patterson_from_map_using_map()
+WARNING:: file does not exist ../test-data/32143-masked-around-N.map
+ERROR:: test_patterson_from_map_using_map() failed to read ../test-data/32143-masked-around-N.map
+FAIL: patterson from map                       ⬤ 
+Starting test_molecular_placement_pipeline_r_chain()
+   :::::EMDATABANK.org::::EMD-32143::::                                             :
+debug:: ::::EMDATABANK.org::::EMD-32143::::                                              does not start with PANDDA::
+DEBUG:: init xmap with P 1  Cell (152.72,152.72,152.72,    90,    90,    90) Nuvw = ( 138, 138, 138)
+WARNING::Failed to open ../test-data/R-chain-frag-from-7vvl.pdb: No such file or directory
+ERROR:: failed to read ../test-data/R-chain-frag-from-7vvl.pdb
+FAIL: MR R-chain                               ⬤ 
 * Done.
 
 o look at A1CEP in 9oun and friends. Use chapi to make output

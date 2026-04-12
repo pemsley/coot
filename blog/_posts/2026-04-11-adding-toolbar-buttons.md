@@ -21,9 +21,9 @@ import coot
 import coot_gui_api
 
 def my_callback(button):
-    coot.single_model_view_next_model_number(imol)
+    print("Clicked!")
 
-button = Gtk.Button(label="Step")
+button = Gtk.Button(label="ClickMe")
 button.connect("clicked", my_callback)
 coot_gui_api.main_toolbar().append(button)
 ```

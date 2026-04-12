@@ -1521,7 +1521,7 @@ graphics_info_t::draw_intermediate_atoms_pull_restraint_neighbour_displacement_m
          glm::mat4 mvp = proj * view * trans;
          glm::mat4 model_rotation = get_model_rotation();
          bool use_model_rotation = false;
-         std::cout << "DEBUG:: calling lines_mesh_for_pull_restraint_neighbhour_displacement_max_radius_ring draw()" << std::endl;
+         // std::cout << "DEBUG:: calling lines_mesh_for_pull_restraint_neighbhour_displacement_max_radius_ring draw()" << std::endl;
          lines_mesh_for_pull_restraint_neighbour_displacement_max_radius_ring.draw(&shader_for_lines,
                                                                                    rc, mvp,
                                                                                    model_rotation,
