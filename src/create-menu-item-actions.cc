@@ -1948,12 +1948,9 @@ ncs_ligands_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    GtkWidget *frame = widget_from_builder("ncs-ligand-frame");
    if (frame) {
       gtk_widget_set_visible(frame, TRUE);
-      GtkWidget *protein_mol_combobox     = widget_from_builder("ncs-ligand-protein-combobox");
-      GtkWidget *ncs_ligand_mol_combobox  = widget_from_builder("ncs-ligand-ligand-mol-combobox");
+      GtkWidget *protein_mol_combobox     = widget_from_builder("ncs-ligand-protein-comboboxtext");
+      GtkWidget *ncs_ligand_mol_combobox  = widget_from_builder("ncs-ligand-ligand-mol-comboboxtext");
       GtkWidget *master_chain_id_entry    = widget_from_builder("ncs-ligand-master-chain-entry");
-      GtkWidget *ligand_chain_id_entry    = widget_from_builder("ncs-ligand-chain-id-entry");
-      GtkWidget *ligand_resno_start_entry = widget_from_builder("ncs-ligand-resno-start-entry");
-      GtkWidget *ligand_resno_end_entry   = widget_from_builder("ncs-ligand-resno-end-entry");
 
       int imol_active = -1;
       auto model_list = get_model_molecule_vector();
@@ -1961,6 +1958,8 @@ ncs_ligands_action(G_GNUC_UNUSED GSimpleAction *simple_action,
       GCallback func = G_CALLBACK(nullptr); // we don't care until the button is pressed
       graphics_info_t g;
       g.fill_combobox_with_molecule_options(protein_mol_combobox, func, imol_active, model_list);
+      // should be ligands only
+      g.fill_combobox_with_molecule_options(ncs_ligand_mol_combobox, func, imol_active, model_list);
       graphics_info_t::graphics_grab_focus();
    }
 }

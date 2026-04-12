@@ -151,7 +151,9 @@
 #include "widget-from-builder.hh"
 #include "gtk-manual.hh"
 #include "glarea_tick_function.hh"
-#include "git-revision.hh"
+// #include "git-revision.hh"
+//  extern "C" int git_revision_count();
+int git_revision_count();
 
 #include "validation-graphs/sequence-view-widget.hh"
 

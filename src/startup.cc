@@ -48,7 +48,6 @@
 #include "boot-python.hh"
 #include "layla/layla_embedded.hpp"
 #include "c-interface.h" // for run_script()
-#include "git-revision.hh"
 
 #include "testing.hh" // for test_internal();
 

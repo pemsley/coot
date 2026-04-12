@@ -1429,6 +1429,10 @@ public:
 
    int combobox_get_imol(GtkComboBox *combobox) const;
 
+   static std::vector<int> get_model_molecule_vector();
+
+   static std::vector<int> get_map_molecule_vector();
+
    static void go_to_atom_mol_combobox_changed(GtkWidget *combobox, gpointer data);
 
    GtkWidget *dialog_box_of_buttons_internal(const std::string &window_title,

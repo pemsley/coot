@@ -26,7 +26,9 @@
 
 #include "utils/coot-utils.hh"
 #include "startup-utils.hh"
-#include "git-revision.hh"
+//#include "git-revision.hh"
+// extern "C" int git_revision_count();
+int git_revision_count();
 
 std::string
 make_main_window_title() {
