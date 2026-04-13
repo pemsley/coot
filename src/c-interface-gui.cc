@@ -47,6 +47,7 @@
 #include <string>
 #endif // HAVE_STRING
 
+#include <fstream>
 #include <string.h> // strlen, strncpy
 #include <sys/types.h> // for stating
 #include <sys/stat.h>
@@ -2066,6 +2067,33 @@ const char *coot_file_chooser_file_name(GtkWidget *widget) {
    return f;
 }
 
+// Look for REMARK 900 RELATED ID: EMD-NNNNN   RELATED DB: EMDB in a PDB file
+// and if found, put the EMDB code into the emdb_map_code_entry widget.
+//
+void extract_and_fill_emdb_code_from_pdb_file(const std::string &pdb_filepath) {
+
+   std::ifstream f(pdb_filepath);
+   if (!f) return;
+   std::string line;
+   while (std::getline(f, line)) {
+      if (line.substr(0, 10) != "REMARK 900") continue;
+      std::string::size_type pos_emdb = line.find("RELATED DB: EMDB");
+      if (pos_emdb == std::string::npos) continue;
+      std::string::size_type pos_emd = line.find("EMD-");
+      if (pos_emd == std::string::npos) continue;
+      std::string::size_type start = pos_emd + 4; // skip "EMD-"
+      std::string::size_type end = start;
+      while (end < line.size() && std::isdigit(line[end])) end++;
+      if (end > start) {
+         std::string emdb_code = line.substr(start, end - start);
+         GtkWidget *entry = widget_from_builder("emdb_map_code_entry");
+         if (entry)
+            gtk_editable_set_text(GTK_EDITABLE(entry), emdb_code.c_str());
+         break;
+      }
+   }
+}
+
 // this is not a gui function - it is a network function
 //
 void network_get_accession_code_entity(const std::string &text, int mode) {
@@ -2117,6 +2145,7 @@ void network_get_accession_code_entity(const std::string &text, int mode) {
 
          if (coot::file_exists_and_non_tiny(pdb_filepath, 500)) {
             read_pdb(pdb_filepath);
+            extract_and_fill_emdb_code_from_pdb_file(pdb_filepath);
          } else {
             // blocking!
             int status = coot_get_url(pdb_url, pdb_filepath_with_tmp);
@@ -2125,10 +2154,12 @@ void network_get_accession_code_entity(const std::string &text, int mode) {
             if (coot::file_exists_and_non_tiny(pdb_filepath_with_tmp, 500)) {
                rename(pdb_filepath_with_tmp.c_str(), pdb_filepath.c_str());
                read_pdb(pdb_filepath);
+               extract_and_fill_emdb_code_from_pdb_file(pdb_filepath);
             } else {
                if (status == 0) {
                   rename(pdb_filepath_with_tmp.c_str(), pdb_filepath.c_str());
                   read_pdb(pdb_filepath);
+                  extract_and_fill_emdb_code_from_pdb_file(pdb_filepath);
                } else {
                   if (coot::file_exists(cif_filepath)) {
                      read_pdb(cif_filepath);

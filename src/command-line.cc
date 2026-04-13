@@ -429,7 +429,7 @@ parse_command_line(int argc, char ** argv ) {
       }
    }
 
-   if (cld.hostname != "" && cld.port != 0)
+   if (cld.port != 0)
       cld.try_listener = true;
 
    if (! found_no_graphics_in_the_command_line) // we do this for "import coot" in Python, which doesn't use main()

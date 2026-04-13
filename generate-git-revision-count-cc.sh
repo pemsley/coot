@@ -9,15 +9,13 @@ fi
 
 awk -v rev_no=$rev_no '
 BEGIN {git_revision_count_cc = "src/git-revision-count.cc"
-print "extern \"C\" {"         > git_revision_count_cc 
-print "   int git_revision_count() { " > git_revision_count_cc 
-print "      return ", rev_no ";"      > git_revision_count_cc 
-print "   }"                           > git_revision_count_cc
-print "   int svn_revision() { "       > git_revision_count_cc 
-print "      return git_revision_count();" > git_revision_count_cc 
-print "   }"                           > git_revision_count_cc
-print "}"                              > git_revision_count_cc
-print ""                               > git_revision_count_cc  
+print "int git_revision_count() { "        > git_revision_count_cc
+print "   return ", rev_no ";"             > git_revision_count_cc
+print "}"                                  > git_revision_count_cc
+print "int svn_revision() { "              > git_revision_count_cc
+print "   return git_revision_count();"    > git_revision_count_cc
+print "}"                                  > git_revision_count_cc
+print ""                                   > git_revision_count_cc
 }'
 
 awk -v rev_no=$rev_no '

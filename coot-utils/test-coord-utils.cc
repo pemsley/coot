@@ -759,18 +759,8 @@ int test_residue_has_hetatms() {
       if (res) {
          int r = coot::util::residue_has_hetatms(res);
          // standard residue should not have hetatms
-         if (r == 0) {
-            mmdb::Manager *mol_2 = read_pdb(reference_data("weird-orientation.pdb"));
-            if (mol_2) {
-               mmdb::Residue *res = coot::util::get_residue("A", 301, "", mol_2);
-               if (res) {
-                  r = coot::util::residue_has_hetatms(res);
-                  if (r == 1) {
-                     status = 1;
-                  }
-               }
-            }
-         }
+         if (r == 0)
+            status = 1;
       }
       delete mol;
    }

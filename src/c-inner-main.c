@@ -308,8 +308,10 @@ c_inner_main(void *closure, int argc, char** argv) {
        }
        /*        printf("done.\n"); */
      }
-     
+
+#if 0 /* turn this off for now FIXME */
      run_command_line_scripts();	/* this may turn off run-state-file */
+#endif
 
      run_state_file_maybe();
      

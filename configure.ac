@@ -62,7 +62,7 @@ m4_define([v_git_commit], m4_esyscmd([bash ./get-the-git-commit.sh | tr -d '\n']
 # we need to make the src and pyrogen directories if they do not exist
 if test ! -d src     ; then mkdir src     ; fi
 if test ! -d pyrogen ; then mkdir pyrogen ; fi
-echo 'extern "C" { int git_revision_count() { return v_git_revision_count ; } }' > src/git-revision-count.cc
+echo 'int git_revision_count() { return v_git_revision_count ; }' > src/git-revision-count.cc
 echo "#include <string>" >> src/git-revision-count.cc
 echo 'std::string git_commit() { return "v_git_commit"; }' >> src/git-revision-count.cc
 echo 'def revision_count():

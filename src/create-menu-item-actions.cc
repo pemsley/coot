@@ -63,8 +63,6 @@ extern logging logger;
 // int graphics_info_t::scale_up_graphics = 1;
 // int graphics_info_t::scale_down_graphics = 1;
 
-extern "C" { void load_tutorial_model_and_data(); }
-
 
 extern "C" G_MODULE_EXPORT
 void on_coords_filechooser_dialog_response_gtk4(GtkDialog *dialog,
@@ -769,8 +767,7 @@ save_coordinates_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    // this is the molecule chooser, not the file chooser
    //
-   // GtkWidget *widget = widget_from_builder("save_coords_dialog");
-   GtkWidget *widget = widget_from_builder("save_coords_frame");
+   GtkWidget *frame = widget_from_builder("save_coords_frame");
    GtkWidget *combobox = widget_from_builder("save_coordinates_combobox");
 
    if (combobox) {
@@ -778,9 +775,7 @@ save_coordinates_action(G_GNUC_UNUSED GSimpleAction *simple_action,
       int imol_active = imol;
       auto mol_vec = get_model_molecule_vector();
       g.fill_combobox_with_molecule_options(combobox, callback_func, imol_active, mol_vec);
-      set_transient_and_position(COOT_UNDEFINED_WINDOW, widget);
-      gtk_widget_set_visible(widget, TRUE);
-      gtk_window_present(GTK_WINDOW(widget));
+      gtk_widget_set_visible(frame, TRUE);
    } else {
       std::cout << "ERROR:: in on_save_coordinates1_activate() bad combobox!\n";
    }
@@ -1939,6 +1934,34 @@ void
 ncs_ligands_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                    G_GNUC_UNUSED GVariant *parameter,
                    G_GNUC_UNUSED gpointer user_data) {
+
+   auto get_model_molecule_vector = [] () {
+                                       graphics_info_t g;
+                                       std::vector<int> vec;
+                                       int n_mol = g.n_molecules();
+                                       for (int i=0; i<n_mol; i++)
+                                          if (g.is_valid_model_molecule(i))
+                                             vec.push_back(i);
+                                       return vec;
+                                    };
+
+   GtkWidget *frame = widget_from_builder("ncs-ligand-frame");
+   if (frame) {
+      gtk_widget_set_visible(frame, TRUE);
+      GtkWidget *protein_mol_combobox     = widget_from_builder("ncs-ligand-protein-comboboxtext");
+      GtkWidget *ncs_ligand_mol_combobox  = widget_from_builder("ncs-ligand-ligand-mol-comboboxtext");
+      GtkWidget *master_chain_id_entry    = widget_from_builder("ncs-ligand-master-chain-entry");
+
+      int imol_active = -1;
+      auto model_list = get_model_molecule_vector();
+      if (! model_list.empty()) imol_active = model_list[0];
+      GCallback func = G_CALLBACK(nullptr); // we don't care until the button is pressed
+      graphics_info_t g;
+      g.fill_combobox_with_molecule_options(protein_mol_combobox, func, imol_active, model_list);
+      // should be ligands only
+      g.fill_combobox_with_molecule_options(ncs_ligand_mol_combobox, func, imol_active, model_list);
+      graphics_info_t::graphics_grab_focus();
+   }
 }
 
 void HOLE_action(GSimpleAction *simple_action,

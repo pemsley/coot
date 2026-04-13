@@ -167,12 +167,19 @@ LinesMesh::update_vertices_and_indices(const std::vector<s_generic_vertex> &vert
 void
 LinesMesh::update_radius_ring_vertices(float new_radius) {
 
+   unsigned int n_thin_rings = 10; // 2026-04-08-PE oh... where do they go?
    float r = new_radius;
-   unsigned int n_points = vertices.size();
-   for (unsigned int i=0; i<n_points; i++) {
-      double theta = 2.0 * M_PI * static_cast<double>(i) / 100.0;
-      glm::vec3 pt(r * cos(theta), r * sin(theta), 0.0);
-      vertices[i].pos = pt;
+   unsigned int n_vertices = vertices.size();
+   std::cout << "DEBUG:: n_vertices " << n_vertices << std::endl;
+   unsigned int n_points_per_ring = n_vertices / n_thin_rings;
+   for (unsigned int i_thin=0; i_thin<n_thin_rings; i_thin++) {
+      for (unsigned int i=0; i<n_points_per_ring; i++) {
+         double theta = 2.0 * M_PI * static_cast<double>(i) / 100.0;
+         float rr = r * std::sqrt(1.0 + 0.005 * static_cast<float>(i_thin));
+         glm::vec3 pt(rr * cos(theta), rr * sin(theta), 0.0);
+         vertices[i+i_thin*n_points_per_ring].pos = pt;
+         // vertices[i].pos = pt;
+      }
    }
    update_vertices_and_indices(vertices, indices);
 }

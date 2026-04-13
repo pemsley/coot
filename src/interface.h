@@ -23,17 +23,6 @@
  * See http://www.gnu.org/licenses/
  *
  */
-#ifndef BEGIN_C_DECLS
-#ifdef __cplusplus
-#define BEGIN_C_DECLS extern "C" {
-#define END_C_DECLS }
-#else
-#define BEGIN_C_DECLS
-#define END_C_DECLS
-#endif
-#endif
-
-BEGIN_C_DECLS
 /*
  * Todo: remove this file? I guess
  */
@@ -196,4 +185,4 @@ BEGIN_C_DECLS
 // GtkWidget* create_refinement_restraints_sliders_dialog (void);
 // GtkWidget* create_simple_refmac_dialog (void);
 // GtkWidget* create_simple_refmac_filechooserdialog (void);
-END_C_DECLS
+

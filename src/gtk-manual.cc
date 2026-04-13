@@ -1103,7 +1103,13 @@ on_display_control_delete_molecule_button_clicked(GtkButton       *button,
 
    // std::cout << "here are the widgets! " << vbox_for_molecules << " " << hbox_for_this_molecule << std::endl;
    if (vbox_for_molecules) {
-      gtk_box_remove(GTK_BOX(vbox_for_molecules), GTK_WIDGET(hbox_for_this_molecule));
+      if (hbox_for_this_molecule) {
+         gtk_box_remove(GTK_BOX(vbox_for_molecules), GTK_WIDGET(hbox_for_this_molecule));
+      } else {
+         std::cout << "ERROR:: missing hbox_for_this_molecule" << std::endl;
+      }
+   } else {
+      std::cout << "ERROR:: missing vbox_for_molecules" << std::endl;
    }
 
    close_molecule(imol);

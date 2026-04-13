@@ -84,19 +84,6 @@
 
 #include <gtk/gtk.h>
 
-#ifndef BEGIN_C_DECLS
-
-#ifdef __cplusplus
-#define BEGIN_C_DECLS extern "C" {
-#define END_C_DECLS }
-
-#else
-#define BEGIN_C_DECLS
-#define END_C_DECLS
-#endif
-#endif /* BEGIN_C_DECLS */
-
-BEGIN_C_DECLS
 
 
 #define COOT_SCHEME_DIR "COOT_SCHEME_DIR"
@@ -4032,10 +4019,10 @@ void set_auto_clear_atom_pull_restraint(int state);
 /*! \brief get auto-clear atom pull restraint state */
 int  get_auto_clear_atom_pull_restraint_state();
 
-/*! \brief iscrease the proportional editing radius*/
+/*! \brief increase the proportional editing radius*/
 void increase_proportional_editing_radius();
 
-/*! \brief descrease the proportional editing radius*/
+/*! \brief decrease the proportional editing radius*/
 void decrease_proportional_editing_radius();
 
 
@@ -7822,4 +7809,3 @@ void user_defined_click_py(int n_clicks, PyObject *func);
 /*! \} */
 
 #endif /* C_INTERFACE_H */
-END_C_DECLS

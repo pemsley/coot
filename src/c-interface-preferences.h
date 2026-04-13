@@ -25,20 +25,6 @@
 
 #include <gtk/gtk.h>
 
-#ifndef BEGIN_C_DECLS
-
-#ifdef __cplusplus
-#define BEGIN_C_DECLS extern "C" {
-#define END_C_DECLS }
-
-#else
-#define BEGIN_C_DECLS
-#define END_C_DECLS     
-#endif
-#endif /* BEGIN_C_DECLS */
-
-BEGIN_C_DECLS
-
 /*  ----------------------------------------------------------------------- */
 /*                  Preferences Notebook                                    */
 /*  ----------------------------------------------------------------------- */
@@ -80,8 +66,6 @@ void fill_preferences_model_toolbar_icons(GtkWidget *preferences,
 void fill_preferences_main_toolbar_icons(GtkWidget *preferences,
 				     	  GtkWidget *scrolled_window);
 #endif
-
-END_C_DECLS
 
 #endif /* C_INTERFACE_PREFERENCES_H */
 

@@ -92,7 +92,6 @@ namespace coot {
                                unsigned int frag_index,
                                const box_index_t &box_index,
                                const std::string &atom_type) const;
-      std::vector<std::vector<std::string> > atom_names_for_fragments(const std::string &res_name) const;
       std::vector<std::vector<mmdb::Atom *> > get_daca_fragments(mmdb::Residue *reference_residue_p) const;
       std::vector<std::pair<mmdb::Atom *, std::string> >
          make_typed_atoms(mmdb::Model *model_p, const protein_geometry &geom) const;
@@ -104,7 +103,6 @@ namespace coot {
       bool atom_is_close_to_a_residue_atom(mmdb::Atom *at, mmdb::Residue *reference_residue_p) const;
       bool atom_is_neighbour_mainchain(mmdb::Atom *at, mmdb::Residue *reference_residue_p) const;
       void debug_boxes(const std::string &debug_prefix="") const;
-      float gompertz_scale(const float &dist);
       void compare_boxes() const;
       void presize_boxes(mode_t mode=REFERENCE);
       void normalize();
@@ -114,6 +112,8 @@ namespace coot {
 
    public:
       daca() { fill_reference_fragments(); boxes_have_been_resized = false; }
+      std::vector<std::vector<std::string> > atom_names_for_fragments(const std::string &res_name) const;
+      float gompertz_scale(const float &dist);
       void write_tables_using_reference_structures_from_dir(const std::string &input_pdb_files_dir_name,
                                                             const std::string &output_tables_dir);
       void read_tables(const std::string &dir);

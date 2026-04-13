@@ -54,13 +54,21 @@ libcoot_analysis_la_LDFLAGS = $(SHARED_LDFLAGS)
 bin_PROGRAMS = coot-bfactan
 
 check_PROGRAMS = test-mogul peptide-projection test-align  \
-	test-stats coot-daca test-rna-backbone
+	test-stats coot-daca test-rna-backbone test-daca
 
 # test-cablam improper-dihedrals
 
 coot_daca_SOURCES = coot-daca.cc
 
 coot_daca_LDADD = libcoot-analysis.la \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la	\
+	$(top_builddir)/geometry/libcoot-geometry.la		\
+	$(top_builddir)/utils/libcoot-utils.la			\
+	$(CLIPPER_LIBS)
+
+test_daca_SOURCES = test-daca.cc
+
+test_daca_LDADD = libcoot-analysis.la \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la	\
 	$(top_builddir)/geometry/libcoot-geometry.la		\
 	$(top_builddir)/utils/libcoot-utils.la			\

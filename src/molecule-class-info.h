@@ -2122,7 +2122,12 @@ public:        //                      public
    }
 
 
-   void set_map_colour(GdkRGBA col) { map_colour = col; update_map(true); /* for now */ }
+   void set_map_colour(GdkRGBA col, bool swap_difference_map_colours) {
+      map_colour = col;
+      if (xmap_is_diff_map)
+         handle_map_colour_change_rotate_difference_map(swap_difference_map_colours);
+      update_map(true);
+   }
    std::pair<GdkRGBA, GdkRGBA> get_map_colours() const;
 
    std::vector<std::string> set_map_colour_strings() const;

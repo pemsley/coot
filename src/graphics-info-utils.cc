@@ -349,3 +349,23 @@ int graphics_info_t::intelligent_get_scroll_wheel_map() const {
    }
    return swm;
 }
+
+std::vector<int> graphics_info_t::get_model_molecule_vector() {
+
+   std::vector<int> vec;
+   int n_mol = n_molecules();
+   for (int i=0; i<n_mol; i++)
+      if (is_valid_model_molecule(i))
+         vec.push_back(i);
+   return vec;
+}
+
+std::vector<int> graphics_info_t::get_map_molecule_vector() {
+
+   std::vector<int> vec;
+   int n_mol = n_molecules();
+   for (int i=0; i<n_mol; i++)
+      if (is_valid_map_molecule(i))
+         vec.push_back(i);
+   return vec;
+}
