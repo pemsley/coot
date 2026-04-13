@@ -7597,7 +7597,7 @@ Do you want to continue?
                         </child>
 
                         <child>
-                          <object class="GtkEntry" id="ncs-ligand-start-entry">
+                          <object class="GtkEntry" id="ncs-ligand-resno-start-entry">
                             <property name="width-request">4</property>
                             <property name="can-focus">1</property>
                             <property name="text">1</property>
@@ -7612,7 +7612,7 @@ Do you want to continue?
                         </child>
 
                         <child>
-                          <object class="GtkEntry" id="ncs-ligand-end-entry">
+                          <object class="GtkEntry" id="ncs-ligand-resno-end-entry">
                             <property name="width-request">4</property>
                             <property name="can-focus">1</property>
                             <property name="text">1</property>
