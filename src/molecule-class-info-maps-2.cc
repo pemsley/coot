@@ -385,7 +385,7 @@ molecule_class_info_t::make_map_cap(const clipper::Coord_orth &base_point,
                grid_coords_index_map[(j+1) * OFFS + i] = idx_01;
             }
             if (idx_11 == -1) {
-               p.first.push_back(s_generic_vertex(clipper_to_glm(co11), normal, map_col_func_2(i, j+1, map_f)));
+               p.first.push_back(s_generic_vertex(clipper_to_glm(co11), normal, map_col_func_2(i+1, j+1, map_f)));
                idx_11 = p.first.size() - 1;
                grid_coords_index_map[(j+1) * OFFS + i + 1] = idx_11;
             }
