@@ -444,7 +444,6 @@ libcootsumo_la_SOURCES = \
 	boot-python.hh           \
 	boot-python.cc           \
 	atom-overlaps.cc         \
-	git-revision.hh 	 \
 	git-revision-count.cc	 \
 	scm-boot-guile.hh	 \
 	scm-boot-guile.cc	 \
