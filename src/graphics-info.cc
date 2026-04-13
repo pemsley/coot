@@ -2015,9 +2015,9 @@ graphics_info_t::pull_restraint_neighbour_displacement_change_max_radius(bool up
 
    if (last_restraints) {
       if (up_or_down)
-         pull_restraint_neighbour_displacement_max_radius -= 1.0;
+         pull_restraint_neighbour_displacement_max_radius -= 0.3 * 1.0;
       else
-         pull_restraint_neighbour_displacement_max_radius += 1.0;
+         pull_restraint_neighbour_displacement_max_radius += 0.3 * 1.0;
 
       if (pull_restraint_neighbour_displacement_max_radius < 0.0)
          pull_restraint_neighbour_displacement_max_radius = 0.0;

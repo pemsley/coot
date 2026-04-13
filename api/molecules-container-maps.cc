@@ -810,3 +810,54 @@ molecules_container_t::get_spherical_variance(int imol_map, int imol_model,
    return v;
 }
 
+#include "coot-utils/rebox-map.hh"
+#include "coot-utils/json.hpp"
+
+std::string
+molecules_container_t::rebox_map(int imol_model, const std::string &atom_selection_cid,
+                                 int imol_map, float border, unsigned int n_pixels_per_edge) {
+
+   nlohmann::json j;
+   j["molecule_number"] = -1;
+   j["offset"] = nlohmann::json::array({0.0, 0.0, 0.0});
+
+   if (!is_valid_model_molecule(imol_model)) {
+      std::cout << "WARNING:: rebox_map(): not a valid model molecule " << imol_model << std::endl;
+      return j.dump();
+   }
+   if (!is_valid_map_molecule(imol_map)) {
+      std::cout << "WARNING:: rebox_map(): not a valid map molecule " << imol_map << std::endl;
+      return j.dump();
+   }
+
+   mmdb::Manager *mol = molecules[imol_model].atom_sel.mol;
+   int selHnd = mol->NewSelection(); // d
+   mol->Select(selHnd, mmdb::STYPE_ATOM, atom_selection_cid.c_str(), mmdb::SKEY_NEW);
+   mmdb::Atom **SelAtoms = nullptr;
+   int nSelAtoms = 0;
+   mol->GetSelIndex(selHnd, SelAtoms, nSelAtoms);
+
+   if (nSelAtoms == 0) {
+      std::cout << "WARNING:: rebox_map(): no atoms selected with CID \"" << atom_selection_cid << "\"" << std::endl;
+      mol->DeleteSelection(selHnd);
+      return j.dump();
+   }
+
+   const clipper::Xmap<float> &xmap_in = molecules[imol_map].xmap;
+   coot::util::reboxed_map_t reboxed = coot::util::rebox_map(xmap_in, mol, selHnd, border, n_pixels_per_edge);
+   mol->DeleteSelection(selHnd);
+
+   if (reboxed.success) {
+      int imol_new = molecules.size();
+      bool is_em_map = molecules[imol_map].is_EM_map();
+      std::string name = "Reboxed map from map " + std::to_string(imol_map);
+      molecules.push_back(coot::molecule_t(name, imol_new, reboxed.xmap, is_em_map));
+      j["molecule_number"] = imol_new;
+      j["offset"] = nlohmann::json::array({reboxed.offset.x(), reboxed.offset.y(), reboxed.offset.z()});
+   } else {
+      std::cout << "WARNING:: rebox_map(): " << reboxed.message << std::endl;
+   }
+
+   return j.dump();
+}
+

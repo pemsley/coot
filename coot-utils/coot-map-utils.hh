@@ -372,14 +372,16 @@ namespace coot {
          //
          void init_making_map_centred_at_origin(const clipper::Xmap<float> &xmap,
                                                 const clipper::Coord_orth &centre,
-                                                float radius);
+                                                float radius,
+                                                float tukey_alpha = 0.0f);
          float box_radius_a_internal;
          float box_radius_b_internal;
          float box_radius_c_internal;
       public:
          map_fragment_info_t(const clipper::Xmap<float> &xmap,
                              const clipper::Coord_orth &centre,
-                             float radius, bool centre_at_origin = false);
+                             float radius, bool centre_at_origin = false,
+                             float tukey_alpha = 0.0f);
          clipper::Xmap<float> xmap;
          clipper::Coord_grid offset;
          // transfer xmap (small, at origin) into xmap_p (big)

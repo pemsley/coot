@@ -32,6 +32,10 @@
 
 #include "compat/coot-sysdep.h"
 
+#ifdef HAVE_VTE
+#include "vte.hh"
+#endif
+
 
 #ifndef HAVE_VECTOR
 #define HAVE_VECTOR
@@ -43,6 +47,7 @@
 #include <string>
 #endif // HAVE_STRING
 
+#include <fstream>
 #include <string.h> // strlen, strncpy
 #include <sys/types.h> // for stating
 #include <sys/stat.h>
@@ -1382,7 +1387,11 @@ float get_positive_float_from_entry(GtkEntry *w) {
 int
 coot_checked_exit(int retval) {
 
+
    graphics_info_t g;
+
+   // std::cout << "DEBUG:: in coot_checked_exit() command_history size is " << g.command_history.commands.size() << std::endl;
+   // std::cout << "DEBUG:: in coot_checked_exit() command_history filename " << g.command_history.command_history_file_name << std::endl;
 
    // 20200822-PE save the (new) python history
    g.command_history.write_history();
@@ -1836,13 +1845,21 @@ on_recentre_on_read_pdb_toggle_button_toggled (GtkButton       *button,
 
 
 void reveal_python_scripting_entry() {
+#ifdef HAVE_VTE
+   show_vte_terminal();
+#else
    GtkRevealer* revealer = GTK_REVEALER(widget_from_builder("python_scripting_revealer"));
-   gtk_revealer_set_reveal_child(revealer,TRUE);
+   gtk_revealer_set_reveal_child(revealer, TRUE);
+#endif
 }
 
 void toggle_reveal_python_scripting_entry() {
+#ifdef HAVE_VTE
+   toggle_vte_terminal_visibility();
+#else
    GtkRevealer* revealer = GTK_REVEALER(widget_from_builder("python_scripting_revealer"));
-   gtk_revealer_set_reveal_child(revealer,!gtk_revealer_get_reveal_child(revealer));
+   gtk_revealer_set_reveal_child(revealer, !gtk_revealer_get_reveal_child(revealer));
+#endif
 }
 
 // We want to evaluate the string when we get a carriage return
@@ -2050,6 +2067,33 @@ const char *coot_file_chooser_file_name(GtkWidget *widget) {
    return f;
 }
 
+// Look for REMARK 900 RELATED ID: EMD-NNNNN   RELATED DB: EMDB in a PDB file
+// and if found, put the EMDB code into the emdb_map_code_entry widget.
+//
+void extract_and_fill_emdb_code_from_pdb_file(const std::string &pdb_filepath) {
+
+   std::ifstream f(pdb_filepath);
+   if (!f) return;
+   std::string line;
+   while (std::getline(f, line)) {
+      if (line.substr(0, 10) != "REMARK 900") continue;
+      std::string::size_type pos_emdb = line.find("RELATED DB: EMDB");
+      if (pos_emdb == std::string::npos) continue;
+      std::string::size_type pos_emd = line.find("EMD-");
+      if (pos_emd == std::string::npos) continue;
+      std::string::size_type start = pos_emd + 4; // skip "EMD-"
+      std::string::size_type end = start;
+      while (end < line.size() && std::isdigit(line[end])) end++;
+      if (end > start) {
+         std::string emdb_code = line.substr(start, end - start);
+         GtkWidget *entry = widget_from_builder("emdb_map_code_entry");
+         if (entry)
+            gtk_editable_set_text(GTK_EDITABLE(entry), emdb_code.c_str());
+         break;
+      }
+   }
+}
+
 // this is not a gui function - it is a network function
 //
 void network_get_accession_code_entity(const std::string &text, int mode) {
@@ -2101,6 +2145,7 @@ void network_get_accession_code_entity(const std::string &text, int mode) {
 
          if (coot::file_exists_and_non_tiny(pdb_filepath, 500)) {
             read_pdb(pdb_filepath);
+            extract_and_fill_emdb_code_from_pdb_file(pdb_filepath);
          } else {
             // blocking!
             int status = coot_get_url(pdb_url, pdb_filepath_with_tmp);
@@ -2109,10 +2154,12 @@ void network_get_accession_code_entity(const std::string &text, int mode) {
             if (coot::file_exists_and_non_tiny(pdb_filepath_with_tmp, 500)) {
                rename(pdb_filepath_with_tmp.c_str(), pdb_filepath.c_str());
                read_pdb(pdb_filepath);
+               extract_and_fill_emdb_code_from_pdb_file(pdb_filepath);
             } else {
                if (status == 0) {
                   rename(pdb_filepath_with_tmp.c_str(), pdb_filepath.c_str());
                   read_pdb(pdb_filepath);
+                  extract_and_fill_emdb_code_from_pdb_file(pdb_filepath);
                } else {
                   if (coot::file_exists(cif_filepath)) {
                      read_pdb(cif_filepath);

@@ -183,8 +183,8 @@ void main() {
 
          vec4 lsa = light_sources[i].ambient;
          vec4 lsd = light_sources[i].diffuse;
-         vec4 ambient = colour_transfer * lsa * 0.1; // I scale this down here - it's bright. why?
-         vec4 diffuse = colour_transfer * lsd * dp;
+         vec4 ambient = colour_transfer * lsa      * material.ambient;
+         vec4 diffuse = colour_transfer * lsd * dp * material.diffuse;
 
          // specular
          vec3 eye_pos = eye_position * transpose(model_rotation_transfer);
@@ -220,6 +220,6 @@ void main() {
    // if (show_shadows)
    // outputColor = vec4(0.7, 0.2, 0.1, 0.2);
 
-   // outputColor = vec4(0.5, 0.2, 0.5, 1.0);
+   // outputColor = vec4(0.5, 0.1, 0.5, 1.0);
 
 }

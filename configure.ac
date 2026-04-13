@@ -62,7 +62,7 @@ m4_define([v_git_commit], m4_esyscmd([bash ./get-the-git-commit.sh | tr -d '\n']
 # we need to make the src and pyrogen directories if they do not exist
 if test ! -d src     ; then mkdir src     ; fi
 if test ! -d pyrogen ; then mkdir pyrogen ; fi
-echo 'extern "C" { int git_revision_count() { return v_git_revision_count ; } }' > src/git-revision-count.cc
+echo 'int git_revision_count() { return v_git_revision_count ; }' > src/git-revision-count.cc
 echo "#include <string>" >> src/git-revision-count.cc
 echo 'std::string git_commit() { return "v_git_commit"; }' >> src/git-revision-count.cc
 echo 'def revision_count():
@@ -528,6 +528,29 @@ else
    ])
    AC_SUBST(NETCDF_CFLAGS)
    AC_SUBST(NETCDF_LIBS)
+fi
+
+
+AC_ARG_WITH([vte],
+            AS_HELP_STRING([--with-vte], [compile with VTE terminal widget for Python scripting]),
+            with_vte="$withval",
+            with_vte=no)
+AC_MSG_CHECKING([for VTE terminal support])
+if test "x$with_vte" = xno ; then
+   AC_MSG_RESULT(no)
+   AC_SUBST(VTE_CFLAGS, "")
+   AC_SUBST(VTE_LIBS, "")
+else
+   AC_MSG_RESULT(yes)
+   if test "x$with_vte" != xyes ; then
+      export PKG_CONFIG_PATH="$with_vte/lib/pkgconfig:$with_vte/lib64/pkgconfig:$PKG_CONFIG_PATH"
+   fi
+   PKG_CHECK_MODULES([VTE], [vte-2.91-gtk4], [], [
+      AC_MSG_ERROR([VTE GTK4 library not found. Install vte-2.91-gtk4 or use --without-vte])
+   ])
+   VTE_CFLAGS="$VTE_CFLAGS -DHAVE_VTE"
+   AC_SUBST(VTE_CFLAGS)
+   AC_SUBST(VTE_LIBS)
 fi
 
 

@@ -1517,6 +1517,11 @@ namespace coot {
 
    std::vector<clipper::RTop_orth> mtrix_info(const std::string &file_name);
 
+   //! Convert AlphaFold pLDDT values (stored in the B-factor column) to
+   //! crystallographic B-factors using the Hiranuma et al. (2021) formula:
+   //!   RMSD = 1.5 * exp(4 * (0.7 - pLDDT/100))
+   //!   B = (8 * pi^2 / 3) * RMSD^2
+   void hiranuma_inversion(mmdb::Manager *mol);
 
 } // namespace coot
 

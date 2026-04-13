@@ -2199,6 +2199,15 @@ on_emplacement_cancel_button_clicked(G_GNUC_UNUSED GtkButton       *button,
 
 }
 
+extern "C" G_MODULE_EXPORT
+void
+on_reset_view_clicked(G_GNUC_UNUSED GtkButton       *button,
+                      G_GNUC_UNUSED gpointer         user_data) {
+
+   reset_view();
+
+}
+
 // put this in a header.
 void emplacement_by_phaser(const std::string &half_map_1_file_name, const std::string &half_map_2_file_name,
                            coot::Cartesian search_centre, int imol_model, float radius);
@@ -2234,4 +2243,50 @@ on_emplacement_ok_button_clicked(G_GNUC_UNUSED GtkButton       *button,
 
 }
 
+#include "cc-interface-ncs.hh"
 
+extern "C" G_MODULE_EXPORT
+void
+on_find_ncs_ligands_ok_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                     G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *frame = widget_from_builder("ncs-ligand-frame");
+   if (frame) {
+
+      GtkWidget *protein_mol_combobox     = widget_from_builder("ncs-ligand-protein-comboboxtext");
+      GtkWidget *ncs_ligand_mol_combobox  = widget_from_builder("ncs-ligand-ligand-mol-comboboxtext");
+      GtkWidget *master_chain_id_entry    = widget_from_builder("ncs-ligand-master-chain-id-entry");
+      GtkWidget *ligand_chain_id_entry    = widget_from_builder("ncs-ligand-chain-id-entry");
+      GtkWidget *ligand_resno_start_entry = widget_from_builder("ncs-ligand-resno-start-entry");
+      GtkWidget *ligand_resno_end_entry   = widget_from_builder("ncs-ligand-resno-end-entry");
+
+      int imol_protein =  my_combobox_get_imol(GTK_COMBO_BOX(protein_mol_combobox));
+      int imol_lig     =  my_combobox_get_imol(GTK_COMBO_BOX(ncs_ligand_mol_combobox));
+
+      const char *t1 = gtk_editable_get_text(GTK_EDITABLE(master_chain_id_entry));
+      const char *t2 = gtk_editable_get_text(GTK_EDITABLE(ligand_chain_id_entry));
+      const char *t3 = gtk_editable_get_text(GTK_EDITABLE(ligand_resno_start_entry));
+      const char *t4 = gtk_editable_get_text(GTK_EDITABLE(ligand_resno_end_entry));
+
+      if (t1 && t2 && t3 && t4) {
+         std::string master_chain_id(t1);
+         std::string ligand_chain_id(t2);
+         int resno_start = coot::util::string_to_int(std::string(t3));
+         int resno_end   = coot::util::string_to_int(std::string(t4));
+
+         ncs_ligand(imol_protein, master_chain_id, imol_lig, ligand_chain_id, resno_start, resno_end);
+      }
+      gtk_widget_set_visible(frame, FALSE);
+   }
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_find_ncs_ligands_cancel_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                          G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *frame = widget_from_builder("ncs-ligand-frame");
+   if (frame) {
+      gtk_widget_set_visible(frame, FALSE);
+   }
+}

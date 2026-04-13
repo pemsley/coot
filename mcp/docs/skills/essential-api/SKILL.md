@@ -1,7 +1,8 @@
 ---
 name: coot-essential-api
-description: "API documentation to be loaded at startup - when starting a Coot session, immediately call get_function_descriptions() with the functions listed in this skill.""
+description: "API documentation to be loaded at startup - when starting a Coot session, immediately call get_function_descriptions() with the functions listed in this skill."
 ---
+
 # Coot Essential API Functions
 
 This document contains the core Coot API functions needed for typical validation and model-building workflows.

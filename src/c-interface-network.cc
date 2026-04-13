@@ -716,8 +716,9 @@ void fetch_emdb_map(const std::string &emd_accession_code) {
 
    std::string map_gz_url = "https://ftp.ebi.ac.uk/pub/databases/emdb/structures/EMD-" +
       emd_accession_code + "/map/emd_" + emd_accession_code + ".map.gz";
-   std::string download_dir = "coot-download";
-   download_dir = coot::get_directory(download_dir.c_str());
+   xdg_t xdg;
+   std::string download_dir = xdg.get_download_dir();
+   download_dir = coot::get_directory(download_dir);
    std::string gz_fnl = "emd_" + emd_accession_code + ".map.gz";
    std::string fnl    = "emd_" + emd_accession_code + ".map";
    std::string gz_fn = coot::util::append_dir_file(download_dir, gz_fnl);

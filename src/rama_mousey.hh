@@ -29,16 +29,6 @@
 #include <goocanvas.h>
 #include "rama_plot.hh"
  
-#ifdef __cplusplus
-#define BEGIN_C_DECLS extern "C" {
-#define END_C_DECLS }
-#else
-#define BEGIN_C_DECLS
-#define END_C_DECLS
-#endif
-
-BEGIN_C_DECLS
-
 // Callback Functions from declared in setup_canvas
 // (i.e. can be c++ functions)
 // 
@@ -124,7 +114,5 @@ void rama_show_preferences();
 void rama_zoom_in(GtkWidget *widget);
 void rama_zoom_out(GtkWidget *widget); 
 gboolean rama_configure_event(GtkWidget *widget, GdkEventConfigure *event, gpointer data);
-
-END_C_DECLS
 
 #endif // HAVE_GOOCANVAS

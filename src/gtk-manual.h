@@ -30,19 +30,6 @@
 /* #include "support.h" */
 /* #endif /\* HAVE_SUPPORT_H *\/ */
 
-#ifndef BEGIN_C_DECLS
-#ifdef __cplusplus
-#define BEGIN_C_DECLS extern "C" {
-#define END_C_DECLS }
-#else
-#define BEGIN_C_DECLS
-#define END_C_DECLS
-#endif
-#endif
-
-BEGIN_C_DECLS
-
-
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
@@ -266,7 +253,5 @@ GtkWidget* create_splash_screen_window_for_file(const char *file_name);
 int my_combobox_get_imol(GtkComboBox *combobox);
 
 
-
-END_C_DECLS
 
 #endif /* GTK_MANUAL_H */

@@ -1435,7 +1435,7 @@ coot::restraints_container_t::minimize(int imol, restraint_usage_Flags usage_fla
 				       const coot::protein_geometry &geom) {
 
 
-   unsigned int n_steps_per_recalc_nbcs = 300000; // Hmm.
+   unsigned int n_steps_per_recalc_nbcs = 2000;
    // n_steps_per_relcalc_nbcs *= 10;
 
    n_times_called++;
@@ -1465,9 +1465,11 @@ coot::restraints_container_t::minimize(int imol, restraint_usage_Flags usage_fla
    // but not in wonky-N-terminus refine.
 
    if (n_small_cycles_accumulator >= n_steps_per_recalc_nbcs) {
+      get_restraints_lock();
       auto tp_0 = std::chrono::high_resolution_clock::now();
       unsigned int n_new = make_non_bonded_contact_restraints_ng(imol, geom);
       auto tp_1 = std::chrono::high_resolution_clock::now();
+      release_restraints_lock();
       // setup_minimize(); // needed? (seems not)
       if (false) {
          auto tp_2 = std::chrono::high_resolution_clock::now();

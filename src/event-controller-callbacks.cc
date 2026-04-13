@@ -1003,7 +1003,7 @@ graphics_info_t::on_glarea_scrolled(GtkEventControllerScroll *controller,
    shift_is_pressed = (modifier & GDK_SHIFT_MASK);
 
    bool handled = false;
-   if (false)
+   if (true)
       std::cout << "on_glarea_scrolled() control_is_pressed " << control_is_pressed
                 << " shift_is_pressed " << shift_is_pressed << std::endl;
 
@@ -1019,7 +1019,7 @@ graphics_info_t::on_glarea_scrolled(GtkEventControllerScroll *controller,
 
          // 20250519-PE this is how it used to be! Seems esoteric - I am not
          // sure what it actually does
-         if (false) {
+         if (true) {
             // dy is either 1.0 or -1.0
             // std::cout << "change the proportional editing " << dx << " " << dy << std::endl;
             bool dir = false;
@@ -1030,7 +1030,7 @@ graphics_info_t::on_glarea_scrolled(GtkEventControllerScroll *controller,
          }
 
          // ctrl-scroll zoom, same as shift-scroll zoom
-         if (true) {
+         if (! handled) {
             do_mouse_zoom(dy);
             handled = true;
          }

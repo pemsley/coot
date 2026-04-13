@@ -206,6 +206,7 @@ add_library(cootapi SHARED
             ${coot_src}/api/molecules-container-ligand-fitting.cc
             ${coot_src}/api/molecules-container-maps.cc
             ${coot_src}/api/molecules-container-mmrrcc.cc
+            ${coot_src}/api/molecules-container-molecular-placement.cc
             ${coot_src}/api/molecules-container-superpose.cc
             ${coot_src}/api/molecules-container-modelling.cc
             ${coot_src}/api/molecules-container-pyrogen.cc
@@ -344,6 +345,7 @@ add_library(cootapi SHARED
             ${coot_src}/coot-utils/pae.cc
             ${coot_src}/coot-utils/coot-tree-extras.cc
             ${coot_src}/coot-utils/coot-map-heavy.cc
+            ${coot_src}/coot-utils/rebox-map.cc
             ${coot_src}/coot-utils/jed-flip.cc
             ${coot_src}/coot-utils/pepflip-using-difference-map.cc
             ${coot_src}/coot-utils/atom-overlaps.cc
@@ -387,6 +389,8 @@ add_library(cootapi SHARED
             ${coot_src}/coot-utils/simple-mesh.cc
             ${coot_src}/coot-utils/gl-matrix.cc
             ${coot_src}/coot-utils/gl-matrix-eigensystem.cc
+            ${coot_src}/coot-utils/patterson.cc
+            ${coot_src}/coot-utils/crowther.cc
             ${coot_src}/coords/Bond_lines.cc
             ${coot_src}/coords/Bond_lines_ext.cc
             ${coot_src}/coords/coot-close.cc
@@ -456,6 +460,7 @@ add_library(cootapi SHARED
             ${coot_src}/ligand/chi-angles-autogen.cc
             ${coot_src}/ligand/ligand.cc
             ${coot_src}/ligand/helix-placement.cc
+            ${coot_src}/ligand/molecular-replacement.cc
             ${coot_src}/ligand/backrub-rotamer.cc
             ${coot_src}/ligand/dunbrack.cc
             ${coot_src}/ligand/primitive-chi-angles.cc
@@ -497,14 +502,14 @@ add_library(cootapi SHARED
             ${coot_src}/cremer-pople-sphere/scene.cc
             )
 
-# wretched mae
+
+# wretched mae - fixed by Jordan?
 find_library(MAEPARSER_LIBS maeparser)
 if(MAEPARSER_LIBS)
     get_filename_component(MAEPARSER_DIR ${MAEPARSER_LIBS} DIRECTORY)
     target_link_directories(cootapi PUBLIC ${MAEPARSER_DIR})
+    target_link_libraries(cootapi PUBLIC ${MAEPARSER_LIBS})
 endif()
-target_link_libraries(cootapi PUBLIC ${MAEPARSER_LIBS})
-
 
 nanobind_add_module(coot_headless_api ${coot_src}/api/molecules-container-nanobind.cc
                                       ${coot_src}/api/molecules-container-nanobind-functions.cc)

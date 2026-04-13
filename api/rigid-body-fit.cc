@@ -1,43 +1,18 @@
 
 #include "rigid-body-fit.hh"
+#include "ligand/rigid-body.hh"
 #include "ligand/ligand.hh"
 #include "coot-utils/atom-selection-container.hh"
 #include "coot-utils/coot-coord-utils.hh"
+#include "geometry/residue-and-atom-specs.hh"
 
 coot::minimol::molecule
 coot::api::rigid_body_fit_inner(const coot::minimol::molecule &mol_without_moving_atoms,
                                 const coot::minimol::molecule &mol_for_moving_atoms,
                                 const clipper::Xmap<float> &xmap) {
 
-   bool debug = false;
-   // debugging
-   if (debug) {
-      mol_without_moving_atoms.write_file("rigid-body-moving-atoms-mol.pdb", 44);
-      mol_without_moving_atoms.write_file("rigid-body-without-moving-atoms.pdb", 44);
-   }
-
-   coot::ligand lig;
-   bool mask_water_flag = false;
-   float sigma = 0.4; // FIXME
-   lig.import_map_from(xmap, sigma);
-
-   lig.install_ligand(mol_for_moving_atoms);
-   lig.find_centre_by_ligand(0); // don't test ligand size
-   // lig.set_map_atom_mask_radius(0.5);  // why did I have this?
-   lig.mask_map(mol_without_moving_atoms, mask_water_flag);
-   if (debug)
-      lig.output_map("rigid-body.map");
-   lig.set_dont_write_solutions();
-   lig.set_dont_test_rotations();
-   lig.set_acceptable_fit_fraction(0.5);
-   lig.fit_ligands_to_clusters(1);
-   unsigned int iclust = 0;
-   unsigned int isol   = 0;
-   coot::minimol::molecule moved_mol = lig.get_solution(iclust, isol);
-   return moved_mol;
+   return coot::rigid_body_fit_with_masking(mol_without_moving_atoms, mol_for_moving_atoms, xmap);
 }
-
-#include "geometry/residue-and-atom-specs.hh"
 
 void
 coot::api::rigid_body_fit(mmdb::Manager *mol, int udd_atom_selection_fitting_atoms,
@@ -55,16 +30,12 @@ coot::api::rigid_body_fit(mmdb::Manager *mol, int udd_atom_selection_fitting_ato
    }
 
    bool fill_masking_molecule_flag = true;
-   coot::ligand lig;
    std::pair<coot::minimol::molecule, coot::minimol::molecule> p =
       coot::make_mols_from_atom_selection(mol, udd_atom_selection_fitting_atoms, fill_masking_molecule_flag);
    const minimol::molecule &mol_without_moving_atoms = p.first;
    const minimol::molecule &mol_for_moving_atoms     = p.second;
 
    minimol::molecule moved_atoms_mol = rigid_body_fit_inner(mol_without_moving_atoms, mol_for_moving_atoms, xmap);
-
-   mol_without_moving_atoms.write_file("mol_without_moving_atoms.pdb", true);
-   mol_for_moving_atoms.write_file("mol_for_moving_atoms.pdb", true);
 
    // now transfer the new positions of the atoms in moved_atoms_mol into mol
 
@@ -77,11 +48,6 @@ coot::api::rigid_body_fit(mmdb::Manager *mol, int udd_atom_selection_fitting_ato
          if (this_residue) {
             for (unsigned int iat=0; iat<moved_atoms_mol[ifrag][ires].atoms.size(); iat++) {
 
-               if (false)
-                  std::cout << "replacing " << moved_atoms_mol[ifrag].fragment_id << " " << moved_atoms_mol[ifrag][ires]
-                            << " " << moved_atoms_mol[ifrag][ires][iat].name
-                            << " " << moved_atoms_mol[ifrag][ires][iat].pos.format() << std::endl;
-
                mmdb::Atom **residue_atoms = 0;
                int n_residue_atoms = 0;
                this_residue->GetAtomTable(residue_atoms, n_residue_atoms);
@@ -89,8 +55,6 @@ coot::api::rigid_body_fit(mmdb::Manager *mol, int udd_atom_selection_fitting_ato
                   mmdb::Atom *at = residue_atoms[jat];
                   if (! at->isTer()) {
                      std::string this_atom_name(at->GetAtomName());
-                     // std::cout << "   comparing names " << moved_atoms_mol[ifrag][ires][iat].name << " "
-                     // << this_atom_name <<std::endl;
                      if (moved_atoms_mol[ifrag][ires][iat].name == this_atom_name) {
                         std::string this_atom_alt_conf(at->altLoc);
                         if (this_atom_alt_conf == moved_atoms_mol[ifrag][ires][iat].altLoc) {
@@ -98,13 +62,12 @@ coot::api::rigid_body_fit(mmdb::Manager *mol, int udd_atom_selection_fitting_ato
                            at->y = moved_atoms_mol[ifrag][ires][iat].pos.y();
                            at->z = moved_atoms_mol[ifrag][ires][iat].pos.z();
                            n_moved++;
-                           // std::cout << "      moving " << coot::atom_spec_t(at) << std::endl;
                         }
                      }
                   }
                }
             }
-	 }
+         }
       }
    }
 

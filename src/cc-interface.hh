@@ -737,6 +737,24 @@ void add_an_atom(const std::string &element);
 #ifdef USE_PYTHON
 void nudge_the_temperature_factors_py(int imol, PyObject *residue_spec_py, float amount);
 #endif
+
+//! \brief convert AlphaFold pLDDT to crystallographic B-factors
+//!
+//! AlphaFold models store pLDDT confidence scores (0-100) in the
+//! B-factor column. This function converts them to crystallographic
+//! B-factors using the Hiranuma et al. (2021) formula:
+//!
+//!   RMSD = 1.5 * exp(4 * (0.7 - pLDDT/100))
+//!
+//!   B = (8 * pi^2 / 3) * RMSD^2
+//!
+//! After conversion, high-confidence regions (pLDDT ~90) get
+//! B-factors of ~8 A^2, while low-confidence regions (pLDDT ~50)
+//! get B-factors of ~440 A^2.
+//!
+//! @param imol is the molecule index of the AlphaFold model
+void hiranuma_inversion(int imol);
+
 //! \}
 
 
