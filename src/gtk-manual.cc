@@ -573,8 +573,13 @@ void display_control_add_delete_molecule_button(int imol,
    // GtkWidget *vbox_for_molecules     = GTK_WIDGET(g_object_get_data(G_OBJECT(button), "vbox_for_molecules"));
    // GtkWidget *vbox_for_this_molecule = GTK_WIDGET(g_object_get_data(G_OBJECT(button), "vbox_for_this_molecule"));
 
-   g_object_set_data(G_OBJECT(delete_button), "hbox_for_this_molecule", hbox32); // bad name
-   g_object_set_data(G_OBJECT(delete_button), "vbox_for_molecules",     vbox_for_molecules);
+   // For models, hbox32 is inside a mol_vbox wrapper (which is the direct child
+   // of vbox_for_molecules). For maps, hbox32 is the direct child itself.
+   // We need to store the direct child so gtk_box_remove works correctly.
+   GtkWidget *parent = gtk_widget_get_parent(hbox32);
+   GtkWidget *child_to_remove = (parent == vbox_for_molecules) ? hbox32 : parent;
+   g_object_set_data(G_OBJECT(delete_button), "child_to_remove",    child_to_remove);
+   g_object_set_data(G_OBJECT(delete_button), "vbox_for_molecules", vbox_for_molecules);
 
    gtk_box_append(GTK_BOX (hbox32), delete_button);
    gtk_widget_set_margin_start (delete_button, 2);
@@ -1097,16 +1102,14 @@ on_display_control_delete_molecule_button_clicked(GtkButton       *button,
 		<< "on_display_control_delete_molecule_button_clicked"
 		<< std::endl;
 
-   // these are set in ...
-   GtkWidget *vbox_for_molecules     = GTK_WIDGET(g_object_get_data(G_OBJECT(button), "vbox_for_molecules"));
-   GtkWidget *hbox_for_this_molecule = GTK_WIDGET(g_object_get_data(G_OBJECT(button), "hbox_for_this_molecule"));
+   GtkWidget *vbox_for_molecules = GTK_WIDGET(g_object_get_data(G_OBJECT(button), "vbox_for_molecules"));
+   GtkWidget *child_to_remove   = GTK_WIDGET(g_object_get_data(G_OBJECT(button), "child_to_remove"));
 
-   // std::cout << "here are the widgets! " << vbox_for_molecules << " " << hbox_for_this_molecule << std::endl;
    if (vbox_for_molecules) {
-      if (hbox_for_this_molecule) {
-         gtk_box_remove(GTK_BOX(vbox_for_molecules), GTK_WIDGET(hbox_for_this_molecule));
+      if (child_to_remove) {
+         gtk_box_remove(GTK_BOX(vbox_for_molecules), child_to_remove);
       } else {
-         std::cout << "ERROR:: missing hbox_for_this_molecule" << std::endl;
+         std::cout << "ERROR:: missing child_to_remove" << std::endl;
       }
    } else {
       std::cout << "ERROR:: missing vbox_for_molecules" << std::endl;
