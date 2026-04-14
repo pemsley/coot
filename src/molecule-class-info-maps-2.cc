@@ -745,7 +745,6 @@ molecule_class_info_t::make_map_cap(const clipper::Coord_orth &base_point,
          }
       }
    }
-
    return p;
 }
 

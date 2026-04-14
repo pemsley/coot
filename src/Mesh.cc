@@ -167,8 +167,23 @@ Mesh::set_is_headless() {
    is_headless = true;
 }
 
+void Mesh::add_submesh(const std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > &submesh) {
 
-// static 
+   unsigned int idx_base = vertices.size();
+   unsigned int tri_base = triangles.size();
+   vertices.insert(vertices.end(), submesh.first.begin(), submesh.first.end());
+   triangles.insert(triangles.end(), submesh.second.begin(), submesh.second.end());
+   for (unsigned int k=tri_base; k<triangles.size(); ++k)
+      triangles[k].rebase(idx_base);
+
+   std::cout << "debug:: add_submesh()  pre: " << idx_base << " " << tri_base << std::endl;
+   std::cout << "debug:: add_submesh() post: " << vertices.size() << " " << triangles.size() << std::endl;
+
+}
+
+
+
+// static
 std::pair<float, float> Mesh::get_stereo_x_scale_and_offset(stereo_eye_t eye) {
 
    // for side by side stereo, of course
