@@ -565,8 +565,10 @@ RDGeom::INT_POINT2D_MAP CanvasMolecule::compute_molecule_geometry(bool omit_ster
     try {
         #ifndef RDK_BUILD_COORDGEN_SUPPORT
         #warning Your version of RDKit was built without Coordgen support. Coordgen will not work.
-        g_error("Your version of RDKit was built without Coordgen support. Coordgen cannot be used. Falling back to RDDepict.");
-        use_coordgen = false;
+        if(use_coordgen) {
+            g_error("Your version of RDKit was built without Coordgen support. Coordgen cannot be used. Falling back to RDDepict.");
+            use_coordgen = false;
+        }
         #endif
         if(use_coordgen) {
             #ifdef RDK_BUILD_COORDGEN_SUPPORT
