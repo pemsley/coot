@@ -37,7 +37,13 @@
 #include <GraphMol/Chirality.h>
 #include <rdkit/GraphMol/MolOps.h>
 #include <rdkit/GraphMol/Conformer.h>
+// To check if Coordgen support is enabled
+#include <rdkit/RDGeneral/RDConfig.h>
+#ifdef RDK_BUILD_COORDGEN_SUPPORT
 #include <rdkit/GraphMol/CoordGen.h>
+#else
+#warning Your version of RDKit was built without Coordgen support. Coordgen will not work.
+#endif
 #include <cmath>
 #include <boost/range/iterator_range.hpp>
 #include <string>
@@ -557,7 +563,13 @@ RDGeom::INT_POINT2D_MAP CanvasMolecule::compute_molecule_geometry(bool omit_ster
     int conformer_id = -1;
 
     try {
+        #ifndef RDK_BUILD_COORDGEN_SUPPORT
+        #warning Your version of RDKit was built without Coordgen support. Coordgen will not work.
+        g_error("Your version of RDKit was built without Coordgen support. Coordgen cannot be used. Falling back to RDDepict.");
+        use_coordgen = false;
+        #endif
         if(use_coordgen) {
+            #ifdef RDK_BUILD_COORDGEN_SUPPORT
             auto params = RDKit::CoordGen::defaultParams;
             params.dbg_useConstrained = true;
             params.dbg_useFixed = true;
@@ -568,6 +580,7 @@ RDGeom::INT_POINT2D_MAP CanvasMolecule::compute_molecule_geometry(bool omit_ster
                 params.coordMap = *previous_coordinate_map;
             }
             conformer_id = RDKit::CoordGen::addCoords(*this->rdkit_molecule.get(), &params);
+            #endif
         } else {
             conformer_id = RDDepict::compute2DCoords(*this->rdkit_molecule, previous_coordinate_map, true, true);
         }
