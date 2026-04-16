@@ -33,8 +33,8 @@ namespace lhasa {
 std::unique_ptr<RDKit::RWMol> rdkit_mol_from_smiles(std::string smiles);
 std::unique_ptr<RDKit::RWMol> rdkit_mol_from_pickle(std::string pickle_string);
 
-std::string rdkit_mol_to_smiles(RDKit::ROMol& mol);
-std::string rdkit_mol_to_pickle_base64(RDKit::ROMol& mol);
+std::string rdkit_mol_to_smiles(const RDKit::ROMol& mol);
+std::string rdkit_mol_to_pickle_base64(const RDKit::ROMol& mol);
 
 /// This is for file import/export
 enum class CheminformaticsFileFormat {

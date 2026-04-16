@@ -40,7 +40,7 @@ std::unique_ptr<RDKit::RWMol> lhasa::rdkit_mol_from_pickle(std::string pickle_st
     return ret;
 }
 
-std::string lhasa::rdkit_mol_to_pickle_base64(RDKit::ROMol& mol) {
+std::string lhasa::rdkit_mol_to_pickle_base64(const RDKit::ROMol& mol) {
     std::string pickle_string;
     unsigned int pickleFlags = RDKit::PicklerOps::AtomProps | RDKit::PicklerOps::BondProps | RDKit::PicklerOps::MolProps | RDKit::PicklerOps::CoordsAsDouble | RDKit::PicklerOps::AllProps;
     RDKit::MolPickler::pickleMol(mol, pickle_string, pickleFlags);
@@ -60,7 +60,7 @@ unsigned int lhasa::append_from_pickle_base64(CootLigandEditorCanvas& canvas, st
     return canvas.append_molecule(std::move(appendee));
 }
 
-std::string lhasa::rdkit_mol_to_smiles(RDKit::ROMol& mol) {
+std::string lhasa::rdkit_mol_to_smiles(const RDKit::ROMol& mol) {
     auto ret = RDKit::MolToSmiles(mol, true);
     return ret;
 }
