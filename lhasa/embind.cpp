@@ -46,6 +46,7 @@ EMSCRIPTEN_BINDINGS(lhasa) {
   function("append_from_import", &lhasa::append_from_import);
   function("append_from_pickle_base64", &lhasa::append_from_pickle_base64);
   function("export_mol", &lhasa::export_mol);
+  function("export_mol_to_pickle_base64", &lhasa::export_mol_to_pickle_base64);
   enum_<lhasa::CheminformaticsFileFormat>("CheminformaticsFileFormat")
     .value("Molfile", lhasa::CheminformaticsFileFormat::Molfile)
     .value("SDF", lhasa::CheminformaticsFileFormat::SDF)
@@ -58,7 +59,7 @@ EMSCRIPTEN_BINDINGS(lhasa) {
   // TODO: RDKit typedefinitions
   // function("rdkit_mol_from_pickle", &lhasa::rdkit_mol_from_pickle);
   // TODO: RDKit typedefinitions
-  // function("rdkit_mol_to_pickle", &lhasa::rdkit_mol_to_pickle);
+  // function("rdkit_mol_to_pickle", &lhasa::rdkit_mol_to_pickle_base64);
   enum_<DisplayMode>("DisplayMode")
     .value("Standard", DisplayMode::Standard)
     .value("AtomIndices", DisplayMode::AtomIndices)
