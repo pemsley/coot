@@ -3904,7 +3904,8 @@ if [ "$build_rdkit" = true ] ; then
    skip_this=false
    if [ "$test_for_already_installed_dependencies" = true ] ; then
       # this file is in 2018_09 but not in 2017_09
-      if [ -e $install_top_dir/include/rdkit/GraphMol/StereoGroup.h ] ;  then
+      # also check for coordgen headers (required since RDK_BUILD_COORDGEN_SUPPORT=ON)
+      if [ -e $install_top_dir/include/rdkit/GraphMol/StereoGroup.h ] && [ -e $install_top_dir/include/coordgen/sketcherMinimizer.h ] ;  then
          echo not building rdkit:
          echo not building rdkit: >&2
          skip_this=true
