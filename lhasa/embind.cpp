@@ -250,6 +250,8 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .function("get_max_molecule_idx", &CootLigandEditorCanvas::get_max_molecule_idx)
     .function("set_allow_invalid_molecules", &CootLigandEditorCanvas::set_allow_invalid_molecules)
     .function("get_allow_invalid_molecules", &CootLigandEditorCanvas::get_allow_invalid_molecules)
+    .function("set_coordgen_mode_enabled", &CootLigandEditorCanvas::set_coordgen_mode_enabled)
+    .function("get_coordgen_mode_enabled", &CootLigandEditorCanvas::get_coordgen_mode_enabled)
     .function("get_display_mode", &CootLigandEditorCanvas::get_display_mode)
     .function("set_display_mode", &CootLigandEditorCanvas::set_display_mode)
     .function("get_smiles", &CootLigandEditorCanvas::get_smiles)

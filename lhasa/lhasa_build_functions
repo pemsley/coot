@@ -119,3 +119,49 @@ getboost() {
     fi
     echo
 }
+
+getgemmi() {
+    cdcheckout
+    if [ -r gemmi-$gemmi_release ]; then
+        echo "Using existing gemmi"
+    else
+        echo "Downloading gemmi source"
+        curl -fL https://github.com/project-gemmi/gemmi/archive/refs/tags/v$gemmi_release.tar.gz -o gemmi_$gemmi_release.tar.gz || fail "Failed to download gemmi source"
+        echo
+        echo "Unpacking gemmi source"
+        tar xf "gemmi_$gemmi_release.tar.gz" || fail "Failed to unpack gemmi source"
+        echo
+        echo "Patching gemmi..."
+        cd gemmi-$gemmi_release &&\
+        patch -p1 < "$LHASA_MAIN_DIR/patches/gemmi-emscripten-64.patch" || fail "Failed to patch gemmi"
+    fi
+    echo
+}
+
+getmaeparser() {
+    cdcheckout
+    if [ -r maeparser-$maeparser_release ]; then
+        echo "Using existing maeparser"
+    else
+        echo "Downloading maeparser source"
+        curl -fL https://github.com/schrodinger/maeparser/archive/refs/tags/v$maeparser_release.tar.gz -o maeparser_$maeparser_release.tar.gz || fail "Failed to download maeparser source"
+        echo
+        echo "Unpacking maeparser source"
+        tar xf "maeparser_$maeparser_release.tar.gz" || fail "Failed to unpack maeparser source"
+    fi
+    echo
+}
+
+getcoordgen() {
+    cdcheckout
+    if [ -r coordgenlibs-$coordgen_release ]; then
+        echo "Using existing coordgen"
+    else
+        echo "Downloading coordgen source"
+        curl -fL https://github.com/schrodinger/coordgenlibs/archive/refs/tags/v$coordgen_release.tar.gz -o coordgen_$coordgen_release.tar.gz || fail "Failed to download coordgen source"
+        echo
+        echo "Unpacking coordgen source"
+        tar xf "coordgen_$coordgen_release.tar.gz" || fail "Failed to unpack coordgen source"
+    fi
+    echo
+}
