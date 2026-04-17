@@ -2215,6 +2215,7 @@ if test -e $install_top_dir/bin/gsl-config ; then
         needed_gsl_version=1.15
         needed_gsl_version=1.16
         needed_gsl_version=2.7
+        needed_gsl_version=2.8
 
         if [ -e $install_top_dir/include/gsl/gsl_version.h ] ; then
             build_gsl=
@@ -2658,6 +2659,7 @@ test_for_already_installed_dependencies=true
 if true ; then
     # --------------------------------- gemmi from tar ----------------------------
     gemmi_version=0.7.4
+    gemmi_version=0.7.5
     skip_build=false
     echo testing for existance of $install_top_dir/include/gemmi/version.hpp >&2
     ls $install_top_dir/include/gemmi/version.hpp >&2
@@ -2674,7 +2676,7 @@ if true ; then
         date >&2
         echo gemmi build start_dir is $start_dir
         echo gemmi build start_dir is $start_dir >&2
-        echo use this, not the git repo: https://github.com/project-gemmi/gemmi/archive/refs/tags/v0.7.4.tar.gz
+        echo use this, not the git repo: https://github.com/project-gemmi/gemmi/archive/refs/tags/v$gemmi_version.tar.gz
         gemmi_tar_dir=https://github.com/project-gemmi/gemmi/archive/refs/tags
         (
             cd "$start_dir"
@@ -3105,24 +3107,29 @@ fi
 python3 -m pip install setuptools
 
 build_meson=true
-if command -v meson --version ; then
-
-    echo meson --version
+meson_required=1.2.3
+if command -v meson >/dev/null 2>&1 ; then
     which meson >&2
-    echo meson --version >&2
     meson --version >&2
-    if meson --version ; then
-        echo we have meson
+    if meson --version >/dev/null 2>&1 ; then
         v=$(meson --version)
-       if [[ $v < 1.2.3 ]] ; then
-          echo meson is too old, current version is $v
-          build_meson=true
-       else
-          build_meson=false
-       fi
+        echo we have meson version $v
+        # version-aware comparison (sort -V handles 1.10.1 vs 1.2.3 correctly)
+        oldest=$(printf '%s\n' "$meson_required" "$v" | sort -V | head -n1)
+        if [ "$oldest" = "$v" ] && [ "$v" != "$meson_required" ] ; then
+            echo meson is too old, current version is $v, need $meson_required
+            build_meson=true
+        else
+            echo meson version $v is new enough
+            build_meson=false
+        fi
     else
-       build_meson=true
+        echo meson found but --version failed
+        build_meson=true
     fi
+else
+    echo meson not found
+    build_meson=true
 fi
 
 if $build_meson = true ; then
@@ -3497,11 +3504,12 @@ fi
 if test -n "$build_gsl" ; then
     # wget http://www.mirror.ac.uk/sites/ftp.gnu.org/gnu/gsl/gsl-1.5.tar.gz
     # wget http://ftp.gnu.org/gnu/gsl/gsl-1.6.tar.gz
-    # if you change this, change needed_gsl_version above
+    # if you change this, change needed_gsl_version above - a mess that needs cleaning up.
     gsl_version=1.12
     gsl_version=1.15
     gsl_version=1.16
     gsl_version=2.7
+    gsl_version=2.8
     echo BUILDING: gsl $gsl_version
     echo BUILDING: gsl $gsl_version >&2
     #
@@ -3514,14 +3522,16 @@ if test -n "$build_gsl" ; then
     unset LD_LIBRARY_PATH
     gzip -dc ${AUTOBUILD_SOURCES}/gsl-$gsl_version.tar.gz | tar xf -
     cd gsl-$gsl_version
-    ./configure $generic_prefix
+    # 20260417-PE Amazing that I only see this now. libgls needs libgslcblas (or other blas)
+    # but is not a dependency
+    ./configure $generic_prefix LIBS="-lgslcblas -lm"
     $MAKE
     status=$?
     if [ "$status" != 0 ] ; then
         echo ERROR:: GSL make failed.
         exit 2
     else
-       echo 1 --------------------------------------------------------------- 
+       echo 1 ---------------------------------------------------------------
        echo '                                ' make install
        echo 1 ----------------------------------------------------------------
        $MAKE install
