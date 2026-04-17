@@ -16,8 +16,11 @@ o changing the diff map colour should change the negative level also.
 o rotate/translate of an atom selects the whole residue
 
 o add NCS ligands
+* nearly done.
 
 o delete symmetry waters
+
+o fix the build/installation of curl - on home desktop.
 
 o bring back reorder chain. (What did it do?)
 
