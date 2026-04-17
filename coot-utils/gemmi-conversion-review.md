@@ -49,6 +49,7 @@ mmdb needs `syminfo.lib` to resolve spacegroup operations. Without it, `GetTMatr
 | `trim_atom_names(gemmi::Structure&)` | Strips padded atom names after `copy_from_mmdb()` |
 
 ### Atom-level (4, in `coot::`)
+
 | Function | Notes |
 |----------|-------|
 | `distance(gemmi::Atom&, gemmi::Atom&)` | Manual sqrt, matches mmdb overload |
@@ -57,6 +58,7 @@ mmdb needs `syminfo.lib` to resolve spacegroup operations. Without it, `GetTMatr
 | `is_hydrogen_atom(gemmi::Atom&)` | Delegates to `at.is_hydrogen()` |
 
 ### Residue-level (6, in `coot::util::`)
+
 | Function | Notes |
 |----------|-------|
 | `get_residue_centre` | Mean of all atom positions |
@@ -67,6 +69,7 @@ mmdb needs `syminfo.lib` to resolve spacegroup operations. Without it, `GetTMatr
 | `residue_has_hetatms` | Checks `res.het_flag == 'H'` |
 
 ### Chain-level (5, in `coot::util::`)
+
 | Function | Notes |
 |----------|-------|
 | `min_and_max_residues` | Uses `res.seqid.num.value` |
@@ -76,6 +79,7 @@ mmdb needs `syminfo.lib` to resolve spacegroup operations. Without it, `GetTMatr
 | `get_number_of_protein_or_nucleotides` | Nucleotide via name; protein via `entity_type == Polymer` |
 
 ### Structure-level (15, mix of `coot::` and `coot::util::`)
+
 | Function | Notes |
 |----------|-------|
 | `centre_of_molecule` | First model only |
