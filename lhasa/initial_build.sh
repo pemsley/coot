@@ -65,6 +65,26 @@ else
                rm -rf ${DEPENDENCY_BUILD_DIR}/libsigcplusplus_build
                rm -rf ${INSTALL_DIR}/include/sigc++-3.0
                ;;
+           gemmi) echo "Clear gemmi"
+               rm -rf ${DEPENDENCY_BUILD_DIR}/gemmi_build
+               rm -rf ${INSTALL_DIR}/include/gemmi
+               rm -rf ${INSTALL_DIR}/lib/libgemmi_cpp.a
+               ;;
+           maeparser) echo "Clear maeparser"
+               rm -rf ${DEPENDENCY_BUILD_DIR}/maeparser_build
+               rm -rf ${INSTALL_DIR}/include/maeparser
+               rm -rf ${INSTALL_DIR}/lib/libmaeparser.a
+               ;;
+           coordgen) echo "Clear coordgen"
+               rm -rf ${DEPENDENCY_BUILD_DIR}/coordgen_build
+               rm -rf ${INSTALL_DIR}/include/coordgen
+               rm -rf ${INSTALL_DIR}/lib/libcoordgen.a
+               ;;
+           eigen) echo "Clear eigen"
+               rm -rf ${DEPENDENCY_BUILD_DIR}/eigen_build
+               rm -rf ${INSTALL_DIR}/include/eigen3
+               rm -rf ${INSTALL_DIR}/share/eigen3
+               ;;
            *) echo "Unknown module $mod to clear. Ignoring." ;;
         esac
         done
@@ -102,6 +122,10 @@ BUILD_BOOST=false
 BUILD_RDKIT=false
 BUILD_GRAPHENE=false
 BUILD_LIBSIGCPP=false
+BUILD_GEMMI=false
+BUILD_MAEPARSER=false
+BUILD_COORDGEN=false
+BUILD_EIGEN=false
 
 
 if test -d ${INSTALL_DIR}/include/boost; then
@@ -128,7 +152,30 @@ else
     BUILD_LIBSIGCPP=true
 fi
 
-# Only big stuff goes here
+if test -d ${INSTALL_DIR}/include/gemmi; then
+    true
+else
+    BUILD_GEMMI=true
+fi
+
+if test -d ${INSTALL_DIR}/include/coordgen; then
+    true
+else
+    BUILD_COORDGEN=true
+fi
+
+if test -d ${INSTALL_DIR}/include/maeparser; then
+    true
+else
+    BUILD_MAEPARSER=true
+fi
+
+if test -d ${INSTALL_DIR}/include/eigen3; then
+    true
+else
+    BUILD_EIGEN=true
+fi
+
 for mod in $MODULES; do
     case $mod in
        boost) echo "Force build boost"
@@ -143,6 +190,18 @@ for mod in $MODULES; do
        libsigcpp) echo "Force build libsigcpp"
        BUILD_LIBSIGCPP=true
        ;;
+       gemmi) echo "Force build gemmi"
+       BUILD_GEMMI=true
+       ;;
+       maeparser) echo "Force build maeparser"
+       BUILD_MAEPARSER=true
+       ;;
+       coordgen) echo "Force build coordgen"
+       BUILD_COORDGEN=true
+       ;;
+       eigen) echo "Force build eigen"
+       BUILD_EIGEN=true
+       ;;
     esac
 done
 
@@ -151,6 +210,10 @@ echo "BUILD_BOOST     " $BUILD_BOOST
 echo "BUILD_RDKIT     " $BUILD_RDKIT
 echo "BUILD_GRAPHENE  " $BUILD_GRAPHENE
 echo "BUILD_LIBSIGCPP " $BUILD_LIBSIGCPP
+echo "BUILD_GEMMI     " $BUILD_GEMMI
+echo "BUILD_MAEPARSER " $BUILD_MAEPARSER
+echo "BUILD_COORDGEN  " $BUILD_COORDGEN
+echo "BUILD_EIGEN     " $BUILD_EIGEN
 
 #Boost
 #boost with cmake
@@ -169,15 +232,76 @@ if [ $BUILD_BOOST = true ]; then
     emmake make install || fail "Failed to build and install boost"
 fi
 
+BOOST_CMAKE_STUFF=`for i in ${INSTALL_DIR}/lib/cmake/boost*; do j=${i%-static}; k=${j%-$boost_release}; l=${k#${INSTALL_DIR}/lib/cmake/boost_}; echo -Dboost_${l}_DIR=$i; done`
+
+# Eigen (header-only; plain cmake installs headers + cmake config files)
+if [ $BUILD_EIGEN = true ]; then
+    geteigen
+    mkdir -p ${DEPENDENCY_BUILD_DIR}/eigen_build &&\
+    cd ${DEPENDENCY_BUILD_DIR}/eigen_build &&\
+    emcmake cmake -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} \
+          -DEIGEN_BUILD_DOC=OFF \
+          -DEIGEN_BUILD_TESTING=OFF \
+          ${DEPENDENCY_DIR}/eigen-$eigen_release &&\
+    emmake make -j ${NUMPROCS} &&\
+    emmake make install || fail "Failed to install Eigen"
+fi
+
+#Maeparser
+if [ $BUILD_MAEPARSER = true ]; then
+    getmaeparser
+    mkdir -p ${DEPENDENCY_BUILD_DIR}/maeparser_build &&\
+    cd ${DEPENDENCY_BUILD_DIR}/maeparser_build &&\
+    emcmake cmake -DCMAKE_EXE_LINKER_FLAGS="${LHASA_CMAKE_FLAGS}" \
+        -DBoost_DIR=${INSTALL_DIR}/lib/cmake/Boost-$boost_release \
+        -DBoost_INCLUDE_DIR=${INSTALL_DIR}/include \
+        ${BOOST_CMAKE_STUFF} \
+        -DBoost_USE_STATIC_LIBS=ON \
+        -DBoost_USE_STATIC_RUNTIME=ON \
+        -DMAEPARSER_BUILD_TESTS=OFF \
+        -DMAEPARSER_BUILD_SHARED_LIBS=OFF \
+        -DCMAKE_C_FLAGS="${LHASA_CMAKE_FLAGS}"\
+        -DCMAKE_CXX_FLAGS="${LHASA_CMAKE_FLAGS}" \
+        -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} ${DEPENDENCY_DIR}/maeparser-$maeparser_release/ &&\
+    emmake make -j ${NUMPROCS} &&\
+    emmake make install || fail "Failed to build and install maeparser"
+fi
+
+# Coordgen
+if [ $BUILD_COORDGEN = true ]; then
+    getcoordgen
+    mkdir -p ${DEPENDENCY_BUILD_DIR}/coordgen_build &&\
+    cd ${DEPENDENCY_BUILD_DIR}/coordgen_build &&\
+    emcmake cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+        -DCMAKE_EXE_LINKER_FLAGS="${LHASA_CMAKE_FLAGS}" \
+        -DBoost_DIR=${INSTALL_DIR}/lib/cmake/Boost-$boost_release \
+        -DBoost_INCLUDE_DIR=${INSTALL_DIR}/include \
+        ${BOOST_CMAKE_STUFF} \
+        -DBoost_USE_STATIC_LIBS=ON \
+        -DBoost_USE_STATIC_RUNTIME=ON \
+        -DCOORDGEN_BUILD_SHARED_LIBS=OFF \
+        -DCOORDGEN_BUILD_TESTS=OFF \
+        -DCOORDGEN_BUILD_EXAMPLE=OFF \
+        -DCOORDGEN_USE_MAEPARSER=ON \
+        -DCOORDGEN_RIGOROUS_BUILD=OFF \
+        -Dmaeparser_INCLUDE_DIRS=${INSTALL_DIR}/include \
+        -Dmaeparser_LIBRARIES=${INSTALL_DIR}/lib \
+        -Dmaeparser_DIR=${INSTALL_DIR} \
+        -DCMAKE_C_FLAGS="${LHASA_CMAKE_FLAGS}"\
+        -DCMAKE_CXX_FLAGS="${LHASA_CMAKE_FLAGS}" \
+        -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} ${DEPENDENCY_DIR}/coordgenlibs-$coordgen_release/ &&\
+    emmake make -j ${NUMPROCS} &&\
+    emmake make install || fail "Failed to build and install coordgen"
+fi
+
 #RDKit
 if [ $BUILD_RDKIT = true ]; then
     getrdkit
-    BOOST_CMAKE_STUFF=`for i in ${INSTALL_DIR}/lib/cmake/boost*; do j=${i%-static}; k=${j%-$boost_release}; l=${k#${INSTALL_DIR}/lib/cmake/boost_}; echo -Dboost_${l}_DIR=$i; done`
-    # echo BOOST_CMAKE_STUFF: $BOOST_CMAKE_STUFF
     mkdir -p ${DEPENDENCY_BUILD_DIR}/rdkit_build &&\
     cd ${DEPENDENCY_BUILD_DIR}/rdkit_build &&\
     emcmake cmake -DBoost_DIR=${INSTALL_DIR}/lib/cmake/Boost-$boost_release \
                   ${BOOST_CMAKE_STUFF} \
+                  -DEigen3_DIR=${INSTALL_DIR}/share/eigen3/cmake \
                   -DRDK_BUILD_PYTHON_WRAPPERS=OFF \
                   -DRDK_INSTALL_STATIC_LIBS=ON \
                   -DRDK_INSTALL_INTREE=OFF \
@@ -192,6 +316,12 @@ if [ $BUILD_RDKIT = true ]; then
                   -DBoost_USE_STATIC_LIBS=ON \
                   -DBoost_USE_STATIC_RUNTIME=ON \
                   -DBoost_DEBUG=TRUE \
+                  -Dmaeparser_INCLUDE_DIRS=${INSTALL_DIR}/include \
+                  -Dmaeparser_LIBRARIES=${INSTALL_DIR}/lib \
+                  -Dmaeparser_DIR=${INSTALL_DIR} \
+                  -Dcoordgen_INCLUDE_DIRS=${INSTALL_DIR}/include \
+                  -Dcoordgen_LIBRARIES=${INSTALL_DIR}/lib \
+                  -Dcoordgen_DIR=${INSTALL_DIR} \
                   -DCMAKE_CXX_FLAGS="${LHASA_CMAKE_FLAGS} -fwasm-exceptions -D_HAS_AUTO_PTR_ETC=0" \
                   -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} ${DEPENDENCY_DIR}/rdkit-$rdkit_release \
                   -DRDK_OPTIMIZE_POPCNT=OFF \
@@ -280,6 +410,18 @@ if [ $BUILD_LIBSIGCPP = true ]; then
     
 fi
 
+#gemmi
+if [ $BUILD_GEMMI = true ]; then
+    getgemmi
+    mkdir -p ${DEPENDENCY_BUILD_DIR}/gemmi_build &&\
+    cd ${DEPENDENCY_BUILD_DIR}/gemmi_build &&\
+    emcmake cmake -DCMAKE_EXE_LINKER_FLAGS="${LHASA_CMAKE_FLAGS}" \
+        -DCMAKE_C_FLAGS="${LHASA_CMAKE_FLAGS}"\
+        -DCMAKE_CXX_FLAGS="${LHASA_CMAKE_FLAGS}" \
+        -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} ${DEPENDENCY_DIR}/gemmi-$gemmi_release/ &&\
+    emmake make -j ${NUMPROCS} &&\
+    emmake make install || fail "Failed to build and install gemmi"
+fi
 
 setcolor cyan
 echo "Done building dependencies."

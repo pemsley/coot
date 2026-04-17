@@ -426,6 +426,14 @@ bool CootLigandEditorCanvas::get_allow_invalid_molecules() noexcept {
     return coot_ligand_editor_canvas_get_allow_invalid_molecules(this);
 }
 
+void CootLigandEditorCanvas::set_coordgen_mode_enabled(bool value) noexcept {
+    coot_ligand_editor_canvas_set_coordgen_mode_enabled(this, value);
+}
+
+bool CootLigandEditorCanvas::get_coordgen_mode_enabled() noexcept {
+    return coot_ligand_editor_canvas_get_coordgen_mode_enabled(this);
+}
+
 coot::ligand_editor_canvas::DisplayMode CootLigandEditorCanvas::get_display_mode() noexcept {
     return coot_ligand_editor_canvas_get_display_mode(this);
 }
