@@ -732,7 +732,8 @@ void fetch_emdb_map(const std::string &emd_accession_code) {
 
    std::string label_str = "Downloading map for " + emd_accession_code + " from EMDB...";
    ProgressBarPopUp popup("Coot: Downloading Map", label_str);
-   std::thread worker([=](ProgressBarPopUp&& pp){
+
+   std::thread worker([=](ProgressBarPopUp&& pp) {
 
       std::shared_ptr<ProgressBarPopUp> popup = std::make_shared<ProgressBarPopUp>(std::move(pp));
       int status = coot_get_url_with_notifier(map_gz_url, gz_fn, ProgressNotifier(popup));
@@ -813,7 +814,7 @@ void fetch_emdb_map(const std::string &emd_accession_code) {
       }
       delete [] uncomp;
 
-      g_info("The downloaded file has been successfully decompressed. Writing it down...");
+      g_info("The downloaded file has been successfully uncompressed. Writing it down...");
       std::ofstream out(fn);
       out << ss.str();
       out.close();

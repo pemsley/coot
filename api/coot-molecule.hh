@@ -1447,6 +1447,21 @@ namespace coot {
 								      const user_defined_colour_table_t &udct,
                                                                       const clipper::Xmap<float> &xmap);
 
+      //! Get a map cap mesh (2D cross-section with stitched 3D isosurface walls)
+      simple_mesh_t get_map_cap_mesh(float contour_level,
+                                     const clipper::Coord_orth &base_point,
+                                     const clipper::Coord_orth &x_axis_uv,
+                                     const clipper::Coord_orth &y_axis_uv,
+                                     double x_axis_step_size,
+                                     double y_axis_step_size,
+                                     unsigned int n_x_axis_points,
+                                     unsigned int n_y_axis_points,
+                                     bool use_thread_pool, ctpl::thread_pool *thread_pool_p,
+                                     const clipper::Xmap<float> *other_map_for_colouring_p = nullptr,
+                                     float other_map_for_colouring_min_value = 0.0f,
+                                     float other_map_for_colouring_max_value = 1.0f,
+                                     float radial_map_colour_saturation = 0.5f);
+
       //! map histogram class
       class histogram_info_t {
       public:

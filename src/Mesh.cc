@@ -141,6 +141,7 @@ Mesh::Mesh(const molecular_triangles_mesh_t &mtm) {
 
 Mesh::Mesh(const std::string &name_in, const coot::simple_mesh_t &mesh) {
 
+   init();
    name = name_in;
    vertices.resize(mesh.vertices.size());
    for (unsigned int i = 0; i < mesh.vertices.size(); i++) {
@@ -176,8 +177,10 @@ void Mesh::add_submesh(const std::pair<std::vector<s_generic_vertex>, std::vecto
    for (unsigned int k=tri_base; k<triangles.size(); ++k)
       triangles[k].rebase(idx_base);
 
-   std::cout << "debug:: add_submesh()  pre: " << idx_base << " " << tri_base << std::endl;
-   std::cout << "debug:: add_submesh() post: " << vertices.size() << " " << triangles.size() << std::endl;
+   if (false) {
+      std::cout << "debug:: add_submesh()  pre: " << idx_base << " " << tri_base << std::endl;
+      std::cout << "debug:: add_submesh() post: " << vertices.size() << " " << triangles.size() << std::endl;
+   }
 
 }
 
