@@ -1,4 +1,179 @@
 
+  Release Notes for 1.3
+
+Graphics
+
+ o FEATURE: Map caps ("sliced apple" view): a 2D coloured
+            cross-section of the electron density on a clipping
+            plane, stitched seamlessly to the trimmed 3D isosurface
+            behind the plane
+
+ o FEATURE: Map cap logic refactored into coot-utils so that
+            coot_headless_api, chapi, Moorhen and Blender can
+            produce map cap meshes
+
+ o CHANGE:  MoleculesToTriangles meshes now use material-based
+            lighting
+
+ o CHANGE:  Default material tweaked: ambient raised from 0.1 to
+            0.2 and diffuse lowered from 1.0 to 0.5, giving softer
+            highlights and less blown-out surfaces for objects that
+            don't set their own material
+
+ o BUG-FIX: Fix the colour rotation of the difference map negative
+            level
+
+ o BUG-FIX: Fix the residue-number colour ramp for
+            colorRampChainsScheme: the ramp range now uses only
+            amino-acid residues (waters and other heteros were
+            skewing the min/max), each chain gets its own ramp
+            colour scheme, and the HSV saturation is bumped from
+            0.4 to 0.6 for more vivid rainbow chains. Problem seen
+            in 4zzn.
+
+ o BUG-FIX: Screenshot resolution now uses framebuffer_scale
+            instead of a hardcoded 2x
+
+ o BUG-FIX: Map cap sampling index fix in make_map_cap()
+
+Modelling
+
+ o FEATURE: Molecular Replacement pipeline for cryo-EM maps,
+            integrated into the Coot GUI
+
+ o FEATURE: hiranuma_inversion() added - converts the pLDDT scores
+            (0-100 confidence values) that AlphaFold stores in the
+            B-factor column of its predicted models into physically
+            meaningful isotropic B-factors, so that AlphaFold models
+            can be used with refinement, density-scoring and
+            validation tools that expect real B-factors. The
+            conversion uses the Hiranuma inversion:
+               rmsd = 1.5 * exp(4.0 * (0.7 - pLDDT/100))
+               B    = (8 pi^2 / 3) * rmsd^2
+
+ o FEATURE: NCS Ligand user interface added; ncs_ligand moved
+            from old/gtk+2 scripting into C++
+
+ o BUG-FIX: Restraints lock now acquired when updating NBCs in
+            minimize()
+
+ o BUG-FIX: Atom indexing error fixed in
+            update_extra_restraints_representation_geman_mcclure()
+
+ o BUG-FIX: ncs_ligands() behaviour fixed
+
+ o BUG-FIX: For ramp_chains, the polymer range is now known
+
+Validation
+
+ o FEATURE: NCS validation graph enabled
+
+ o CHANGE:  distortion_bond_mini_stats() and
+            distortion_angle_mini_stats() now also calculate nZ,
+            the normalised z-score of the deviation from the
+            target value (deviation / sigma). This makes it
+            straightforward to flag bonds and angles whose
+            geometry is statistically unusual, independent of
+            their absolute size.
+
+Ligands / Lhasa / Layla
+
+ o FEATURE: Coordgen support in Lhasa/Layla with on/off toggle
+            in the Layla UI and API
+
+ o FEATURE: Lhasa extended IO: import and export for various
+            data formats
+
+ o FEATURE: Lhasa can now read and write RDKit pickles
+
+ o FEATURE: Gemmi linking for Lhasa
+
+ o CHANGE:  SVG output now has width and height before the
+            viewBox
+
+ o CHANGE:  Compile guards so Lhasa/Layla still compile when
+            RDKit has no Coordgen support
+
+ o BUG-FIX: Fix rotation and overall jankiness in coordgen mode
+
+ o BUG-FIX: coordgen error no longer printed when there is no
+            coordgen support in RDKit
+
+Maps
+
+ o FEATURE: rebox_map() and apply_translation_to_molecule() added
+            to the API
+
+ o BUG-FIX: Fix the download directory for maps
+
+Scripting and Automation/MCP
+
+ o FEATURE: VTE terminal as a replacement for the Python entry,
+            with coot_vte_repl.py
+
+ o FEATURE: Servalcat outliers JSON input
+            (servalcat_outliers_json_for_coot.py)
+
+ o BUG-FIX: Prevent double-running of startup scripts
+
+ o CHANGE:  new_startup functions renamed to startup
+
+User Interface
+
+ o FEATURE: Aniso and H-atom filtering in the Save Coordinates
+            dialog
+
+ o FEATURE: "Edit -> Residue info": "Apply occupancy to atom with
+            alt conformation" checkbox restored
+
+ o BUG-FIX: Fix crash in display control delete button
+
+ o BUG-FIX: Widget protection in
+            on_display_control_delete_molecule_button_clicked()
+
+ o BUG-FIX: Fix TER atom counting in AMBER trajectory processing
+            [eunos-1128]
+
+ o BUG-FIX: Fix names of the entries in the NCS ligands frame
+
+API
+
+ o FEATURE: get_map_cap_mesh() on molecule_t and
+            molecules_container_t, for headless map cap rendering
+
+ o FEATURE: rebox_map() and apply_translation_to_molecule()
+
+ o CHANGE:  render function made const
+
+Build
+
+ o CHANGE:  Eigen3 is now required at configure time
+
+ o CHANGE:  GSL autobuild install now links against libcblas so
+            that libgsl.so carries DT_NEEDED libcblas (or
+            libgslcblas) — eliminates the --as-needed cblas_*
+            undefined-reference failure
+
+ o BUG-FIX: Add Eigen3 include flags to RDKit flags via
+            pkg-config
+
+ o BUG-FIX: Use CMake for RDKit in Lhasa; pre-install Eigen for
+            Lhasa
+
+ o BUG-FIX: Fix nanobind resolution for venvs
+
+ o BUG-FIX: Fix nanobind find_package broken without
+            -Dnanobind_DIR
+
+ o BUG-FIX: Fix linking of maeparser and libexpat
+
+ o BUG-FIX: Fix non-/usr-based Chapi build
+
+ o BUG-FIX: Add algorithm include for rebox-map.cc
+
+ o BUG-FIX: Bump the internal version number to 1.2.x-pre
+
+
   Release Notes for 1.2
 
 Graphics
