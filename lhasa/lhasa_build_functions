@@ -37,12 +37,14 @@ fail() {
 # Cmake build dir for Lhasa itself
 : "${LHASA_CMAKE_BUILD_DIR:=${LHASA_MAIN_DIR}/lhbuild}"
 
-if [ x`uname -s` = x"Darwin" ]; then
-    NUMPROCS=`sysctl -n hw.ncpu`
-else
-    NUMPROCS=`nproc --all`
+if [ -z "$NUMPROCS" ]; then
+  if [ x`uname -s` = x"Darwin" ]; then
+      NUMPROCS=`sysctl -n hw.ncpu`
+  else
+      NUMPROCS=`nproc --all`
+  fi
 fi
-
+  
 cdcheckout() {
     mkdir -p "$DEPENDENCY_DIR" &&\
     cd "$DEPENDENCY_DIR" || fail "Failed to enter/setup the directory withd dependencies."
