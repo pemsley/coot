@@ -28,6 +28,8 @@ list(APPEND CMAKE_PREFIX_PATH ${CMAKE_INSTALL_PREFIX})
 set(RDKit_DIR ${CMAKE_INSTALL_PREFIX}/lib/cmake/rdkit)
 set(Eigen3_DIR ${CMAKE_INSTALL_PREFIX}/share/eigen3/cmake)
 
+# Resolving Boost is a fucking shit-show
+
 # Pre-find Boost in config mode; required because rdkit-config.cmake calls find_dependency(Boost)
 # and CMake 4.x removed the legacy FindBoost module (CMP0167)
 # Collect all versioned Boost cmake config dirs (e.g. lib/cmake/Boost-1.89.0) into a list
@@ -39,10 +41,14 @@ list(GET _boost_cmake_dirs 0 Boost_DIR)
 # these from HINTS alone, so we pre-populate each boost_<comp>_DIR from the installed layout.
 file(GLOB _boost_comp_dirs "${CMAKE_INSTALL_PREFIX}/lib/cmake/boost_*")
 foreach(_dir IN LISTS _boost_comp_dirs)
+    # Extract the directory name (e.g. "boost_headers-1.89.0") from the full path
     get_filename_component(_comp_ver "${_dir}" NAME)
+    # Strip the version suffix to get the cmake package name (e.g. "boost_headers")
     string(REGEX REPLACE "-[0-9]+\\..*" "" _comp "${_comp_ver}")
+    # Set boost_<comp>_DIR so find_package(boost_<comp>) resolves without searching
     set(${_comp}_DIR "${_dir}" CACHE PATH "" FORCE)
 endforeach()
+
 find_package(Boost CONFIG REQUIRED COMPONENTS iostreams serialization)
 find_package(RDKit REQUIRED)
 find_package(Eigen3 REQUIRED)
