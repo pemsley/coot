@@ -34,6 +34,7 @@ get_all_sources() {
     getgemmi
     getmaeparser
     getcoordgen
+    geteigen
 }
 
 get_all_sources

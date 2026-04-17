@@ -80,6 +80,11 @@ else
                rm -rf ${INSTALL_DIR}/include/coordgen
                rm -rf ${INSTALL_DIR}/lib/libcoordgen.a
                ;;
+           eigen) echo "Clear eigen"
+               rm -rf ${DEPENDENCY_BUILD_DIR}/eigen_build
+               rm -rf ${INSTALL_DIR}/include/eigen3
+               rm -rf ${INSTALL_DIR}/share/eigen3
+               ;;
            *) echo "Unknown module $mod to clear. Ignoring." ;;
         esac
         done
@@ -120,6 +125,7 @@ BUILD_LIBSIGCPP=false
 BUILD_GEMMI=false
 BUILD_MAEPARSER=false
 BUILD_COORDGEN=false
+BUILD_EIGEN=false
 
 
 if test -d ${INSTALL_DIR}/include/boost; then
@@ -164,6 +170,12 @@ else
     BUILD_MAEPARSER=true
 fi
 
+if test -d ${INSTALL_DIR}/include/eigen3; then
+    true
+else
+    BUILD_EIGEN=true
+fi
+
 for mod in $MODULES; do
     case $mod in
        boost) echo "Force build boost"
@@ -187,6 +199,9 @@ for mod in $MODULES; do
        coordgen) echo "Force build coordgen"
        BUILD_COORDGEN=true
        ;;
+       eigen) echo "Force build eigen"
+       BUILD_EIGEN=true
+       ;;
     esac
 done
 
@@ -198,6 +213,7 @@ echo "BUILD_LIBSIGCPP " $BUILD_LIBSIGCPP
 echo "BUILD_GEMMI     " $BUILD_GEMMI
 echo "BUILD_MAEPARSER " $BUILD_MAEPARSER
 echo "BUILD_COORDGEN  " $BUILD_COORDGEN
+echo "BUILD_EIGEN     " $BUILD_EIGEN
 
 #Boost
 #boost with cmake
@@ -217,6 +233,19 @@ if [ $BUILD_BOOST = true ]; then
 fi
 
 BOOST_CMAKE_STUFF=`for i in ${INSTALL_DIR}/lib/cmake/boost*; do j=${i%-static}; k=${j%-$boost_release}; l=${k#${INSTALL_DIR}/lib/cmake/boost_}; echo -Dboost_${l}_DIR=$i; done`
+
+# Eigen (header-only; plain cmake installs headers + cmake config files)
+if [ $BUILD_EIGEN = true ]; then
+    geteigen
+    mkdir -p ${DEPENDENCY_BUILD_DIR}/eigen_build &&\
+    cd ${DEPENDENCY_BUILD_DIR}/eigen_build &&\
+    emcmake cmake -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} \
+          -DEIGEN_BUILD_DOC=OFF \
+          -DEIGEN_BUILD_TESTING=OFF \
+          ${DEPENDENCY_DIR}/eigen-$eigen_release &&\
+    emmake make -j ${NUMPROCS} &&\
+    emmake make install || fail "Failed to install Eigen"
+fi
 
 #Maeparser
 if [ $BUILD_MAEPARSER = true ]; then
@@ -272,6 +301,7 @@ if [ $BUILD_RDKIT = true ]; then
     cd ${DEPENDENCY_BUILD_DIR}/rdkit_build &&\
     emcmake cmake -DBoost_DIR=${INSTALL_DIR}/lib/cmake/Boost-$boost_release \
                   ${BOOST_CMAKE_STUFF} \
+                  -DEigen3_DIR=${INSTALL_DIR}/share/eigen3/cmake \
                   -DRDK_BUILD_PYTHON_WRAPPERS=OFF \
                   -DRDK_INSTALL_STATIC_LIBS=ON \
                   -DRDK_INSTALL_INTREE=OFF \
