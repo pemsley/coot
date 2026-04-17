@@ -25,8 +25,6 @@ include_directories(${CMAKE_INSTALL_PREFIX}/include)
 # Stored in the cache so it propagates into find_package() calls inside dependency config files.
 list(APPEND CMAKE_PREFIX_PATH ${CMAKE_INSTALL_PREFIX})
 
-# Re-set as a cache variable so the updated path is visible inside config files that call find_package() themselves (e.g. BoostConfig.cmake finding boost_headers)
-set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH}" CACHE STRING "" FORCE)
 set(RDKit_DIR ${CMAKE_INSTALL_PREFIX}/lib/cmake/rdkit)
 set(Eigen3_DIR ${CMAKE_INSTALL_PREFIX}/share/eigen3/cmake)
 
