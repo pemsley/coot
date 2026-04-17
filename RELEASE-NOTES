@@ -34,8 +34,6 @@ Graphics
  o BUG-FIX: Screenshot resolution now uses framebuffer_scale
             instead of a hardcoded 2x
 
- o BUG-FIX: Map cap sampling index fix in make_map_cap()
-
 Modelling
 
  o FEATURE: Molecular Replacement pipeline for cryo-EM maps,
@@ -149,13 +147,13 @@ Build
 
  o CHANGE:  Eigen3 is now required at configure time
 
+ o BUG-FIX: Add Eigen3 include flags to RDKit flags via
+            pkg-config
+
  o CHANGE:  GSL autobuild install now links against libcblas so
             that libgsl.so carries DT_NEEDED libcblas (or
             libgslcblas) — eliminates the --as-needed cblas_*
             undefined-reference failure
-
- o BUG-FIX: Add Eigen3 include flags to RDKit flags via
-            pkg-config
 
  o BUG-FIX: Use CMake for RDKit in Lhasa; pre-install Eigen for
             Lhasa
@@ -169,10 +167,7 @@ Build
 
  o BUG-FIX: Fix non-/usr-based Chapi build
 
- o BUG-FIX: Add algorithm include for rebox-map.cc
-
- o BUG-FIX: Bump the internal version number to 1.2.x-pre
-
+-----
 
   Release Notes for 1.2
 
