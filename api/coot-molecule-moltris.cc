@@ -389,7 +389,7 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
                   mmdb::Residue *residue_p = chain_p->GetResidue(ires);
                   if (residue_p) {
                      int res_no = residue_p->GetSeqNum();
-                     if (residue_p->isAminoacid()) {
+                     if (! residue_p->isSolvent()) {
                         if (res_no > resno_max) resno_max = res_no;
                         if (res_no < resno_min) resno_min = res_no;
                      }
@@ -403,7 +403,41 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
       return ci;
    };
 
-   auto ramp_chains = [get_chains_in_selection,
+   auto get_polymer_chains_in_selection = [] (std::shared_ptr<MyMolecule> my_mol,
+                                              const std::string &atom_selection_str) {
+      std::vector<chain_info_t> ci;
+      MyMolecule *mm = my_mol.get();
+      mmdb::Manager *mol = my_mol.get()->mmdb;
+
+      int imod = 1;
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int n_res = chain_p->GetNumberOfResidues();
+            int resno_max = -999999;
+            int resno_min = 999999;
+            if (n_res > 0) {
+               for (int ires=0; ires<n_res; ires++) {
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                  if (residue_p) {
+                     int res_no = residue_p->GetSeqNum();
+                     if (residue_p->isAminoacid() || residue_p->isNucleotide()) {
+                        if (res_no > resno_max) resno_max = res_no;
+                        if (res_no < resno_min) resno_min = res_no;
+                     }
+                  }
+               }
+            }
+            ci.push_back(chain_info_t(chain_p, resno_min, resno_max));
+         }
+      }
+
+      return ci;
+   };
+
+   auto ramp_chains = [get_polymer_chains_in_selection,
                        molecular_representation_instance_to_mesh]
       (std::shared_ptr<MyMolecule> my_mol,
        const std::string &atom_selection_str,
@@ -413,7 +447,7 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
 
       coot::simple_mesh_t mesh;
 
-      std::vector<chain_info_t> ci = get_chains_in_selection(my_mol, atom_selection_str);
+      std::vector<chain_info_t> ci = get_polymer_chains_in_selection(my_mol, atom_selection_str);
 
       for (const auto &ch : ci) {
 
