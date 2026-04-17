@@ -84,19 +84,6 @@
 
 #include <gtk/gtk.h>
 
-#ifndef BEGIN_C_DECLS
-
-#ifdef __cplusplus
-#define BEGIN_C_DECLS extern "C" {
-#define END_C_DECLS }
-
-#else
-#define BEGIN_C_DECLS
-#define END_C_DECLS
-#endif
-#endif /* BEGIN_C_DECLS */
-
-BEGIN_C_DECLS
 
 
 #define COOT_SCHEME_DIR "COOT_SCHEME_DIR"
@@ -7801,4 +7788,3 @@ void user_defined_click_py(int n_clicks, PyObject *func);
 /*! \} */
 
 #endif /* C_INTERFACE_H */
-END_C_DECLS

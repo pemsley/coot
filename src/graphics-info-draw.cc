@@ -1521,7 +1521,7 @@ graphics_info_t::draw_intermediate_atoms_pull_restraint_neighbour_displacement_m
          glm::mat4 mvp = proj * view * trans;
          glm::mat4 model_rotation = get_model_rotation();
          bool use_model_rotation = false;
-         std::cout << "DEBUG:: calling lines_mesh_for_pull_restraint_neighbhour_displacement_max_radius_ring draw()" << std::endl;
+         // std::cout << "DEBUG:: calling lines_mesh_for_pull_restraint_neighbhour_displacement_max_radius_ring draw()" << std::endl;
          lines_mesh_for_pull_restraint_neighbour_displacement_max_radius_ring.draw(&shader_for_lines,
                                                                                    rc, mvp,
                                                                                    model_rotation,
@@ -2413,7 +2413,7 @@ graphics_info_t::draw_meshed_generic_display_object_meshes(stereo_eye_t eye, uns
 void
 graphics_info_t::draw_molecules_other_meshes(stereo_eye_t eye, unsigned int pass_type) {
 
-   // std::cout << "debug:: draw_molecules_other_meshes() ---start--- " << pass_type << std::endl;
+   // std::cout << "debug:: draw_molecules_other_meshes() ---start--- pass-type: " << pass_type << std::endl;
 
    // This function doesn't draw these
    // graphics_info_t::draw_instanced_meshes() A Molecule 2: Ligand Contact Dots H-bond
@@ -2457,7 +2457,9 @@ graphics_info_t::draw_molecules_other_meshes(stereo_eye_t eye, unsigned int pass
          }
       }
 
-      // std::cout << "in draw_meshed_generic_display_object_meshes() with have_meshes_to_draw " << have_meshes_to_draw << std::endl;
+      if (false)
+         std::cout << "in draw_meshed_generic_display_object_meshes() with have_meshes_to_draw "
+                   << have_meshes_to_draw << std::endl;
 
       if (have_meshes_to_draw) {
 
@@ -2465,7 +2467,10 @@ graphics_info_t::draw_molecules_other_meshes(stereo_eye_t eye, unsigned int pass
          for (int ii=n_molecules()-1; ii>=0; ii--) {
 
             molecule_class_info_t &m = molecules[ii]; // not const because the shader changes
-            if (! is_valid_model_molecule(ii)) continue;
+
+            // 20260414-PE why was this test here? Maps can have map cap objects
+            // if (! is_valid_model_molecule(ii)) continue;
+
             for (unsigned int jj=0; jj<m.meshes.size(); jj++) {
 
                Mesh &mesh = m.meshes[jj];

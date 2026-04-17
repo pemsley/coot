@@ -472,6 +472,10 @@
             <attribute name="label">Copy NCS Chain...</attribute>
             <attribute name="action">app.copy_ncs_chain_action</attribute>
           </item>
+          <item>
+            <attribute name="label">Find NCS Ligands...</attribute>
+            <attribute name="action">app.ncs_ligands_action</attribute>
+          </item>
           <!-- <item> -->
           <!--   <attribute name="label">Copy NCS Ghosts by Residue Range...</attribute> -->
           <!--   <attribute name="action">app.copy_ncs_ghosts_by_residue_range_action</attribute> -->
@@ -6740,7 +6744,7 @@ Do you want to continue?
                       </child>
                     </object>
                   </child>
-                  <signal name="clicked" handler="reset_view" swapped="no"/>
+                  <signal name="clicked" handler="on_reset_view_clicked" swapped="no"/>
                   <!-- <child> -->
                   <!--   <object class="GtkImage"> -->
                   <!--     <property name="icon-name">"reset-view.png"</property> -->
@@ -7487,6 +7491,163 @@ Do you want to continue?
                             <property name="margin-end">10</property>
                             <property name="margin-top">4</property>
                             <property name="margin-bottom">10</property>
+                            <style>
+                              <class name="suggested-action"/>
+                            </style>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+
+            <child type="overlay">
+              <object class="GtkFrame" id="ncs-ligand-frame">
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="visible">False</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">5</property>
+                <child>
+                  <object class="GtkBox" id="ncs_ligand_vbox">
+                    <property name="orientation">vertical</property>
+
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label">Protein with NCS</property>
+                        <property name="margin-end">6</property>
+                        <property name="margin-start">6</property>
+                        <property name="halign">start</property>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkComboBoxText" id="ncs-ligand-protein-comboboxtext">
+                        <property name="margin-start">8</property>
+                        <property name="margin-end">8</property>
+                        <property name="margin-top">4</property>
+                        <property name="margin-bottom">4</property>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkBox" id="ncs-ligand-master-chain-vbox">
+                        <property name="orientation">horizontal</property>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="label" translatable="yes">NCS Master Chain ID: </property>
+                            <property name="justify">center</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkEntry" id="ncs-ligand-master-chain-id-entry">
+                            <property name="width-request">5</property>
+                            <property name="can-focus">1</property>
+                            <!-- I looked to see if the master chain id could be set programatically, -->
+                            <!-- but it looked more tricky to do so that I had hoped. -->
+                            <property name="text">A</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label" translatable="yes">Molecule Containing Ligand</property>
+                        <property name="halign">start</property>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkComboBoxText" id="ncs-ligand-ligand-mol-comboboxtext">
+                        <property name="margin-start">8</property>
+                        <property name="margin-end">8</property>
+                        <property name="margin-top">4</property>
+                        <property name="margin-bottom">4</property>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkBox" id="vbox_ligand-specs">
+                        <property name="orientation">horizontal</property>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="label" translatable="yes">Chain ID: </property>
+                            <property name="justify">center</property>
+                          </object>
+                        </child>
+
+                        <child>
+                          <object class="GtkEntry" id="ncs-ligand-chain-id-entry">
+                            <property name="width-request">3</property>
+                            <property name="can-focus">1</property>
+                            <property name="text">A</property>
+                          </object>
+                        </child>
+
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="label" translatable="yes">Residue Number </property>
+                            <property name="justify">center</property>
+                          </object>
+                        </child>
+
+                        <child>
+                          <object class="GtkEntry" id="ncs-ligand-resno-start-entry">
+                            <property name="width-request">4</property>
+                            <property name="can-focus">1</property>
+                            <property name="text">1</property>
+                          </object>
+                        </child>
+
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="label" translatable="yes"> to </property>
+                            <property name="justify">center</property>
+                          </object>
+                        </child>
+
+                        <child>
+                          <object class="GtkEntry" id="ncs-ligand-resno-end-entry">
+                            <property name="width-request">4</property>
+                            <property name="can-focus">1</property>
+                            <property name="text">1</property>
+                          </object>
+                        </child>
+
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkSeparator">
+                        <property name="margin-top">10</property>
+                        <property name="margin-bottom">10</property>
+                        <property name="margin-start">6</property>
+                        <property name="margin-end">6</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox" id="ncs-ligand-buttons-vbox">
+                        <property name="orientation">horizontal</property>
+                        <property name="halign">end</property>
+                        <child>
+                          <object class="GtkButton" id="ncs-ligand-cancel-button">
+                            <property name="label">Cancel</property>
+                            <property name="margin-start">4</property>
+                            <property name="margin-end">4</property>
+                            <signal name="clicked" handler="on_find_ncs_ligands_cancel_button_clicked" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="ncs-ligand-go-button">
+                            <property name="label">Find Candidates</property>
+                            <property name="margin-start">4</property>
+                            <property name="margin-end">4</property>
+                            <signal name="clicked" handler="on_find_ncs_ligands_ok_button_clicked" swapped="no"/>
                             <style>
                               <class name="suggested-action"/>
                             </style>

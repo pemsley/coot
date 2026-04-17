@@ -793,7 +793,7 @@ libcootsumo_la_SOURCES = \
 	rail-points.hh           \
         read-molecule.hh         \
 	read-phs.h		 \
-	read-phs.c		 \
+	read-phs.cc		 \
 	read-cif.h		 \
 	read-cif.cc		 \
 	rama_mousey.cc		 \

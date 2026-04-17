@@ -25,9 +25,11 @@
  */
 
 #include "cc-interface.hh"
+#include "clipper/core/coords.h"
 #include "graphics-info.h"
 #include "coot-utils/json.hpp"
 #include "geometry/residue-and-atom-specs.hh"
+#include "gtk/gtk.h"
 
 using json = nlohmann::json;
 
@@ -54,12 +56,18 @@ public:
    atom_spec_pair_t(const coot::atom_spec_t &a1, const coot::atom_spec_t &a2) : spec_1(a1), spec_2(a2) {}
 };
 
-void show_interesting_positions_dialog(int imol,
-                                       const std::string &title,
-                                       const std::vector<coot::atom_spec_t> &atom_specs,
-                                       const std::vector<atom_spec_pair_t> &atom_pair_specs,
-                                       const std::vector<coot::residue_spec_t> &residue_specs,
-                                       const std::vector<interesting_position_button_t> &positions) {
+class interesting_positions_section_t {
+public:
+   std::string title;
+   std::vector<coot::atom_spec_t> atom_specs;
+   std::vector<atom_spec_pair_t> atom_spec_pairs;
+   std::vector<coot::residue_spec_t> residue_specs;
+   std::vector<interesting_position_button_t> positions;
+};
+
+void show_interesting_positions_dialog(int imol, const std::string &title, std::vector<interesting_positions_section_t> &interesting_sections) {
+
+   std::cout << "DEBUG:: ---------------- show_interesting_positions_dialog was given " << interesting_sections.size() << " sections" << std::endl;
 
    auto atom_spec_to_position = [] (int imol, const coot::atom_spec_t &atom_spec) {
       bool status = false;
@@ -96,6 +104,7 @@ void show_interesting_positions_dialog(int imol,
    };
 
    auto make_button_label = [] (const std::string &l, float badness) {
+
       if (badness < 0) {
          // unassigned
          return l;
@@ -138,12 +147,21 @@ void show_interesting_positions_dialog(int imol,
    mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
    if (mol == nullptr) return;
 
-   {
+   for (const auto &section : interesting_sections) {
 
-      for (unsigned int i=0; i<atom_specs.size(); i++) {
-         int idx_button_for_this_atom_spec = atom_specs[i].int_user_data;
+      // section label
+      if (!section.title.empty()) {
+         std::string l = "  " + section.title;
+         GtkWidget *label = gtk_label_new(l.c_str());
+         gtk_widget_set_halign(label, GTK_ALIGN_START);
+         button_info_t bi(section.title, clipper::Coord_orth(0,0,0), label);
+         buttons.push_back(bi);
+      }
+
+      for (unsigned int i=0; i<section.atom_specs.size(); i++) {
+         int idx_button_for_this_atom_spec = section.atom_specs[i].int_user_data;
          if (true) {
-            const coot::atom_spec_t &atom_spec = atom_specs[i];
+            const coot::atom_spec_t &atom_spec = section.atom_specs[i];
             const std::string &l = atom_spec.string_user_data;
             std::pair<bool, clipper::Coord_orth> co = atom_spec_to_position(imol, atom_spec);
             if (co.first) {
@@ -157,14 +175,15 @@ void show_interesting_positions_dialog(int imol,
             }
          }
       }
-      for (unsigned int i=0; i<atom_pair_specs.size(); i++) {
-         int idx_button_for_this_atom_spec = atom_pair_specs[i].button_index;
+      for (unsigned int i=0; i<section.atom_spec_pairs.size(); i++) {
+         int idx_button_for_this_atom_spec = section.atom_spec_pairs[i].button_index;
          if (true) {
-            const coot::atom_spec_t &atom_spec_1 = atom_pair_specs[i].spec_1;
-            const coot::atom_spec_t &atom_spec_2 = atom_pair_specs[i].spec_2;
+            const coot::atom_spec_t &atom_spec_1 = section.atom_spec_pairs[i].spec_1;
+            const coot::atom_spec_t &atom_spec_2 = section.atom_spec_pairs[i].spec_2;
             const std::string &l = atom_spec_1.string_user_data;
-            std::cout << "Button for atom spec pair B  " << " " << atom_spec_1 << " "  << atom_spec_2
-                      << " " << l << std::endl;
+            if (false)
+               std::cout << "Button for atom spec pair B  " << " " << atom_spec_1 << " "  << atom_spec_2
+                         << " " << l << std::endl;
             std::pair<bool, clipper::Coord_orth> co_1 = atom_spec_to_position(imol, atom_spec_1);
             std::pair<bool, clipper::Coord_orth> co_2 = atom_spec_to_position(imol, atom_spec_2);
             if (co_1.first) {
@@ -179,16 +198,15 @@ void show_interesting_positions_dialog(int imol,
             }
          }
       }
-      for (unsigned int i=0; i<residue_specs.size(); i++) {
+      for (unsigned int i=0; i<section.residue_specs.size(); i++) {
          if (true) {
-            const coot::residue_spec_t &res_spec = residue_specs[i];
-            std::cout << "handling residue spec B " << i << " " << res_spec << std::endl;
+            const coot::residue_spec_t &res_spec = section.residue_specs[i];
             const std::string &l = res_spec.string_user_data;
             std::pair<bool, clipper::Coord_orth> co = coot::util::get_residue_mid_point(mol, res_spec);
-            std::cout << "debug:: res_spec " << res_spec << " midpoint " << co.first << " " << co.second.format()
-                      << std::endl;
+            if (false)
+               std::cout << "debug:: res_spec " << res_spec << " midpoint " << co.first << " " << co.second.format()
+                         << std::endl;
             if (co.first) {
-               std::cout << "handling residue spec C " << std::endl;
                float badness = -1; // as yet unassigned
                if (res_spec.int_user_data == 1) {
                   badness = res_spec.float_user_data;
@@ -199,10 +217,10 @@ void show_interesting_positions_dialog(int imol,
             }
          }
       }
-      for (unsigned int i=0; i<positions.size(); i++) {
+      for (unsigned int i=0; i<section.positions.size(); i++) {
          if (true) {
-            const std::string &l = positions[i].label;
-            const coot::Cartesian cc = positions[i].position;
+            const std::string &l = section.positions[i].label;
+            const coot::Cartesian cc = section.positions[i].position;
             clipper::Coord_orth pos(cc.x(), cc.y(), cc.z());
             float badness = -1; // as yet unassigned
             GtkWidget *button = make_button(l, badness, pos);
@@ -246,7 +264,7 @@ void show_interesting_positions_dialog(int imol,
 
 void read_interesting_places_json_file(const std::string &file_name) {
 
-   bool debug = true;
+   bool debug = false;
    if (coot::file_exists(file_name)) {
 
       graphics_info_t g;
@@ -317,6 +335,8 @@ void read_interesting_places_json_file(const std::string &file_name) {
 
          std::string title = "<Title>";
 
+         std::vector<interesting_positions_section_t> sections;
+
          try {
             json j = json::parse(s);
             unsigned int n_outer = j.size();
@@ -332,10 +352,12 @@ void read_interesting_places_json_file(const std::string &file_name) {
                if (debug)
                   std::cout << "here A n_sections " << n_sections << std::endl;
                for (std::size_t i=0; i<n_sections; i++) {
+                  interesting_positions_section_t section;
                   const json &j_section = j_sections[i];
                   std::string section_title;
                   json::const_iterator it_s = j_section.find(std::string("title"));
                   if (it_s != j_section.end()) section_title = it_s.value();
+                  section.title = section_title;
 
                   // now iterate through the items of a section
 
@@ -374,7 +396,7 @@ void read_interesting_places_json_file(const std::string &file_name) {
                                     atom_spec.float_user_data = badness;
                                     atom_spec.int_user_data = 1; // float user data was set
                                  }
-                                 atom_specs.push_back(atom_spec);
+                                 section.atom_specs.push_back(atom_spec);
                               }
                            }
                         }
@@ -411,7 +433,7 @@ void read_interesting_places_json_file(const std::string &file_name) {
                                  atom_spec_pair_t asp(atom_1_spec, atom_2_spec);
                                  asp.label = label;
                                  asp.button_index = i;
-                                 atom_spec_pairs.push_back(asp);
+                                 section.atom_spec_pairs.push_back(asp);
                               }
                            }
                         }
@@ -433,7 +455,7 @@ void read_interesting_places_json_file(const std::string &file_name) {
                                     residue_spec.float_user_data = badness;
                                     residue_spec.int_user_data = 1; // float user data was set
                                  }
-                                 residue_specs.push_back(residue_spec);
+                                 section.residue_specs.push_back(residue_spec);
                               }
                            } else {
                               if (debug)
@@ -457,7 +479,7 @@ void read_interesting_places_json_file(const std::string &file_name) {
                                     atom_spec.float_user_data = badness;
                                     atom_spec.int_user_data = 1; // float user data was set
                                  }
-                                 atom_specs.push_back(atom_spec);
+                                 section.atom_specs.push_back(atom_spec);
                               }
                            }
                         }
@@ -479,12 +501,24 @@ void read_interesting_places_json_file(const std::string &file_name) {
                                  coot::Cartesian c(x,y,z);
                                  // try to find "badness" here?
                                  interesting_position_button_t ipb(c, label, i);
-                                 positions.push_back(ipb);
+                                 section.positions.push_back(ipb);
                               }
                            }
                         }
                      }
                   }
+
+                  if (false) {
+                     std::cout << "debug:: ------ " << std::endl;
+                     std::cout << "debug:: atom_specs " << atom_specs.size() << std::endl;
+                     std::cout << "debug:: atoms-spec-pairs " << atom_spec_pairs.size() << std::endl;
+                     std::cout << "debug:: residue_specs " << residue_specs.size() << std::endl;
+                     std::cout << "debug:: positions " << positions.size() << std::endl;
+                  }
+
+                  if (true) // test for non-empty
+                     sections.push_back(section);
+
                }
             }
          }
@@ -495,14 +529,8 @@ void read_interesting_places_json_file(const std::string &file_name) {
             std::cout << "ERROR:: " << e.what() << std::endl;
          }
 
-
-         std::cout << "debug:: ------ " << std::endl;
-         std::cout << "debug:: atom_specs " << atom_specs.size() << std::endl;
-         std::cout << "debug:: atoms-spec-pairs " << atom_spec_pairs.size() << std::endl;
-         std::cout << "debug:: residue_specs " << residue_specs.size() << std::endl;
-         std::cout << "debug:: positions " << positions.size() << std::endl;
-         if (! atom_specs.empty() || ! residue_specs.empty() || positions.empty()) {
-            show_interesting_positions_dialog(imol, title, atom_specs, atom_spec_pairs, residue_specs, positions);
+         if (! sections.empty()) {
+            show_interesting_positions_dialog(imol, title, sections);
          }
       }
    } else {

@@ -18,32 +18,13 @@
  * write to the Free Software Foundation, Inc., 51 Franklin Street,  02110-1301, USA
  */
 
-#ifndef BEGIN_C_DECLS
-
-#ifdef __cplusplus
-#define BEGIN_C_DECLS extern "C" {
-#define END_C_DECLS }
-
-#else
-#define BEGIN_C_DECLS extern
-#define END_C_DECLS     
-#endif
-#endif /* BEGIN_C_DECLS */
-
-BEGIN_C_DECLS
-
-
-int 
-try_read_phs_file(const char *filename); 
-
-
-int phs_pdb_cell_symm(); 
-
-void test_read_coords(const gchar *filename); 
+int try_read_phs_file(const char *filename);
 
 int phs_pdb_cell_symm();
 
+void test_read_coords(const gchar *filename);
 
-void do_phs_cell_choice_window(); 
+int phs_pdb_cell_symm();
 
-END_C_DECLS
+void do_phs_cell_choice_window();
+

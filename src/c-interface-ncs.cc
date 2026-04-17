@@ -1154,9 +1154,9 @@ void copy_residue_range_from_ncs_master_to_chains_py(int imol, const char *maste
    }
 }
 
-void copy_from_ncs_master_to_chains_py(int imol, const char *master_chain_id, 
+void copy_from_ncs_master_to_chains_py(int imol, const char *master_chain_id,
                                        PyObject *chain_id_list_in) {
-   
+
    if (is_valid_model_molecule(imol)) {
       std::string c(master_chain_id);
       std::vector<std::string> chain_id_list = generic_list_to_string_vector_internal_py(chain_id_list_in);
@@ -1164,5 +1164,105 @@ void copy_from_ncs_master_to_chains_py(int imol, const char *master_chain_id,
 										    chain_id_list);
       graphics_draw();
    }
-} 
-#endif 
+}
+#endif
+
+#include "cc-interface-ncs.hh"
+
+std::vector<int>
+ncs_ligand(int imol_protein,
+           const std::string &ncs_master_chain_id,
+           int imol_ligand,
+           const std::string &chain_id_ligand,
+           int resno_ligand_start,
+           int resno_ligand_stop) {
+
+   std::vector<int> result;
+
+   if (!is_valid_model_molecule(imol_protein)) return result;
+   if (!is_valid_model_molecule(imol_ligand))  return result;
+
+   graphics_info_t g;
+
+   if (!g.molecules[imol_protein].has_ncs_p()) return result;
+   if (!g.molecules[imol_protein].ncs_ghosts_have_rtops_p()) {
+      g.molecules[imol_protein].fill_ghost_info(1, 0.7);
+   }
+   if (!g.molecules[imol_protein].ncs_ghosts_have_rtops_p()) return result;
+
+   std::vector<std::vector<std::string>> ncs_chain_groups = g.molecules[imol_protein].ncs_ghost_chains();
+   if (ncs_chain_groups.empty()) return result;
+
+   // Find the NCS group where the master chain matches ncs_master_chain_id
+   std::vector<std::string> peer_chains;
+   bool found_master = false;
+   for (const auto &group : ncs_chain_groups) {
+      if (!group.empty() && group[0] == ncs_master_chain_id) {
+         for (unsigned int i=1; i<group.size(); i++)
+            peer_chains.push_back(group[i]);
+         found_master = true;
+         break;
+      }
+   }
+
+   if (!found_master || peer_chains.empty()) return result;
+
+   // Get the ghost operators before creating new molecules, because
+   // new_molecule_by_atom_selection() can cause g.molecules to reallocate,
+   // which would invalidate any references into it.
+   std::vector<drawn_ghost_molecule_display_t> ghosts = g.molecules[imol_protein].NCS_ghosts();
+
+   // Extract the ligand fragment
+   std::string sel_str = "//" + chain_id_ligand + "/"
+      + std::to_string(resno_ligand_start) + "-"
+      + std::to_string(resno_ligand_stop);
+   int imol_ligand_fragment = new_molecule_by_atom_selection(imol_ligand, sel_str.c_str());
+   if (imol_ligand_fragment < 0) return result;
+
+   if (false) {
+      std::cout << "DEBUG:: ncs_ligand: " << ghosts.size() << " ghosts available:" << std::endl;
+      for (const auto &ghost : ghosts) {
+         std::cout << "DEBUG::   ghost chain_id: \"" << ghost.chain_id
+                   << "\" target_chain_id: \"" << ghost.target_chain_id
+                   << "\" name: \"" << ghost.name << "\"" << std::endl;
+      }
+      std::cout << "DEBUG:: ncs_ligand: peer_chains:";
+      for (const auto &pc : peer_chains)
+         std::cout << " \"" << pc << "\"";
+      std::cout << std::endl;
+   }
+
+   for (const auto &peer_chain_id : peer_chains) {
+      // Find the ghost whose chain_id matches this peer chain
+      bool found_ghost = false;
+      // std::cout << "DEBUG:: ::::: for ghost in ghosts with " << ghosts.size() << " ghosts" << std::endl;
+      for (const auto &ghost : ghosts) {
+         if (ghost.chain_id == peer_chain_id) {
+            // The ghost rtop maps ghost -> master, so inverse maps master -> ghost
+            if (true) {
+               clipper::RTop_orth inv_rtop = ghost.rtop.inverse();
+               // std::cout << "DEBUG:: This is the ---------- inv_rtop:" << std::endl;
+               // std::cout << inv_rtop.format();
+               int new_mol = copy_molecule(imol_ligand_fragment);
+               if (new_mol >= 0) {
+                  // g.molecules[new_mol].transform_by(inv_rtop);
+                  g.molecules[new_mol].transform_by(inv_rtop);
+                  std::string new_name = std::to_string(new_mol)
+                     + ": Candidate NCS-related ligand to protein chain "
+                     + peer_chain_id + " Inversse-ghost";
+                  set_molecule_name(new_mol, new_name.c_str());
+                  result.push_back(new_mol);
+               }
+               found_ghost = true;
+               break;
+            }
+         }
+      }
+      if (!found_ghost)
+         std::cout << "WARNING:: ncs_ligand: no ghost operator found for chain "
+                   << peer_chain_id << std::endl;
+   }
+
+   graphics_draw();
+   return result;
+}

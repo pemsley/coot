@@ -443,6 +443,7 @@ public:
    void add_one_origin_octasphere(unsigned int num_subdivisions=1); // default matches 8 sided cylinder
    void add_one_origin_octahemisphere(unsigned int num_subdivisions=1); // default matches 8 sided cylinder
    void add_one_origin_dodec();
+   void add_submesh(const std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > &submesh);
    void fill_one_dodec();
    void flatten_triangles(); // needs implementation (will generate new vertices).
    void smooth_triangles();  // needs implementation.

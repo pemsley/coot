@@ -864,7 +864,7 @@ void on_save_coords_filechooser_dialog_response(GtkDialog *dialog,
 
    if (response == GTK_RESPONSE_YES) { // maybe not the right one, but it is the one set in
                                        // on_save_coords_dialog_save_button_clicked()
-      GtkFileChooser *chooser = GTK_FILE_CHOOSER (dialog);
+      GtkFileChooser *chooser = GTK_FILE_CHOOSER(dialog);
       GFile *file   = gtk_file_chooser_get_file(chooser);
       char *file_name = g_file_get_path(file);
       int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "imol"));
@@ -873,6 +873,10 @@ void on_save_coords_filechooser_dialog_response(GtkDialog *dialog,
          bool save_hydrogens = true;
          bool save_conect_records = true;
          bool save_aniso_records = true;
+         const char *h = gtk_file_chooser_get_choice(chooser, "save-hydrogens");
+         const char *a = gtk_file_chooser_get_choice(chooser, "save-aniso");
+         if (h) save_hydrogens    = (std::string(h) == "true");
+         if (a) save_aniso_records = (std::string(a) == "true");
          g.molecules[imol].save_coordinates(file_name, save_hydrogens, save_aniso_records, save_conect_records);
       }
    }
@@ -926,6 +930,16 @@ on_save_coords_save_button_clicked(G_GNUC_UNUSED GtkButton       *button,
       g_object_set_data(G_OBJECT(file_chooser_dialog), "imol", GINT_TO_POINTER(imol));
       g_signal_connect(file_chooser_dialog, "response",
                        G_CALLBACK(on_save_coords_filechooser_dialog_response), NULL);
+
+      gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(file_chooser_dialog),
+                                  "save-hydrogens", "Save Hydrogens", NULL, NULL);
+      gtk_file_chooser_set_choice(GTK_FILE_CHOOSER(file_chooser_dialog),
+                                  "save-hydrogens", "true");
+      gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(file_chooser_dialog),
+                                  "save-aniso", "Save ANISO Records", NULL, NULL);
+      gtk_file_chooser_set_choice(GTK_FILE_CHOOSER(file_chooser_dialog),
+                                  "save-aniso", "true");
+
       gtk_widget_set_visible(file_chooser_dialog, TRUE);
       set_file_for_save_filechooser(file_chooser_dialog);
       add_filename_filter_button(file_chooser_dialog, COOT_SAVE_COORDS_FILE_SELECTION);

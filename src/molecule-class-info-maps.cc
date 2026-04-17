@@ -1025,6 +1025,7 @@ molecule_class_info_t::post_process_map_triangles() {
 
 }
 
+//  remove shader from this call
 void
 molecule_class_info_t::setup_map_cap(Shader *shader_p,
                                      const clipper::Coord_orth &base_point, // Bring it into this class.
@@ -1035,17 +1036,21 @@ molecule_class_info_t::setup_map_cap(Shader *shader_p,
                                      unsigned int n_x_axis_points,
                                      unsigned int n_y_axis_points) {
 
+   bool do_just_the_surface = false;
+
    // this line is completely vital! - But do I want gtk_gl_area_attach_buffers(gl_area) ?
    //
    gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glareas[0]));
+   graphics_info_t::attach_buffers();
 
-   GLenum err = glGetError(); if (err) std::cout << "error in setup_map_cap() -- start -- " << err << std::endl;
+   GLenum err = glGetError();
+   if (err) std::cout << "error in setup_map_cap() -- start -- " << err << std::endl;
+
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > map_cap =
       make_map_cap(base_point, x_axis_uv, y_axis_uv, x_axis_step_size, y_axis_step_size,
                    n_x_axis_points, n_y_axis_points);
 
-   shader_p->Use();
-   Material material;
+   // shader_p->Use(); I don't need a shader to allocate memory
 
    // What was I trying to do here?
    // graphical_molecule gm;
@@ -1055,9 +1060,44 @@ molecule_class_info_t::setup_map_cap(Shader *shader_p,
    // graphical_molecules.push_back(gm_cap);
 
    Mesh gm_cap(map_cap);
-   meshes.push_back(gm_cap);
+   gm_cap.set_draw_mesh_state(true);
    // meshes.back().setup(shader_p, material); 20210910-PE
-   meshes.back().setup(material);
+
+   if (do_just_the_surface) {
+      Material material;
+      meshes.back().setup(material);
+   } else {
+
+      std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > full_map_mesh_pair = make_map_mesh();
+
+      // Trim triangles that are "in front" of the cap plane.
+      // z_axis_uv is the plane normal.
+      clipper::Coord_orth z_axis_uv(clipper::Coord_orth::cross(x_axis_uv, y_axis_uv));
+      glm::vec3 plane_normal(z_axis_uv.x(), z_axis_uv.y(), z_axis_uv.z());
+      glm::vec3 plane_point(base_point.x(), base_point.y(), base_point.z());
+
+      std::vector<g_triangle> trimmed_triangles;
+      trimmed_triangles.reserve(full_map_mesh_pair.second.size());
+      const std::vector<s_generic_vertex> &verts = full_map_mesh_pair.first;
+      for (const auto &tri : full_map_mesh_pair.second) {
+         const glm::vec3 &p0 = verts[tri.point_id[0]].pos;
+         const glm::vec3 &p1 = verts[tri.point_id[1]].pos;
+         const glm::vec3 &p2 = verts[tri.point_id[2]].pos;
+         float d0 = glm::dot(p0 - plane_point, plane_normal);
+         float d1 = glm::dot(p1 - plane_point, plane_normal);
+         float d2 = glm::dot(p2 - plane_point, plane_normal);
+         // Keep the triangle if any vertex is behind the plane (d <= 0)
+         if (d0 < 0.0f && d1 < 0.0f && d2 < 0.0f)
+            trimmed_triangles.push_back(tri);
+      }
+      full_map_mesh_pair.second = trimmed_triangles;
+
+      gm_cap.add_submesh(full_map_mesh_pair);
+      gm_cap.setup_buffers();
+      Material material;
+      meshes.push_back(gm_cap);
+      meshes.back().setup(material);
+   }
 
 }
 
@@ -1102,8 +1142,11 @@ molecule_class_info_t::make_map_mesh() {
          g_triangle t(tri_con.point_indices[i].pointID[0] + idx_base,
                       tri_con.point_indices[i].pointID[1] + idx_base,
                       tri_con.point_indices[i].pointID[2] + idx_base);
-         if (triangles.size() < 10000)
-            triangles.push_back(t);
+         // 20260414-PE why is this limit here?
+         if (false)
+            if (triangles.size() < 10000)
+               triangles.push_back(t);
+         triangles.push_back(t);
       }
    }
    return vp;
