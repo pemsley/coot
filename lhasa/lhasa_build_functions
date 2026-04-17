@@ -165,3 +165,17 @@ getcoordgen() {
     fi
     echo
 }
+
+geteigen() {
+    cdcheckout
+    if [ -r eigen-$eigen_release ]; then
+        echo "Using existing eigen"
+    else
+        echo "Downloading Eigen source"
+        curl -fL https://gitlab.com/libeigen/eigen/-/archive/$eigen_release/eigen-$eigen_release.tar.gz -o eigen_$eigen_release.tar.gz || fail "Failed to download Eigen source"
+        echo
+        echo "Unpacking Eigen source"
+        tar xf "eigen_$eigen_release.tar.gz" || fail "Failed to unpack Eigen source"
+    fi
+    echo
+}
