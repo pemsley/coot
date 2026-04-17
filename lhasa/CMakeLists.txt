@@ -28,7 +28,7 @@ list(APPEND CMAKE_PREFIX_PATH ${CMAKE_INSTALL_PREFIX})
 set(RDKit_DIR ${CMAKE_INSTALL_PREFIX}/lib/cmake/rdkit)
 set(Eigen3_DIR ${CMAKE_INSTALL_PREFIX}/share/eigen3/cmake)
 
-# Resolving Boost is a fucking shit-show
+# Resolving Boost is a f**ing shit-show
 
 # Pre-find Boost in config mode; required because rdkit-config.cmake calls find_dependency(Boost)
 # and CMake 4.x removed the legacy FindBoost module (CMP0167)
