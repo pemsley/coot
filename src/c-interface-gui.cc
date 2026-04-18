@@ -3678,6 +3678,21 @@ void set_map_hexcolour(int imol, const char *hex_colour) {
 
 }
 
+void brighten_maps() {
+
+   graphics_info_t g;
+   auto map_list = g.get_map_molecule_vector();
+   for (unsigned int i=0; i<map_list.size(); i++) {
+      const auto &imol = map_list[i];
+      float rc = graphics_info_t::molecules[imol].map_colour.red;
+      float gc = graphics_info_t::molecules[imol].map_colour.green;
+      float bc = graphics_info_t::molecules[imol].map_colour.blue;
+      float fac = 1.25;
+      set_map_colour(imol, rc * fac, gc * fac, bc * fac);
+   }
+   g.graphics_draw();
+}
+
 
 
 // void add_on_map_colour_choices(GtkWidget *menu) {

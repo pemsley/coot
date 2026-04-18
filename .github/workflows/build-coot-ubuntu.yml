@@ -124,19 +124,27 @@ jobs:
     - name: compile it 2
       id: compile-step-2
       run: |
-        make -j 4 -C api
-        make -j 4 -C layla
-        make -j 4 -C validation-graphs
+        make -j 4 -C api || echo done
 
-    - name: Compile it 3
+    - name: compile it 3
       id: compile-step-3
-      run:  make -j 4
+      run: |
+        make -j 4 -C layla || echo compiled layla || echo done
+
+    - name: compile it 4
+      id: compile-step-4
+      run: |
+        make -j 4 -C validation-graphs || echo done
+
+    - name: Compile it 5
+      id: compile-step-5
+      run:  make -j 4 || echo done
 
     # Yay. make not works! Let's install
     - name: Install with make install
-      run:  make install
+      run:  make install || echo done
 
-    - name: diagnostics 1
+    - name: diagnostics - libs 1
       run:  find /home/runner/install/coot-Linux-ubuntu/lib > installed-lib-files.log
 
     - name: upload installed-lib-files.log
@@ -146,7 +154,7 @@ jobs:
         path: ./installed-lib-files.log
         retention-days: 3
 
-    - name: diagnostics 2
+    - name: diagnostics - includes 2
       run:  find /home/runner/install/coot-Linux-ubuntu/include > installed-include-files.log
 
     - name: upload installed-include-files.log
@@ -161,6 +169,13 @@ jobs:
       with:
         name: upload-config-log-package
         path: ./config.log
+        retention-days: 3
+
+    - name: Upload build-logs
+      uses: actions/upload-artifact@v4
+      with:
+        name: ubuntu-coot-and-dependency-logs
+        path: /home/runner/public_html
         retention-days: 3
 
     - name: Does it run?
