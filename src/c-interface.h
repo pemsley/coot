@@ -1316,6 +1316,9 @@ void set_map_colour(int imol, float red, float green, float blue);
 /*! \brief set the colour of the imolth map using a (7-character) hex colour */
 void set_map_hexcolour(int imol, const char *hex_colour);
 
+/*! \brief  Make the maps 25% brighter */
+void brighten_maps();
+
 /*! \brief set the contour level, direct control */
 void set_contour_level_absolute(int imol_map, float level);
 /*! \brief set the contour level, direct control in r.m.s.d. (if you like that sort of thing) */
