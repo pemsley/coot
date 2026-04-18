@@ -818,9 +818,9 @@ void emplacement_by_phaser(const std::string &half_map_1_file_name, const std::s
    auto run_subprocess = [] (const std::string &half_map_1_file_name, const std::string &half_map_2_file_name,
                              const std::string &model_file_name, coot::Cartesian sphere_center) {
 
-      // e.g. phenix.python $phenix/lib/python3.9/site-packages/New_Voyager/scripts/emplace_local.py \
-      // --map1 emd_32143_half_map_1.map --map2 emd_32143_half_map_2.map \
-      // --d_min 3.0 --model_file test-frag-nano.pdb \
+      // e.g. phenix.python $phenix/lib/python3.9/site-packages/New_Voyager/scripts/emplace_local.py -..
+      // --map1 emd_32143_half_map_1.map --map2 emd_32143_half_map_2.map -..
+      // --d_min 3.0 --model_file test-frag-nano.pdb -..
       // --sphere_center 123 69 111
 
       // std::filesystem::path script_dir = "/Users/pemsley/Applications/phenix-2.0-5936/lib/python3.9/site-packages/New_Voyager/scripts";
