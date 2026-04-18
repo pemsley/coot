@@ -93,6 +93,7 @@
 #include "draw-2.hh"
 #include "pick.hh"
 #include "utils/logging.hh"
+#include "validation-graphs/sequence-view-widget.hh"
 extern logging logger;
 
 // static
@@ -1954,6 +1955,29 @@ graphics_info_t::run_post_set_rotation_centre_hook() {
    // run_post_set_rotation_centre_hook_py();
 #endif
 
+   if (use_graphics_interface_flag) {
+      std::pair<bool, std::pair<int, coot::atom_spec_t> > aa = active_atom_spec();
+      if (aa.first) {
+         int imol_active = aa.second.first;
+         coot::residue_spec_t active_res_spec(aa.second.second);
+         GtkWidget *seq_view_box = widget_from_builder("main_window_sequence_view_box");
+         if (seq_view_box) {
+            GtkWidget *item = gtk_widget_get_first_child(seq_view_box);
+            while (item) {
+               int imol_overlay = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item), "imol"));
+               GtkWidget *sv = GTK_WIDGET(g_object_get_data(G_OBJECT(item), "coot-sequence-view"));
+               if (sv) {
+                  if (imol_overlay == imol_active) {
+                     coot_sequence_view_set_active_residue(COOT_COOT_SEQUENCE_VIEW(sv), active_res_spec);
+                  } else {
+                     coot_sequence_view_clear_active_residue(COOT_COOT_SEQUENCE_VIEW(sv));
+                  }
+               }
+               item = gtk_widget_get_next_sibling(item);
+            }
+         }
+      }
+   }
 }
 
 #ifdef USE_GUILE
