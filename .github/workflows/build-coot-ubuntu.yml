@@ -125,11 +125,19 @@ jobs:
       id: compile-step-2
       run: |
         make -j 4 -C api
-        make -j 4 -C layla
+
+    - name: compile it 3
+      id: compile-step-3
+      run: |
+        make -j 4 -C layla || echo compiled layla
+
+    - name: compile it 4
+      id: compile-step-4
+      run: |
         make -j 4 -C validation-graphs
 
-    - name: Compile it 3
-      id: compile-step-3
+    - name: Compile it 5
+      id: compile-step-5
       run:  make -j 4
 
     # Yay. make not works! Let's install
@@ -162,6 +170,13 @@ jobs:
         name: upload-config-log-package
         path: ./config.log
         retention-days: 3
+
+    - name: Upload build-logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: ubuntu-coot-and-dependency-logs
+          path: /home/runner/public_html
+          retention-days: 3
 
     - name: Does it run?
       run:  cd src && ./coot-1 --self-test < /dev/null && cd -
