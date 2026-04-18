@@ -172,11 +172,11 @@ jobs:
         retention-days: 3
 
     - name: Upload build-logs
-        uses: actions/upload-artifact@v4
-        with:
-          name: ubuntu-coot-and-dependency-logs
-          path: /home/runner/public_html
-          retention-days: 3
+      uses: actions/upload-artifact@v4
+      with:
+        name: ubuntu-coot-and-dependency-logs
+        path: /home/runner/public_html
+        retention-days: 3
 
     - name: Does it run?
       run:  cd src && ./coot-1 --self-test < /dev/null && cd -
