@@ -14,9 +14,6 @@
 std::vector<float> load_density_grid_binary(const std::string& filename,
                                              int& lat_out, int& lon_out);
 
-// Parse a raw Cremer-Pople CSV (columns: q, phi_deg, theta_deg) and bin the
-// conformations into a lat x lon grid.  Values are log1p-normalised to [0,1].
-// Returns an empty vector if the file cannot be opened.
-std::vector<float> load_density_grid_csv(const std::string& filename, int lat, int lon);
+
 
 #endif  // COOT_DENSITY_MAP_H

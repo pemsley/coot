@@ -3,17 +3,9 @@
 //
 
 #include "density_map.hh"
-
-#include <algorithm>
-#include <cmath>
-#include <cstdint>
 #include <fstream>
 #include <iostream>
 #include <sstream>
-
-// ---------------------------------------------------------------------------
-// Binary loader
-// ---------------------------------------------------------------------------
 
 std::vector<float> load_density_grid_binary(const std::string& filename,
                                              int& lat_out, int& lon_out) {
@@ -66,56 +58,3 @@ std::vector<float> load_density_grid_binary(const std::string& filename,
    return grid;
 }
 
-// ---------------------------------------------------------------------------
-// CSV loader (slow path / fallback)
-// ---------------------------------------------------------------------------
-
-std::vector<float> load_density_grid_csv(const std::string& filename, int lat, int lon) {
-   std::vector<float> counts(lat * lon, 0.0f);
-
-   std::ifstream file(filename);
-   if (!file.is_open()) {
-      std::cerr << "density_map: cannot open \"" << filename << "\"\n";
-      return {};
-   }
-
-   // Skip header line
-   std::string line;
-   std::getline(file, line);
-
-   int n_loaded = 0, n_skipped = 0;
-
-   while (std::getline(file, line)) {
-      std::istringstream ss(line);
-      std::string sq, sphi, stheta;
-      if (!std::getline(ss, sq,     ',') ||
-          !std::getline(ss, sphi,   ',') ||
-          !std::getline(ss, stheta, ','))
-         continue;
-
-      float phi_deg   = std::stof(sphi);
-      float theta_deg = std::stof(stheta);
-
-      if (theta_deg < 0.0f || phi_deg < 0.0f) { ++n_skipped; continue; }
-
-      int i = static_cast<int>(theta_deg / 180.0f * static_cast<float>(lat));
-      int j = static_cast<int>(phi_deg   / 360.0f * static_cast<float>(lon));
-      i = std::clamp(i, 0, lat - 1);
-      j = std::clamp(j, 0, lon - 1);
-
-      counts[i * lon + j] += 1.0f;
-      ++n_loaded;
-   }
-
-   std::cout << "density_map: " << n_loaded << " conformations loaded from CSV, "
-             << n_skipped << " skipped (invalid)\n";
-
-   float max_count = *std::max_element(counts.begin(), counts.end());
-   if (max_count > 0.0f) {
-      const float log_max = std::log1p(max_count);
-      for (auto& c : counts)
-         c = std::log1p(c) / log_max;
-   }
-
-   return counts;
-}
