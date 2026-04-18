@@ -3891,7 +3891,7 @@ if test $build_maeparser = true ; then
       tar xf ${AUTOBUILD_SOURCES}/v$mae_parser_version.tar.gz
       mkdir -p build-maeparser
       cd build-maeparser
-      cmake -DCMAKE_INSTALL_PREFIX=$install_top_dir ../maeparser-$mae_parser_version
+      cmake -DCMAKE_INSTALL_PREFIX=$install_top_dir -DMAEPARSER_BUILD_TESTS=OFF ../maeparser-$mae_parser_version
       $MAKE && make install
       cd -
    ) > $HOSTLOGDIR/26a-maeparser.txt 2>&1
