@@ -3105,9 +3105,6 @@ build_meson=true
 if command -v meson --version ; then
 
     echo meson --version
-    which meson >&2
-    echo meson --version >&2
-    meson --version >&2
     if meson --version ; then
         echo we have meson
         v=$(meson --version)
@@ -3142,7 +3139,7 @@ if $build_meson = true ; then
    meson --version
    ) > $HOSTLOGDIR/14-meson.txt 2>&1
 else
-   echo not building meson:
+   echo not building meson
 fi
 
 
