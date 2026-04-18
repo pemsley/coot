@@ -8400,6 +8400,8 @@ void sequence_view(int imol) {
       gtk_widget_set_visible(vbox, TRUE);
       g_object_set_data(G_OBJECT(button), "sequence_view_box", vbox);
       g_object_set_data(G_OBJECT(overlay), "imol", GINT_TO_POINTER(imol));
+      // Let update_validation() find this sequence view by imol and redraw it after model edits.
+      g_object_set_data(G_OBJECT(overlay), "coot-sequence-view", sv);
       // GTK_ALIGN_END works OK/as intended, except the main graphics widget (or window) is too narrow to see it.
       // Make the window wider and change this to GTK_ALIGN_END.
       // gtk_widget_set_halign(GTK_WIDGET(button), GTK_ALIGN_START);

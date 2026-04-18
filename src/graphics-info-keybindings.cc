@@ -790,6 +790,7 @@ graphics_info_t::setup_key_bindings() {
             g.setup_delete_item_pulse(residue_p);
             coot::residue_spec_t residue_spec(residue_p);
             g.molecules[imol].delete_residue(residue_spec);
+            g.update_validation(imol);
          }
       }
       return gboolean(TRUE);
