@@ -3814,7 +3814,7 @@ build_eigen=true
 if [ -e $install_top_dir/include/eigen3 ] ; then
    build_eigen=false
 fi
-build_eigen=true # hack to force the build
+
 if [ $build_eigen = false ] ; then
    echo eigen3 is installed
    echo eigen3 is installed >&2
