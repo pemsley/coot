@@ -419,7 +419,8 @@
 # 6.24 20260212-PE update gemmi build wrapper
 # 6.25 20260212-PE update the version of ninja
 # 6.26 20260402-PE update tne version of the script - should have done this before.
-script_version=6.26
+# 6.26 20260418-PE update tne version of the eigen
+script_version=6.27
 
 echo this is script version $script_version
 date
@@ -3816,6 +3817,7 @@ fi
 ############################### eigen ##########################################
 
 eigen_version=3.3.9
+eigen_version=5.0.1
 if [ -e $install_top_dir/include/eigen3 ] ; then
    echo eigen3 is installed
    echo eigen3 is installed >&2
