@@ -944,7 +944,7 @@ startup_application_activate(GtkApplication *application,
       // change "glade" to "ui" one day.
       // 20240218-PE today is that day!
       std::string dir_ui = coot::util::append_dir_dir(dir, "ui");
-      std::string ui_file_name = "coot-gtk4.ui";
+      std::string ui_file_name = "coot.ui";
       std::string ui_file_full = coot::util::append_dir_file(dir_ui, ui_file_name);
       if (coot::file_exists(ui_file_name))
          ui_file_full = ui_file_name;
@@ -985,7 +985,7 @@ startup_application_activate(GtkApplication *application,
             version_str += s;
          }
       }
-      // override the value in the coot-gtk4.ui file.
+      // override the value in the coot.ui file.
       gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(about_dialog), version_str.c_str());
 
 
