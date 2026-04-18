@@ -2694,7 +2694,7 @@ if true ; then
         echo BUILDING: "done from tar gemmi" $gemmi_version >&2
         date >&2
     else
-        echo skip gemmi >&2
+        echo not building gemmi >&2
     fi
 fi
 
@@ -2819,13 +2819,9 @@ else
     echo not building libffi >&2
 fi
 
-echo post libffi with LD_LIBRARY_PATH $LD_LIBRARY_PATH
-echo post libffi with LD_LIBRARY_PATH $LD_LIBRARY_PATH >&2
-
 ############## 09b-libffi #####################
 
 build_libffi=true
-echo ================= here with build_libffi $build_libffi
 #
 if [ "$build_libffi" = true ] ; then
    skip_this=false
