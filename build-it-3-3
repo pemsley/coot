@@ -419,8 +419,9 @@
 # 6.24 20260212-PE update gemmi build wrapper
 # 6.25 20260212-PE update the version of ninja
 # 6.26 20260402-PE update tne version of the script - should have done this before.
-# 6.26 20260418-PE update tne version of the eigen
-script_version=6.27
+# 6.27 20260418-PE update tne version of the eigen
+# 6.28 20260418-PE add maeparser and coordgen
+script_version=6.28
 
 echo this is script version $script_version
 date
@@ -2660,14 +2661,12 @@ if true ; then
     # --------------------------------- gemmi from tar ----------------------------
     gemmi_version=0.7.4
     skip_build=false
-    echo testing for existance of $install_top_dir/include/gemmi/version.hpp >&2
     ls $install_top_dir/include/gemmi/version.hpp >&2
     if [ $test_for_already_installed_dependencies = true ] ; then
         if [ -e $install_top_dir/include/gemmi/version.hpp ] ; then
             skip_build=true
         fi
     fi
-    echo now we have skip_build $skip_build >&2
     if test $skip_build = false ; then
         echo BUILDING gemmi from tar gemmi $gemmi_version
         echo BUILDING gemmi from tar gemmi $gemmi_version >&2
@@ -3876,6 +3875,69 @@ else
     exit
 fi
 
+############################### maeparser ##########################################
+
+mae_parser_version=1.3.3
+
+build_maeparser=true
+
+if test -e $install_top_dir/include/maeparser/Writer.hpp ; then
+   build_maeparser=false
+fi
+
+if test $build_maeparser = true ; then
+   (
+      ${WGET} https://github.com/schrodinger/maeparser/archive/refs/tags/v$mae_parser_version.tar.gz
+      tar xf ${AUTOBUILD_SOURCES}/v$mae_parser_version.tar.gz
+      mkdir -p build-maeparser
+      cd build-maeparser
+      cmake -DCMAKE_INSTALL_PREFIX=$install_top_dir ../maeparser-$mae_parser_version
+      $MAKE && make install
+      cd -
+   ) > $HOSTLOGDIR/26a-maeparser.txt 2>&1
+   echo BUILDING maeparser finished
+   echo BUILDING maeparser finished >&2
+else
+   echo not building maeparser
+fi
+
+############################### coordgen ##########################################
+
+coordgen_version=3.0.2
+
+build_coordgen=true
+if test -e $install_top_dir/include/coordgen/sketcherMinimizerMolecule.h ; then
+   build_coordgen=false
+fi
+
+if test $build_coordgen = true ; then
+   (
+      echo wget
+      echo ${WGET} https://github.com/schrodinger/coordgenlibs/archive/refs/tags/v$coordgen_version.tar.gz
+      ${WGET} https://github.com/schrodinger/coordgenlibs/archive/refs/tags/v$coordgen_version.tar.gz
+      echo done wget
+      tar xf ${AUTOBUILD_SOURCES}/v$coordgen_version.tar.gz
+      sed -ibackup -e 's/cmake_minimum_required(VERSION 3.2)/cmake_minimum_required(VERSION 3.5)/' coordgenlibs-$coordgen_version/CMakeLists.txt
+      mkdir -p build-coordgen
+      cd build-coordgen
+      echo cmake -DCMAKE_INSTALL_PREFIX=$install_top_dir \
+                 -DCOORDGEN_USE_MAEPARSER=ON \
+                 -DCOORDGEN_BUILD_TESTS=OFF \
+         ../coordgenlibs-$coordgen_version
+      cmake -DCMAKE_INSTALL_PREFIX=$install_top_dir \
+            -DCOORDGEN_USE_MAEPARSER=ON \
+            -DCOORDGEN_BUILD_TESTS=OFF \
+         ../coordgenlibs-$coordgen_version
+      $MAKE && make install
+      cd -
+   ) > $HOSTLOGDIR/26b-coordgen.txt 2>&1
+   echo BUILDING coordgen finished
+   echo BUILDING coordgen finished >&2
+else
+   echo not building coordgen
+fi
+
+
 ############################### rdkit ##########################################
 
 # we need to set rdkit_tar_size because the WGET doesn't skip the download if the
@@ -4110,8 +4172,6 @@ if [ "$build_rdkit" = true ] ; then
               fi
           fi
       fi
-
-      echo AAAAAAAAAAAAAAAAAAAAAAAA LDFLAGS is $LDFLAGS
 
       # echo will configure with cmake like this:
       # DBoost_PYTHON39_LIBRARY_RELEASE needs to be extracted?
