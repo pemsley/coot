@@ -389,6 +389,9 @@ else
    RDKIT_CXXFLAGS="-I$rdkit_install_dir/include/rdkit -DRDKIT_HAS_CAIRO_SUPPORT"
 fi
 
+PKG_CHECK_MODULES([EIGEN3], [eigen3],
+   [RDKIT_CXXFLAGS="$RDKIT_CXXFLAGS $EIGEN3_CFLAGS"],
+   [AC_MSG_ERROR([eigen3 not found via pkg-config])])
 
 # test here for presence of coordgen in the RDKit.
 # To clarify, this is not related to how to configure Coot, it is related to how the RDKit was configured (and linked).

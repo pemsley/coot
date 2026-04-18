@@ -236,6 +236,14 @@ layla_on_invalid_molecule_toggled(GtkCheckButton* check_button, gpointer user_da
 
 extern "C" G_MODULE_EXPORT
 void
+layla_on_coordgen_toggled(GtkCheckButton* check_button, gpointer user_data) {
+    CootLigandEditorCanvas* canvas = GET_CANVAS();
+    coot_ligand_editor_canvas_set_coordgen_mode_enabled(canvas, gtk_check_button_get_active(check_button));
+}
+
+
+extern "C" G_MODULE_EXPORT
+void
 layla_on_show_alerts_toggled(GtkCheckButton* check_button, gpointer user_data) {
     CootLigandEditorCanvas* canvas = GET_CANVAS();
     g_warning("TODO: Implement 'Show Alerts'");

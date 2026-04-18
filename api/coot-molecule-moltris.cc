@@ -451,7 +451,7 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
 
       for (const auto &ch : ci) {
 
-         if (ch.resno_max <= ch.resno_min) continue;
+         if (ch.resno_max < ch.resno_min) continue;
          std::string chain_sel = "//" + std::string(ch.chain_p->GetChainID());
 
          auto ramp_cs = std::shared_ptr<ColorScheme>(new ColorScheme());
