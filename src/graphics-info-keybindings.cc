@@ -886,7 +886,7 @@ graphics_info_t::setup_key_bindings() {
    };
 
    auto lc_toggle_validation_side_panel = [] () {
-      GtkWidget* pane = widget_from_builder("main_window_ramchandran_and_validation_pane");
+      GtkWidget* pane = widget_from_builder("main_window_ramachandran_and_validation_pane");
       if (pane) {
          if (gtk_widget_get_visible(pane) == TRUE) {
             gtk_widget_set_visible(pane, FALSE);

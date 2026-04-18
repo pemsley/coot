@@ -6890,7 +6890,7 @@ on_ramachandran_plot_molecule_chooser_ok_button_clicked(GtkButton       *button,
    GtkWidget *combobox        = widget_from_builder("ramachandran_plot_molecule_chooser_model_combobox");
    GtkWidget *selection_entry = widget_from_builder("ramachandran_plot_molecule_chooser_residue_selection_entry");
    GtkWidget *scrolled        = widget_from_builder("ramachandran_plots_scrolled_window");
-   GtkWidget *pane            = widget_from_builder("main_window_ramchandran_and_validation_pane");
+   GtkWidget *pane            = widget_from_builder("main_window_ramachandran_and_validation_pane");
 
    std::string residue_selection_string = gtk_editable_get_text(GTK_EDITABLE(selection_entry));
 
