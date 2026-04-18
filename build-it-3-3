@@ -4143,8 +4143,10 @@ if [ "$build_rdkit" = true ] ; then
                -DRDK_BUILD_INCHI_SUPPORT=ON \
                -DRDK_BUILD_MAEPARSER_SUPPORT=ON \
                -DRDK_BUILD_COORDGEN_SUPPORT=ON \
+               -DCOORDGEN_FORCE_BUILD=ON \
                -DRDK_BUILD_CAIRO_SUPPORT=ON \
                -DRDK_INSTALL_INTREE=OFF \
+               -DRDK_INSTALL_STATIC_LIBS=ON \
                -DRDK_INSTALL_COMIC_FONTS=OFF \
                -DCatch2_DIR=$install_top_dir \
                 $tree_from_build
@@ -4160,8 +4162,10 @@ if [ "$build_rdkit" = true ] ; then
                -DRDK_BUILD_INCHI_SUPPORT=ON \
                -DRDK_BUILD_MAEPARSER_SUPPORT=ON \
                -DRDK_BUILD_COORDGEN_SUPPORT=ON \
+               -DCOORDGEN_FORCE_BUILD=ON \
                -DRDK_BUILD_CAIRO_SUPPORT=ON \
                -DRDK_INSTALL_INTREE=OFF \
+               -DRDK_INSTALL_STATIC_LIBS=ON \
                -DRDK_INSTALL_COMIC_FONTS=OFF \
                -DCatch2_DIR=$install_top_dir \
                 $tree_from_build ; then
@@ -4174,6 +4178,9 @@ if [ "$build_rdkit" = true ] ; then
          # so use just plain make? (currently not fixed)
          if $MAKE ; then
             make install
+            echo dummy "Manually harvesting coordgen headers..."
+            echo dummy mkdir -p $install_top_dir/include/coordgen
+            echo dummy cp -r ../External/CoordGen/coordgen-prefix/src/coordgen/include/* $install_top_dir/include/coordgen/
          else
             echo problem making the RDKit.
             exit 1
