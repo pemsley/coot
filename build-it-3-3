@@ -3923,10 +3923,12 @@ if test $build_coordgen = true ; then
       echo cmake -DCMAKE_INSTALL_PREFIX=$install_top_dir \
                  -DCOORDGEN_USE_MAEPARSER=ON \
                  -DCOORDGEN_BUILD_TESTS=OFF \
+                 -DCOORDGEN_BUILD_EXAMPLE=OFF \
          ../coordgenlibs-$coordgen_version
       cmake -DCMAKE_INSTALL_PREFIX=$install_top_dir \
             -DCOORDGEN_USE_MAEPARSER=ON \
             -DCOORDGEN_BUILD_TESTS=OFF \
+            -DCOORDGEN_BUILD_EXAMPLE=OFF \
          ../coordgenlibs-$coordgen_version
       $MAKE && make install
       cd -
