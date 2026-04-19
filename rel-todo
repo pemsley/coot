@@ -5,7 +5,23 @@ WARNING:: in init_refmac_mon_lib() unhandled category "_pdbe_chem_comp_rdkit_pro
 file: /Users/pemsley/Projects/coot/git/coot-main/build-chapi-with-homebrew-deps/A1DAP.cif
 Read 63 atoms/links in restraints from /Users/pemsley/Projects/coot/git/coot-main/build-chapi-with-homebrew-deps/A1DAP.cif
 
+o Update sequence view on mutation, deletion and addition or renumber
+
 o DACA
+
+o zoom drag, lift shift, continue drag -> jump
+
+o make a nice figure, using the ray tracer of 2ouz lasofoxifene with density and environment
+
+o rewite the download dialog to be an overlay
+
+o close the side-bar when difference maps frame is closed
+
+o Fix the pukka puckers markup!
+
+o Download EMDB dialog should be an overlay frame - rewrite in pure C++
+
+o make pop-diego face particles smaller
 
 o strip Aniso from pdb on write - add a button to the dialog
 * Done
@@ -20,7 +36,15 @@ o add NCS ligands
 
 o delete symmetry waters
 
+
 o fix the build/installation of curl - on home desktop.
+
+o sequence view (standard window) now says
+(MacCoot:20788): Gtk-WARNING **: 14:28:21.825: Trying to measure GtkBox 0x125ed4200 for width of 560, but it needs at least 600
+(MacCoot:20788): Gtk-WARNING **: 14:28:21.833: Trying to measure GtkBox 0x125ed4200 for width of 560, but it needs at least 600
+(MacCoot:20788): Gtk-WARNING **: 14:28:21.842: Trying to measure GtkBox 0x125ed4200 for width of 560, but it needs at least 600
+(MacCoot:20788): Gtk-WARNING **: 14:28:21.850: Trying to measure GtkBox 0x125ed4200 for width of 560, but it needs at least 600
+  on entry into the widget.
 
 o bring back reorder chain. (What did it do?)
 

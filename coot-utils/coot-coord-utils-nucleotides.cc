@@ -56,7 +56,7 @@ coot::pucker_analysis_info_t::pucker_analysis_info_t(mmdb::Residue *res_p,
 
       // store the geometry
       markup_info.base_ring_centre = lsq_plane.value().centre();
-      markup_info.base_ring_normal = lsq_plane.value().centre();
+      markup_info.base_ring_normal = lsq_plane.value().normal();
 
       std::vector<mmdb::Atom *> ribose_atoms(5, nullptr); // ribose atoms
       std::vector<coot::pucker_analysis_info_t::PUCKERED_ATOM_T> possible_puckers;
@@ -339,10 +339,17 @@ coot::pucker_analysis_info_t::phosphate_distance_to_base_plane(mmdb::Residue *fo
                m += coot::util::int_to_string(base_atoms_coords.size());
                m += " atoms. ";
                throw std::runtime_error(m);
-            } else { 
+            } else {
                std::pair<double, double> oop_plus_dev =
                   coot::lsq_plane_deviation(base_atoms_coords, pt);
                oop = oop_plus_dev.first;
+               // overwrite the markup info so that phosphorus_position and
+               // projected_point refer to the following residue's P (which is
+               // the P used for the pukka-pucker test), not the current
+               // residue's own P.
+               markup_info.phosphorus_position = pt;
+               lsq_plane_info_t lsq_plane(base_atoms_coords);
+               markup_info.projected_point = lsq_plane.projected_point(pt);
                found = 1;
                break;
             }

@@ -232,7 +232,7 @@ void show_interesting_positions_dialog(int imol, const std::string &title, std::
 
    graphics_info_t g;
 
-   GtkWidget *mwravp  = widget_from_builder("main_window_ramchandran_and_validation_pane");
+   GtkWidget *mwravp  = widget_from_builder("main_window_ramachandran_and_validation_pane");
    GtkWidget *mwgrvgp = widget_from_builder("main_window_graphics_rama_vs_graphics_pane");
    GtkWidget* vbox_vbox = widget_from_builder("validation_boxes_vbox");
    GtkWidget* vvf = widget_from_builder("main_window_vertical_validation_frame");

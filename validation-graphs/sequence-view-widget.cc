@@ -49,6 +49,8 @@ struct _CootSequenceView {
    int imol;
    mmdb::Manager *mol;
    std::vector<sv3_box_info_t> box_info_store;
+   bool has_active_residue;
+   coot::residue_spec_t active_residue_spec;
 };
 
 static guint sequence_view_residue_clicked_signal;
@@ -248,6 +250,16 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
                   float y_1 = y_offset;
                   sv3_box_info_t box_info(self->imol, residue_p, x_1, y_1);
                   self->box_info_store.push_back(box_info);
+                  if (self->has_active_residue) {
+                     coot::residue_spec_t this_spec(residue_p);
+                     if (this_spec == self->active_residue_spec) {
+                        cairo_save(cairo_canvas);
+                        cairo_set_source_rgba(cairo_canvas, 0.7, 0.7, 0.4, 0.55);
+                        cairo_rectangle(cairo_canvas, x_1, y_1, RESIDUE_BOX_WIDTH, RESIDUE_BOX_HEIGHT);
+                        cairo_fill(cairo_canvas);
+                        cairo_restore(cairo_canvas);
+                     }
+                  }
                   add_box_letter_code_label(cairo_canvas, residue_p, text_colour, x_1, y_1);
                }
             }
@@ -303,6 +315,7 @@ void on_sequence_view_left_click(GtkGestureClick* gesture_click,
 
 static void coot_sequence_view_init(CootSequenceView* self) {
 
+   self->has_active_residue = false;
    gtk_widget_set_has_tooltip(GTK_WIDGET(self),TRUE);
    g_signal_connect(self, "query-tooltip", G_CALLBACK(sequence_view_query_tooltip), NULL);
 
@@ -482,5 +495,27 @@ void coot_sequence_view_set_structure(CootSequenceView* self, int imol, mmdb::Ma
    self->imol = imol;
    self->mol = mol;
 
+}
+
+void coot_sequence_view_set_active_residue(CootSequenceView* self, const coot::residue_spec_t &spec) {
+
+   bool changed = false;
+   if (!self->has_active_residue) {
+      changed = true;
+   } else if (!(self->active_residue_spec == spec)) {
+      changed = true;
+   }
+   self->has_active_residue = true;
+   self->active_residue_spec = spec;
+   if (changed)
+      gtk_widget_queue_draw(GTK_WIDGET(self));
+}
+
+void coot_sequence_view_clear_active_residue(CootSequenceView* self) {
+
+   if (self->has_active_residue) {
+      self->has_active_residue = false;
+      gtk_widget_queue_draw(GTK_WIDGET(self));
+   }
 }
 

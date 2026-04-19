@@ -4334,7 +4334,7 @@ graphics_info_t::fill_difference_map_peaks_button_box() {
    };
 
 
-   GtkWidget *pane_to_show  = widget_from_builder("main_window_ramchandran_and_validation_pane");
+   GtkWidget *pane_to_show  = widget_from_builder("main_window_ramachandran_and_validation_pane");
    gtk_widget_set_visible(pane_to_show,  TRUE);
 
    GtkWidget *pane = widget_from_builder("main_window_graphics_rama_vs_graphics_pane");
@@ -4886,7 +4886,7 @@ graphics_info_t::fill_atoms_with_zero_occupancy_box_of_buttons(const std::vector
        GtkWidget *validation_graph_vbx = widget_from_builder("main_window_validation_graph_vbox");
        gtk_widget_set_visible(validation_graph_vbx, TRUE);
 
-       GtkWidget *pane_to_show  = widget_from_builder("main_window_ramchandran_and_validation_pane");
+       GtkWidget *pane_to_show  = widget_from_builder("main_window_ramachandran_and_validation_pane");
        gtk_widget_set_visible(pane_to_show,  TRUE);
 
        GtkWidget *pane = widget_from_builder("main_window_graphics_rama_vs_graphics_pane");

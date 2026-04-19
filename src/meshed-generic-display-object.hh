@@ -253,6 +253,7 @@ public:
                                   const clipper::Coord_orth &pos);
    void add_arc(const arc_t &arc);
    void add_torus(const torus_t &torus);
+   void add_tori(const std::vector<torus_t> &tv);
 
    void translate(const coot::Cartesian &t);
 

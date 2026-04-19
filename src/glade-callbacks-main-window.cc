@@ -755,9 +755,11 @@ void
 on_diff_map_peaks_close_button_clicked(GtkButton       *button,
                                        gpointer         user_data) {
 
-   GtkWidget *vbox = widget_from_builder("diff_map_peaks_outer_vbox");
+   GtkWidget *vbox         = widget_from_builder("diff_map_peaks_outer_vbox");
+   GtkWidget *dialog_vbox  = widget_from_builder("dialog-vbox78");
    clear_diff_map_peaks();
    gtk_widget_set_visible(vbox, FALSE);
+   gtk_widget_set_visible(dialog_vbox, FALSE);
    graphics_info_t::hide_vertical_validation_frame_if_appropriate();
 }
 

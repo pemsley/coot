@@ -2075,9 +2075,9 @@ on_environment_distance_dialog_ok_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-   GtkWidget *widget = widget_from_builder("environment_distance_dialog");
+   GtkWidget *dialog = widget_from_builder("environment_distances_dialog");
    execute_environment_settings(GTK_WIDGET(button));
-   gtk_widget_set_visible(widget, FALSE);
+   gtk_widget_set_visible(dialog, FALSE);
 
 }
 
@@ -6890,7 +6890,7 @@ on_ramachandran_plot_molecule_chooser_ok_button_clicked(GtkButton       *button,
    GtkWidget *combobox        = widget_from_builder("ramachandran_plot_molecule_chooser_model_combobox");
    GtkWidget *selection_entry = widget_from_builder("ramachandran_plot_molecule_chooser_residue_selection_entry");
    GtkWidget *scrolled        = widget_from_builder("ramachandran_plots_scrolled_window");
-   GtkWidget *pane            = widget_from_builder("main_window_ramchandran_and_validation_pane");
+   GtkWidget *pane            = widget_from_builder("main_window_ramachandran_and_validation_pane");
 
    std::string residue_selection_string = gtk_editable_get_text(GTK_EDITABLE(selection_entry));
 
