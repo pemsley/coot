@@ -1,0 +1,131 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 900" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#444"/>
+    </marker>
+    <marker id="arrow-blue" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#2266aa"/>
+    </marker>
+  </defs>
+
+  <style>
+    .title { font-size: 18px; font-weight: bold; fill: #222; }
+    .stage-label { font-size: 14px; font-weight: bold; fill: #2266aa; }
+    .annotation { font-size: 11px; fill: #555; }
+    .annotation-bold { font-size: 11px; fill: #333; font-weight: bold; }
+    .protein-a { fill: #4488cc; stroke: #2266aa; stroke-width: 1.5; }
+    .protein-b { fill: #cc6644; stroke: #aa4422; stroke-width: 1.5; }
+    .protein-a-ghost { fill: #4488cc; opacity: 0.15; stroke: #2266aa; stroke-width: 1; stroke-dasharray: 4,3; }
+    .protein-b-ghost { fill: #cc6644; opacity: 0.15; stroke: #aa4422; stroke-width: 1; stroke-dasharray: 4,3; }
+    .com-dot { fill: #222; }
+    .distance-line { stroke: #888; stroke-width: 1; stroke-dasharray: 6,4; }
+    .arrow-line { stroke: #444; stroke-width: 1.5; }
+    .box { fill: #f8f8f8; stroke: #ccc; stroke-width: 1; rx: 6; }
+    .stage-box { fill: #eef4fa; stroke: #aaccdd; stroke-width: 1.5; rx: 8; }
+    .energy-arrow { stroke: #2266aa; stroke-width: 1.5; }
+    .rotation-arc { fill: none; stroke: #cc6644; stroke-width: 1.5; }
+    .active-residue { fill: #ffcc33; stroke: #cc9900; stroke-width: 1; }
+  </style>
+
+  <text x="400" y="30" text-anchor="middle" class="title">HADDOCK Rigid Body Docking Stage</text>
+  <text x="400" y="48" text-anchor="middle" class="annotation">(Stage 1 of 3: generates 1000 poses, keeps best 200 by intermolecular energy)</text>
+
+  <!-- STEP 1: Initial placement -->
+  <rect x="20" y="65" width="760" height="160" class="stage-box"/>
+  <text x="35" y="85" class="stage-label">Step 1: Initial Placement</text>
+
+  <!-- Protein A at origin -->
+  <ellipse cx="200" cy="155" rx="55" ry="35" class="protein-a"/>
+  <text x="200" y="160" text-anchor="middle" font-size="13" fill="white" font-weight="bold">Protein A</text>
+  <circle cx="200" cy="155" r="3" class="com-dot"/>
+
+  <!-- 150A line -->
+  <line x1="258" y1="155" x2="502" y2="155" class="distance-line"/>
+  <text x="380" y="148" text-anchor="middle" class="annotation-bold">150 A</text>
+
+  <!-- Protein B far away -->
+  <ellipse cx="560" cy="155" rx="45" ry="30" class="protein-b"/>
+  <text x="560" y="160" text-anchor="middle" font-size="13" fill="white" font-weight="bold">Protein B</text>
+  <circle cx="560" cy="155" r="3" class="com-dot"/>
+
+  <text x="200" y="208" text-anchor="middle" class="annotation">centred at origin</text>
+  <text x="560" y="208" text-anchor="middle" class="annotation">placed 150 A away</text>
+
+  <!-- STEP 2: Random rotation -->
+  <rect x="20" y="240" width="760" height="175" class="stage-box"/>
+  <text x="35" y="262" class="stage-label">Step 2: Random Rotation (each around its own centre of mass)</text>
+
+  <!-- Protein A rotated - show ghost of original and rotated version -->
+  <ellipse cx="200" cy="340" rx="55" ry="35" class="protein-a-ghost"/>
+  <ellipse cx="200" cy="340" rx="35" ry="55" class="protein-a"/>
+  <text x="200" y="345" text-anchor="middle" font-size="13" fill="white" font-weight="bold">A</text>
+  <circle cx="200" cy="340" r="3" class="com-dot"/>
+  <!-- rotation arrow -->
+  <path d="M 245,310 A 30,30 0 0,1 245,370" class="rotation-arc" marker-end="url(#arrow)"/>
+
+  <!-- Protein B rotated -->
+  <ellipse cx="560" cy="340" rx="45" ry="30" class="protein-b-ghost"/>
+  <ellipse cx="560" cy="340" rx="30" ry="45" class="protein-b" transform="rotate(35,560,340)"/>
+  <text x="560" y="345" text-anchor="middle" font-size="13" fill="white" font-weight="bold">B</text>
+  <circle cx="560" cy="340" r="3" class="com-dot"/>
+  <path d="M 600,315 A 25,25 0 0,1 595,370" class="rotation-arc" marker-end="url(#arrow)"/>
+
+  <text x="400" y="400" text-anchor="middle" class="annotation">uniform random quaternion rotation applied independently to each protein</text>
+
+  <!-- STEP 3: Rigid body EM -->
+  <rect x="20" y="430" width="760" height="220" class="stage-box"/>
+  <text x="35" y="452" class="stage-label">Step 3: Rigid Body Energy Minimization</text>
+
+  <!-- Sub-step 3a: rotational optimization -->
+  <rect x="40" y="462" width="340" height="90" class="box"/>
+  <text x="55" y="480" class="annotation-bold">3a: Orientational optimization (x4 cycles)</text>
+  <text x="55" y="496" class="annotation">- Fix A, rotate B to minimise E_intermol</text>
+  <text x="55" y="510" class="annotation">- Fix B, rotate A to minimise E_intermol</text>
+  <text x="55" y="524" class="annotation">- Alternating, 4 cycles total</text>
+
+  <!-- Sub-step 3b: full rigid body -->
+  <rect x="410" y="462" width="355" height="90" class="box"/>
+  <text x="425" y="480" class="annotation-bold">3b: Full rigid body minimization</text>
+  <text x="425" y="496" class="annotation">- Both rotation + translation allowed</text>
+  <text x="425" y="510" class="annotation">- Proteins slide together along energy</text>
+  <text x="425" y="524" class="annotation">  gradient until convergence</text>
+
+  <!-- Arrow between 3a and 3b -->
+  <line x1="383" y1="507" x2="407" y2="507" class="arrow-line" marker-end="url(#arrow)"/>
+
+  <!-- Result illustration -->
+  <text x="55" y="575" class="annotation-bold">Result: proteins docked in contact</text>
+
+  <!-- Docked proteins -->
+  <ellipse cx="330" cy="610" rx="55" ry="35" class="protein-a" transform="rotate(-15,330,610)"/>
+  <ellipse cx="410" cy="600" rx="45" ry="30" class="protein-b" transform="rotate(20,410,600)"/>
+  <!-- Active residues shown at interface -->
+  <circle cx="370" cy="600" r="5" class="active-residue"/>
+  <circle cx="362" cy="612" r="5" class="active-residue"/>
+  <circle cx="378" cy="592" r="5" class="active-residue"/>
+  <circle cx="385" cy="608" r="5" class="active-residue"/>
+  <text x="375" y="643" text-anchor="middle" class="annotation">AIRs pull active residues into contact</text>
+
+  <!-- Energy function box -->
+  <rect x="500" y="570" width="260" height="72" class="box"/>
+  <text x="515" y="590" class="annotation-bold">Intermolecular energy:</text>
+  <text x="515" y="608" font-size="13" fill="#2266aa" font-weight="bold">E = E_vdw + E_elec + E_AIR</text>
+  <text x="515" y="626" class="annotation">(no map density involved)</text>
+
+  <!-- BOTTOM: Repeat/select -->
+  <rect x="20" y="665" width="760" height="105" class="stage-box"/>
+  <text x="35" y="687" class="stage-label">Step 4: Repeat and Select</text>
+
+  <text x="55" y="710" class="annotation">Generate <tspan font-weight="bold">1000</tspan> random starting orientations (steps 1-3 for each)</text>
+  <text x="55" y="730" class="annotation">Rank all 1000 by intermolecular energy (E_vdw + E_elec + E_AIR)</text>
+  <text x="55" y="750" class="annotation">Keep <tspan font-weight="bold">best 200</tspan> for Stage 2 (semi-rigid simulated annealing)</text>
+
+  <!-- Legend -->
+  <rect x="530" y="695" width="235" height="60" class="box"/>
+  <text x="545" y="713" class="annotation-bold">Key difference from Coot rigid body:</text>
+  <text x="545" y="728" class="annotation">Coot fits against density map</text>
+  <text x="545" y="743" class="annotation">HADDOCK fits against partner protein</text>
+
+  <!-- Overall flow arrow on right side -->
+  <text x="792" y="150" text-anchor="end" class="annotation" transform="rotate(90,792,150)">1000x with different random orientations</text>
+</svg>
