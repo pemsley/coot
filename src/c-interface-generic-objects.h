@@ -150,6 +150,14 @@ void to_generic_object_add_torus(int object_number,
                                  float normal_y,
                                  float normal_z);
 
+#ifdef USE_PYTHON
+/*! \brief add multiple tori to generic object object_number
+
+c.f. to_generic_object_add_lines()
+each list item is a [colour, radius, radius_inner, cx, cy, cz, nx, ny, nz] */
+void to_generic_object_add_tori(int object_number, PyObject *torus_info_list_py);
+#endif
+
 void
 to_generic_object_add_arrow(int object_number,
                             const char *colour_name,
