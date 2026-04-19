@@ -238,8 +238,7 @@ startup_realize(GtkWidget *gl_area) {
                 << std::endl;
 
    auto run_command_line_scripts_callback = +[] (gpointer user_data) {
-
-      // run_command_line_scripts();
+      run_command_line_scripts();
       return G_SOURCE_REMOVE;
    };
    g_idle_add(run_command_line_scripts_callback, nullptr);
