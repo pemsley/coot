@@ -116,7 +116,7 @@ float get_fog_amount(float depth_in) {
       return depth_in;
    } else {
       float d = depth_in;
-      return 0.9 * d * d * d * d;
+      return d * d;
    }
 }
 
