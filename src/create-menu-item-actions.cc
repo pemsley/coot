@@ -4335,11 +4335,13 @@ environment_distances_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                              G_GNUC_UNUSED GVariant *parameter,
                              G_GNUC_UNUSED gpointer user_data) {
 
-   GtkWidget *widget = widget_from_builder("environment_distance_dialog");
-   fill_environment_widget(widget);
-   set_transient_for_main_window(widget);
-   gtk_widget_set_visible(widget, TRUE);
-   graphics_info_t::graphics_grab_focus();
+   GtkWidget *dialog = widget_from_builder("environment_distances_dialog");
+   if (dialog) {
+      fill_environment_widget(dialog);
+      set_transient_for_main_window(dialog);
+      gtk_widget_set_visible(dialog, TRUE);
+      graphics_info_t::graphics_grab_focus();
+   }
 }
 
 

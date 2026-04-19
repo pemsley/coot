@@ -4883,7 +4883,7 @@ that you wish to delete.               </property>
     </child>
   </object>
 
-  <object class="GtkDialog" id="environment_distance_dialog">
+  <object class="GtkDialog" id="environment_distances_dialog">
     <property name="title" translatable="yes">Coot Environment Distances</property>
     <child>
       <object class="GtkBox" id="dialog-vbox11">

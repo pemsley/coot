@@ -2075,9 +2075,9 @@ on_environment_distance_dialog_ok_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-   GtkWidget *widget = widget_from_builder("environment_distance_dialog");
+   GtkWidget *dialog = widget_from_builder("environment_distances_dialog");
    execute_environment_settings(GTK_WIDGET(button));
-   gtk_widget_set_visible(widget, FALSE);
+   gtk_widget_set_visible(dialog, FALSE);
 
 }
 

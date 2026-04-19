@@ -2474,7 +2474,6 @@ void toggle_environment_show_distances(GtkCheckButton *button) {
    graphics_info_t g;
 
    GtkWidget *hbox                    = widget_from_builder("environment_distance_distances_frame");
-   GtkWidget *distance_type_frame     = widget_from_builder("environment_distances_type_selection");
    GtkWidget *label_atom_check_button = widget_from_builder("environment_distance_label_atom_checkbutton");
 
    if (gtk_check_button_get_active(button)) {
@@ -2482,7 +2481,6 @@ void toggle_environment_show_distances(GtkCheckButton *button) {
       g.environment_show_distances = 1;
       gtk_widget_set_sensitive(hbox, TRUE);
       gtk_widget_set_sensitive(label_atom_check_button, TRUE);
-      gtk_widget_set_sensitive(distance_type_frame, TRUE);
 
       std::pair<int, int> r = g.get_closest_atom();
       if (r.first >= 0) {
@@ -2492,10 +2490,8 @@ void toggle_environment_show_distances(GtkCheckButton *button) {
       }
 
    } else {
-      // std::cout << "toggled evironment distances off" << std::endl;
       g.environment_show_distances = 0;
       gtk_widget_set_sensitive(hbox, FALSE);
-      gtk_widget_set_sensitive(distance_type_frame, FALSE);
       graphics_draw();
       // gtk_widget_set_sensitive(label_atom_check_button, FALSE); // keep it always active
    }
