@@ -20,6 +20,7 @@
  * 02110-1301, USA
  */
 
+#include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <map>
