@@ -2251,6 +2251,7 @@ void handle_get_accession_code(GtkWidget *frame, GtkWidget *entry) {
    };
 
    const gchar *text_c = gtk_editable_get_text(GTK_EDITABLE(entry));
+   bool do_message = true;
 
    if (! text_c) {
       std::cout << "WARNING:: handle_get_accession_code no text " << std::endl;
@@ -2263,6 +2264,7 @@ void handle_get_accession_code(GtkWidget *frame, GtkWidget *entry) {
       std::cout << "DEBUG:: extracted accession code handle mode n " << n << std::endl;
       if (n == COOT_EMDB_CODE) {
          fetch_emdb_map(text);
+         do_message = false;
       } else {
          if (n == COOT_COD_CODE) {
 #ifdef USE_LIBCURL
@@ -2273,7 +2275,8 @@ void handle_get_accession_code(GtkWidget *frame, GtkWidget *entry) {
          }
       }
    }
-   graphics_info_t::ephemeral_overlay_label("Press U to return to previous centre");
+   if (do_message)
+      graphics_info_t::ephemeral_overlay_label("Press U to return to previous centre");
    // and hide the accession code window
    gtk_widget_set_visible(frame, FALSE);
 }
