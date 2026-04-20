@@ -1672,7 +1672,6 @@ void  do_edit_copy_fragment() {
    // new_fill_combobox_with_coordinates_options() doesn't set the active item - I don't understand why.
    g.new_fill_combobox_with_coordinates_options(combobox_molecule, callback_func, imol_active);
    g_object_set_data(G_OBJECT(frame), "combobox", combobox_molecule); // for reading. 20220828-PE still needed?
-   set_transient_for_main_window(frame);
    gtk_widget_set_visible(frame, TRUE);
 
    // the dialog response callback for this is on_copy_fragment_dialog_response()

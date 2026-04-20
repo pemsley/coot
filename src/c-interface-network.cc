@@ -91,6 +91,8 @@ int coot_curl_progress_callback(void *clientp,
                                 curl_off_t ulnow) {
 
    ProgressNotifier* notifier_ptr = (ProgressNotifier*)(clientp);
+   if (notifier_ptr->is_cancelled())
+      return 1; // non-zero aborts the transfer
    if(dltotal == 0) {
       dltotal++;
    }
@@ -731,31 +733,69 @@ void fetch_emdb_map(const std::string &emd_accession_code) {
    }
 
    std::string label_str = "Downloading map for " + emd_accession_code + " from EMDB...";
-   ProgressBarPopUp popup("Coot: Downloading Map", label_str);
+   GtkWidget *download_frame = graphics_info_t::get_widget_from_builder("download-emdb-map-frame");
+   GtkWidget *download_label = graphics_info_t::get_widget_from_builder("download-emdb-map-label");
+   GtkProgressBar *download_progressbar =
+      GTK_PROGRESS_BAR(graphics_info_t::get_widget_from_builder("download-emdb-map-progressbar"));
+   GtkWidget *cancel_button = graphics_info_t::get_widget_from_builder("download-emdb-map-cancel-button");
+   gtk_label_set_text(GTK_LABEL(download_label), label_str.c_str());
+   gtk_progress_bar_set_fraction(download_progressbar, 0.0);
+   gtk_widget_set_visible(download_frame, TRUE);
 
-   std::thread worker([=](ProgressBarPopUp&& pp) {
+   auto cancel_flag = std::make_shared<std::atomic<bool>>(false);
+
+   // clean up any previous cancel_flag data
+   auto *old_flag_p = static_cast<std::shared_ptr<std::atomic<bool>> *>(
+      g_object_get_data(G_OBJECT(cancel_button), "cancel_flag"));
+   if (old_flag_p) delete old_flag_p;
+
+   g_object_set_data(G_OBJECT(cancel_button), "cancel_flag",
+      new std::shared_ptr<std::atomic<bool>>(cancel_flag));
+   g_signal_handlers_disconnect_matched(G_OBJECT(cancel_button),
+      G_SIGNAL_MATCH_ID, g_signal_lookup("clicked", GTK_TYPE_BUTTON),
+      0, nullptr, nullptr, nullptr);
+   g_signal_connect(cancel_button, "clicked",
+      G_CALLBACK(+[](GtkButton *button, gpointer user_data) {
+         auto *flag_p = static_cast<std::shared_ptr<std::atomic<bool>> *>(
+            g_object_get_data(G_OBJECT(button), "cancel_flag"));
+         if (flag_p)
+            (*flag_p)->store(true);
+      }), nullptr);
+
+   ProgressBarPopUp popup(download_frame, download_progressbar);
+   std::thread worker([=](ProgressBarPopUp&& pp){
 
       std::shared_ptr<ProgressBarPopUp> popup = std::make_shared<ProgressBarPopUp>(std::move(pp));
-      int status = coot_get_url_with_notifier(map_gz_url, gz_fn, ProgressNotifier(popup));
+      try {
 
-      if (status != 0) { // if it's bad
-         g_warning("Download failed. Status=%i", status);
+      ProgressNotifier notifier(popup);
+      notifier.set_cancel_flag(cancel_flag);
+      int status = coot_get_url_with_notifier(map_gz_url, gz_fn, notifier);
+
+      if (status != 0) {
+         if (cancel_flag->load()) {
+            g_info("EMDB download cancelled by user.");
+            remove(gz_fn.c_str());
+         } else {
+            g_warning("Download failed. Status=%i", status);
+         }
          return;
       }
 
-      std::string gzipedBytes;
-
-      std::ifstream file(gz_fn);
-      std::stringstream ss;
-
-      while (!file.eof()) {
-         gzipedBytes += (char) file.get();
+      std::ifstream file(gz_fn, std::ios::binary | std::ios::ate);
+      if (!file.is_open()) {
+         g_warning("The downloaded file (%s) could not be opened.", gz_fn.c_str());
+         return;
       }
-      file.close();
-      if (gzipedBytes.size() == 0) {
+      auto file_size = file.tellg();
+      if (file_size <= 0) {
          g_warning("The downloaded file (%s) is empty or could not be read.", gz_fn.c_str());
          return;
       }
+      std::string gzipedBytes(file_size, '\0');
+      file.seekg(0);
+      file.read(&gzipedBytes[0], file_size);
+      file.close();
 
       unsigned int full_length   = gzipedBytes.size();
       unsigned int half_length   = gzipedBytes.size()/2;
@@ -809,15 +849,11 @@ void fetch_emdb_map(const std::string &emd_accession_code) {
          return;
       }
 
-      for (size_t i = 0; i < strm.total_out; ++i) {
-         ss << uncomp[i];
-      }
-      delete [] uncomp;
-
-      g_info("The downloaded file has been successfully uncompressed. Writing it down...");
-      std::ofstream out(fn);
-      out << ss.str();
+      g_info("The downloaded file has been successfully decompressed. Writing it down...");
+      std::ofstream out(fn, std::ios::binary);
+      out.write(reinterpret_cast<char *>(uncomp), strm.total_out);
       out.close();
+      delete [] uncomp;
       g_info("Deleting the downloaded archive...");
       remove(gz_fn.c_str());
 
@@ -834,6 +870,12 @@ void fetch_emdb_map(const std::string &emd_accession_code) {
          delete cbd;
          return FALSE; // only one
       }, cbd);
+
+      } catch (const std::bad_alloc &e) {
+         g_warning("fetch_emdb_map(): memory allocation failed: %s", e.what());
+      } catch (const std::exception &e) {
+         g_warning("fetch_emdb_map(): %s", e.what());
+      }
 
    }, std::move(popup));
    worker.detach();
