@@ -3305,6 +3305,9 @@ void close_molecule(int imol) {
    g.clear_up_moving_atoms_maybe(imol);
    g.update_scroll_wheel_map_on_molecule_close();
 
+   graphics_info_t::refresh_ramachandran_plot_model_list();
+   graphics_info_t::refresh_validation_graph_model_list();
+
    graphics_draw();
    std::string cmd = "close-molecule";
    std::vector<coot::command_arg_t> args;
