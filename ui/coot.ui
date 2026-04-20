@@ -9721,6 +9721,44 @@ Do you want to continue?
             </child>
 
             <child type="overlay">
+              <object class="GtkFrame" id="download-emdb-map-frame">
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="visible">False</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">5</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">10</property>
+                    <property name="margin-bottom">10</property>
+                    <property name="margin-top">10</property>
+                    <property name="margin-start">10</property>
+                    <property name="margin-end">10</property>
+                    <child>
+                      <object class="GtkLabel" id="download-emdb-map-label">
+                        <property name="label">Downloading...</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkProgressBar" id="download-emdb-map-progressbar">
+                        <property name="show-text">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="download-emdb-map-cancel-button">
+                        <property name="label">Cancel</property>
+                        <property name="halign">center</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+
+            <child type="overlay">
               <object class="GtkFrame" id="smiles_to_simple_3d_frame">
                 <property name="halign">center</property>
                 <property name="valign">start</property>
