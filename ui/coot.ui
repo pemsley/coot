@@ -733,6 +733,21 @@
             <attribute name="action">app.go_to_atom_action</attribute>
           </item>
           <item>
+            <attribute name="label">Map Parameters...</attribute>
+            <attribute name="action">app.map_parameters_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Molecular Surface</attribute>
+            <attribute name="action">app.molecular_surface_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">NCS Ghost Control...</attribute>
+            <attribute name="action">app.ghost_control_action</attribute>
+          </item>
+        </section>
+
+        <section>
+          <item>
             <attribute name="label">Label Atoms in Residue</attribute>
             <attribute name="action">app.label_atoms_in_residue_action</attribute>
           </item>
@@ -745,16 +760,8 @@
             <attribute name="action">app.label_neighbours_action</attribute>
           </item>
           <item>
-            <attribute name="label">Map Parameters...</attribute>
-            <attribute name="action">app.map_parameters_action</attribute>
-          </item>
-          <item>
-            <attribute name="label">Molecular Surface</attribute>
-            <attribute name="action">app.molecular_surface_action</attribute>
-          </item>
-          <item>
-            <attribute name="label">NCS Ghost Control...</attribute>
-            <attribute name="action">app.ghost_control_action</attribute>
+            <attribute name="label">Clear Atom Labels</attribute>
+            <attribute name="action">app.clear_atom_labels_action</attribute>
           </item>
         </section>
 
@@ -824,10 +831,6 @@
     <submenu>
       <attribute name="label">Measures</attribute>
       <section>
-        <item>
-          <attribute name="label">Clear Atom Labels</attribute>
-          <attribute name="action">app.clear_atom_labels_action</attribute>
-        </item>
         <item>
           <attribute name="label">Distances &amp; Angles...</attribute>
           <attribute name="action">app.distances_and_angles_action</attribute>
