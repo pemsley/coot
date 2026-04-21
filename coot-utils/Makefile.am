@@ -48,7 +48,7 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
 	stb_image.h stb_image_write.h glyco-tree.hh positron.hh mini-texture.hh texture-as-floats.hh pae.hh q-score.hh \
 	acedrg-types-for-residue.hh gl-matrix.h ortep.hh coot-align.hh grid-balls.hh dict-link-info.hh \
         dirichlet-process.hh cfc.hh cremer-pople.hh born.hh inchikey-store.hh cylinder-utils.hh gmm.hh nef-utils.hh ptm-database.hh \
-	read-amber-trajectory.hh rebox-map.hh coot-coord-utils-gemmi.hh map-cap.hh
+	read-amber-trajectory.hh rebox-map.hh coot-coord-utils-gemmi.hh map-cap.hh edcalc.hh
 
 
 pkgincludedir = $(includedir)/coot/coot-utils
@@ -145,7 +145,7 @@ libcoot_map_utils_la_SOURCES = coot-map-utils.cc peak-search.cc peak-search-from
 	xmap-stats.cc maps-spherical.cc pepflip-using-difference-map.cc exp-fit.cc blob-line.cc \
         slurp-map.cc find-water-baddies.cc diff-diff-map-peaks.cc mini-texture.cc positron.cc \
         texture-as-floats.cc merge-C-and-N-terminii.cc born.cc rebox-map.cc \
-        crowther.cc patterson.cc map-cap.cc
+        crowther.cc patterson.cc map-cap.cc edcalc.cc
 
 
 # should libcoot-coord-utils link $CLIPPER_LIBS directly? (Hence CLIPPER_LIBS is not needed here)
