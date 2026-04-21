@@ -49,16 +49,11 @@ Modelling
                rmsd = 1.5 * exp(4.0 * (0.7 - pLDDT/100))
                B    = (8 pi^2 / 3) * rmsd^2
 
- o FEATURE: NCS Ligand user interface added; ncs_ligand moved
-            from old/gtk+2 scripting into C++
-
  o BUG-FIX: Restraints lock now acquired when updating NBCs in
             minimize()
 
  o BUG-FIX: Atom indexing error fixed in
             update_extra_restraints_representation_geman_mcclure()
-
- o BUG-FIX: ncs_ligands() behaviour fixed
 
  o BUG-FIX: For ramp_chains, the polymer range is now known
 
@@ -123,6 +118,8 @@ User Interface
 
  o FEATURE: "Edit -> Residue info": "Apply occupancy to atom with
             alt conformation" checkbox restored
+
+ o FEATURE: "NCS Ligands" user interface added
 
  o BUG-FIX: Fix crash in display control delete button
 

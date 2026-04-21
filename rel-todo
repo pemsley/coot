@@ -10,8 +10,11 @@ o Update sequence view on mutation, deletion and addition or renumber
 
 o DACA
 
-
 o zoom drag, lift shift, continue drag -> jump
+
+o goograph to modern GTK4?
+
+o delete the rama plot for a model when the model is removed using the display manager (or elsewhere)
 
 o make a nice figure, using the ray tracer of 2ouz lasofoxifene with density and environment
 
@@ -24,6 +27,8 @@ o Download EMDB dialog should be an overlay frame - rewrite in pure C++
 o "active residue" marker in the rama plot. Make it a circle/ring.
 
 o Blog post for "light mode" coot
+
+o FLEV on 4zzn has a bug in the inner double bond positioning. Try just CQ8, no FLEV.
 
 o Fix the pukka puckers markup!
 * Done.
