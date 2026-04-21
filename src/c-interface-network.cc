@@ -734,11 +734,11 @@ void fetch_emdb_map(const std::string &emd_accession_code) {
 
    std::string label_str = "Downloading map for " + emd_accession_code + " from EMDB...";
    GtkWidget *download_frame = graphics_info_t::get_widget_from_builder("download-emdb-map-frame");
-   GtkWidget *download_label = graphics_info_t::get_widget_from_builder("download-emdb-map-label");
+   // GtkWidget *download_label = graphics_info_t::get_widget_from_builder("download-emdb-map-label");
+   // gtk_label_set_text(GTK_LABEL(download_label), label_str.c_str());
    GtkProgressBar *download_progressbar =
       GTK_PROGRESS_BAR(graphics_info_t::get_widget_from_builder("download-emdb-map-progressbar"));
    GtkWidget *cancel_button = graphics_info_t::get_widget_from_builder("download-emdb-map-cancel-button");
-   gtk_label_set_text(GTK_LABEL(download_label), label_str.c_str());
    gtk_progress_bar_set_fraction(download_progressbar, 0.0);
    gtk_widget_set_visible(download_frame, TRUE);
 
