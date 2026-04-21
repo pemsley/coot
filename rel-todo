@@ -6,8 +6,10 @@ file: /Users/pemsley/Projects/coot/git/coot-main/build-chapi-with-homebrew-deps/
 Read 63 atoms/links in restraints from /Users/pemsley/Projects/coot/git/coot-main/build-chapi-with-homebrew-deps/A1DAP.cif
 
 o Update sequence view on mutation, deletion and addition or renumber
+* Done.
 
 o DACA
+
 
 o zoom drag, lift shift, continue drag -> jump
 
@@ -17,11 +19,17 @@ o rewite the download dialog to be an overlay
 
 o close the side-bar when difference maps frame is closed
 
-o Fix the pukka puckers markup!
-
 o Download EMDB dialog should be an overlay frame - rewrite in pure C++
 
+o "active residue" marker in the rama plot. Make it a circle/ring.
+
+o Blog post for "light mode" coot
+
+o Fix the pukka puckers markup!
+* Done.
+
 o make pop-diego face particles smaller
+* Done.
 
 o strip Aniso from pdb on write - add a button to the dialog
 * Done
@@ -36,6 +44,7 @@ o add NCS ligands
 
 o delete symmetry waters
 
+o get the "icon" start working on macOS - needs work on multi-resolution icon.
 
 o fix the build/installation of curl - on home desktop.
 
