@@ -3499,6 +3499,22 @@ GtkWidget *wrapped_create_show_symmetry_window() {
     if (graphics_info_t::symmetry_atom_labels_expanded_flag)
        gtk_check_button_set_active(GTK_CHECK_BUTTON(checkbutton), TRUE);
 
+    //  The Symmetry as C-Alphas checkbutton - reflects state of first model molecule
+    GtkWidget *sym_ca_checkbutton = widget_from_builder("symmetry_as_calphas_checkbutton");
+    if (sym_ca_checkbutton) {
+       short int ca_state = 0;
+       int n_mol = graphics_n_molecules();
+       for (int ii=0; ii<n_mol; ii++) {
+          if (is_valid_model_molecule(ii)) {
+             if (graphics_info_t::molecules[ii].symmetry_as_calphas) {
+                ca_state = 1;
+                break;
+             }
+          }
+       }
+       gtk_check_button_set_active(GTK_CHECK_BUTTON(sym_ca_checkbutton), ca_state);
+    }
+
 #if 0
     // GtkWidget *colour_button = lookup_widget(show_symm_window, "symmetry_colorbutton");
     GtkWidget *colour_button = widget_from_builder("symmetry_colorbutton"); // a GtkButton

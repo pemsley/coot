@@ -6562,6 +6562,20 @@ on_show_symmetry_yes_radiobutton_toggled(GtkCheckButton *checkbutton,
 
 extern "C" G_MODULE_EXPORT
 void
+on_symmetry_as_calphas_checkbutton_toggled(GtkCheckButton *checkbutton,
+                                           gpointer        user_data) {
+
+   short int state = gtk_check_button_get_active(checkbutton) ? 1 : 0;
+   int n_mol = graphics_n_molecules();
+   for (int imol=0; imol<n_mol; imol++) {
+      if (is_valid_model_molecule(imol)) {
+         symmetry_as_calphas(imol, state);
+      }
+   }
+}
+
+extern "C" G_MODULE_EXPORT
+void
 on_symmetry_radius_entry_activate(GtkEntry* self,
                                   gpointer user_data) {
 

@@ -16988,6 +16988,25 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                   </object>
                 </child>
                 <child>
+                  <object class="GtkFrame" id="frame_symmetry_as_calphas">
+                    <property name="margin-start">6</property>
+                    <property name="margin-end">6</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">4</property>
+                    <child>
+                      <object class="GtkCheckButton" id="symmetry_as_calphas_checkbutton">
+                        <property name="label" translatable="yes"> Symmetry as C-Alphas</property>
+                        <property name="can-focus">1</property>
+                        <property name="margin-top">6</property>
+                        <property name="margin-bottom">6</property>
+                        <property name="margin-start">6</property>
+                        <property name="margin-end">6</property>
+                        <signal name="toggled" handler="on_symmetry_as_calphas_checkbutton_toggled" swapped="no"/>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
                   <object class="GtkFrame" id="frame9">
                     <property name="margin-start">6</property>
                     <property name="margin-end">6</property>
