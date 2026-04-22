@@ -2769,11 +2769,23 @@ void make_link_scm(int imol, SCM spec_1, SCM spec_2, const std::string&link_name
 SCM link_info_scm(int imol);
 #endif
 #ifdef USE_PYTHON
+
+//! make a link
 void make_link_py(int imol, PyObject *spec_1, PyObject *spec_2, const std::string&link_name, float length);
-// return a list of the links in the given molecule.
-// will return an empty list for non-valid (i.e. non-model) molecules
-//
+
+//! return a list of the links in the given molecule.
+//!
+//! @param imol the molecule index
+//! @return an empty list for non-valid (i.e. non-model) molecules
+//!
 PyObject *link_info_py(int imol);
+
+//! delete links
+//!
+//! @param imol the molecule index
+//! @param residue_spec_py the residue spec as 3 member list
+void delete_links_containing_residue_py(int imol, PyObject *residue_spec_py);
+
 #endif
 
 void show_acedrg_link_interface_overlay();

@@ -1081,10 +1081,33 @@ startup_application_activate(GtkApplication *application,
             GFile *file = (GFile *)g_value_get_object(value);
             if (file) {
                std::cout << "DEBUG:: got file: " << file << std::endl;
-               const gchar *filename = g_file_get_path(file);
-               std::cout << "DEBUG:: got filename: " << filename << std::endl;
-               handle_drag_and_drop_string(filename);
-               status = TRUE;
+               gchar *filename = g_file_get_path(file);
+               if (filename) {
+                  std::cout << "DEBUG:: got filename: " << filename << std::endl;
+                  handle_drag_and_drop_string(filename);
+                  status = TRUE;
+                  g_free(filename);
+               } else {
+                  // macOS GTK4 sometimes gives a GFile built from an already-URI
+                  // string, so the colon gets re-encoded (file%3A///...). Unescape
+                  // and strip the file:// prefix to recover the local path.
+                  gchar *uri = g_file_get_uri(file);
+                  std::cout << "DEBUG:: g_file_get_path() returned null; uri: "
+                            << (uri ? uri : "(null)") << std::endl;
+                  if (uri) {
+                     gchar *unescaped = g_uri_unescape_string(uri, NULL);
+                     if (unescaped) {
+                        const gchar *path = unescaped;
+                        if (g_str_has_prefix(path, "file://"))
+                           path += strlen("file://");
+                        std::cout << "DEBUG:: recovered path: " << path << std::endl;
+                        handle_drag_and_drop_string(path);
+                        status = TRUE;
+                        g_free(unescaped);
+                     }
+                     g_free(uri);
+                  }
+               }
             } else {
                std::cout << "got null file " << std::endl;
             }
