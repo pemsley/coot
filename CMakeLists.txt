@@ -364,6 +364,7 @@ add_library(cootapi SHARED
             ${coot_src}/coot-utils/atom-overlaps.cc
             ${coot_src}/coot-utils/bricks.cc
             ${coot_src}/coot-utils/mutate.cc
+            ${coot_src}/coot-utils/edcalc.cc
             ${coot_src}/coot-utils/elastic.cc
             ${coot_src}/coot-utils/coot-map-utils.cc
             ${coot_src}/coot-utils/coot-h-bonds.cc
@@ -382,6 +383,7 @@ add_library(cootapi SHARED
             ${coot_src}/coot-utils/bonded-atoms.cc
             ${coot_src}/coot-utils/fragment-container.cc
             ${coot_src}/coot-utils/positron.cc
+            ${coot_src}/coot-utils/map-cap.cc
             ${coot_src}/coot-utils/maps-spherical.cc
             ${coot_src}/coot-utils/peak-search.cc
             ${coot_src}/coot-utils/pugixml.cpp
