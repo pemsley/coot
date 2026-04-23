@@ -577,6 +577,8 @@ endif()
 
 target_compile_features(cootapi PRIVATE cxx_std_17)
 
+target_compile_definitions(coot_headless_api PRIVATE COOT_SOURCE_DIR="${coot_SOURCE_DIR}")
+
 # Charles adds this MSVC CXX compiler test
 if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   target_compile_options(cootapi PRIVATE
