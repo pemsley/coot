@@ -240,6 +240,8 @@ graphics_info_t::on_glarea_drag_update_primary(GtkGestureDrag *gesture,
             graphics_draw();
          } else {
             if (shift_is_pressed) {
+               mouse_x = drag_begin_x + drag_delta_x;
+               mouse_y = drag_begin_y + drag_delta_y;
                do_view_zoom(drag_delta_x, drag_delta_y);
             } else {
                if (use_primary_mouse_for_view_rotation_flag) {
