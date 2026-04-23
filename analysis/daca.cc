@@ -24,6 +24,8 @@
 #include <map>
 #include <iomanip>
 #include <fstream>
+#include <cstdlib>
+#include <cmath>
 #include "compat/coot-sysdep.h"
 #include "utils/coot-utils.hh"
 #include "geometry/residue-and-atom-specs.hh"
@@ -258,6 +260,153 @@ coot::daca::make_typed_atoms(mmdb::Model *model_p, const coot::protein_geometry 
    return v;
 }
 
+std::vector<std::pair<mmdb::Atom *, std::string> >
+coot::daca::make_symmetry_typed_atoms(mmdb::Manager *mol,
+                                      mmdb::Model *model_p,
+                                      const protein_geometry &geom,
+                                      float expansion_radius,
+                                      std::vector<mmdb::Atom *> *symm_atom_store_p) const {
+
+   std::vector<std::pair<mmdb::Atom *, std::string> > result;
+
+   int n_symops = mol->GetNumberOfSymOps();
+   if (n_symops == 0) {
+      std::cout << "INFO:: no symmetry operators — symmetry contacts not included" << std::endl;
+      return result;
+   }
+
+   // Build dictionary map for typing (same as make_typed_atoms)
+   std::map<std::string, dictionary_residue_restraints_t> dictionary_map;
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         int nres = chain_p->GetNumberOfResidues();
+         for (int ires=0; ires<nres; ires++) {
+            mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+            if (residue_p) {
+               std::string res_type = residue_p->GetResName();
+               if (dictionary_map.find(res_type) == dictionary_map.end()) {
+                  auto restraints = geom.get_monomer_restraints(res_type, protein_geometry::IMOL_ENC_ANY);
+                  if (restraints.first)
+                     dictionary_map[res_type] = restraints.second;
+               }
+            }
+         }
+      }
+   }
+
+   // Compute bounding box of ASU atoms
+   float xmin = 1e9f, xmax = -1e9f;
+   float ymin = 1e9f, ymax = -1e9f;
+   float zmin = 1e9f, zmax = -1e9f;
+   int n_asu_atoms;
+   mmdb::PPAtom asu_atoms = nullptr;
+   mol->GetAtomTable(asu_atoms, n_asu_atoms);
+   for (int i=0; i<n_asu_atoms; i++) {
+      mmdb::Atom *at = asu_atoms[i];
+      if (! at) continue;
+      if (at->x < xmin) xmin = at->x;
+      if (at->x > xmax) xmax = at->x;
+      if (at->y < ymin) ymin = at->y;
+      if (at->y > ymax) ymax = at->y;
+      if (at->z < zmin) zmin = at->z;
+      if (at->z > zmax) zmax = at->z;
+   }
+   // Expand bounding box by contact search distance
+   xmin -= expansion_radius; xmax += expansion_radius;
+   ymin -= expansion_radius; ymax += expansion_radius;
+   zmin -= expansion_radius; zmax += expansion_radius;
+
+   // ASU centre and radius for quick symop filtering
+   float cx = 0.5f * (xmin + xmax + 2.0f * expansion_radius);
+   float cy = 0.5f * (ymin + ymax + 2.0f * expansion_radius);
+   float cz = 0.5f * (zmin + zmax + 2.0f * expansion_radius);
+   // not needed after bbox expansion — cx/cy/cz already centred on original bbox
+
+   // Determine cell translation range
+   mmdb::realtype a[6], vol;
+   int orthcode;
+   mol->GetCell(a[0], a[1], a[2], a[3], a[4], a[5], vol, orthcode);
+   float min_cell = static_cast<float>(std::min({a[0], a[1], a[2]}));
+   if (min_cell < 1.0f) {
+      std::cout << "WARNING:: unit cell dimension too small (" << min_cell
+                << ") — symmetry contacts not included" << std::endl;
+      return result;
+   }
+   int ishift = 1 + static_cast<int>(expansion_radius / min_cell);
+
+   unsigned int n_symm_atoms = 0;
+   for (int isym=0; isym<n_symops; isym++) {
+      for (int xs=-ishift; xs<=ishift; xs++) {
+         for (int ys=-ishift; ys<=ishift; ys++) {
+            for (int zs=-ishift; zs<=ishift; zs++) {
+               // Skip identity operation
+               if (isym == 0 && xs == 0 && ys == 0 && zs == 0) continue;
+
+               mmdb::mat44 mat;
+               int err = mol->GetTMatrix(mat, isym, xs, ys, zs);
+               if (err != 0) continue;
+
+               // For each atom in the model, transform and check bounding box
+               int n_chains = model_p->GetNumberOfChains();
+               for (int ichain=0; ichain<n_chains; ichain++) {
+                  mmdb::Chain *chain_p = model_p->GetChain(ichain);
+                  int nres = chain_p->GetNumberOfResidues();
+                  for (int ires=0; ires<nres; ires++) {
+                     mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                     if (! residue_p) continue;
+                     std::string res_type = residue_p->GetResName();
+                     auto it_dict = dictionary_map.find(res_type);
+                     int n_atoms = residue_p->GetNumberOfAtoms();
+                     for (int iat=0; iat<n_atoms; iat++) {
+                        mmdb::Atom *at = residue_p->GetAtom(iat);
+                        if (! at) continue;
+
+                        // Transform the atom position
+                        float tx = mat[0][0]*at->x + mat[0][1]*at->y + mat[0][2]*at->z + mat[0][3];
+                        float ty = mat[1][0]*at->x + mat[1][1]*at->y + mat[1][2]*at->z + mat[1][3];
+                        float tz = mat[2][0]*at->x + mat[2][1]*at->y + mat[2][2]*at->z + mat[2][3];
+
+                        // Quick bounding box test
+                        if (tx < xmin || tx > xmax) continue;
+                        if (ty < ymin || ty > ymax) continue;
+                        if (tz < zmin || tz > zmax) continue;
+
+                        // This atom is close enough — create a copy with transformed coords
+                        mmdb::Atom *new_at = new mmdb::Atom;
+                        new_at->Copy(at);
+                        new_at->x = tx;
+                        new_at->y = ty;
+                        new_at->z = tz;
+                        new_at->SetResidue(nullptr); // not part of the ASU
+                        symm_atom_store_p->push_back(new_at);
+
+                        // Type the atom
+                        if (it_dict != dictionary_map.end()) {
+                           std::string atom_name(at->GetAtomName());
+                           if (atom_name == " N  ") {
+                              result.push_back(std::make_pair(new_at, std::string("NH1")));
+                           } else {
+                              std::string type = it_dict->second.type_energy(atom_name);
+                              if (! type.empty())
+                                 result.push_back(std::make_pair(new_at, type));
+                           }
+                        }
+                        n_symm_atoms++;
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+
+   std::cout << "INFO:: added " << n_symm_atoms << " symmetry-related atoms from "
+             << n_symops << " symmetry operators (ishift=" << ishift << ")" << std::endl;
+   return result;
+}
+
 std::vector<std::vector<std::string> >
 coot::daca::atom_names_for_fragments(const std::string &res_name) const {
    std::vector<std::vector<std::string> > v;
@@ -440,6 +589,21 @@ coot::daca::get_daca_fragments(mmdb::Residue *reference_residue_p) const {
    std::vector<std::vector<std::string> > atom_name_vec_vec = atom_names_for_fragments(res_name);
    std::vector<std::vector<std::string> >::const_iterator it_1;
    std::vector<std::string>::const_iterator it_2;
+   // Find the first alt conf in this residue, in case we need it as a fallback
+   std::string first_alt_conf;
+   {
+      mmdb::PPAtom residue_atoms = 0;
+      int n_residue_atoms;
+      reference_residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         std::string alt_loc(residue_atoms[iat]->altLoc);
+         if (! alt_loc.empty()) {
+            first_alt_conf = alt_loc;
+            break;
+         }
+      }
+   }
+
    for (it_1=atom_name_vec_vec.begin(); it_1!=atom_name_vec_vec.end(); it_1++){
       const std::vector<std::string> &atom_names = *it_1;
       std::vector<mmdb::Atom *> atom_vec;
@@ -453,21 +617,36 @@ coot::daca::get_daca_fragments(mmdb::Residue *reference_residue_p) const {
             std::string this_atom_name(at->GetAtomName());
             if (atom_name == this_atom_name) {
                std::string alt_loc(at->altLoc);
-               if (alt_loc.empty())
+               if (alt_loc.empty()) {
                   atom_vec.push_back(at);
+                  break;
+               }
+            }
+         }
+      }
+      // If we didn't find all atoms with blank alt conf, try the first alt conf
+      if (atom_vec.size() != atom_names.size() && ! first_alt_conf.empty()) {
+         atom_vec.clear();
+         for (it_2=atom_names.begin(); it_2!=atom_names.end(); it_2++) {
+            const std::string &atom_name = *it_2;
+            mmdb::PPAtom residue_atoms = 0;
+            int n_residue_atoms;
+            reference_residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+            for (int iat=0; iat<n_residue_atoms; iat++) {
+               mmdb::Atom *at = residue_atoms[iat];
+               std::string this_atom_name(at->GetAtomName());
+               if (atom_name == this_atom_name) {
+                  std::string alt_loc(at->altLoc);
+                  if (alt_loc.empty() || alt_loc == first_alt_conf) {
+                     atom_vec.push_back(at);
+                     break;
+                  }
+               }
             }
          }
       }
       if (atom_names.size() == atom_vec.size()) {
          v.push_back(atom_vec);
-      } else {
-         // debugging
-         // we can get here when the residue has alt confs.
-         if (false) // too noisy for now.
-            std::cout << "INFO:: atom count mismatch in getting fragments for "
-                      << residue_spec_t(reference_residue_p) << " "
-                      << reference_residue_p->GetResName() << " "
-                      << atom_vec.size() << std::endl;
       }
    }
    return v;
@@ -798,6 +977,7 @@ coot::daca::atom_is_close_to_a_residue_atom(mmdb::Atom *at, mmdb::Residue *refer
 bool
 coot::daca::atom_is_neighbour_mainchain(mmdb::Atom *at, mmdb::Residue *reference_residue_p) const {
    bool status = false;
+   if (! at->residue) return false; // symmetry atom — not a neighbour
    int idx_res_1 = reference_residue_p->index;
    int idx_res_2 = at->residue->index;
    int idx_delta = abs(idx_res_2 - idx_res_1);
@@ -841,7 +1021,7 @@ coot::daca::presize_boxes(mode_t mode) {
 
 #include "geometry/main-chain.hh"
 
-int
+float
 coot::daca::calculate_daca(mmdb::Residue *reference_residue_p,
                            const std::vector<std::pair<mmdb::Atom *, std::string> > &typed_atoms,
                            coot::daca::mode_t mode) {
@@ -855,7 +1035,7 @@ coot::daca::calculate_daca(mmdb::Residue *reference_residue_p,
    double d_crit = 8.0; // or something
    double dd_crit = d_crit * d_crit;
 
-   int reference_counts = 0;
+   float reference_counts = 0.0f;
 
    std::string res_name(reference_residue_p->GetResName());
    int reference_residue_seqnum = reference_residue_p->GetSeqNum();
@@ -894,11 +1074,14 @@ coot::daca::calculate_daca(mmdb::Residue *reference_residue_p,
                   continue;
 
                // don't consider peptide neighbour mainchain
-               int res_no_delta = at->residue->GetSeqNum() - reference_residue_seqnum;
-               if (std::abs(res_no_delta) < 2)
-                  if (at->residue->chain == reference_residue_p->chain)
-                     if (is_main_chain_p(at))
-                        continue;
+               // (symmetry atoms have residue set to nullptr — skip this check for them)
+               if (at->residue) {
+                  int res_no_delta = at->residue->GetSeqNum() - reference_residue_seqnum;
+                  if (std::abs(res_no_delta) < 2)
+                     if (at->residue->chain == reference_residue_p->chain)
+                        if (is_main_chain_p(at))
+                           continue;
+               }
 
                double dd =
                   (at->x - frag_centre.x()) * (at->x - frag_centre.x()) +
@@ -917,27 +1100,45 @@ coot::daca::calculate_daca(mmdb::Residue *reference_residue_p,
                         if (mode == REFERENCE)
                            add_to_box(mode, res_name, helical_flag, ifrag, box_index, typed_atoms[ita].second);
                         if (mode == ANALYSIS) {
-                           // what reference score do we have for this box
+                           // Vriend & Sander V(d) envelope scoring:
+                           // For each neighbouring box within radius R, compute
+                           // V(d) = 1 - d^2/R^2, weighted by the reference count.
+                           // R = 1.5 Angstroms (the box_width is 1.0).
                            std::string box_key = res_name + "-non-helical";
                            if (helical_flag) box_key = res_name + "-helical";
-                           int counts = get_reference_counts(res_name, helical_flag, ifrag, box_index, typed_atoms[ita].second);
-                           if (counts > 0) {
-                              reference_counts += counts;
-                              if (print_scores)
-                                 std::cout << "Score " << residue_spec_t(reference_residue_p) << " "
-                                           << box_key << " " << ifrag << " " << " " << atom_spec_t(at) << " " << atom_type << " "
-                                           << std::setw(2) << box_index.idx_x << " "
-                                           << std::setw(2) << box_index.idx_y << " "
-                                           << std::setw(2) << box_index.idx_z << " "
-                                           << counts << "\n";
-                           } else {
-                              std::cout << "Miss " << residue_spec_t(reference_residue_p) << " "
-                                        << box_key << " " << ifrag << " " << " " << atom_spec_t(at) << " " << atom_type << " "
-                                        << std::setw(2) << box_index.idx_x << " "
-                                        << std::setw(2) << box_index.idx_y << " "
-                                        << std::setw(2) << box_index.idx_z << " "
-                                        << std::endl;
+                           const float R = 1.5f;
+                           const float R_sq = R * R;
+                           float atom_score = 0.0f;
+                           auto it_bk = boxes.find(box_key);
+                           if (it_bk != boxes.end()) {
+                              const auto &frag_boxes = it_bk->second;
+                              auto it_at = frag_boxes[ifrag].find(atom_type);
+                              if (it_at != frag_boxes[ifrag].end()) {
+                                 const auto &box_map = it_at->second;
+                                 for (int dx=-1; dx<=1; dx++) {
+                                    for (int dy=-1; dy<=1; dy++) {
+                                       for (int dz=-1; dz<=1; dz++) {
+                                          box_index_t nb(box_index.idx_x + dx,
+                                                         box_index.idx_y + dy,
+                                                         box_index.idx_z + dz);
+                                          auto it_nb = box_map.find(nb);
+                                          if (it_nb != box_map.end()) {
+                                             clipper::Coord_orth box_centre = nb.coord_orth();
+                                             double d_sq =
+                                                (transformed_pos.x() - box_centre.x()) * (transformed_pos.x() - box_centre.x()) +
+                                                (transformed_pos.y() - box_centre.y()) * (transformed_pos.y() - box_centre.y()) +
+                                                (transformed_pos.z() - box_centre.z()) * (transformed_pos.z() - box_centre.z());
+                                             if (d_sq < R_sq) {
+                                                float vd = 1.0f - static_cast<float>(d_sq) / R_sq;
+                                                atom_score += vd * static_cast<float>(it_nb->second);
+                                             }
+                                          }
+                                       }
+                                    }
+                                 }
+                              }
                            }
+                           reference_counts += atom_score;
                         }
                      }
                   }
@@ -962,10 +1163,15 @@ coot::daca::write_tables_using_reference_structures_from_dir(const std::string &
    protein_geometry geom;
    geom.init_standard();
    std::vector<std::string> files = util::glob_files(dir_name, "*.pdb");
+   // also search one level deeper (e.g. top2018_.../1d/1d1i/*.pdb)
+   std::vector<std::string> files_sub = util::glob_files(dir_name, "*/*.pdb");
+   files.insert(files.end(), files_sub.begin(), files_sub.end());
 
-   std::cout << "in write_tables_using_reference_structures_from_dir()  " << dir_name << " "
-             << output_tables_dir << std::endl;
+   std::cout << "in write_tables_using_reference_structures_from_dir() " << dir_name
+             << " " << output_tables_dir << " found " << files.size() << " PDB files"
+             << std::endl;
 
+   presize_boxes(REFERENCE);
    for (unsigned int i=0; i<files.size(); i++) {
       std::string fn = files[i];
       atom_selection_container_t asc = get_atom_selection(fn, false, true, false);
@@ -1016,69 +1222,457 @@ void
 coot::daca::score_molecule(const std::string &pdb_file_name) {
 
    std::cout << "score_molecule() " << pdb_file_name << std::endl;
-   int score = 0;
-   if (coot::file_exists(pdb_file_name)) {
-      atom_selection_container_t asc = get_atom_selection(pdb_file_name, false, false, false);
-      if (asc.read_success) {
-         mmdb::Model *model_p = asc.mol->GetModel(1);
-         if (model_p) {
+   if (! coot::file_exists(pdb_file_name)) {
+      std::cout << "No such file " << pdb_file_name << std::endl;
+      return;
+   }
 
-            std::cout << "INFO:: scoring " << pdb_file_name << std::endl;
+   atom_selection_container_t asc = get_atom_selection(pdb_file_name, false, false, false);
+   if (! asc.read_success) return;
+   mmdb::Model *model_p = asc.mol->GetModel(1);
+   if (! model_p) return;
 
-            protein_geometry geom;
-            geom.init_standard();
-            presize_boxes(ANALYSIS);
+   std::cout << "INFO:: scoring " << pdb_file_name << std::endl;
 
-            fill_helix_flags(model_p, asc.mol);
+   protein_geometry geom;
+   geom.init_standard();
+   presize_boxes(ANALYSIS);
+   fill_helix_flags(model_p, asc.mol);
 
-            std::vector<std::pair<mmdb::Residue *, float> > se = solvent_exposure(asc.mol);
-            std::map<mmdb::Residue *, float> se_as_map;
-            for (unsigned int i=0; i<se.size(); i++)
-               se_as_map[se[i].first] = se[i].second;
+   std::vector<std::pair<mmdb::Residue *, float> > se = solvent_exposure(asc.mol);
+   std::map<mmdb::Residue *, float> se_as_map;
+   for (unsigned int i=0; i<se.size(); i++)
+      se_as_map[se[i].first] = se[i].second;
 
-            std::vector<std::pair<mmdb::Atom *, std::string> > ta = make_typed_atoms(model_p, geom);
-            int n_chains = model_p->GetNumberOfChains();
-            for (int ichain=0; ichain<n_chains; ichain++) {
-               mmdb::Chain *chain_p = model_p->GetChain(ichain);
-               int nres = chain_p->GetNumberOfResidues();
-               for (int ires=0; ires<nres; ires++) {
-                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-                 if (residue_p) {
-                     std::string res_name(residue_p->GetResName());
-                     int res_number = residue_p->GetSeqNum();
-                     if (res_name == "HOH") continue;
-                     if (! util::is_standard_amino_acid_name(res_name)) continue;
-                     int daca_score = calculate_daca(residue_p, ta, ANALYSIS);
-                     score += daca_score;
-                     float se_score = -1.0;
-                     std::map<mmdb::Residue *, float>::const_iterator it;
-                     it = se_as_map.find(residue_p);
-                     std::string rt = residue_p->GetResName();
-                     if (it != se_as_map.end()) {
-                        se_score = it->second;
-                     } else {
-                        std::cout << "failed to find residue " << residue_spec_t(residue_p)
-                                  << " " << rt << " in map of size " << se_as_map.size()
-                                  << std::endl;
+   std::vector<std::pair<mmdb::Atom *, std::string> > ta = make_typed_atoms(model_p, geom);
+
+   // Add symmetry-related atoms as contact partners
+   std::vector<mmdb::Atom *> symm_atom_store;
+   std::vector<std::pair<mmdb::Atom *, std::string> > symm_ta =
+      make_symmetry_typed_atoms(asc.mol, model_p, geom, 10.0f, &symm_atom_store);
+   ta.insert(ta.end(), symm_ta.begin(), symm_ta.end());
+
+   // First pass: collect per-residue scores
+   float se_half = 50.0f; // solvent exposure half-weight parameter
+   struct residue_score_t {
+      int res_number;
+      std::string res_type;
+      std::string ss_type;
+      float raw_score;
+      float se_score;
+      float z_score;     // per-residue-type z-score
+      float sef;         // solvent exposure factor: 1/(1 + se/se_half)
+      float smoothed;    // sliding window average of z_score * sef
+   };
+   std::vector<residue_score_t> results;
+
+   int n_chains = model_p->GetNumberOfChains();
+   for (int ichain=0; ichain<n_chains; ichain++) {
+      mmdb::Chain *chain_p = model_p->GetChain(ichain);
+      int nres = chain_p->GetNumberOfResidues();
+      for (int ires=0; ires<nres; ires++) {
+         mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+         if (! residue_p) continue;
+         std::string res_name(residue_p->GetResName());
+         if (res_name == "HOH") continue;
+         if (! util::is_standard_amino_acid_name(res_name)) continue;
+
+         residue_score_t rs;
+         rs.res_number = residue_p->GetSeqNum();
+         rs.res_type = res_name;
+         rs.raw_score = calculate_daca(residue_p, ta, ANALYSIS);
+         rs.se_score = -1.0f;
+         auto it = se_as_map.find(residue_p);
+         if (it != se_as_map.end())
+            rs.se_score = it->second;
+         rs.ss_type = "helix";
+         if (std::find(helical_residues.begin(), helical_residues.end(), residue_p) == helical_residues.end())
+            rs.ss_type = "non-helical";
+         rs.z_score = 0.0f;
+         rs.sef = (rs.se_score >= 0.0f) ? 1.0f / (1.0f + rs.se_score / se_half) : 0.0f;
+         rs.smoothed = 0.0f;
+         results.push_back(rs);
+      }
+   }
+
+   // Per-residue-type normalization: compute mean and stddev, then z-scores
+   std::map<std::string, std::vector<unsigned int> > type_indices;
+   for (unsigned int i=0; i<results.size(); i++)
+      type_indices[results[i].res_type].push_back(i);
+
+   for (auto &ti : type_indices) {
+      const std::vector<unsigned int> &indices = ti.second;
+      if (indices.size() < 2) continue;
+      double sum = 0.0;
+      for (auto idx : indices)
+         sum += results[idx].raw_score;
+      double mean = sum / static_cast<double>(indices.size());
+      double sum_sq = 0.0;
+      for (auto idx : indices)
+         sum_sq += (results[idx].raw_score - mean) * (results[idx].raw_score - mean);
+      double stddev = std::sqrt(sum_sq / static_cast<double>(indices.size()));
+      if (stddev > 1e-6) {
+         for (auto idx : indices)
+            results[idx].z_score = static_cast<float>((results[idx].raw_score - mean) / stddev);
+      }
+   }
+
+   // Sliding window average of z_score * sef (window = 7, centred)
+   // Skip residues with negative solvent exposure (missing data)
+   int half_w = 3;
+   for (int i=0; i<static_cast<int>(results.size()); i++) {
+      float wsum = 0.0f;
+      int count = 0;
+      for (int j=i-half_w; j<=i+half_w; j++) {
+         if (j >= 0 && j < static_cast<int>(results.size())) {
+            if (results[j].se_score >= 0.0f) {
+               wsum += results[j].z_score * results[j].sef;
+               count++;
+            }
+         }
+      }
+      if (count > 0)
+         results[i].smoothed = wsum / static_cast<float>(count);
+   }
+
+   // Output
+   float cumulative = 0.0f;
+   for (unsigned int i=0; i<results.size(); i++) {
+      const residue_score_t &rs = results[i];
+      cumulative += rs.raw_score;
+      std::cout << "residue_number " << rs.res_number
+                << " type " << rs.res_type
+                << " SS-type " << rs.ss_type
+                << " score " << std::fixed << std::setprecision(1) << rs.raw_score
+                << " z_score " << std::fixed << std::setprecision(2) << rs.z_score
+                << " sef " << std::fixed << std::setprecision(3) << rs.sef
+                << " smoothed " << std::fixed << std::setprecision(2) << rs.smoothed
+                << " daca_sum_score " << std::fixed << std::setprecision(1) << cumulative
+                << " solvent_exposure " << rs.se_score
+                << "\n";
+   }
+
+   // Clean up symmetry atoms
+   for (unsigned int i=0; i<symm_atom_store.size(); i++)
+      delete symm_atom_store[i];
+}
+
+void
+coot::daca::make_data_for_figure_2(const std::string &pdb_dir) {
+
+   protein_geometry geom;
+   geom.init_standard();
+
+   std::vector<std::string> files = util::glob_files(pdb_dir, "*.pdb");
+   std::vector<std::string> files_sub = util::glob_files(pdb_dir, "*/*.pdb");
+   files.insert(files.end(), files_sub.begin(), files_sub.end());
+   std::vector<std::string> ent_files = util::glob_files(pdb_dir, "*.ent");
+   files.insert(files.end(), ent_files.begin(), ent_files.end());
+   std::vector<std::string> ent_files_sub = util::glob_files(pdb_dir, "*/*.ent");
+   files.insert(files.end(), ent_files_sub.begin(), ent_files_sub.end());
+
+   std::cout << "fig2: found " << files.size() << " PDB files in " << pdb_dir << std::endl;
+
+   // header line
+   std::cout << "fig2-data: res_type ss_type score solvent_exposure" << std::endl;
+
+   for (unsigned int ifile=0; ifile<files.size(); ifile++) {
+      const std::string &fn = files[ifile];
+      atom_selection_container_t asc = get_atom_selection(fn, false, false, false);
+      if (! asc.read_success) continue;
+      mmdb::Model *model_p = asc.mol->GetModel(1);
+      if (! model_p) continue;
+
+      fill_helix_flags(model_p, asc.mol);
+      std::vector<std::pair<mmdb::Atom *, std::string> > ta = make_typed_atoms(model_p, geom);
+
+      std::vector<std::pair<mmdb::Residue *, float> > se = solvent_exposure(asc.mol);
+      std::map<mmdb::Residue *, float> se_as_map;
+      for (unsigned int i=0; i<se.size(); i++)
+         se_as_map[se[i].first] = se[i].second;
+
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         int nres = chain_p->GetNumberOfResidues();
+         for (int ires=0; ires<nres; ires++) {
+            mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+            if (! residue_p) continue;
+            std::string res_name(residue_p->GetResName());
+            if (res_name == "HOH") continue;
+            if (! util::is_standard_amino_acid_name(res_name)) continue;
+
+            float daca_score = calculate_daca(residue_p, ta, ANALYSIS);
+
+            float se_score = -1.0f;
+            auto it = se_as_map.find(residue_p);
+            if (it != se_as_map.end())
+               se_score = it->second;
+            if (se_score < 0.0f) continue;
+
+            std::string ss_type = "helix";
+            if (std::find(helical_residues.begin(), helical_residues.end(), residue_p) == helical_residues.end())
+               ss_type = "non-helical";
+
+            std::cout << "fig2-data: " << res_name << " " << ss_type << " "
+                      << std::fixed << std::setprecision(1) << daca_score << " "
+                      << std::fixed << std::setprecision(1) << se_score
+                      << std::endl;
+         }
+      }
+
+      if ((ifile + 1) % 10 == 0)
+         std::cerr << "fig2: processed " << (ifile + 1) << "/" << files.size() << std::endl;
+   }
+}
+
+std::pair<int, int>
+coot::daca::self_test(const std::string &pdb_file_name) {
+
+   int n_total = 0;
+   int n_misses = 0;
+
+   if (! coot::file_exists(pdb_file_name)) {
+      std::cout << "self_test(): No such file " << pdb_file_name << std::endl;
+      return std::make_pair(-1, -1);
+   }
+
+   atom_selection_container_t asc = get_atom_selection(pdb_file_name, false, true, false);
+   if (! asc.read_success) {
+      std::cout << "self_test(): Failed to read " << pdb_file_name << std::endl;
+      return std::make_pair(-1, -1);
+   }
+
+   mmdb::Model *model_p = asc.mol->GetModel(1);
+   if (! model_p) {
+      std::cout << "self_test(): No model in " << pdb_file_name << std::endl;
+      return std::make_pair(-1, -1);
+   }
+
+   protein_geometry geom;
+   geom.init_standard();
+
+   fill_helix_flags(model_p, asc.mol);
+   std::vector<std::pair<mmdb::Atom *, std::string> > ta = make_typed_atoms(model_p, geom);
+
+   // REFERENCE pass — populate boxes from this structure
+   presize_boxes(REFERENCE);
+   int n_chains = model_p->GetNumberOfChains();
+   for (int ichain=0; ichain<n_chains; ichain++) {
+      mmdb::Chain *chain_p = model_p->GetChain(ichain);
+      int nres = chain_p->GetNumberOfResidues();
+      for (int ires=0; ires<nres; ires++) {
+         mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+         if (residue_p) {
+            std::string res_name(residue_p->GetResName());
+            if (res_name == "HOH") continue;
+            if (! util::is_standard_amino_acid_name(res_name)) continue;
+            calculate_daca(residue_p, ta, REFERENCE);
+         }
+      }
+   }
+
+   // ANALYSIS pass — replay the same residue loop.
+   // For each contact, get_reference_counts() must return > 0 because
+   // the reference distribution was built from this same structure.
+   // We replicate the inner logic of calculate_daca() here so that
+   // we can count hits and misses directly.
+
+   for (int ichain=0; ichain<n_chains; ichain++) {
+      mmdb::Chain *chain_p = model_p->GetChain(ichain);
+      int nres = chain_p->GetNumberOfResidues();
+      for (int ires=0; ires<nres; ires++) {
+         mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+         if (! residue_p) continue;
+         std::string res_name(residue_p->GetResName());
+         if (res_name == "HOH") continue;
+         if (! util::is_standard_amino_acid_name(res_name)) continue;
+
+         int seqnum = residue_p->GetSeqNum();
+         std::vector<std::vector<mmdb::Atom *> > fragments = get_daca_fragments(residue_p);
+         for (unsigned int ifrag=0; ifrag<fragments.size(); ifrag++) {
+            const std::vector<mmdb::Atom *> &atom_vec(fragments[ifrag]);
+            if (atom_vec.size() < 3) continue;
+            std::pair<bool, clipper::RTop_orth> rtop_pair =
+               get_frag_to_reference_rtop(res_name, ifrag, atom_vec);
+            if (! rtop_pair.first) continue;
+            const clipper::RTop_orth &rtop = rtop_pair.second;
+
+            // fragment centre
+            clipper::Coord_orth sum(0,0,0);
+            for (unsigned int ia=0; ia<atom_vec.size(); ia++)
+               sum += co(atom_vec[ia]);
+            double m = 1.0/static_cast<double>(atom_vec.size());
+            clipper::Coord_orth frag_centre(sum * m);
+
+            bool helical_flag = (std::find(helical_residues.begin(),
+                                           helical_residues.end(),
+                                           residue_p) != helical_residues.end());
+
+            for (unsigned int ita=0; ita<ta.size(); ita++) {
+               mmdb::Atom *at = ta[ita].first;
+               if (at->residue == residue_p) continue;
+               int res_no_delta = at->residue->GetSeqNum() - seqnum;
+               if (std::abs(res_no_delta) < 2)
+                  if (at->residue->chain == residue_p->chain)
+                     if (is_main_chain_p(at))
+                        continue;
+               double dd =
+                  (at->x - frag_centre.x()) * (at->x - frag_centre.x()) +
+                  (at->y - frag_centre.y()) * (at->y - frag_centre.y()) +
+                  (at->z - frag_centre.z()) * (at->z - frag_centre.z());
+               if (dd < 64.0) { // 8.0^2
+                  if (atom_is_close_to_a_residue_atom(at, residue_p)) {
+                     if (! atom_is_neighbour_mainchain(at, residue_p)) {
+                        clipper::Coord_orth transformed_pos = rtop * co(at);
+                        box_index_t box_index(transformed_pos);
+                        int counts = get_reference_counts(res_name, helical_flag,
+                                                          ifrag, box_index,
+                                                          ta[ita].second);
+                        n_total++;
+                        if (counts <= 0)
+                           n_misses++;
                      }
-                     std::string ss_type = "helix";
-                     if (std::find(helical_residues.begin(), helical_residues.end(), residue_p) == helical_residues.end())
-                        ss_type = "non-helical";
-                     std::cout << "residue_number " << res_number << " type " << rt
-                               << " SS-type " << ss_type << " score " << daca_score
-                               << " daca_sum_score " << score << " solvent_exposure " << se_score
-                               << "\n";
                   }
                }
             }
-
-            //compare_boxes();
          }
       }
-   } else {
-      std::cout << "No such file " << pdb_file_name << std::endl;
    }
 
+   std::cout << "self_test(): n_total_contacts " << n_total << " n_misses " << n_misses << std::endl;
+   return std::make_pair(n_total, n_misses);
+}
+
+std::pair<int, int>
+coot::daca::self_test_perturbed(const std::string &pdb_file_name, float perturbation) {
+
+   int n_total = 0;
+   int n_misses = 0;
+
+   if (! coot::file_exists(pdb_file_name)) {
+      std::cout << "self_test_perturbed(): No such file " << pdb_file_name << std::endl;
+      return std::make_pair(-1, -1);
+   }
+
+   atom_selection_container_t asc = get_atom_selection(pdb_file_name, false, true, false);
+   if (! asc.read_success) {
+      std::cout << "self_test_perturbed(): Failed to read " << pdb_file_name << std::endl;
+      return std::make_pair(-1, -1);
+   }
+
+   mmdb::Model *model_p = asc.mol->GetModel(1);
+   if (! model_p) {
+      std::cout << "self_test_perturbed(): No model in " << pdb_file_name << std::endl;
+      return std::make_pair(-1, -1);
+   }
+
+   protein_geometry geom;
+   geom.init_standard();
+
+   fill_helix_flags(model_p, asc.mol);
+   std::vector<std::pair<mmdb::Atom *, std::string> > ta = make_typed_atoms(model_p, geom);
+
+   // REFERENCE pass — populate boxes from the unperturbed structure
+   presize_boxes(REFERENCE);
+   int n_chains = model_p->GetNumberOfChains();
+   for (int ichain=0; ichain<n_chains; ichain++) {
+      mmdb::Chain *chain_p = model_p->GetChain(ichain);
+      int nres = chain_p->GetNumberOfResidues();
+      for (int ires=0; ires<nres; ires++) {
+         mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+         if (residue_p) {
+            std::string res_name(residue_p->GetResName());
+            if (res_name == "HOH") continue;
+            if (! util::is_standard_amino_acid_name(res_name)) continue;
+            calculate_daca(residue_p, ta, REFERENCE);
+         }
+      }
+   }
+
+   // Perturb all atom coordinates
+   srand(42); // fixed seed for reproducibility
+   int n_atoms;
+   mmdb::PPAtom all_atoms = nullptr;
+   asc.mol->GetAtomTable(all_atoms, n_atoms);
+   for (int i=0; i<n_atoms; i++) {
+      mmdb::Atom *at = all_atoms[i];
+      if (at) {
+         float dx = perturbation * (2.0f * static_cast<float>(rand()) / static_cast<float>(RAND_MAX) - 1.0f);
+         float dy = perturbation * (2.0f * static_cast<float>(rand()) / static_cast<float>(RAND_MAX) - 1.0f);
+         float dz = perturbation * (2.0f * static_cast<float>(rand()) / static_cast<float>(RAND_MAX) - 1.0f);
+         at->x += dx;
+         at->y += dy;
+         at->z += dz;
+      }
+   }
+
+   // ANALYSIS pass on the perturbed structure
+   for (int ichain=0; ichain<n_chains; ichain++) {
+      mmdb::Chain *chain_p = model_p->GetChain(ichain);
+      int nres = chain_p->GetNumberOfResidues();
+      for (int ires=0; ires<nres; ires++) {
+         mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+         if (! residue_p) continue;
+         std::string res_name(residue_p->GetResName());
+         if (res_name == "HOH") continue;
+         if (! util::is_standard_amino_acid_name(res_name)) continue;
+
+         int seqnum = residue_p->GetSeqNum();
+         std::vector<std::vector<mmdb::Atom *> > fragments = get_daca_fragments(residue_p);
+         for (unsigned int ifrag=0; ifrag<fragments.size(); ifrag++) {
+            const std::vector<mmdb::Atom *> &atom_vec(fragments[ifrag]);
+            if (atom_vec.size() < 3) continue;
+            std::pair<bool, clipper::RTop_orth> rtop_pair =
+               get_frag_to_reference_rtop(res_name, ifrag, atom_vec);
+            if (! rtop_pair.first) continue;
+            const clipper::RTop_orth &rtop = rtop_pair.second;
+
+            // fragment centre
+            clipper::Coord_orth sum(0,0,0);
+            for (unsigned int ia=0; ia<atom_vec.size(); ia++)
+               sum += co(atom_vec[ia]);
+            double m = 1.0/static_cast<double>(atom_vec.size());
+            clipper::Coord_orth frag_centre(sum * m);
+
+            bool helical_flag = (std::find(helical_residues.begin(),
+                                           helical_residues.end(),
+                                           residue_p) != helical_residues.end());
+
+            for (unsigned int ita=0; ita<ta.size(); ita++) {
+               mmdb::Atom *at = ta[ita].first;
+               if (at->residue == residue_p) continue;
+               int res_no_delta = at->residue->GetSeqNum() - seqnum;
+               if (std::abs(res_no_delta) < 2)
+                  if (at->residue->chain == residue_p->chain)
+                     if (is_main_chain_p(at))
+                        continue;
+               double dd =
+                  (at->x - frag_centre.x()) * (at->x - frag_centre.x()) +
+                  (at->y - frag_centre.y()) * (at->y - frag_centre.y()) +
+                  (at->z - frag_centre.z()) * (at->z - frag_centre.z());
+               if (dd < 64.0) { // 8.0^2
+                  if (atom_is_close_to_a_residue_atom(at, residue_p)) {
+                     if (! atom_is_neighbour_mainchain(at, residue_p)) {
+                        clipper::Coord_orth transformed_pos = rtop * co(at);
+                        box_index_t box_index(transformed_pos);
+                        int counts = get_reference_counts(res_name, helical_flag,
+                                                          ifrag, box_index,
+                                                          ta[ita].second);
+                        n_total++;
+                        if (counts <= 0)
+                           n_misses++;
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+
+   std::cout << "self_test_perturbed(): perturbation " << perturbation
+             << " n_total_contacts " << n_total << " n_misses " << n_misses << std::endl;
+   return std::make_pair(n_total, n_misses);
 }
 
 void
@@ -1194,57 +1788,36 @@ coot::daca::normalize() {
 void
 coot::daca::normalize_v2() {
 
-   // this version normalizes every grid point over every atom type
-   //
+   // For each (res_type+SS, frag_index, atom_type), normalize the spatial
+   // distribution so that counts sum to a fixed value (1,000,000).
+   // This converts raw accumulated counts into a probability-like distribution,
+   // so that structures contributing different numbers of residues to the
+   // reference database don't dominate.
 
-   // iterators not const because we want to modify the contents of the boxes
-   //
+   const float target_sum = 1000000.0f;
+   unsigned int n_distributions = 0;
 
-   std::vector<box_index_t> box_indices_vec;
-
-   int e = 6;
-   for (int ix=-e; ix<e; ix++) {
-      for (int iy=-e; iy<e; iy++) {
-         for (int iz=-e; iz<e; iz++) {
-            box_index_t bi(ix,iy,iz);
-            box_indices_vec.push_back(bi);
-         }
-      }
-   }
-
-
-   std::cout << "box_indices_vec size() " << box_indices_vec.size()   << std::endl;
-   for (unsigned int i=0; i<box_indices_vec.size(); i++) {
-
-      unsigned int sum_counts = 0;
-      unsigned int n_hits = 0;
-      std::map<std::string, std::vector<std::map<std::string, std::map<box_index_t, unsigned int> > > >::iterator it;
-      for (it=boxes.begin(); it!=boxes.end(); it++) {
-         const std::string &res_name_with_ss(it->first);
-         std::vector<std::map<std::string, std::map<box_index_t, unsigned int> > > &v(it->second);
-         for (unsigned int idx_frag=0; idx_frag<v.size(); idx_frag++) {
-            std::map<std::string, std::map<box_index_t, unsigned int> > &m1(v[idx_frag]);
-            std::map<std::string, std::map<box_index_t, unsigned int> >::iterator it_1;
-
-            for (it_1=m1.begin(); it_1!=m1.end(); it_1++) {
-               const std::string &atom_type = it_1->first;
-               std::map<box_index_t, unsigned int> &m2(it_1->second);
-               std::map<box_index_t, unsigned int>::const_iterator it_2 = m2.find(box_indices_vec[i]);
-               if (it_2 != m2.end()) {
-                  n_hits++;
-                  const unsigned int &counts = it_2->second;
-                  sum_counts += counts;
-               }
+   std::map<std::string, std::vector<std::map<std::string, std::map<box_index_t, unsigned int> > > >::iterator it;
+   for (it=boxes.begin(); it!=boxes.end(); it++) {
+      std::vector<std::map<std::string, std::map<box_index_t, unsigned int> > > &v(it->second);
+      for (unsigned int idx_frag=0; idx_frag<v.size(); idx_frag++) {
+         std::map<std::string, std::map<box_index_t, unsigned int> > &m1(v[idx_frag]);
+         std::map<std::string, std::map<box_index_t, unsigned int> >::iterator it_at;
+         for (it_at=m1.begin(); it_at!=m1.end(); it_at++) {
+            std::map<box_index_t, unsigned int> &m2(it_at->second);
+            unsigned int n_count_sum = 0;
+            for (auto it_box=m2.begin(); it_box!=m2.end(); it_box++)
+               n_count_sum += it_box->second;
+            if (n_count_sum > 0) {
+               float scale_factor = target_sum / static_cast<float>(n_count_sum);
+               for (auto it_box=m2.begin(); it_box!=m2.end(); it_box++)
+                  it_box->second = static_cast<unsigned int>(scale_factor * static_cast<float>(it_box->second));
+               n_distributions++;
             }
          }
       }
-
-      std::cout << "box "
-                << box_indices_vec[i].idx_x << " "
-                << box_indices_vec[i].idx_y << " "
-                << box_indices_vec[i].idx_z << " "
-                << sum_counts << " n_hits " << n_hits << std::endl;
    }
+   std::cout << "normalize_v2(): normalized " << n_distributions << " distributions" << std::endl;
 }
 
 // 2aaa get the pdb redo model, build on this and check with privateer.

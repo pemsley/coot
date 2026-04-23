@@ -95,9 +95,14 @@ namespace coot {
       std::vector<std::vector<mmdb::Atom *> > get_daca_fragments(mmdb::Residue *reference_residue_p) const;
       std::vector<std::pair<mmdb::Atom *, std::string> >
          make_typed_atoms(mmdb::Model *model_p, const protein_geometry &geom) const;
+      std::vector<std::pair<mmdb::Atom *, std::string> >
+         make_symmetry_typed_atoms(mmdb::Manager *mol,
+                                   mmdb::Model *model_p,
+                                   const protein_geometry &geom,
+                                   float expansion_radius,
+                                   std::vector<mmdb::Atom *> *symm_atom_store_p) const;
 
-      // maybe this should be a float
-      int calculate_daca(mmdb::Residue *reference_residue_p,
+      float calculate_daca(mmdb::Residue *reference_residue_p,
                          const std::vector<std::pair<mmdb::Atom *, std::string> > &typed_atoms,
                          mode_t mode);
       bool atom_is_close_to_a_residue_atom(mmdb::Atom *at, mmdb::Residue *reference_residue_p) const;
@@ -120,7 +125,17 @@ namespace coot {
       void read_many_tables(const std::vector<std::string> &dirs);
       void write_tables(const std::string &dir_name) const;
       void score_molecule(const std::string &pdb_file_name);
+      void make_data_for_figure_2(const std::string &pdb_dir);
       void cook();
+      //! Run REFERENCE and ANALYSIS passes on the same PDB file.
+      //! Returns a pair: (n_total_contacts, n_misses).
+      //! For a correct implementation n_misses should be 0.
+      std::pair<int, int> self_test(const std::string &pdb_file_name);
+      //! Build the reference from the original PDB, then perturb atom positions
+      //! by a random offset in [-perturbation, +perturbation] along each axis
+      //! and score the perturbed model. Returns (n_total_contacts, n_misses).
+      std::pair<int, int> self_test_perturbed(const std::string &pdb_file_name,
+                                              float perturbation);
 
    };
 

@@ -72,6 +72,14 @@ int main(int argc, char **argv) {
             daca.score_molecule(pdb_file_name);
          }
       }
+
+      if (mode == "make-data-for-figure-2") {
+         if (argc > 2) {
+            std::string pdb_dir(argv[2]);
+            daca.read_tables("consolidated");
+            daca.make_data_for_figure_2(pdb_dir);
+         }
+      }
    }
    return status;
 }
