@@ -248,6 +248,7 @@ graphics_info_t::try_centre_from_new_go_to_atom() {
    if (pi.success) {
 
       setRotationCentre(pi.atom_index, go_to_atom_molecule());
+      add_picked_atom_info_to_status_bar(imol, pi.atom_index);
 
    } else {
       std::cout << "WARNING:: atom with name \"" << go_to_atom_atom_name()
