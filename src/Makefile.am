@@ -937,6 +937,9 @@ endif
 # the -lblas here is a bandaid - the GSL usage of BLAS needs to be
 # fixed in configure.
 #
+# 20260417-PE the band-aid probably did nothing. I needed -lcblas
+# now that is fixed in GSL configure
+#
 libcootsumo_la_LIBADD = $(OPENMP_CFLAGS) \
                 $(COOT_EXTRA_LIBS)      \
 		$(VORBISFILE_LIBS)      \
@@ -950,7 +953,7 @@ libcootsumo_la_LIBADD = $(OPENMP_CFLAGS) \
 		$(GUILE_LDFLAGS)      \
 		$(GLOB_LIBS)	      \
 		$(EPOXY_LIBS)         \
-		$(gsl_LIBS) -lblas    \
+		$(gsl_LIBS)           \
 		$(MYSQL_LIBS)	      \
 		$(CURL_LIBS)	      \
 		$(RSVG_LIBS)	      \

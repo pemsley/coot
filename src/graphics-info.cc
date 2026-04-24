@@ -1976,6 +1976,25 @@ graphics_info_t::run_post_set_rotation_centre_hook() {
                item = gtk_widget_get_next_sibling(item);
             }
          }
+
+         // update the current residue marker on the Ramachandran plot
+         if (!showing_intermediate_atoms_from_refinement()) {
+            for (auto &rpb : rama_plot_boxes) {
+               if (rpb.imol == imol_active) {
+                  rpb.rama.set_current_residue(active_res_spec);
+               } else {
+                  rpb.rama.clear_current_residue();
+               }
+               if (rpb.gtk_gl_area)
+                  gtk_widget_queue_draw(rpb.gtk_gl_area);
+            }
+         } else {
+            for (auto &rpb : rama_plot_boxes) {
+               rpb.rama.clear_current_residue();
+               if (rpb.gtk_gl_area)
+                  gtk_widget_queue_draw(rpb.gtk_gl_area);
+            }
+         }
       }
    }
 }

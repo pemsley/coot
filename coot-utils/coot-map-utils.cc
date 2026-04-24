@@ -42,6 +42,7 @@
 #include "geometry/residue-and-atom-specs.hh"
 #include "utils/coot-utils.hh"
 #include "coot-map-utils.hh"
+#include "edcalc.hh"
 #include "geometry/main-chain.hh"
 #include "exp-fit.hh"
 
@@ -2016,7 +2017,7 @@ coot::util::calc_atom_map(mmdb::Manager *mol,
    mmdb::PPAtom sel_atoms = 0;
    int n_atoms;
    mol->GetSelIndex(atom_selection_handle, sel_atoms, n_atoms);
-
+   l.reserve(n_atoms);
 
    // 20130710 for some reason this gives (memory?) errors when making clipper::Atom atom
    // (coords are nan and ele is scrambled text)
@@ -2695,6 +2696,8 @@ coot::util::map_to_model_correlation_per_residue(mmdb::Manager *mol,
                                                  float atom_radius, // for masking
                                                  const clipper::Xmap<float> &reference_map) {
 
+   auto tp_0 = std::chrono::high_resolution_clock::now();
+
    if (false)
       std::cout << "DEBUG:: --------------- map_to_model_correlation_per_residue() "
                 << specs.size() << std::endl;
@@ -2702,12 +2705,19 @@ coot::util::map_to_model_correlation_per_residue(mmdb::Manager *mol,
    std::vector<std::pair<residue_spec_t, float> > v;
    int SelHnd = mol->NewSelection(); // d
 
-   for (unsigned int ispec=0; ispec<specs.size(); ispec++) {
+   if (atom_mask_mode == 0) {
+      // All atoms — one selection call instead of one per residue
+      mol->SelectAtoms(SelHnd, 0, "*",
+                       mmdb::ANY_RES, "*",
+                       mmdb::ANY_RES, "*",
+                       "*", "*", "*", "*",
+                       mmdb::SKEY_NEW);
+   } else {
+      for (unsigned int ispec=0; ispec<specs.size(); ispec++) {
 
-      std::string res_name_selection  = "*";
-      std::string atom_name_selection = "*";
+         std::string res_name_selection  = "*";
+         std::string atom_name_selection = "*";
 
-      if (atom_mask_mode != 0) { // main chain for standard amino acids
          mmdb::Residue *res = get_residue(specs[ispec], mol);
          if (res) {
             std::string residue_name(res->GetResName());
@@ -2728,58 +2738,77 @@ coot::util::map_to_model_correlation_per_residue(mmdb::Manager *mol,
                   atom_name_selection = "%%%%%%"; // nothing
             }
          }
-      }
 
-      mol->SelectAtoms(SelHnd, 1,
-                       specs[ispec].chain_id.c_str(),
-                       specs[ispec].res_no,
-                       specs[ispec].ins_code.c_str(),
-                       specs[ispec].res_no,
-                       specs[ispec].ins_code.c_str(),
-                       res_name_selection.c_str(),
-                       atom_name_selection.c_str(),
-                       "*", // elements
-                       "*", // alt loc.
-                       mmdb::SKEY_OR
-                       );
-      if (0) { // debugging selection
-         mmdb::PPAtom atom_selection = 0;
-         int n_atoms;
-         mol->GetSelIndex(SelHnd, atom_selection, n_atoms);
-
-         std::cout << "selected n_atoms " << n_atoms << " where specs[0] is " << specs[0]
-                   << " for mask mode " << atom_mask_mode << std::endl;
-         for (int iat=0; iat<n_atoms; iat++)
-            std::cout << "    " << iat << " " << atom_spec_t(atom_selection[iat]) << std::endl;
+         mol->SelectAtoms(SelHnd, 1,
+                          specs[ispec].chain_id.c_str(),
+                          specs[ispec].res_no,
+                          specs[ispec].ins_code.c_str(),
+                          specs[ispec].res_no,
+                          specs[ispec].ins_code.c_str(),
+                          res_name_selection.c_str(),
+                          atom_name_selection.c_str(),
+                          "*", // elements
+                          "*", // alt loc.
+                          mmdb::SKEY_OR
+                          );
       }
    }
 
 
 
+   auto tp_1 = std::chrono::high_resolution_clock::now();
+
    clipper::Xmap<float> calc_map =
-      coot::util::calc_atom_map(mol, SelHnd,
-                                reference_map.cell(),
-                                reference_map.spacegroup(),
-                                reference_map.grid_sampling());
+      coot::calc_atom_map_edcalc(mol, SelHnd,
+                                 reference_map.cell(),
+                                 reference_map.spacegroup(),
+                                 reference_map.grid_sampling());
+
+   auto tp_2 = std::chrono::high_resolution_clock::now();
+
+   auto tp_3a = std::chrono::high_resolution_clock::now();
+   auto tp_3b = tp_3a;
+   auto tp_4 = tp_3a;
+   auto tp_5 = tp_3a;
 
    if (! (calc_map.is_null())) {
-      // fill with null residue specs
-      clipper::Xmap<residue_spec_t> contributor_map(reference_map.spacegroup(),
-                                                    reference_map.cell(),
-                                                    reference_map.grid_sampling());
+
+      tp_3a = std::chrono::high_resolution_clock::now();
+
+      // Use Xmap<int> instead of Xmap<residue_spec_t> to avoid the cost of
+      // constructing/initialising a residue_spec_t (with std::string) at every grid point.
+      // -1 = unset, -2 = many contributors, >= 0 = index into specs vector.
+      const int UNSET = -1;
+      const int MANY_CONTRIBUTORS = -2;
+      clipper::Xmap<int> contributor_map(reference_map.spacegroup(),
+                                         reference_map.cell(),
+                                         reference_map.grid_sampling());
+      // Xmap<int> default-initialises to 0, so fill with UNSET
       clipper::Xmap_base::Map_reference_index ix;
+      for (ix = contributor_map.first(); !ix.last(); ix.next())
+         contributor_map[ix] = UNSET;
+
+      tp_3b = std::chrono::high_resolution_clock::now();
+
       mmdb::PPAtom atom_selection = 0;
       int n_atoms;
       mol->GetSelIndex(SelHnd, atom_selection, n_atoms);
 
-      residue_spec_t many_contributors; // we don't want map that is contributed to by
-                                        // many (2 or more) residues.
-      int MANY_CONTRIBUTORS = 200; // magic value
-      many_contributors.int_user_data = MANY_CONTRIBUTORS;
-
+      // Build a lookup from residue_spec_t to index for each atom
+      std::map<residue_spec_t, int> spec_to_index;
+      std::vector<residue_spec_t> index_to_spec;
+      for (int iat=0; iat<n_atoms; iat++) {
+         residue_spec_t res_spec(atom_selection[iat]->GetResidue());
+         if (spec_to_index.find(res_spec) == spec_to_index.end()) {
+            int idx = index_to_spec.size();
+            spec_to_index[res_spec] = idx;
+            index_to_spec.push_back(res_spec);
+         }
+      }
 
       for (int iat=0; iat<n_atoms; iat++) {
          residue_spec_t res_spec(atom_selection[iat]->GetResidue());
+         int spec_idx = spec_to_index[res_spec];
          clipper::Coord_orth co(atom_selection[iat]->x,
                                 atom_selection[iat]->y,
                                 atom_selection[iat]->z);
@@ -2803,30 +2832,15 @@ coot::util::map_to_model_correlation_per_residue(mmdb::Manager *mol,
             for ( iv = iu; iv.coord().v() <= grid.max().v(); iv.next_v() ) {
                for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
                   if ( (iw.coord().coord_frac(reference_map.grid_sampling()).coord_orth(reference_map.cell()) - co).lengthsq() < atom_radius_sq) {
-                     if (0)
-                        std::cout << "specs: masked point at "
-//                                   << iw.coord().coord_frac(reference_map.grid_sampling()).coord_orth(reference_map.cell()).format()
-//                                   << " centre point: " << co.format() << " "
-//                                   << (iw.coord().coord_frac(reference_map.grid_sampling()).coord_orth(reference_map.cell()) - co).lengthsq()
-                                  << iw.coord().format()
-                                  << std::endl;
-                     if (contributor_map[iw].int_user_data != MANY_CONTRIBUTORS) {
-                        // so it was either set once or not at all (so far).
-                        if (contributor_map[iw].unset_p()) {
-                           // was a default residue spec (an as-yet untouched grid point).
-                           contributor_map[iw] = res_spec;
+                     int current = contributor_map[iw];
+                     if (current != MANY_CONTRIBUTORS) {
+                        if (current == UNSET) {
+                           contributor_map[iw] = spec_idx;
                         } else {
-                           if (contributor_map[iw] == res_spec) {
-                              // OK, cool we are in the same residue
-                           } else {
-                              // Oops. A bang.  Mask this point out
-                              // std::cout << "   4 a bang for grid point " << iw.coord().format() << " "
-                              // << contributor_map[iw] << " vs " << res_spec << std::endl;
-                              contributor_map[iw] = many_contributors;
+                           if (current != spec_idx) {
+                              contributor_map[iw] = MANY_CONTRIBUTORS;
                            }
                         }
-                     } else {
-                        // std::cout << iw.coord().format() << " was already a many_contributor" << std::endl;
                      }
                   }
                }
@@ -2834,35 +2848,50 @@ coot::util::map_to_model_correlation_per_residue(mmdb::Manager *mol,
          }
       }
 
-      std::map<residue_spec_t, map_stats_holder_helper_t> map_stats;
+      tp_4 = std::chrono::high_resolution_clock::now();
+
+      // Gather stats per residue index
+      std::vector<map_stats_holder_helper_t> map_stats(index_to_spec.size());
       for (ix = contributor_map.first(); !ix.last(); ix.next()) {
-         if (! contributor_map[ix].unset_p()) {
-            if (contributor_map[ix].int_user_data != MANY_CONTRIBUTORS) {
-               // std::cout << "xy-pair " << calc_map[ix] << " " << reference_map[ix] << "\n";
-               map_stats[contributor_map[ix]].add_xy(calc_map[ix], reference_map[ix]);
-            }
+         int idx = contributor_map[ix];
+         if (idx >= 0) {
+            map_stats[idx].add_xy(calc_map[ix], reference_map[ix]);
          }
       }
 
-      std::map<residue_spec_t, map_stats_holder_helper_t>::const_iterator it;
-      for (it=map_stats.begin(); it!=map_stats.end(); ++it) {
+      tp_5 = std::chrono::high_resolution_clock::now();
 
-         if (false)
-            std::cout << "   " << it->first << " n: " << it->second.n << " spec user-data: "
-                      << it->first.int_user_data << std::endl;
-
-         if (it->second.n > 1) {
-            double top = double(it->second.n) * it->second.sum_xy        - it->second.sum_x * it->second.sum_y;
-            double b_1 = double(it->second.n) * it->second.sum_x_squared - it->second.sum_x * it->second.sum_x;
-            double b_2 = double(it->second.n) * it->second.sum_y_squared - it->second.sum_y * it->second.sum_y;
+      for (unsigned int i=0; i<index_to_spec.size(); i++) {
+         if (map_stats[i].n > 1) {
+            double top = double(map_stats[i].n) * map_stats[i].sum_xy        - map_stats[i].sum_x * map_stats[i].sum_y;
+            double b_1 = double(map_stats[i].n) * map_stats[i].sum_x_squared - map_stats[i].sum_x * map_stats[i].sum_x;
+            double b_2 = double(map_stats[i].n) * map_stats[i].sum_y_squared - map_stats[i].sum_y * map_stats[i].sum_y;
             if (b_1 < 0) b_1 = 0;
             if (b_2 < 0) b_2 = 0;
             double c = top/(sqrt(b_1) * sqrt(b_2));
-            std::pair<residue_spec_t, float> p(it->first, c);
+            std::pair<residue_spec_t, float> p(index_to_spec[i], c);
             v.push_back(p);
          }
       }
    }
+   auto tp_end = std::chrono::high_resolution_clock::now();
+   auto d_selection      = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+   auto d_calc_map       = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
+   auto d_contributor_init = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3b - tp_3a).count();
+   auto d_contributor_fill = std::chrono::duration_cast<std::chrono::milliseconds>(tp_4 - tp_3b).count();
+   auto d_stats_gather   = std::chrono::duration_cast<std::chrono::milliseconds>(tp_5 - tp_4).count();
+   auto d_correlation    = std::chrono::duration_cast<std::chrono::milliseconds>(tp_end - tp_5).count();
+   auto d_total          = std::chrono::duration_cast<std::chrono::milliseconds>(tp_end - tp_0).count();
+   std::cout << "TIMINGS:: map_to_model_correlation_per_residue() "
+             << specs.size() << " residues: "
+             << "selection " << d_selection << " ms, "
+             << "calc_atom_map " << d_calc_map << " ms, "
+             << "contributor_map_init " << d_contributor_init << " ms, "
+             << "contributor_map_fill " << d_contributor_fill << " ms, "
+             << "stats_gather " << d_stats_gather << " ms, "
+             << "correlation " << d_correlation << " ms, "
+             << "total " << d_total << " ms" << std::endl;
+
    mol->DeleteSelection(SelHnd);
    return v;
 }

@@ -6,10 +6,15 @@ file: /Users/pemsley/Projects/coot/git/coot-main/build-chapi-with-homebrew-deps/
 Read 63 atoms/links in restraints from /Users/pemsley/Projects/coot/git/coot-main/build-chapi-with-homebrew-deps/A1DAP.cif
 
 o Update sequence view on mutation, deletion and addition or renumber
+* Done.
 
 o DACA
 
 o zoom drag, lift shift, continue drag -> jump
+
+o goograph to modern GTK4?
+
+o delete the rama plot for a model when the model is removed using the display manager (or elsewhere)
 
 o make a nice figure, using the ray tracer of 2ouz lasofoxifene with density and environment
 
@@ -17,11 +22,19 @@ o rewite the download dialog to be an overlay
 
 o close the side-bar when difference maps frame is closed
 
-o Fix the pukka puckers markup!
-
 o Download EMDB dialog should be an overlay frame - rewrite in pure C++
 
+o "active residue" marker in the rama plot. Make it a circle/ring.
+
+o Blog post for "light mode" coot
+
+o FLEV on 4zzn has a bug in the inner double bond positioning. Try just CQ8, no FLEV.
+
+o Fix the pukka puckers markup!
+* Done.
+
 o make pop-diego face particles smaller
+* Done.
 
 o strip Aniso from pdb on write - add a button to the dialog
 * Done
@@ -32,8 +45,13 @@ o changing the diff map colour should change the negative level also.
 o rotate/translate of an atom selects the whole residue
 
 o add NCS ligands
+* nearly done.
 
 o delete symmetry waters
+
+o get the "icon" start working on macOS - needs work on multi-resolution icon.
+
+o fix the build/installation of curl - on home desktop.
 
 o sequence view (standard window) now says
 (MacCoot:20788): Gtk-WARNING **: 14:28:21.825: Trying to measure GtkBox 0x125ed4200 for width of 560, but it needs at least 600

@@ -2273,6 +2273,29 @@ molecules_container_t::get_map_contours_mesh(int imol, double position_x, double
    return mesh;
 }
 
+coot::simple_mesh_t
+molecules_container_t::get_map_cap_mesh(int imol, float contour_level,
+                                        double base_point_x, double base_point_y, double base_point_z,
+                                        double x_axis_x, double x_axis_y, double x_axis_z,
+                                        double y_axis_x, double y_axis_y, double y_axis_z,
+                                        double x_axis_step_size, double y_axis_step_size,
+                                        unsigned int n_x_axis_points, unsigned int n_y_axis_points) {
+
+   coot::simple_mesh_t mesh;
+   if (is_valid_map_molecule(imol)) {
+      clipper::Coord_orth base_point(base_point_x, base_point_y, base_point_z);
+      clipper::Coord_orth x_axis_uv(x_axis_x, x_axis_y, x_axis_z);
+      clipper::Coord_orth y_axis_uv(y_axis_x, y_axis_y, y_axis_z);
+      mesh = molecules[imol].get_map_cap_mesh(contour_level, base_point, x_axis_uv, y_axis_uv,
+                                              x_axis_step_size, y_axis_step_size,
+                                              n_x_axis_points, n_y_axis_points,
+                                              map_is_contoured_using_thread_pool_flag, &thread_pool);
+   } else {
+      std::cout << "WARNING:: get_map_cap_mesh() Not a valid map molecule " << imol << std::endl;
+   }
+   return mesh;
+}
+
 //! get the mesh for the map contours using another map for colouring
 //!
 coot::simple_mesh_t
