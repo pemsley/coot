@@ -75,6 +75,12 @@ namespace coot {
       std::map<std::string, std::vector<std::map<std::string, std::map<box_index_t, unsigned int> > > > boxes_for_testing; // this pdb
       std::vector<mmdb::Residue *> helical_residues; // fill this before calling calculate_daca()
       std::map<float, float> envelope_distance_map; // the key is squared values
+      struct quality_index_model_t {
+         float intercept;
+         float slope;
+         float stddev_residual;
+      };
+      std::map<std::string, quality_index_model_t> quality_index_models; // key: "ALA-helix" etc.
       void fill_helix_flags(mmdb::Model *model_p, mmdb::Manager *mol);
       std::pair<bool, clipper::RTop_orth>  // return status also, as this can fail.
       get_frag_to_reference_rtop(const std::string &res_name,
@@ -124,8 +130,11 @@ namespace coot {
       void read_tables(const std::string &dir);
       void read_many_tables(const std::vector<std::string> &dirs);
       void write_tables(const std::string &dir_name) const;
+      void read_quality_index_table(const std::string &file_name);
       void score_molecule(const std::string &pdb_file_name);
       void make_data_for_figure_2(const std::string &pdb_dir);
+      void make_quality_index_table(const std::string &input_table_file,
+                                    const std::string &output_file_name);
       void cook();
       //! Run REFERENCE and ANALYSIS passes on the same PDB file.
       //! Returns a pair: (n_total_contacts, n_misses).

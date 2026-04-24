@@ -24,6 +24,7 @@
 #include <map>
 #include <iomanip>
 #include <fstream>
+#include <sstream>
 #include <cstdlib>
 #include <cmath>
 #include "compat/coot-sysdep.h"
@@ -1219,6 +1220,35 @@ coot::daca::write_tables_using_reference_structures_from_dir(const std::string &
 }
 
 void
+coot::daca::read_quality_index_table(const std::string &file_name) {
+
+   std::ifstream f(file_name);
+   if (! f) {
+      std::cout << "WARNING:: could not read quality index table " << file_name << std::endl;
+      return;
+   }
+   std::string line;
+   std::getline(f, line); // skip header
+   while (std::getline(f, line)) {
+      std::istringstream iss(line);
+      std::string res_type, ss_type;
+      int n;
+      float intercept, slope, stddev;
+      if (iss >> res_type >> ss_type >> n >> intercept >> slope >> stddev) {
+         std::string key = res_type + "-" + ss_type;
+         quality_index_model_t m;
+         m.intercept = intercept;
+         m.slope = slope;
+         m.stddev_residual = stddev;
+         quality_index_models[key] = m;
+      }
+   }
+   f.close();
+   std::cout << "INFO:: read " << quality_index_models.size()
+             << " quality index models from " << file_name << std::endl;
+}
+
+void
 coot::daca::score_molecule(const std::string &pdb_file_name) {
 
    std::cout << "score_molecule() " << pdb_file_name << std::endl;
@@ -1253,16 +1283,14 @@ coot::daca::score_molecule(const std::string &pdb_file_name) {
    ta.insert(ta.end(), symm_ta.begin(), symm_ta.end());
 
    // First pass: collect per-residue scores
-   float se_half = 50.0f; // solvent exposure half-weight parameter
    struct residue_score_t {
       int res_number;
       std::string res_type;
       std::string ss_type;
       float raw_score;
       float se_score;
-      float z_score;     // per-residue-type z-score
-      float sef;         // solvent exposure factor: 1/(1 + se/se_half)
-      float smoothed;    // sliding window average of z_score * sef
+      float normalized;  // (raw - expected) / stddev from regression model
+      float smoothed;    // sliding window average of normalized scores
    };
    std::vector<residue_score_t> results;
 
@@ -1288,45 +1316,35 @@ coot::daca::score_molecule(const std::string &pdb_file_name) {
          rs.ss_type = "helix";
          if (std::find(helical_residues.begin(), helical_residues.end(), residue_p) == helical_residues.end())
             rs.ss_type = "non-helical";
-         rs.z_score = 0.0f;
-         rs.sef = (rs.se_score >= 0.0f) ? 1.0f / (1.0f + rs.se_score / se_half) : 0.0f;
+
+         // Normalize using regression model if available
+         rs.normalized = 0.0f;
+         if (rs.se_score > 0.0f) {
+            std::string key = rs.res_type + "-" + rs.ss_type;
+            auto it_model = quality_index_models.find(key);
+            if (it_model != quality_index_models.end()) {
+               const quality_index_model_t &m = it_model->second;
+               float expected = m.intercept + m.slope * rs.se_score;
+               if (m.stddev_residual > 1e-6f)
+                  rs.normalized = (rs.raw_score - expected) / m.stddev_residual;
+            }
+         }
+
          rs.smoothed = 0.0f;
          results.push_back(rs);
       }
    }
 
-   // Per-residue-type normalization: compute mean and stddev, then z-scores
-   std::map<std::string, std::vector<unsigned int> > type_indices;
-   for (unsigned int i=0; i<results.size(); i++)
-      type_indices[results[i].res_type].push_back(i);
-
-   for (auto &ti : type_indices) {
-      const std::vector<unsigned int> &indices = ti.second;
-      if (indices.size() < 2) continue;
-      double sum = 0.0;
-      for (auto idx : indices)
-         sum += results[idx].raw_score;
-      double mean = sum / static_cast<double>(indices.size());
-      double sum_sq = 0.0;
-      for (auto idx : indices)
-         sum_sq += (results[idx].raw_score - mean) * (results[idx].raw_score - mean);
-      double stddev = std::sqrt(sum_sq / static_cast<double>(indices.size()));
-      if (stddev > 1e-6) {
-         for (auto idx : indices)
-            results[idx].z_score = static_cast<float>((results[idx].raw_score - mean) / stddev);
-      }
-   }
-
-   // Sliding window average of z_score * sef (window = 7, centred)
-   // Skip residues with negative solvent exposure (missing data)
+   // Sliding window average of normalized scores (window = 7, centred)
+   // Skip residues with non-positive solvent exposure
    int half_w = 3;
    for (int i=0; i<static_cast<int>(results.size()); i++) {
       float wsum = 0.0f;
       int count = 0;
       for (int j=i-half_w; j<=i+half_w; j++) {
          if (j >= 0 && j < static_cast<int>(results.size())) {
-            if (results[j].se_score >= 0.0f) {
-               wsum += results[j].z_score * results[j].sef;
+            if (results[j].se_score > 0.0f) {
+               wsum += results[j].normalized;
                count++;
             }
          }
@@ -1344,8 +1362,7 @@ coot::daca::score_molecule(const std::string &pdb_file_name) {
                 << " type " << rs.res_type
                 << " SS-type " << rs.ss_type
                 << " score " << std::fixed << std::setprecision(1) << rs.raw_score
-                << " z_score " << std::fixed << std::setprecision(2) << rs.z_score
-                << " sef " << std::fixed << std::setprecision(3) << rs.sef
+                << " normalized " << std::fixed << std::setprecision(2) << rs.normalized
                 << " smoothed " << std::fixed << std::setprecision(2) << rs.smoothed
                 << " daca_sum_score " << std::fixed << std::setprecision(1) << cumulative
                 << " solvent_exposure " << rs.se_score
@@ -1424,6 +1441,98 @@ coot::daca::make_data_for_figure_2(const std::string &pdb_dir) {
       if ((ifile + 1) % 10 == 0)
          std::cerr << "fig2: processed " << (ifile + 1) << "/" << files.size() << std::endl;
    }
+}
+
+void
+coot::daca::make_quality_index_table(const std::string &input_table_file,
+                                     const std::string &output_file_name) {
+
+   // Read the pre-computed figure-2 data table
+   // Format: res_type ss_type score solvent_exposure (with header line)
+   std::ifstream fin(input_table_file);
+   if (! fin) {
+      std::cout << "ERROR:: could not open " << input_table_file << std::endl;
+      return;
+   }
+
+   struct data_point_t {
+      float score;
+      float se;
+   };
+   std::map<std::string, std::vector<data_point_t> > data; // key: "ALA-helix" etc.
+
+   std::string line;
+   std::getline(fin, line); // skip header
+   while (std::getline(fin, line)) {
+      std::istringstream iss(line);
+      std::string res_type, ss_type;
+      float score, se;
+      if (iss >> res_type >> ss_type >> score >> se) {
+         if (se <= 0.0f) continue;
+         std::string key = res_type + "-" + ss_type;
+         data_point_t dp;
+         dp.score = score;
+         dp.se = se;
+         data[key].push_back(dp);
+      }
+   }
+   fin.close();
+
+   // Compute linear regression for each (res_type, ss_type)
+   // score = intercept + slope * solvent_exposure
+   std::ofstream f(output_file_name);
+   if (! f) {
+      std::cout << "ERROR:: could not open " << output_file_name << " for writing" << std::endl;
+      return;
+   }
+
+   f << "res_type ss_type n intercept slope stddev_residual" << std::endl;
+
+   for (auto &kv : data) {
+      const std::string &key = kv.first;
+      const std::vector<data_point_t> &pts = kv.second;
+      if (pts.size() < 3) continue;
+
+      // Parse key back to res_type and ss_type
+      std::string::size_type dash_pos = key.find('-');
+      std::string res_type = key.substr(0, dash_pos);
+      std::string ss_type = key.substr(dash_pos + 1);
+
+      // Linear regression: score = a + b * se
+      double n = static_cast<double>(pts.size());
+      double sum_x = 0.0, sum_y = 0.0, sum_xx = 0.0, sum_xy = 0.0;
+      for (unsigned int i=0; i<pts.size(); i++) {
+         double x = pts[i].se;
+         double y = pts[i].score;
+         sum_x += x;
+         sum_y += y;
+         sum_xx += x * x;
+         sum_xy += x * y;
+      }
+      double denom = n * sum_xx - sum_x * sum_x;
+      if (std::fabs(denom) < 1e-12) continue;
+      double slope = (n * sum_xy - sum_x * sum_y) / denom;
+      double intercept = (sum_y - slope * sum_x) / n;
+
+      // Residual standard deviation
+      double sum_res_sq = 0.0;
+      for (unsigned int i=0; i<pts.size(); i++) {
+         double predicted = intercept + slope * pts[i].se;
+         double residual = pts[i].score - predicted;
+         sum_res_sq += residual * residual;
+      }
+      double stddev_res = std::sqrt(sum_res_sq / n);
+
+      f << res_type << " " << ss_type << " "
+        << pts.size() << " "
+        << std::fixed << std::setprecision(1) << intercept << " "
+        << std::fixed << std::setprecision(1) << slope << " "
+        << std::fixed << std::setprecision(1) << stddev_res
+        << std::endl;
+   }
+
+   f.close();
+   std::cerr << "make_quality_index_table: wrote " << output_file_name << std::endl;
 }
 
 std::pair<int, int>
