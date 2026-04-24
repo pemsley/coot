@@ -626,6 +626,7 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
             }
 
             if (! handled) {
+
                GdkModifierType modifier = gtk_event_controller_get_current_event_state(GTK_EVENT_CONTROLLER(controller));
                // std::cout << "debug:: on_glarea_click(); modifier: " << modifier << std::endl;
                if (modifier == 8) { // "option" key on Mac (ALT on PC is 24)
@@ -634,6 +635,16 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
                   if (naii.success) {
                      setRotationCentre(naii.atom_index, naii.imol);
                      add_picked_atom_info_to_status_bar(naii.imol, naii.atom_index);
+                  } else {
+                     coot::Symm_Atom_Pick_Info_t sap = symmetry_atom_pick();
+                     if (sap.success == GL_TRUE) {
+                        if (is_valid_model_molecule(sap.imol)) {
+                           std::pair<symm_trans_t, Cell_Translation> symtransshiftinfo(sap.symm_trans, sap.pre_shift_to_origin);
+                           setRotationCentre(translate_atom_with_pre_shift(molecules[sap.imol].atom_sel,
+                                                                           sap.atom_index, symtransshiftinfo));
+                           graphics_draw();
+                        }
+                     }
                   }
 
                } else { // not "option" modifier

@@ -5782,6 +5782,19 @@ delete_item(GSimpleAction *simple_action,
             m.delete_water(atom_spec);
             graphics_draw();
          }
+      } else {
+         // no atom picked. How about the case of symmetry-related atom
+         if (par == "water") {
+            coot::Symm_Atom_Pick_Info_t sap = g.symmetry_atom_close_to_screen_centre();
+            if (sap.success == GL_TRUE) {
+               if (g.is_valid_model_molecule(sap.imol)) {
+                  mmdb::Atom *at = g.molecules[sap.imol].atom_sel.atom_selection[sap.atom_index];
+                  coot::atom_spec_t atom_spec(at);
+                  g.molecules[sap.imol].delete_water(atom_spec);
+                  graphics_draw();
+               }
+            }
+         }
       }
       g.graphics_grab_focus();
    }
@@ -5809,14 +5822,39 @@ delete_item_water(GSimpleAction *simple_action,
                  GVariant *parameter,
                  gpointer user_data) {
 
+   std::cout << "DEBUG:: ......................... delete_item_water() " << std::endl;
+
    graphics_info_t g;
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   bool handled = false;
    if (pp.first) {
       auto atom_spec = pp.second.second;
-      coot::residue_spec_t res_spec(atom_spec);
       int imol = pp.second.first;
-      auto &m = g.molecules[imol];
-      m.delete_water(atom_spec);
+      mmdb::Atom *at = g.molecules[imol].get_atom(atom_spec);
+      coot::Cartesian atom_pos(at->x, at->y, at->z);
+      coot::Cartesian rc = g.RotationCentre();
+      double dd = (atom_pos - rc).amplitude();
+      if (dd < 0.4) {
+         auto &m = g.molecules[imol];
+         m.delete_water(atom_spec);
+         handled = true;
+      }
+   }
+
+   if (! handled) {
+
+      // no atom picked. How about the case of symmetry-related atom
+      if (true) {
+         coot::Symm_Atom_Pick_Info_t sap = g.symmetry_atom_close_to_screen_centre();
+         if (sap.success == GL_TRUE) {
+            if (g.is_valid_model_molecule(sap.imol)) {
+               mmdb::Atom *at = g.molecules[sap.imol].atom_sel.atom_selection[sap.atom_index];
+               coot::atom_spec_t atom_spec(at);
+               g.molecules[sap.imol].delete_water(atom_spec);
+               graphics_draw();
+            }
+         }
+      }
    }
 }
 
