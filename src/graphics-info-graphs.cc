@@ -151,12 +151,7 @@ void graphics_info_t::refresh_ramachandran_plot_model_list() {
    // noise
    // std::cout << "----------------------- refresh_ramachandran_plot_model_list --------- " << std::endl;
 
-   auto fn = +[] (GtkTreeModel* model, GtkTreePath* path, GtkTreeIter* iter, gpointer data) {
-      GtkListStore* list = GTK_LIST_STORE(model);
-      return gboolean(!gtk_list_store_remove(list,iter));
-   };
-
-   gtk_tree_model_foreach(GTK_TREE_MODEL(ramachandran_plot_model_list), fn, NULL);
+   gtk_list_store_clear(ramachandran_plot_model_list);
 
    for(int i=0; i<graphics_info_t::n_molecules(); i++) {
       if (graphics_info_t::molecules[i].has_model()) {

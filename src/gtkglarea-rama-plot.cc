@@ -337,14 +337,26 @@ graphics_info_t::remove_plot_from_rama_plots(GtkWidget *plot_box) {
 void
 graphics_info_t::rama_plot_boxes_handle_close_molecule(int imol) {
 
-   // date this needs to be called by close_molecule/close_yourself().
-
-   std::vector<widgeted_rama_plot_t>::const_iterator it;
-   for (it=rama_plot_boxes.begin(); it!=rama_plot_boxes.end(); ++it) {
-      auto &rama_plot_box = *it;
-      if (rama_plot_box.imol == imol) {
-         remove_plot_from_rama_plots(rama_plot_box.box);
+   GtkWidget *box_for_all_plots = widget_from_builder("ramachandran_plots_vbox");
+   bool removed_any = false;
+   auto it = rama_plot_boxes.begin();
+   while (it != rama_plot_boxes.end()) {
+      if (it->imol == imol) {
+         if (box_for_all_plots)
+            gtk_box_remove(GTK_BOX(box_for_all_plots), it->box);
+         it = rama_plot_boxes.erase(it);
+         removed_any = true;
+      } else {
+         ++it;
       }
+   }
+   if (removed_any) {
+      if (rama_plot_boxes.empty()) {
+         GtkWidget *scrolled = widget_from_builder("ramachandran_plots_scrolled_window");
+         if (scrolled)
+            gtk_widget_set_visible(scrolled, FALSE);
+      }
+      hide_vertical_validation_frame_if_appropriate();
    }
 }
 
