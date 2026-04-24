@@ -494,102 +494,61 @@ graphics_info_t::add_terminal_residue_using_active_atom() {
 
 
 
-// do it if have intermediate atoms and ctrl is pressed.
-//
-// axis: 0 for Z, 1 for X.
+// Rotate intermediate (moving) atoms around the screen Z axis about the centre of the fragment.
+// Called when shift-dragging during atom pull mode.
 //
 short int
 graphics_info_t::rotate_intermediate_atoms_maybe(unsigned int width, unsigned int height) {
 
-   // for rotation, use trackball rotation about the centre of the fragment.
-
    short int handled_flag = 0;
 
-   if (moving_atoms_asc) {
-      if (! last_restraints) { // we don't want this to happen during refinement
-         if (moving_atoms_asc->n_selected_atoms > 0) {
-            if (control_is_pressed) {
-               handled_flag = true;
-               bool sane_deltas = true;
-               if (mouse_current_x - GetMouseBeginX() >  80) sane_deltas = false;
-               if (mouse_current_x - GetMouseBeginX() < -80) sane_deltas = false;
-               if (mouse_current_y - GetMouseBeginY() >  80) sane_deltas = false;
-               if (mouse_current_y - GetMouseBeginY() < -80) sane_deltas = false;
+   if (!moving_atoms_asc) return handled_flag;
+   if (moving_atoms_asc->n_selected_atoms <= 0) return handled_flag;
 
-               clipper::RTop_orth screen_matrix;
-               clipper::RTop_orth screen_matrix_transpose;
+   // Only rotate when the pull radius is large enough; otherwise fall through
+   // to the default action.
+   if (pull_restraint_neighbour_displacement_max_radius < 3.0f)
+      return handled_flag;
 
-#if 0
-               {
-                  coot::Cartesian centre = unproject_xyz(0, 0, 0.5);
-                  coot::Cartesian front  = unproject_xyz(0, 0, 0.0);
-                  coot::Cartesian right  = unproject_xyz(1, 0, 0.5);
-                  coot::Cartesian top    = unproject_xyz(0, 1, 0.5);
+   handled_flag = true;
 
-                  coot::Cartesian screen_x = (right - centre);
-                  // coot::Cartesian screen_y = (top   - centre);
-                  coot::Cartesian screen_y = (centre - top);
-                  coot::Cartesian screen_z = (front - centre);
+   // Compute the angular change of the mouse position around the screen centre.
+   // This makes the rotation follow the mouse direction regardless of position.
+   float cx = static_cast<float>(width)  * 0.5f;
+   float cy = static_cast<float>(height) * 0.5f;
+   float angle_prev = std::atan2(static_cast<float>(GetMouseBeginY()) - cy,
+                                 static_cast<float>(GetMouseBeginX()) - cx);
+   float angle_curr = std::atan2(static_cast<float>(mouse_current_y) - cy,
+                                 static_cast<float>(mouse_current_x) - cx);
+   // float angle = angle_curr - angle_prev;
+   float angle = angle_prev - angle_curr;
 
-                  screen_x.unit_vector_yourself();
-                  screen_y.unit_vector_yourself();
-                  screen_z.unit_vector_yourself();
+   coot::ScreenVectors sv;
+   glm::vec3 screen_z(sv.screen_z.x(), sv.screen_z.y(), sv.screen_z.z());
+   glm::mat3 combined = glm::mat3_cast(glm::angleAxis(angle, screen_z));
 
-                  float mat[16];
-                  mat[ 0] = screen_x.x(); mat[ 1] = screen_x.y(); mat[ 2] = screen_x.z();
-                  mat[ 4] = screen_y.x(); mat[ 5] = screen_y.y(); mat[ 6] = screen_y.z();
-                  mat[ 8] = screen_z.x(); mat[ 9] = screen_z.y(); mat[10] = screen_z.z();
+   clipper::Coord_orth mac = moving_atoms_centre();
+   glm::vec3 centre(mac.x(), mac.y(), mac.z());
 
-                  mat[ 3] = 0; mat[ 7] = 0; mat[11] = 0;
-                  mat[12] = 0; mat[13] = 0; mat[14] = 0; mat[15] = 1;
-
-                  screen_matrix.rot()(0,0) = screen_x.x();
-                  screen_matrix.rot()(0,1) = screen_x.y();
-                  screen_matrix.rot()(0,2) = screen_x.z();
-                  screen_matrix.rot()(1,0) = screen_y.x();
-                  screen_matrix.rot()(1,1) = screen_y.y();
-                  screen_matrix.rot()(1,2) = screen_y.z();
-                  screen_matrix.rot()(2,0) = screen_z.x();
-                  screen_matrix.rot()(2,1) = screen_z.y();
-                  screen_matrix.rot()(2,2) = screen_z.z();
-                  screen_matrix.trn()[0] = 0.0;
-                  screen_matrix.trn()[1] = 0.0;
-                  screen_matrix.trn()[2] = 0.0;
-                  screen_matrix_transpose.rot() = screen_matrix.rot().transpose();
-               }
-
-               if (sane_deltas) {
-                  clipper::Coord_orth mac = moving_atoms_centre();
-                  float spin_quat[4];
-                  trackball(spin_quat,
-                            (2.0*mouse_current_x - width)  /width,
-                            (height -  2.0*mouse_current_y)/height,
-                            (2.0*GetMouseBeginX() - width) /width,
-                            (height - 2.0*GetMouseBeginY())/height,
-                            get_trackball_size() );
-                  GL_matrix m;
-                  m.from_quaternion(spin_quat);
-                  clipper::Mat33<double> m33 = m.to_clipper_mat();
-                  clipper::Coord_orth zero(0,0,0);
-                  for (int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
-                     mmdb::Atom *at = moving_atoms_asc->atom_selection[i];
-                     clipper::Coord_orth origin_based_pos = coot::co(at) - mac;
-                     clipper::RTop_orth rtop(m33, zero);
-                     clipper::RTop_orth combined(screen_matrix_transpose * rtop * screen_matrix);
-                     clipper::Coord_orth new_pos = origin_based_pos.transform(combined);
-                     new_pos += mac;
-                     at->x = new_pos.x(); at->y = new_pos.y(); at->z = new_pos.z();
-                  }
-                  Bond_lines_container bonds(*moving_atoms_asc, true);
-                  regularize_object_bonds_box.clear_up();
-                  regularize_object_bonds_box = bonds.make_graphical_bonds();
-                  graphics_draw();
-               }
-#endif
-            }
-         }
-      }
+   for (int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
+      mmdb::Atom *at = moving_atoms_asc->atom_selection[i];
+      glm::vec3 pos(at->x, at->y, at->z);
+      glm::vec3 new_pos = combined * (pos - centre) + centre;
+      at->x = new_pos.x;
+      at->y = new_pos.y;
+      at->z = new_pos.z;
    }
+
+   int do_disulphide_flag = 0;
+   bool show_atoms_as_aniso_flag = false;
+   Bond_lines_container bonds(*moving_atoms_asc, imol_moving_atoms,
+                              show_atoms_as_aniso_flag, do_disulphide_flag);
+   regularize_object_bonds_box.clear_up();
+   regularize_object_bonds_box = bonds.make_graphical_bonds();
+   moving_atoms_molecule.bonds_box = regularize_object_bonds_box;
+   moving_atoms_molecule.make_glsl_bonds_type_checked(__FUNCTION__);
+   graphics_draw();
+
    return handled_flag;
 }
 

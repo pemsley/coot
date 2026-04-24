@@ -223,7 +223,16 @@ graphics_info_t::on_glarea_drag_update_primary(GtkGestureDrag *gesture,
                          << coot::atom_spec_t(dragged_anchored_atom) << std::endl;
                // move_dragged_anchored_atom(dragged_anchored_atom)
             } else {
-               move_atom_pull_target_position(x, y, control_is_pressed);
+               if (shift_is_pressed) {
+                  stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+                  GtkAllocation allocation;
+                  gtk_widget_get_allocation(gl_area, &allocation);
+                  int w = allocation.width;
+                  int h = allocation.height;
+                  rotate_intermediate_atoms_maybe(w, h);
+               } else {
+                  move_atom_pull_target_position(x, y, control_is_pressed);
+               }
             }
             handled = true;
          } else {
