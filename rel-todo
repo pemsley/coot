@@ -5,26 +5,64 @@ WARNING:: in init_refmac_mon_lib() unhandled category "_pdbe_chem_comp_rdkit_pro
 file: /Users/pemsley/Projects/coot/git/coot-main/build-chapi-with-homebrew-deps/A1DAP.cif
 Read 63 atoms/links in restraints from /Users/pemsley/Projects/coot/git/coot-main/build-chapi-with-homebrew-deps/A1DAP.cif
 
+o Fix drag and drop crash on Mac
+* Done.
+
+o ccpem: angular distribution of orientations in moorhen
+
+o ccpem: map model fsc - coot and libcootapi
+
+o ccpem: latent space is done by cryodragon. Get some datasets!
+
+o ccpem: round-capped line "capsule" say should be a object type for generic objects.
+
+o ccpem: rotate view in Z
+
+o ccpem: think about rotating a helix in 'proportial editing'
+
+o ccpem: helices as curvy cylinders - add to moleculestotriangles
+
+o test that Renumber Residues is working
+
+o When navigating the structure using the GoToAtom dialog, write the details of the atom in the status-bar
+* Done.
+
+o install the xml files so that they can be found from whereever we start chapi.
+* No... find them at compile-time. Done.
+
+o symmetry as CA
+* Done.
+
+o Don't label symmetry atoms if they are not begin drawn!
+* Done.
+
 o Update sequence view on mutation, deletion and addition or renumber
 * Done.
 
 o DACA
 
 o zoom drag, lift shift, continue drag -> jump
+* Done.
 
 o goograph to modern GTK4?
 
 o delete the rama plot for a model when the model is removed using the display manager (or elsewhere)
+* Done.
 
 o make a nice figure, using the ray tracer of 2ouz lasofoxifene with density and environment
 
-o rewite the download dialog to be an overlay
-
 o close the side-bar when difference maps frame is closed
+* Done.
 
 o Download EMDB dialog should be an overlay frame - rewrite in pure C++
+* Done.
+
+o zoom drag, lift shift, continue drag -> jump
+* Done.
 
 o "active residue" marker in the rama plot. Make it a circle/ring.
+
+o can I set the diffuse and ambient to light the map?
 
 o Blog post for "light mode" coot
 
@@ -42,10 +80,12 @@ o strip Aniso from pdb on write - add a button to the dialog
 o changing the diff map colour should change the negative level also.
 * Done.
 
-o rotate/translate of an atom selects the whole residue
-
 o add NCS ligands
 * nearly done.
+
+o the refinment setting frames needs to correctly set the menu items.
+
+o rotate/translate of an atom selects the whole residue
 
 o delete symmetry waters
 
@@ -63,6 +103,7 @@ o sequence view (standard window) now says
 o bring back reorder chain. (What did it do?)
 
 o adjust the front blur shader.
+* Done. Nice
 
 o Fix the Fresel in the Fancy shader path
 
@@ -81,6 +122,16 @@ o Ribbon does not react to changing the material lighting.
 * Done.
 
 o give new-startup (and functions) a better name.
+* Done.
+
+o see 16f550bc87810afc46bcfc9d737c34cbd1bfc982)
+  ⏺ The issue is that extract_and_fill_emdb_code_from_pdb_file only parses PDB-format REMARK 900 lines.
+    When the file is mmCIF format, there are no REMARK 900 lines, so the EMDB code is never extracted
+    and the entry stays empty.
+
+    For mmCIF files, the equivalent information is in _pdbx_database_related.db_name / _pdbx_database_related.db_id.
+
+    Needs gemmi
 
 o The NCS graph does not load (is empty) even when there
   is NCS present & switching between NCS copies is working
@@ -99,7 +150,7 @@ o get structure from accession code, no focus
 o dig out the bone shaped cross-section for Easter?
 
 o proportial editing, with chain-based selection for
-  rotation
+  rotation. Rotation is not proportional.
 
 o work with dragged maps off - is updating the map
   now problematic?
@@ -1042,8 +1093,10 @@ o CSHL: Coot: where is keyboard mutate?
 o Score lucy's ligands.
 
 o bring delete_link to the user interface in Coot
+* Done.
 
 o key-binding: simple R - and add a shortcut too. Also triple-refine-auto-accept.
+* Done
 
 o Add delete_link() to libcootapi - it's in coot-molecule
 
