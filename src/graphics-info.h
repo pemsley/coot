@@ -28,6 +28,7 @@
 #ifndef GRAPHICS_INFO_H
 #define GRAPHICS_INFO_H
 
+#include "Material.hh"
 #include "compat/coot-sysdep.h"
 #include "geometry/residue-and-atom-specs.hh"
 #include "validation-graphs/validation-information.hh"
@@ -1141,6 +1142,8 @@ public:
 
    static coot::Cartesian smooth_scroll_start_point;
    static coot::Cartesian smooth_scroll_target_point;
+
+   static Material default_material_for_maps;
 
    // possibly for multi-threading, public access.
    void update_maps();

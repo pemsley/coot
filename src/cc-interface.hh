@@ -2360,6 +2360,18 @@ void set_draw_mesh(int imol, int mesh_index, short int state);
 //! \brief return -1 on unable to lookup mesh
 int draw_mesh_state(int imol, int mesh_index);
 
+//! \brief set the default map material ambient
+void set_default_map_material_ambient(float r, float g, float b, float alpha);
+
+//! \brief set the default map material diffuse
+void set_default_map_material_diffuse(float r, float g, float b, float alpha);
+
+//! \brief set the default map material ambient
+void set_map_material_ambient(int imol, float r, float g, float b, float alpha);
+
+//! \brief set the default map material diffuse
+void set_map_material_diffuse(int imol, float r, float g, float b, float alpha);
+
 //! \brief
 void set_map_material_specular(int imol, float specular_strength, float shininess);
 
