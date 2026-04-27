@@ -1,5 +1,10 @@
 --- Items ---
 
+o MUST DO before release: Test reduce.cc output.
+
+o MUST DO before release: Read in a cryo-EM map. Coot no longer centres on the middle of
+  the map.
+
 o debug:: pdbe_chem_comp_atom_depiction() added depiction of 36 atoms
 WARNING:: in init_refmac_mon_lib() unhandled category "_pdbe_chem_comp_rdkit_properties"
 file: /Users/pemsley/Projects/coot/git/coot-main/build-chapi-with-homebrew-deps/A1DAP.cif
@@ -39,28 +44,43 @@ o Don't label symmetry atoms if they are not begin drawn!
 o Update sequence view on mutation, deletion and addition or renumber
 * Done.
 
+o test base pairing restraints for SB.
+
 o DACA
+
+o File -> Open Cached
 
 o zoom drag, lift shift, continue drag -> jump
 * Done.
 
 o goograph to modern GTK4?
 
+o fix the map caps so that they are the other way around.
+
+o Longer term: Add key-binding to labels? Or hoverovers?
+
+o Longer term: Add a search bar c.f. Ctrl-Shift-P: or the search bar in GNOME.
+
+o Make 10 ribbons representations (say) and try to delete the from the Display manager. stachowskitim
+
+o Ctrl-Shift right-mouse should rotate about screen z, but it does not. Consider how to do this without a mouse.
+
 o delete the rama plot for a model when the model is removed using the display manager (or elsewhere)
 * Done.
 
 o make a nice figure, using the ray tracer of 2ouz lasofoxifene with density and environment
 
-o close the side-bar when difference maps frame is closed
-* Done.
-
 o Download EMDB dialog should be an overlay frame - rewrite in pure C++
 * Done.
 
-o zoom drag, lift shift, continue drag -> jump
+o rewite the download dialog to be an overlay
+* Done.
+
+o close the side-bar when difference maps frame is closed
 * Done.
 
 o "active residue" marker in the rama plot. Make it a circle/ring.
+* Done.
 
 o can I set the diffuse and ambient to light the map?
 

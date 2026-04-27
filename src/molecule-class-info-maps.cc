@@ -2460,7 +2460,16 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
          // Now set is_em_map_cached_flag and set the rotation centres.
          // I think that we only need set the is_em_map_cached_flag.
          //
-         if (done != coot::util::slurp_map_result_t::OK) {
+         if (done == coot::util::slurp_map_result_t::OK) {
+            em = true;
+            if (imol_no == 0) {
+               clipper::Cell c = xmap.cell();
+               coot::Cartesian m(0.5*c.descr().a(), 0.5*c.descr().b(), 0.5*c.descr().c());
+               graphics_info_t g;
+               logger.log(log_t::INFO, "setRotationCentre", m.x(), m.y(), m.z());
+               g.setRotationCentre(m);
+            }
+         } else {
             if (is_gzip) {
                em = true;
                is_em_map_cached_flag = 1; // short int
@@ -2493,6 +2502,8 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
                }
             }
          }
+      } else {
+         // std::cout << "debug:: Here ---------------------- non-slurpable map" << std::endl;
       }
 
       if (done != coot::util::slurp_map_result_t::OK) {
@@ -2535,32 +2546,20 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
                // std::cout << "INFO:: created NX Map with grid " << nxmap.grid().format() << std::endl;
                logger.log(log_t::INFO, "created NX Map with grid", nxmap.grid().format());
             }
+            file.close_read();
          } catch (const clipper::Message_base &exc) {
             std::cout << "WARNING:: failed to open " << filename << std::endl;
             bad_read = true;
          }
 
-         std::pair<bool, coot::Cartesian> new_centre(false, coot::Cartesian(0,0,0)); // used only for first EM map
-
-         if (em) {
-
-            // If this was the first map, recentre to the middle of the cell
-            //
-            if (imol_no == 0) {
-               clipper::Cell c = file.cell();
-               coot::Cartesian m(0.5*c.descr().a(), 0.5*c.descr().b(), 0.5*c.descr().c());
-               new_centre.first = true;
-               new_centre.second = m;
-               // std::cout << "INFO:: map appears to be EM map."<< std::endl;
-               logger.log(log_t::INFO, "map appears to be an EM map");
-            }
-            // std::cout << "INFO:: closing CCP4 map file: " << filename << std::endl;
-            file.close_read();
-
-            if (new_centre.first) {
-               graphics_info_t g;
-               g.setRotationCentre(new_centre.second);
-            }
+         // If this was the first map, recentre to the middle of the cell
+         // (matches the slurpable-EM-map path above).
+         if (!bad_read && imol_no == 0) {
+            clipper::Cell c = xmap.cell();
+            coot::Cartesian m(0.5*c.descr().a(), 0.5*c.descr().b(), 0.5*c.descr().c());
+            graphics_info_t g;
+            logger.log(log_t::INFO, "setRotationCentre", m.x(), m.y(), m.z());
+            g.setRotationCentre(m);
          }
       }
 
