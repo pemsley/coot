@@ -24,6 +24,7 @@
  *
  */
 
+#include "Material.hh"
 #ifdef USE_PYTHON
 #include "Python.h"
 #endif
@@ -1873,3 +1874,6 @@ std::pair<bool, std::string> graphics_info_t::servalcat_fofc    = std::pair<bool
 std::pair<bool, std::string> graphics_info_t::servalcat_refine  = std::pair<bool, std::string> (false, "");
 
 std::string graphics_info_t::current_alt_conf = "";
+
+Material graphics_info_t::default_material_for_maps;
+

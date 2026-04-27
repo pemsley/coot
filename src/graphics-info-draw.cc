@@ -868,9 +868,8 @@ graphics_info_t::draw_map_molecules(stereo_eye_t eye, bool draw_transparent_maps
       err = glGetError();
       if (err) std::cout << "gtk3_draw_map_molecules() glLineWidth " << err << std::endl;
 
-
       Shader &shader = shader_for_meshes;
-      shader.Use(); // needed? I think not.
+      // shader.Use(); // needed? I think not.
 
       glm::mat4 mvp = get_molecule_mvp(eye);
       glm::mat4 model_rotation = get_model_rotation();

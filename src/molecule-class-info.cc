@@ -287,8 +287,11 @@ molecule_class_info_t::setup_internal() { // init
    map_mesh_first_time = true;
    model_mesh_first_time = true;
 
-   material_for_maps.do_specularity = false;
-   material_for_maps.specular_strength = 0.5; // non-shiny maps by default.
+   // material_for_maps.do_specularity = false;
+   // material_for_maps.specular_strength = 0.5; // non-shiny maps by default.
+
+   // this can be set by the user now.
+   material_for_maps = graphics_info_t::default_material_for_maps;
 
    material_for_models.do_specularity = true;
    material_for_models.specular_strength = 1.0;
