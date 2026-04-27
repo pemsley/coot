@@ -432,7 +432,10 @@ graphics_info_t::setup_key_bindings() {
                                 }
                              }
                              std::string chain_id_next = chain_ids[idx_next];
-                             clipper::Coord_orth current_position = coot::co(at);
+                             // Use the actual rotation centre (not the active atom's
+                             // position) so that an off-atom view is mapped to the
+                             // equivalent off-atom point in the next NCS chain.
+                             clipper::Coord_orth current_position = get_rotation_centre_co();
                              bool forward_flag = true;
                              glm::mat4 quat_mat = glm::toMat4(view_quaternion);
                              clipper::Mat33<double> current_view_mat = glm_to_mat33(quat_mat);
