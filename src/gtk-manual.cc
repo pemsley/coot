@@ -484,12 +484,20 @@ void display_control_molecule_combo_box(const std::string &name, int imol,
    gtk_box_append(GTK_BOX(mol_vbox), hbox);
    gtk_widget_set_visible(hbox, TRUE);
 
-   // Create a vbox for mesh toggle buttons (initially hidden, shown when meshes are added)
+   // Create a scrolled window for mesh toggle buttons (initially hidden, shown when meshes are added)
+   GtkWidget *mesh_scrolled_window = gtk_scrolled_window_new();
+   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(mesh_scrolled_window),
+                                  GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+   gtk_scrolled_window_set_max_content_height(GTK_SCROLLED_WINDOW(mesh_scrolled_window), 200);
+   gtk_scrolled_window_set_propagate_natural_height(GTK_SCROLLED_WINDOW(mesh_scrolled_window), TRUE);
+   gtk_box_append(GTK_BOX(mol_vbox), mesh_scrolled_window);
+   gtk_widget_set_visible(mesh_scrolled_window, FALSE);
+
    GtkWidget *mesh_vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
    gtk_widget_set_margin_start(mesh_vbox, 30);
+   gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(mesh_scrolled_window), mesh_vbox);
    g_object_set_data(G_OBJECT(mol_vbox), "mesh_vbox", mesh_vbox);
-   gtk_box_append(GTK_BOX(mol_vbox), mesh_vbox);
-   gtk_widget_set_visible(mesh_vbox, FALSE);
+   g_object_set_data(G_OBJECT(mol_vbox), "mesh_scrolled_window", mesh_scrolled_window);
 
    // We need to add thesee items:
    // 1: molecule number label
@@ -721,8 +729,10 @@ void update_display_control_mesh_toggles(int imol) {
          n_gdo_for_imol++;
 
    int n_total = n_mol_meshes + n_gdo_for_imol;
+   GtkWidget *mesh_scrolled_window = GTK_WIDGET(g_object_get_data(G_OBJECT(mol_vbox), "mesh_scrolled_window"));
    if (n_total == 0) {
-      gtk_widget_set_visible(mesh_vbox, FALSE);
+      if (mesh_scrolled_window)
+         gtk_widget_set_visible(mesh_scrolled_window, FALSE);
       return;
    }
 
@@ -766,7 +776,8 @@ void update_display_control_mesh_toggles(int imol) {
          toggle_idx++;
       }
    }
-   gtk_widget_set_visible(mesh_vbox, TRUE);
+   if (mesh_scrolled_window)
+      gtk_widget_set_visible(mesh_scrolled_window, TRUE);
 }
 
 GtkWidget *molecule_index_to_display_manager_entry(int imol) {
