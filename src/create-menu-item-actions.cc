@@ -142,8 +142,7 @@ void on_dataset_filechooser_dialog_response_gtk4(GtkDialog *dialog,
 }
 
 
-void on_map_filechooser_dialog_response_gtk4(GtkDialog *dialog,
-                                             int response) {
+void on_map_filechooser_dialog_response(GtkDialog *dialog, int response) {
 
    if (response == GTK_RESPONSE_ACCEPT) {
       GtkFileChooser *chooser = GTK_FILE_CHOOSER(dialog);
@@ -339,7 +338,7 @@ void open_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), TRUE);
    gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(dialog), "is-diff-map", "Is Difference Map", NULL, NULL);
 
-   g_signal_connect(dialog, "response", G_CALLBACK(on_map_filechooser_dialog_response_gtk4), NULL);
+   g_signal_connect(dialog, "response", G_CALLBACK(on_map_filechooser_dialog_response), NULL);
 
    set_directory_for_filechooser(dialog);
 

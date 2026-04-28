@@ -610,6 +610,7 @@ high-res/Makefile
 cootaneer/Makefile
 cootilus/Makefile
 greg-tests/Makefile
+graphs/Makefile
 python-tests/Makefile
 lidia-core/Makefile
 doc/Makefile

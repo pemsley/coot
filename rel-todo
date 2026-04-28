@@ -1,13 +1,17 @@
 --- Items ---
 
+o MUST DO before release: Test reduce.cc output.
+
+o Blog post for "light mode" coot
+
+o test base pairing restraints for SB.
+
+o fix the map caps so that they are the other way around.
+
 o debug:: pdbe_chem_comp_atom_depiction() added depiction of 36 atoms
 WARNING:: in init_refmac_mon_lib() unhandled category "_pdbe_chem_comp_rdkit_properties"
 file: /Users/pemsley/Projects/coot/git/coot-main/build-chapi-with-homebrew-deps/A1DAP.cif
 Read 63 atoms/links in restraints from /Users/pemsley/Projects/coot/git/coot-main/build-chapi-with-homebrew-deps/A1DAP.cif
-
-o bring back reorder chain. (What did it do?)
-
-o Blog post for "light mode" coot
 
 o DACA
 
@@ -25,6 +29,11 @@ o ccpem: helices as curvy cylinders - add to moleculestotriangles
 
 o test that Renumber Residues is working
 
+o rotate/translate of an atom selects the whole residue
+
+o bring back reorder chains.
+* Done.
+
 o When navigating the structure using the GoToAtom dialog, write the details of the atom in the status-bar
 * Done.
 
@@ -37,7 +46,9 @@ o fix the build/installation of curl - on home desktop.
 o the refinment setting frames needs to correctly set the menu items.
 * Done.
 
-o rotate/translate of an atom selects the whole residue
+o MUST DO before release: Read in a cryo-EM map. Coot no longer centres on the middle of
+  the map.
+* Done.
 
 o FLEV on 4zzn has a bug in the inner double bond positioning. Try just CQ8, no FLEV.
 * Done.
@@ -69,15 +80,26 @@ o zoom drag, lift shift, continue drag -> jump
 
 o goograph to modern GTK4?
 
+o Longer term: Add key-binding to labels? Or hoverovers?
+
+o Longer term: Add a search bar c.f. Ctrl-Shift-P: or the search bar in GNOME.
+
+o Make 10 ribbons representations (say) and try to delete the from the Display manager. stachowskitim
+
+o Ctrl-Shift right-mouse should rotate about screen z, but it does not. Consider how to do this without a mouse.
+
 o delete the rama plot for a model when the model is removed using the display manager (or elsewhere)
 * Done.
 
 o make a nice figure, using the ray tracer of 2ouz lasofoxifene with density and environment
 
-o close the side-bar when difference maps frame is closed
+o Download EMDB dialog should be an overlay frame - rewrite in pure C++
 * Done.
 
-o Download EMDB dialog should be an overlay frame - rewrite in pure C++
+o rewite the download dialog to be an overlay
+* Done.
+
+o close the side-bar when difference maps frame is closed
 * Done.
 
 o "active residue" marker in the rama plot. Make it a circle/ring.

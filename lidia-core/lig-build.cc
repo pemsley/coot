@@ -153,54 +153,66 @@ lig_build::bond_t::make_double_aromatic_short_stick(const pos_t &pos_1_in,
    // 0.1 and 0.9 look pretty good for 6-membered ring, but too long for
    // 5-membered.  I'll decrease it a bit (to 0.14 and 0.86).
 
+   if (false)
+      std::cout << "DEBUG:: make_double_aromatic_short_stick [NEW] "
+                << "pos_1_in=" << pos_1_in << " pos_2_in=" << pos_2_in
+                << " shorten_first=" << shorten_first
+                << " shorten_second=" << shorten_second
+                << " centre_pos=" << centre_pos() << std::endl;
+
    lig_build::pos_t pos_1 = pos_1_in;
    lig_build::pos_t pos_2 = pos_2_in;
 
-   // shorten_fraction should depend on the angle of the bond (which we can work out)
-   // and the letter/element (which needs to be passed)
-   //
+   // Apply the per-end shortening (when an atom has a letter label).
    // fraction_point() returns a point that is (say) 0.8 of the way
    // from p1 (first arg) to p2 (second arg).
-   //
-   double shorten_fraction = 0.74;
-   shorten_fraction = 0.8;
+   double shorten_fraction = 0.8;
    if (shorten_first)
       pos_1 = lig_build::pos_t::fraction_point(pos_2_in, pos_1_in, shorten_fraction);
    if (shorten_second)
       pos_2 = lig_build::pos_t::fraction_point(pos_1_in, pos_2_in, shorten_fraction);
 
-   std::pair<lig_build::pos_t, lig_build::pos_t> p;
-   lig_build::pos_t buv = (pos_2-pos_1).unit_vector();
+   double shortened_bond_length = lig_build::pos_t::length(pos_2, pos_1);
+   if (shortened_bond_length < 1.0e-6)
+      return std::pair<lig_build::pos_t, lig_build::pos_t>(pos_1, pos_2);
+
+   lig_build::pos_t buv = (pos_2 - pos_1) * (1.0 / shortened_bond_length);
    lig_build::pos_t buv_90 = buv.rotate(90);
 
-   // Which side of the pos_1 -> pos_2 vector shall we put this bond?
-   //
-   // So create a T piece, and measure the distance to the centre
-   // point, if we are on the inside then the distance to the centre
-   // will be shorter.
-   //
-   double bond_length = lig_build::pos_t::length(pos_2_in, pos_1_in);
-   double nice_dist = bond_length * 0.2;
-   lig_build::pos_t test_pt_1 = pos_1 + buv_90 * nice_dist;
-   lig_build::pos_t test_pt_2 = pos_1 - buv_90 * nice_dist;
+   // Perpendicular offset between the inner and outer line (key off the
+   // full-length bond so the spacing looks consistent next to neighbouring
+   // bonds whether or not this one is shortened).
+   double full_bond_length = lig_build::pos_t::length(pos_2_in, pos_1_in);
+   double perp_dist = full_bond_length * 0.2;
+
+   // Pick the side closer to the ring centre.
+   lig_build::pos_t test_pt_1 = pos_1 + buv_90 * perp_dist;
+   lig_build::pos_t test_pt_2 = pos_1 - buv_90 * perp_dist;
    double d_1 = lig_build::pos_t::length(test_pt_1, centre_pos());
    double d_2 = lig_build::pos_t::length(test_pt_2, centre_pos());
-
-   lig_build::pos_t inner_start_point = test_pt_1;
+   lig_build::pos_t perp_offset = buv_90 * perp_dist;
    if (d_2 < d_1)
-      inner_start_point = test_pt_2;
+      perp_offset = perp_offset * -1.0f;
 
-   double inner_bond_bl = bond_length;
-   if (shorten_first)
-      inner_bond_bl *= 0.85;
-   if (shorten_second)
-      inner_bond_bl *= 0.85;
-   lig_build::pos_t inner_end_point = inner_start_point + buv * inner_bond_bl;
+   // Anchor each end of the inner stick to its own (shortened) atom position,
+   // then inset symmetrically along the bond direction so the inner stick
+   // sits inside the ring without touching the atom positions.
+   lig_build::pos_t inner_start_point = pos_1 + perp_offset;
+   lig_build::pos_t inner_end_point   = pos_2 + perp_offset;
 
+   double cutening_fraction = 0.14;
    lig_build::pos_t cutened_inner_start_point =
-      lig_build::pos_t::fraction_point(inner_start_point, inner_end_point, 0.14);
+      lig_build::pos_t::fraction_point(inner_start_point, inner_end_point, cutening_fraction);
    lig_build::pos_t cutened_inner_end_point =
-      lig_build::pos_t::fraction_point(inner_start_point, inner_end_point, 0.86);
+      lig_build::pos_t::fraction_point(inner_start_point, inner_end_point, 1.0 - cutening_fraction);
+
+   if (false)
+      std::cout << "DEBUG:: make_double_aromatic_short_stick [NEW] "
+                << " inner_start=" << cutened_inner_start_point
+                << " inner_end="   << cutened_inner_end_point
+                << " (perp_dist=" << perp_dist
+                << " shortened_bl=" << shortened_bond_length << ")"
+                << std::endl;
 
    return std::pair<lig_build::pos_t, lig_build::pos_t>(cutened_inner_start_point,
 							cutened_inner_end_point);

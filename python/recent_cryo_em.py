@@ -22,8 +22,10 @@ gi.require_version('Gtk', '4.0')
 gi.require_version('GdkPixbuf', '2.0')
 from gi.repository import Gtk, Gdk, GLib, GdkPixbuf, Gio, Pango
 
+import gzip
 import json
 import os
+import shutil
 import threading
 import urllib.request
 import urllib.parse
@@ -36,6 +38,7 @@ socket.setdefaulttimeout(15)
 # Cache directories
 ENTRY_IMAGE_CACHE_DIR = os.path.join(os.path.expanduser("~"), ".cache", "Coot", "structure-images")
 LIGAND_IMAGE_CACHE_DIR = os.path.join(os.path.expanduser("~"), ".cache", "Coot", "monomer-images")
+DOWNLOAD_DIR = os.path.join(os.path.expanduser("~"), ".cache", "Coot", "coot-download")
 
 def _ensure_cache_dir(d):
    if not os.path.isdir(d):
@@ -66,7 +69,7 @@ def _pdbe_search_url(weeks_ago=0):
    fields = ("pdb_id,emdb_id,title,resolution,release_date,experimental_method,"
              "pubmed_author_list,entry_type,compound_id,"
              "ligand_of_interest,ligand_of_interest_name,"
-             "organism_scientific_name,number_of_polymer_entities")
+             "organism_scientific_name,number_of_polymer_entities,status")
    start, end = _week_range(weeks_ago)
    date_fq = "release_date:[{} TO {}]".format(_format_date(start), _format_date(end))
    params = {
@@ -151,6 +154,156 @@ def _download_ligand_image(tlc):
    return None
 
 
+def _fetch_emdb_summary(emdb_id):
+   """Fetch reconstruction info from the EMDB API. Returns a short summary
+   string, or None if unavailable."""
+   url = "https://www.ebi.ac.uk/emdb/api/entry/" + emdb_id.upper()
+   data = _fetch_json(url)
+   if not data:
+      return None
+   title = data.get("admin", {}).get("title", "")
+   if title == "SUPPRESSED":
+      return "suppressed"
+   try:
+      sd = data["structure_determination_list"]["structure_determination"][0]
+      method = sd.get("method", "")
+      ip = sd.get("image_processing", [{}])[0]
+      fr = ip.get("final_reconstruction", {}) or {}
+      res = fr.get("resolution", {}).get("valueOf_")
+      n = fr.get("number_images_used")
+      sw = [s.get("name") for s in fr.get("software_list", {}).get("software", []) if s.get("name")]
+      parts = []
+      if method:
+         parts.append(method)
+      if n:
+         parts.append("{} particles".format(n))
+      if res:
+         parts.append("{} Å".format(res))
+      if sw:
+         parts.append("(" + ", ".join(sw) + ")")
+      return ", ".join(parts) if parts else None
+   except (KeyError, IndexError, TypeError):
+      return None
+
+
+def _load_emdb_info_async(emdb_label_pairs):
+   """For each (emdb_id, label_widget), fetch the EMDB summary in a thread
+   and update the label on the main thread."""
+   if not emdb_label_pairs:
+      return
+
+   def do_fetch():
+      for emdb_id, lbl in emdb_label_pairs:
+         summary = _fetch_emdb_summary(emdb_id)
+         text = "{}: {}".format(emdb_id.upper(), summary) if summary else "{}: (no info)".format(emdb_id.upper())
+         GLib.idle_add(_set_emdb_label, lbl, text)
+
+   thread = threading.Thread(target=do_fetch, daemon=True)
+   thread.start()
+
+
+def _set_emdb_label(label_widget, text):
+   label_widget.set_markup("<small>{}</small>".format(GLib.markup_escape_text(text)))
+   return False
+
+
+def _mmcif_url(pdb_id):
+   """PDBe updated mmCIF download URL."""
+   return "https://www.ebi.ac.uk/pdbe/entry-files/download/{}.cif".format(pdb_id.lower())
+
+
+def _emdb_map_url(emdb_id):
+   """EMDB map (gzipped CCP4) download URL. emdb_id is e.g. 'EMD-12345'."""
+   num = emdb_id.upper().replace("EMD-", "")
+   return ("https://ftp.ebi.ac.uk/pub/databases/emdb/structures/EMD-{n}"
+           "/map/emd_{n}.map.gz").format(n=num)
+
+
+def _download_with_size_check(url, final_path):
+   """Download `url` to final_path via a .tmp file. After transfer, verify the
+   on-disk size matches the server's Content-Length (if provided), then rename.
+   Returns (ok, message)."""
+   tmp_path = final_path + ".tmp"
+   try:
+      req = urllib.request.Request(url)
+      with urllib.request.urlopen(req, timeout=30) as resp:
+         expected = resp.headers.get("Content-Length")
+         expected = int(expected) if expected is not None else None
+         with open(tmp_path, "wb") as f:
+            written = 0
+            while True:
+               chunk = resp.read(65536)
+               if not chunk:
+                  break
+               f.write(chunk)
+               written += len(chunk)
+      if expected is not None and written != expected:
+         os.remove(tmp_path)
+         return False, "size mismatch: got {} expected {}".format(written, expected)
+      if written < 100:
+         os.remove(tmp_path)
+         return False, "file too small ({} bytes)".format(written)
+      os.rename(tmp_path, final_path)
+      return True, "ok ({} bytes)".format(written)
+   except Exception as e:
+      try:
+         if os.path.isfile(tmp_path):
+            os.remove(tmp_path)
+      except Exception:
+         pass
+      return False, str(e)
+
+
+def _download_entry_files_async(pdb_id, emdb_ids, status_setter):
+   """Download mmCIF for pdb_id and map for the first emdb_id (if any) into
+   DOWNLOAD_DIR. status_setter(text) is called on the main thread to update UI."""
+   def report(msg):
+      GLib.idle_add(lambda: (status_setter(msg), False)[1])
+
+   def do_download():
+      _ensure_cache_dir(DOWNLOAD_DIR)
+
+      cif_path = os.path.join(DOWNLOAD_DIR, pdb_id.lower() + ".cif")
+      report("Downloading {}.cif...".format(pdb_id.upper()))
+      ok, msg = _download_with_size_check(_mmcif_url(pdb_id), cif_path)
+      if not ok:
+         report("mmCIF failed: " + msg)
+         return
+
+      if not emdb_ids:
+         report("Downloaded {}.cif (no EMDB id)".format(pdb_id.upper()))
+         return
+
+      last_msg = ""
+      for emdb_id in emdb_ids:
+         map_path = os.path.join(DOWNLOAD_DIR,
+                                 "emd_" + emdb_id.upper().replace("EMD-", "") + ".map.gz")
+         report("Downloading {} map...".format(emdb_id.upper()))
+         ok, msg = _download_with_size_check(_emdb_map_url(emdb_id), map_path)
+         if ok:
+            report("Decompressing {}...".format(emdb_id.upper()))
+            unzipped = map_path[:-3]  # strip .gz
+            tmp_unzipped = unzipped + ".tmp"
+            try:
+               with gzip.open(map_path, "rb") as gz_in, open(tmp_unzipped, "wb") as out:
+                  shutil.copyfileobj(gz_in, out, 1024 * 1024)
+               os.rename(tmp_unzipped, unzipped)
+               os.remove(map_path)
+               report("Downloaded {} + {} (unzipped)".format(
+                  pdb_id.upper(), emdb_id.upper()))
+            except Exception as e:
+               if os.path.isfile(tmp_unzipped):
+                  try: os.remove(tmp_unzipped)
+                  except Exception: pass
+               report("gunzip failed: {}".format(e))
+            return
+         last_msg = "{}: {}".format(emdb_id.upper(), msg)
+      report("Map failed: " + last_msg)
+
+   thread = threading.Thread(target=do_download, daemon=True)
+   thread.start()
+
+
 def _truncate(text, max_len=80):
    if not text:
       return ""
@@ -195,9 +348,26 @@ def _make_entry_row(doc):
    emdb_str = "  ({})".format(", ".join(e.upper() for e in emdb_ids)) if emdb_ids else ""
    res_str = "  {:.2f} A".format(resolution) if resolution else ""
    date_str = release_date[:10] if release_date else ""
+   status = doc.get("status", "")
+   if isinstance(status, list):
+      status = status[0] if status else ""
+   status_labels = {
+      "HOLD": "On Hold",
+      "HPUB": "Hold for Publication",
+      "PROC": "Processing",
+      "WAIT": "Waiting",
+      "REFI": "Refinement",
+      "WDRN": "Withdrawn",
+      "OBS":  "Obsolete",
+   }
+   status_badge = ""
+   if status and status != "REL":
+      label = status_labels.get(status, status)
+      status_badge = ("   <span background='#ffcc66' foreground='black'>"
+                      " <b>{}</b> </span>").format(GLib.markup_escape_text(label))
    id_label.set_markup(
-      "<b><big>{}</big></b>{}{}   <small>{}</small>".format(
-         pdb_id.upper(), emdb_str, res_str, date_str)
+      "<b><big>{}</big></b>{}{}   <small>{}</small>{}".format(
+         pdb_id.upper(), emdb_str, res_str, date_str, status_badge)
    )
    id_label.set_halign(Gtk.Align.START)
    id_label.set_selectable(True)
@@ -210,6 +380,18 @@ def _make_entry_row(doc):
    title_label.set_wrap_mode(Pango.WrapMode.WORD_CHAR)
    title_label.set_max_width_chars(80)
    text_box.append(title_label)
+
+   # EMDB reconstruction info (lazy)
+   emdb_label_pairs = []
+   if emdb_ids:
+      for eid in emdb_ids:
+         emdb_lbl = Gtk.Label()
+         emdb_lbl.set_markup("<small>{}: fetching info...</small>".format(eid.upper()))
+         emdb_lbl.set_halign(Gtk.Align.START)
+         emdb_lbl.set_wrap(True)
+         emdb_lbl.set_max_width_chars(80)
+         text_box.append(emdb_lbl)
+         emdb_label_pairs.append((eid, emdb_lbl))
 
    # Authors (short)
    if authors:
@@ -276,8 +458,32 @@ def _make_entry_row(doc):
          lig_row.append(lig_box)
       text_box.append(lig_row)
 
+   # Download button + status label
+   dl_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+   dl_button = Gtk.Button(label="Download mmCIF + map")
+   dl_status = Gtk.Label()
+   dl_status.set_halign(Gtk.Align.START)
+   dl_status.set_hexpand(True)
+   dl_box.append(dl_button)
+   dl_box.append(dl_status)
+   text_box.append(dl_box)
+
+   def on_download_clicked(_btn):
+      dl_button.set_sensitive(False)
+      def set_status(msg):
+         dl_status.set_markup("<small>{}</small>".format(GLib.markup_escape_text(msg)))
+         # Re-enable the button when we reach a terminal state
+         if msg.startswith("Downloaded") or "failed" in msg:
+            dl_button.set_sensitive(True)
+      _download_entry_files_async(pdb_id, emdb_ids, set_status)
+
+   dl_button.connect("clicked", on_download_clicked)
+   if status and status != "REL":
+      dl_button.set_sensitive(False)
+      dl_status.set_markup("<small><i>files not yet available</i></small>")
+
    row.append(text_box)
-   return row, image_widget, pdb_id, ligand_image_widgets
+   return row, image_widget, pdb_id, ligand_image_widgets, emdb_label_pairs
 
 
 def _load_image_async(pdb_id, image_widget):
@@ -454,7 +660,7 @@ def _populate_results(data, results_box, status_label, weeks_ago):
       ngroups, _week_label(weeks_ago)))
 
    for doc in docs:
-      row, image_widget, pdb_id, ligand_image_widgets = _make_entry_row(doc)
+      row, image_widget, pdb_id, ligand_image_widgets, emdb_label_pairs = _make_entry_row(doc)
 
       # Add a separator between entries
       sep = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL)
@@ -464,6 +670,7 @@ def _populate_results(data, results_box, status_label, weeks_ago):
       # Start async image downloads
       _load_image_async(pdb_id, image_widget)
       _load_ligand_images_async(ligand_image_widgets)
+      _load_emdb_info_async(emdb_label_pairs)
 
    return False  # Remove from idle
 

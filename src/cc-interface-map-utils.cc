@@ -81,7 +81,7 @@ handle_read_ccp4_map(const std::string &filename, int is_diff_map_flag) {
 
       istate = g.molecules[imol_new].read_ccp4_map(filename, is_diff_map_flag, *g.map_glob_extensions);
 
-      if (istate > -1) { // not a failure
+      if (istate > -1) { // if not a failure ...
 	 g.scroll_wheel_map = imol_new;  // change the current scrollable map.
 	 g.activate_scroll_radio_button_in_display_manager(imol_new);
       } else {
