@@ -2484,6 +2484,22 @@ void import_restraints_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
 }
 
+void edit_sort_chains_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                             G_GNUC_UNUSED GVariant *parameter,
+                             G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *frame    = widget_from_builder("sort_chains_frame");
+   GtkWidget *combobox = widget_from_builder("sort_chains_comboboxtext");
+   if (combobox) {
+      graphics_info_t g;
+      int imol_active = first_coords_imol();
+      auto mol_vec = g.get_model_molecule_vector();
+      GCallback func = G_CALLBACK(nullptr);
+      g.fill_combobox_with_molecule_options(combobox, func, imol_active, mol_vec);
+      gtk_widget_set_visible(frame, TRUE);
+   }
+}
+
 void quick_ligand_validate_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                   G_GNUC_UNUSED GVariant *parameter,
                                   G_GNUC_UNUSED gpointer user_data) {
@@ -6465,5 +6481,6 @@ create_actions(GtkApplication *application) {
    add_action("generate_all_molecule_self_restraints_6_0_action",     generate_all_molecule_self_restraints_6_0_action);
    add_action("delete_all_extra_restraints_action",        delete_all_extra_restraints_action);
    add_action("import_restraints_action",                  import_restraints_action);
+   add_action("edit_sort_chains_action",                  edit_sort_chains_action);
 
 }

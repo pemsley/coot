@@ -196,6 +196,10 @@
           <attribute name="action">app.edit_restraints_action</attribute>
         </item>
         <item>
+          <attribute name="label" translatable="no">Sort Chains...</attribute>
+          <attribute name="action">app.edit_sort_chains_action</attribute>
+        </item>
+        <item>
           <attribute name="label">Undo Molecule Chooser...</attribute>
           <attribute name="action">app.undo_molecule_chooser_action</attribute>
         </item>
@@ -9754,6 +9758,90 @@ Do you want to continue?
                       <object class="GtkButton" id="download-emdb-map-cancel-button">
                         <property name="label">Cancel</property>
                         <property name="halign">center</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+
+            <child type="overlay">
+              <object class="GtkFrame" id="sort_chains_frame">
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="visible">False</property>
+                <property name="can_focus">True</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">5</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">5</property>
+
+                    <child>
+                      <object class="GtkLabel" id="sort_chains_label">
+                        <property name="label" translatable="yes">Sort Molecule</property>
+                        <property name="justify">left</property>
+                        <property name="margin-top">4</property>
+                        <property name="margin-bottom">4</property>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkComboBoxText" id="sort_chains_comboboxtext">
+                        <property name="margin-start">8</property>
+                        <property name="margin-end">8</property>
+                        <property name="margin-top">4</property>
+                        <property name="margin-bottom">4</property>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkSeparator">
+                        <property name="margin-top">2</property>
+                        <property name="margin-bottom">2</property>
+                        <property name="margin-start">6</property>
+                        <property name="margin-end">6</property>
+                      </object>
+                    </child>
+ 
+                    <child>
+                      <object class="GtkBox">
+                        <property name="homogeneous">True</property>
+                        <property name="spacing">2</property>
+                        <property name="margin-start">6</property>
+                        <property name="margin-end">6</property>
+                        <property name="margin-top">2</property>
+                        <property name="margin-bottom">2</property>
+                        <child>
+                          <object class="GtkButton" id="sort_chains_cancel_button">
+                            <property name="label" translatable="yes">Cancel</property>
+                            <property name="can-focus">1</property>
+                            <property name="receives-default">1</property>
+                            <property name="margin-bottom">4</property>
+                            <property name="margin-end">4</property>
+                            <property name="margin-start">4</property>
+                            <property name="margin-top">4</property>
+                            <signal name="clicked" handler="on_sort_chains_cancel_button_clicked" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="sort_chains_ok_button">
+                            <property name="label" translatable="yes">OK</property>
+                            <property name="can-focus">1</property>
+                            <property name="receives-default">1</property>
+                            <property name="margin-bottom">4</property>
+                            <property name="margin-end">4</property>
+                            <property name="margin-start">4</property>
+                            <property name="margin-top">4</property>
+                            <signal name="clicked" handler="on_sort_chains_ok_button_clicked" swapped="no"/>
+                            <style>
+                              <class name="suggested-action"/>
+                            </style>
+                          </object>
+                        </child>
                       </object>
                     </child>
                   </object>
