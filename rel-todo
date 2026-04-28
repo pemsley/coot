@@ -5,8 +5,11 @@ WARNING:: in init_refmac_mon_lib() unhandled category "_pdbe_chem_comp_rdkit_pro
 file: /Users/pemsley/Projects/coot/git/coot-main/build-chapi-with-homebrew-deps/A1DAP.cif
 Read 63 atoms/links in restraints from /Users/pemsley/Projects/coot/git/coot-main/build-chapi-with-homebrew-deps/A1DAP.cif
 
-o Fix drag and drop crash on Mac
-* Done.
+o bring back reorder chain. (What did it do?)
+
+o Blog post for "light mode" coot
+
+o DACA
 
 o ccpem: angular distribution of orientations in moorhen
 
@@ -15,8 +18,6 @@ o ccpem: map model fsc - coot and libcootapi
 o ccpem: latent space is done by cryodragon. Get some datasets!
 
 o ccpem: round-capped line "capsule" say should be a object type for generic objects.
-
-o ccpem: rotate view in Z
 
 o ccpem: think about rotating a helix in 'proportial editing'
 
@@ -27,6 +28,30 @@ o test that Renumber Residues is working
 o When navigating the structure using the GoToAtom dialog, write the details of the atom in the status-bar
 * Done.
 
+o Fix drag and drop crash on Mac
+* Done.
+
+o fix the build/installation of curl - on home desktop.
+* Not now. Later.
+
+o the refinment setting frames needs to correctly set the menu items.
+* Done.
+
+o rotate/translate of an atom selects the whole residue
+
+o FLEV on 4zzn has a bug in the inner double bond positioning. Try just CQ8, no FLEV.
+* Done.
+
+o NCS jumping recentres to CA
+* Done.
+
+o Low rotamer probabilites in Validation graphs
+* Done.
+
+o Residue numbering in Validation graphs.
+* Done.
+
+o ccpem: rotate view in Z
 o install the xml files so that they can be found from whereever we start chapi.
 * No... find them at compile-time. Done.
 
@@ -38,8 +63,6 @@ o Don't label symmetry atoms if they are not begin drawn!
 
 o Update sequence view on mutation, deletion and addition or renumber
 * Done.
-
-o DACA
 
 o zoom drag, lift shift, continue drag -> jump
 * Done.
@@ -57,16 +80,11 @@ o close the side-bar when difference maps frame is closed
 o Download EMDB dialog should be an overlay frame - rewrite in pure C++
 * Done.
 
-o zoom drag, lift shift, continue drag -> jump
+o "active residue" marker in the rama plot. Make it a circle/ring.
 * Done.
 
-o "active residue" marker in the rama plot. Make it a circle/ring.
-
 o can I set the diffuse and ambient to light the map?
-
-o Blog post for "light mode" coot
-
-o FLEV on 4zzn has a bug in the inner double bond positioning. Try just CQ8, no FLEV.
+* You can now.
 
 o Fix the pukka puckers markup!
 * Done.
@@ -83,15 +101,10 @@ o changing the diff map colour should change the negative level also.
 o add NCS ligands
 * nearly done.
 
-o the refinment setting frames needs to correctly set the menu items.
-
-o rotate/translate of an atom selects the whole residue
-
 o delete symmetry waters
+* Done.
 
 o get the "icon" start working on macOS - needs work on multi-resolution icon.
-
-o fix the build/installation of curl - on home desktop.
 
 o sequence view (standard window) now says
 (MacCoot:20788): Gtk-WARNING **: 14:28:21.825: Trying to measure GtkBox 0x125ed4200 for width of 560, but it needs at least 600
@@ -99,8 +112,6 @@ o sequence view (standard window) now says
 (MacCoot:20788): Gtk-WARNING **: 14:28:21.842: Trying to measure GtkBox 0x125ed4200 for width of 560, but it needs at least 600
 (MacCoot:20788): Gtk-WARNING **: 14:28:21.850: Trying to measure GtkBox 0x125ed4200 for width of 560, but it needs at least 600
   on entry into the widget.
-
-o bring back reorder chain. (What did it do?)
 
 o adjust the front blur shader.
 * Done. Nice
