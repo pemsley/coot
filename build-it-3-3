@@ -5176,7 +5176,6 @@ echo bash ../coot/configure $coot_prefix \
       PYTHON=python3 \
       --with-boost=$install_top_dir  \
       --with-boost-libdir=$install_top_dir/lib  \
-      --with-enhanced-ligand-tools \
       --with-rdkit-prefix=$install_top_dir \
       --with-guile \
       $sqlite_config_args \
@@ -5192,7 +5191,6 @@ echo bash ../coot/configure $coot_prefix \
       COOT_BUILD_INFO_STRING="$coot_build_info_string" \
       --with-boost=$install_top_dir  \
       --with-boost-libdir=$install_top_dir/lib  \
-      --with-enhanced-ligand-tools \
       --with-rdkit-prefix=$install_top_dir \
       --with-guile \
       $sqlite_config_args \
