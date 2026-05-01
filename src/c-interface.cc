@@ -3959,6 +3959,7 @@ std::pair<short int, float> float_from_entry(GtkWidget *entry) {
 
    std::pair<short int, float> p(0,0);
    const gchar *txt = gtk_editable_get_text(GTK_EDITABLE(entry));
+   std::cout << "DEBUG:: float_from_entry()::::::::::::::: " << txt << std::endl;
    if (txt) {
       float f = atof(txt);
       p.second = f;

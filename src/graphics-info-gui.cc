@@ -445,7 +445,7 @@ graphics_info_t::set_file_for_save_filechooser(GtkWidget *filechooser) const {
 	}
       }
 
-      if (true)
+      if (false)
 	 std::cout << "DEBUG:: Setting filechooser with file: " << full_name
 		   << std::endl;
 
@@ -1827,13 +1827,7 @@ graphics_info_t::new_fill_combobox_with_coordinates_options(GtkWidget *combobox_
       if (imol == imol_active) {
          // 20220415-PE this doesn't work (for renumber residues - annoying)
 
-         std::cout << "!!!!!!!!!!! setting active on a gtk combobox " << imol_active << std::endl;
          gtk_combo_box_set_active(GTK_COMBO_BOX(combobox_molecule), imol_active);
-         std::cout << "!!!!!!!!!!! combobox get_active() returns " <<  gtk_combo_box_get_active(GTK_COMBO_BOX(combobox_molecule)) << std::endl;
-         if (GTK_IS_COMBO_BOX(combobox_molecule))
-            std::cout << "!!!!!!!!!!! " << "combobox is a combobox" << std::endl;
-         if (GTK_IS_COMBO_BOX_TEXT(combobox_molecule))
-            std::cout << "!!!!!!!!!!! " << "combobox is a comboboxtext" << std::endl;
       }
    }
 
