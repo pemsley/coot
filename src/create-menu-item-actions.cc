@@ -6400,7 +6400,7 @@ create_actions(GtkApplication *application) {
    add_action("mutate_base_to_type_G", mutate_base_to_type_G);
    add_action("mutate_base_to_type_T", mutate_base_to_type_T);
    add_action("mutate_base_to_type_C", mutate_base_to_type_C);
-   add_action("mutate_base_to_type_C", mutate_base_to_type_U);
+   add_action("mutate_base_to_type_U", mutate_base_to_type_U);
 
    // Draw menu
    add_action_with_param("bond_smoothness_action", bond_smoothness_action);
