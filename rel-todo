@@ -4,9 +4,17 @@ o MUST DO before release: Test reduce.cc output.
 
 o Blog post for "light mode" coot
 
+o rotate/translate of an atom selects the whole residue
+
 o test base pairing restraints for SB.
 
 o fix the map caps so that they are the other way around.
+
+o Lucrezia: does --dictionary-with-mol work?
+
+o Lucrezia: does mask by chain work?
+
+o it would be better if the view change on copy-fragment went to the right zoom and was smooth.
 
 o debug:: pdbe_chem_comp_atom_depiction() added depiction of 36 atoms
 WARNING:: in init_refmac_mon_lib() unhandled category "_pdbe_chem_comp_rdkit_properties"
@@ -27,9 +35,10 @@ o ccpem: think about rotating a helix in 'proportial editing'
 
 o ccpem: helices as curvy cylinders - add to moleculestotriangles
 
-o test that Renumber Residues is working
-
 o rotate/translate of an atom selects the whole residue
+
+o test that Renumber Residues is working
+* Fixed.
 
 o bring back reorder chains.
 * Done.
@@ -88,10 +97,10 @@ o Make 10 ribbons representations (say) and try to delete the from the Display m
 
 o Ctrl-Shift right-mouse should rotate about screen z, but it does not. Consider how to do this without a mouse.
 
+o make a nice figure, using the ray tracer of 2ouz lasofoxifene with density and environment
+
 o delete the rama plot for a model when the model is removed using the display manager (or elsewhere)
 * Done.
-
-o make a nice figure, using the ray tracer of 2ouz lasofoxifene with density and environment
 
 o Download EMDB dialog should be an overlay frame - rewrite in pure C++
 * Done.
@@ -122,6 +131,9 @@ o changing the diff map colour should change the negative level also.
 
 o add NCS ligands
 * nearly done.
+
+o the refinment setting frames needs to correctly set the menu items.
+* Done.
 
 o delete symmetry waters
 * Done.

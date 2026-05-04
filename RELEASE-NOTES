@@ -8,10 +8,6 @@ Graphics
             plane, stitched seamlessly to the trimmed 3D isosurface
             behind the plane
 
- o FEATURE: Map cap logic refactored into coot-utils so that
-            coot_headless_api, chapi, Moorhen and Blender can
-            produce map cap meshes
-
  o CHANGE:  MoleculesToTriangles meshes now use material-based
             lighting
 
@@ -19,6 +15,13 @@ Graphics
             0.2 and diffuse lowered from 1.0 to 0.5, giving softer
             highlights and less blown-out surfaces for objects that
             don't set their own material
+
+ o CHANGE:  Improved depth-of-field shader
+
+ o CHANGE:  Reworked depth fogging in the moleculestotriangles
+            shader; objects drawn with
+            draw_meshed_generic_display_object_meshes() now also
+            use depth fogging
 
  o BUG-FIX: Fix the colour rotation of the difference map negative
             level
@@ -34,10 +37,19 @@ Graphics
  o BUG-FIX: Screenshot resolution now uses framebuffer_scale
             instead of a hardcoded 2x
 
+ o FEATURE: "Symmetry as C-alphas" button added to the Coot:
+            Symmetry dialog
+
+ o BUG-FIX: Fix the rotation jump after zooming
+
+ o BUG-FIX: Fix scaling and offsets in
+            graphics_ligand_mesh_molecule_t::draw()
+
+ o BUG-FIX: Fix the NCS jumping centre
+
 Modelling
 
- o FEATURE: Molecular Replacement pipeline for cryo-EM maps,
-            integrated into the Coot GUI
+ o FEATURE: Molecular Placement for cryo-EM maps
 
  o FEATURE: hiranuma_inversion() added - converts the pLDDT scores
             (0-100 confidence values) that AlphaFold stores in the
@@ -57,6 +69,15 @@ Modelling
 
  o BUG-FIX: For ramp_chains, the polymer range is now known
 
+ o FEATURE: "Proportional editing" rotation added
+
+ o FEATURE: Delete symmetry waters from the rotation centre
+
+ o BUG-FIX: Fix behaviour of the residue range selection in
+            renumber residue range
+
+ o BUG-FIX: Fixups for environment distances
+
 Validation
 
  o FEATURE: NCS validation graph enabled
@@ -69,19 +90,24 @@ Validation
             geometry is statistically unusual, independent of
             their absolute size.
 
-Ligands / Lhasa / Layla
+ o FEATURE: Current-residue marker added to the Ramachandran plot
 
- o FEATURE: Coordgen support in Lhasa/Layla with on/off toggle
-            in the Layla UI and API
+ o CHANGE:  Density correlation validation graph sped up
+
+ o CHANGE:  Pucker analysis geometry fixed up
+
+ o BUG-FIX: Close the validation Ramachandran box when a molecule
+            is closed; refresh_ramachandran_plot_model_list() now
+            called in close_molecule()
+
+Ligands / Lhasa / Layla
 
  o FEATURE: Lhasa extended IO: import and export for various
             data formats
 
  o FEATURE: Lhasa can now read and write RDKit pickles
 
- o FEATURE: Gemmi linking for Lhasa
-
- o CHANGE:  SVG output now has width and height before the
+ o CHANGE:  FLEV SVG output now has width and height before the
             viewBox
 
  o CHANGE:  Compile guards so Lhasa/Layla still compile when
@@ -92,10 +118,22 @@ Ligands / Lhasa / Layla
  o BUG-FIX: coordgen error no longer printed when there is no
             coordgen support in RDKit
 
+ o FEATURE: Browser for new ligands added
+
+ o BUG-FIX: Fix the inner ring bond positioning
+
 Maps
 
- o FEATURE: rebox_map() and apply_translation_to_molecule() added
-            to the API
+ o FEATURE: Functions added to control the lighting of maps
+
+ o FEATURE: brighten_maps() added to the Coot API
+
+ o CHANGE:  EMDB map download reworked: now uses an in-window
+            progress bar; recentre message no longer shown for
+            map download; download-emdb-map-label is no longer
+            used in fetch_emdb_map()
+
+ o CHANGE:  Reading a map again moves to the middle of the box
 
  o BUG-FIX: Fix the download directory for maps
 
@@ -110,6 +148,12 @@ Scripting and Automation/MCP
  o BUG-FIX: Prevent double-running of startup scripts
 
  o CHANGE:  new_startup functions renamed to startup
+
+ o FEATURE: --dictionary-with-mol added to the command-line
+            options
+
+ o BUG-FIX: Re-enable command line scripts in
+            run_command_line_scripts_callback()
 
 User Interface
 
@@ -131,12 +175,39 @@ User Interface
 
  o BUG-FIX: Fix names of the entries in the NCS ligands frame
 
+ o FEATURE: GUI item added for "Sort Chains"
+
+ o FEATURE: Active residue is now highlighted in the sequence
+            view; sequence view is now updated on model
+            modification
+
+ o FEATURE: add_picked_atom_info_to_status_bar() added
+
+ o CHANGE:  Molecular representation's mesh_vbox is now inside a
+            GtkScrolledWindow
+
+ o CHANGE:  Clear Atom labels item moved
+
+ o BUG-FIX: Stop picking of symmetry atoms when symmetry is not
+            displayed
+
+ o BUG-FIX: Fix the active item of refinement control comboboxes
+
+ o BUG-FIX: Close the side panel when the difference map peaks
+            box is closed
+
+ o BUG-FIX: Fix drag-and-drop file dropping
+
 API
+
+ o FEATURE: rebox_map() and apply_translation_to_molecule()
 
  o FEATURE: get_map_cap_mesh() on molecule_t and
             molecules_container_t, for headless map cap rendering
 
- o FEATURE: rebox_map() and apply_translation_to_molecule()
+ o FEATURE: delete_links_containing_residue_py() added
+
+ o FEATURE: to_generic_object_add_tori() added
 
  o CHANGE:  render function made const
 
@@ -144,12 +215,9 @@ Build
 
  o CHANGE:  Eigen3 is now required at configure time
 
- o BUG-FIX: Add Eigen3 include flags to RDKit flags via
-            pkg-config
-
  o CHANGE:  GSL autobuild install now links against libcblas so
             that libgsl.so carries DT_NEEDED libcblas (or
-            libgslcblas) — eliminates the --as-needed cblas_*
+            libgslcblas) which eliminates the --as-needed cblas_*
             undefined-reference failure
 
  o BUG-FIX: Use CMake for RDKit in Lhasa; pre-install Eigen for
@@ -163,6 +231,12 @@ Build
  o BUG-FIX: Fix linking of maeparser and libexpat
 
  o BUG-FIX: Fix non-/usr-based Chapi build
+
+ o CHANGE:  Removed --with-enhanced-ligand-tools from coot
+            configure
+
+ o CHANGE:  maeparser and coordgen added to build-it-3-3; eigen
+            updated to 5.0.1
 
 -----
 
