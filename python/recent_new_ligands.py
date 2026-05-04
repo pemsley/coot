@@ -16,6 +16,9 @@
 
 # Browse new CCD (Chemical Component Dictionary) entities released in the last week.
 # Displays compound metadata and 2D diagrams in a GTK4 scrolled window.
+#
+# Uses the PDBe Solr `latest_chemistry` document type to find genuinely new
+# CCD codes (rather than all ligands appearing in newly-released entries).
 
 import gi
 gi.require_version('Gtk', '4.0')
@@ -29,6 +32,7 @@ import urllib.request
 import urllib.parse
 import urllib.error
 import socket
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
 
 socket.setdefaulttimeout(15)
@@ -36,54 +40,58 @@ socket.setdefaulttimeout(15)
 # Cache directory for ligand 2D diagrams
 LIGAND_IMAGE_CACHE_DIR = os.path.join(os.path.expanduser("~"), ".cache", "Coot", "monomer-images")
 
+# PDB releases on Wednesdays. weeks_ago=0 means the most recent Wednesday release.
+PDB_RELEASE_WEEKDAY = 2  # Monday=0, Tuesday=1, Wednesday=2
+
 def _ensure_cache_dir(d):
    if not os.path.isdir(d):
       os.makedirs(d, exist_ok=True)
 
-def _week_range(weeks_ago=0):
-   """Return (start_date, end_date) as datetime for the week `weeks_ago` weeks in the past."""
-   end = datetime.today() - timedelta(weeks=weeks_ago)
-   start = end - timedelta(days=7)
+def _most_recent_release_date():
+   """Return the date of the most recent Wednesday PDB release (today if today is Wed)."""
+   today = datetime.today()
+   days_back = (today.weekday() - PDB_RELEASE_WEEKDAY) % 7
+   return today - timedelta(days=days_back)
+
+def _release_date_for_week(weeks_ago):
+   """Return the release-date datetime for `weeks_ago` Wednesdays in the past."""
+   return _most_recent_release_date() - timedelta(weeks=weeks_ago)
+
+def _release_window(weeks_ago):
+   """Return (start, end) datetimes that bracket a single Wednesday release.
+   Solr release_date values are stamped at 01:00 UTC on the release day, so a
+   24-hour window centred on the release day captures exactly one release."""
+   release = _release_date_for_week(weeks_ago)
+   start = release.replace(hour=0, minute=0, second=0, microsecond=0)
+   end = start + timedelta(days=1)
    return start, end
 
 def _format_date_solr(dt):
-   """Format a datetime as a Solr date string: YYYY-MM-DDT00:00:00Z"""
-   return dt.strftime("%Y-%m-%dT00:00:00Z")
+   return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
 
-def _week_label(weeks_ago):
-   """Human-readable label for the week range."""
-   start, end = _week_range(weeks_ago)
-   return "{} to {}".format(start.strftime("%d %b %Y"), end.strftime("%d %b %Y"))
+def _release_label(weeks_ago):
+   release = _release_date_for_week(weeks_ago)
+   return release.strftime("%d %b %Y")
 
 def _pdbe_search_url(weeks_ago=0):
-   """Build the PDBe Solr search URL for entries released in a given week,
-   returning their ligands of interest."""
+   """Build the PDBe Solr search URL for new CCD entities released in a given week.
+   Uses the latest_chemistry document type (added to PDBe Solr in 2026)."""
    base = "https://www.ebi.ac.uk/pdbe/search/pdb/select"
-   fields = "pdb_id,ligand_of_interest,ligand_of_interest_name,release_date"
-   start, end = _week_range(weeks_ago)
-   date_fq = "release_date:[{} TO {}]".format(_format_date_solr(start), _format_date_solr(end))
+   start, end = _release_window(weeks_ago)
    params = {
-      "q": "*:*",
+      "q": "document_type:latest_chemistry AND latest_chemistry_entry_type:new",
       "wt": "json",
-      "rows": "2000",
+      "rows": "500",
+      "json.nl": "map",
+      "fl": "pdb_id,new_ligand,release_date",
+      "fq": "release_date:[{} TO {}]".format(_format_date_solr(start), _format_date_solr(end)),
       "group": "true",
       "group.field": "pdb_id",
       "group.ngroups": "true",
-      "json.nl": "map",
-      "fl": fields,
-      "fq": [
-         "has_bound_molecule:Y",
-         date_fq,
-      ],
-      "sort": "release_date desc",
    }
    parts = [base + "?"]
    for key, val in params.items():
-      if key == "fq":
-         for fq_val in val:
-            parts.append("fq=" + urllib.parse.quote(fq_val, safe="") + "&")
-      else:
-         parts.append(key + "=" + urllib.parse.quote(str(val), safe=",:-") + "&")
+      parts.append(key + "=" + urllib.parse.quote(str(val), safe=",:-[] ") + "&")
    return "".join(parts).rstrip("&")
 
 def _fetch_json(url):
@@ -97,52 +105,53 @@ def _fetch_json(url):
       print("recent_new_ligands: failed to fetch JSON:", e)
       return None
 
+def _parse_new_ligand_field(value):
+   """Parse a `new_ligand` field value into [(tlc, name), ...].
+   The field is multi-valued (list) at the Solr level; each value is
+   itself a comma-separated list of `CODE : name` pairs when an entry
+   introduces multiple new CCDs simultaneously."""
+   if value is None:
+      return []
+   if isinstance(value, str):
+      raw_entries = [value]
+   else:
+      raw_entries = list(value)
+
+   results = []
+   for entry in raw_entries:
+      # An entry may itself contain multiple "CODE : name" pairs separated by ", A1"
+      # but splitting that reliably is messy because names contain commas.
+      # In practice each Solr value is one CODE : name pair, so handle that primarily.
+      if " : " in entry:
+         tlc_part, name_part = entry.split(" : ", 1)
+         tlc_part = tlc_part.strip()
+         if 1 <= len(tlc_part) <= 5:
+            results.append((tlc_part, name_part.strip()))
+   return results
+
 def _collect_new_ligands(data):
-   """Extract unique 5-letter ligand codes from grouped Solr response.
-   Also collects the ligand_of_interest_name map for display."""
+   """Extract unique new CCD codes from grouped Solr response.
+   Returns a dict: {tlc: {"name": str, "pdb_ids": set([...])}}"""
    grouped = data.get("grouped", {}).get("pdb_id", {})
    groups = grouped.get("groups", [])
-   all_tlcs = set()
-   name_map = {}
+   ligands = {}
    for g in groups:
+      pdb_id = g.get("groupValue", "")
       doclist = g.get("doclist", {}).get("docs", [])
-      if doclist:
-         doc = doclist[0]
-         for tlc in doc.get("ligand_of_interest", []):
-            if len(tlc) == 5:
-               all_tlcs.add(tlc)
-         for entry in doc.get("ligand_of_interest_name", []):
-            if " : " in entry:
-               tlc_part, name_part = entry.split(" : ", 1)
-               tlc_part = tlc_part.strip()
-               if len(tlc_part) == 5:
-                  name_map[tlc_part] = name_part.strip()
-   return sorted(all_tlcs), name_map
-
-def _find_new_compounds(weeks_ago=0):
-   """Find 5-letter CCD entities from entries released in a given week.
-   Returns a list of (comp_id, details_dict) tuples, or None on failure."""
-   url = _pdbe_search_url(weeks_ago)
-   data = _fetch_json(url)
-   if data is None:
-      return None
-   tlcs, name_map = _collect_new_ligands(data)
-   if not tlcs:
-      return []
-
-   compounds = []
-   for tlc in tlcs:
-      details = _fetch_compound_details(tlc)
-      if details is None:
-         # Use the name from Solr if PDBe compound API fails
-         details = {"name": name_map.get(tlc, "")}
-      compounds.append((tlc, details))
-   return compounds
+      if not doclist:
+         continue
+      doc = doclist[0]
+      for tlc, name in _parse_new_ligand_field(doc.get("new_ligand")):
+         if tlc not in ligands:
+            ligands[tlc] = {"name": name, "pdb_ids": set()}
+         if pdb_id:
+            ligands[tlc]["pdb_ids"].add(pdb_id.upper())
+   return ligands
 
 def _fetch_compound_details(comp_id):
    """Fetch compound details from PDBe compound summary API.
-   Returns a dict with name, formula, weight, creation_date, smiles, etc. or None."""
-   # https://www.ebi.ac.uk/pdbe/api/pdb/compound/summary/{comp_id}
+   Used for enrichment (formula, weight, SMILES) the name already comes
+   from the latest_chemistry document."""
    url = "https://www.ebi.ac.uk/pdbe/api/pdb/compound/summary/{}".format(comp_id)
    try:
       req = urllib.request.Request(url)
@@ -154,6 +163,35 @@ def _fetch_compound_details(comp_id):
    except Exception as e:
       print("recent_new_ligands: failed to fetch details for {}: {}".format(comp_id, e))
    return None
+
+def _find_new_compounds(weeks_ago=0):
+   """Find genuinely-new 5-letter CCD entities released in a given week.
+   Returns a list of (comp_id, details_dict) tuples, or None on failure.
+   Compound enrichment (formula, weight, SMILES) is fetched concurrently."""
+   url = _pdbe_search_url(weeks_ago)
+   data = _fetch_json(url)
+   if data is None:
+      return None
+   ligands = _collect_new_ligands(data)
+   if not ligands:
+      return []
+
+   # Concurrent enrichment, say 30+ ligands sequentially is sluggish, in parallel it's snappy.
+   def enrich(item):
+      tlc, base_info = item
+      details = _fetch_compound_details(tlc) or {}
+      # Authoritative name comes from latest_chemistry; only fall back to the
+      # compound API name if Solr didn't give us one.
+      if base_info["name"]:
+         details["name"] = base_info["name"]
+      details["_pdb_ids_release"] = sorted(base_info["pdb_ids"])
+      return tlc, details
+
+   compounds = []
+   with ThreadPoolExecutor(max_workers=8) as pool:
+      for result in pool.map(enrich, sorted(ligands.items())):
+         compounds.append(result)
+   return compounds
 
 def _ligand_image_url(tlc):
    """URL for the RCSB CCD labelled 2D diagram (SVG)."""
@@ -198,9 +236,12 @@ def _make_ligand_row(comp_id, details):
    name = details.get("name", "") if details else ""
    formula = details.get("formula", "") if details else ""
    weight = details.get("weight", None) if details else None
-   creation_date = details.get("creation_date", "") if details else ""
    smiles_list = details.get("smiles", []) if details else []
-   first_observed = details.get("first_observed_in", []) if details else []
+   # Prefer the entries from THIS week's release - that's what the user is browsing.
+   # Fall back to first_observed_in if the release-list is somehow empty.
+   pdb_ids = details.get("_pdb_ids_release", []) if details else []
+   if not pdb_ids:
+      pdb_ids = details.get("first_observed_in", []) if details else []
 
    smiles_str = ""
    if smiles_list:
@@ -231,15 +272,13 @@ def _make_ligand_row(comp_id, details):
    text_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
    text_box.set_hexpand(True)
 
-   # TLC + weight + date
+   # TLC + weight
    id_label = Gtk.Label()
    weight_str = "  {:.1f} Da".format(weight) if weight else ""
-   date_str = creation_date[:10] if creation_date else ""
    id_label.set_markup(
-      "<b><big>{}</big></b>{}   <small>{}</small>".format(
+      "<b><big>{}</big></b>{}".format(
          GLib.markup_escape_text(comp_id),
-         GLib.markup_escape_text(weight_str),
-         GLib.markup_escape_text(date_str))
+         GLib.markup_escape_text(weight_str))
    )
    id_label.set_halign(Gtk.Align.START)
    id_label.set_selectable(True)
@@ -262,10 +301,10 @@ def _make_ligand_row(comp_id, details):
       formula_label.set_halign(Gtk.Align.START)
       text_box.append(formula_label)
 
-   # PDB entry
-   if first_observed:
-      pdb_ids_str = ", ".join(pid.upper() for pid in first_observed[:5])
-      if len(first_observed) > 5:
+   # PDB entries that introduced this CCD this week
+   if pdb_ids:
+      pdb_ids_str = ", ".join(pid.upper() for pid in pdb_ids[:5])
+      if len(pdb_ids) > 5:
          pdb_ids_str += " ..."
       pdb_label = Gtk.Label()
       pdb_label.set_markup("<small>PDB: {}</small>".format(
@@ -316,8 +355,8 @@ def recent_new_ligands_browser(weeks_ago=0):
    nav_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
    nav_box.set_margin_bottom(4)
 
-   prev_button = Gtk.Button(label="< Previous week")
-   next_button = Gtk.Button(label="Next week >")
+   prev_button = Gtk.Button(label="< Previous release")
+   next_button = Gtk.Button(label="Next release >")
    date_label = Gtk.Label()
    date_label.set_hexpand(True)
    nav_box.append(prev_button)
@@ -351,7 +390,7 @@ def recent_new_ligands_browser(weeks_ago=0):
 
    def _load_week(weeks_ago):
       state["weeks_ago"] = weeks_ago
-      date_label.set_markup("<b>{}</b>".format(_week_label(weeks_ago)))
+      date_label.set_markup("<b>Release of {}</b>".format(_release_label(weeks_ago)))
       status_label.set_text("Fetching new CCD entries...")
       prev_button.set_sensitive(False)
       next_button.set_sensitive(False)
@@ -394,15 +433,16 @@ def _populate_results(compounds, results_box, status_label, weeks_ago):
    """Populate the results box with ligand rows (called on main thread)."""
 
    if compounds is None:
-      status_label.set_text("Failed to retrieve data from RCSB.")
+      status_label.set_text("Failed to retrieve data from PDBe.")
       return False
 
    if not compounds:
-      status_label.set_text("No new CCD entities found for this week.")
+      status_label.set_text("No new CCD entities found for the {} release.".format(
+         _release_label(weeks_ago)))
       return False
 
-   status_label.set_text("{} new CCD entries for {}".format(
-      len(compounds), _week_label(weeks_ago)))
+   status_label.set_text("{} new CCD entries in the {} release".format(
+      len(compounds), _release_label(weeks_ago)))
 
    for comp_id, details in compounds:
       row, image_widget = _make_ligand_row(comp_id, details)
