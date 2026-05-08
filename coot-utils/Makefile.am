@@ -145,9 +145,7 @@ libcoot_map_utils_la_SOURCES = coot-map-utils.cc peak-search.cc peak-search-from
 	xmap-stats.cc maps-spherical.cc pepflip-using-difference-map.cc exp-fit.cc blob-line.cc \
         slurp-map.cc find-water-baddies.cc diff-diff-map-peaks.cc mini-texture.cc positron.cc \
         texture-as-floats.cc merge-C-and-N-terminii.cc born.cc rebox-map.cc \
-        crowther.cc patterson.cc map-cap.cc edcalc.cc \
-        shelxd-normalisation.cc shelxd-substructure.cc shelxd-foms.cc \
-        shelxd-triplets.cc shelxd-tangent.cc
+        crowther.cc patterson.cc map-cap.cc edcalc.cc
 
 
 # should libcoot-coord-utils link $CLIPPER_LIBS directly? (Hence CLIPPER_LIBS is not needed here)
@@ -189,9 +187,7 @@ check_PROGRAMS = test-h-bonds testshelxreader test-hole test-elastic \
 		 test-dirichlet-process test-born test-gmm test-nef-utils test-zernike \
 		 test-zernike-params test-zernike-nxmap test-zernike-search \
 		 test-coord-utils test-coord-utils-gemmi \
-		 test-peak-search \
-		 test-shelxd-substructure \
-		 test-shelxd-real-data
+		 test-peak-search
 
 # wrong build order - delete from make check for now.
 # test-emma test-convolute test-coot-utils test-segmap
@@ -321,19 +317,19 @@ test_peak_search_LDADD = \
 	$(top_builddir)/utils/libcoot-utils.la \
 	$(CLIPPER_LIBS) -lpthread
 
-test_shelxd_substructure_SOURCES = test-shelxd-substructure.cc
-test_shelxd_substructure_LDADD = \
-	./libcoot-map-utils.la   \
-	./libcoot-coord-utils.la \
-	$(top_builddir)/utils/libcoot-utils.la \
-	$(CLIPPER_LIBS) -lpthread
+# test_substructure_SOURCES = test-substructure.cc
+# test_substructure_LDADD = \
+# 	./libcoot-map-utils.la   \
+# 	./libcoot-coord-utils.la \
+# 	$(top_builddir)/utils/libcoot-utils.la \
+# 	$(CLIPPER_LIBS) -lpthread
 
-test_shelxd_real_data_SOURCES = test-shelxd-real-data.cc
-test_shelxd_real_data_LDADD = \
-	./libcoot-map-utils.la   \
-	./libcoot-coord-utils.la \
-	$(top_builddir)/utils/libcoot-utils.la \
-	$(CLIPPER_LIBS) -lpthread
+# test_substructure_real_data_SOURCES = test-substructure-real-data.cc
+# test_substructure_real_data_LDADD = \
+# 	./libcoot-map-utils.la   \
+# 	./libcoot-coord-utils.la \
+# 	$(top_builddir)/utils/libcoot-utils.la \
+# 	$(CLIPPER_LIBS) -lpthread
 
 # test_segmap_SOURCES = test-segmap.cc
 # test_segmap_LDADD = \
