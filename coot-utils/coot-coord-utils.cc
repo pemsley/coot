@@ -5455,10 +5455,11 @@ coot::util::occupancy_sum(mmdb::PAtom *atoms, int n_atoms) {
    float os = 0.0;
 
    for (int i=0; i<n_atoms; i++) {
-      os += atoms[i]->occupancy;
+      if (! atoms[i]->isTer())
+         os += atoms[i]->occupancy;
    }
    return os;
-} 
+}
 
 short int
 coot::util::is_nucleotide(mmdb::Residue *residue_p) {
@@ -5490,7 +5491,7 @@ coot::util::is_nucleotide(mmdb::Residue *residue_p) {
          }
       }
       if (nuc) return nuc;
-      
+
       if (type == "Ad") { 
          nuc = 1;
       } else { 
