@@ -1,20 +1,35 @@
 --- Items ---
 
 o MUST DO before release: Test reduce.cc output.
+* Coot seems OK/normal. I guess that the new code
+  was in a branch that was not merged.
+
+o Does AIZynthFinder do anything useful for us?
 
 o Blog post for "light mode" coot
 
 o rotate/translate of an atom selects the whole residue
 
+o Future: map caps in shader for maps (not maps.shader) by
+  looking at the dot product (used for diffuse)
+
+o moorhen: use atom selection //A/1-30 and "colorRampChains"
+  there it selects the whole molecule and ignores the user seletion
+
 o test base pairing restraints for SB.
+* They work.
 
 o fix the map caps so that they are the other way around.
 
-o Lucrezia: does --dictionary-with-mol work?
+o try making xmap_dummy a non-static non-pointer - if it's even needed
+  in api.
 
-o Lucrezia: does mask by chain work?
+o Lucrezia: does mask by chain work? In moorhen
 
 o it would be better if the view change on copy-fragment went to the right zoom and was smooth.
+
+o Clement says that the conformation generation in moorhen is slow
+  Test in chapi and add some timers.
 
 o debug:: pdbe_chem_comp_atom_depiction() added depiction of 36 atoms
 WARNING:: in init_refmac_mon_lib() unhandled category "_pdbe_chem_comp_rdkit_properties"
@@ -22,6 +37,8 @@ file: /Users/pemsley/Projects/coot/git/coot-main/build-chapi-with-homebrew-deps/
 Read 63 atoms/links in restraints from /Users/pemsley/Projects/coot/git/coot-main/build-chapi-with-homebrew-deps/A1DAP.cif
 
 o DACA
+
+o put pathology plots into chapi.
 
 o ccpem: angular distribution of orientations in moorhen
 
@@ -36,6 +53,9 @@ o ccpem: think about rotating a helix in 'proportial editing'
 o ccpem: helices as curvy cylinders - add to moleculestotriangles
 
 o rotate/translate of an atom selects the whole residue
+
+o Lucrezia: does --dictionary-with-mol work?
+* Fixed.
 
 o test that Renumber Residues is working
 * Fixed.
