@@ -198,6 +198,7 @@ int    graphics_info_t::y_is_pressed = 0 ;       // false
 int    graphics_info_t::z_is_pressed = 0 ;       // false
 std::pair<double, double> graphics_info_t::mouse_begin         = std::pair<double, double> (0,0);
 std::pair<double, double> graphics_info_t::mouse_clicked_begin = std::pair<double, double> (0,0);
+std::pair<double, double> graphics_info_t::label_press_position = std::pair<double, double> (-100,-100);
 float  graphics_info_t::rotation_centre_x = 0.0;
 float  graphics_info_t::rotation_centre_y = 0.0;
 float  graphics_info_t::rotation_centre_z = 0.0;

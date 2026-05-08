@@ -661,26 +661,10 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
 
                      if (modifier & GDK_SHIFT_MASK) { // shift
 
-                        bool intermediate_atoms_only_flag = false;
-                        pick_info naii = atom_pick_gtk3(intermediate_atoms_only_flag);
-                        if (naii.success) {
-                           int imol = naii.imol;
-                           mmdb::Atom *at = molecules[imol].atom_sel.atom_selection[naii.atom_index];
-
-                           molecules[imol].add_to_labelled_atom_list(naii.atom_index);
-                           add_picked_atom_info_to_status_bar(naii.imol, naii.atom_index);
-                           graphics_draw();
-                           handled = true;
-                        }
-                        if (! handled) {
-                           coot::Symm_Atom_Pick_Info_t sapi = symmetry_atom_pick();
-                           if (sapi.success == GL_TRUE) {
-                              int imol = sapi.imol;
-                              molecules[imol].add_atom_to_labelled_symm_atom_list(sapi.atom_index, sapi.symm_trans,
-                                                                                  sapi.pre_shift_to_origin);
-                              graphics_draw();
-                           }
-                        }
+                        // record the press position - labeling happens on release
+                        // (to avoid triggering labels during zoom gestures on trackpads)
+                        label_press_position = std::make_pair(x, y);
+                        handled = true;
 
                      } else {
 
@@ -761,6 +745,47 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
    }
 
    graphics_grab_focus(); // 20250615-PE is this a good idea?
+}
+
+void
+graphics_info_t::on_glarea_click_released(GtkGestureClick *controller,
+                                          gint n_press,
+                                          gdouble x,
+                                          gdouble y,
+                                          G_GNUC_UNUSED gpointer user_data) {
+
+   GdkModifierType modifier = gtk_event_controller_get_current_event_state(GTK_EVENT_CONTROLLER(controller));
+   if (!(modifier & GDK_SHIFT_MASK))
+      return;
+
+   // check that the mouse hasn't moved much since the press
+   double dx = x - label_press_position.first;
+   double dy = y - label_press_position.second;
+   if ((dx*dx + dy*dy) > 25.0) // 5 pixels
+      return;
+
+   // reset so we don't accidentally re-trigger
+   label_press_position = std::make_pair(-100.0, -100.0);
+
+   bool handled = false;
+   bool intermediate_atoms_only_flag = false;
+   pick_info naii = atom_pick_gtk3(intermediate_atoms_only_flag);
+   if (naii.success) {
+      int imol = naii.imol;
+      molecules[imol].add_to_labelled_atom_list(naii.atom_index);
+      add_picked_atom_info_to_status_bar(naii.imol, naii.atom_index);
+      graphics_draw();
+      handled = true;
+   }
+   if (!handled) {
+      coot::Symm_Atom_Pick_Info_t sapi = symmetry_atom_pick();
+      if (sapi.success == GL_TRUE) {
+         int imol = sapi.imol;
+         molecules[imol].add_atom_to_labelled_symm_atom_list(sapi.atom_index, sapi.symm_trans,
+                                                             sapi.pre_shift_to_origin);
+         graphics_draw();
+      }
+   }
 }
 
 void

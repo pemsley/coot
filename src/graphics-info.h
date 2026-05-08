@@ -221,6 +221,7 @@ class graphics_info_t {
 
    static std::pair<double, double> mouse_begin;
    static std::pair<double, double> mouse_clicked_begin;
+   static std::pair<double, double> label_press_position; // for shift-click labeling on release
 
    static float rotation_centre_x;
    static float rotation_centre_y;
@@ -899,6 +900,11 @@ public:
    void on_glarea_drag_update_middle(GtkGestureDrag *gesture, double delta_x, double delta_y, GtkWidget *gl_area);
    void on_glarea_drag_end_middle(GtkGestureDrag *gesture, double x, double y, GtkWidget *gl_area);
 
+   void on_glarea_click_released(GtkGestureClick *self,
+                                gint n_press,
+                                gdouble x,
+                                gdouble y,
+                                gpointer user_data);
    void on_glarea_click(GtkGestureClick* self,
                         gint n_press,
                         gdouble x,
