@@ -1,13 +1,13 @@
-## Status (2026-04-10)
+## Status (2026-05-09)
 
 Three files in `coot-utils/`:
-- `coot-coord-utils-gemmi.hh` — header
+- `coot-coord-utils-gemmi.hh` — header (30 functions declared)
 - `coot-coord-utils-gemmi.cc` — implementations
-- `test-coord-utils-gemmi.cc` — 26 comparison tests
+- `test-coord-utils-gemmi.cc` — 33 comparison tests
 
 Added to `Makefile.am`: `.cc` in library sources, `.hh` in installed headers, test binary in `check_PROGRAMS`.
 
-**All 26 tests pass.** Build playground: `build-for-claude/coot-utils/`
+**All 33 tests pass.** 100% coverage of functions declared in `coot-coord-utils-gemmi.hh`.
 
 ---
 
@@ -125,33 +125,50 @@ mmdb needs `syminfo.lib` to resolve spacegroup operations. Without it, `GetTMatr
 
 3. **`is_nucleotide`**: Hardcoded name list. The mmdb version may use a different heuristic. Should verify they agree on a nucleotide-containing structure.
 
-4. **`get_position_hash`**: mmdb and gemmi hashes differ numerically (TER atoms affect mmdb's x-difference chain). Test verifies gemmi self-consistency rather than cross-comparing. This is fine — the hash just needs to detect when atoms move.
+4. **`get_position_hash`**: ~~Previously differed due to TER atoms.~~ Fixed: mmdb version now has `isTer()` guards, hashes match. Test updated to cross-compare (2026-05-09).
 
 5. **First-model-only pattern**: Structure-level functions use `for (...) { ... break; }`. Works but could use `st.models[0]` directly with an empty check.
 
 ---
 
-## What was NOT converted (~75+ functions remaining in coot-coord-utils.hh)
+## What was NOT converted — prioritised (2026-05-09)
 
-### Residue operations (high value for migration)
-- `get_residue(chain_id, resno, ins_code, mol)` — residue lookup
-- `get_atom(atom_spec, mol)` — atom lookup by spec
-- `deep_copy_residue` — residue duplication
-- `get_residue_name(chain_id, resno, ins_code, mol)` — name lookup
-- `residues_near_residue` — spatial queries
-- `residues_near_position` — spatial queries
-- `get_waters` — water identification
+### Worth porting (operate on structure/chain/residue data, no mmdb-specific API)
 
-### Atom selection / searching
-- `atoms_with_zero_occ` — find zero-occupancy atoms
-- `fill_residue_alt_confs` — enumerate alt confs per residue
-- `contact_info` — atom contacts
+| Priority | Function | Notes |
+|----------|----------|-------|
+| High | `centre_of_molecule_using_masses` | Straightforward, needs element→mass map |
+| High | `omega_torsion` | Needs gemmi residue pair |
+| High | `cis_peptides_info_from_coords` | Returns detailed cis peptide info |
+| Medium | `residues_near_residue` / `residues_near_position` | Spatial queries — more involved |
+| Medium | `atoms_with_zero_occupancy` | Simple iteration |
+| Medium | `residues_with_alt_confs` | Simple iteration |
+| Medium | `residues_with_insertion_codes` | Simple iteration |
+| Medium | `nucleotide_is_DNA` | Test for O2' presence |
+| Medium | `CO_orientations` | Validation analysis |
+| Low | `sort_chains` / `sort_residues` | Mutating operations |
+| Low | `hiranuma_inversion` | pLDDT→B conversion, mutating |
+| Low | `gln_asn_b_factor_outliers` | Validation, complex |
+| Low | `closest_approach` / `interface_residues` | Spatial, complex |
 
-### Whole-molecule operations
-- `sort_chains`, `sort_residues` — reordering
-- `shift_to_origin` — coordinate transformation
-- `copy_and_delete_hydrogens` — hydrogen stripping
-- `move_waters_to_last_chain`
+### Not worth porting (inherently mmdb-specific)
+
+These depend on mmdb::Manager ownership, selection handles, or deep copy semantics:
+- `create_mmdbmanager_from_*` (residue, residue_vector, mmdbmanager, atom_selection, atom, points, residue_specs)
+- `deep_copy_this_residue`, `copy_molecule`, `copy_chain`
+- `copy_cell_and_symm_headers`, `copy_headers`
+- `get_selection_handle`, `specs_to_atom_selection`
+- `transform_mol`, `transform_chain`, `transform_selection`, `transform_atoms`
+- `graph_match` (uses mmdb::math::Graph)
+- `water_coordination_t` (uses mmdb contacts API)
+- `move_hetgroups_around_protein`, `move_waters_around_protein` (symmetry + mmdb)
+- `get_lsq_matrix` (mmdb selection-based LSQ)
+- `cis_trans_conversion`, `cis_trans_convert` (mutates mmdb residues)
+- `mutate`, `mutate_internal`, `mutate_base` (mmdb residue mutation)
+- `position_residue_by_internal_coordinates` (mmdb atom manipulation)
+- `split_multi_model_molecule` (returns mmdb::Manager vector)
+- `pdbcleanup_serial_residue_numbers` (mmdb internal indexing)
+- `write_coords_pdb`, `write_coords_cif` (mmdb I/O — gemmi has its own)
 
 ### Selection API (~1,450 calls across codebase)
 - `NewSelection / SelectAtoms / GetSelIndex / DeleteSelection` — hardest migration target
@@ -171,4 +188,4 @@ mmdb needs `syminfo.lib` to resolve spacegroup operations. Without it, `GetTMatr
 - SSM (structure superposition) may not have a gemmi equivalent — can be side-lined
 - TER atoms: gemmi doesn't have them. They only matter for PDB file output. Skip them in all logic.
 
-**Next steps:** Prioritize converting residue-lookup functions (`get_residue`, `get_atom`) and spatial queries (`residues_near_residue/position`) — most commonly used across the codebase.
+**Next steps:** Start with the high-priority items: `centre_of_molecule_using_masses`, `omega_torsion`, `cis_peptides_info_from_coords`. Then the medium-priority simple iterations (`atoms_with_zero_occupancy`, `residues_with_alt_confs`, `residues_with_insertion_codes`, `nucleotide_is_DNA`). Spatial queries (`residues_near_residue/position`) are more involved but high value.
