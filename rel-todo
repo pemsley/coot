@@ -24,6 +24,8 @@ o fix the map caps so that they are the other way around.
 o try making xmap_dummy a non-static non-pointer - if it's even needed
   in api.
 
+o Add Hiranuma Inversion to the Cryo-EM menu (can I have a tooltip?)
+
 o Lucrezia: does mask by chain work? In moorhen
 
 o it would be better if the view change on copy-fragment went to the right zoom and was smooth.
