@@ -35,6 +35,7 @@
 #include <clipper/core/coords.h>
 
 #include "geometry/residue-and-atom-specs.hh"
+#include "cis-peptide-info.hh"
 
 namespace coot {
 
@@ -61,6 +62,15 @@ namespace coot {
       bool residue_has_hydrogens_p(const gemmi::Residue &res);
       int residue_has_hetatms(const gemmi::Residue &res);
 
+      // Return the omega torsion angle in radians between two consecutive residues.
+      // C_residue is the i-th residue, N_residue is the (i+1)-th residue.
+      std::pair<bool, double> omega_torsion(const gemmi::Residue &C_residue,
+                                            const gemmi::Residue &N_residue,
+                                            const std::string &altconf);
+
+      std::vector<cis_peptide_info_t>
+      cis_peptides_info_from_coords(const gemmi::Structure &st);
+
    } // namespace util
 
    // ==================== chain-level ====================
@@ -78,6 +88,7 @@ namespace coot {
    // ==================== structure-level ====================
 
    std::pair<bool, clipper::Coord_orth> centre_of_molecule(const gemmi::Structure &st);
+   std::pair<bool, clipper::Coord_orth> centre_of_molecule_using_masses(const gemmi::Structure &st);
    std::pair<bool, double> radius_of_gyration(const gemmi::Structure &st);
    bool mol_has_symmetry(const gemmi::Structure &st);
    bool mol_is_anisotropic(const gemmi::Structure &st);

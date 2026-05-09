@@ -1,13 +1,13 @@
 ## Status (2026-05-09)
 
 Three files in `coot-utils/`:
-- `coot-coord-utils-gemmi.hh` — header (30 functions declared)
+- `coot-coord-utils-gemmi.hh` — header (32 functions declared)
 - `coot-coord-utils-gemmi.cc` — implementations
-- `test-coord-utils-gemmi.cc` — 33 comparison tests
+- `test-coord-utils-gemmi.cc` — 36 comparison tests
 
 Added to `Makefile.am`: `.cc` in library sources, `.hh` in installed headers, test binary in `check_PROGRAMS`.
 
-**All 33 tests pass.** 100% coverage of functions declared in `coot-coord-utils-gemmi.hh`.
+**All 36 tests pass.** 100% coverage of functions declared in `coot-coord-utils-gemmi.hh`.
 
 ---
 
@@ -57,7 +57,7 @@ mmdb needs `syminfo.lib` to resolve spacegroup operations. Without it, `GetTMatr
 | `co(gemmi::Atom&)` | Returns `clipper::Coord_orth` |
 | `is_hydrogen_atom(gemmi::Atom&)` | Delegates to `at.is_hydrogen()` |
 
-### Residue-level (6, in `coot::util::`)
+### Residue-level (8, in `coot::util::`)
 
 | Function | Notes |
 |----------|-------|
@@ -67,6 +67,8 @@ mmdb needs `syminfo.lib` to resolve spacegroup operations. Without it, `GetTMatr
 | `is_nucleotide` | Hardcoded residue name list |
 | `residue_has_hydrogens_p` | Uses `at.is_hydrogen()` |
 | `residue_has_hetatms` | Checks `res.het_flag == 'H'` |
+| `omega_torsion` | CA-C-N-CA torsion in radians, altconf-aware |
+| `cis_peptides_info_from_coords` | Returns `cis_peptide_info_t` vector, distortion/distance logic |
 
 ### Chain-level (5, in `coot::util::`)
 
@@ -78,11 +80,12 @@ mmdb needs `syminfo.lib` to resolve spacegroup operations. Without it, `GetTMatr
 | `residue_types_in_chain` | Returns sorted unique names via set |
 | `get_number_of_protein_or_nucleotides` | Nucleotide via name; protein via `entity_type == Polymer` |
 
-### Structure-level (15, mix of `coot::` and `coot::util::`)
+### Structure-level (16, mix of `coot::` and `coot::util::`)
 
 | Function | Notes |
 |----------|-------|
 | `centre_of_molecule` | First model only |
+| `centre_of_molecule_using_masses` | Uses `at.element.weight()` for atomic masses |
 | `radius_of_gyration` | First model only |
 | `mol_has_symmetry` | Uses `find_spacegroup()`, checks `operations().order() > 1` |
 | `mol_is_anisotropic` | Checks any `at.aniso.nonzero()` |
@@ -114,6 +117,7 @@ mmdb needs `syminfo.lib` to resolve spacegroup operations. Without it, `GetTMatr
 | `count_cis_peptides` mismatch | Gemmi used `\|omega\| < 30 deg`, mmdb uses `\|180-pos_torsion\| > 90` + distance check | Matched mmdb's distortion/distance logic |
 | Segfault on all tests | `replace_all` on `copy_from_mmdb` caught the helper's own body → infinite recursion | Fixed `gemmi_from_mmdb()` to call `gemmi::copy_from_mmdb()` |
 | Missing includes | `<fstream>`, `<set>`, `"coot-coord-utils.hh"`, `"utils/setup-syminfo.hh"` | Added |
+| `get_position_hash` mismatch (57 vs 27) | `atom_count` reset per chain in gemmi, shared across chains in mmdb | Moved `atom_count` outside chain loop |
 
 ---
 
@@ -137,9 +141,6 @@ mmdb needs `syminfo.lib` to resolve spacegroup operations. Without it, `GetTMatr
 
 | Priority | Function | Notes |
 |----------|----------|-------|
-| High | `centre_of_molecule_using_masses` | Straightforward, needs element→mass map |
-| High | `omega_torsion` | Needs gemmi residue pair |
-| High | `cis_peptides_info_from_coords` | Returns detailed cis peptide info |
 | Medium | `residues_near_residue` / `residues_near_position` | Spatial queries — more involved |
 | Medium | `atoms_with_zero_occupancy` | Simple iteration |
 | Medium | `residues_with_alt_confs` | Simple iteration |
@@ -188,4 +189,4 @@ These depend on mmdb::Manager ownership, selection handles, or deep copy semanti
 - SSM (structure superposition) may not have a gemmi equivalent — can be side-lined
 - TER atoms: gemmi doesn't have them. They only matter for PDB file output. Skip them in all logic.
 
-**Next steps:** Start with the high-priority items: `centre_of_molecule_using_masses`, `omega_torsion`, `cis_peptides_info_from_coords`. Then the medium-priority simple iterations (`atoms_with_zero_occupancy`, `residues_with_alt_confs`, `residues_with_insertion_codes`, `nucleotide_is_DNA`). Spatial queries (`residues_near_residue/position`) are more involved but high value.
+**Next steps:** The medium-priority simple iterations (`atoms_with_zero_occupancy`, `residues_with_alt_confs`, `residues_with_insertion_codes`, `nucleotide_is_DNA`). Then spatial queries (`residues_near_residue/position`) — more involved but high value.
