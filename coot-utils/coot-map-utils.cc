@@ -4021,7 +4021,8 @@ coot::util::soi_variance::proc(float solvent_content_frac) {
 
    // do I want a coord_grid?
    typedef std::pair<clipper::Xmap_base::Map_reference_index, float>  dd;
-   std::vector<dd> data(200000);
+   std::vector<dd> data;
+   data.reserve(200000);
    clipper::Xmap<float> variance_xmap = make_variance_map();
    clipper::Xmap_base::Map_reference_index ix;
    for (ix = variance_xmap.first(); !ix.last(); ix.next()) {
@@ -4101,7 +4102,7 @@ coot::util::soi_variance::proc(float solvent_content_frac) {
          }
       }
       float other_frac = 1.0 - fr;
-      soi_xmap[ix] = variance_rank_frac * pt[ix] + other_frac * st[ix];
+      soi_xmap[ix] = fr * pt[ix] + other_frac * st[ix];
    }
 
    if (true) { // debug
