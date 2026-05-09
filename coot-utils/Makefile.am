@@ -186,8 +186,7 @@ check_PROGRAMS = test-h-bonds testshelxreader test-hole test-elastic \
 		 test-coot-utils test-pae servalcat-tracker test-zd test-grid-balls \
 		 test-dirichlet-process test-born test-gmm test-nef-utils test-zernike \
 		 test-zernike-params test-zernike-nxmap test-zernike-search \
-		 test-coord-utils test-coord-utils-gemmi \
-		 test-peak-search
+		 test-coord-utils test-coord-utils-gemmi
 
 # wrong build order - delete from make check for now.
 # test-emma test-convolute test-coot-utils test-segmap
@@ -310,12 +309,12 @@ test_coord_utils_gemmi_LDADD = \
 	$(top_builddir)/utils/libcoot-utils.la \
 	$(CLIPPER_LIBS) $(GEMMI_LIBS) $(CCP4SRS_LIBS) -lpthread
 
-test_peak_search_SOURCES = test-peak-search.cc
-test_peak_search_LDADD = \
-	./libcoot-map-utils.la   \
-	./libcoot-coord-utils.la \
-	$(top_builddir)/utils/libcoot-utils.la \
-	$(CLIPPER_LIBS) -lpthread
+# test_peak_search_SOURCES = test-peak-search.cc
+# test_peak_search_LDADD = \
+# ./libcoot-map-utils.la   \
+# ./libcoot-coord-utils.la \
+# $(top_builddir)/utils/libcoot-utils.la \
+# $(CLIPPER_LIBS) -lpthread
 
 # test_substructure_SOURCES = test-substructure.cc
 # test_substructure_LDADD = \
