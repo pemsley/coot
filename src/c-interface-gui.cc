@@ -23,6 +23,7 @@
  * Fifth Floor, Boston, MA, 02110-1301, USA.
  */
 
+#include "glib.h"
 #include "gtk/gtk.h"
 #ifdef USE_PYTHON
 #ifndef PYTHONH
@@ -5257,12 +5258,15 @@ on_instanced_mesh_generic_objects_dialog_object_check_button_toggled(GtkCheckBut
    int combo_ints = GPOINTER_TO_INT(user_data);
    int imol = combo_ints/1000;
    int obj_no = combo_ints - 1000 * imol;
+
    bool state = false;
    if (gtk_check_button_get_active(GTK_CHECK_BUTTON(button)))
       state = 1;
 
-   std::cout << "debug:: on_instanced_mesh_generic_objects_dialog_object_check_button_toggled() imol " << imol
-             << " obj_no " << obj_no << std::endl;
+   if (false)
+      std::cout << "debug:: on_instanced_mesh_generic_objects_dialog_object_check_button_toggled() imol " << imol
+                << " obj_no " << obj_no << std::endl;
+
    if (is_valid_model_molecule(imol) || is_valid_map_molecule(imol)) {
       molecule_class_info_t &m = graphics_info_t::molecules[imol];
       int n_meshes = m.instanced_meshes.size();
@@ -5300,7 +5304,8 @@ generic_objects_dialog_grid_add_object_for_molecule_internal(int imol,
       g_object_set_data(G_OBJECT(dialog), toggle_button_name.c_str(), checkbutton);
       g_object_set_data(G_OBJECT(dialog), label_name.c_str(), label);
 
-      std::cout << "debug:: imm with name " << label_str << " at row " << i_row << std::endl;
+      if (false)
+         std::cout << "debug:: imm with name " << label_str << " at row " << i_row << std::endl;
 
       // grid child left top width height
       gtk_grid_attach (GTK_GRID (grid), label,       0, i_row, 1, 1);
@@ -5321,6 +5326,26 @@ generic_objects_dialog_grid_add_object_for_molecule_internal(int imol,
 
 
 
+void on_grid_map_mesh_check_button_toggled(GtkCheckButton *checkbutton, gpointer user_data) {
+
+   int combo_ints = GPOINTER_TO_INT(user_data);
+   int imol = combo_ints/1000;
+   int obj_no = combo_ints - 1000 * imol;
+
+   bool state = false;
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(checkbutton)))
+      state = true;
+
+   if (is_valid_model_molecule(imol) || is_valid_map_molecule(imol)) {
+      molecule_class_info_t &m = graphics_info_t::molecules[imol];
+      int n_meshes = m.meshes.size();
+      if (obj_no >=0 && obj_no < n_meshes) {
+         m.meshes[obj_no].set_draw_mesh_state(state);
+         graphics_draw();
+      }
+   }
+}
+
 
 GtkWidget *wrapped_create_generic_objects_dialog() {
 
@@ -5335,6 +5360,26 @@ GtkWidget *wrapped_create_generic_objects_dialog() {
          child = next; // for next round
       };
       // std::cout << "There were " << child_count << " children in the grid" << std::endl;
+   };
+
+   auto generic_objects_dialog_grid_add_mesh_internal = +[] (int imol, unsigned int jth_mesh, unsigned int grid_row_offset,
+                                                             const Mesh &mesh, GtkWidget *dialog, GtkWidget *grid) {
+
+      int i_row = grid_row_offset;
+      GtkWidget *checkbutton = gtk_check_button_new_with_mnemonic (("Display"));
+      std::string label_str = mesh.name;
+
+      g_signal_connect(G_OBJECT(checkbutton), "toggled",
+		       G_CALLBACK(on_grid_map_mesh_check_button_toggled),
+		       GINT_TO_POINTER(imol * 1000 + jth_mesh));
+
+      GtkWidget *label = gtk_label_new(label_str.c_str());
+      gtk_grid_attach (GTK_GRID (grid), label,       0, i_row, 1, 1);
+      gtk_grid_attach (GTK_GRID (grid), checkbutton, 1, i_row, 1, 1);
+
+      if (mesh.get_draw_this_mesh())
+	 gtk_check_button_set_active(GTK_CHECK_BUTTON(checkbutton), TRUE);
+
    };
 
    graphics_info_t g;
@@ -5356,6 +5401,7 @@ GtkWidget *wrapped_create_generic_objects_dialog() {
          }
       }
 
+      // 2026-05-09-PE - why are instanced_meshes (still here)?
       for (unsigned int imol=0; imol<g.molecules.size(); imol++) {
          const molecule_class_info_t &m = g.molecules[imol];
          for (unsigned int j=0; j<m.instanced_meshes.size(); j++) {
@@ -5366,6 +5412,20 @@ GtkWidget *wrapped_create_generic_objects_dialog() {
             }
          }
       }
+
+      // 2026-05-09-PE
+      // generic display objects for models are now part of the models in the Display Control dialog
+      // But generic display objects for maps are not.
+      // So let's add them here for now. I think that they should also be in the Display Control dialog
+      for (unsigned int imol=0; imol<g.molecules.size(); imol++) {
+         for (unsigned int j=0; j<g.molecules[imol].meshes.size(); j++) {
+            const Mesh &mesh = g.molecules[imol].meshes[j];
+            if (! mesh.is_closed()) {
+               generic_objects_dialog_grid_add_mesh_internal(imol, j, io_count, mesh, dialog, grid);
+            }
+         }
+      }
+
    } else {
       std::cout << "failed to get grid " << std::endl;
    }

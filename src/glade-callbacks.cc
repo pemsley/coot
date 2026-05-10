@@ -6137,18 +6137,16 @@ on_generic_objects_display_all_togglebutton_toggled(GtkToggleButton *togglebutto
 
 extern "C" G_MODULE_EXPORT
 void
-on_generic_objects_close_all_button_clicked
-                                        (GtkButton       *button,
-                                        gpointer         user_data) {
+on_generic_objects_close_all_button_clicked(GtkButton       *button,
+                                            gpointer         user_data) {
   close_all_generic_objects();
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
-on_export_map_dialog_cancel_button_clicked
-                                        (GtkButton       *button,
-					 gpointer         user_data) {
+on_export_map_dialog_cancel_button_clicked(GtkButton       *button,
+					   gpointer         user_data) {
 
   GtkWidget *w = widget_from_builder("export_map_dialog");
   gtk_widget_set_visible(w, FALSE);
