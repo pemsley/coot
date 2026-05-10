@@ -24,7 +24,6 @@
  *
  */
 
-#include <iostream>
 #include <map>
 #include <set>
 #include <cmath>
@@ -179,7 +178,7 @@ namespace {
       clipper::Coord_orth one_step_along_y = y_axis_step_size * y_axis_uv;
 
       clipper::Coord_orth n(clipper::Coord_orth::cross(x_axis_uv, y_axis_uv));
-      glm::vec3 normal = glm::normalize(glm::vec3(n.x(), n.y(), n.z()));
+      glm::vec3 normal = glm::normalize(-glm::vec3(n.x(), n.y(), n.z()));
 
       // Fill the 2D grid with density values
       coord_array_2d arr(n_x_axis_points, n_y_axis_points);
@@ -517,7 +516,8 @@ namespace {
          float d0 = glm::dot(p0 - plane_point, plane_normal);
          float d1 = glm::dot(p1 - plane_point, plane_normal);
          float d2 = glm::dot(p2 - plane_point, plane_normal);
-         if (d0 < 0.0f && d1 < 0.0f && d2 < 0.0f)
+         // if (d0 < 0.0f && d1 < 0.0f && d2 < 0.0f)
+         if (d0 > 0.0f && d1 > 0.0f && d2 > 0.0f)
             trimmed_triangles.push_back(tri);
       }
 
