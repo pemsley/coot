@@ -20,6 +20,8 @@
 
 // this is the Gtk Wrapper of the OpengGL Rama plot
 
+#include "glib-object.h"
+#include "glibconfig.h"
 #include "graphics-info.h"
 
 #include "gtkglarea-rama-plot.hh"
@@ -251,6 +253,8 @@ void show_opengl_ramachandran_plot(int imol, const std::string &residue_selectio
       g_signal_connect(gl_area, "render",    G_CALLBACK(gtkgl_rama_on_glarea_render),  NULL);
       g_signal_connect(gl_area, "resize",    G_CALLBACK(gtkgl_rama_on_glarea_resize),  NULL);
 
+      g_object_set_data(G_OBJECT(gl_area), "imol", GINT_TO_POINTER(imol));
+
       gtk_widget_set_can_focus(gl_area, TRUE);
       gtk_widget_set_focusable(gl_area, TRUE);
 
@@ -260,6 +264,39 @@ void show_opengl_ramachandran_plot(int imol, const std::string &residue_selectio
       GtkGesture *click_controller          = gtk_gesture_click_new();
       gtk_widget_add_controller(GTK_WIDGET(gl_area), GTK_EVENT_CONTROLLER(click_controller));
       g_signal_connect(click_controller, "pressed",  G_CALLBACK(on_rama_glarea_click), gl_area);
+
+      auto on_rama_glarea_motion = +[] (GtkEventControllerMotion *motion_controller,
+                                        gdouble x, gdouble y,
+                                        gpointer user_data) {
+
+         GtkWidget *gl_area = GTK_WIDGET(user_data);
+         int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(gl_area), "imol"));
+         GtkAllocation allocation;
+         gtk_widget_get_allocation(gl_area, &allocation);
+         int w = allocation.width;
+         int h = allocation.height;
+         graphics_info_t g;
+         for (unsigned int i=0; i<g.rama_plot_boxes.size(); i++) {
+            auto &rama_box = g.rama_plot_boxes[i];
+            if (rama_box.matches_gl_area(gl_area)) {
+               auto hit = rama_box.rama.get_mouse_over_hit(x, y, w, h);
+               if (hit.residue_was_clicked) {
+                  if (! (hit.residue_spec == rama_box.last_status_bar_spec)) {
+                     rama_box.last_status_bar_spec = hit.residue_spec;
+                     std::string s = "Ramachandran Plot: mol #" + std::to_string(imol) + " "
+                                   + hit.residue_spec.chain_id + " "
+                                   + std::to_string(hit.residue_spec.res_no) + " "
+                                   + hit.residue_spec.ins_code;
+                     g.add_status_bar_text(s);
+                  }
+               }
+            }
+         }
+      };
+
+      GtkEventController *motion_controller = gtk_event_controller_motion_new();
+      gtk_widget_add_controller(GTK_WIDGET(gl_area), motion_controller);
+      g_signal_connect(motion_controller, "motion", G_CALLBACK(on_rama_glarea_motion), gl_area);
 
       auto selection_entry_activate_callback = +[] (GtkWidget *entry, gpointer user_data) {
          std::string entry_string = gtk_editable_get_text(GTK_EDITABLE(entry));

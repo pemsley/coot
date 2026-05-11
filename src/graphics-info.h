@@ -4766,6 +4766,7 @@ string   static std::string sessionid;
       GtkWidget *close_button;
       GtkWidget *box;
       GtkWidget *outliers_label;
+      coot::residue_spec_t last_status_bar_spec; // for deduplication of status bar updates
       widgeted_rama_plot_t(int imol, const std::string &residue_selection,
                            const gl_rama_plot_t &rama, GtkWidget *gtk_gl_area, GtkWidget *button,
                            GtkWidget *box, GtkWidget *outliers_label) :
