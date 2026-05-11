@@ -2002,21 +2002,29 @@ void HOLE_action(GSimpleAction *simple_action,
    graphics_info_t::graphics_grab_focus();
 }
 
+static GtkWidget *local_b_factors_toggle_button = nullptr;
+
 void local_b_factor_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                            G_GNUC_UNUSED GVariant *parameter,
                            G_GNUC_UNUSED gpointer user_data) {
 
-   std::cout << "local b-factor action" << std::endl;
+   set_show_local_b_factors(1);
 
-   GtkWidget *toolbar_hbox = widget_from_builder("main_window_toolbar_hbox");
-   GtkWidget *toggle_button = gtk_toggle_button_new_with_label("Local B-factors");
-   auto callback = +[] (GtkToggleButton *toggle_button, gpointer data) {
-      short int state = 0;
-      if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggle_button))) state = 1;
-      set_show_local_b_factors(state);
-   };
-   g_signal_connect(G_OBJECT(toggle_button), "toggled", G_CALLBACK(callback), nullptr);
-   gtk_box_append(GTK_BOX(toolbar_hbox), toggle_button);
+   if (!local_b_factors_toggle_button) {
+      GtkWidget *toolbar_hbox = widget_from_builder("main_window_toolbar_hbox");
+      GtkWidget *toggle_button = gtk_toggle_button_new_with_label("Local B-factors");
+      auto callback = +[] (GtkToggleButton *toggle_button, gpointer data) {
+         short int state = 0;
+         if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggle_button))) state = 1;
+         set_show_local_b_factors(state);
+      };
+      g_signal_connect(G_OBJECT(toggle_button), "toggled", G_CALLBACK(callback), nullptr);
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), TRUE);
+      gtk_box_append(GTK_BOX(toolbar_hbox), toggle_button);
+      local_b_factors_toggle_button = toggle_button;
+   } else {
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(local_b_factors_toggle_button), TRUE);
+   }
 }
 
 
