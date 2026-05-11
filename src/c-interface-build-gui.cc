@@ -565,6 +565,8 @@ GtkWidget *wrapped_create_add_OXT_dialog() {
    g.add_OXT_molecule = imol;
 
    if (combobox) {
+      g_signal_handlers_disconnect_by_func(combobox, (gpointer) callback_func, nullptr);
+      gtk_cell_layout_clear(GTK_CELL_LAYOUT(combobox));
       g.fill_combobox_with_coordinates_options(combobox, callback_func, imol);
       g.fill_add_OXT_dialog_internal(w, imol); // function needs object (not static)
    } else {

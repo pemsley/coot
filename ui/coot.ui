@@ -1680,7 +1680,7 @@ Copyright 2023, 2024, 2025, 2026 Global Phasing Ltd.</property>
         </child>
         <child type="action">
           <object class="GtkBox" id="hbox99">
-            <property name="homogeneous">1</property>
+            <property name="halign">end</property>
             <property name="spacing">4</property>
             <child>
               <object class="GtkButton" id="add_OXT_cancel_button">
