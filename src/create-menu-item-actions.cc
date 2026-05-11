@@ -2168,6 +2168,17 @@ void cryo_em_add_molecular_symmetry_mtrix_action(G_GNUC_UNUSED GSimpleAction *si
    }
 }
 
+void cryo_em_hiranuma_inversion_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                       G_GNUC_UNUSED GVariant *parameter,
+                                       G_GNUC_UNUSED gpointer user_data) {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      hiranuma_inversion(imol);
+   }
+}
+
 void cryo_em_go_to_box_middle_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                      G_GNUC_UNUSED GVariant *parameter,
                                      G_GNUC_UNUSED gpointer user_data) {
@@ -6452,6 +6463,7 @@ create_actions(GtkApplication *application) {
    add_action("cryo_em_make_partitioned_maps_action",        cryo_em_make_partitioned_maps_action);
    add_action("cryo_em_sharpen_blur_map_action",             cryo_em_sharpen_blur_map_action);
    add_action("cryo_em_assign_sequence_to_active_fragment_action", cryo_em_assign_sequence_to_active_fragment_action);
+   add_action("cryo_em_hiranuma_inversion_action",                cryo_em_hiranuma_inversion_action);
 
    add_action("jiggle_fit_chain_simple_action",                    jiggle_fit_chain_simple_action);
    add_action("jiggle_fit_molecule_simple_action",                 jiggle_fit_molecule_simple_action);
