@@ -4075,7 +4075,9 @@ GtkWidget *wrapped_create_goto_atom_window() {
    if (widget) {
 
 #if (GTK_MAJOR_VERSION == 4)
-      // 20220528-PE FIXME widget raise
+      gtk_widget_set_visible(widget, TRUE);
+      gtk_window_unminimize(GTK_WINDOW(widget));
+      gtk_window_present(GTK_WINDOW(widget));
 #else
       if (!gtk_widget_get_mapped(widget))
          gtk_widget_set_visible(widget, TRUE);
