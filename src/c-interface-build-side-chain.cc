@@ -1145,6 +1145,7 @@ void do_180_degree_side_chain_flip(int imol, const char* chain_id, int resno,
 	 s += chain_id;
 	 s += graphics_info_t::int_to_string(resno);
 	 s += " successfully flipped.";
+	 g.update_validation(imol);
 	 graphics_draw();
       }
       g.add_status_bar_text(s);

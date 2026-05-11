@@ -224,6 +224,7 @@ on_model_toolbar_flip_peptide_button_clicked(GtkButton *button,
          auto &m = g.molecules[imol];
          coot::atom_spec_t atom_spec(aa.second.second);
          m.pepflip(atom_spec);
+         g.update_validation(imol);
          g.graphics_draw();
       }
    }
@@ -251,6 +252,7 @@ on_model_toolbar_side_chain_180_button_clicked(GtkButton *button,
       // change this signature to use a residue spec and an alt_conf.
       int istatus = m.do_180_degree_side_chain_flip(spec.chain_id, spec.res_no,
 						    spec.ins_code, alt_conf, g.Geom_p());
+      g.update_validation(imol);
       g.graphics_draw();
    }
 
