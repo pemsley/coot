@@ -861,6 +861,8 @@ short int graphics_info_t::do_probe_dots_post_refine_flag = 0;
 coot::Cartesian graphics_info_t::probe_dots_on_chis_molprobity_centre = coot::Cartesian(0.0, 0.0, 0.0);
 float graphics_info_t::probe_dots_on_chis_molprobity_radius = 6.0;
 bool graphics_info_t::do_coot_probe_dots_during_refine_flag = false;
+bool graphics_info_t::show_atom_overlaps_flag = false;
+GtkWidget *graphics_info_t::atom_overlaps_toggle_button = nullptr;
 
 float grey_level = 0.24;
 float norm_255 = 1.0/255.0;

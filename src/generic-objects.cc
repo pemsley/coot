@@ -867,6 +867,12 @@ void close_all_generic_objects() {
    for (unsigned int i=0; i<n_for_row_delete; i++)
       gtk_grid_remove_row(GTK_GRID(grid), 0);
 
+   // Sync the atom overlaps toggle button
+   graphics_info_t::show_atom_overlaps_flag = false;
+   if (graphics_info_t::atom_overlaps_toggle_button) {
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(graphics_info_t::atom_overlaps_toggle_button), FALSE);
+   }
+
    graphics_draw();
 }
 

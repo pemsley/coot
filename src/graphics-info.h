@@ -3983,6 +3983,9 @@ string   static std::string sessionid;
    bool coot_all_atom_contact_dots_are_begin_displayed_for(int imol) const;
    void coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int imol); // creates/updates
    // meshes in molecules.
+   static bool show_atom_overlaps_flag;
+   static GtkWidget *atom_overlaps_toggle_button;
+   void set_show_atom_overlaps(bool state);
    static float contact_dot_sphere_subdivisions;
    static bool get_exta_annotation_state();
 

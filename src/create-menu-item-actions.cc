@@ -4521,9 +4521,25 @@ void atoms_overlaps_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
    if (pp.first) {
       int imol = pp.second.first;
+      graphics_info_t::show_atom_overlaps_flag = true;
       coot_all_atom_contact_dots(imol);
-   }
 
+      if (!graphics_info_t::atom_overlaps_toggle_button) {
+         GtkWidget *toolbar_hbox = widget_from_builder("main_window_toolbar_hbox");
+         GtkWidget *toggle_button = gtk_toggle_button_new_with_label("Atom Overlaps");
+         auto callback = +[] (GtkToggleButton *toggle_button, gpointer data) {
+            graphics_info_t g;
+            bool state = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggle_button));
+            g.set_show_atom_overlaps(state);
+         };
+         g_signal_connect(G_OBJECT(toggle_button), "toggled", G_CALLBACK(callback), nullptr);
+         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), TRUE);
+         gtk_box_append(GTK_BOX(toolbar_hbox), toggle_button);
+         graphics_info_t::atom_overlaps_toggle_button = toggle_button;
+      } else {
+         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(graphics_info_t::atom_overlaps_toggle_button), TRUE);
+      }
+   }
 }
 
 void all_atom_contact_dots_molprobity_action(G_GNUC_UNUSED GSimpleAction *simple_action,
