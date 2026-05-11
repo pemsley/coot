@@ -270,7 +270,7 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot) {
 
     float w = static_cast<float>(gtk_widget_get_width(widget));
     float h = static_cast<float>(gtk_widget_get_height(widget));
-    
+
     // 1. Draw title
     graphene_rect_t m_graphene_rect = GRAPHENE_RECT_INIT(0, 0, w, h);
     cairo_t* cairo_canvas = gtk_snapshot_append_cairo(snapshot,&m_graphene_rect);
@@ -312,7 +312,7 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot) {
                            - (float) chain_count * (CHAIN_HEIGHT + CHAIN_SPACING)) / ((float) chain_count - 1.f);
             if (height_diff < 0.f) height_diff = 0.f;
         }
-        
+
         cairo_set_line_width(cairo_canvas,AXIS_LINE_WIDTH);
 
         for(const auto& chain: self->_vi->cviv) {
@@ -353,7 +353,7 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot) {
                 cairo_move_to(cairo_canvas, MARKER_VERT_PLACEMENT, axis_y_offset + marker_offset);
                 cairo_line_to(cairo_canvas, AXIS_MARGIN, axis_y_offset + marker_offset);
                 cairo_stroke(cairo_canvas);
-                
+
                 double marker_level;
                 if (coot::should_hang_down(self->_vi->type)) {
                     marker_level = map_bar_proportion_to_value(m / (float) VERTICAL_MARKER_COUNT, amplitude, self->_vi->type);
@@ -366,7 +366,7 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot) {
                 cairo_move_to(cairo_canvas, 0,axis_y_offset + marker_offset - layout_height/2.f);
                 pango_cairo_show_layout(cairo_canvas, pango_layout);
             }
-            
+
             // horizontal axis
             cairo_move_to(cairo_canvas, AXIS_MARGIN, axis_y_offset + AXIS_HEIGHT);
             cairo_line_to(cairo_canvas, w, axis_y_offset + AXIS_HEIGHT);
@@ -392,8 +392,7 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot) {
                 GskRoundedRect outline;
                 gsk_rounded_rect_init_from_rect(&outline,
                                                 &m_graphene_rect,
-                                                0
-                                                );
+                                                0);
                 GdkRGBA residue_color_computed = residue_color;
                 GdkRGBA border_color_computed = border_color;
                 auto green_to_red = [&] (double bar_proportion) {
@@ -405,9 +404,11 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot) {
                    // residue_color_computed.green = 1.0 - (1.f - std::pow(bar_proportion,3)) * residue_color.green;
                    // residue_color_computed.blue  = 0.2; //std::pow(bar_proportion,5);
 
-                   residue_color_computed.red   = bar_proportion;
-                   residue_color_computed.green = 1.0 - bar_proportion;
-                   residue_color_computed.blue  = 0.2; //std::pow(bar_proportion,5);
+                   // Interpolate between muted green (0.3, 0.7, 0.35) and muted red (0.85, 0.25, 0.22)
+                   double t = bar_proportion;
+                   residue_color_computed.red   = 0.30 + t * 0.55;
+                   residue_color_computed.green = 0.70 - t * 0.45;
+                   residue_color_computed.blue  = 0.35 - t * 0.13;
                 };
                 auto red_to_green = [&](double bar_proportion) {
                     // dirty trick
@@ -415,29 +416,38 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot) {
                 };
 
 
-                switch (self->_vi->type) {
-                    case coot::graph_data_type::LogProbability:
-                    case coot::graph_data_type::Score:
-                    case coot::graph_data_type::Correlation:
-                    {
-                       double prop = map_value_to_bar_proportion(residue.function_value, amplitude, self->_vi->type);
-                        red_to_green(prop);
-                        break;
-                    }
-                    case coot::graph_data_type::Probability:
-                    {
-                       // Colour from the probability (in %) directly, decoupled from bar height:
-                       // p >= 10% -> green, p <= 1% -> red, log-linear between.
-                       double p_pct = std::max(std::min(residue.function_value, 10.0), 1.0);
-                       double colour_prop = 1.0 - std::log10(p_pct); // 1.0 at p=1%, 0.0 at p=10%
-                        green_to_red(colour_prop);
-                        break;
-                    }
-                    case coot::graph_data_type::Distortion:
-                    default: {
-                       double prop = map_value_to_bar_proportion(residue.function_value, amplitude, self->_vi->type);
-                        green_to_red(prop);
-                    }
+               switch (self->_vi->type) {
+                   case coot::graph_data_type::LogProbability:
+                   case coot::graph_data_type::Score:
+                   {
+                      double prop = map_value_to_bar_proportion(residue.function_value, amplitude, self->_vi->type);
+                      red_to_green(prop);
+                      break;
+                   }
+                   case coot::graph_data_type::Correlation:
+                   {
+                      // Colour directly from the correlation value, not the bar proportion.
+                      // corr <= 0.2 -> fully red, corr >= 0.8 -> fully green, non-linear between.
+                      double corr = std::max(std::min(residue.function_value, 0.8), 0.2);
+                      double t = (corr - 0.2) / 0.6; // 0 at corr=0.2, 1 at corr=0.8
+                      double colour_prop = t * t;     // quadratic: biased toward red
+                      green_to_red(1.0 - colour_prop);
+                      break;
+                   }
+                   case coot::graph_data_type::Probability:
+                   {
+                      // Colour from the probability (in %) directly, decoupled from bar height:
+                      // p >= 10% -> green, p <= 1% -> red, log-linear between.
+                      double p_pct = std::max(std::min(residue.function_value, 10.0), 1.0);
+                      double colour_prop = 1.0 - std::log10(p_pct); // 1.0 at p=1%, 0.0 at p=10%
+                      green_to_red(colour_prop);
+                      break;
+                   }
+                   case coot::graph_data_type::Distortion:
+                   default: {
+                      double prop = map_value_to_bar_proportion(residue.function_value, amplitude, self->_vi->type);
+                      green_to_red(prop);
+                   }
                 }
                 GdkRGBA border_colors[] = {border_color_computed,border_color_computed,border_color_computed,border_color_computed};
                 gtk_snapshot_append_color(snapshot, &residue_color_computed, &m_graphene_rect);
