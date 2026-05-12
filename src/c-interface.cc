@@ -8367,6 +8367,7 @@ void sequence_view(int imol) {
       GtkWidget *button = gtk_button_new_from_icon_name("window-close");
       GtkStyleContext *sc = gtk_widget_get_style_context(button);
       gtk_style_context_add_class(sc, "circular");
+
       auto close_button_callback = +[] (GtkButton *button, gpointer data) {
          int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "imol"));
          std::cout << "close this sequence view " << imol << std::endl;
