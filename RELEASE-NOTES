@@ -6,7 +6,7 @@ Graphics
  o FEATURE: Map caps ("sliced apple" view): a 2D coloured
             cross-section of the electron density on a clipping
             plane, stitched seamlessly to the trimmed 3D isosurface
-            behind the plane
+            behind the plane: add_density_map_cap()
 
  o CHANGE:  MoleculesToTriangles meshes now use material-based
             lighting
@@ -40,6 +40,9 @@ Graphics
  o FEATURE: "Symmetry as C-alphas" button added to the Coot:
             Symmetry dialog
 
+ o CHANGE:  Atom labelling reworked so that it happens on mouse
+            button up
+
  o BUG-FIX: Fix the rotation jump after zooming
 
  o BUG-FIX: Fix scaling and offsets in
@@ -60,6 +63,8 @@ Modelling
             conversion uses the Hiranuma inversion:
                rmsd = 1.5 * exp(4.0 * (0.7 - pLDDT/100))
                B    = (8 pi^2 / 3) * rmsd^2
+
+ o BUG-FIX: Fix action mutate_base_to_type_U name
 
  o BUG-FIX: Restraints lock now acquired when updating NBCs in
             minimize()
@@ -102,6 +107,9 @@ Validation
 
 Ligands / Lhasa / Layla
 
+ o CHANGE:  Drug fetch now uses ChEMBL instead of DrugBank
+            (DrugBank is blocked by Cloudflare)
+
  o FEATURE: Lhasa extended IO: import and export for various
             data formats
 
@@ -119,6 +127,9 @@ Ligands / Lhasa / Layla
             coordgen support in RDKit
 
  o FEATURE: Browser for new ligands added
+
+ o CHANGE:  recent_new_ligands.py reworked to use the new PDBe
+            API
 
  o BUG-FIX: Fix the inner ring bond positioning
 
@@ -138,6 +149,9 @@ Maps
  o BUG-FIX: Fix the download directory for maps
 
 Scripting and Automation/MCP
+
+ o FEATURE: Cmd++ to increase the font size in the virtual
+            terminal
 
  o FEATURE: VTE terminal as a replacement for the Python entry,
             with coot_vte_repl.py
@@ -177,6 +191,41 @@ User Interface
 
  o FEATURE: GUI item added for "Sort Chains"
 
+ o FEATURE: Residue info shown in the status bar when hovering
+            over circles in the Ramachandran plot
+
+ o FEATURE: Atom Overlaps display now controlled via a toolbar
+            toggle button; "Delete All Generic Display Objects"
+            now correctly prevents overlaps from reappearing
+            after refinement
+
+ o FEATURE: "Local B-factors" now activates display immediately
+            when the menu item is clicked
+
+ o FEATURE: GUI control for map generic objects added
+
+ o CHANGE:  Validation graph correlation colours reworked: more
+            red at mid-range values, muted professional colour
+            palette
+
+ o BUG-FIX: Fix the alt conf occupancy slider in the rotamer
+            dialog after "Add Alt Conf": the slider now has an
+            adjustment, draw_value, marks at 0.0/0.5/0.99, and
+            0.01 step granularity
+
+ o BUG-FIX: Fix "Go To Atom" dialog raising from the macOS Dock
+
+ o BUG-FIX: Validation graphs now updated after side-chain 180
+            flip and peptide flip
+
+ o BUG-FIX: "Add OXT" now respects the current bonding mode
+
+ o BUG-FIX: Fix duplicate entries in the "Add OXT" molecule
+            combobox when reused
+
+ o BUG-FIX: Fix the sequence view to extend to the end of the
+            residue range (ligands and waters were being clipped)
+
  o FEATURE: Active residue is now highlighted in the sequence
             view; sequence view is now updated on model
             modification
@@ -212,6 +261,11 @@ API
  o CHANGE:  render function made const
 
 Build
+
+ o BUG-FIX: Check for LIBRSVG version before using
+            rsvg_handle_render_cairo()
+
+ o BUG-FIX: Fix backward.hpp for PowerPC
 
  o CHANGE:  Eigen3 is now required at configure time
 

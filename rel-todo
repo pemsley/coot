@@ -1,10 +1,13 @@
 --- Items ---
 
+o Look at Open ADMET, avoidome
+
 o MUST DO before release: Test reduce.cc output.
 * Coot seems OK/normal. I guess that the new code
   was in a branch that was not merged.
 
 o Does AIZynthFinder do anything useful for us?
+* It is a tool for retrosynthetic planning. So, yes, it will do.
 
 o Blog post for "light mode" coot
 
@@ -20,6 +23,7 @@ o test base pairing restraints for SB.
 * They work.
 
 o fix the map caps so that they are the other way around.
+* Done.
 
 o try making xmap_dummy a non-static non-pointer - if it's even needed
   in api.
