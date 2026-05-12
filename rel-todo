@@ -1,5 +1,7 @@
 --- Items ---
 
+o Look at Open ADMET, avoidome
+
 o MUST DO before release: Test reduce.cc output.
 * Coot seems OK/normal. I guess that the new code
   was in a branch that was not merged.
