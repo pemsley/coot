@@ -1277,6 +1277,10 @@
         <attribute name="label" translatable="no">Assign Sequence to Fragment</attribute>
         <attribute name="action">app.cryo_em_assign_sequence_to_active_fragment_action</attribute>
       </item>
+      <item>
+        <attribute name="label" translatable="no">Hiranuma Inversion</attribute>
+        <attribute name="action">app.cryo_em_hiranuma_inversion_action</attribute>
+      </item>
       <section>
         <submenu>
           <attribute name="label">Jiggle-Fit...</attribute>
@@ -1305,10 +1309,6 @@
       <item>
         <attribute name="label" translatable="no">Sharpen/Blur/Resample Map...</attribute>
         <attribute name="action">app.cryo_em_sharpen_blur_map_action</attribute>
-      </item>
-      <item>
-        <attribute name="label" translatable="no">Hiranuma Inversion</attribute>
-        <attribute name="action">app.cryo_em_hiranuma_inversion_action</attribute>
       </item>
     </section>
   </menu>
