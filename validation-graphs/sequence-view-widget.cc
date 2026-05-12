@@ -92,11 +92,25 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
       bool min_max_was_set = false;
       for (int ichain=0; ichain<n_chains; ichain++) {
          mmdb::Chain *chain_p = model_p->GetChain(ichain);
+
+#if 0
+         // if we do this, then we can't navigate to ligands and waters.
+         //
          std::pair<bool, std::pair<int, int> > min_max_for_chain = coot::util::min_max_residues_in_polymer_chain(chain_p);
          if (min_max_for_chain.first) {
             min_max_was_set = true;
             if (min_max_for_chain.second.first  < min_max.first)  min_max.first  = min_max_for_chain.second.first;
             if (min_max_for_chain.second.second > min_max.second) min_max.second = min_max_for_chain.second.second;
+         }
+#endif
+         std::pair<bool, int> mmin = coot::util::min_resno_in_chain(chain_p);
+         std::pair<bool, int> mmax = coot::util::max_resno_in_chain(chain_p);
+         if (mmin.first) {
+            if (mmax.first) {
+               if (mmin.second < min_max.first)  min_max.first  = mmin.second;
+               if (mmax.second > min_max.second) min_max.second = mmax.second;
+               min_max_was_set = true;
+            }
          }
       }
       return std::pair<bool, std::pair<int, int> > (min_max_was_set, min_max);
@@ -108,7 +122,7 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
       int s5 = mm.second/5;
       int s = s5 * 5;
       if (f > mm.first)  f -= 5;
-      if (s < mm.second) f += 5;
+      if (s < mm.second) s += 5;
       return std::pair<int, int>(f, s);
    };
 
@@ -368,11 +382,12 @@ void coot_sequence_view_measure(GtkWidget      *widget,
       std::pair<int, int> min_max(10000, -10000);
       for (int ichain=0; ichain<n_chains; ichain++) {
          mmdb::Chain *chain_p = model_p->GetChain(ichain);
-         std::pair<bool, std::pair<int, int> > mm = coot::util::min_max_residues_in_polymer_chain(chain_p);
-         if (mm.first) {
+         std::pair<bool, int> mmin = coot::util::min_resno_in_chain(chain_p);
+         std::pair<bool, int> mmax = coot::util::max_resno_in_chain(chain_p);
+         if (mmin.first && mmax.first) {
             min_max_is_set = true;
-            if (mm.second.first  < min_max.first)  min_max.first  = mm.second.first;
-            if (mm.second.second > min_max.second) min_max.second = mm.second.second;
+            if (mmin.second < min_max.first)  min_max.first  = mmin.second;
+            if (mmax.second > min_max.second) min_max.second = mmax.second;
          }
       }
       if (min_max_is_set) {
