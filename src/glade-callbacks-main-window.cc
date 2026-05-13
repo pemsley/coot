@@ -49,6 +49,7 @@ typedef const char entry_char_type;
 #include "graphics-info.h"
 
 #include "cc-interface.hh" // for read_ccp4_map()
+#include "c-interface-generic-objects.h"
 
 #include "utils/logging.hh"
 extern logging logger;
@@ -2197,10 +2198,12 @@ void
 on_emplacement_cancel_button_clicked(G_GNUC_UNUSED GtkButton       *button,
                                      G_GNUC_UNUSED gpointer         user_data) {
 
-   GtkWidget *frame = widget_from_builder("emplacement_frame");
+   GtkWidget *dialog = widget_from_builder("emplacement_dialog");
+   gtk_widget_set_visible(dialog, FALSE);
 
-   gtk_widget_set_visible(frame, FALSE);
-
+   int obj = generic_object_index("Emplacement Sphere");
+   if (obj >= 0)
+      close_generic_object(obj);
 }
 
 extern "C" G_MODULE_EXPORT

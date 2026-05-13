@@ -4006,6 +4006,15 @@ molecular_surface_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 }
 
 void
+map_caps_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                G_GNUC_UNUSED GVariant *parameter,
+                G_GNUC_UNUSED gpointer user_data) {
+
+   add_density_map_cap();
+   graphics_info_t::graphics_grab_focus();
+}
+
+void
 electrostatic_surface_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                              G_GNUC_UNUSED GVariant *parameter,
                              G_GNUC_UNUSED gpointer user_data) {
@@ -6294,6 +6303,7 @@ create_actions(GtkApplication *application) {
    add_action(        "bond_parameters_action",         bond_parameters_action);
    add_action(           "bond_colours_action",            bond_colours_action);
    add_action(             "fullscreen_action",              fullscreen_action);
+   add_action(               "map_caps_action",                map_caps_action);
    add_action(             "go_to_atom_action",              go_to_atom_action);
    add_action(         "label_CA_atoms_action",          label_CA_atoms_action);
    add_action(         "map_parameters_action",          map_parameters_action);

@@ -765,7 +765,7 @@ PyObject *generic_object_name_py(unsigned int obj_number_in) {
      Py_INCREF(r);
    }
    return r;
-} 
+}
 #endif /* USE_PYTHON */
 
 
@@ -802,7 +802,8 @@ void close_generic_object(int object_number) {
       std::string label_name = stub + "_label";
       // GtkWidget *toggle_button = lookup_widget(g.generic_objects_dialog, toggle_button_name.c_str());
       // GtkWidget *label = lookup_widget(g.generic_objects_dialog, label_name.c_str());
-      std::cout << "WARNING:: in close_generic_object() set the toggle_button and label correctly " << std::endl;
+      std::cout << "WARNING:: in close_generic_object() set the toggle_button and label correctly "
+                << std::endl;
       GtkWidget *toggle_button = 0;
       GtkWidget *label = 0;
       if (toggle_button)
@@ -810,9 +811,11 @@ void close_generic_object(int object_number) {
       if (label)
 	 gtk_widget_set_visible(label, FALSE);
    }
+
+   g.graphics_draw();
 }
 
-/*! \brief has the generic object been closed? 
+/*! \brief has the generic object been closed?
 
    @return 1 for yes, 0 othersize
 */

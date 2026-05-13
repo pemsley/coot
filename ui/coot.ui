@@ -724,25 +724,12 @@
           <!--   <attribute name="action">app.draw_central_atom_label_action</attribute> -->
           <!-- </item> -->
           <item>
-            <!-- this needs an atom selection overlay -->
-            <attribute name="label">Electrostatic Surface</attribute>
-            <attribute name="action">app.electrostatic_surface_action</attribute>
-          </item>
-          <item>
-            <attribute name="label">Gaussian Surface...</attribute>
-            <attribute name="action">app.gaussian_surface_action</attribute>
-          </item>
-          <item>
             <attribute name="label">Go To Atom...</attribute>
             <attribute name="action">app.go_to_atom_action</attribute>
           </item>
           <item>
             <attribute name="label">Map Parameters...</attribute>
             <attribute name="action">app.map_parameters_action</attribute>
-          </item>
-          <item>
-            <attribute name="label">Molecular Surface</attribute>
-            <attribute name="action">app.molecular_surface_action</attribute>
           </item>
           <item>
             <attribute name="label">NCS Ghost Control...</attribute>
@@ -788,6 +775,23 @@
           </item>
         </section>
         <section>
+          <item>
+            <attribute name="label">Gaussian Surface...</attribute>
+            <attribute name="action">app.gaussian_surface_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Molecular Surface</attribute>
+            <attribute name="action">app.molecular_surface_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Map Caps</attribute>
+            <attribute name="action">app.map_caps_action</attribute>
+          </item>
+          <item>
+            <!-- this needs an atom selection overlay -->
+            <attribute name="label">Electrostatic Surface</attribute>
+            <attribute name="action">app.electrostatic_surface_action</attribute>
+          </item>
           <item>
             <attribute name="label">Ribbons: By Chain</attribute>
             <attribute name="action">app.ribbons_colour_by_chain_action</attribute>
