@@ -2201,6 +2201,7 @@ coot::molecule_t::delete_residue(coot::residue_spec_t &residue_spec) {
       atom_sel.atom_selection = NULL;
       coot::residue_spec_t spec(residue_spec.model_number, residue_spec.chain_id, residue_spec.res_no, residue_spec.ins_code);
       delete_any_link_containing_residue(spec);
+      extra_restraints.delete_restraints_for_residue(spec);
       atom_sel.mol->FinishStructEdit();
       coot::util::pdbcleanup_serial_residue_numbers(atom_sel.mol);
       atom_sel = make_asc(atom_sel.mol);
