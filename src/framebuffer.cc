@@ -135,6 +135,7 @@ framebuffer::~framebuffer() {
 
    // 20260514-PE don't do this - it can cause crash on glDeleteFramebuffers() if the GL
    //             context has already gone. Needs a better fix.
+   //             Shader reloading needs the tear_down to work.
    // tear_down();
 }
 
