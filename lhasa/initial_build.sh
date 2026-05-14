@@ -325,7 +325,7 @@ if [ $BUILD_RDKIT = true ]; then
                   -DCMAKE_CXX_FLAGS="${LHASA_CMAKE_FLAGS} -fwasm-exceptions -D_HAS_AUTO_PTR_ETC=0" \
                   -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} ${DEPENDENCY_DIR}/rdkit-$rdkit_release \
                   -DRDK_OPTIMIZE_POPCNT=OFF \
-                  -DRDK_INSTALL_COMIC_FONTS=OFF \
+                  -DRDK_INSTALL_COMIC_FONTS=OFF -DRDK_BUILD_FREETYPE_SUPPORT=OFF \
                   -DCMAKE_C_FLAGS="${LHASA_CMAKE_FLAGS}" \
                   -DCMAKE_MODULE_PATH=${INSTALL_DIR}/lib/cmake &&\
     emmake make -j ${NUMPROCS} &&\

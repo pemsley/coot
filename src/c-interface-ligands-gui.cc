@@ -542,7 +542,6 @@ int execute_get_mols_ligand_search(GtkWidget *button) {
    };
 
 
-   std::cout << "in execute_get_mols_ligand_search() FIXME container foreach " << std::endl;
    GtkWidget *coords_combobox = widget_from_builder("find_ligands_coords_comboboxtext");
    GtkWidget *map_combobox    = widget_from_builder("find_ligands_map_comboboxtext");
    int imol_coords = my_combobox_get_imol(GTK_COMBO_BOX(coords_combobox));

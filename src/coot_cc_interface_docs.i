@@ -3816,6 +3816,9 @@ residue_type : str
 ";
 
 %feature("docstring") screendump_tga "
+\"save image\" / \"export image\" / \"screenshot\" / \"take a picture\" → screendump_image()
+
+This is the same thing as screendump_image()
 
 Parameters
 ----------
@@ -3823,6 +3826,7 @@ file_name : str
 ";
 
 %feature("docstring") set_framebuffer_scale_factor "
+set the framebuffer scale factor
 
 Parameters
 ----------

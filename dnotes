@@ -3986,7 +3986,7 @@ INFO::
    o change the version (image file name) in src/new-startup.cc
    o change the PACKAGE_VERSION in CMakeLists.txt
    o update data/Components-inchikey.ich
-   o Correct the version in the about_dialog in the coot-gtk4.ui file
+   o Correct the version in the about_dialog in the ui/coot.ui file
    o Artists acknowledged in glade/aboutdialog?
    o update Components-inchikey.ich
    o Use []

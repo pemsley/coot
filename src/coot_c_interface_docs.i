@@ -941,13 +941,15 @@ file_name : str
 ";
 
 %feature("docstring") screendump_image "
-dump the current screen image to a file. Format ppm
+dump the current screen image to a file. Format tga
+
+make a copy of the screen image and write it to the file system
 
 You can use this, in conjunction with spinning and view moving functions to make movies
 
 Parameters
 ----------
-filename : str
+tga_filename : str
 ";
 
 %feature("docstring") check_for_dark_blue_density "
@@ -2260,6 +2262,10 @@ str : str
 return the extent of the box/radius of electron density contours
 ";
 
+%feature("docstring") get_map_radius_em "
+return the extent of the box/radius of electron density contours
+";
+
 %feature("docstring") set_esoteric_depth_cue "
 not everyone likes coot's esoteric depth cueing system
 
@@ -2924,6 +2930,14 @@ Parameters
 bold_flag : int
 colour_flag : int
 colour_index : int
+";
+
+%feature("docstring") scale_up_graphics "
+scale up graphics - now available in scripting
+";
+
+%feature("docstring") scale_down_graphics "
+scale down graphics - now available in scripting
 ";
 
 %feature("docstring") save_state "
@@ -6496,6 +6510,13 @@ imol : int
 update the sequnce view current position highlight based on active atom
 ";
 
+%feature("docstring") remove_sequence_view_from_sequence_view_box "
+
+Parameters
+----------
+imol : int
+";
+
 %feature("docstring") add_atom_label "
 
 Parameters
@@ -7335,13 +7356,30 @@ imol : int
 ";
 
 %feature("docstring") get_hydrogen_bonds_py "
+get hydrogen bonds
+
+\\detailed For the returned value, an \"atom\" here looks like:
+
+PyDict_SetItemString(at_py, \"x\", PyFloat_FromDouble(at->x)); PyDict_SetItemString(at_py, \"y\", PyFloat_FromDouble(at->y)); PyDict_SetItemString(at_py, \"z\", PyFloat_FromDouble(at->z)); PyDict_SetItemString(at_py, \"charge\", PyFloat_FromDouble(at->charge)); PyDict_SetItemString(at_py, \"occ\", PyFloat_FromDouble(at->occupancy)); PyDict_SetItemString(at_py, \"b_iso\", PyFloat_FromDouble(at->tempFactor)); PyDict_SetItemString(at_py, \"element\", myPyString_FromString(at->element)); PyDict_SetItemString(at_py, \"name\", myPyString_FromString(at->name)); PyDict_SetItemString(at_py, \"model\", PyFloat_FromDouble(at->GetModelNum())); PyDict_SetItemString(at_py, \"chain\", myPyString_FromString(at->GetChainID())); PyDict_SetItemString(at_py, \"altLoc\", myPyString_FromString(at->altLoc)); PyDict_SetItemString(at_py, \"residue_name\", myPyString_FromString(at->GetResidue()->GetResName()));
+
+For the returned value, a hydrogen bond looks like this:
+
+PyList_SetItem(l, 0, hb_hydrogen_py); // an atom PyList_SetItem(l, 1, donor_py); // an atom PyList_SetItem(l, 2, acceptor_py); // an atom PyList_SetItem(l, 3, donor_neigh_py); // an atom, possibly None PyList_SetItem(l, 4, acceptor_neigh_py); // an atom, possibly None
+
+PyList_SetItem(l, 5, PyFloat_FromDouble(h_bond.angle_1)); PyList_SetItem(l, 6, PyFloat_FromDouble(h_bond.angle_2)); PyList_SetItem(l, 7, PyFloat_FromDouble(h_bond.angle_3)); PyList_SetItem(l, 8, PyFloat_FromDouble(h_bond.dist));
+
+PyList_SetItem(l, 9, PyBool_FromLong(h_bond.ligand_atom_is_donor)); PyList_SetItem(l, 10, PyBool_FromLong(h_bond.hydrogen_is_ligand_atom)); PyList_SetItem(l, 11, PyBool_FromLong(h_bond.bond_has_hydrogen_flag));
+
+  imol  the molecule index   imol  selection_1 the atom selection of the \"from\" atoms   imol  selection_2 the atom selection of the \"to\" atoms. Note that often atom_selection_1 and atom_selection_2 are the same, e.g. \"//A\"   mcdonald_and_thornton_algoritnm  use 0 if the model does not have hydrogen atoms use 1 if the model has hydrogen atoms. the hydrogen bonds as a python list object, or False if imol is not a valid model molecule
 
 Parameters
 ----------
 imol : int
+    selection_2 the atom selection of the \"to\" atoms. Note that often atom_selection_1 and atom_selection_2 are the same, e.g. \"//A\"
 selection_1 : str
 selection_2 : str
 mcdonald_and_thornton_algoritnm : int
+    use 0 if the model does not have hydrogen atoms use 1 if the model has hydrogen atoms.
 ";
 
 %feature("docstring") set_draw_stick_mode_atoms "

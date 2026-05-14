@@ -7004,8 +7004,6 @@ molecule_class_info_t::close_yourself() {
          if (was_coords) {
             GtkWidget *coords_vbox = widget_from_builder("display_molecule_vbox");
             if (GTK_IS_BOX(coords_vbox)) {
-               std::cout << "in close_yourself() fix container B foreach" << std::endl;
-
                GtkWidget *item_widget = gtk_widget_get_first_child(coords_vbox);
                while (item_widget) {
                   GtkWidget *next_item = gtk_widget_get_next_sibling(item_widget);
