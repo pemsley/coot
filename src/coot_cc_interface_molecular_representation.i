@@ -6,7 +6,7 @@ add a molecular representation, e.g. Ribbon diagram or surface
 
 e.g. 0, \"//C\", \"RampChainsScheme\", \"Ribbon\"
 
-  imol  the molecule index   atom_selection_py  the atom-selection in mmdb-style CID   ColorScheme_py  colour-scheme-name, e.g. \"colorRampChainsScheme\" or \"Chain\" or \"colorBySecondaryScheme\"   style_py  the representation style, e.g. \"Ribbon\" or \"MolecularSurface\" -1 on failure, the representation index on success
+  imol  the molecule index   atom_selection_py  the atom-selection in mmdb-style CID   ColorScheme_py  colour-scheme-name, e.g. \"colorRampChainsScheme\" or \"Chain\" or \"colorBySecondaryScheme\"   style_py  the representation style, e.g. \"Ribbon\" or \"MolecularSurface\"   secondary_structure_usage_type  0 (USE_HEADER) i.e. use the secondary structure defined in the header (if any), -1 on failure, the representation index on success
 
 Parameters
 ----------
@@ -19,6 +19,7 @@ ColorScheme_py : object
 style_py : object
     the representation style, e.g. \"Ribbon\" or \"MolecularSurface\"
 secondary_structure_usage_type : int
+    0 (USE_HEADER) i.e. use the secondary structure defined in the header (if any),
 ";
 
 %feature("docstring") add_molecular_representation_scm "
@@ -36,7 +37,11 @@ add ribbon representation with user-defined colours
 
 not dependent on scm or python
 
-  imol  the molecule index   name  the name to appear in the display control widget will be -1 - the return value currently has no meaning.
+\"worm\" / \"tube\" / \"backbone trace\" → add_ribbon_representation_with_user_defined_colours(..., 1)
+
+ribbon with secondary structure\" → add_ribbon_representation_with_user_defined_colours(..., 2)
+
+  imol  the molecule index   name  the name to appear in the display control widget   secondary_structure_usage_type  0 (USE_HEADER) i.e. use the secondary structure defined in the header (if any), will be -1 - the return value currently has no meaning.
 
 Parameters
 ----------
@@ -45,6 +50,7 @@ imol : int
 name : str
     the name to appear in the display control widget
 secondary_structure_usage_type : int
+    0 (USE_HEADER) i.e. use the secondary structure defined in the header (if any),
 ";
 
 %feature("docstring") remove_molecular_representation "

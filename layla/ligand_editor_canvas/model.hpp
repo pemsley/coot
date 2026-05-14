@@ -215,6 +215,14 @@ class CanvasMolecule {
     typedef std::optional<AtomOrBond> MaybeAtomOrBond;
     static const float BASE_SCALE_FACTOR;
 
+    struct LoweringOptions {
+        bool with_qed;
+        bool omit_stereochemistry_processing;
+
+        LoweringOptions() noexcept;
+    };
+
+
     private:
 
     static const float BOND_DISTANCE_BOUNDARY;
@@ -262,7 +270,7 @@ class CanvasMolecule {
     /// Uses RDDepict to get molecule depiction & geometry info
     ///
     /// Part of the lowering process.
-    RDGeom::INT_POINT2D_MAP compute_molecule_geometry(bool omit_stereochemistry) const;
+    RDGeom::INT_POINT2D_MAP compute_molecule_geometry(bool omit_stereochemistry, bool use_coordgen) const;
 
     /// Builds the drawing-friendly 2D molecule representation
     /// based on geometry computed by RDKit.
@@ -291,7 +299,7 @@ class CanvasMolecule {
 
     public:
 
-    CanvasMolecule(std::shared_ptr<RDKit::RWMol> rdkit_mol, bool allow_invalid_mol);
+    CanvasMolecule(std::shared_ptr<RDKit::RWMol> rdkit_mol, bool allow_invalid_mol, bool use_coordgen);
 
     /// Replaces the inner shared_ptr to the molecule
     /// from which the CanvasMolecule is lowered.
@@ -306,7 +314,7 @@ class CanvasMolecule {
     /// after lowering.
     /// QED gets recomputed and updated if `with_qed` is true (default).
     /// By default, wedges/dashes are read from the RDKit molecule, unless `omit_stereochemistry_processing` is set to true.
-    void lower_from_rdkit(bool sanitize_after, bool with_qed = true, bool omit_stereochemistry_processing = false);
+    void lower_from_rdkit(bool sanitize_after, bool use_coordgen, const LoweringOptions& options = LoweringOptions());
 
     /// Clears `cached_atom_coordinate_map`,
     /// forcing the subsequent call to `compute_molecule_geometry()`

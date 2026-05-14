@@ -4228,7 +4228,11 @@ public:
         reinterpret_cast<struct sigcontext *>(&uctx->uc_mcontext)->sc_pc);
 #elif defined(__ppc__) || defined(__powerpc) || defined(__powerpc__) ||        \
     defined(__POWERPC__)
-    error_addr = reinterpret_cast<void *>(uctx->uc_mcontext.regs->nip);
+    #if defined(__APPLE__)
+      error_addr = reinterpret_cast<void *>(uctx->uc_mcontext->__ss.__srr0);
+    #else
+      error_addr = reinterpret_cast<void *>(uctx->uc_mcontext.regs->nip);
+    #endif
 #elif defined(__riscv)
     error_addr = reinterpret_cast<void *>(uctx->uc_mcontext.__gregs[REG_PC]);
 #elif defined(__s390x__)

@@ -868,9 +868,8 @@ graphics_info_t::draw_map_molecules(stereo_eye_t eye, bool draw_transparent_maps
       err = glGetError();
       if (err) std::cout << "gtk3_draw_map_molecules() glLineWidth " << err << std::endl;
 
-
       Shader &shader = shader_for_meshes;
-      shader.Use(); // needed? I think not.
+      // shader.Use(); // needed? I think not.
 
       glm::mat4 mvp = get_molecule_mvp(eye);
       glm::mat4 model_rotation = get_model_rotation();
@@ -2322,6 +2321,7 @@ graphics_info_t::draw_meshed_generic_display_object_meshes(stereo_eye_t eye, uns
          glm::vec4 bg_col(background_colour, 1.0);
          bool wireframe_mode = false;
          float opacity = 0.5;
+         bool do_depth_fog = true;
          auto ccrc = RotationCentre();
          glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
          for (unsigned int i=0; i<generic_display_objects.size(); i++) {
@@ -2329,7 +2329,7 @@ graphics_info_t::draw_meshed_generic_display_object_meshes(stereo_eye_t eye, uns
                std::cout << "drawing i " << i << std::endl;
             generic_display_objects[i].mesh.draw(&shader_for_moleculestotriangles,
                                                  eye, mvp, model_rotation, lights, eye_position, rc, opacity,
-                                                 bg_col, wireframe_mode, false, show_just_shadows);
+                                                 bg_col, wireframe_mode, do_depth_fog, show_just_shadows);
          }
       }
    }
@@ -2392,7 +2392,7 @@ graphics_info_t::draw_meshed_generic_display_object_meshes(stereo_eye_t eye, uns
          glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
          glm::vec3 eye_position;
          float opacity = 1.0;
-         bool do_depth_fog = false;
+         bool do_depth_fog = true;
          int light_index =  0;
          glm::mat4 light_view_mvp = get_light_space_mvp(light_index);
          bool show_just_shadows = false;
@@ -2413,7 +2413,7 @@ graphics_info_t::draw_meshed_generic_display_object_meshes(stereo_eye_t eye, uns
 void
 graphics_info_t::draw_molecules_other_meshes(stereo_eye_t eye, unsigned int pass_type) {
 
-   // std::cout << "debug:: draw_molecules_other_meshes() ---start--- " << pass_type << std::endl;
+   // std::cout << "debug:: draw_molecules_other_meshes() ---start--- pass-type: " << pass_type << std::endl;
 
    // This function doesn't draw these
    // graphics_info_t::draw_instanced_meshes() A Molecule 2: Ligand Contact Dots H-bond
@@ -2457,7 +2457,9 @@ graphics_info_t::draw_molecules_other_meshes(stereo_eye_t eye, unsigned int pass
          }
       }
 
-      // std::cout << "in draw_meshed_generic_display_object_meshes() with have_meshes_to_draw " << have_meshes_to_draw << std::endl;
+      if (false)
+         std::cout << "in draw_meshed_generic_display_object_meshes() with have_meshes_to_draw "
+                   << have_meshes_to_draw << std::endl;
 
       if (have_meshes_to_draw) {
 
@@ -2465,7 +2467,10 @@ graphics_info_t::draw_molecules_other_meshes(stereo_eye_t eye, unsigned int pass
          for (int ii=n_molecules()-1; ii>=0; ii--) {
 
             molecule_class_info_t &m = molecules[ii]; // not const because the shader changes
-            if (! is_valid_model_molecule(ii)) continue;
+
+            // 20260414-PE why was this test here? Maps can have map cap objects
+            // if (! is_valid_model_molecule(ii)) continue;
+
             for (unsigned int jj=0; jj<m.meshes.size(); jj++) {
 
                Mesh &mesh = m.meshes[jj];
@@ -6785,16 +6790,14 @@ graphics_info_t::contour_level_scroll_scrollable_map(int direction) {
       if (direction ==  1) molecules[imol_scroll].pending_contour_level_change_count--;
       if (direction == -1) molecules[imol_scroll].pending_contour_level_change_count++;
 
-      // std::cout << "INFO:: contour level for map " << imol_scroll << " is "
-      //           << molecules[imol_scroll].contour_level
-      //           << " pending: " << molecules[imol_scroll].pending_contour_level_change_count
-      //           << std::endl;
-      logger.log(log_t::INFO, "contour level for map", imol_scroll, "is",
-		 molecules[imol_scroll].contour_level,
-                 "step-size iso:", iso_level_increment,
-                 "diff: ", diff_map_iso_level_increment,
-                 "pending",
-		 molecules[imol_scroll].pending_contour_level_change_count);
+      // 2026-05-12-PE this is for debugging - too noisy for day to day
+      if (false)
+         logger.log(log_t::INFO, "contour level for map", imol_scroll, "is",
+		    molecules[imol_scroll].contour_level,
+                    "step-size iso:", iso_level_increment,
+                    "diff: ", diff_map_iso_level_increment,
+                    "pending",
+		    molecules[imol_scroll].pending_contour_level_change_count);
 
       set_density_level_string(imol_scroll, molecules[imol_scroll].contour_level);
       display_density_level_this_image = 1;

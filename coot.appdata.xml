@@ -49,9 +49,188 @@
   <developer id="io.github.pemsley">
     <name>Paul Emsley</name>
   </developer>
-  <update_contact>pemsley_AT_mrc-lmb.cam.ac.uk</update_contact>
+  <update_contact>pemsley_AT_mrclmb.ac.uk</update_contact>
   <content_rating type="oars-1.1" />
   <releases>
+
+    <release version="1.3" date="2026-05-14">
+      <description>
+        <ul>
+          <li> o FEATURE: Map caps ("sliced apple" view): a 2D coloured
+                          cross-section of the electron density on a clipping
+                          plane, stitched seamlessly to the trimmed 3D isosurface
+                          behind the plane: add_density_map_cap()</li>
+          <li> o CHANGE:  MoleculesToTriangles meshes now use material-based
+                          lighting</li>
+          <li> o CHANGE:  Default material tweaked: ambient raised from 0.1 to
+                          0.2 and diffuse lowered from 1.0 to 0.5, giving softer
+                          highlights and less blown-out surfaces for objects that
+                          don't set their own material</li>
+          <li> o CHANGE:  Improved depth-of-field shader</li>
+          <li> o CHANGE:  Reworked depth fogging in the moleculestotriangles
+                          shader; objects drawn with
+                          draw_meshed_generic_display_object_meshes() now also
+                          use depth fogging</li>
+          <li> o BUG-FIX: Fix the colour rotation of the difference map negative
+                          level</li>
+          <li> o BUG-FIX: Fix the residue-number colour ramp for
+                          colorRampChainsScheme: the ramp range now uses only
+                          amino-acid residues (waters and other heteros were
+                          skewing the min/max), each chain gets its own ramp
+                          colour scheme, and the HSV saturation is bumped from
+                          0.4 to 0.6 for more vivid rainbow chains. Problem seen
+                          in 4zzn.</li>
+          <li> o BUG-FIX: Screenshot resolution now uses framebuffer_scale
+                          instead of a hardcoded 2x</li>
+          <li> o FEATURE: "Symmetry as C-alphas" button added to the Coot:
+                          Symmetry dialog</li>
+          <li> o CHANGE:  Atom labelling reworked so that it happens on mouse
+                          button up</li>
+          <li> o BUG-FIX: Fix the rotation jump after zooming</li>
+          <li> o BUG-FIX: Fix scaling and offsets in
+                          graphics_ligand_mesh_molecule_t::draw()</li>
+          <li> o BUG-FIX: Fix the NCS jumping centre</li>
+          <li> o FEATURE: Molecular Placement for cryo-EM maps</li>
+          <li> o FEATURE: hiranuma_inversion() added - converts the pLDDT scores
+                          (0-100 confidence values) that AlphaFold stores in the
+                          B-factor column of its predicted models into physically
+                          meaningful isotropic B-factors, so that AlphaFold models
+                          can be used with refinement, density-scoring and
+                          validation tools that expect real B-factors</li>
+          <li> o BUG-FIX: Fix action mutate_base_to_type_U name</li>
+          <li> o BUG-FIX: Restraints lock now acquired when updating NBCs in
+                          minimize()</li>
+          <li> o BUG-FIX: Atom indexing error fixed in
+                          update_extra_restraints_representation_geman_mcclure()</li>
+          <li> o BUG-FIX: For ramp_chains, the polymer range is now known</li>
+          <li> o FEATURE: "Proportional editing" rotation added</li>
+          <li> o FEATURE: Delete symmetry waters from the rotation centre</li>
+          <li> o BUG-FIX: Fix behaviour of the residue range selection in
+                          renumber residue range</li>
+          <li> o BUG-FIX: Fixups for environment distances</li>
+          <li> o FEATURE: NCS validation graph enabled</li>
+          <li> o CHANGE:  distortion_bond_mini_stats() and
+                          distortion_angle_mini_stats() now also calculate nZ,
+                          the normalised z-score of the deviation from the
+                          target value (deviation / sigma)</li>
+          <li> o FEATURE: Current-residue marker added to the Ramachandran plot</li>
+          <li> o CHANGE:  Density correlation validation graph sped up</li>
+          <li> o CHANGE:  Pucker analysis geometry fixed up</li>
+          <li> o BUG-FIX: Close the validation Ramachandran box when a molecule
+                          is closed; refresh_ramachandran_plot_model_list() now
+                          called in close_molecule()</li>
+          <li> o CHANGE:  Drug fetch now uses ChEMBL instead of DrugBank
+                          (DrugBank is blocked by Cloudflare)</li>
+          <li> o FEATURE: Lhasa extended IO: import and export for various
+                          data formats</li>
+          <li> o FEATURE: Lhasa can now read and write RDKit pickles</li>
+          <li> o CHANGE:  FLEV SVG output now has width and height before the
+                          viewBox</li>
+          <li> o CHANGE:  Compile guards so Lhasa/Layla still compile when
+                          RDKit has no Coordgen support</li>
+          <li> o BUG-FIX: Fix rotation and overall jankiness in coordgen mode</li>
+          <li> o BUG-FIX: coordgen error no longer printed when there is no
+                          coordgen support in RDKit</li>
+          <li> o FEATURE: Browser for new ligands added</li>
+          <li> o CHANGE:  recent_new_ligands.py reworked to use the new PDBe API</li>
+          <li> o BUG-FIX: Fix the inner ring bond positioning</li>
+          <li> o FEATURE: Functions added to control the lighting of maps</li>
+          <li> o FEATURE: brighten_maps() added to the Coot API</li>
+          <li> o CHANGE:  EMDB map download reworked: now uses an in-window
+                          progress bar; recentre message no longer shown for
+                          map download; download-emdb-map-label is no longer
+                          used in fetch_emdb_map()</li>
+          <li> o CHANGE:  Reading a map again moves to the middle of the box</li>
+          <li> o BUG-FIX: Fix the download directory for maps</li>
+          <li> o FEATURE: Cmd++ to increase the font size in the virtual
+                          terminal</li>
+          <li> o FEATURE: VTE terminal as a replacement for the Python entry,
+                          with coot_vte_repl.py</li>
+          <li> o FEATURE: Servalcat outliers JSON input
+                          (servalcat_outliers_json_for_coot.py)</li>
+          <li> o BUG-FIX: Prevent double-running of startup scripts</li>
+          <li> o CHANGE:  new_startup functions renamed to startup</li>
+          <li> o FEATURE: --dictionary-with-mol added to the command-line
+                          options</li>
+          <li> o BUG-FIX: Re-enable command line scripts in
+                          run_command_line_scripts_callback()</li>
+          <li> o FEATURE: Aniso and H-atom filtering in the Save Coordinates
+                          dialog</li>
+          <li> o FEATURE: "Edit -&gt; Residue info": "Apply occupancy to atom with
+                          alt conformation" checkbox restored</li>
+          <li> o FEATURE: "NCS Ligands" user interface added</li>
+          <li> o BUG-FIX: Fix crash in display control delete button</li>
+          <li> o BUG-FIX: Widget protection in
+                          on_display_control_delete_molecule_button_clicked()</li>
+          <li> o BUG-FIX: Fix TER atom counting in AMBER trajectory processing
+                          [eunos-1128]</li>
+          <li> o BUG-FIX: Fix names of the entries in the NCS ligands frame</li>
+          <li> o FEATURE: GUI item added for "Sort Chains"</li>
+          <li> o FEATURE: Residue info shown in the status bar when hovering
+                          over circles in the Ramachandran plot</li>
+          <li> o FEATURE: Atom Overlaps display now controlled via a toolbar
+                          toggle button; "Delete All Generic Display Objects"
+                          now correctly prevents overlaps from reappearing
+                          after refinement</li>
+          <li> o FEATURE: "Local B-factors" now activates display immediately
+                          when the menu item is clicked</li>
+          <li> o FEATURE: GUI control for map generic objects added</li>
+          <li> o CHANGE:  Validation graph correlation colours reworked: more
+                          red at mid-range values, muted professional colour
+                          palette</li>
+          <li> o BUG-FIX: Fix the alt conf occupancy slider in the rotamer
+                          dialog after "Add Alt Conf": the slider now has an
+                          adjustment, draw_value, marks at 0.0/0.5/0.99, and
+                          0.01 step granularity</li>
+          <li> o BUG-FIX: Fix "Go To Atom" dialog raising from the macOS Dock</li>
+          <li> o BUG-FIX: Validation graphs now updated after side-chain 180
+                          flip and peptide flip</li>
+          <li> o BUG-FIX: "Add OXT" now respects the current bonding mode</li>
+          <li> o BUG-FIX: Fix duplicate entries in the "Add OXT" molecule
+                          combobox when reused</li>
+          <li> o BUG-FIX: Fix the sequence view to extend to the end of the
+                          residue range (ligands and waters were being clipped)</li>
+          <li> o FEATURE: Active residue is now highlighted in the sequence
+                          view; sequence view is now updated on model
+                          modification</li>
+          <li> o FEATURE: add_picked_atom_info_to_status_bar() added</li>
+          <li> o CHANGE:  Molecular representation's mesh_vbox is now inside a
+                          GtkScrolledWindow</li>
+          <li> o CHANGE:  Clear Atom labels item moved</li>
+          <li> o BUG-FIX: Stop picking of symmetry atoms when symmetry is not
+                          displayed</li>
+          <li> o BUG-FIX: Fix the active item of refinement control comboboxes</li>
+          <li> o BUG-FIX: Close the side panel when the difference map peaks
+                          box is closed</li>
+          <li> o BUG-FIX: Fix drag-and-drop file dropping</li>
+          <li> o FEATURE: rebox_map() and apply_translation_to_molecule()</li>
+          <li> o FEATURE: get_map_cap_mesh() on molecule_t and
+                          molecules_container_t, for headless map cap rendering</li>
+          <li> o FEATURE: delete_links_containing_residue_py() added</li>
+          <li> o FEATURE: to_generic_object_add_tori() added</li>
+          <li> o CHANGE:  render function made const</li>
+          <li> o BUG-FIX: Check for LIBRSVG version before using
+                          rsvg_handle_render_cairo()</li>
+          <li> o BUG-FIX: Fix backward.hpp for PowerPC</li>
+          <li> o CHANGE:  Eigen3 is now required at configure time</li>
+          <li> o CHANGE:  GSL autobuild install now links against libcblas so
+                          that libgsl.so carries DT_NEEDED libcblas (or
+                          libgslcblas) which eliminates the --as-needed cblas_*
+                          undefined-reference failure</li>
+          <li> o BUG-FIX: Use CMake for RDKit in Lhasa; pre-install Eigen for
+                          Lhasa</li>
+          <li> o BUG-FIX: Fix nanobind resolution for venvs</li>
+          <li> o BUG-FIX: Fix nanobind find_package broken without
+                          -Dnanobind_DIR</li>
+          <li> o BUG-FIX: Fix linking of maeparser and libexpat</li>
+          <li> o BUG-FIX: Fix non-/usr-based Chapi build</li>
+          <li> o CHANGE:  Removed --with-enhanced-ligand-tools from coot
+                          configure</li>
+          <li> o CHANGE:  maeparser and coordgen added to build-it-3-3; eigen
+                          updated to 5.0.1</li>
+        </ul>
+      </description>
+    </release>
 
     <release version="1.2" date="2026-03-31">
       <description>

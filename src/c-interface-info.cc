@@ -54,21 +54,17 @@
 #define snprintf _snprintf
 #endif
 
-#include "globjects.h" //includes gtk/gtk.h
-
 #include <vector>
 #include <string>
 
 #include <mmdb2/mmdb_manager.h>
 
-#include "coords/mmdb-extras.hh"
 #include "coords/mmdb.hh"
 #include "coords/mmdb-crystal.hh"
 
 #include "coot-utils/coot-map-utils.hh" // for make_rtop_orth_from()
 
 #include "coords/Cartesian.hh"
-#include "coords/Bond_lines.hh"
 
 #include "graphics-info.h"
 
@@ -2457,9 +2453,9 @@ void fill_environment_widget(GtkWidget *widget) {
    // set the label button
    check_button = widget_from_builder("environment_distance_label_atom_checkbutton");
    if (g.environment_distance_label_atom) {
-     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check_button), 1);
+      gtk_check_button_set_active(GTK_CHECK_BUTTON(check_button), 1);
    } else {
-     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check_button), 0);
+      gtk_check_button_set_active(GTK_CHECK_BUTTON(check_button), 0);
    }
 }
 
@@ -2500,9 +2496,8 @@ void execute_environment_settings(GtkWidget *widget) {
       g.environment_min_distance = tmp;
    }
 
-   GtkWidget *label_check_button;
-   label_check_button = widget_from_builder("environment_distance_label_atom_checkbutton");
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(label_check_button))) {
+   GtkWidget *label_check_button = widget_from_builder("environment_distance_label_atom_checkbutton");
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(label_check_button))) {
       g.environment_distance_label_atom = 1;
    }
 

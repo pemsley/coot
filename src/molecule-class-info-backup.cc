@@ -150,7 +150,7 @@ std::pair<bool, std::vector<coot::residue_spec_t> > molecule_class_info_t::compa
       if (int(history_filename_vec.size()) > backup_index) {
          // there should be a log function for unsigned int, int.
          logger.log(log_t::INFO, logging::function_name_t(__FUNCTION__),
-                    {logging::ltw(history_filename_vec.size()), logging::ltw(backup_index)});
+                    std::vector<logging::ltw>{logging::ltw(history_filename_vec.size()), logging::ltw(backup_index)});
 
          if (backup_index < int(history_filename_vec.size()) && backup_index >= 0) {
             std::string filename = history_filename_vec[backup_index].backup_file_name;
@@ -165,7 +165,7 @@ std::pair<bool, std::vector<coot::residue_spec_t> > molecule_class_info_t::compa
          }
       } else {
          logger.log(log_t::WARNING, logging::function_name_t(__FUNCTION__),
-                    {logging::ltw(std::string("bad backup_index")),
+                    std::vector<logging::ltw>{logging::ltw(std::string("bad backup_index")),
                      logging::ltw(history_filename_vec.size()), logging::ltw(backup_index)});
       }
    }

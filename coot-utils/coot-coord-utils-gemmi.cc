@@ -149,6 +149,103 @@ coot::util::residue_has_hetatms(const gemmi::Residue &res) {
    return 0;
 }
 
+std::pair<bool, double>
+coot::util::omega_torsion(const gemmi::Residue &C_residue,
+                          const gemmi::Residue &N_residue,
+                          const std::string &altconf) {
+
+   const gemmi::Atom *ca1 = nullptr;
+   const gemmi::Atom *c1  = nullptr;
+   const gemmi::Atom *n2  = nullptr;
+   const gemmi::Atom *ca2 = nullptr;
+
+   for (const auto &at : C_residue.atoms) {
+      std::string alt(1, at.altloc);
+      if (at.altloc == '\0') alt = "";
+      if (alt != altconf) continue;
+      if (at.name == "CA") ca1 = &at;
+      if (at.name == "C")  c1  = &at;
+   }
+
+   for (const auto &at : N_residue.atoms) {
+      std::string alt(1, at.altloc);
+      if (at.altloc == '\0') alt = "";
+      if (alt != altconf) continue;
+      if (at.name == "CA") ca2 = &at;
+      if (at.name == "N")  n2  = &at;
+   }
+
+   if (ca1 && c1 && n2 && ca2) {
+      clipper::Coord_orth p_ca1(ca1->pos.x, ca1->pos.y, ca1->pos.z);
+      clipper::Coord_orth p_c1(c1->pos.x, c1->pos.y, c1->pos.z);
+      clipper::Coord_orth p_n2(n2->pos.x, n2->pos.y, n2->pos.z);
+      clipper::Coord_orth p_ca2(ca2->pos.x, ca2->pos.y, ca2->pos.z);
+      double omega = clipper::Coord_orth::torsion(p_ca1, p_c1, p_n2, p_ca2);
+      return std::make_pair(true, omega);
+   }
+   return std::make_pair(false, 0.0);
+}
+
+std::vector<coot::util::cis_peptide_info_t>
+coot::util::cis_peptides_info_from_coords(const gemmi::Structure &st) {
+
+   std::vector<coot::util::cis_peptide_info_t> v;
+   if (st.models.empty()) return v;
+
+   const auto &model = st.models[0];
+   int imod = 1;
+
+   for (const auto &chain : model.chains) {
+      for (size_t ires=0; ires+1<chain.residues.size(); ires++) {
+         const auto &res1 = chain.residues[ires];
+         const auto &res2 = chain.residues[ires+1];
+
+         const gemmi::Atom *ca_first = nullptr;
+         const gemmi::Atom *c_first  = nullptr;
+         const gemmi::Atom *n_next   = nullptr;
+         const gemmi::Atom *ca_next  = nullptr;
+
+         for (const auto &at : res1.atoms) {
+            if (at.name == "CA") ca_first = &at;
+            if (at.name == "C")  c_first  = &at;
+         }
+         for (const auto &at : res2.atoms) {
+            if (at.name == "CA") ca_next = &at;
+            if (at.name == "N")  n_next  = &at;
+         }
+
+         if (ca_first && c_first && n_next && ca_next) {
+            clipper::Coord_orth caf(ca_first->pos.x, ca_first->pos.y, ca_first->pos.z);
+            clipper::Coord_orth cf(c_first->pos.x, c_first->pos.y, c_first->pos.z);
+            clipper::Coord_orth nn(n_next->pos.x, n_next->pos.y, n_next->pos.z);
+            clipper::Coord_orth can(ca_next->pos.x, ca_next->pos.y, ca_next->pos.z);
+
+            double d = sqrt((cf - nn).lengthsq());
+            if (d < 3.0) {
+               double tors = clipper::Coord_orth::torsion(caf, cf, nn, can);
+               double torsion = clipper::Util::rad2d(tors);
+               double pos_torsion = (torsion > 0.0) ? torsion : 360.0 + torsion;
+               double distortion = fabs(180.0 - pos_torsion);
+               if (distortion > 90.0) {
+                  coot::residue_spec_t rs1(chain.name, res1.seqid.num.value,
+                                           std::string(1, res1.seqid.icode));
+                  coot::residue_spec_t rs2(chain.name, res2.seqid.num.value,
+                                           std::string(1, res2.seqid.icode));
+                  // gemmi seqid.icode defaults to ' ', residue_spec_t expects ""
+                  if (rs1.ins_code == " ") rs1.ins_code = "";
+                  if (rs2.ins_code == " ") rs2.ins_code = "";
+                  coot::util::cis_peptide_info_t cpi(chain.name, rs1, rs2, imod, torsion);
+                  cpi.residue_name_1 = res1.name;
+                  cpi.residue_name_2 = res2.name;
+                  v.push_back(cpi);
+               }
+            }
+         }
+      }
+   }
+   return v;
+}
+
 // ==================== chain-level ====================
 
 std::pair<int, int>
@@ -232,6 +329,33 @@ coot::centre_of_molecule(const gemmi::Structure &st) {
    return std::make_pair(true, clipper::Coord_orth(sx/n, sy/n, sz/n));
 }
 
+std::pair<bool, clipper::Coord_orth>
+coot::centre_of_molecule_using_masses(const gemmi::Structure &st) {
+
+   double sx = 0, sy = 0, sz = 0;
+   double sum_weight = 0.0;
+   int n = 0;
+   for (const auto &model : st.models) {
+      for (const auto &chain : model.chains) {
+         for (const auto &res : chain.residues) {
+            for (const auto &at : res.atoms) {
+               double w = at.element.weight();
+               if (w == 0.0) w = 6.0; // fallback for unknown elements
+               sx += w * at.pos.x;
+               sy += w * at.pos.y;
+               sz += w * at.pos.z;
+               sum_weight += w;
+               n++;
+            }
+         }
+      }
+      break; // first model only, matching mmdb version
+   }
+   if (n == 0)
+      return std::make_pair(false, clipper::Coord_orth(0,0,0));
+   return std::make_pair(true, clipper::Coord_orth(sx/sum_weight, sy/sum_weight, sz/sum_weight));
+}
+
 std::pair<bool, double>
 coot::radius_of_gyration(const gemmi::Structure &st) {
    auto centre = coot::centre_of_molecule(st);
@@ -284,9 +408,9 @@ coot::get_position_hash(const gemmi::Structure &st) {
    // match mmdb version: sum of (x - x_prev) differences, skipping TER atoms
    float hash = 0.0;
    for (const auto &model : st.models) {
+      unsigned int atom_count = 0;
       for (const auto &chain : model.chains) {
          float x_prev = 0.0;
-         unsigned int atom_count = 0;
          for (const auto &res : chain.residues) {
             for (const auto &at : res.atoms) {
                if (atom_count > 0) {

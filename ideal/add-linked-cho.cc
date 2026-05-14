@@ -39,7 +39,7 @@ namespace coot {
       };
 
       void printNodeInfo(const Node& node) {
-         logger.log(log_t::INFO, {logging::ltw("Handle Node with Info: "), logging::ltw(node.res_type),
+         logger.log(log_t::INFO, std::vector<logging::ltw>{logging::ltw("Handle Node with Info: "), logging::ltw(node.res_type),
                                   logging::ltw("spec"), logging::ltw(node.spec.format())});
       }
 

@@ -143,25 +143,84 @@ coot::layla::get_drug_via_wikipedia_and_drugbank_curl(const std::string &drugnam
             result = get_url_as_string(url);
          }
       }
-      // std::cout << "result: \"" << result << "\"" << std::endl;
 
-      std::string db_code = get_drugbank_code_from_html(result);
-      std::cout << "DEBUG:: db_code: " << db_code << std::endl;
+      // Use ChEMBL (DrugBank is now blocked by Cloudflare)
+      auto get_chembl_code_from_html = [] (const std::string &s) {
+         std::string r;
+         std::stringstream ss(s);
+         std::string line;
+         while (std::getline(ss, line)) {
+            if (line.find(" ChEMBL ") != std::string::npos) {
+               if (line.length() < 80) {
+                  std::vector<std::string> parts = coot::util::split_string_no_blanks(line);
+                  // format: "| ChEMBL = 25"
+                  if (parts.size() == 4) {
+                     r = parts[3];
+                  }
+               }
+            }
+         }
+         return r;
+      };
 
-      std::string db_mol_url_pre = "https://www.drugbank.ca/structures/small_molecule_drugs/";
-      std::string db_mol_url_post = ".mol";
-      std::string db_mol_url = db_mol_url_pre + db_code + db_mol_url_post;
-      std::string db_result = get_url_as_string(db_mol_url);
+      // extract the molfile string from the ChEMBL JSON response.
+      // The molfile is the value of "molfile" key inside "molecule_structures".
+      // It is a multi-line string with \n escaped as literal characters in JSON.
+      auto extract_molfile_from_chembl_json = [] (const std::string &json_str) {
+         std::string r;
+         std::string key = "\"molfile\": \"";
+         std::string::size_type p1 = json_str.find(key);
+         if (p1 != std::string::npos) {
+            std::string::size_type start = p1 + key.length();
+            // find the closing quote - the molfile value ends with "
+            // but contains escaped newlines \\n, so we look for an unescaped quote
+            std::string mol;
+            bool in_escape = false;
+            for (std::string::size_type i=start; i<json_str.length(); i++) {
+               char c = json_str[i];
+               if (in_escape) {
+                  if (c == 'n') mol += '\n';
+                  else mol += c;
+                  in_escape = false;
+               } else {
+                  if (c == '\\') {
+                     in_escape = true;
+                  } else if (c == '"') {
+                     break;
+                  } else {
+                     mol += c;
+                  }
+               }
+            }
+            if (mol.length() > 10)
+               r = mol;
+         }
+         return r;
+      };
 
-      // std::cout << "DEBUG:: db_mol_url: " << db_mol_url << std::endl;
-      // std::cout << "DEBUG:: db_result \"" << db_result << "\"" << std::endl;
-      if (db_result.length() > 10) {
-         std::string db_file_name = db_code + ".mol";
-         write_file(db_result, db_file_name);
-         r = db_file_name;
+      std::string chembl_code = get_chembl_code_from_html(result);
+      if (! chembl_code.empty()) {
+         std::cout << "INFO:: ChEMBL code: " << chembl_code << std::endl;
+         std::string chembl_url = "https://www.ebi.ac.uk/chembl/api/data/molecule/CHEMBL"
+                                + chembl_code + ".json";
+         std::string chembl_json = get_url_as_string(chembl_url);
+         if (chembl_json.length() > 10) {
+            std::string molfile = extract_molfile_from_chembl_json(chembl_json);
+            if (! molfile.empty()) {
+               std::string mol_file_name = "CHEMBL" + chembl_code + ".mol";
+               write_file(molfile, mol_file_name);
+               r = mol_file_name;
+            } else {
+               std::cout << "WARNING:: Failed to extract molfile from ChEMBL JSON" << std::endl;
+            }
+         } else {
+            std::cout << "WARNING:: Failed to fetch ChEMBL data for CHEMBL" << chembl_code << std::endl;
+         }
+      } else {
+         std::cout << "WARNING:: No ChEMBL code found in Wikipedia page for " << drug_name << std::endl;
       }
-   }
 
+   }
    return r;
 }
 

@@ -1183,12 +1183,14 @@ ncs_ligand(int imol_protein,
    if (!is_valid_model_molecule(imol_ligand))  return result;
 
    graphics_info_t g;
-   molecule_class_info_t &m = g.molecules[imol_protein];
 
-   if (!m.has_ncs_p()) return result;
-   if (!m.ncs_ghosts_have_rtops_p()) return result;
+   if (!g.molecules[imol_protein].has_ncs_p()) return result;
+   if (!g.molecules[imol_protein].ncs_ghosts_have_rtops_p()) {
+      g.molecules[imol_protein].fill_ghost_info(1, 0.7);
+   }
+   if (!g.molecules[imol_protein].ncs_ghosts_have_rtops_p()) return result;
 
-   std::vector<std::vector<std::string>> ncs_chain_groups = m.ncs_ghost_chains();
+   std::vector<std::vector<std::string>> ncs_chain_groups = g.molecules[imol_protein].ncs_ghost_chains();
    if (ncs_chain_groups.empty()) return result;
 
    // Find the NCS group where the master chain matches ncs_master_chain_id
@@ -1205,6 +1207,11 @@ ncs_ligand(int imol_protein,
 
    if (!found_master || peer_chains.empty()) return result;
 
+   // Get the ghost operators before creating new molecules, because
+   // new_molecule_by_atom_selection() can cause g.molecules to reallocate,
+   // which would invalidate any references into it.
+   std::vector<drawn_ghost_molecule_display_t> ghosts = g.molecules[imol_protein].NCS_ghosts();
+
    // Extract the ligand fragment
    std::string sel_str = "//" + chain_id_ligand + "/"
       + std::to_string(resno_ligand_start) + "-"
@@ -1212,27 +1219,43 @@ ncs_ligand(int imol_protein,
    int imol_ligand_fragment = new_molecule_by_atom_selection(imol_ligand, sel_str.c_str());
    if (imol_ligand_fragment < 0) return result;
 
-   // Get the ghost operators
-   std::vector<drawn_ghost_molecule_display_t> ghosts = m.NCS_ghosts();
+   if (false) {
+      std::cout << "DEBUG:: ncs_ligand: " << ghosts.size() << " ghosts available:" << std::endl;
+      for (const auto &ghost : ghosts) {
+         std::cout << "DEBUG::   ghost chain_id: \"" << ghost.chain_id
+                   << "\" target_chain_id: \"" << ghost.target_chain_id
+                   << "\" name: \"" << ghost.name << "\"" << std::endl;
+      }
+      std::cout << "DEBUG:: ncs_ligand: peer_chains:";
+      for (const auto &pc : peer_chains)
+         std::cout << " \"" << pc << "\"";
+      std::cout << std::endl;
+   }
 
    for (const auto &peer_chain_id : peer_chains) {
       // Find the ghost whose chain_id matches this peer chain
       bool found_ghost = false;
+      // std::cout << "DEBUG:: ::::: for ghost in ghosts with " << ghosts.size() << " ghosts" << std::endl;
       for (const auto &ghost : ghosts) {
          if (ghost.chain_id == peer_chain_id) {
             // The ghost rtop maps ghost -> master, so inverse maps master -> ghost
-            clipper::RTop_orth inv_rtop = ghost.rtop.inverse();
-            int new_mol = copy_molecule(imol_ligand_fragment);
-            if (new_mol >= 0) {
-               g.molecules[new_mol].transform_by(inv_rtop);
-               std::string new_name = std::to_string(new_mol)
-                  + ": Candidate NCS-related ligand to protein chain "
-                  + peer_chain_id;
-               set_molecule_name(new_mol, new_name.c_str());
-               result.push_back(new_mol);
+            if (true) {
+               clipper::RTop_orth inv_rtop = ghost.rtop.inverse();
+               // std::cout << "DEBUG:: This is the ---------- inv_rtop:" << std::endl;
+               // std::cout << inv_rtop.format();
+               int new_mol = copy_molecule(imol_ligand_fragment);
+               if (new_mol >= 0) {
+                  // g.molecules[new_mol].transform_by(inv_rtop);
+                  g.molecules[new_mol].transform_by(inv_rtop);
+                  std::string new_name = std::to_string(new_mol)
+                     + ": Candidate NCS-related ligand to protein chain "
+                     + peer_chain_id + " Inversse-ghost";
+                  set_molecule_name(new_mol, new_name.c_str());
+                  result.push_back(new_mol);
+               }
+               found_ghost = true;
+               break;
             }
-            found_ghost = true;
-            break;
          }
       }
       if (!found_ghost)

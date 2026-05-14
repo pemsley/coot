@@ -3219,9 +3219,11 @@ add_density_map_cap() {
       unsigned int n_x_axis_points = static_cast<int>(l/x_axis_step_size + 1);
       unsigned int n_y_axis_points = n_x_axis_points;
 
-      std::cout << "debug:: base " << glm::to_string(base) << " x-axis " << glm::to_string(plus_x_axis)
-                << std::endl;
-      std::cout << "debug:: l " << l << " n_x_axis_points " << n_x_axis_points << std::endl;
+      if (false) {
+         std::cout << "debug:: base " << glm::to_string(base) << " x-axis "
+                   << glm::to_string(plus_x_axis) << std::endl;
+         std::cout << "debug:: l " << l << " n_x_axis_points " << n_x_axis_points << std::endl;
+      }
 
       // clipper::Coord_orth x_axis_uv(1, 0, 0);
       // clipper::Coord_orth y_axis_uv(0, 1, 0);

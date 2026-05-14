@@ -62,6 +62,9 @@ unsigned int coot_ligand_editor_canvas_get_max_molecule_idx(CootLigandEditorCanv
 void coot_ligand_editor_canvas_set_allow_invalid_molecules(CootLigandEditorCanvas* self, bool value) noexcept;
 bool coot_ligand_editor_canvas_get_allow_invalid_molecules(CootLigandEditorCanvas* self) noexcept;
 
+void coot_ligand_editor_canvas_set_coordgen_mode_enabled(CootLigandEditorCanvas* self, bool value) noexcept;
+bool coot_ligand_editor_canvas_get_coordgen_mode_enabled(CootLigandEditorCanvas* self) noexcept;
+
 coot::ligand_editor_canvas::DisplayMode coot_ligand_editor_canvas_get_display_mode(CootLigandEditorCanvas* self) noexcept;
 void coot_ligand_editor_canvas_set_display_mode(CootLigandEditorCanvas* self, coot::ligand_editor_canvas::DisplayMode value) noexcept;
 

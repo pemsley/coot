@@ -135,7 +135,14 @@ public:
       };
 
       if (max_x > min_x) {
+         float vb_w = max_x - min_x;
+         float vb_h = max_y - min_y;
+         float target_width = 900.0f;
+         float scale = target_width / vb_w;
+         float target_height = vb_h * scale;
          std::string s = svg_header_1;
+         s += "width=\""  + std::to_string(target_width)  + "\" ";
+         s += "height=\"" + std::to_string(target_height) + "\" ";
          s += make_viewbox_string();
          s += svg_header_2;
          if (add_background_rect)

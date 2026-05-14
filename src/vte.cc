@@ -322,17 +322,44 @@ void setup_python_vte_terminal() {
 
    g_signal_connect(terminal, "child-exited", G_CALLBACK(on_vte_child_exited), nullptr);
 
-   // Add Cmd+V (macOS) / Ctrl+Shift+V paste support
+   // Add Cmd/Ctrl keyboard shortcuts: V=paste, +/-/0=font size
    GtkEventController *key_controller = gtk_event_controller_key_new();
    g_signal_connect(key_controller, "key-pressed",
                     G_CALLBACK(+[](GtkEventControllerKey *controller,
                                    guint keyval, guint keycode,
                                    GdkModifierType state,
                                    gpointer user_data) -> gboolean {
-                       if (keyval == GDK_KEY_v &&
-                           (state & GDK_META_MASK || state & GDK_CONTROL_MASK)) {
-                          VteTerminal *t = VTE_TERMINAL(user_data);
+                       bool cmd_or_ctrl = (state & GDK_META_MASK) || (state & GDK_CONTROL_MASK);
+                       if (!cmd_or_ctrl) return FALSE;
+                       VteTerminal *t = VTE_TERMINAL(user_data);
+                       if (keyval == GDK_KEY_v) {
                           vte_terminal_paste_clipboard(t);
+                          return TRUE;
+                       }
+                       if (keyval == GDK_KEY_plus || keyval == GDK_KEY_equal) {
+                          const PangoFontDescription *fd = vte_terminal_get_font(t);
+                          PangoFontDescription *fd_copy = pango_font_description_copy(fd);
+                          gint size = pango_font_description_get_size(fd_copy);
+                          pango_font_description_set_size(fd_copy, size + PANGO_SCALE);
+                          vte_terminal_set_font(t, fd_copy);
+                          pango_font_description_free(fd_copy);
+                          return TRUE;
+                       }
+                       if (keyval == GDK_KEY_minus) {
+                          const PangoFontDescription *fd = vte_terminal_get_font(t);
+                          PangoFontDescription *fd_copy = pango_font_description_copy(fd);
+                          gint size = pango_font_description_get_size(fd_copy);
+                          if (size > 6 * PANGO_SCALE) {
+                             pango_font_description_set_size(fd_copy, size - PANGO_SCALE);
+                             vte_terminal_set_font(t, fd_copy);
+                          }
+                          pango_font_description_free(fd_copy);
+                          return TRUE;
+                       }
+                       if (keyval == GDK_KEY_0) {
+                          PangoFontDescription *fd = pango_font_description_from_string("Monospace 10");
+                          vte_terminal_set_font(t, fd);
+                          pango_font_description_free(fd);
                           return TRUE;
                        }
                        return FALSE;

@@ -287,8 +287,11 @@ molecule_class_info_t::setup_internal() { // init
    map_mesh_first_time = true;
    model_mesh_first_time = true;
 
-   material_for_maps.do_specularity = false;
-   material_for_maps.specular_strength = 0.5; // non-shiny maps by default.
+   // material_for_maps.do_specularity = false;
+   // material_for_maps.specular_strength = 0.5; // non-shiny maps by default.
+
+   // this can be set by the user now.
+   material_for_maps = graphics_info_t::default_material_for_maps;
 
    material_for_models.do_specularity = true;
    material_for_models.specular_strength = 1.0;
@@ -7001,8 +7004,6 @@ molecule_class_info_t::close_yourself() {
          if (was_coords) {
             GtkWidget *coords_vbox = widget_from_builder("display_molecule_vbox");
             if (GTK_IS_BOX(coords_vbox)) {
-               std::cout << "in close_yourself() fix container B foreach" << std::endl;
-
                GtkWidget *item_widget = gtk_widget_get_first_child(coords_vbox);
                while (item_widget) {
                   GtkWidget *next_item = gtk_widget_get_next_sibling(item_widget);
@@ -10238,10 +10239,9 @@ molecule_class_info_t::transform_by(const clipper::RTop_orth &rtop) {
    // std::cout << "INFO:: coordinates transformed by orthogonal matrix: \n" << rtop.format() << std::endl;
 
    logger.log(log_t::INFO, logging::function_name_t("transform_by"), "coordinates transformed by orthogonal matrix:\n");
-   logger.log(log_t::INFO, logging::function_name_t("transform_by"), rtop.format());
+   logger.log(log_t::INFO, logging::function_name_t(""), rtop.format());
 
    if (have_unit_cell) {
-
       if (has_model()) {
          mmdb::realtype cell_params[6];
          mmdb::realtype vol;
@@ -10256,29 +10256,24 @@ molecule_class_info_t::transform_by(const clipper::RTop_orth &rtop) {
                                                 clipper::Util::d2rad(cell_params[3]),
                                                 clipper::Util::d2rad(cell_params[4]),
                                                 clipper::Util::d2rad(cell_params[5])));
-         // std::cout << "INFO:: fractional coordinates matrix:" << std::endl;
-         // std::cout << rtop.rtop_frac(cell).format() << std::endl;
          logger.log(log_t::INFO, "fractional coordinates matrix:");
          logger.log(log_t::INFO, rtop.rtop_frac(cell).format());
       }
-
-      for (int i=0; i<atom_sel.n_selected_atoms; i++) {
-         clipper::Coord_orth co = clipper::Coord_orth(atom_sel.atom_selection[i]->x,
-                                                      atom_sel.atom_selection[i]->y,
-                                                      atom_sel.atom_selection[i]->z);
-         clipper::Coord_orth trans_pos = co.transform(rtop);
-         atom_sel.atom_selection[i]->x = trans_pos.x();
-         atom_sel.atom_selection[i]->y = trans_pos.y();
-         atom_sel.atom_selection[i]->z = trans_pos.z();
-      }
-      atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
-      atom_sel.mol->FinishStructEdit();
-      have_unsaved_changes_flag = 1;
-      make_bonds_type_checked(__FUNCTION__);
-
-   } else {
-      std::cout << "No unit cell for this molecule, hence no fractional matrix." << std::endl;
    }
+
+   for (int i=0; i<atom_sel.n_selected_atoms; i++) {
+      clipper::Coord_orth co = clipper::Coord_orth(atom_sel.atom_selection[i]->x,
+                                                   atom_sel.atom_selection[i]->y,
+                                                   atom_sel.atom_selection[i]->z);
+      clipper::Coord_orth trans_pos = co.transform(rtop);
+      atom_sel.atom_selection[i]->x = trans_pos.x();
+      atom_sel.atom_selection[i]->y = trans_pos.y();
+      atom_sel.atom_selection[i]->z = trans_pos.z();
+   }
+   atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+   atom_sel.mol->FinishStructEdit();
+   have_unsaved_changes_flag = 1;
+   make_bonds_type_checked(__FUNCTION__);
 }
 
 void

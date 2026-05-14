@@ -248,6 +248,7 @@ graphics_info_t::try_centre_from_new_go_to_atom() {
    if (pi.success) {
 
       setRotationCentre(pi.atom_index, go_to_atom_molecule());
+      add_picked_atom_info_to_status_bar(imol, pi.atom_index);
 
    } else {
       std::cout << "WARNING:: atom with name \"" << go_to_atom_atom_name()
@@ -449,6 +450,7 @@ graphics_info_t::intelligent_near_atom_centring(const std::string &direction) {
             add_status_bar_text(ai);
 
             std::cout << "if sequence view is displayed update highlighted position here C " << std::endl;
+            run_post_set_rotation_centre_hook();
          }
       }
    }

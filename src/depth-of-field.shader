@@ -113,8 +113,12 @@ void main() {
       // the clipping planes. mid should be calculated
       // and passed as a uniform
       float dd = d - rc_z;
-      // float mf = abs(focus_blur_strength * dd);
-      float mf = abs(focus_blur_strength * 2.0 * dd * dd);
+      // the front (dd < 0) blur is scaled down so near-the-viewer features
+      // stay crisp while the far field still blurs strongly
+      float front_blur_scale = 0.1;
+      float s = focus_blur_strength * 2.0;
+      if (dd < 0.0) s *= front_blur_scale;
+      float mf = abs(s * dd * dd);
       mf = clamp(mf, 0.0, 1.0);
 
       out_colour = vec4(mix(t1a, t2a, mf));

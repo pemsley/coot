@@ -33,10 +33,6 @@
 #include "../utils/base64-encode-decode.hh"
 
 
-std::unique_ptr<RDKit::RWMol> lhasa::rdkit_mol_from_smiles(std::string smiles) {
-    std::unique_ptr<RDKit::RWMol> ret(RDKit::SmilesToMol(smiles, 0, false));
-    return ret;
-}
 
 std::unique_ptr<RDKit::RWMol> lhasa::rdkit_mol_from_pickle(std::string pickle_string) {
     std::unique_ptr<RDKit::RWMol> ret = std::make_unique<RDKit::RWMol>();
@@ -44,14 +40,16 @@ std::unique_ptr<RDKit::RWMol> lhasa::rdkit_mol_from_pickle(std::string pickle_st
     return ret;
 }
 
-std::string lhasa::rdkit_mol_to_smiles(RDKit::ROMol& mol) {
-    auto ret = RDKit::MolToSmiles(mol, true);
-    return ret;
+std::string lhasa::rdkit_mol_to_pickle_base64(const RDKit::ROMol& mol) {
+    std::string pickle_string;
+    unsigned int pickleFlags = RDKit::PicklerOps::AtomProps | RDKit::PicklerOps::BondProps | RDKit::PicklerOps::MolProps | RDKit::PicklerOps::CoordsAsDouble | RDKit::PicklerOps::AllProps;
+    RDKit::MolPickler::pickleMol(mol, pickle_string, pickleFlags);
+    return moorhen_base64::base64_encode((const unsigned char*) pickle_string.c_str(), pickle_string.size());
 }
 
-
-unsigned int lhasa::append_from_smiles(CootLigandEditorCanvas& canvas, std::string smiles) {
-    return canvas.append_molecule(rdkit_mol_from_smiles(smiles));
+std::string lhasa::export_mol_to_pickle_base64(CootLigandEditorCanvas& canvas, unsigned int molecule_idx) {
+    const auto& mol = canvas.get_rdkit_molecule(molecule_idx);
+    return rdkit_mol_to_pickle_base64(mol);
 }
 
 unsigned int lhasa::append_from_pickle_base64(CootLigandEditorCanvas& canvas, std::string base64_pickle_string) {
@@ -60,6 +58,20 @@ unsigned int lhasa::append_from_pickle_base64(CootLigandEditorCanvas& canvas, st
     auto smiles = rdkit_mol_to_smiles(*appendee.get());
     g_info("Smiles from pickle: %s -> %s", base64_pickle_string.c_str(), smiles.c_str());
     return canvas.append_molecule(std::move(appendee));
+}
+
+std::string lhasa::rdkit_mol_to_smiles(const RDKit::ROMol& mol) {
+    auto ret = RDKit::MolToSmiles(mol, true);
+    return ret;
+}
+
+std::unique_ptr<RDKit::RWMol> lhasa::rdkit_mol_from_smiles(std::string smiles) {
+    std::unique_ptr<RDKit::RWMol> ret(RDKit::SmilesToMol(smiles, 0, false));
+    return ret;
+}
+
+unsigned int lhasa::append_from_smiles(CootLigandEditorCanvas& canvas, std::string smiles) {
+    return canvas.append_molecule(rdkit_mol_from_smiles(smiles));
 }
 
 std::unique_ptr<coot::ligand_editor_canvas::ActiveTool> lhasa::make_active_tool(emscripten::val tool) {

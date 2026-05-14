@@ -25,14 +25,20 @@
 #define GTK_UTILS_HH
 #include <gtk/gtk.h>
 #include <memory>
+#include <atomic>
 
 /// Utility class for creating progress bar popups, transient for the main window
 class ProgressBarPopUp {
 	GtkWindow* window;
 	GtkProgressBar* progress_bar;
+	GtkWidget* frame; // non-owning: an overlay frame to hide on destruction
+	bool owns_window;
 
 	public:
+    /// Creates a new popup window with a progress bar
     ProgressBarPopUp(const std::string &title, const std::string &description) noexcept;
+    /// Uses an existing overlay frame and progress bar (non-owning)
+    ProgressBarPopUp(GtkWidget *frame, GtkProgressBar *progress_bar) noexcept;
     ProgressBarPopUp(const ProgressBarPopUp&) = delete;
     ProgressBarPopUp(ProgressBarPopUp&&) noexcept;
 
@@ -47,6 +53,7 @@ class ProgressBarPopUp {
 /// It can be freely cloned and used across threads
 class ProgressNotifier {
 	std::shared_ptr<ProgressBarPopUp> progress_bar_popup;
+	std::shared_ptr<std::atomic<bool>> cancel_flag;
 
 	public:
 
@@ -57,6 +64,14 @@ class ProgressNotifier {
 	void pulse() noexcept;
 	/// This allows for changing the label in a thread-safe way
         void set_text(const std::string &text) noexcept;
+	/// Request cancellation (thread-safe)
+	void cancel() noexcept;
+	/// Check if cancellation has been requested (thread-safe)
+	bool is_cancelled() const noexcept;
+	/// Get the cancel flag for sharing with external code
+	std::shared_ptr<std::atomic<bool>> get_cancel_flag() const noexcept { return cancel_flag; }
+	/// Use an external cancel flag (call before passing to curl)
+	void set_cancel_flag(std::shared_ptr<std::atomic<bool>> flag) noexcept { cancel_flag = flag; }
 
 	~ProgressNotifier();
 

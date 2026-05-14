@@ -20,6 +20,7 @@
  * Fifth Floor, Boston, MA, 02110-1301, USA.
  */
 
+#include "geometry/residue-and-atom-specs.hh"
 #include "python-3-interface.hh"
 
 #include "compat/coot-sysdep.h"
@@ -4652,16 +4653,23 @@ graphics_info_t::do_rotamers(int atom_index, int imol) {
       // It it was not, then we should hide the hscale
       //
       if (is_alt_conf_dialog) {
-         // GtkWidget *hscale = lookup_widget(dialog, "new_alt_conf_occ_hscale");
          GtkWidget *hscale = widget_from_builder("new_alt_conf_occ_hscale");
+         GtkWidget *frame  = widget_from_builder("new_alt_conf_occ_frame");
          float v = add_alt_conf_new_atoms_occupancy;
          // The max value is 3rd arg - 6th arg (here 2 and 1 is the same as 1 and 0)
          GtkAdjustment *adj = GTK_ADJUSTMENT(gtk_adjustment_new(v, 0.0, 2.0, 0.01, 0.1, 1.0));
-         gtk_range_set_adjustment(GTK_RANGE(hscale), GTK_ADJUSTMENT(adj));
+         gtk_range_set_adjustment(GTK_RANGE(hscale), adj);
+         gtk_scale_set_draw_value(GTK_SCALE(hscale), TRUE);
+         gtk_scale_set_digits(GTK_SCALE(hscale), 2);
+         gtk_scale_clear_marks(GTK_SCALE(hscale));
+         gtk_scale_add_mark(GTK_SCALE(hscale), 0.0,  GTK_POS_BOTTOM, "0.0");
+         gtk_scale_add_mark(GTK_SCALE(hscale), 0.5,  GTK_POS_BOTTOM, "0.5");
+         gtk_scale_add_mark(GTK_SCALE(hscale), 0.99, GTK_POS_BOTTOM, "0.99");
          g_signal_connect(G_OBJECT(adj),
                           "value_changed",
-                          G_CALLBACK(graphics_info_t::new_alt_conf_occ_adjustment_changed),
+                          G_CALLBACK(new_alt_conf_occ_adjustment_changed),
                           NULL);
+         gtk_widget_set_visible(frame, TRUE);
          g_object_set_data(G_OBJECT(dialog), "type", GINT_TO_POINTER(1));
 
       } else {
@@ -4715,7 +4723,23 @@ graphics_info_t::do_rotamers(int imol, mmdb::Atom *active_atom) {
    // rotamer_dialog = dialog; // Hmm... this doesn't look good. // 20240304-PE removed.
    g_object_set_data(G_OBJECT(dialog), "imol", GINT_TO_POINTER(imol));
    if (is_alt_conf_dialog) {
-
+      GtkWidget *hscale = widget_from_builder("new_alt_conf_occ_hscale");
+      GtkWidget *frame  = widget_from_builder("new_alt_conf_occ_frame");
+      float v = add_alt_conf_new_atoms_occupancy;
+      GtkAdjustment *adj = GTK_ADJUSTMENT(gtk_adjustment_new(v, 0.0, 2.0, 0.01, 0.1, 1.0));
+      gtk_range_set_adjustment(GTK_RANGE(hscale), adj);
+      gtk_scale_set_draw_value(GTK_SCALE(hscale), TRUE);
+      gtk_scale_clear_marks(GTK_SCALE(hscale));
+      gtk_scale_set_digits(GTK_SCALE(hscale), 2);
+      gtk_scale_add_mark(GTK_SCALE(hscale), 0.0,  GTK_POS_BOTTOM, "0.0");
+      gtk_scale_add_mark(GTK_SCALE(hscale), 0.5,  GTK_POS_BOTTOM, "0.5");
+      gtk_scale_add_mark(GTK_SCALE(hscale), 0.99, GTK_POS_BOTTOM, "0.99");
+      g_signal_connect(G_OBJECT(adj),
+                       "value_changed",
+                       G_CALLBACK(graphics_info_t::new_alt_conf_occ_adjustment_changed),
+                       NULL);
+      gtk_widget_set_visible(frame, TRUE);
+      g_object_set_data(G_OBJECT(dialog), "type", GINT_TO_POINTER(1));
    } else {
       GtkWidget *frame = widget_from_builder("new_alt_conf_occ_frame");
       gtk_widget_set_visible(frame, FALSE);
@@ -4732,17 +4756,22 @@ graphics_info_t::do_rotamers(int imol, mmdb::Atom *active_atom) {
 void graphics_info_t::new_alt_conf_occ_adjustment_changed(GtkAdjustment *adj,
                                                           gpointer user_data) {
 
+
    graphics_info_t g;
-   g.add_alt_conf_new_atoms_occupancy = gtk_adjustment_get_value(adj);
+   float nv = gtk_adjustment_get_value(adj);
+   g.add_alt_conf_new_atoms_occupancy = nv;
 
    // Change the occupancies of the intermediate atoms:
    //
    if (moving_atoms_asc) {
       for (int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
-         // this if test is a kludge!
+         mmdb::Atom *at = moving_atoms_asc->atom_selection[i];
+
          // Don't change the alt conf for fully occupied atoms.
-         if (moving_atoms_asc->atom_selection[i]->occupancy < 0.99)
-            moving_atoms_asc->atom_selection[i]->occupancy = gtk_adjustment_get_value(adj);
+         if (at->occupancy < 0.99) {
+            at->occupancy = nv;
+            // std::cout << "DEBUG:: at " << coot::atom_spec_t(at) << " new occ " << nv << std::endl;
+         }
       }
    }
 }

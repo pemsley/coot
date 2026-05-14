@@ -33,6 +33,7 @@
 #include "coot-utils/coot-coord-utils.hh"
 #include "density-contour/occlusion.hh"
 #include "density-contour/transfer-occlusions.hh"
+#include "coot-utils/map-cap.hh"
 #include "coot-molecule.hh"
 #include "utils/logging.hh"
 extern logging logger;
@@ -660,6 +661,56 @@ coot::molecule_t::get_map_contours_mesh_using_other_map_for_colours(const clippe
       }
    }
    return m;
+}
+
+
+coot::simple_mesh_t
+coot::molecule_t::get_map_cap_mesh(float contour_level,
+                                   const clipper::Coord_orth &base_point,
+                                   const clipper::Coord_orth &x_axis_uv,
+                                   const clipper::Coord_orth &y_axis_uv,
+                                   double x_axis_step_size,
+                                   double y_axis_step_size,
+                                   unsigned int n_x_axis_points,
+                                   unsigned int n_y_axis_points,
+                                   bool use_thread_pool, ctpl::thread_pool *thread_pool_p,
+                                   const clipper::Xmap<float> *other_map_for_colouring_p,
+                                   float omfc_min_value,
+                                   float omfc_max_value,
+                                   float radial_map_colour_sat) {
+
+   // Build the 3D isosurface from draw_vector_sets (needs to be up to date)
+   std::vector<api::vnc_vertex> iso_vertices;
+   std::vector<g_triangle> iso_triangles;
+
+   auto coord_orth_to_glm = [](const clipper::Coord_orth &co) {
+      return glm::vec3(co.x(), co.y(), co.z());
+   };
+
+   for (auto it = draw_vector_sets.begin(); it != draw_vector_sets.end(); ++it) {
+      const coot::density_contour_triangles_container_t &tri_con(*it);
+      unsigned int idx_base = iso_vertices.size();
+      for (unsigned int i = 0; i < tri_con.points.size(); i++) {
+         glm::vec3 pos    = coord_orth_to_glm(tri_con.points[i]);
+         glm::vec3 normal = coord_orth_to_glm(tri_con.normals[i]);
+         glm::vec4 col(0.5, 0.5, 0.5, 1.0);
+         iso_vertices.push_back(api::vnc_vertex(pos, normal, col));
+      }
+      for (unsigned int i = 0; i < tri_con.point_indices.size(); i++) {
+         g_triangle t(tri_con.point_indices[i].pointID[0] + idx_base,
+                      tri_con.point_indices[i].pointID[1] + idx_base,
+                      tri_con.point_indices[i].pointID[2] + idx_base);
+         iso_triangles.push_back(t);
+      }
+   }
+
+   return make_map_cap_mesh(xmap, contour_level, base_point, x_axis_uv, y_axis_uv,
+                            x_axis_step_size, y_axis_step_size,
+                            n_x_axis_points, n_y_axis_points,
+                            iso_vertices, iso_triangles,
+                            other_map_for_colouring_p,
+                            omfc_min_value, omfc_max_value,
+                            radial_map_colour_sat);
 }
 
 

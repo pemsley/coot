@@ -3959,6 +3959,7 @@ std::pair<short int, float> float_from_entry(GtkWidget *entry) {
 
    std::pair<short int, float> p(0,0);
    const gchar *txt = gtk_editable_get_text(GTK_EDITABLE(entry));
+   std::cout << "DEBUG:: float_from_entry()::::::::::::::: " << txt << std::endl;
    if (txt) {
       float f = atof(txt);
       p.second = f;
@@ -8366,6 +8367,7 @@ void sequence_view(int imol) {
       GtkWidget *button = gtk_button_new_from_icon_name("window-close");
       GtkStyleContext *sc = gtk_widget_get_style_context(button);
       gtk_style_context_add_class(sc, "circular");
+
       auto close_button_callback = +[] (GtkButton *button, gpointer data) {
          int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "imol"));
          std::cout << "close this sequence view " << imol << std::endl;
@@ -8400,6 +8402,8 @@ void sequence_view(int imol) {
       gtk_widget_set_visible(vbox, TRUE);
       g_object_set_data(G_OBJECT(button), "sequence_view_box", vbox);
       g_object_set_data(G_OBJECT(overlay), "imol", GINT_TO_POINTER(imol));
+      // Let update_validation() find this sequence view by imol and redraw it after model edits.
+      g_object_set_data(G_OBJECT(overlay), "coot-sequence-view", sv);
       // GTK_ALIGN_END works OK/as intended, except the main graphics widget (or window) is too narrow to see it.
       // Make the window wider and change this to GTK_ALIGN_END.
       // gtk_widget_set_halign(GTK_WIDGET(button), GTK_ALIGN_START);

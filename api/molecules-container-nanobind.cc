@@ -23,6 +23,7 @@
 #include "coot-utils/g_triangle.hh"
 #include "ideal/simple-restraint.hh"
 #include "mini-mol/mini-mol-utils.hh"
+#include "utils/coot-utils.hh"
 
 #if NB_VERSION_MAJOR // for flychecking
 #include <nanobind/nanobind.h>
@@ -82,19 +83,20 @@ std::unordered_map<std::string, std::string> docstring_cache;
 
 std::string get_docstring_from_xml(const std::string& func_name) {
 
+   // FYI: this runs at compile time after linking:
+   // python3.14 /opt/homebrew/share/nanobind/stubgen.py -q -i --
+   // coot-main/build-chapi-with-homebrew-deps -m coot_headless_api -o coot_headless_api.pyi
+   //
    // this is the relative path for standard out-of-tree build
-   std::string api_doxygen_xml_file_name_1 =
-      "../coot/api/doxy-sphinx/xml/classmolecules__container__t.xml";
-   // for a build inside the source:
-   std::string api_doxygen_xml_file_name_2 =
-      "../api/doxy-sphinx/xml/classmolecules__container__t.xml";
-   // fill this:
-   std::string api_doxygen_xml_file_name;
-   if (std::filesystem::exists(std::filesystem::path(api_doxygen_xml_file_name_1)))
-      api_doxygen_xml_file_name = api_doxygen_xml_file_name_1;
-   if (std::filesystem::exists(std::filesystem::path(api_doxygen_xml_file_name_2)))
-      api_doxygen_xml_file_name = api_doxygen_xml_file_name_2;
-   // try to find the xml file using CONDA_PREFIX - idea from eunos-1128
+   std::string pkg_data_dir = coot::package_data_dir();
+   const std::string csd = COOT_SOURCE_DIR;
+   std::filesystem::path csd_path(csd);
+   std::string fn = "classmolecules__container__t.xml";
+   std::filesystem::path doxy_sphinx_path = csd_path / "api" / "doxy-sphinx" / "xml" / fn;
+   std::string api_doxygen_xml_file_name = doxy_sphinx_path.string();
+   // std::cout << "DEBUG:: api_doxygen_xml_file_name " << api_doxygen_xml_file_name << std::endl;
+
+#if 0 // the xml file is not installed.
    const char *e = getenv("CONDA_PREFIX");
    if (e) {
       std::filesystem::path conda_prefix(e);
@@ -103,6 +105,7 @@ std::string get_docstring_from_xml(const std::string& func_name) {
       if (std::filesystem::exists(full_path))
          api_doxygen_xml_file_name = full_path.string();
    }
+#endif
 
    auto convert_type = [] (const std::string &s_in) {
       std::string s = s_in;

@@ -24,6 +24,9 @@
  *
  */
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/string_cast.hpp>  // to_string()
+
 #include <epoxy/gl.h>
 #include "compat/coot-sysdep.h"
 
@@ -122,8 +125,6 @@ graphics_info_t::draw_generic_objects(unsigned int pass_type, stereo_eye_t eye) 
 
    if (! generic_display_objects.empty()) {
 
-      // std::cout << "draw_generic_objects() pass_type: " << pass_type << std::endl;
-
       glm::vec3 eye_position = get_world_space_eye_position();
       glm::mat4 mvp = get_molecule_mvp(eye);
       glm::mat4 model_rotation = get_model_rotation();
@@ -171,15 +172,16 @@ graphics_info_t::draw_generic_objects(unsigned int pass_type, stereo_eye_t eye) 
                if (draw_it) {
 
                   if (false)
-                     std::cout << "draw_objects() " << obj.mesh.name
+                     std::cout << "DEBUG:: draw_generic_objects() " << obj.mesh.name
 			       << " is_instanced: " << obj.mesh.is_instanced << std::endl;
 
                   if (obj.mesh.is_instanced) {
                      if (false)
                         std::cout << "draw_generic_objects() draw_instanced() " << obj.mesh.name
                                   << " with shader " << shader_for_instanced_objects.name
+                                  << " with do_depth_fog " << do_depth_fog
+                                  << " with bg_col " << glm::to_string(bg_col)
                                   << " and pulsing should be on" << std::endl;
-                     int pass_type = PASS_TYPE_STANDARD;
 		     // obj.mesh.debug_mode = true;
                      obj.mesh.draw_instanced(pass_type, &shader_for_instanced_objects, eye, mvp, model_rotation,
                                              lights, eye_position, bg_col,
@@ -194,6 +196,8 @@ graphics_info_t::draw_generic_objects(unsigned int pass_type, stereo_eye_t eye) 
                         obj.mesh.draw(&shader_for_lines, eye, mvp, model_rotation, lights, eye_position, rc, opacity,
                                       bg_col, obj.wireframe_mode, do_depth_fog, show_just_shadows);
                      } else {
+                        if (false)
+                           std::cout << "DEBUG:: draw() with do_depth_fog " << do_depth_fog << std::endl;
                         obj.mesh.draw(&shader, eye, mvp, model_rotation, lights, eye_position, rc, opacity,
                                       bg_col, obj.wireframe_mode, do_depth_fog, show_just_shadows);
                      }

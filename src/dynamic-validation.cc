@@ -56,10 +56,10 @@ void update_dynamic_validation_for_molecule(int imol) {
 
    // only update if dynamic validation was being displayed already.
 
-   // does main_window_ramchandran_and_validation_pane exist today? I can't find it.
+   // does main_window_ramachandran_and_validation_pane exist today? I can't find it.
    // If not, what does this function do?
    //
-   GtkWidget* pane_1 = widget_from_builder("main_window_ramchandran_and_validation_pane");
+   GtkWidget* pane_1 = widget_from_builder("main_window_ramachandran_and_validation_pane");
    GtkWidget* vbox_2 = widget_from_builder("validation_boxes_vbox");
    GtkWidget *vbox_1  = widget_from_builder("dynamic_validation_outliers_vbox");
 
@@ -68,7 +68,7 @@ void update_dynamic_validation_for_molecule(int imol) {
       if (gtk_widget_get_visible(pane_1)) {
          overlaps_peptides_cbeta_ramas_and_rotas_internal(imol);
       } else {
-         std::cout << "ERROR:: pane main_window_ramchandran_and_validation_pane not found " << std::endl;
+         std::cout << "ERROR:: pane main_window_ramachandran_and_validation_pane not found " << std::endl;
       }
    }
 }
@@ -174,7 +174,7 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
       return 0.5 * (p1 + p2);
    };
 
-   GtkWidget *pane_to_show  = widget_from_builder("main_window_ramchandran_and_validation_pane");
+   GtkWidget *pane_to_show  = widget_from_builder("main_window_ramachandran_and_validation_pane");
    gtk_widget_set_visible(pane_to_show,  TRUE);
    GtkWidget *pane  = widget_from_builder("main_window_graphics_rama_vs_graphics_pane");
 
@@ -658,7 +658,7 @@ void phenix_geo_validation_buttons(int imol,
       return (r1.first < r2.first);
    };
 
-   GtkWidget *pane_to_show = widget_from_builder("main_window_ramchandran_and_validation_pane");
+   GtkWidget *pane_to_show = widget_from_builder("main_window_ramachandran_and_validation_pane");
    gtk_widget_set_visible(pane_to_show, TRUE);
    GtkWidget *pane = widget_from_builder("main_window_graphics_rama_vs_graphics_pane");
 

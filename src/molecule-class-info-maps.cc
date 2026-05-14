@@ -36,6 +36,8 @@
 
 // For stat, mkdir:
 #include <iomanip> // for std::setw
+#include <set>
+#include "coot-utils/map-cap.hh"
 
 // is this a C++11 thing?
 #include <functional> // std::ref() for GCC C++11 (not clang)
@@ -1025,6 +1027,7 @@ molecule_class_info_t::post_process_map_triangles() {
 
 }
 
+//  remove shader from this call
 void
 molecule_class_info_t::setup_map_cap(Shader *shader_p,
                                      const clipper::Coord_orth &base_point, // Bring it into this class.
@@ -1038,25 +1041,42 @@ molecule_class_info_t::setup_map_cap(Shader *shader_p,
    // this line is completely vital! - But do I want gtk_gl_area_attach_buffers(gl_area) ?
    //
    gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glareas[0]));
+   graphics_info_t::attach_buffers();
 
-   GLenum err = glGetError(); if (err) std::cout << "error in setup_map_cap() -- start -- " << err << std::endl;
-   std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > map_cap =
-      make_map_cap(base_point, x_axis_uv, y_axis_uv, x_axis_step_size, y_axis_step_size,
-                   n_x_axis_points, n_y_axis_points);
+   GLenum err = glGetError();
+   if (err) std::cout << "error in setup_map_cap() -- start -- " << err << std::endl;
 
-   shader_p->Use();
+   // Build the 3D isosurface vertices/triangles from draw_vector_sets
+   std::vector<coot::api::vnc_vertex> iso_vertices;
+   std::vector<g_triangle> iso_triangles;
+   for (auto it = draw_vector_sets.begin(); it != draw_vector_sets.end(); ++it) {
+      const coot::density_contour_triangles_container_t &tri_con(*it);
+      unsigned int idx_base = iso_vertices.size();
+      for (unsigned int i = 0; i < tri_con.points.size(); i++) {
+         glm::vec3 pos(tri_con.points[i].x(), tri_con.points[i].y(), tri_con.points[i].z());
+         glm::vec3 normal(tri_con.normals[i].x(), tri_con.normals[i].y(), tri_con.normals[i].z());
+         glm::vec4 col(0.5, 0.5, 0.5, 1.0);
+         iso_vertices.push_back(coot::api::vnc_vertex(pos, normal, col));
+      }
+      for (unsigned int i = 0; i < tri_con.point_indices.size(); i++) {
+         g_triangle t(tri_con.point_indices[i].pointID[0] + idx_base,
+                      tri_con.point_indices[i].pointID[1] + idx_base,
+                      tri_con.point_indices[i].pointID[2] + idx_base);
+         iso_triangles.push_back(t);
+      }
+   }
+
+   coot::simple_mesh_t cap_mesh = coot::make_map_cap_mesh(xmap, contour_level,
+                                                           base_point, x_axis_uv, y_axis_uv,
+                                                           x_axis_step_size, y_axis_step_size,
+                                                           n_x_axis_points, n_y_axis_points,
+                                                           iso_vertices, iso_triangles);
+
+   Mesh gm_cap("map-cap", cap_mesh);
+   gm_cap.set_draw_mesh_state(true);
+   gm_cap.setup_buffers();
    Material material;
-
-   // What was I trying to do here?
-   // graphical_molecule gm;
-   // graphical_molecule gm_cap(map_cap.first, map_cap.second);
-   // gm.setup_simple_triangles(shader_p, material);
-   // graphical_molecules.push_back(gm);
-   // graphical_molecules.push_back(gm_cap);
-
-   Mesh gm_cap(map_cap);
    meshes.push_back(gm_cap);
-   // meshes.back().setup(shader_p, material); 20210910-PE
    meshes.back().setup(material);
 
 }
@@ -1102,8 +1122,11 @@ molecule_class_info_t::make_map_mesh() {
          g_triangle t(tri_con.point_indices[i].pointID[0] + idx_base,
                       tri_con.point_indices[i].pointID[1] + idx_base,
                       tri_con.point_indices[i].pointID[2] + idx_base);
-         if (triangles.size() < 10000)
-            triangles.push_back(t);
+         // 20260414-PE why is this limit here?
+         if (false)
+            if (triangles.size() < 10000)
+               triangles.push_back(t);
+         triangles.push_back(t);
       }
    }
    return vp;
@@ -2437,7 +2460,16 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
          // Now set is_em_map_cached_flag and set the rotation centres.
          // I think that we only need set the is_em_map_cached_flag.
          //
-         if (done != coot::util::slurp_map_result_t::OK) {
+         if (done == coot::util::slurp_map_result_t::OK) {
+            em = true;
+            if (imol_no == 0) {
+               clipper::Cell c = xmap.cell();
+               coot::Cartesian m(0.5*c.descr().a(), 0.5*c.descr().b(), 0.5*c.descr().c());
+               graphics_info_t g;
+               logger.log(log_t::INFO, "setRotationCentre", m.x(), m.y(), m.z());
+               g.setRotationCentre(m);
+            }
+         } else {
             if (is_gzip) {
                em = true;
                is_em_map_cached_flag = 1; // short int
@@ -2470,6 +2502,8 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
                }
             }
          }
+      } else {
+         // std::cout << "debug:: Here ---------------------- non-slurpable map" << std::endl;
       }
 
       if (done != coot::util::slurp_map_result_t::OK) {
@@ -2512,32 +2546,20 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
                // std::cout << "INFO:: created NX Map with grid " << nxmap.grid().format() << std::endl;
                logger.log(log_t::INFO, "created NX Map with grid", nxmap.grid().format());
             }
+            file.close_read();
          } catch (const clipper::Message_base &exc) {
             std::cout << "WARNING:: failed to open " << filename << std::endl;
             bad_read = true;
          }
 
-         std::pair<bool, coot::Cartesian> new_centre(false, coot::Cartesian(0,0,0)); // used only for first EM map
-
-         if (em) {
-
-            // If this was the first map, recentre to the middle of the cell
-            //
-            if (imol_no == 0) {
-               clipper::Cell c = file.cell();
-               coot::Cartesian m(0.5*c.descr().a(), 0.5*c.descr().b(), 0.5*c.descr().c());
-               new_centre.first = true;
-               new_centre.second = m;
-               // std::cout << "INFO:: map appears to be EM map."<< std::endl;
-               logger.log(log_t::INFO, "map appears to be an EM map");
-            }
-            // std::cout << "INFO:: closing CCP4 map file: " << filename << std::endl;
-            file.close_read();
-
-            if (new_centre.first) {
-               graphics_info_t g;
-               g.setRotationCentre(new_centre.second);
-            }
+         // If this was the first map, recentre to the middle of the cell
+         // (matches the slurpable-EM-map path above).
+         if (!bad_read && imol_no == 0) {
+            clipper::Cell c = xmap.cell();
+            coot::Cartesian m(0.5*c.descr().a(), 0.5*c.descr().b(), 0.5*c.descr().c());
+            graphics_info_t g;
+            logger.log(log_t::INFO, "setRotationCentre", m.x(), m.y(), m.z());
+            g.setRotationCentre(m);
          }
       }
 

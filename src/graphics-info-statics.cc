@@ -24,6 +24,7 @@
  *
  */
 
+#include "Material.hh"
 #ifdef USE_PYTHON
 #include "Python.h"
 #endif
@@ -197,6 +198,7 @@ int    graphics_info_t::y_is_pressed = 0 ;       // false
 int    graphics_info_t::z_is_pressed = 0 ;       // false
 std::pair<double, double> graphics_info_t::mouse_begin         = std::pair<double, double> (0,0);
 std::pair<double, double> graphics_info_t::mouse_clicked_begin = std::pair<double, double> (0,0);
+std::pair<double, double> graphics_info_t::label_press_position = std::pair<double, double> (-100,-100);
 float  graphics_info_t::rotation_centre_x = 0.0;
 float  graphics_info_t::rotation_centre_y = 0.0;
 float  graphics_info_t::rotation_centre_z = 0.0;
@@ -859,6 +861,8 @@ short int graphics_info_t::do_probe_dots_post_refine_flag = 0;
 coot::Cartesian graphics_info_t::probe_dots_on_chis_molprobity_centre = coot::Cartesian(0.0, 0.0, 0.0);
 float graphics_info_t::probe_dots_on_chis_molprobity_radius = 6.0;
 bool graphics_info_t::do_coot_probe_dots_during_refine_flag = false;
+bool graphics_info_t::show_atom_overlaps_flag = false;
+GtkWidget *graphics_info_t::atom_overlaps_toggle_button = nullptr;
 
 float grey_level = 0.24;
 float norm_255 = 1.0/255.0;
@@ -1873,3 +1877,6 @@ std::pair<bool, std::string> graphics_info_t::servalcat_fofc    = std::pair<bool
 std::pair<bool, std::string> graphics_info_t::servalcat_refine  = std::pair<bool, std::string> (false, "");
 
 std::string graphics_info_t::current_alt_conf = "";
+
+Material graphics_info_t::default_material_for_maps;
+

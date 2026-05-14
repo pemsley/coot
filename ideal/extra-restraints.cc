@@ -841,6 +841,8 @@ void
 coot::extra_restraints_t::delete_restraints_for_residue(const residue_spec_t &rs) {
 
    bond_restraints.erase(std::remove(bond_restraints.begin(), bond_restraints.end(), rs), bond_restraints.end());
+   geman_mcclure_restraints.erase(std::remove(geman_mcclure_restraints.begin(), geman_mcclure_restraints.end(), rs),
+                                  geman_mcclure_restraints.end());
 }
 
 bool

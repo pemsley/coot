@@ -49,6 +49,8 @@ struct _CootSequenceView {
    int imol;
    mmdb::Manager *mol;
    std::vector<sv3_box_info_t> box_info_store;
+   bool has_active_residue;
+   coot::residue_spec_t active_residue_spec;
 };
 
 static guint sequence_view_residue_clicked_signal;
@@ -90,11 +92,25 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
       bool min_max_was_set = false;
       for (int ichain=0; ichain<n_chains; ichain++) {
          mmdb::Chain *chain_p = model_p->GetChain(ichain);
+
+#if 0
+         // if we do this, then we can't navigate to ligands and waters.
+         //
          std::pair<bool, std::pair<int, int> > min_max_for_chain = coot::util::min_max_residues_in_polymer_chain(chain_p);
          if (min_max_for_chain.first) {
             min_max_was_set = true;
             if (min_max_for_chain.second.first  < min_max.first)  min_max.first  = min_max_for_chain.second.first;
             if (min_max_for_chain.second.second > min_max.second) min_max.second = min_max_for_chain.second.second;
+         }
+#endif
+         std::pair<bool, int> mmin = coot::util::min_resno_in_chain(chain_p);
+         std::pair<bool, int> mmax = coot::util::max_resno_in_chain(chain_p);
+         if (mmin.first) {
+            if (mmax.first) {
+               if (mmin.second < min_max.first)  min_max.first  = mmin.second;
+               if (mmax.second > min_max.second) min_max.second = mmax.second;
+               min_max_was_set = true;
+            }
          }
       }
       return std::pair<bool, std::pair<int, int> > (min_max_was_set, min_max);
@@ -106,7 +122,7 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
       int s5 = mm.second/5;
       int s = s5 * 5;
       if (f > mm.first)  f -= 5;
-      if (s < mm.second) f += 5;
+      if (s < mm.second) s += 5;
       return std::pair<int, int>(f, s);
    };
 
@@ -248,6 +264,16 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
                   float y_1 = y_offset;
                   sv3_box_info_t box_info(self->imol, residue_p, x_1, y_1);
                   self->box_info_store.push_back(box_info);
+                  if (self->has_active_residue) {
+                     coot::residue_spec_t this_spec(residue_p);
+                     if (this_spec == self->active_residue_spec) {
+                        cairo_save(cairo_canvas);
+                        cairo_set_source_rgba(cairo_canvas, 0.7, 0.7, 0.4, 0.55);
+                        cairo_rectangle(cairo_canvas, x_1, y_1, RESIDUE_BOX_WIDTH, RESIDUE_BOX_HEIGHT);
+                        cairo_fill(cairo_canvas);
+                        cairo_restore(cairo_canvas);
+                     }
+                  }
                   add_box_letter_code_label(cairo_canvas, residue_p, text_colour, x_1, y_1);
                }
             }
@@ -303,6 +329,7 @@ void on_sequence_view_left_click(GtkGestureClick* gesture_click,
 
 static void coot_sequence_view_init(CootSequenceView* self) {
 
+   self->has_active_residue = false;
    gtk_widget_set_has_tooltip(GTK_WIDGET(self),TRUE);
    g_signal_connect(self, "query-tooltip", G_CALLBACK(sequence_view_query_tooltip), NULL);
 
@@ -355,11 +382,12 @@ void coot_sequence_view_measure(GtkWidget      *widget,
       std::pair<int, int> min_max(10000, -10000);
       for (int ichain=0; ichain<n_chains; ichain++) {
          mmdb::Chain *chain_p = model_p->GetChain(ichain);
-         std::pair<bool, std::pair<int, int> > mm = coot::util::min_max_residues_in_polymer_chain(chain_p);
-         if (mm.first) {
+         std::pair<bool, int> mmin = coot::util::min_resno_in_chain(chain_p);
+         std::pair<bool, int> mmax = coot::util::max_resno_in_chain(chain_p);
+         if (mmin.first && mmax.first) {
             min_max_is_set = true;
-            if (mm.second.first  < min_max.first)  min_max.first  = mm.second.first;
-            if (mm.second.second > min_max.second) min_max.second = mm.second.second;
+            if (mmin.second < min_max.first)  min_max.first  = mmin.second;
+            if (mmax.second > min_max.second) min_max.second = mmax.second;
          }
       }
       if (min_max_is_set) {
@@ -482,5 +510,27 @@ void coot_sequence_view_set_structure(CootSequenceView* self, int imol, mmdb::Ma
    self->imol = imol;
    self->mol = mol;
 
+}
+
+void coot_sequence_view_set_active_residue(CootSequenceView* self, const coot::residue_spec_t &spec) {
+
+   bool changed = false;
+   if (!self->has_active_residue) {
+      changed = true;
+   } else if (!(self->active_residue_spec == spec)) {
+      changed = true;
+   }
+   self->has_active_residue = true;
+   self->active_residue_spec = spec;
+   if (changed)
+      gtk_widget_queue_draw(GTK_WIDGET(self));
+}
+
+void coot_sequence_view_clear_active_residue(CootSequenceView* self) {
+
+   if (self->has_active_residue) {
+      self->has_active_residue = false;
+      gtk_widget_queue_draw(GTK_WIDGET(self));
+   }
 }
 

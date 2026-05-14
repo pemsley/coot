@@ -31,6 +31,10 @@ get_all_sources() {
     getboost
     getgraphene
     getsigcpp
+    getgemmi
+    getmaeparser
+    getcoordgen
+    geteigen
 }
 
 get_all_sources

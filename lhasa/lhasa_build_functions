@@ -37,12 +37,14 @@ fail() {
 # Cmake build dir for Lhasa itself
 : "${LHASA_CMAKE_BUILD_DIR:=${LHASA_MAIN_DIR}/lhbuild}"
 
-if [ x`uname -s` = x"Darwin" ]; then
-    NUMPROCS=`sysctl -n hw.ncpu`
-else
-    NUMPROCS=`nproc --all`
+if [ -z "$NUMPROCS" ]; then
+  if [ x`uname -s` = x"Darwin" ]; then
+      NUMPROCS=`sysctl -n hw.ncpu`
+  else
+      NUMPROCS=`nproc --all`
+  fi
 fi
-
+  
 cdcheckout() {
     mkdir -p "$DEPENDENCY_DIR" &&\
     cd "$DEPENDENCY_DIR" || fail "Failed to enter/setup the directory withd dependencies."
@@ -116,6 +118,66 @@ getboost() {
         echo "Checking out boost"
         curl -fL https://github.com/boostorg/boost/releases/download/boost-$boost_release/boost-$boost_release-cmake.tar.gz -o boost_$boost_release.tar.gz || fail "Failed to download boost source"
         tar xf boost_$boost_release.tar.gz || fail "Failed to unpack boost source"
+    fi
+    echo
+}
+
+getgemmi() {
+    cdcheckout
+    if [ -r gemmi-$gemmi_release ]; then
+        echo "Using existing gemmi"
+    else
+        echo "Downloading gemmi source"
+        curl -fL https://github.com/project-gemmi/gemmi/archive/refs/tags/v$gemmi_release.tar.gz -o gemmi_$gemmi_release.tar.gz || fail "Failed to download gemmi source"
+        echo
+        echo "Unpacking gemmi source"
+        tar xf "gemmi_$gemmi_release.tar.gz" || fail "Failed to unpack gemmi source"
+        echo
+        echo "Patching gemmi..."
+        cd gemmi-$gemmi_release &&\
+        patch -p1 < "$LHASA_MAIN_DIR/patches/gemmi-emscripten-64.patch" || fail "Failed to patch gemmi"
+    fi
+    echo
+}
+
+getmaeparser() {
+    cdcheckout
+    if [ -r maeparser-$maeparser_release ]; then
+        echo "Using existing maeparser"
+    else
+        echo "Downloading maeparser source"
+        curl -fL https://github.com/schrodinger/maeparser/archive/refs/tags/v$maeparser_release.tar.gz -o maeparser_$maeparser_release.tar.gz || fail "Failed to download maeparser source"
+        echo
+        echo "Unpacking maeparser source"
+        tar xf "maeparser_$maeparser_release.tar.gz" || fail "Failed to unpack maeparser source"
+    fi
+    echo
+}
+
+getcoordgen() {
+    cdcheckout
+    if [ -r coordgenlibs-$coordgen_release ]; then
+        echo "Using existing coordgen"
+    else
+        echo "Downloading coordgen source"
+        curl -fL https://github.com/schrodinger/coordgenlibs/archive/refs/tags/v$coordgen_release.tar.gz -o coordgen_$coordgen_release.tar.gz || fail "Failed to download coordgen source"
+        echo
+        echo "Unpacking coordgen source"
+        tar xf "coordgen_$coordgen_release.tar.gz" || fail "Failed to unpack coordgen source"
+    fi
+    echo
+}
+
+geteigen() {
+    cdcheckout
+    if [ -r eigen-$eigen_release ]; then
+        echo "Using existing eigen"
+    else
+        echo "Downloading Eigen source"
+        curl -fL https://gitlab.com/libeigen/eigen/-/archive/$eigen_release/eigen-$eigen_release.tar.gz -o eigen_$eigen_release.tar.gz || fail "Failed to download Eigen source"
+        echo
+        echo "Unpacking Eigen source"
+        tar xf "eigen_$eigen_release.tar.gz" || fail "Failed to unpack Eigen source"
     fi
     echo
 }

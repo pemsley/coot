@@ -402,7 +402,7 @@ I did most of this work with
 
 ### Acknowledgements
 
-I was inspired by Alexis Rouhou's work with MCP and ChimeraX and by
+I was inspired by Alexis Rohou's work with MCP and ChimeraX and by
 Martin Noble's Claude enthusiasm to buy a Claude subscription
 for myself shortly before Christmas 2025.
 

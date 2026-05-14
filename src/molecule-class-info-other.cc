@@ -3127,8 +3127,7 @@ molecule_class_info_t::add_OXT_to_residue(mmdb::Residue *residue,
 
             atom_sel = make_asc(atom_sel.mol);
             have_unsaved_changes_flag = 1;
-            std::set<int> dummy;
-            makebonds(geom_p, dummy); // not type checked, so that we can see the atom.
+            make_bonds_type_checked(__FUNCTION__);
             istatus = 1;
             std::cout << "Added OXT at " << new_oxt_atom << std::endl;
          }

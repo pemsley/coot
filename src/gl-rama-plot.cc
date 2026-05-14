@@ -278,6 +278,41 @@ gl_rama_plot_t::update_hud_tmeshes(const std::map<coot::residue_spec_t, rama_plo
 
 
 void
+gl_rama_plot_t::set_current_residue(const coot::residue_spec_t &spec) {
+
+   if (!hud_tmesh_for_current_residue_p) return;
+   auto it = phi_psi_map.find(spec);
+   if (it != phi_psi_map.end()) {
+      float sf = rama_plot_scale * 0.23;
+      float ff = -0.5 * rama_plot_scale + 0.9;
+      float phi = it->second.phi;
+      float psi = it->second.psi;
+      while (phi >  180.0f) phi -= 360.0f;
+      while (phi < -180.0f) phi += 360.0f;
+      while (psi >  180.0f) psi -= 360.0f;
+      while (psi < -180.0f) psi += 360.0f;
+      glm::vec2 pos(sf * phi, sf * psi);
+      glm::vec2 offset(-ff, -ff);
+      float marker_scale = 0.018f;
+      float normal_scale = 0.012f;
+      float ratio = normal_scale / marker_scale;
+      glm::vec2 current_residue_scales(marker_scale, marker_scale);
+      hud_tmesh_for_current_residue_p->set_scales(current_residue_scales);
+      hud_tmesh_for_current_residue_p->set_position(offset);
+      std::vector<glm::vec2> positions = { pos * ratio };
+      hud_tmesh_for_current_residue_p->update_instancing_buffer_data(positions);
+      have_current_residue_marker = true;
+   } else {
+      clear_current_residue();
+   }
+}
+
+void
+gl_rama_plot_t::clear_current_residue() {
+   have_current_residue_marker = false;
+}
+
+void
 gl_rama_plot_t::init() {
 
    rama_plot_scale = 0.8;
@@ -497,6 +532,13 @@ gl_rama_plot_t::setup_buffers(float rama_plot_scale_in) {
 
    hud_mesh_for_axes_and_ticks.update_instancing_buffer_data(bars);
 
+   // current residue marker
+   hud_tmesh_for_current_residue_p = new HUDTextureMesh("hud_tmesh_for_current_residue");
+   hud_tmesh_for_current_residue_p->setup_quad();
+   hud_tmesh_for_current_residue_p->setup_instancing_buffers(1);
+   texture_for_current_residue_p = new Texture();
+   texture_for_current_residue_p->init("current-residue-phi-psi.png");
+
 }
 
 std::pair<glm::vec2, glm::vec2>
@@ -695,6 +737,14 @@ gl_rama_plot_t::draw(Shader *shader_for_rama_plot_axes_and_ticks_p,
    hud_tmesh_for_gly_outlier.set_window_resize_scales_correction(munged_scales);
    hud_tmesh_for_gly_outlier.draw_instances(shader_for_rama_plot_phi_psis_markers_p);
    err = glGetError(); if (err) std::cout << "GL ERROR:: gl_rama_plot_t::draw() J error " << err << std::endl;
+
+   if (have_current_residue_marker && hud_tmesh_for_current_residue_p && texture_for_current_residue_p) {
+      texture_for_current_residue_p->Bind(0);
+      hud_tmesh_for_current_residue_p->set_window_resize_position_correction(munged_position_offset * glm::vec2(10,10));
+      hud_tmesh_for_current_residue_p->set_window_resize_scales_correction(munged_scales);
+      hud_tmesh_for_current_residue_p->draw_instances(shader_for_rama_plot_phi_psis_markers_p);
+      err = glGetError(); if (err) std::cout << "GL ERROR:: gl_rama_plot_t::draw() K error " << err << std::endl;
+   }
 
    glDisable(GL_BLEND);
    // glDisable(GL_DEPTH_TEST);

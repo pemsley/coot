@@ -26,7 +26,7 @@ dnl
 dnl Process this file with autoconf to produce a configure script.
 
 
-AC_INIT([coot],[1.2.x-pre])
+AC_INIT([coot],[1.3])
 AC_CONFIG_SRCDIR(src/main.cc)
 AM_INIT_AUTOMAKE
 
@@ -389,6 +389,9 @@ else
    RDKIT_CXXFLAGS="-I$rdkit_install_dir/include/rdkit -DRDKIT_HAS_CAIRO_SUPPORT"
 fi
 
+PKG_CHECK_MODULES([EIGEN3], [eigen3],
+   [RDKIT_CXXFLAGS="$RDKIT_CXXFLAGS $EIGEN3_CFLAGS"],
+   [AC_MSG_ERROR([eigen3 not found via pkg-config])])
 
 # test here for presence of coordgen in the RDKit.
 # To clarify, this is not related to how to configure Coot, it is related to how the RDKit was configured (and linked).
@@ -607,6 +610,7 @@ high-res/Makefile
 cootaneer/Makefile
 cootilus/Makefile
 greg-tests/Makefile
+graphs/Makefile
 python-tests/Makefile
 lidia-core/Makefile
 doc/Makefile

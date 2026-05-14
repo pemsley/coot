@@ -254,7 +254,10 @@ namespace coot {
          const double &b = abcd[1];
          const double &c = abcd[2];
          const double &d = abcd[3];
-         double top = a * pt.x() + b * pt.y() + c * pt.z() + d;
+         // plane equation is a*x + b*y + c*z - d = 0 (see the constructor and
+         // plane_deviation() - so the signed distance from pt to the plane is
+         // (a*px + b*py + c*pz - d) / sqrt(a^2 + b^2 + c^2).
+         double top = a * pt.x() + b * pt.y() + c * pt.z() - d;
          double bot = a * a + b * b + c * c;
          double f = top / bot;
          double x_p = pt.x() - a * f;

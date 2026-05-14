@@ -438,7 +438,7 @@ molecule_class_info_t::fill_ghost_info(short int do_rtops_flag,
             std::cout << "   " << ifc << ": " << first_chain_of_this_type[ifc] << " ";
          }
          std::cout << std::endl;
-         std::cout << "DEBUG:: calling add_ncs_ghosts_no_explicit_master() with chain_ids: ";
+         std::cout << "DEBUG:: :::::::::: calling add_ncs_ghosts_no_explicit_master() with chain_ids: ";
          for (unsigned int ich=0; ich<chain_ids.size(); ich++) {
             std::cout << chain_ids[ich] << " ";
          }
@@ -453,14 +453,16 @@ molecule_class_info_t::fill_ghost_info(short int do_rtops_flag,
          update_ghosts();
          // std::cout << "  INFO:: fill_ghost_info Constructed " << ncs_ghosts.size() << " ghosts\n";
          int n_ghosts = ncs_ghosts.size();
-         logger.log(log_t::INFO, std::string("Constructed"), std::to_string(n_ghosts),
-                    std::string("ghosts"));
+         logger.log(log_t::INFO, logging::function_name_t("fill_ghost_info"),
+               std::string("Constructed"), std::to_string(n_ghosts), std::string("ghosts"));
          for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
             // std::cout << "      Ghost " << ighost << " name: \"" << ncs_ghosts[ighost].name
             // << "\"" << std::endl;
             std::string name = "\"" + ncs_ghosts[ighost].name + "\"";
             logger.log(log_t::INFO, "     Ghost index:", std::to_string(ighost), "name", name);
          }
+      } else {
+         logger.log(log_t::DEBUG, logging::function_name_t("fill_ghost_info"), "ncs_ghosts was empty");
       }
    }
    return ncs_ghosts.size();
@@ -476,8 +478,8 @@ molecule_class_info_t::add_ncs_ghosts_no_explicit_master(const std::vector<std::
                                                          bool allow_offset_flag) {
 
    // debug input
-   if (false) {
-      std::cout << " in add_ncs_ghosts_no_explicit_master() ncs chain_ids are ";
+   if (true) {
+      std::cout << "DEBUG:: in add_ncs_ghosts_no_explicit_master() ncs chain_ids are ";
       for (unsigned int i=0; i<chain_ids.size(); i++) {
          std::cout << ":" << chain_ids[i] << ": ";
       }
