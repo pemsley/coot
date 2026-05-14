@@ -130,8 +130,12 @@ framebuffer::reset_test(int width, int height) {
 
 framebuffer::~framebuffer() {
 
-   // std::cout << "--- framebuffer destructor - deleting framebuffer and textures \"" << name << "\"" << std::endl;
-   tear_down();
+   // std::cout << "--- framebuffer destructor - deleting framebuffer and textures \""
+   // << name << "\"" << std::endl;
+
+   // 20260514-PE don't do this - it can cause crash on glDeleteFramebuffers() if the GL
+   //             context has already gone. Needs a better fix.
+   // tear_down();
 }
 
 void
