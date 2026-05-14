@@ -948,6 +948,7 @@ bool DeleteTool::on_molecule_click(MoleculeClickContext& ctx) {
         return false;
     } else {
         // Regular R-chain deletion mode
+        RDKit::MolOps::Kekulize(*ctx.rdkit_mol.get());
         return true;
     }
 }
