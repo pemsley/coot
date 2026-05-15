@@ -1988,9 +1988,8 @@ void update_go_to_atom_from_current_position() {
                                              atom_spec.atom_name.c_str());
       update_go_to_atom_window_on_other_molecule_chosen(pp.second.first);
 
-      graphics_info_t g;
-      std::cout << "if sequence view is displayed update highlighted position here A " << std::endl;
-      // now run a graphics_info_t function.
+      // 2026-05-15-PE note to self
+      // set_rotation_centre() updates the sequence view. Don't do it here
 
    }
 }
