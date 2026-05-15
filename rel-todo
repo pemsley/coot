@@ -1,17 +1,14 @@
 --- Items ---
 
-o Look at Open ADMET, avoidome
-
-o MUST DO before release: Test reduce.cc output.
-* Coot seems OK/normal. I guess that the new code
-  was in a branch that was not merged.
-
-o Does AIZynthFinder do anything useful for us?
-* It is a tool for retrosynthetic planning. So, yes, it will do.
+o Try the PTM interface again, with minimal dictionary.
 
 o Blog post for "light mode" coot
 
+o put pathology plots into chapi.
+
 o rotate/translate of an atom selects the whole residue
+
+o RRAATSS!
 
 o Future: map caps in shader for maps (not maps.shader) by
   looking at the dot product (used for diffuse)
@@ -19,16 +16,8 @@ o Future: map caps in shader for maps (not maps.shader) by
 o moorhen: use atom selection //A/1-30 and "colorRampChains"
   there it selects the whole molecule and ignores the user seletion
 
-o test base pairing restraints for SB.
-* They work.
-
-o fix the map caps so that they are the other way around.
-* Done.
-
 o try making xmap_dummy a non-static non-pointer - if it's even needed
   in api.
-
-o Add Hiranuma Inversion to the Cryo-EM menu (can I have a tooltip?)
 
 o Lucrezia: does mask by chain work? In moorhen
 
@@ -44,8 +33,6 @@ Read 63 atoms/links in restraints from /Users/pemsley/Projects/coot/git/coot-mai
 
 o DACA
 
-o put pathology plots into chapi.
-
 o ccpem: angular distribution of orientations in moorhen
 
 o ccpem: map model fsc - coot and libcootapi
@@ -58,7 +45,23 @@ o ccpem: think about rotating a helix in 'proportial editing'
 
 o ccpem: helices as curvy cylinders - add to moleculestotriangles
 
-o rotate/translate of an atom selects the whole residue
+o MUST DO before release: Test reduce.cc output.
+* Coot seems OK/normal. I guess that the new code
+  was in a branch that was not merged.
+
+o Look at Open ADMET, avoidome
+
+o Add Hiranuma Inversion to the Cryo-EM menu (can I have a tooltip?)
+* Done.
+
+o test base pairing restraints for SB.
+* They work.
+
+o fix the map caps so that they are the other way around.
+* Done.
+
+o Does AIZynthFinder do anything useful for us?
+* It is a tool for retrosynthetic planning. So, yes, it will do.
 
 o Lucrezia: does --dictionary-with-mol work?
 * Fixed.
