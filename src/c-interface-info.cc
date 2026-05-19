@@ -70,6 +70,7 @@
 
 #include "skeleton/BuildCas.h"
 #include "ligand/primitive-chi-angles.hh"
+#include "validation-graphs/sequence-view-widget.hh"
 
 #include "c-interface.h"
 #include "c-interface-gtk-widgets.h"
@@ -1988,17 +1989,49 @@ void update_go_to_atom_from_current_position() {
                                              atom_spec.atom_name.c_str());
       update_go_to_atom_window_on_other_molecule_chosen(pp.second.first);
 
-      // 2026-05-15-PE note to self
-      // set_rotation_centre() updates the sequence view. Don't do it here
-
+      graphics_info_t g;
+      coot::residue_spec_t active_res_spec(atom_spec);
+      GtkWidget *seq_view_box = widget_from_builder("main_window_sequence_view_box");
+      if (seq_view_box) {
+         GtkWidget *item = gtk_widget_get_first_child(seq_view_box);
+         while (item) {
+            int imol_overlay = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item), "imol"));
+            GtkWidget *sv = GTK_WIDGET(g_object_get_data(G_OBJECT(item), "coot-sequence-view"));
+            if (sv) {
+               if (imol_overlay == imol)
+                  coot_sequence_view_set_active_residue(COOT_COOT_SEQUENCE_VIEW(sv), active_res_spec);
+               else
+                  coot_sequence_view_clear_active_residue(COOT_COOT_SEQUENCE_VIEW(sv));
+            }
+            item = gtk_widget_get_next_sibling(item);
+         }
+      }
    }
 }
 
 void
 update_sequence_view_current_position_highlight_from_active_atom() {
 
-   std::cout << "if sequence view is displayed update highlighted position here B " << std::endl;
-   // now run a graphics_info_t function.
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      coot::residue_spec_t active_res_spec(pp.second.second);
+      GtkWidget *seq_view_box = widget_from_builder("main_window_sequence_view_box");
+      if (seq_view_box) {
+         GtkWidget *item = gtk_widget_get_first_child(seq_view_box);
+         while (item) {
+            int imol_overlay = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item), "imol"));
+            GtkWidget *sv = GTK_WIDGET(g_object_get_data(G_OBJECT(item), "coot-sequence-view"));
+            if (sv) {
+               if (imol_overlay == imol)
+                  coot_sequence_view_set_active_residue(COOT_COOT_SEQUENCE_VIEW(sv), active_res_spec);
+               else
+                  coot_sequence_view_clear_active_residue(COOT_COOT_SEQUENCE_VIEW(sv));
+            }
+            item = gtk_widget_get_next_sibling(item);
+         }
+      }
+   }
 }
 
 
