@@ -474,7 +474,7 @@ else
     AC_LANG_POP
     AC_MSG_RESULT(yes)
     AC_SUBST(GEMMI_CXXFLAGS)
-    AC_SUBST(GEMMI_LIBS, "-L$withval/lib -lgemmi_cpp")
+    AC_SUBST(GEMMI_LIBS, "-L$withval/lib64 -lgemmi_cpp")
 fi
 
 # 20090613 We need to be able to determine the build type, and embed
