@@ -3826,11 +3826,12 @@ fi
 ############################### eigen ##########################################
 
 eigen_version=3.3.9
+build_eigen=true
 if [ -e $install_top_dir/include/eigen3 ] ; then
    build_eigen=false
 fi
 
-if [ $build_eigen = false ] ; then
+if [ "$build_eigen" = false ] ; then
    echo eigen3 is installed
    echo eigen3 is installed >&2
 else
