@@ -1,14 +1,27 @@
---- Items ---
+--- Items---
 
 o Try the PTM interface again, with minimal dictionary.
+
+o Get RRAATTSS added to Coot.
+
+o OAR and OQR look the same in RDKit depiction from restraints
+  They should not, there is a chirality issue.
+
+o goograph to modern GTK4?
+
+o get the "icon" start working on macOS - needs work on multi-resolution icon.
+
+o move the lights.
+
+o import gesamt into libcootapi. Do soon.
+
+o What does Ctrl-Scroll do? How about binding it to bond width?
 
 o Blog post for "light mode" coot
 
 o put pathology plots into chapi.
 
 o rotate/translate of an atom selects the whole residue
-
-o RRAATSS!
 
 o Future: map caps in shader for maps (not maps.shader) by
   looking at the dot product (used for diffuse)
@@ -20,6 +33,8 @@ o try making xmap_dummy a non-static non-pointer - if it's even needed
   in api.
 
 o Lucrezia: does mask by chain work? In moorhen
+
+o dig out the bone shaped cross-section for Easter?
 
 o it would be better if the view change on copy-fragment went to the right zoom and was smooth.
 
@@ -34,6 +49,16 @@ Read 63 atoms/links in restraints from /Users/pemsley/Projects/coot/git/coot-mai
 o DACA
 
 o ccpem: angular distribution of orientations in moorhen
+
+o the validate -> ramachandran plot should be an overlay
+
+o add a setting which will mean that quick-save and end session save
+  files are written to the local directory. Derek Logan
+
+o model-fragment.map is a good example of how the translation
+  in jiggle-fit should work but doesn't.
+
+o ccpem: angular distribution of particle orientations in moorhen
 
 o ccpem: map model fsc - coot and libcootapi
 
@@ -54,11 +79,16 @@ o Look at Open ADMET, avoidome
 o Add Hiranuma Inversion to the Cryo-EM menu (can I have a tooltip?)
 * Done.
 
+o Add Hiranuma Inversion to the Cryo-EM menu (can I have a tooltip?)
+* Done
+
 o test base pairing restraints for SB.
 * They work.
 
 o fix the map caps so that they are the other way around.
 * Done.
+
+o Look at Open ADMET, avoidome
 
 o Does AIZynthFinder do anything useful for us?
 * It is a tool for retrosynthetic planning. So, yes, it will do.
@@ -116,8 +146,6 @@ o Update sequence view on mutation, deletion and addition or renumber
 o zoom drag, lift shift, continue drag -> jump
 * Done.
 
-o goograph to modern GTK4?
-
 o Longer term: Add key-binding to labels? Or hoverovers?
 
 o Longer term: Add a search bar c.f. Ctrl-Shift-P: or the search bar in GNOME.
@@ -166,8 +194,6 @@ o the refinment setting frames needs to correctly set the menu items.
 
 o delete symmetry waters
 * Done.
-
-o get the "icon" start working on macOS - needs work on multi-resolution icon.
 
 o sequence view (standard window) now says
 (MacCoot:20788): Gtk-WARNING **: 14:28:21.825: Trying to measure GtkBox 0x125ed4200 for width of 560, but it needs at least 600
@@ -221,8 +247,6 @@ o Geometry and Density fit correlation are calculated on the
 o get structure from accession code, no focus
   so "U" doesn't work.
 
-o dig out the bone shaped cross-section for Easter?
-
 o proportial editing, with chain-based selection for
   rotation. Rotation is not proportional.
 
@@ -248,11 +272,6 @@ o how do I add mailing list chat to claude knowledge?
 
 o Sort out startup script locations
 * Done.
-
-o the validate -> ramachandran plot should be an overlay
-
-o model-fragment.map is a good example of how the translation
-  in jiggle-fit should work but doesn't.
 
 o double click in the solvent for a cryo-em map
   It is not looking at the contour level?
@@ -310,9 +329,6 @@ o reverse molecule to string in chapi
 o add get_h_bonds() to the Coot api (c.f molecules-container.hh)
   export to python directly, i.e. make get_hydrogen_bonds_py()
 
-o OAR and OQR look the same in RDKit depiction from restraints
-  They should not, there is a chirality issue.
-
 o remove gaussian_surface_to_map_molecule_v2() in chapi.
 
 o Clemens: make a GEMMI script that describes the
@@ -321,7 +337,7 @@ o Clemens: make a GEMMI script that describes the
 
 o fix updating NBCs during refinement
 
-o tom - cryodragon latent space data? 
+o tom - cryodragon latent space data?
   Also trajectories from dynamics
 
 o particle picking for moorhen? Use CPU code
@@ -363,8 +379,6 @@ o on exit:
   ccp4_shutdown() to write files into pre-defined directory.
 
 o can we add items to the File menu?
-
-o import gesamt into libcootapi. Do soon.
 
 o XDG bernie. Need to move where curlew packages are installed.
 
@@ -833,24 +847,13 @@ o Errington 2024
 o shader: for clipped bonds and atoms (c.f. normal) try skip
   rather than black(ish)
 
-o add that the carbonyl oxgen is rotated in the documenation for
-  flip peptide.
-
 o ctrl click refine drag atom in molten zone
 
->>>>>>> Stashed changes
 o Fit loop dialog too wide
 * Checked, I don't see where the width is set.
 
 o Rama plot doesn't label residue
-=======
 * Done.
-
-o Rama plot doesn't label residue 
-
-o add a setting which will mean that quick-save and end session save
-  files are written to the local directory. Derek Logan
->>>>>>> Stashed changes
 
 o what should coot say on loading a key-binding?
   What happens if there is a python error on reading
@@ -896,8 +899,6 @@ o about dialog should give date and commit for a pre-release
 o make sure you can edit chi on test30_0 structure, multi-carbo-coot-3.pdb
 
 o make better docs for rsr-functions and add them to the coot.i file
-
-o fix documenation for all_molecule_ramachandran_score_py()
 
 o J: add CUDA version of FFT and therefore sharpen/blur
 
@@ -1243,9 +1244,6 @@ o check chemistry - extra hydrogen atom when making a link.
 
 o does "make mask" have a place in the GUI in Coot?
 
-o where did we get to with alt conf colouring or selection (in Coot)
-  e.g. untangle chalenge challenge. Look at alt-conf-switcher.py
-
 o make some inchi keys for the G* dictionaries. Using my parser and making
   rdkit molecules - do they match the inchi keys from the wwwPDB CCD?
 * Done. Good progress
@@ -1494,9 +1492,6 @@ o Atom sphere radius depends on B-factor - proportional to cube root maybe?
 
 o draw 9c1h with molecular symmetry colouring :: 1
   turn on set_colour_by_ncs_chain(imol, 1)
-
-o "Proportional editing" molecule rotation :: 2
-  Actually "fragment" rotation makes more sense.
 
 o try texture atlas for text - make a new test app from scratch :: 4
 
