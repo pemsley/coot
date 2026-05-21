@@ -1890,6 +1890,10 @@ else
    fi
 fi
 
+
+# eigen3.pc lives in $prfx/share/pkgconfig - great.
+PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$install_top_dir/share/pkgconfig
+
 if [ -e /opt/X11/lib/pkgconfig ] ; then
     PKG_CONFIG_PATH=/opt/X11/lib/pkgconfig:$PKG_CONFIG_PATH
 fi
@@ -3828,6 +3832,7 @@ fi
 eigen_version=3.3.9
 build_eigen=true
 if [ -e $install_top_dir/include/eigen3 ] ; then
+   echo debug:: $install_top_dir/include/eigen3 exists so setting build_eigen false
    build_eigen=false
 fi
 

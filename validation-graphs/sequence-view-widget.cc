@@ -434,9 +434,8 @@ void coot_sequence_view_measure(GtkWidget      *widget,
    case GTK_ORIENTATION_VERTICAL:
       {
          int n_chains = n_res_and_n_chains.second;
-         if (n_chains > 10) n_chains = 10;
          float h_pixels = n_chains * Y_OFFSET_PER_CHAIN + Y_OFFSET_BASE + 60;
-         *minimum_size = 100;
+         *minimum_size = h_pixels;
          *natural_size = h_pixels;
          break;
       }

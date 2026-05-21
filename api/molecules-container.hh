@@ -830,12 +830,12 @@ public:
    //! Get a monomer for a particular molecule
    //!
    //! @param comp_id is the 3-letter code for the residue/ligand, e.g. "ALA" for alanine
-   //! @param imol is the model molecule index, use -999999 (IMOL_ENC_ANY) if no molecule-specific dictionary is needed
+   //! @param imol_enc is the model molecule index, use -999999 (IMOL_ENC_ANY) if no molecule-specific dictionary is needed
    //! @param idealised_flag means that the coordinates have been minimised with a molecular modelling minimisation algo,
    //!        usually the value is True
    //!
    //! @return the new molecule index on success and -1 on failure
-   int get_monomer_from_dictionary(const std::string &comp_id, int imol, bool idealised_flag);
+   int get_monomer_from_dictionary(const std::string &comp_id, int imol_enc, bool idealised_flag);
 
    //! Get monomer and place it at the given position for a particular molecule
    //!
