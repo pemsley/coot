@@ -17903,7 +17903,7 @@ distances more than:</property>
 
   <object class="GtkDialog" id="superpose_dialog">
     <property name="title" translatable="yes">Coot: SSM Superpose</property>
-    <property name="default-width">400</property>
+    <!-- <property name="default-width">400</property> -->
     <child>
       <object class="GtkBox" id="superpose_vbox_internal">
         <property name="orientation">vertical</property>
@@ -17914,10 +17914,10 @@ distances more than:</property>
             <property name="label" translatable="yes">Reference Structure</property>
             <property name="halign">center</property>
             <property name="valign">start</property>
-            <property name="margin-bottom">5</property>
-            <property name="margin-end">5</property>
-            <property name="margin-start">5</property>
-            <property name="margin-top">5</property>
+            <property name="margin-bottom">4</property>
+            <property name="margin-end">4</property>
+            <property name="margin-start">4</property>
+            <property name="margin-top">4</property>
             <child>
               <object class="GtkBox">
                 <property name="orientation">vertical</property>
@@ -17945,10 +17945,10 @@ distances more than:</property>
             <property name="label" translatable="yes">Moving Structure</property>
             <property name="halign">center</property>
             <property name="valign">start</property>
-            <property name="margin-bottom">5</property>
-            <property name="margin-end">5</property>
-            <property name="margin-start">5</property>
-            <property name="margin-top">5</property>
+            <property name="margin-bottom">4</property>
+            <property name="margin-end">4</property>
+            <property name="margin-start">4</property>
+            <property name="margin-top">4</property>
             <child>
               <object class="GtkBox">
                 <property name="orientation">vertical</property>
@@ -17988,11 +17988,11 @@ distances more than:</property>
         <child>
           <object class="GtkBox">
             <property name="orientation">horizontal</property>
-            <property name="spacing">6</property>
+            <property name="spacing">4</property>
             <property name="halign">end</property>
-            <property name="margin-end">6</property>
+            <property name="margin-end">4</property>
             <property name="margin-top">4</property>
-            <property name="margin-bottom">6</property>
+            <property name="margin-bottom">4</property>
             <property name="margin-start">4</property>
             <child>
               <object class="GtkButton" id="superpose_cancel_button">
