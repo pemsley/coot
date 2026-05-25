@@ -3897,6 +3897,9 @@ public:
 
    // -------------------------------- Blender Interface ---------------------------------------
 
+   // testing function
+   void test_function_on_torus(int imol, const std::string &cid);
+
    //! \name Functions for Blender Interface
 
    //! Function for Blender interface
