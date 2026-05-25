@@ -4214,11 +4214,16 @@ if [ "$build_rdkit" = true ] ; then
                # remove to see if this fixes the non-Darwin build.
                # -DCMAKE_STATIC_LINKER_FLAGS="$install_top_dir/lib/libintl.a"
 
+      # Bake $install_top_dir/lib into the RUNPATH of the installed RDKit libs.
+      # Without this, libRDKit*.so have empty RUNPATH and the loader can't find
+      # boost when coot pulls them in (DT_RUNPATH is not transitive).
       echo cmake \
                -DCMAKE_PREFIX_PATH=$install_top_dir \
                -DCatch2_DIR=$install_top_dir \
                -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python$python_version_extension$python_abiflags \
                $cmake_macosx_rpath \
+               -DCMAKE_INSTALL_RPATH=$install_top_dir/lib \
+               -DCMAKE_INSTALL_RPATH_USE_LINK_PATH=ON \
                -DPYTHON_EXECUTABLE=$install_top_dir/bin/python3 \
                -DPYTHON_LIBRARY=$install_top_dir/lib/python$python_version_extension/config-${python_version_extension}$python_abiflags-$python_arch/libpython$python_version_extension$python_abiflags.a \
                -DCMAKE_INSTALL_PREFIX=$install_top_dir \
@@ -4236,6 +4241,8 @@ if [ "$build_rdkit" = true ] ; then
                -DCatch2_DIR=$install_top_dir \
                -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python$python_version_extension$python_abiflags \
                $cmake_macosx_rpath \
+               -DCMAKE_INSTALL_RPATH=$install_top_dir/lib \
+               -DCMAKE_INSTALL_RPATH_USE_LINK_PATH=ON \
                -DPYTHON_EXECUTABLE=$install_top_dir/bin/python3 \
                -DPYTHON_LIBRARY=$install_top_dir/lib/python$python_version_extension/config-${python_version_extension}$python_abiflags-$python_arch/libpython$python_version_extension$python_abiflags.a \
                -DCMAKE_INSTALL_PREFIX=$install_top_dir \
