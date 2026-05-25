@@ -5905,6 +5905,11 @@ on_python_scripting_button(GtkToggleButton *togglebutton, gpointer user_data) {
    toggle_reveal_python_scripting_entry();
 }
 
+extern "C" G_MODULE_EXPORT
+void
+on_claude_ai_button_clicked(GtkButton *button, gpointer user_data) {
+   toggle_claude_ai_terminal();
+}
 
 extern "C" G_MODULE_EXPORT
 void
