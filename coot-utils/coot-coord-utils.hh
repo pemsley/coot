@@ -54,11 +54,6 @@
 
 #include "cis-peptide-info.hh"
 
-#include <gemmi/model.hpp>
-#include <gemmi/calculate.hpp>
-
-#include "coot-utils/json.hpp"
-using json = nlohmann::json;
 
 
 namespace coot {

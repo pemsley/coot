@@ -48,8 +48,6 @@
 #include "add-terminal-residue.hh"
 #include "molecules-container.hh"
 
-#include <gemmi/mmread.hpp>
-#include <gemmi/pdb.hpp>
 
 bool
 coot::molecule_t::is_valid_model_molecule() const {
