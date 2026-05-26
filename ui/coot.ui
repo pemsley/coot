@@ -1534,7 +1534,7 @@ Copyright 2023, 2024, 2025, 2026 Global Phasing Ltd.</property>
     <property name="license-type">lgpl-3-0</property>
     <property name="logo-icon-name">coot</property>
     <property name="program-name">Coot</property>
-    <property name="version">1.3</property>
+    <property name="version">1.3.1</property>
     <property name="website">https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot</property>
     <property name="website-label">The Coot Website</property>
     <signal name="close-request" handler="on_about_dialog_close_request"/>
@@ -6961,6 +6961,22 @@ Do you want to continue?
                           <property name="icon-name">python-logo</property>
                         </object>
                       </child>
+                    </object>
+                  </child>
+                </object>
+              </child>
+
+              <child>
+                <object class="GtkButton" id="claude_ai_button">
+                  <property name="visible">False</property>
+                  <property name="can-focus">0</property>
+                  <signal name="clicked" handler="on_claude_ai_button_clicked" swapped="no"/>
+                  <property name="margin-start">2</property>
+                  <property name="halign">end</property>
+                  <property name="tooltip-text">Toggle AI assistant terminal</property>
+                  <child>
+                    <object class="GtkLabel">
+                      <property name="label" translatable="yes">AI</property>
                     </object>
                   </child>
                 </object>

@@ -1570,6 +1570,9 @@ namespace coot {
 
       // ---------------------------------- blender --------------------------------------
 
+      simple_mesh_t get_test_function_on_surface_mesh(const std::string &cid,
+                                                      const ramachandrans_container_t &rc);
+
       blender_mesh_t blender_mesh;
       std::vector<float> get_vertices_for_blender() const;
       std::vector<int> get_triangles_for_blender() const;

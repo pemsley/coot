@@ -5557,15 +5557,13 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
    int col = 0;
 
    // Does this atom have an over-riding/user-defined colour?
-   // User-defined colours trump everything.
-   int idx_col_udd;
-   if (at->GetUDData(udd_user_defined_atom_colour_index_handle, idx_col_udd) == mmdb::UDDATA_Ok) {
-      // std::cout << "in atom_colour(): for atom " << at << " using user defined colour " << idx_col_udd << std::endl;
-
-      if (idx_col_udd == -1) { // -1 is a disaster, because bonds[col] is used downstream
-         // let's ignore udd_user_defined_atom_colour indices if they are -1.
-      } else {
-         return idx_col_udd;
+   // Only use user-defined colours when in a user-defined colouring mode.
+   if (bond_colour_type == coot::COLOUR_BY_USER_DEFINED_COLOURS) {
+      int idx_col_udd;
+      if (at->GetUDData(udd_user_defined_atom_colour_index_handle, idx_col_udd) == mmdb::UDDATA_Ok) {
+         if (idx_col_udd != -1) { // -1 is a disaster, because bonds[col] is used downstream
+            return idx_col_udd;
+         }
       }
    }
 
