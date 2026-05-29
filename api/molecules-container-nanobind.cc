@@ -714,6 +714,11 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::fit_to_map_by_random_jiggle_using_cid,
          nb::arg("imol"), nb::arg("cid"), nb::arg("n_trials"), nb::arg("translation_scale_factor"),
          get_docstring_from_xml("fit_to_map_by_random_jiggle_using_cid").c_str())
+    .def("fit_to_map_by_random_jiggle_with_blur_using_cid",
+         &molecules_container_t::fit_to_map_by_random_jiggle_with_blur_using_cid,
+         nb::arg("imol"), nb::arg("imol_map"), nb::arg("cid"), nb::arg("b_factor"),
+         nb::arg("n_trials"), nb::arg("translation_scale_factor"),
+         get_docstring_from_xml("fit_to_map_by_random_jiggle_with_blur_using_cid").c_str())
     .def("flip_peptide_using_cid",
          nb::overload_cast<int, const std::string&, const std::string&>(&molecules_container_t::flip_peptide_using_cid),
          get_docstring_from_xml("flip_peptide_using_cid").c_str())

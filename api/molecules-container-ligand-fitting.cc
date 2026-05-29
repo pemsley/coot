@@ -194,6 +194,33 @@ molecules_container_t::fit_ligand_right_here(int imol_protein, int imol_map, int
                   molecules.push_back(mm);
                   mol_list.push_back(imol_in_hope);
 
+                  // The ligand-fitting above only places the rigid (idealized) conformer by
+                  // eigenvector orientation, which typically gives a mediocre fit. Improve the
+                  // placement in place with a jiggle-fit (rigid-body) against the unmasked map.
+                  // We deliberately do NOT refine here: refinement is a separate user action
+                  // (the Refine button) - doing it for them would make that button appear to do
+                  // nothing.
+                  {
+                     std::string lig_cid;
+                     mmdb::Model *model_p = ligand_mol->GetModel(1);
+                     if (model_p) {
+                        mmdb::Chain *chain_p = model_p->GetChain(0);
+                        if (chain_p) {
+                           mmdb::Residue *residue_p = chain_p->GetResidue(0);
+                           if (residue_p)
+                              lig_cid = std::string("//") + chain_p->GetChainID() +
+                                        "/" + std::to_string(residue_p->GetSeqNum());
+                        }
+                     }
+                     if (! lig_cid.empty()) {
+                        float rmsd = molecules[imol_map].get_map_rmsd_approx();
+                        int   jiggle_n_trials = 5000;
+                        float jiggle_tf = 2.0;
+                        molecules[imol_in_hope].fit_to_map_by_random_jiggle_using_atom_selection(lig_cid, xmap, rmsd,
+                                                                                                 jiggle_n_trials, jiggle_tf);
+                     }
+                  }
+
                   if (false) {
                      std::string file_name = "debug.map";
                      clipper::Xmap<float> masked_map = wlig.masked_map();
@@ -291,28 +318,7 @@ molecules_container_t::fit_ligand(int imol_protein, int imol_map, int imol_ligan
                   wlig.install_ligand(ligand_mol);
                }
                clipper::Xmap<float> &xmap = molecules[imol_map].xmap;
-
-               {
-                  std::string map_file_name_1 = "molecules-container-fit-ligand-A.map";
-                  clipper::CCP4MAPfile mapout;
-                  mapout.open_write(map_file_name_1);
-                  mapout.export_xmap(xmap);
-                  mapout.close_write();
-               }
-
                wlig.import_map_from(xmap);
-
-               {
-                  std::string map_file_name_1 = "molecules-container-fit-ligand-B.map";
-                  clipper::CCP4MAPfile mapout;
-                  mapout.open_write(map_file_name_1);
-                  mapout.export_xmap(xmap);
-                  mapout.close_write();
-               }
-
-               {
-                  wlig.output_map("wlig.output_map.map");
-               }
 
                short int mask_waters_flag = true;
                wlig.set_map_atom_mask_radius(2.0);  // Angstroms

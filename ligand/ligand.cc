@@ -1314,15 +1314,18 @@ coot::ligand::calculate_cluster_centres_and_eigens() {
          mat(2,2) += (co.z() - mean_pos.z()) * (co.z() - mean_pos.z());
       }
       std::vector<double> eigens = mat.eigen(true);
-      // some jiggery pokery if the mat now has a negative determinant.
+      // Make the eigenvector matrix a proper rotation (det +1) if needed. Negate a
+      // column (i.e. flip that eigenvector's direction - eigenvectors are sign-ambiguous)
+      // rather than swapping columns 1 and 2. Swapping reorders the eigenvalues out of
+      // the ascending order that mat.eigen(true) produced, which then no longer matches
+      // the ligand eigenframe (which is also ascending - see initial_ligand_eigenvectors).
+      // That mismatch put the ligand's long axis onto the blob's middle axis. Negating a
+      // column preserves the ascending eigenvalue order so the two frames align axis-for-axis.
       clipper::Mat33<double> m33 = mat33(mat);
-      double determinant = m33.det();
-      if (determinant < 0) {
-         // we need to swap the 1 and 2th rows [leave 0th row - the top]
-         // std::cout << "DEBUG:: negative determinant in eigen matrix, swapping columns!\n";
-         for (int q = 0; q < 3; q++ )
-            clipper::Util::swap(m33(q, 1), m33(q, 2));
-         clipper::Util::swap(eigens[1], eigens[2]);
+      if (m33.det() < 0) {
+         m33(0,2) = -m33(0,2);
+         m33(1,2) = -m33(1,2);
+         m33(2,2) = -m33(2,2);
       }
       cluster[i].eigenvectors_and_centre = clipper::RTop_orth(m33, mean_pos);
       cluster[i].eigenvalues = eigens;
@@ -1885,9 +1888,6 @@ coot::ligand::fit_ligands_to_clusters(int max_n_clusters) {
 void
 coot::ligand::fit_ligands_to_cluster(int iclust) {
 
-   std::cout << "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA here in fit_ligands_to_cluster() " << std::endl;
-
-   // for debugging
    write_orientation_solutions = 0;
    bool debug = false;
 
@@ -2030,8 +2030,9 @@ coot::ligand::fit_ligands_to_cluster(int iclust) {
                                          }
                                       }
                                    } else {
-                                      std::cout << "ligand " << ilig << " FAILS the size match test " << "for cluster number "
-                                                << iclust << std::endl;
+                                      if (debug)
+                                         std::cout << "ligand " << ilig << " FAILS the size match test " << "for cluster number "
+                                                   << iclust << std::endl;
                                    }
                                 };
 
@@ -2043,17 +2044,7 @@ coot::ligand::fit_ligands_to_cluster(int iclust) {
    // remember to add back the code for debugging solutions post-generation after multithreading
 
    unsigned int n_ligands = initial_ligand.size();
-   std::cout << "INFO:: fitting " << n_ligands << " ligands into cluster " << iclust << std::endl;   
-
-   if (true) {
-      if (! initial_ligand.empty()) {
-         std::vector<coot::minimol::atom *> atoms_p = initial_ligand[0].select_atoms_serial();
-         for (unsigned int iat=0; iat<atoms_p.size(); iat++) {
-            const auto &atom = *(atoms_p[iat]);
-            std::cout << "   inital ligand 0 " << atom.name << " " << atom.pos.format() << std::endl;
-         }
-      }
-   }
+   std::cout << "INFO:: fitting " << n_ligands << " ligands into cluster " << iclust << std::endl;
 
    std::vector<std::pair<minimol::molecule, ligand_score_card> > big_vector_of_results;
 
@@ -2066,15 +2057,12 @@ coot::ligand::fit_ligands_to_cluster(int iclust) {
    unsigned int n_batches = n_ligands / n_per_batch + 1;
    coot::split_indices(&indices, n_ligands, n_batches);
 
-   debug = true;   
-
    for (unsigned int ii=0; ii<indices.size(); ii++) {
       const std::vector<unsigned int> &ligand_indices = indices[ii];
       std::vector<std::thread> threads;
       for (unsigned int jj=0; jj<ligand_indices.size(); jj++) {
          const unsigned int &ilig = ligand_indices[jj];
          const minimol::molecule &ligand = initial_ligand[ilig];
-         std::cout << "thread " << ii << " "  << jj << std::endl;
          threads.push_back(std::thread(fit_ligand_to_cluster,
                                        ilig, iclust,
                                        std::cref(cluster[iclust]),
@@ -2098,19 +2086,13 @@ coot::ligand::fit_ligands_to_cluster(int iclust) {
    }
 
    if (write_orientation_solutions) {
-      // we no longer have access to i_eigen_ori or ior here, I think. Maybe they can be added to
-      // ligand_score_card?
-      // so that write_orientation_solution(mol) becomes a member function of ligand_score_card?
-      //
-      // old-function: write_orientation_solution(iclust, ilig, i_eigen_ori, ior, fitted_ligand_vec[ilig][iclust]);
-   }
-
-   if (true) {
-      std::cout << "----------------- big_vector_of_results: " << big_vector_of_results.size() << std::endl;
+      // Write each oriented + rigid-body-refined candidate solution to a file so the
+      // orientations that were tried can be inspected (one file per candidate; for a
+      // single cluster these are the eigen-orientation x sign-flip combinations).
       for (unsigned int i=0; i<big_vector_of_results.size(); i++) {
-         const minimol::molecule &mol = big_vector_of_results[i].first;
-         const ligand_score_card &lsc = big_vector_of_results[i].second;
-         std::cout << "mol " << i << " lsc: " << lsc.get_score() << std::endl;
+         std::string fn = "oriented-solution-clust-" + util::int_to_string(iclust) +
+                          "-" + util::int_to_string(i) + ".pdb";
+         big_vector_of_results[i].first.write_file(fn, 30.0);
       }
    }
 
