@@ -695,10 +695,12 @@ NB_MODULE(coot_headless_api, m) {
     .def("fit_ligand",
          &molecules_container_t::fit_ligand,
          nb::arg("imol_protein"), nb::arg("imol_map"), nb::arg("imol_ligand"), nb::arg("n_rmsd"), nb::arg("use_conformers"), nb::arg("n_conformers"),
+         nb::arg("eigen_orientation_search_mode") = 0,
          get_docstring_from_xml("fit_ligand").c_str())
     .def("fit_ligand_right_here",
          &molecules_container_t::fit_ligand_right_here,
          nb::arg("imol_protein"), nb::arg("imol_map"), nb::arg("imol_ligand"), nb::arg("x"), nb::arg("y"), nb::arg("z"), nb::arg("n_rmsd"), nb::arg("use_conformers"), nb::arg("n_conformers"),
+         nb::arg("eigen_orientation_search_mode") = 0,
          get_docstring_from_xml("fit_ligand_right_here").c_str())
     .def("fit_to_map_by_random_jiggle",
          &molecules_container_t::fit_to_map_by_random_jiggle,

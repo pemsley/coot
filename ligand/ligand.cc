@@ -170,6 +170,10 @@ coot::ligand::ligand() {
    origin_rotations.push_back(clipper::Mat33<double>(-1,0,0,0,1,0,0,0,-1)); // y rotation
    origin_rotations.push_back(clipper::Mat33<double>(-1,0,0,0,-1,0,0,0,1)); // z rotation
 
+   // The eigenvalues are sorted (see mat.eigen(true) in fitting), so by default we
+   // trust the axis order and only search the 4 origin_rotations (sign flips).
+   eigen_orientation_search_mode = EIGEN_ORI_SORTED;
+
    // To get the angle contributions, we need to find the vector
    // perpendicular to the vector that joins the rotation centre to
    // the atom position.  And we need that, in the plane corresponding
@@ -1811,6 +1815,47 @@ coot::operator<<(std::ostream &s, const coot::ligand_score_card &lsc) {
 
 
 
+// The axis-permutation orientations we try on top of the 4 origin_rotations
+// (the eigenvector sign flips). See eigen_orientation_search_mode_t.
+//
+std::vector<clipper::RTop_orth>
+coot::ligand::make_eigen_orientations() const {
+
+   const clipper::Coord_orth zero(0, 0, 0);
+
+   // identity
+   clipper::Mat33<double> no_rotation(1, 0, 0, 0, 1, 0, 0, 0, 1);
+
+   std::vector<clipper::RTop_orth> v;
+   v.push_back(clipper::RTop_orth(no_rotation, zero));
+
+   if (eigen_orientation_search_mode == EIGEN_ORI_SORTED)
+      return v; // identity only - trust the sorted eigenvalue order
+
+   if (eigen_orientation_search_mode == EIGEN_ORI_LEGACY) {
+      // The historical helix-placement set: two 90 degree rotations.
+      clipper::Mat33<double> y_axis_rotation(0, 0, -1, 0, 1,  0, 1, 0, 0);
+      clipper::Mat33<double> x_axis_rotation(1, 0,  0, 0, 0, -1, 0, 1, 0);
+      v.push_back(clipper::RTop_orth(y_axis_rotation, zero));
+      v.push_back(clipper::RTop_orth(x_axis_rotation, zero));
+      return v;
+   }
+
+   // EIGEN_ORI_FULL: 6 proper-rotation coset representatives of the sign-flip
+   // group (origin_rotations) in the chiral octahedral group. Together with the
+   // 4 origin_rotations these span all 24 signed axis permutations - the complete
+   // ambiguity when the eigenvalue order can't be trusted.
+   // Each induces a distinct permutation of the axes (the 6 elements of S3) and has
+   // det +1, so together they are one representative per coset of the sign-flip group.
+   v.push_back(clipper::RTop_orth(clipper::Mat33<double>(0, 0, -1, 0, 1,  0, 1, 0,  0), zero)); // swap x,z
+   v.push_back(clipper::RTop_orth(clipper::Mat33<double>(1, 0,  0, 0, 0, -1, 0, 1,  0), zero)); // swap y,z
+   v.push_back(clipper::RTop_orth(clipper::Mat33<double>(0, 1,  0, 0, 0,  1, 1, 0,  0), zero)); // cycle x->z->y
+   v.push_back(clipper::RTop_orth(clipper::Mat33<double>(0, 0,  1, 1, 0,  0, 0, 1,  0), zero)); // cycle x->y->z
+   v.push_back(clipper::RTop_orth(clipper::Mat33<double>(0, 1,  0, 1, 0,  0, 0, 0, -1), zero)); // swap x,y
+   return v;
+}
+
+
 // Externally accessible routine.
 //
 // Go down the cluster list, starting at biggest cluster fitting ligands
@@ -1840,6 +1885,8 @@ coot::ligand::fit_ligands_to_clusters(int max_n_clusters) {
 void
 coot::ligand::fit_ligands_to_cluster(int iclust) {
 
+   std::cout << "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA here in fit_ligands_to_cluster() " << std::endl;
+
    // for debugging
    write_orientation_solutions = 0;
    bool debug = false;
@@ -1848,18 +1895,9 @@ coot::ligand::fit_ligands_to_cluster(int iclust) {
 
    coot::ligand_score_card this_scorecard;
 
-   // Just like the helix algorithm, we search all eigenvectors.
-   clipper::Mat33<double> no_rotation    (1, 0,  0, 0, 1,  0, 0, 0, 1);
-   clipper::Mat33<double> y_axis_rotation(0, 0, -1, 0, 1,  0, 1, 0, 0);
-   clipper::Mat33<double> x_axis_rotation(1, 0,  0, 0, 0, -1, 0, 1, 0);
-   clipper::RTop_orth no_rotation_op(no_rotation, clipper::Coord_orth(0,0,0));
-   clipper::RTop_orth  y_axis_op(y_axis_rotation, clipper::Coord_orth(0,0,0));
-   clipper::RTop_orth  x_axis_op(x_axis_rotation, clipper::Coord_orth(0,0,0));
-
-   std::vector<clipper::RTop_orth> eigen_orientations;
-   eigen_orientations.push_back(no_rotation_op);
-   eigen_orientations.push_back(y_axis_op);
-   eigen_orientations.push_back(x_axis_op);
+   // The axis-permutation orientations to try (on top of the origin_rotations sign
+   // flips). Controlled by set_eigen_orientation_search_mode().
+   std::vector<clipper::RTop_orth> eigen_orientations = make_eigen_orientations();
 
    std::atomic<bool> results_lock(false);
    auto get_results_lock = [&results_lock] () {
@@ -1886,13 +1924,16 @@ coot::ligand::fit_ligands_to_cluster(int iclust) {
                                     const clipper::RTop_orth &cluster_rtop,
                                     const clipper::Mat33<double> &initial_ligand_eigenvector,
                                     const clipper::Coord_orth &initial_ligand_model_centre,
+                                    const clipper::Mat33<double> &eigen_orientation,
                                     const clipper::Mat33<double> &origin_rotation) {
                                    clipper::Coord_orth zero(0,0,0);
                                    clipper::RTop_orth ligand_op(initial_ligand_eigenvector, initial_ligand_model_centre);
                                    clipper::RTop_orth lopi(ligand_op.inverse());
+                                   clipper::RTop_orth eigen_orientation_op(eigen_orientation, zero);
                                    clipper::RTop_orth origin_rotation_op(origin_rotation, zero);
-                                   clipper::Coord_orth a = position.transform(lopi);
-                                   a = a.transform(origin_rotation_op);
+                                   clipper::Coord_orth a = position.transform(lopi);    // move to origin
+                                   a = a.transform(eigen_orientation_op);               // axis assignment
+                                   a = a.transform(origin_rotation_op);                 // eigenvector sign flip
                                    a = a.transform(cluster_rtop);
                                    return a;
                                 };
@@ -1903,6 +1944,7 @@ coot::ligand::fit_ligands_to_cluster(int iclust) {
                                                    const clipper::Mat33<double> &initial_ligand_eigenvector,
                                                    const clipper::Coord_orth &initial_ligand_model_centre,
                                                    const clipper::RTop_orth &eigen_orientation,
+                                                   const clipper::Mat33<double> &origin_rotation,
                                                    const clipper::Xmap<float> &xmap_masked,
                                                    const clipper::Xmap<float> &xmap_pristine,
                                                    const clipper::RTop_orth rotation_component[3],
@@ -1915,7 +1957,7 @@ coot::ligand::fit_ligands_to_cluster(int iclust) {
                              for(unsigned int ii=0; ii<atoms_p.size(); ii++)
                                 atoms_p[ii]->pos = transform_ligand_atom(atoms_p[ii]->pos, cluster.eigenvectors_and_centre,
                                                                          initial_ligand_eigenvector, initial_ligand_model_centre,
-                                                                         eigen_orientation.rot());
+                                                                         eigen_orientation.rot(), origin_rotation);
 
                              if (false) {
                                 std::cout << "initial_ligand_eigenvector:\n" << initial_ligand_eigenvector.format() << std::endl;
@@ -1964,14 +2006,12 @@ coot::ligand::fit_ligands_to_cluster(int iclust) {
                                          std::cout << "ligand " << ilig << " passes the size match test " << "for cluster number "
                                                    << iclust << std::endl;
 
-                                      int n_rot = origin_rotations.size();
-                                      int n_eigen_oris = 3;
+                                      int n_rot = origin_rotations.size();      // eigenvector sign flips (4)
+                                      int n_eigen_oris = eigen_orientations.size(); // axis permutations (mode-dependent)
                                       if (dont_test_rotations) {
                                          n_rot = 1;  // the first one is the identity matrix
                                          n_eigen_oris = 1;
                                       }
-
-                                      n_rot = 1; // all the rots give the same solution - I don't know why.
 
                                       for (int i_eigen_ori=0; i_eigen_ori<n_eigen_oris; i_eigen_ori++) {
                                          for (int ior=0; ior<n_rot; ior++) {
@@ -1980,6 +2020,7 @@ coot::ligand::fit_ligands_to_cluster(int iclust) {
                                                                initial_ligand_eigenvector,
                                                                initial_ligand_model_centre,
                                                                eigen_orientations[i_eigen_ori],
+                                                               origin_rotations[ior],
                                                                std::cref(xmap_masked),
                                                                std::cref(xmap_pristine),
                                                                rotation_component, gradient_scale);
@@ -1988,6 +2029,9 @@ coot::ligand::fit_ligands_to_cluster(int iclust) {
                                             release_results_lock();
                                          }
                                       }
+                                   } else {
+                                      std::cout << "ligand " << ilig << " FAILS the size match test " << "for cluster number "
+                                                << iclust << std::endl;
                                    }
                                 };
 
@@ -1999,9 +2043,9 @@ coot::ligand::fit_ligands_to_cluster(int iclust) {
    // remember to add back the code for debugging solutions post-generation after multithreading
 
    unsigned int n_ligands = initial_ligand.size();
-   // std::cout << "INFO:: fitting " << n_ligands << " ligands into cluster " << iclust << std::endl;
+   std::cout << "INFO:: fitting " << n_ligands << " ligands into cluster " << iclust << std::endl;   
 
-   if (false) {
+   if (true) {
       if (! initial_ligand.empty()) {
          std::vector<coot::minimol::atom *> atoms_p = initial_ligand[0].select_atoms_serial();
          for (unsigned int iat=0; iat<atoms_p.size(); iat++) {
@@ -2022,12 +2066,15 @@ coot::ligand::fit_ligands_to_cluster(int iclust) {
    unsigned int n_batches = n_ligands / n_per_batch + 1;
    coot::split_indices(&indices, n_ligands, n_batches);
 
+   debug = true;   
+
    for (unsigned int ii=0; ii<indices.size(); ii++) {
       const std::vector<unsigned int> &ligand_indices = indices[ii];
       std::vector<std::thread> threads;
       for (unsigned int jj=0; jj<ligand_indices.size(); jj++) {
          const unsigned int &ilig = ligand_indices[jj];
          const minimol::molecule &ligand = initial_ligand[ilig];
+         std::cout << "thread " << ii << " "  << jj << std::endl;
          threads.push_back(std::thread(fit_ligand_to_cluster,
                                        ilig, iclust,
                                        std::cref(cluster[iclust]),
@@ -2056,6 +2103,15 @@ coot::ligand::fit_ligands_to_cluster(int iclust) {
       // so that write_orientation_solution(mol) becomes a member function of ligand_score_card?
       //
       // old-function: write_orientation_solution(iclust, ilig, i_eigen_ori, ior, fitted_ligand_vec[ilig][iclust]);
+   }
+
+   if (true) {
+      std::cout << "----------------- big_vector_of_results: " << big_vector_of_results.size() << std::endl;
+      for (unsigned int i=0; i<big_vector_of_results.size(); i++) {
+         const minimol::molecule &mol = big_vector_of_results[i].first;
+         const ligand_score_card &lsc = big_vector_of_results[i].second;
+         std::cout << "mol " << i << " lsc: " << lsc.get_score() << std::endl;
+      }
    }
 
    final_ligand[iclust] = big_vector_of_results;
@@ -2162,20 +2218,12 @@ coot::ligand::score_and_resort_using_correlation(unsigned int iclust, unsigned i
 
    bool debug = false;
 
-//    #pragma omp parallel for
-//    for (unsigned int i=0; i<final_ligand[iclust].size(); i++) {
-//       usleep(int(100000 * float(util::random())/float(RAND_MAX)));
-//       std::cout << "   parallel i " << i << std::endl;
-//    }
-
    unsigned int n_ligs = final_ligand[iclust].size();
-
 
    if (debug)
       std::cout << "score_and_resort_using_correlation iclust: " << iclust << " n_ligs " << n_ligs
                 << " n_sol " << n_sol << std::endl;
 
-//    #pragma omp parallel for
    for (unsigned int i=0; i<n_ligs; i++) {
       if (i < n_sol) {
 

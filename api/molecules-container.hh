@@ -3575,10 +3575,15 @@ public:
    //! @param n_rmsd number of sd, e.g. 4.8
    //! @param use_conformers is True for flexible ligands
    //! @param n_conformers set the number of conformers
+   //! @param eigen_orientation_search_mode controls how many eigenvector orientations are tried per cluster:
+   //!        0 = sorted (identity only, fastest, the default - trusts the sorted eigenvalue axis order),
+   //!        1 = legacy (the historical helix orientation set),
+   //!        2 = full (all 24 signed axis permutations - use for near-degenerate shapes, e.g. flat rings or rods)
    //!
    //! @return a vector/list of indices of molecules for the best fitting ligands to this blob.
    std::vector<int> fit_ligand_right_here(int imol_protein, int imol_map, int imol_ligand, float x, float y, float z,
-                                          float n_rmsd, bool use_conformers, unsigned int n_conformers);
+                                          float n_rmsd, bool use_conformers, unsigned int n_conformers,
+                                          int eigen_orientation_search_mode = 0);
 
    //! Ligand Fitting
    //!
@@ -3606,10 +3611,15 @@ public:
    //! @param n_rmsd the number of sd used as a cut-off for the map level when finding clusters, e.g. 1.2
    //! @param use_conformers is True for flexible ligands
    //! @param n_conformers set the number of conformers
+   //! @param eigen_orientation_search_mode controls how many eigenvector orientations are tried per cluster:
+   //!        0 = sorted (identity only, fastest, the default - trusts the sorted eigenvalue axis order),
+   //!        1 = legacy (the historical helix orientation set),
+   //!        2 = full (all 24 signed axis permutations - use for near-degenerate shapes, e.g. flat rings or rods)
    //!
    //! @return a vector/list of interesting information about the fitted ligands
    std::vector<fit_ligand_info_t> fit_ligand(int imol_protein, int imol_map, int imol_ligand,
-                                             float n_rmsd, bool use_conformers, unsigned int n_conformers);
+                                             float n_rmsd, bool use_conformers, unsigned int n_conformers,
+                                             int eigen_orientation_search_mode = 0);
 
    //! Fit multiple ligands (place-holder)
    //!
