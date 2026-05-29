@@ -401,6 +401,7 @@ add_library(cootapi SHARED
             ${coot_src}/coot-utils/oct.cc
             ${coot_src}/coot-utils/read-amber-trajectory.cc
             ${coot_src}/coot-utils/shapes.cc
+            ${coot_src}/coot-utils/surface-on-torus.cc
             ${coot_src}/coot-utils/simple-mesh.cc
             ${coot_src}/coot-utils/gl-matrix.cc
             ${coot_src}/coot-utils/gl-matrix-eigensystem.cc

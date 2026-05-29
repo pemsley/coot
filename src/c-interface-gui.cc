@@ -1863,6 +1863,12 @@ void toggle_reveal_python_scripting_entry() {
 #endif
 }
 
+void toggle_claude_ai_terminal() {
+#ifdef HAVE_VTE
+   toggle_claude_vte_terminal_visibility();
+#endif
+}
+
 // We want to evaluate the string when we get a carriage return
 // in this entry widget
 void

@@ -6966,6 +6966,22 @@ Do you want to continue?
                 </object>
               </child>
 
+              <child>
+                <object class="GtkButton" id="claude_ai_button">
+                  <property name="visible">False</property>
+                  <property name="can-focus">0</property>
+                  <signal name="clicked" handler="on_claude_ai_button_clicked" swapped="no"/>
+                  <property name="margin-start">2</property>
+                  <property name="halign">end</property>
+                  <property name="tooltip-text">Toggle AI assistant terminal</property>
+                  <child>
+                    <object class="GtkLabel">
+                      <property name="label" translatable="yes">AI</property>
+                    </object>
+                  </child>
+                </object>
+              </child>
+
             </object>
           </child>
         </object>
