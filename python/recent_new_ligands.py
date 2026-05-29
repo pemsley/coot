@@ -89,10 +89,11 @@ def _pdbe_search_url(weeks_ago=0):
       "group.field": "pdb_id",
       "group.ngroups": "true",
    }
-   parts = [base + "?"]
-   for key, val in params.items():
-      parts.append(key + "=" + urllib.parse.quote(str(val), safe=",:-[] ") + "&")
-   return "".join(parts).rstrip("&")
+   # urlencode escapes everything correctly (spaces -> "+", ":" "[" "]" -> %XX).
+   # The previous hand-rolled version kept a space in the quote() safe-set, which
+   # left literal spaces in the URL and made urlopen reject it with
+   # "URL can't contain control characters".
+   return base + "?" + urllib.parse.urlencode(params)
 
 def _fetch_json(url):
    """Fetch and parse JSON from a URL. Returns dict or None."""
