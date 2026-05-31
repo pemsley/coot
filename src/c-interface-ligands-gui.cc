@@ -433,6 +433,32 @@ int fill_vbox_with_coords_options_by_dialog_name(GtkWidget *find_ligand_dialog,
 }
 
 
+// The "Conformer Options" frame is only relevant when conformers will be generated,
+// i.e. when at least one ligand has its "Flexible?" toggle on. Make the frame
+// sensitive only in that case.
+void update_find_ligand_conformer_frame_sensitivity() {
+
+   GtkWidget *grid  = widget_from_builder("find_ligands_select_ligands_grid");
+   GtkWidget *frame = widget_from_builder("ligand_conformers_frame");
+   if (! grid)  return;
+   if (! frame) return;
+
+   bool any_flexible = false;
+   for (GtkWidget *child = gtk_widget_get_first_child(grid);
+        child != nullptr;
+        child = gtk_widget_get_next_sibling(child)) {
+      if (g_object_get_data(G_OBJECT(child), "wligand_flexible_toggle")) {
+         if (GTK_IS_CHECK_BUTTON(child)) {
+            if (gtk_check_button_get_active(GTK_CHECK_BUTTON(child))) {
+               any_flexible = true;
+               break;
+            }
+         }
+      }
+   }
+   gtk_widget_set_sensitive(frame, any_flexible);
+}
+
 int fill_ligands_dialog_ligands_bits(GtkWidget *find_ligand_dialog) {
 
    int ifound = 0;
@@ -468,6 +494,14 @@ int fill_ligands_dialog_ligands_bits(GtkWidget *find_ligand_dialog) {
             std::string wligands_str("find_ligand_wligand_checkbutton_");
             wligands_str += g.int_to_string(imol);
             GtkWidget *find_ligand_wligands_checkbutton_imol = gtk_check_button_new_with_label("Flexible?");
+            // Tag it so update_find_ligand_conformer_frame_sensitivity() can find the
+            // flexible toggles, and recompute the Conformer Options sensitivity on toggle.
+            g_object_set_data(G_OBJECT(find_ligand_wligands_checkbutton_imol),
+                              "wligand_flexible_toggle", GINT_TO_POINTER(1));
+            g_signal_connect(find_ligand_wligands_checkbutton_imol, "toggled",
+                             G_CALLBACK(+[] (GtkCheckButton *b, gpointer) {
+                                update_find_ligand_conformer_frame_sensitivity();
+                             }), nullptr);
 
             // ligand molecule on/off check button
             //
@@ -490,6 +524,9 @@ int fill_ligands_dialog_ligands_bits(GtkWidget *find_ligand_dialog) {
 	      }
       }
    }
+   // Flexible toggles start off, so the Conformer Options frame starts insensitive.
+   update_find_ligand_conformer_frame_sensitivity();
+
    std::cout << "debug:: fill_ligands_dialog_ligands_bits returns " << ifound << std::endl;
    return ifound;
 }
