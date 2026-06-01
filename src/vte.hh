@@ -33,6 +33,10 @@ void setup_python_vte_terminal();
 void show_vte_terminal();
 void toggle_vte_terminal_visibility();
 
+void setup_claude_vte_terminal();
+void show_claude_vte_terminal();
+void toggle_claude_vte_terminal_visibility();
+
 #endif // HAVE_VTE
 
 #endif // VTE_HH

@@ -823,7 +823,7 @@ void emplacement_by_phaser(const std::string &half_map_1_file_name, const std::s
       // --d_min 3.0 --model_file test-frag-nano.pdb -..
       // --sphere_center 123 69 111
 
-      // std::filesystem::path script_dir = "/Users/pemsley/Applications/phenix-2.0-5936/lib/python3.9/site-packages/New_Voyager/scripts";
+      // this is not the right way to setup phenix.
       std::filesystem::path script_dir = plain_path("$PHENIX/lib/$PHENIX_PYTHON_VERSION/site-packages/New_Voyager/scripts");
       std::filesystem::path py_file_path = script_dir / "emplace_local.py";
       std::cout << "DEBUG:: py_file_path " << py_file_path << std::endl;
@@ -862,7 +862,7 @@ void emplacement_by_phaser(const std::string &half_map_1_file_name, const std::s
       std::cout << "WARNING:: " << em_placement_output_file_name << " exists and can't be moved"<< std::endl;
    } else {
       if (is_valid_model_molecule(imol_model)) {
-         em_placement_data_t *data_p = new em_placement_data_t(em_placement_output_file_name);
+         em_placement_data_t *data_p = new em_placement_data_t(em_placement_output_file_name, 0);
          std::string model_file_name = "input-model-for-emplacement.pdb";
          write_pdb_file(imol_model, model_file_name.c_str());
          std::thread thread(run_subprocess, half_map_1_file_name, half_map_2_file_name, model_file_name, search_centre);

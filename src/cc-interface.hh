@@ -3765,6 +3765,14 @@ PyObject *global_phasing_screen(int imol, PyObject *screen_dict);
 #endif
 
 
+/*! \brief Display a Ramachandran probability surface on a torus as a generic display object.
+ *
+ * R is the major radius (centre of tube to centre of torus),
+ * r is the minor radius (tube radius),
+ * height_scale controls the amplitude of the probability displacement.
+ * Returns the generic object index, or -1 on failure. */
+int show_ramachandran_surface_on_torus(float R, float r, float height_scale);
+
 #ifdef SWIG
 #else
 void positron_plot_internal(const std::string &fn_z_csv, const std::string &fn_s_csv,

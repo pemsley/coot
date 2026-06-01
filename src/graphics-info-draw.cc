@@ -3684,7 +3684,11 @@ graphics_info_t::draw_hud_geometry_bars() {
    int w = allocation.width;
    int h = allocation.height;
 
-   coot::refinement_results_t &rr = saved_dragged_refinement_results;
+   // Take a snapshot copy (not a reference): the refinement thread writes
+   // saved_dragged_refinement_results without a lock, so reading it by reference
+   // throughout this function races with that writer (its vectors can be
+   // reallocated mid-read). Copying once narrows that window to a single read.
+   coot::refinement_results_t rr = saved_dragged_refinement_results;
 
    // --------------------- first draw the text (labels) texture -----------------------
 
@@ -3996,9 +4000,16 @@ graphics_info_t::draw_hud_geometry_bars() {
 
    // std::cout << "in draw_hud_geometry_bars() " << new_bars.size() << std::endl;
    if (! new_bars.empty()) {
-      // std::cout << "new bar size " << new_bars.size() << std::endl;
-      mesh_for_hud_geometry.update_instancing_buffer_data(new_bars);
-      mesh_for_hud_geometry.draw(&shader_for_hud_geometry_bars);
+      // Defensive: don't issue the instanced draw if the GL state is already in
+      // error - drawing on a broken context is what was crashing inside the driver.
+      GLenum err_pre = glGetError();
+      if (err_pre != GL_NO_ERROR) {
+         std::cout << "WARNING:: draw_hud_geometry_bars(): pre-existing GL error "
+                   << err_pre << " - skipping the bars draw this frame" << std::endl;
+      } else {
+         mesh_for_hud_geometry.update_instancing_buffer_data(new_bars);
+         mesh_for_hud_geometry.draw(&shader_for_hud_geometry_bars);
+      }
    }
    glDisable(GL_BLEND);
 

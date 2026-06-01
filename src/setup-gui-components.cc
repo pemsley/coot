@@ -566,6 +566,9 @@ void setup_gui_components() {
    setup_accession_code_frame();
 #ifdef HAVE_VTE
    setup_python_vte_terminal();
+   // The Claude AI terminal is set up lazily (the first time the AI terminal is
+   // shown) so that it does not reparent the Python VTE into a notebook at
+   // startup - doing that here broke the Python terminal. See setup_claude_vte_terminal().
 #else
    setup_python_scripting_entry();
 #endif

@@ -314,12 +314,16 @@ class graphical_bonds_container {
       symmetry_bonds_ = NULL;
       atom_centres_ = NULL;
       atom_centres_colour_ = NULL;
-      if (n_zero_occ_spots) 
+      if (n_bad_CA_CA_dist_spots)
+	 delete [] bad_CA_CA_dist_spots_ptr;
+      if (n_zero_occ_spots)
 	 delete [] zero_occ_spots_ptr;
       if (n_deuterium_spots)
 	 delete [] deuterium_spots_ptr;
       if (n_ramachandran_goodness_spots)
 	 delete [] ramachandran_goodness_spots_ptr;
+      n_bad_CA_CA_dist_spots = 0;
+      bad_CA_CA_dist_spots_ptr = NULL;
       n_zero_occ_spots = 0;
       n_deuterium_spots = 0;
       n_ramachandran_goodness_spots = 0;

@@ -1821,15 +1821,21 @@ graphics_info_t::new_fill_combobox_with_coordinates_options(GtkWidget *combobox_
    gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(combobox_molecule), renderer, "text", 1, NULL);
    gtk_combo_box_set_model(GTK_COMBO_BOX(combobox_molecule), model);
 
+   // gtk_combo_box_set_active() takes the *row index* in the combobox, not the
+   // molecule number. They differ whenever there are gaps in the molecule list
+   // (maps, deleted molecules), which is why passing imol_active here used to fail
+   // to select the right item.
+   int active_row = -1;
    for (unsigned int ii=0; ii<molecule_indices.size(); ii++) {
-      const auto &imol = molecule_indices[ii];
-      const molecule_class_info_t &m = graphics_info_t::molecules[imol];
-      if (imol == imol_active) {
-         // 20220415-PE this doesn't work (for renumber residues - annoying)
-
-         gtk_combo_box_set_active(GTK_COMBO_BOX(combobox_molecule), imol_active);
+      if (molecule_indices[ii] == imol_active) {
+         active_row = ii;
+         break;
       }
    }
+   if (active_row < 0 && !molecule_indices.empty())
+      active_row = 0; // fall back to the first molecule
+   if (active_row >= 0)
+      gtk_combo_box_set_active(GTK_COMBO_BOX(combobox_molecule), active_row);
 
 
    if (callback_func)

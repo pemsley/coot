@@ -329,6 +329,13 @@ void on_sequence_view_left_click(GtkGestureClick* gesture_click,
 
 static void coot_sequence_view_init(CootSequenceView* self) {
 
+   // GObject zeroes the instance memory and does not run C++ constructors on
+   // our non-POD fields, so placement-new them here. Without this, the
+   // std::string inside active_residue_spec has a NULL _M_data() pointer and
+   // any assignment to it segfaults. Paired destruction lives in finalize.
+   new (&self->box_info_store) std::vector<sv3_box_info_t>();
+   new (&self->active_residue_spec) coot::residue_spec_t();
+
    self->has_active_residue = false;
    gtk_widget_set_has_tooltip(GTK_WIDGET(self),TRUE);
    g_signal_connect(self, "query-tooltip", G_CALLBACK(sequence_view_query_tooltip), NULL);
@@ -353,6 +360,16 @@ static void coot_sequence_view_dispose(GObject* _self) {
    // clean up self here
    self->box_info_store.clear();
    G_OBJECT_CLASS(coot_sequence_view_parent_class)->dispose(_self);
+}
+
+static void coot_sequence_view_finalize(GObject* _self) {
+   CootSequenceView* self = COOT_COOT_SEQUENCE_VIEW(_self);
+   // Counterpart to the placement-new in coot_sequence_view_init. finalize is
+   // called exactly once; dispose may be called more than once, which is why
+   // destruction lives here rather than there.
+   self->active_residue_spec.~residue_spec_t();
+   self->box_info_store.~vector();
+   G_OBJECT_CLASS(coot_sequence_view_parent_class)->finalize(_self);
 }
 
 
@@ -417,9 +434,8 @@ void coot_sequence_view_measure(GtkWidget      *widget,
    case GTK_ORIENTATION_VERTICAL:
       {
          int n_chains = n_res_and_n_chains.second;
-         if (n_chains > 10) n_chains = 10;
          float h_pixels = n_chains * Y_OFFSET_PER_CHAIN + Y_OFFSET_BASE + 60;
-         *minimum_size = 100;
+         *minimum_size = h_pixels;
          *natural_size = h_pixels;
          break;
       }
@@ -446,6 +462,7 @@ static void coot_sequence_view_class_init(CootSequenceViewClass* klass) {
     GTK_WIDGET_CLASS(klass)->snapshot = coot_sequence_view_snapshot;
     GTK_WIDGET_CLASS(klass)->measure  = coot_sequence_view_measure;
     G_OBJECT_CLASS(klass)->dispose    = coot_sequence_view_dispose;
+    G_OBJECT_CLASS(klass)->finalize   = coot_sequence_view_finalize;
 
 }
 

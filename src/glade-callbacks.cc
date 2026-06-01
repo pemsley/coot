@@ -5905,6 +5905,11 @@ on_python_scripting_button(GtkToggleButton *togglebutton, gpointer user_data) {
    toggle_reveal_python_scripting_entry();
 }
 
+extern "C" G_MODULE_EXPORT
+void
+on_claude_ai_button_clicked(GtkButton *button, gpointer user_data) {
+   toggle_claude_ai_terminal();
+}
 
 extern "C" G_MODULE_EXPORT
 void
@@ -7143,6 +7148,7 @@ on_first_startup_use_left_button_clicked(GtkButton       *button,
 
    preferences_internal_change_value_int(PREFERENCES_VIEW_ROTATION_MOUSE_BUTTON, 1);
    set_use_primary_mouse_button_for_view_rotation(1);
+   save_preferences(); // persist the choice immediately
 }
 
 extern "C" G_MODULE_EXPORT
@@ -7155,6 +7161,7 @@ on_first_startup_use_right_button_clicked(GtkButton       *button,
 
    preferences_internal_change_value_int(PREFERENCES_VIEW_ROTATION_MOUSE_BUTTON, 0);
    set_use_primary_mouse_button_for_view_rotation(0);
+   save_preferences(); // persist the choice immediately
 }
 
 extern "C" G_MODULE_EXPORT

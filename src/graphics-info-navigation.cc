@@ -451,6 +451,7 @@ graphics_info_t::intelligent_near_atom_centring(const std::string &direction) {
 
             std::cout << "if sequence view is displayed update highlighted position here C " << std::endl;
             run_post_set_rotation_centre_hook();
+            do_post_set_rotation_centre();
          }
       }
    }

@@ -6991,3 +6991,18 @@ molecules_container_t::get_pucker_analysis_info(int imol) const {
    return pai;
 }
 
+void
+molecules_container_t::test_function_on_torus(int imol, const std::string &cid) {
+
+   if (is_valid_model_molecule(imol)) {
+      coot::simple_mesh_t mesh = molecules[imol].get_test_function_on_surface_mesh(cid, ramachandrans_container);
+      if (! mesh.vertices.empty()) {
+         std::string fn = "test.gltf";
+         float roughness_factor = 0.7f;
+         float smoothness_factor = 0.7f;
+         bool use_binary_format = true;
+         mesh.export_to_gltf(fn, roughness_factor, smoothness_factor, use_binary_format);
+
+      }
+   }
+}

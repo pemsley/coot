@@ -1263,6 +1263,7 @@ graphics_info_t::setRotationCentre(coot::Cartesian new_centre, bool force_jump) 
    if (!already_here) {
       if (force_jump) {
          setRotationCentreSimple(new_centre);
+         do_post_set_rotation_centre();
          run_post_set_rotation_centre_hook();
       } else {
          if (graphics_info_t::smooth_scroll == 1) {
@@ -1273,6 +1274,7 @@ graphics_info_t::setRotationCentre(coot::Cartesian new_centre, bool force_jump) 
 
          if (needs_centre_jump)  {
             setRotationCentreSimple(new_centre);
+            do_post_set_rotation_centre();
             run_post_set_rotation_centre_hook();
          }
       }
@@ -1294,6 +1296,7 @@ graphics_info_t::setRotationCentreAndZoom(coot::Cartesian centre,
    rotation_centre_y = centre.get_y();
    rotation_centre_z = centre.get_z();
    zoom = target_zoom;
+   do_post_set_rotation_centre();
    run_post_set_rotation_centre_hook();
 }
 
@@ -1940,20 +1943,8 @@ graphics_info_t::run_post_manipulation_hook_py(int imol, int mode) {
 }
 #endif
 
-
 void
-graphics_info_t::run_post_set_rotation_centre_hook() {
-
-   // Don't run the post update hook at the moment.
-  // Python is not wired up (correctly)
-
-#if defined USE_GUILE
-   // run_post_set_rotation_centre_hook_scm();
-#endif // GUILE
-
-#ifdef USE_PYTHON
-   // run_post_set_rotation_centre_hook_py();
-#endif
+graphics_info_t::do_post_set_rotation_centre() {
 
    if (use_graphics_interface_flag) {
       std::pair<bool, std::pair<int, coot::atom_spec_t> > aa = active_atom_spec();
@@ -1967,6 +1958,7 @@ graphics_info_t::run_post_set_rotation_centre_hook() {
                int imol_overlay = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item), "imol"));
                GtkWidget *sv = GTK_WIDGET(g_object_get_data(G_OBJECT(item), "coot-sequence-view"));
                if (sv) {
+                  std::cout << "debug:: in while..... widget sv: " << sv << std::endl;
                   if (imol_overlay == imol_active) {
                      coot_sequence_view_set_active_residue(COOT_COOT_SEQUENCE_VIEW(sv), active_res_spec);
                   } else {
@@ -1997,6 +1989,22 @@ graphics_info_t::run_post_set_rotation_centre_hook() {
          }
       }
    }
+}
+
+void
+graphics_info_t::run_post_set_rotation_centre_hook() {
+
+   // Don't run the post update hook at the moment.
+  // Python is not wired up (correctly)
+
+#if defined USE_GUILE
+   // run_post_set_rotation_centre_hook_scm();
+#endif // GUILE
+
+#ifdef USE_PYTHON
+   // run_post_set_rotation_centre_hook_py();
+#endif
+
 }
 
 #ifdef USE_GUILE

@@ -492,6 +492,9 @@ class graphics_info_t {
 
    // void run_post_read_model_hook(int imol); // now public as it is called from handle_read_draw_molecule()
 
+   // things to do after setting the rotation centre.
+   void do_post_set_rotation_centre();
+
    void run_post_set_rotation_centre_hook();
    // which uses the following...
 #ifdef USE_GUILE

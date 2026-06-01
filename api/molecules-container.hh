@@ -830,12 +830,12 @@ public:
    //! Get a monomer for a particular molecule
    //!
    //! @param comp_id is the 3-letter code for the residue/ligand, e.g. "ALA" for alanine
-   //! @param imol is the model molecule index, use -999999 (IMOL_ENC_ANY) if no molecule-specific dictionary is needed
+   //! @param imol_enc is the model molecule index, use -999999 (IMOL_ENC_ANY) if no molecule-specific dictionary is needed
    //! @param idealised_flag means that the coordinates have been minimised with a molecular modelling minimisation algo,
    //!        usually the value is True
    //!
    //! @return the new molecule index on success and -1 on failure
-   int get_monomer_from_dictionary(const std::string &comp_id, int imol, bool idealised_flag);
+   int get_monomer_from_dictionary(const std::string &comp_id, int imol_enc, bool idealised_flag);
 
    //! Get monomer and place it at the given position for a particular molecule
    //!
@@ -3575,10 +3575,15 @@ public:
    //! @param n_rmsd number of sd, e.g. 4.8
    //! @param use_conformers is True for flexible ligands
    //! @param n_conformers set the number of conformers
+   //! @param eigen_orientation_search_mode controls how many eigenvector orientations are tried per cluster:
+   //!        0 = sorted (identity only, fastest, the default - trusts the sorted eigenvalue axis order),
+   //!        1 = legacy (the historical helix orientation set),
+   //!        2 = full (all 24 signed axis permutations - use for near-degenerate shapes, e.g. flat rings or rods)
    //!
    //! @return a vector/list of indices of molecules for the best fitting ligands to this blob.
    std::vector<int> fit_ligand_right_here(int imol_protein, int imol_map, int imol_ligand, float x, float y, float z,
-                                          float n_rmsd, bool use_conformers, unsigned int n_conformers);
+                                          float n_rmsd, bool use_conformers, unsigned int n_conformers,
+                                          int eigen_orientation_search_mode = 0);
 
    //! Ligand Fitting
    //!
@@ -3606,10 +3611,15 @@ public:
    //! @param n_rmsd the number of sd used as a cut-off for the map level when finding clusters, e.g. 1.2
    //! @param use_conformers is True for flexible ligands
    //! @param n_conformers set the number of conformers
+   //! @param eigen_orientation_search_mode controls how many eigenvector orientations are tried per cluster:
+   //!        0 = sorted (identity only, fastest, the default - trusts the sorted eigenvalue axis order),
+   //!        1 = legacy (the historical helix orientation set),
+   //!        2 = full (all 24 signed axis permutations - use for near-degenerate shapes, e.g. flat rings or rods)
    //!
    //! @return a vector/list of interesting information about the fitted ligands
    std::vector<fit_ligand_info_t> fit_ligand(int imol_protein, int imol_map, int imol_ligand,
-                                             float n_rmsd, bool use_conformers, unsigned int n_conformers);
+                                             float n_rmsd, bool use_conformers, unsigned int n_conformers,
+                                             int eigen_orientation_search_mode = 0);
 
    //! Fit multiple ligands (place-holder)
    //!
@@ -3896,6 +3906,9 @@ public:
 #endif
 
    // -------------------------------- Blender Interface ---------------------------------------
+
+   // testing function
+   void test_function_on_torus(int imol, const std::string &cid);
 
    //! \name Functions for Blender Interface
 

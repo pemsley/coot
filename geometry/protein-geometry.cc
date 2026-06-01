@@ -1622,7 +1622,7 @@ coot::protein_geometry::atoms_match_dictionary_bond_distance_check(mmdb::Residue
 }
 
 // return a pair, the first is status (1 if the name was found, 0 if not)
-// 
+//
 std::pair<bool, std::string>
 coot::protein_geometry::get_monomer_name(const std::string &comp_id, int imol_enc) const {
 
@@ -1632,13 +1632,13 @@ coot::protein_geometry::get_monomer_name(const std::string &comp_id, int imol_en
    std::pair<bool, dictionary_residue_restraints_t> rest =
       get_monomer_restraints_internal(comp_id, imol_enc, allow_minimal_flag);
 
-   if (rest.first) { 
+   if (rest.first) {
       r.first = true;
       std::string s = rest.second.residue_info.name;
       r.second = coot::util::remove_trailing_whitespace(s);
    }
    return r;
-} 
+}
 
 
 

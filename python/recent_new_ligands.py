@@ -89,10 +89,11 @@ def _pdbe_search_url(weeks_ago=0):
       "group.field": "pdb_id",
       "group.ngroups": "true",
    }
-   parts = [base + "?"]
-   for key, val in params.items():
-      parts.append(key + "=" + urllib.parse.quote(str(val), safe=",:-[] ") + "&")
-   return "".join(parts).rstrip("&")
+   # urlencode escapes everything correctly (spaces -> "+", ":" "[" "]" -> %XX).
+   # The previous hand-rolled version kept a space in the quote() safe-set, which
+   # left literal spaces in the URL and made urlopen reject it with
+   # "URL can't contain control characters".
+   return base + "?" + urllib.parse.urlencode(params)
 
 def _fetch_json(url):
    """Fetch and parse JSON from a URL. Returns dict or None."""
@@ -164,15 +165,76 @@ def _fetch_compound_details(comp_id):
       print("recent_new_ligands: failed to fetch details for {}: {}".format(comp_id, e))
    return None
 
+def _entries_in_release_url(weeks_ago):
+   """Build the PDBe Solr URL for entries released in a given week that have a
+   ligand of interest. Used for past weeks: the latest_chemistry document type
+   only holds the current release, so it has no history, but the main entry
+   index is queryable by release_date for any week."""
+   base = "https://www.ebi.ac.uk/pdbe/search/pdb/select"
+   start, end = _release_window(weeks_ago)
+   params = {
+      "q": "*:*",
+      "wt": "json",
+      "rows": "10000",
+      "fl": "pdb_id,ligand_of_interest,interacting_ligands",
+      "fq": [
+         "release_date:[{} TO {}]".format(_format_date_solr(start), _format_date_solr(end)),
+         "ligand_of_interest:[* TO *]",
+      ],
+   }
+   return base + "?" + urllib.parse.urlencode(params, doseq=True)
+
+def _collect_release_ligands(data):
+   """From an entries-in-release response, collect candidate ligands and the set
+   of entries released that week.
+   Returns (candidates, week_pdb_ids):
+     candidates   = {tlc: {"name": str, "pdb_ids": set([...])}}
+     week_pdb_ids = upper-case pdb_ids released in the week."""
+   docs = data.get("response", {}).get("docs", [])
+   candidates = {}
+   week_pdb_ids = set()
+   for doc in docs:
+      pdb_id = doc.get("pdb_id", "")
+      if pdb_id:
+         week_pdb_ids.add(pdb_id.upper())
+      # names come as "CODE : name" in interacting_ligands
+      name_map = {}
+      for entry in doc.get("interacting_ligands", []):
+         if " : " in entry:
+            code, name = entry.split(" : ", 1)
+            name_map[code.strip()] = name.strip()
+      for tlc in doc.get("ligand_of_interest", []):
+         if 1 <= len(tlc) <= 5:
+            if tlc not in candidates:
+               candidates[tlc] = {"name": name_map.get(tlc, ""), "pdb_ids": set()}
+            if pdb_id:
+               candidates[tlc]["pdb_ids"].add(pdb_id.upper())
+   return candidates, week_pdb_ids
+
 def _find_new_compounds(weeks_ago=0):
    """Find genuinely-new 5-letter CCD entities released in a given week.
    Returns a list of (comp_id, details_dict) tuples, or None on failure.
+
+   The current release (weeks_ago == 0) uses the latest_chemistry document type,
+   which lists genuinely-new CCD codes directly. That type is only a snapshot of
+   the current release (no history), so for past weeks we query the entries
+   released that week and keep the ligands whose CCD first appeared in one of
+   those entries (first_observed_in) - i.e. genuinely new, not merely re-used.
    Compound enrichment (formula, weight, SMILES) is fetched concurrently."""
-   url = _pdbe_search_url(weeks_ago)
-   data = _fetch_json(url)
-   if data is None:
-      return None
-   ligands = _collect_new_ligands(data)
+
+   week_pdb_ids = None  # set for past weeks: enables the genuinely-new filter below
+
+   if weeks_ago == 0:
+      data = _fetch_json(_pdbe_search_url(weeks_ago))
+      if data is None:
+         return None
+      ligands = _collect_new_ligands(data)
+   else:
+      data = _fetch_json(_entries_in_release_url(weeks_ago))
+      if data is None:
+         return None
+      ligands, week_pdb_ids = _collect_release_ligands(data)
+
    if not ligands:
       return []
 
@@ -191,6 +253,18 @@ def _find_new_compounds(weeks_ago=0):
    with ThreadPoolExecutor(max_workers=8) as pool:
       for result in pool.map(enrich, sorted(ligands.items())):
          compounds.append(result)
+
+   # For past weeks, keep only genuinely-new CCDs: those whose first appearance
+   # (first_observed_in) is one of the entries released this week. Re-used ligands
+   # first appeared in an older entry, so they are filtered out.
+   if week_pdb_ids is not None:
+      filtered = []
+      for tlc, details in compounds:
+         first_in = set(p.upper() for p in (details.get("first_observed_in") or []) if p)
+         if first_in & week_pdb_ids:
+            filtered.append((tlc, details))
+      compounds = filtered
+
    return compounds
 
 def _ligand_image_url(tlc):
@@ -211,6 +285,26 @@ def _download_ligand_image(tlc):
    except Exception as e:
       print("recent_new_ligands: image download failed for", tlc, ":", e)
    return None
+
+def _ccd_cif_url(tlc):
+   """URL for the RCSB CCD definition (mmCIF) of a chemical component."""
+   return "https://files.rcsb.org/ligands/download/{}.cif".format(tlc)
+
+def _download_ccd_cif(tlc, dest_path):
+   """Download the CCD mmCIF for `tlc` to dest_path.
+   Returns (ok, message): message is the path on success, or an error string."""
+   url = _ccd_cif_url(tlc)
+   try:
+      req = urllib.request.Request(url)
+      with urllib.request.urlopen(req, timeout=15) as resp:
+         data = resp.read()
+      if len(data) < 50:
+         return False, "downloaded file looks empty"
+      with open(dest_path, "wb") as f:
+         f.write(data)
+      return True, dest_path
+   except Exception as e:
+      return False, str(e)
 
 def _truncate(text, max_len=80):
    if not text:
@@ -323,6 +417,51 @@ def _make_ligand_row(comp_id, details):
       smiles_label.set_wrap(True)
       smiles_label.set_max_width_chars(80)
       text_box.append(smiles_label)
+
+   # Download CCD definition (mmCIF) button
+   dl_button = Gtk.Button(label="Download CIF")
+   dl_button.set_halign(Gtk.Align.START)
+   dl_button.set_margin_top(4)
+   dl_button.set_tooltip_text("Download the CCD definition (mmCIF) for " + comp_id)
+
+   def on_download_clicked(button):
+      dialog = Gtk.FileDialog()
+      dialog.set_title("Save CCD definition for " + comp_id)
+      dialog.set_initial_name(comp_id + ".cif")
+
+      def on_save_response(dlg, result):
+         try:
+            gfile = dlg.save_finish(result)
+         except GLib.Error:
+            return  # cancelled or dismissed
+         dest = gfile.get_path() if gfile else None
+         if not dest:
+            return
+         button.set_label("Downloading...")
+         button.set_sensitive(False)
+
+         def do_download():
+            ok, msg = _download_ccd_cif(comp_id, dest)
+            def finish():
+               button.set_sensitive(True)
+               if ok:
+                  button.set_label("Saved CIF")
+                  button.set_tooltip_text("Saved to " + msg)
+               else:
+                  button.set_label("Download CIF")
+                  button.set_tooltip_text("Download failed: " + msg)
+               return False
+            GLib.idle_add(finish)
+
+         threading.Thread(target=do_download, daemon=True).start()
+
+      parent = button.get_root()
+      if not isinstance(parent, Gtk.Window):
+         parent = None
+      dialog.save(parent, None, on_save_response)
+
+   dl_button.connect("clicked", on_download_clicked)
+   text_box.append(dl_button)
 
    row.append(text_box)
    return row, image_widget

@@ -686,7 +686,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
 
                                                double &dist_min(*dist_min_p);
                                                bool strange_exception = false;
-                                               if (fixed_atom_flags.size()) {
+                                               if (! fixed_atom_flags.empty()) {
                                                   if (fixed_atom_flags[0] || fixed_atom_flags[1]) {
                                                      if (atom_name_1 == " C  ")
                                                         if (atom_name_2 == " N  ")
