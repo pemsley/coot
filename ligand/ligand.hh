@@ -59,6 +59,17 @@ namespace coot {
 
    class ligand {
    public:
+      // The eigenvectors of the ligand and the density cluster are both sorted by
+      // eigenvalue, so the axis assignment is normally fixed and the only genuine
+      // discrete ambiguity is the eigenvector sign (handled by origin_rotations).
+      // This controls how many axis-permutation orientations we additionally try:
+      //   EIGEN_ORI_SORTED:  identity only             -> 1 x 4 origin_rotations =  4 fits
+      //   EIGEN_ORI_LEGACY:  the historical helix set   -> 3 x 4 origin_rotations = 12 fits
+      //   EIGEN_ORI_FULL:    full octahedral coverage   -> 6 x 4 origin_rotations = 24 fits
+      // Use EIGEN_ORI_FULL when the eigenvalues may be near-degenerate (flat rings,
+      // rod-like ligands) so the sorted axis order can't be trusted.
+      enum eigen_orientation_search_mode_t { EIGEN_ORI_SORTED, EIGEN_ORI_LEGACY, EIGEN_ORI_FULL };
+
       class spherical_density_score_t {
       public:
 	 float density_at_position;
@@ -122,6 +133,11 @@ namespace coot {
       std::vector<clipper::Mat33<double> > origin_rotations;
       std::vector<clipper::Mat33<double> > origin_unrotations;
       std::string ligand_filename(int n_count, int ior) const;
+
+      // The axis-permutation orientations tried on top of origin_rotations (the
+      // sign flips). Built from eigen_orientation_search_mode.
+      eigen_orientation_search_mode_t eigen_orientation_search_mode;
+      std::vector<clipper::RTop_orth> make_eigen_orientations() const;
 
       void trace_along(const clipper::Coord_grid &cg_start,
 		       const clipper::Skeleton_basic::Neighbours &neighb,
@@ -344,6 +360,11 @@ namespace coot {
 
    public:
       ligand();
+      // Control how many eigenvector axis-permutation orientations are tried during
+      // ligand fitting. See eigen_orientation_search_mode_t. Default: EIGEN_ORI_SORTED.
+      void set_eigen_orientation_search_mode(eigen_orientation_search_mode_t mode) {
+         eigen_orientation_search_mode = mode;
+      }
       // ~ligand(); // causes core dump currently (badness).
       // void mask_map(const clipper::DBAtom_selection &atoms);
 

@@ -1,6 +1,10 @@
 --- Items---
 
-o fill/fix set_symmetry_colour()
+o use the PDB MCP with coot.
+* Already done.
+
+o when "flexible" is off, the conformer widgets should
+  become insensitive
 
 o copy fragment needs better active item
 
@@ -12,26 +16,31 @@ o fix the "arrange waters" actions
 
 o replace fragment. seems to be hanging when replacing a domain
 
+o fill/fix set_symmetry_colour()
+
+o links from cif files should be visible in moorhen.
+  Needs code to transfer link in gemmi->mmdb.
+
 o Apply chem_comp_mod on reading a link
 
 o Try the PTM interface again, with minimal dictionary.
 
 o Get RRAATTSS added to Coot.
 
+o NCS Control  Only has one molecule shown
+
 o OAR and OQR look the same in RDKit depiction from restraints
   They should not, there is a chirality issue.
 
-o goograph to modern GTK4?
-
-o get the "icon" start working on macOS - needs work on multi-resolution icon.
-
-o move the lights.
-
 o import gesamt into libcootapi. Do soon.
+
+o goograph to modern GTK4?
 
 o What does Ctrl-Scroll do? How about binding it to bond width?
 
 o Blog post for "light mode" coot
+
+o get the "icon" start working on macOS - needs work on multi-resolution icon.
 
 o put pathology plots into chapi.
 

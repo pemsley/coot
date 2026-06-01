@@ -3144,18 +3144,26 @@ set_symmetry_colour_merge(float v) {
 }
 
 /*! \brief set the symmetry colour base */
-void set_symmetry_colour(float r, float g, float b) {
+void
+set_symmetry_colour(float r, float g, float b) {
 
    graphics_info_t::symmetry_colour[0] = r;
    graphics_info_t::symmetry_colour[1] = g;
    graphics_info_t::symmetry_colour[2] = b;
+
+   // The symmetry colour is baked into the symmetry-bonds mesh when it is built
+   // (make_glsl_symmetry_bonds() reads graphics_info_t::symmetry_colour), so the
+   // mesh must be regenerated for the molecules that are showing symmetry.
+   graphics_info_t::update_symmetry();
+   graphics_draw();
 
    std::string cmd = "set-symmetry-colour";
    std::vector<coot::command_arg_t> args;
    args.push_back(r);
    args.push_back(g);
    args.push_back(b);
-   add_to_history_typed(cmd, args);}
+   add_to_history_typed(cmd, args);
+}
 
 
 void set_colour_map_rotation_on_read_pdb(float f) {

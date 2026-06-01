@@ -654,6 +654,13 @@ extern "C" G_MODULE_EXPORT
 void on_add_PTM_apply_button_clicked(GtkButton *button,
                                      gpointer user_data) {
 
+   auto mutate_by_overlap = [] (int imol, mmdb::Residue *residue_p, const std::string &new_residue_type) {
+      std::string chain_id = residue_p->GetChainID();
+      int res_no = residue_p->GetSeqNum();
+      graphics_info_t g;
+      g.molecules[imol].mutate_by_overlap(chain_id, res_no, new_residue_type);
+   };
+
    GtkWidget *combobox = widget_from_builder("add_PTM_combobox");
    if (combobox) {
       graphics_info_t g;
@@ -673,14 +680,22 @@ void on_add_PTM_apply_button_clicked(GtkButton *button,
                   if (mn.first)
                      new_residue_type_exists = true;
                   if (new_residue_type_exists) {
-                     std::string chain_id = residue_p->GetChainID();
-                     int res_no = residue_p->GetSeqNum();
-                     g.molecules[imol].mutate_by_overlap(chain_id, res_no, new_residue_type);
+                     mutate_by_overlap(imol, residue_p, new_residue_type);
                      g.graphics_draw();
                   } else {
-                     get_monomer_dictionary_in_subthread(new_residue_type, false);
-                     ephemeral_overlay_label("Fetching dictionary - try again");
+                     // try_dynamic_add uses the cache.
+                     graphics_info_t::Geom_p()->try_dynamic_add(new_residue_type, g.cif_dictionary_read_number++);
+                     mn = g.Geom_p()->get_monomer_name(new_residue_type, imol_enc_any);
+                     if (mn.first) {
+                        mutate_by_overlap(imol, residue_p, new_residue_type);
+                        g.graphics_draw();
+                     } else {
+                        get_monomer_dictionary_in_subthread(new_residue_type, false);
+                        ephemeral_overlay_label("Fetching dictionary - try again");
+                     }
                   }
+               } else {
+                  std::cout << "WARNING:: on_add_PTM_apply_button_clicked()0 no id" << std::endl;
                }
             }
          }

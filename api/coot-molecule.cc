@@ -48,6 +48,7 @@
 #include "add-terminal-residue.hh"
 #include "molecules-container.hh"
 
+
 bool
 coot::molecule_t::is_valid_model_molecule() const {
 
@@ -5377,7 +5378,7 @@ using json = nlohmann::json;
 std::string
 coot::molecule_t::get_pucker_analysis_info() const {
 
-   std::string s;
+      std::string s;
 
    std::vector<std::pair<mmdb::Residue *, pucker_analysis_info_t> > puckers;
    std::string alt_conf = "";
@@ -5454,6 +5455,8 @@ coot::molecule_t::get_pucker_analysis_info() const {
          j_pucker["phosphorus_position"]          = j_markup_info_base_phosphorus_position;
          j_pucker["projected_point"]             = j_markup_info_base_projected_point;
          j_pucker["phosphate_distance_to_base_plane"] = j_markup_info_phosphorus_distance_to_base_plane;
+         j_pucker["P_deg"] = pi.P_deg;
+         j_pucker["pucker_name"] = pi.pucker_name;
          j.push_back(j_pucker);
       }
       s = j.dump(4);

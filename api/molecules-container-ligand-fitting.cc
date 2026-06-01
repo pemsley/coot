@@ -117,7 +117,8 @@ molecules_container_t::get_rdkit_mol_pickle_base64(const std::string &residue_na
 std::vector<int>
 molecules_container_t::fit_ligand_right_here(int imol_protein, int imol_map, int imol_ligand, float x, float y, float z,
                                              float n_rmsd,
-                                             bool use_conformers, unsigned int n_conformers) {
+                                             bool use_conformers, unsigned int n_conformers,
+                                             int eigen_orientation_search_mode) {
 
 
    std::vector<int> mol_list;
@@ -131,6 +132,11 @@ molecules_container_t::fit_ligand_right_here(int imol_protein, int imol_map, int
             wlig.set_verbose_reporting();
             wlig.set_debug_wiggly_ligands();
 
+            coot::ligand::eigen_orientation_search_mode_t eigen_mode = coot::ligand::EIGEN_ORI_SORTED;
+            if (eigen_orientation_search_mode == 1) eigen_mode = coot::ligand::EIGEN_ORI_LEGACY;
+            if (eigen_orientation_search_mode == 2) eigen_mode = coot::ligand::EIGEN_ORI_FULL;
+            wlig.set_eigen_orientation_search_mode(eigen_mode);
+
             try {
                coot::minimol::molecule mmol(molecules[imol_ligand].atom_sel.mol);
                std::string res_name = get_first_residue_name(molecules[imol_ligand].atom_sel.mol);
@@ -141,12 +147,12 @@ molecules_container_t::fit_ligand_right_here(int imol_protein, int imol_map, int
                n_threads = n_threads - 2;
                if (n_threads < 1) n_threads = 1;
 #endif
+               // use the shared class thread pool (not a new local one)
+               if (n_threads > static_cast<int>(thread_pool.size()))
+                  n_threads = thread_pool.size();
 
-#ifdef LETS_USE_THE_THREAD_POOL
-
-               ctpl::thread_pool thread_pool(n_threads);
                if (use_conformers) {
-                  bool optim_geom = true;
+                  bool optim_geom = false; // was the live behaviour before the thread pool was wired up
                   bool fill_return_vec = false; // would give input molecules (not conformers)
                   wlig.install_simple_wiggly_ligands(&geom, mmol, imol_ligand,
                                                      n_conformers, optim_geom,
@@ -156,22 +162,6 @@ molecules_container_t::fit_ligand_right_here(int imol_protein, int imol_map, int
                   mmdb::Manager *ligand_mol = molecules[imol_ligand].atom_sel.mol;
                   wlig.install_ligand(ligand_mol);
                }
-#else
-
-               if (use_conformers) {
-                  // bool optim_geom = true;
-                  bool optim_geom = false;
-                  for (unsigned int i_conf=0; i_conf<n_conformers; i_conf++) {
-                     int imol_enc = coot::protein_geometry::IMOL_ENC_ANY; // pass this
-                     wlig.install_simple_wiggly_ligand(&geom, mmol, imol_ligand, i_conf, optim_geom);
-                  }
-
-               } else {
-
-                  mmdb::Manager *ligand_mol = molecules[imol_ligand].atom_sel.mol;
-                  wlig.install_ligand(ligand_mol);
-               }
-#endif
 
                clipper::Xmap<float> &xmap = molecules[imol_map].xmap;
                wlig.import_map_from(xmap);
@@ -203,6 +193,33 @@ molecules_container_t::fit_ligand_right_here(int imol_protein, int imol_map, int
                   coot::molecule_t mm(asc, imol_in_hope, name);
                   molecules.push_back(mm);
                   mol_list.push_back(imol_in_hope);
+
+                  // The ligand-fitting above only places the rigid (idealized) conformer by
+                  // eigenvector orientation, which typically gives a mediocre fit. Improve the
+                  // placement in place with a jiggle-fit (rigid-body) against the unmasked map.
+                  // We deliberately do NOT refine here: refinement is a separate user action
+                  // (the Refine button) - doing it for them would make that button appear to do
+                  // nothing.
+                  {
+                     std::string lig_cid;
+                     mmdb::Model *model_p = ligand_mol->GetModel(1);
+                     if (model_p) {
+                        mmdb::Chain *chain_p = model_p->GetChain(0);
+                        if (chain_p) {
+                           mmdb::Residue *residue_p = chain_p->GetResidue(0);
+                           if (residue_p)
+                              lig_cid = std::string("//") + chain_p->GetChainID() +
+                                        "/" + std::to_string(residue_p->GetSeqNum());
+                        }
+                     }
+                     if (! lig_cid.empty()) {
+                        float rmsd = molecules[imol_map].get_map_rmsd_approx();
+                        int   jiggle_n_trials = 5000;
+                        float jiggle_tf = 2.0;
+                        molecules[imol_in_hope].fit_to_map_by_random_jiggle_using_atom_selection(lig_cid, xmap, rmsd,
+                                                                                                 jiggle_n_trials, jiggle_tf);
+                     }
+                  }
 
                   if (false) {
                      std::string file_name = "debug.map";
@@ -257,7 +274,8 @@ molecules_container_t::fit_to_map_by_random_jiggle(int imol, const coot::residue
 //! @return a vector of indices of molecules for the best fitting ligands to this blob.
 std::vector<molecules_container_t::fit_ligand_info_t>
 molecules_container_t::fit_ligand(int imol_protein, int imol_map, int imol_ligand,
-                                  float n_rmsd, bool use_conformers, unsigned int n_conformers) {
+                                  float n_rmsd, bool use_conformers, unsigned int n_conformers,
+                                  int eigen_orientation_search_mode) {
 
    std::vector<fit_ligand_info_t> mol_list;
 
@@ -269,45 +287,38 @@ molecules_container_t::fit_ligand(int imol_protein, int imol_map, int imol_ligan
             // wlig.set_verbose_reporting();
             // wlig.set_debug_wiggly_ligands();
 
-            // 20231121-PE No thread pool. Add it here if needed
+            coot::ligand::eigen_orientation_search_mode_t eigen_mode = coot::ligand::EIGEN_ORI_SORTED;
+            if (eigen_orientation_search_mode == 1) eigen_mode = coot::ligand::EIGEN_ORI_LEGACY;
+            if (eigen_orientation_search_mode == 2) eigen_mode = coot::ligand::EIGEN_ORI_FULL;
+            wlig.set_eigen_orientation_search_mode(eigen_mode);
+
             try {
 
                coot::minimol::molecule mmol(molecules[imol_ligand].atom_sel.mol);
                std::string res_name = get_first_residue_name(molecules[imol_ligand].atom_sel.mol);
+#ifdef EMSCRIPTEN
+               int n_threads = 3;
+#else
+               int n_threads = coot::get_max_number_of_threads();
+               n_threads = n_threads - 2;
+               if (n_threads < 1) n_threads = 1;
+#endif
+               // use the shared class thread pool (not a new local one)
+               if (n_threads > static_cast<int>(thread_pool.size()))
+                  n_threads = thread_pool.size();
+
                if (use_conformers) {
-                  // bool optim_geom = true;
-                  bool optim_geom = false;
-                  for (unsigned int i_conf=0; i_conf<n_conformers; i_conf++) {
-                     // std::cout << "installing ligand " << i_conf << std::endl;
-                     wlig.install_simple_wiggly_ligand(&geom, mmol, imol_ligand, i_conf, optim_geom);
-                  }
+                  bool optim_geom = false; // was the live behaviour before the thread pool was wired up
+                  bool fill_return_vec = false; // would give input molecules (not conformers)
+                  wlig.install_simple_wiggly_ligands(&geom, mmol, imol_ligand,
+                                                     n_conformers, optim_geom,
+                                                     fill_return_vec, &thread_pool, n_threads);
                } else {
                   mmdb::Manager *ligand_mol = molecules[imol_ligand].atom_sel.mol;
                   wlig.install_ligand(ligand_mol);
                }
                clipper::Xmap<float> &xmap = molecules[imol_map].xmap;
-
-               {
-                  std::string map_file_name_1 = "molecules-container-fit-ligand-A.map";
-                  clipper::CCP4MAPfile mapout;
-                  mapout.open_write(map_file_name_1);
-                  mapout.export_xmap(xmap);
-                  mapout.close_write();
-               }
-
                wlig.import_map_from(xmap);
-
-               {
-                  std::string map_file_name_1 = "molecules-container-fit-ligand-B.map";
-                  clipper::CCP4MAPfile mapout;
-                  mapout.open_write(map_file_name_1);
-                  mapout.export_xmap(xmap);
-                  mapout.close_write();
-               }
-
-               {
-                  wlig.output_map("wlig.output_map.map");
-               }
 
                short int mask_waters_flag = true;
                wlig.set_map_atom_mask_radius(2.0);  // Angstroms

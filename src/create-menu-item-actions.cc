@@ -3747,12 +3747,24 @@ void arrange_waters_around_protein_action(G_GNUC_UNUSED GSimpleAction *simple_ac
                                           G_GNUC_UNUSED GVariant *parameter,
                                           G_GNUC_UNUSED gpointer user_data) {
 
-   graphics_info_t::graphics_grab_focus();
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      move_waters_to_around_protein(imol);
+      graphics_info_t::graphics_grab_focus();
+   }
 }
 
 void assign_hetatms_for_this_residue_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                             G_GNUC_UNUSED GVariant *parameter,
                                             G_GNUC_UNUSED gpointer user_data) {
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      const coot::atom_spec_t &spec = pp.second.second;
+      hetify_residue(imol, spec.chain_id.c_str(), spec.res_no, spec.ins_code.c_str());
+      graphics_info_t::graphics_grab_focus();
+   }
    graphics_info_t::graphics_grab_focus();
 
 }
@@ -3761,6 +3773,12 @@ void assign_hetatoms_to_molecule_action(G_GNUC_UNUSED GSimpleAction *simple_acti
                                         G_GNUC_UNUSED GVariant *parameter,
                                         G_GNUC_UNUSED gpointer user_data) {
 
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      assign_hetatms(imol);
+      graphics_info_t::graphics_grab_focus();
+   }
    graphics_info_t::graphics_grab_focus();
 }
 

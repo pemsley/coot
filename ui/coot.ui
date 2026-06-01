@@ -6942,6 +6942,22 @@ Do you want to continue?
               </child>
 
               <child>
+                <object class="GtkButton" id="claude_ai_button">
+                  <property name="visible">True</property>
+                  <property name="can-focus">0</property>
+                  <signal name="clicked" handler="on_claude_ai_button_clicked" swapped="no"/>
+                  <property name="margin-start">2</property>
+                  <property name="halign">end</property>
+                  <property name="tooltip-text">Toggle AI assistant terminal</property>
+                  <child>
+                    <object class="GtkLabel">
+                      <property name="label" translatable="yes">AI</property>
+                    </object>
+                  </child>
+                </object>
+              </child>
+
+              <child>
                 <object class="GtkButton" id="python_scripting_button">
                   <property name="can-focus">0</property>
                   <signal name="clicked" handler="on_python_scripting_button" swapped="no"/>
@@ -6961,22 +6977,6 @@ Do you want to continue?
                           <property name="icon-name">python-logo</property>
                         </object>
                       </child>
-                    </object>
-                  </child>
-                </object>
-              </child>
-
-              <child>
-                <object class="GtkButton" id="claude_ai_button">
-                  <property name="visible">False</property>
-                  <property name="can-focus">0</property>
-                  <signal name="clicked" handler="on_claude_ai_button_clicked" swapped="no"/>
-                  <property name="margin-start">2</property>
-                  <property name="halign">end</property>
-                  <property name="tooltip-text">Toggle AI assistant terminal</property>
-                  <child>
-                    <object class="GtkLabel">
-                      <property name="label" translatable="yes">AI</property>
                     </object>
                   </child>
                 </object>
@@ -17919,7 +17919,7 @@ distances more than:</property>
 
   <object class="GtkDialog" id="superpose_dialog">
     <property name="title" translatable="yes">Coot: SSM Superpose</property>
-    <property name="default-width">400</property>
+    <!-- <property name="default-width">400</property> -->
     <child>
       <object class="GtkBox" id="superpose_vbox_internal">
         <property name="orientation">vertical</property>
@@ -17930,10 +17930,10 @@ distances more than:</property>
             <property name="label" translatable="yes">Reference Structure</property>
             <property name="halign">center</property>
             <property name="valign">start</property>
-            <property name="margin-bottom">5</property>
-            <property name="margin-end">5</property>
-            <property name="margin-start">5</property>
-            <property name="margin-top">5</property>
+            <property name="margin-bottom">4</property>
+            <property name="margin-end">4</property>
+            <property name="margin-start">4</property>
+            <property name="margin-top">4</property>
             <child>
               <object class="GtkBox">
                 <property name="orientation">vertical</property>
@@ -17961,10 +17961,10 @@ distances more than:</property>
             <property name="label" translatable="yes">Moving Structure</property>
             <property name="halign">center</property>
             <property name="valign">start</property>
-            <property name="margin-bottom">5</property>
-            <property name="margin-end">5</property>
-            <property name="margin-start">5</property>
-            <property name="margin-top">5</property>
+            <property name="margin-bottom">4</property>
+            <property name="margin-end">4</property>
+            <property name="margin-start">4</property>
+            <property name="margin-top">4</property>
             <child>
               <object class="GtkBox">
                 <property name="orientation">vertical</property>
@@ -18004,11 +18004,11 @@ distances more than:</property>
         <child>
           <object class="GtkBox">
             <property name="orientation">horizontal</property>
-            <property name="spacing">6</property>
+            <property name="spacing">4</property>
             <property name="halign">end</property>
-            <property name="margin-end">6</property>
+            <property name="margin-end">4</property>
             <property name="margin-top">4</property>
-            <property name="margin-bottom">6</property>
+            <property name="margin-bottom">4</property>
             <property name="margin-start">4</property>
             <child>
               <object class="GtkButton" id="superpose_cancel_button">
