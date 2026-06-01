@@ -16,11 +16,12 @@ coot::colour_holder to_colour(const glm::vec4 &c) {
 }
 
 std::string find_bin_file() {
-   const char* value = std::getenv("CLIBD");
-   if (value == nullptr) {
-      std::cout << "CLIBD not set, using default" << std::endl;
-      return "";
-   }
+   // const char* value = std::getenv("CLIBD");
+   // if (value == nullptr) {
+   //    std::cout << "CLIBD not set, using default" << std::endl;
+   //    return "";
+   // }
+   return "/data/coot/data/carbohydrate/n-glycan-validated-rscc.bin";
    // TODO: Implement proper CLIBD path handling
 }
 
@@ -81,12 +82,13 @@ coot::simple_mesh_t make_cage() {
       int used_lon = default_lon;
 
       density = load_density_grid_binary(density_path, used_lat, used_lon);
-
-      mesh.add_submesh(density.empty()
-         ? make_data_sphere(3.99f, default_lat, default_lon)
-         : make_data_sphere(3.99f, used_lat, used_lon, density));
+      
+      mesh.add_submesh(make_data_sphere(3.99f, used_lat, used_lon, density));
+      // mesh.add_submesh(density.empty()
+         // ? make_data_sphere(3.99f, default_lat, default_lon)
+         // : make_data_sphere(3.99f, used_lat, used_lon, density));
    } else {
-      mesh.add_submesh(make_data_sphere(3.99f, default_lat, default_lon));
+      // mesh.add_submesh(make_data_sphere(3.99f, default_lat, default_lon));
    }
 
    return mesh;
@@ -207,4 +209,16 @@ coot::simple_mesh_t make_pinpoint_at_sphere_point(float theta, float phi) {
    mesh.add_submesh(make_stick(dir * base_r, dir * tip_r, 0.02f, shaft_col, 8));
    mesh.add_submesh(make_atom_sphere(dir * head_r, 0.08f, head_col));
    return mesh;
+}
+
+coot::simple_mesh_t create_cremer_pople_sphere(const std::vector<CremerPopleData>& cremer_pople_data) {
+   coot::simple_mesh_t main_mesh;
+   auto mesh = make_mesh();
+   main_mesh.add_submesh(mesh);
+
+   for (const auto point : cremer_pople_data) {
+      main_mesh.add_submesh(make_pinpoint_at_sphere_point(point.theta, point.phi));
+   }
+
+   return main_mesh;
 }

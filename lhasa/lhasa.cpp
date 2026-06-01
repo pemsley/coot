@@ -28,7 +28,7 @@
 #ifdef RDK_BUILD_INCHI_SUPPORT
 #include <rdkit/GraphMol/inchi.h>
 #endif
-#include <rdkit/GraphMol/chemdraw.h>
+// #include <rdkit/GraphMol/chemdraw.h>
 #include "glog_replacement.hpp"
 #include "../utils/base64-encode-decode.hh"
 
@@ -129,9 +129,9 @@ std::string lhasa::export_mol(CootLigandEditorCanvas& canvas, unsigned int molec
             throw std::runtime_error("RDKit was built without InChI support");
 #endif
         }
-        case CheminformaticsFileFormat::CDXML: {
-            return RDKit::v2::MolToChemDrawBlock(mol);
-        }
+        // case CheminformaticsFileFormat::CDXML: {
+            // return RDKit::v2::MolToChemDrawBlock(mol);
+        // }
         default: {
             throw std::runtime_error("Unknown file format");
         }
@@ -155,18 +155,18 @@ unsigned int lhasa::append_from_import(CootLigandEditorCanvas& canvas, std::stri
 #endif
             break;
         }
-        case CheminformaticsFileFormat::CDXML: {
-            auto mols = RDKit::v2::MolsFromChemDrawBlock(data);
-            if (mols.empty()) {
-                throw std::runtime_error("No molecules found in CDXML data");
-            }
-            if (mols.size() > 1) {
-                g_warning("Multiple molecules found in CDXML data. Only the first one will be imported.");
-            }
-            /// Hmmm, maybe we should import all the molecules, not just the first one?
-            mol = std::move(mols.front());
-            break;
-        }
+        // case CheminformaticsFileFormat::CDXML: {
+        //     auto mols = RDKit::v2::MolsFromChemDrawBlock(data);
+        //     if (mols.empty()) {
+        //         throw std::runtime_error("No molecules found in CDXML data");
+        //     }
+        //     if (mols.size() > 1) {
+        //         g_warning("Multiple molecules found in CDXML data. Only the first one will be imported.");
+        //     }
+        //     /// Hmmm, maybe we should import all the molecules, not just the first one?
+        //     mol = std::move(mols.front());
+        //     break;
+        // }
         default: {
             throw std::runtime_error("Unknown file format");
         }

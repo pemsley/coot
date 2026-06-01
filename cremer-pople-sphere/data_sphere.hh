@@ -14,11 +14,11 @@ glm::vec4 energy_to_colour(float t);
 glm::vec4 density_to_colour(float t);
 
 // Energy-based coloring (no data required)
-coot::simple_mesh_t make_data_sphere(
-    float radius,
-    int lat_seg,
-    int lon_seg
-);
+// coot::simple_mesh_t make_data_sphere(
+//     float radius,
+//     int lat_seg,
+//     int lon_seg
+// );
 
 // Density-based coloring from a precomputed lat x lon grid (see density_map.hh)
 coot::simple_mesh_t make_data_sphere(

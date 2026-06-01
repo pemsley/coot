@@ -28,6 +28,42 @@ glm::vec4 energy_to_colour(float t) {
                    (t-0.5f)*2.0f);
 }
 
+// coot::simple_mesh_t make_data_sphere(float r, int lat, int lon) {
+//    throw std::runtime_error("make_data_sphere: not implemented");
+//    coot::simple_mesh_t mesh;
+//    const float pi = (float)M_PI;
+
+//    for (int i = 0; i <= lat; i++) {
+//       float theta = pi * i / lat;
+
+//       for (int j = 0; j <= lon; j++) {
+//          float phi = 2*pi * j / lon;
+
+//          glm::vec3 n(sin(theta)*cos(phi),
+//                      sin(theta)*sin(phi),
+//                      cos(theta));
+
+//          mesh.vertices.emplace_back(
+//              r*n,
+//              n,
+//              energy_to_colour(get_energy(theta, phi))
+//          );
+//       }
+//    }
+
+//    for (int i = 0; i < lat; i++)
+//       for (int j = 0; j < lon; j++) {
+//          unsigned a=i*(lon+1)+j;
+//          unsigned b=(i+1)*(lon+1)+j;
+//          unsigned c=(i+1)*(lon+1)+j+1;
+//          unsigned d=i*(lon+1)+j+1;
+
+//          mesh.triangles.emplace_back(a,b,c);
+//          mesh.triangles.emplace_back(a,c,d);
+//       }
+
+//    return mesh;
+// }
 
 glm::vec4 density_to_colour(float t) {
    t = glm::clamp(t, 0.0f, 1.0f);
