@@ -7006,3 +7006,21 @@ molecules_container_t::test_function_on_torus(int imol, const std::string &cid) 
       }
    }
 }
+
+//! Get the hetgroup in the given molecule.
+//!
+//! Excluding waters
+//!
+//! @param imol is the model molecule index
+//! @return a vector of residue specifiers
+std::vector<coot::residue_spec_t> molecules_container_t::get_hetgroups(int imol) {
+
+   std::vector<coot::residue_spec_t> v;
+   if (is_valid_model_molecule(imol)) {
+      v = molecules[imol].get_hetgroups();
+   }
+   return v;
+
+
+}
+

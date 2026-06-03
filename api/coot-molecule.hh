@@ -1278,6 +1278,11 @@ namespace coot {
       // merge molecules helper functions
 
       bool is_het_residue(mmdb::Residue *residue_p) const;
+
+      // get hetgroups - don't include waters.
+      // the res-name is in the user-defined string
+      std::vector<coot::residue_spec_t> get_hetgroups() const;
+
       // return state, max_resno + 1, or 0, 1 of no residues in chain.
       //
       std::pair<short int, int> next_residue_number_in_chain(mmdb::Chain *w,

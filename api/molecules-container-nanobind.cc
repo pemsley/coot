@@ -863,6 +863,10 @@ NB_MODULE(coot_headless_api, m) {
          get_docstring_from_xml("get_header_info").c_str())
     .def("get_h_bonds",&molecules_container_t::get_h_bonds,
          nb::arg("imol"), nb::arg("cid_str"), nb::arg("mcdonald_and_thornton_mode"))
+    .def("get_hetgroups",
+         &molecules_container_t::get_hetgroups,
+         nb::arg("imol"),
+         get_docstring_from_xml("get_hetgroups").c_str())
     .def("get_HOLE",
          &molecules_container_t::get_HOLE,
          nb::arg("imol"), nb::arg("start_pos_x"), nb::arg("start_pos_y"), nb::arg("start_pos_z"), nb::arg("end_pos_x"), nb::arg("end_pos_y"), nb::arg("end_pos_z"),
@@ -1692,6 +1696,8 @@ NB_MODULE(coot_headless_api, m) {
     .def_rw("res_no",&coot::residue_spec_t::res_no)
     .def_rw("ins_code",&coot::residue_spec_t::ins_code)
     .def_rw("int_user_data",&coot::residue_spec_t::int_user_data)
+    .def_rw("float_user_data",&coot::residue_spec_t::float_user_data)
+    .def_rw("string_user_data",&coot::residue_spec_t::string_user_data)
     .def("format", &coot::residue_spec_t::format)
     ;
     nb::class_<coot::atom_spec_t>(m,"atom_spec_t")

@@ -542,6 +542,43 @@ coot::molecule_t::is_het_residue(mmdb::Residue *residue_p) const {
    return status;
 }
 
+// get hetgroups - don't include waters.
+std::vector<coot::residue_spec_t>
+coot::molecule_t::get_hetgroups() const {
+
+   std::vector<coot::residue_spec_t> v;
+   int n_models = atom_sel.mol->GetNumberOfModels();
+   bool done = false;
+   for (int imod=1; imod<=n_models; imod++) {
+      if (done) continue;
+      mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+      if (model_p) {
+         done = true;
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            if (chain_p) {
+               int nres = chain_p->GetNumberOfResidues();
+               for (int ires=0; ires<nres; ires++) {
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                  if (residue_p) {
+                     if (is_het_residue(residue_p)) {
+                        std::string rn = residue_p->GetResName();
+                        if (rn != "HOH") {
+                           residue_spec_t rs(residue_p);
+                           rs.string_user_data = rn;
+                           v.push_back(residue_spec_t(rs));
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+   return v;
+}
+
 
 
 // return state, max_resno + 1, or 0, 1 of no residues in chain.

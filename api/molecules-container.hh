@@ -3,6 +3,7 @@
 #define MOLECULES_CONTAINER_HH
 
 #include <memory>
+#include "geometry/residue-and-atom-specs.hh"
 #ifdef SWIG
 #include "Python.h"
 #endif
@@ -938,6 +939,14 @@ public:
    //! @param cid is the atom selection CID e.g "//A/15/OH" (atom OH in residue 15 of chain A)
    //! @param occ_new is the new occupancy
    void set_occupancy(int imol, const std::string &cid, float occ_new);
+
+   //! Get the hetgroup in the given molecule.
+   //!
+   //! Excluding waters
+   //!
+   //! @param imol is the model molecule index
+   //! @return a vector of residue specifiers
+   std::vector<coot::residue_spec_t> get_hetgroups(int imol);
 
    //! Get atom selection as json
    //!
