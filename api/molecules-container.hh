@@ -924,6 +924,19 @@ public:
    //! return an empty list on failure
    std::vector<std::pair<std::string, std::string> > get_computed_acedrg_atom_types(const std::string &compound_id, int imol_enc);
 
+   //! Get the monomer restraints for the given compound as a JSON string
+   //!
+   //! This is the JSON equivalent of the (Python) `monomer_restraints_for_molecule_py()`.
+   //! The returned object has the following keys, each holding an array of restraints:
+   //! "_chem_comp", "_chem_comp_atom", "_chem_comp_bond", "_chem_comp_angle",
+   //! "_chem_comp_tor", "_chem_comp_plane_atom" and "_chem_comp_chir".
+   //!
+   //! @param compound_id is the 3-letter code for the residue/ligand in the first model, e.g. "TYR" for tyrosine
+   //! @param imol_enc is the molecule index for the residue type/compound_id
+   //!
+   //! @return a JSON string for the restraints, or an empty string on failure (e.g. no dictionary)
+   std::string get_monomer_restraints_as_json(const std::string &compound_id, int imol_enc);
+
    //! Get AceDRG atom types for ligand bonds
    //!
    //! @param imol is the model molecule index

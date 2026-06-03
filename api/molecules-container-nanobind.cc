@@ -759,6 +759,11 @@ NB_MODULE(coot_headless_api, m) {
          nb::arg("compound_id"), nb::arg("imol_enc"),
          "Compute AceDRG/COD atom types from dictionary restraints via RDKit. "
          "Unlike get_acedrg_atom_types() which reads pre-stored types, this computes them.")
+    .def("get_monomer_restraints_as_json",
+         &molecules_container_t::get_monomer_restraints_as_json,
+         nb::arg("compound_id"), nb::arg("imol_enc"),
+         "Get the monomer restraints for the given compound as a JSON string "
+         "(the JSON equivalent of the Python monomer_restraints_for_molecule_py()).")
     .def("get_acedrg_atom_types_for_ligand",
          &molecules_container_t::get_acedrg_atom_types_for_ligand,
          nb::arg("imol"), nb::arg("residue_cid"),

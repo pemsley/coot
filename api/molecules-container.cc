@@ -40,6 +40,7 @@
 #include "coot-utils/oct.hh"
 #include "coot-utils/read-sm-cif.hh"
 #include "coot-utils/read-amber-trajectory.hh"
+#include "coot-utils/json.hpp"
 
 #include "coords/Bond_lines.hh"
 #include "coords/mmdb.hh"
@@ -1131,6 +1132,127 @@ molecules_container_t::write_png(const std::string &compound_id, int imol_enc,
 #endif
 }
 
+
+
+// The JSON equivalent of monomer_restraints_for_molecule_py() in c-interface-info.cc.
+// We can't return a Python object here (nanobind), so return a JSON string instead.
+std::string
+molecules_container_t::get_monomer_restraints_as_json(const std::string &compound_id, int imol_enc) {
+
+   std::string s;
+
+   // this forces try_dynamic_add()
+   geom.have_dictionary_for_residue_type(compound_id, imol_enc, cif_dictionary_read_number);
+   cif_dictionary_read_number++;
+
+   std::pair<bool, coot::dictionary_residue_restraints_t> p =
+      geom.get_monomer_restraints(compound_id, imol_enc);
+
+   if (!p.first) {
+      std::cout << "WARNING:: can't find " << compound_id << " in monomer dictionary" << std::endl;
+      return s;
+   }
+
+   const coot::dictionary_residue_restraints_t &restraints = p.second;
+   nlohmann::json j;
+
+   // ------------------ chem_comp -------------------------
+   const coot::dict_chem_comp_t &info = restraints.residue_info;
+   j["_chem_comp"] = nlohmann::json::array({ info.comp_id,
+                                             info.three_letter_code,
+                                             info.name,
+                                             info.group,
+                                             info.number_atoms_all,
+                                             info.number_atoms_nh,
+                                             info.description_level });
+
+   // ------------------ chem_comp_atom -------------------------
+   nlohmann::json atom_info_list = nlohmann::json::array();
+   for (unsigned int iat=0; iat<restraints.atom_info.size(); iat++) {
+      const coot::dict_atom &atom = restraints.atom_info[iat];
+      atom_info_list.push_back(nlohmann::json::array({ atom.atom_id_4c,
+                                                       atom.type_symbol,
+                                                       atom.type_energy,
+                                                       atom.partial_charge.second,
+                                                       atom.partial_charge.first }));
+   }
+   j["_chem_comp_atom"] = atom_info_list;
+
+   // ------------------ Bonds -------------------------
+   nlohmann::json bond_restraint_list = nlohmann::json::array();
+   for (unsigned int ibond=0; ibond<restraints.bond_restraint.size(); ibond++) {
+      std::string a1   = restraints.bond_restraint[ibond].atom_id_1_4c();
+      std::string a2   = restraints.bond_restraint[ibond].atom_id_2_4c();
+      std::string type = restraints.bond_restraint[ibond].type();
+      nlohmann::json value_dist = false;
+      nlohmann::json value_esd  = false;
+      try {
+         value_dist = restraints.bond_restraint[ibond].value_dist();
+         value_esd  = restraints.bond_restraint[ibond].value_esd();
+      }
+      catch (const std::runtime_error &rte) {
+         // use the default false values
+      }
+      bond_restraint_list.push_back(nlohmann::json::array({ a1, a2, type, value_dist, value_esd }));
+   }
+   j["_chem_comp_bond"] = bond_restraint_list;
+
+   // ------------------ Angles -------------------------
+   nlohmann::json angle_restraint_list = nlohmann::json::array();
+   for (unsigned int iangle=0; iangle<restraints.angle_restraint.size(); iangle++) {
+      std::string a1 = restraints.angle_restraint[iangle].atom_id_1_4c();
+      std::string a2 = restraints.angle_restraint[iangle].atom_id_2_4c();
+      std::string a3 = restraints.angle_restraint[iangle].atom_id_3_4c();
+      double d   = restraints.angle_restraint[iangle].angle();
+      double esd = restraints.angle_restraint[iangle].esd();
+      angle_restraint_list.push_back(nlohmann::json::array({ a1, a2, a3, d, esd }));
+   }
+   j["_chem_comp_angle"] = angle_restraint_list;
+
+   // ------------------ Torsions -------------------------
+   nlohmann::json torsion_restraint_list = nlohmann::json::array();
+   for (unsigned int itorsion=0; itorsion<restraints.torsion_restraint.size(); itorsion++) {
+      std::string id = restraints.torsion_restraint[itorsion].id();
+      std::string a1 = restraints.torsion_restraint[itorsion].atom_id_1_4c();
+      std::string a2 = restraints.torsion_restraint[itorsion].atom_id_2_4c();
+      std::string a3 = restraints.torsion_restraint[itorsion].atom_id_3_4c();
+      std::string a4 = restraints.torsion_restraint[itorsion].atom_id_4_4c();
+      double tor = restraints.torsion_restraint[itorsion].angle();
+      double esd = restraints.torsion_restraint[itorsion].esd();
+      int period = restraints.torsion_restraint[itorsion].periodicity();
+      torsion_restraint_list.push_back(nlohmann::json::array({ id, a1, a2, a3, a4, tor, esd, period }));
+   }
+   j["_chem_comp_tor"] = torsion_restraint_list;
+
+   // ------------------ Planes -------------------------
+   nlohmann::json plane_restraints_list = nlohmann::json::array();
+   for (unsigned int iplane=0; iplane<restraints.plane_restraint.size(); iplane++) {
+      nlohmann::json atom_list = nlohmann::json::array();
+      for (int iat=0; iat<restraints.plane_restraint[iplane].n_atoms(); iat++)
+         atom_list.push_back(restraints.plane_restraint[iplane][iat].first);
+      double esd = restraints.plane_restraint[iplane].dist_esd(0);
+      plane_restraints_list.push_back(nlohmann::json::array({ restraints.plane_restraint[iplane].plane_id,
+                                                              atom_list, esd }));
+   }
+   j["_chem_comp_plane_atom"] = plane_restraints_list;
+
+   // ------------------ Chirals -------------------------
+   nlohmann::json chiral_restraint_list = nlohmann::json::array();
+   for (unsigned int ichiral=0; ichiral<restraints.chiral_restraint.size(); ichiral++) {
+      std::string a1 = restraints.chiral_restraint[ichiral].atom_id_1_4c();
+      std::string a2 = restraints.chiral_restraint[ichiral].atom_id_2_4c();
+      std::string a3 = restraints.chiral_restraint[ichiral].atom_id_3_4c();
+      std::string ac = restraints.chiral_restraint[ichiral].atom_id_c_4c();
+      std::string chiral_id = restraints.chiral_restraint[ichiral].Chiral_Id();
+      double esd = restraints.chiral_restraint[ichiral].volume_sigma();
+      int volume_sign = restraints.chiral_restraint[ichiral].volume_sign;
+      chiral_restraint_list.push_back(nlohmann::json::array({ chiral_id, ac, a1, a2, a3, volume_sign, esd }));
+   }
+   j["_chem_comp_chir"] = chiral_restraint_list;
+
+   s = j.dump();
+   return s;
+}
 
 
 // 20221030-PE nice to have one day
