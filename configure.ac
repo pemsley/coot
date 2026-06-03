@@ -457,24 +457,64 @@ AC_SUBST(COOT_BUILD_INFO_STRING)
 
 dnl check for guile modules www and gtk here.
 
-# gemmi doesn't have a pkgconfig file. Frustrating.
+# Newer gemmi installs a pkg-config file (gemmi.pc, under $prefix/lib*/pkgconfig).
+# Prefer that; otherwise fall back to probing the headers and the library directory.
 AC_ARG_WITH([gemmi], AS_HELP_STRING([--with-gemmi location of the GEMMI package]), with_gemmi="$withval", with_gemmi=false)
 
-# is this the wrong logic actually, should the checking message only be seen if with_gemmi is not false?
 AC_MSG_CHECKING([for GEMMI])
 if test "x$with_gemmi" = xfalse ; then
     AC_MSG_RESULT(no)
 else
-    AC_LANG_PUSH(C++)
-    GEMMI_CXXFLAGS="-I$with_gemmi/include -DUSE_GEMMI=1"
-    save_CPPFLAGS="$CPPFLAGS"
-    CPPFLAGS="$CPPFLAGS $GEMMI_CXXFLAGS"
-    AC_CHECK_HEADER([gemmi/to_json.hpp], AC_MSG_NOTICE(GEMMI headers were found), AC_MSG_FAILURE(GEMMI headers were not found),)
-    CPPFLAGS="$save_CPPFLAGS"
-    AC_LANG_POP
-    AC_MSG_RESULT(yes)
+    gemmi_found=no
+
+    # 1) Prefer gemmi.pc via pkg-config, searching under the given prefix.
+    if test "x$PKG_CONFIG" != x ; then
+        save_PKG_CONFIG_PATH="$PKG_CONFIG_PATH"
+        PKG_CONFIG_PATH="$with_gemmi/lib/pkgconfig:$with_gemmi/lib64/pkgconfig:$PKG_CONFIG_PATH"
+        export PKG_CONFIG_PATH
+        if $PKG_CONFIG --exists gemmi ; then
+            gemmi_found=yes
+            # gemmi.pc does not define USE_GEMMI, so add it here.
+            GEMMI_CXXFLAGS="`$PKG_CONFIG --cflags gemmi` -DUSE_GEMMI=1"
+            GEMMI_LIBS="`$PKG_CONFIG --libs gemmi`"
+            AC_MSG_RESULT([yes (gemmi.pc via pkg-config)])
+        fi
+        PKG_CONFIG_PATH="$save_PKG_CONFIG_PATH"
+        export PKG_CONFIG_PATH
+    fi
+
+    # 2) Fall back to probing the install tree by hand.
+    if test "$gemmi_found" = no ; then
+        AC_MSG_RESULT([no gemmi.pc, probing $with_gemmi])
+        AC_LANG_PUSH(C++)
+        GEMMI_CXXFLAGS="-I$with_gemmi/include -DUSE_GEMMI=1"
+        save_CPPFLAGS="$CPPFLAGS"
+        CPPFLAGS="$CPPFLAGS $GEMMI_CXXFLAGS"
+        AC_CHECK_HEADER([gemmi/to_json.hpp], AC_MSG_NOTICE(GEMMI headers were found), AC_MSG_FAILURE(GEMMI headers were not found),)
+        CPPFLAGS="$save_CPPFLAGS"
+        AC_LANG_POP
+        # gemmi is built with CMake, so its install lib dir is CMAKE_INSTALL_LIBDIR
+        # (GNUInstallDirs): "lib64" on unrecognised 64-bit Linux (Fedora/RHEL/SUSE),
+        # but "lib" on Arch/Alpine/Debian/conda - and it can be overridden with
+        # -DCMAKE_INSTALL_LIBDIR. So don't assume: probe for the library, lib64 then lib.
+        gemmi_libdir=""
+        for d in lib64 lib ; do
+            if test -f "$with_gemmi/$d/libgemmi_cpp.so" || \
+               test -f "$with_gemmi/$d/libgemmi_cpp.a" || \
+               test -f "$with_gemmi/$d/libgemmi_cpp.dylib" ; then
+                gemmi_libdir="$with_gemmi/$d"
+                break
+            fi
+        done
+        if test "x$gemmi_libdir" = x ; then
+            AC_MSG_FAILURE([libgemmi_cpp not found in $with_gemmi/lib64 or $with_gemmi/lib])
+        fi
+        AC_MSG_NOTICE([GEMMI library found in $gemmi_libdir])
+        GEMMI_LIBS="-L$gemmi_libdir -lgemmi_cpp"
+    fi
+
     AC_SUBST(GEMMI_CXXFLAGS)
-    AC_SUBST(GEMMI_LIBS, "-L$withval/lib64 -lgemmi_cpp")
+    AC_SUBST(GEMMI_LIBS)
 fi
 
 # 20090613 We need to be able to determine the build type, and embed
