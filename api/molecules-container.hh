@@ -3030,11 +3030,13 @@ public:
 
    //! Contact dots for the whole molecule/model
    //!
+   //! Note that this is not const because it can dynamically modify geom by adding dictionaries.
+   //!
    //! @param imol is the model molecule index
    //! @param smoothness_factor is 1, 2 or 3 (3 is the most smooth). Recently added (20230202)
    //!
    //! @return the instanced mesh for the specified molecule.
-   coot::instanced_mesh_t all_molecule_contact_dots(int imol, unsigned int smoothness_factor) const;
+   coot::instanced_mesh_t all_molecule_contact_dots(int imol, unsigned int smoothness_factor);
 
    //! Get a simple molecule
    //!

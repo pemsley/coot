@@ -4818,7 +4818,7 @@ molecules_container_t::contact_dots_for_ligand(int imol, const std::string &cid,
 
 //! @return the instanced mesh for the specified molecule
 coot::instanced_mesh_t
-molecules_container_t::all_molecule_contact_dots(int imol, unsigned int num_subdivisions) const {
+molecules_container_t::all_molecule_contact_dots(int imol, unsigned int num_subdivisions) {
 
    coot::instanced_mesh_t im;
    if (is_valid_model_molecule(imol)) {

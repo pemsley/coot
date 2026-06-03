@@ -930,8 +930,10 @@ namespace coot {
                                                unsigned int num_subdivisions) const;
 
       //! @return the instanced mesh for the specified molecule
-      instanced_mesh_t all_molecule_contact_dots(const coot::protein_geometry &geom,
-                                                 unsigned int num_subdivisions) const;
+      //!
+      //! This can modify the geom by loading dictionaries.
+      instanced_mesh_t all_molecule_contact_dots(coot::protein_geometry &geom,
+                                                 unsigned int num_subdivisions);
 
       generic_3d_lines_bonds_box_t
       make_exportable_environment_bond_box(coot::residue_spec_t &spec, float max_dist, coot::protein_geometry &geom) const;
