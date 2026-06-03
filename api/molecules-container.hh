@@ -944,6 +944,8 @@ public:
    //!
    //! Excluding waters
    //!
+   //! The residue name is returned as the `string_user_data` part of the residue spec
+   //!
    //! @param imol is the model molecule index
    //! @return a vector of residue specifiers
    std::vector<coot::residue_spec_t> get_hetgroups(int imol);
