@@ -930,8 +930,10 @@ namespace coot {
                                                unsigned int num_subdivisions) const;
 
       //! @return the instanced mesh for the specified molecule
-      instanced_mesh_t all_molecule_contact_dots(const coot::protein_geometry &geom,
-                                                 unsigned int num_subdivisions) const;
+      //!
+      //! This can modify the geom by loading dictionaries.
+      instanced_mesh_t all_molecule_contact_dots(coot::protein_geometry &geom,
+                                                 unsigned int num_subdivisions);
 
       generic_3d_lines_bonds_box_t
       make_exportable_environment_bond_box(coot::residue_spec_t &spec, float max_dist, coot::protein_geometry &geom) const;
@@ -1278,6 +1280,11 @@ namespace coot {
       // merge molecules helper functions
 
       bool is_het_residue(mmdb::Residue *residue_p) const;
+
+      // get hetgroups - don't include waters.
+      // the res-name is in the user-defined string
+      std::vector<coot::residue_spec_t> get_hetgroups() const;
+
       // return state, max_resno + 1, or 0, 1 of no residues in chain.
       //
       std::pair<short int, int> next_residue_number_in_chain(mmdb::Chain *w,
