@@ -3,6 +3,7 @@
 #define MOLECULES_CONTAINER_HH
 
 #include <memory>
+#include "geometry/residue-and-atom-specs.hh"
 #ifdef SWIG
 #include "Python.h"
 #endif
@@ -951,6 +952,16 @@ public:
    //! @param cid is the atom selection CID e.g "//A/15/OH" (atom OH in residue 15 of chain A)
    //! @param occ_new is the new occupancy
    void set_occupancy(int imol, const std::string &cid, float occ_new);
+
+   //! Get the hetgroup in the given molecule.
+   //!
+   //! Excluding waters
+   //!
+   //! The residue name is returned as the `string_user_data` part of the residue spec
+   //!
+   //! @param imol is the model molecule index
+   //! @return a vector of residue specifiers
+   std::vector<coot::residue_spec_t> get_hetgroups(int imol);
 
    //! Get atom selection as json
    //!
@@ -3034,11 +3045,13 @@ public:
 
    //! Contact dots for the whole molecule/model
    //!
+   //! Note that this is not const because it can dynamically modify geom by adding dictionaries.
+   //!
    //! @param imol is the model molecule index
    //! @param smoothness_factor is 1, 2 or 3 (3 is the most smooth). Recently added (20230202)
    //!
    //! @return the instanced mesh for the specified molecule.
-   coot::instanced_mesh_t all_molecule_contact_dots(int imol, unsigned int smoothness_factor) const;
+   coot::instanced_mesh_t all_molecule_contact_dots(int imol, unsigned int smoothness_factor);
 
    //! Get a simple molecule
    //!

@@ -28,7 +28,12 @@
 #include "clipper/core/coords.h"
 #include "graphics-info.h"
 #include "coot-utils/json.hpp"
+#include "coot-utils/surface-on-torus.hh"
 #include "geometry/residue-and-atom-specs.hh"
+#include "coords/ramachandran-container.hh"
+#include "c-interface-generic-objects.h"
+#include "meshed-generic-display-object.hh"
+#include "generic-vertex.hh"
 #include "gtk/gtk.h"
 
 using json = nlohmann::json;
@@ -547,4 +552,54 @@ std::vector<std::string> get_types_in_molecule(int imol) {
       v = graphics_info_t::molecules[imol].get_types_in_molecule();
    }
    return v;
+}
+
+int show_ramachandran_surface_on_torus(float R, float r, float height_scale) {
+
+   const unsigned int n_bins = 180; // 2-degree bins
+   const float pi = 3.14159265358979323846f;
+
+   ramachandrans_container_t rc;
+
+#ifdef CLIPPER_HAS_TOP8000
+   const clipper::Ramachandran &rama = rc.rama_ileval;
+#else
+   const clipper::Ramachandran &rama = rc.rama;
+#endif
+
+   std::vector<std::vector<float> > rama_data(n_bins, std::vector<float>(n_bins, 0.0f));
+   float d_angle = 2.0f * pi / static_cast<float>(n_bins);
+   for (unsigned int ip=0; ip<n_bins; ip++) {
+      float psi = -pi + (static_cast<float>(ip) + 0.5f) * d_angle;
+      for (unsigned int jp=0; jp<n_bins; jp++) {
+         float phi = -pi + (static_cast<float>(jp) + 0.5f) * d_angle;
+         rama_data[ip][jp] = rama.probability(phi, psi);
+      }
+   }
+
+   coot::simple_mesh_t smesh = coot::make_surface_on_torus(rama_data, R, r, height_scale);
+
+   if (smesh.vertices.empty()) return -1;
+
+   std::vector<s_generic_vertex> vertices(smesh.vertices.size());
+   for (unsigned int i=0; i<smesh.vertices.size(); i++) {
+      vertices[i] = s_generic_vertex(smesh.vertices[i].pos,
+                                     smesh.vertices[i].normal,
+                                     smesh.vertices[i].color);
+   }
+
+   graphics_info_t g;
+   g.attach_buffers();
+
+   std::string object_name("Ramachandran Torus");
+   int obj_idx = new_generic_object_number(object_name);
+   meshed_generic_display_object &obj = g.generic_display_objects[obj_idx];
+   obj.mesh.name = object_name;
+   obj.mesh.set_draw_mesh_state(true);
+   obj.mesh.import(vertices, smesh.triangles);
+   obj.mesh.set_material_specularity(0.7, 128);
+   obj.mesh.setup_buffers();
+   g.graphics_draw();
+
+   return obj_idx;
 }

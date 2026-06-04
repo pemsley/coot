@@ -1,18 +1,31 @@
 --- Items---
 
+o --dictionary-with-mol is a real command line option?
+
 o use the PDB MCP with coot.
 * Already done.
 
 o when "flexible" is off, the conformer widgets should
   become insensitive
+* Done
 
-o copy fragment needs better active item
+o add get_hetgroups() to the api
+* Done
 
-o replace-fragment seemed to hang
+o atom overlaps init() should try to load monomers if they
+  are not in the store
+* Done
+
+o copy fragment widget needs better active item
+* Done
+
+o filled bases in M2T
 
 o startup mouse button chooser save state immediately.
+* Done.
 
 o fix the "arrange waters" actions
+* Done.
 
 o replace fragment. seems to be hanging when replacing a domain
 

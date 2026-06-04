@@ -4940,7 +4940,7 @@ molecules_container_t::contact_dots_for_ligand(int imol, const std::string &cid,
 
 //! @return the instanced mesh for the specified molecule
 coot::instanced_mesh_t
-molecules_container_t::all_molecule_contact_dots(int imol, unsigned int num_subdivisions) const {
+molecules_container_t::all_molecule_contact_dots(int imol, unsigned int num_subdivisions) {
 
    coot::instanced_mesh_t im;
    if (is_valid_model_molecule(imol)) {
@@ -7128,3 +7128,21 @@ molecules_container_t::test_function_on_torus(int imol, const std::string &cid) 
       }
    }
 }
+
+//! Get the hetgroup in the given molecule.
+//!
+//! Excluding waters
+//!
+//! @param imol is the model molecule index
+//! @return a vector of residue specifiers
+std::vector<coot::residue_spec_t> molecules_container_t::get_hetgroups(int imol) {
+
+   std::vector<coot::residue_spec_t> v;
+   if (is_valid_model_molecule(imol)) {
+      v = molecules[imol].get_hetgroups();
+   }
+   return v;
+
+
+}
+

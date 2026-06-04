@@ -491,6 +491,7 @@ GCancellable* coot::layla::run_generator_request(GeneratorRequest request, CootL
                 gtk_label_set_text(task_data->dialog_status_label, label_text.c_str());
                 g_warning("Task failed. Error: %s", err->message);
                 g_error_free(err);
+                gtk_progress_bar_set_fraction(task_data->progress_bar, 0.0);
             }
         } else {
             gtk_label_set_text(task_data->dialog_status_label, "Operation completed successfully!");
@@ -502,6 +503,7 @@ GCancellable* coot::layla::run_generator_request(GeneratorRequest request, CootL
             }
             filename += ".cif";
             coot_layla_notifier_report_cif_file_generated(notifier, filename.c_str());
+            gtk_progress_bar_set_fraction(task_data->progress_bar, 1.0);
         }
 
         // Delete the useless object
