@@ -183,6 +183,7 @@ add_library(cootapi SHARED
             ${coot_src}/lidia-core/svg-molecule.cc
             ${coot_src}/lidia-core/cod-types.cc
             ${coot_src}/lidia-core/cod-atom-types.cc
+            ${coot_src}/lidia-core/cod-types-similarity.cc
             ${coot_src}/lidia-core/chemical-feature-clusters.cc
             ${coot_src}/lidia-core/bond-record-container-t.cc
             ${coot_src}/lidia-core/atom-types.cc
@@ -457,6 +458,7 @@ add_library(cootapi SHARED
             ${coot_src}/lidia-core/lbg-shared.cc
             ${coot_src}/lidia-core/cod-types.cc
             ${coot_src}/lidia-core/cod-atom-types.cc
+            ${coot_src}/lidia-core/cod-types-similarity.cc
             ${coot_src}/lidia-core/chemical-feature-clusters.cc
             ${coot_src}/lidia-core/bond-record-container-t.cc
             ${coot_src}/lidia-core/atom-types.cc
@@ -718,6 +720,8 @@ set_target_properties(coot_headless_api PROPERTIES INSTALL_RPATH_USE_LINK_PATH T
 install(TARGETS cootmoleculestotriangles cootapi)
 
 install(FILES standard-residues.pdb  DESTINATION share/coot)
+
+install(FILES cod-types-db-normalized.bin DESTINATION share/coot)
 
 install(FILES data/syminfo.lib       DESTINATION share/coot/data)
 
