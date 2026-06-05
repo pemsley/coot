@@ -5428,7 +5428,7 @@ coot::util::intelligent_this_residue_mmdb_atom(mmdb::Residue *res_p) {
 
    mmdb::PAtom *residue_atoms;
    int nResidueAtoms;
-   
+
    res_p->GetAtomTable(residue_atoms, nResidueAtoms);
    for (int i=0; i<nResidueAtoms; i++) {
       std::string atom_name(residue_atoms[i]->name);
@@ -5468,7 +5468,7 @@ coot::util::is_nucleotide(mmdb::Residue *residue_p) {
 
    short int nuc = 0;
 
-   if (residue_p) { 
+   if (residue_p) {
       std::string type(residue_p->name); // all spaces cut
 
       if (type == "A") {
