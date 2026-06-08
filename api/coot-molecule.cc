@@ -27,6 +27,7 @@
 
 #include <iostream>
 #include <sstream>
+#include "coot-utils/simple-mesh.hh"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
@@ -37,6 +38,7 @@
 #include "coot-utils/coot-coord-extras.hh"
 #include "coords/mmdb.hh"
 #include "coot-molecule.hh"
+#include "coot-utils/surface-on-torus.hh"
 #include "ideal/pepflip.hh"
 #include "rama-plot-phi-psi.hh"
 
@@ -5457,4 +5459,36 @@ coot::molecule_t::get_pucker_analysis_info() const {
       s = j.dump(4);
    }
    return s;
+}
+
+coot::simple_mesh_t
+coot::molecule_t::get_test_function_on_surface_mesh(const std::string &cid,
+                                                    const ramachandrans_container_t &rc) {
+
+   const unsigned int n_bins = 180; // 2-degree bins
+   const float pi = 3.14159265358979323846f;
+
+   std::vector<std::vector<float> > rama_data(n_bins, std::vector<float>(n_bins, 0.0f));
+
+#ifdef CLIPPER_HAS_TOP8000
+   const clipper::Ramachandran &rama = rc.rama_ileval;
+#else
+   const clipper::Ramachandran &rama = rc.rama;
+#endif
+
+   float d_angle = 2.0f * pi / static_cast<float>(n_bins);
+   for (unsigned int ip=0; ip<n_bins; ip++) {
+      float psi = -pi + (static_cast<float>(ip) + 0.5f) * d_angle;
+      for (unsigned int jp=0; jp<n_bins; jp++) {
+         float phi = -pi + (static_cast<float>(jp) + 0.5f) * d_angle;
+         rama_data[ip][jp] = rama.probability(phi, psi);
+      }
+   }
+
+   float R = 2.0f;
+   float r = 0.8f;
+   float height_scale = 0.3f;
+   simple_mesh_t mesh = make_surface_on_torus(rama_data, R, r, height_scale);
+   return mesh;
+
 }

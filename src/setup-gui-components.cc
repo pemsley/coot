@@ -566,6 +566,7 @@ void setup_gui_components() {
    setup_accession_code_frame();
 #ifdef HAVE_VTE
    setup_python_vte_terminal();
+   setup_claude_vte_terminal();
 #else
    setup_python_scripting_entry();
 #endif

@@ -1544,6 +1544,9 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::test_function,
          nb::arg("s"),
          get_docstring_from_xml("test_function").c_str())
+    .def("test_function_on_torus",
+         &molecules_container_t::test_function_on_torus,
+         nb::arg("imol"), nb::arg("cid"))
     .def("test_origin_cube",
          &molecules_container_t::test_origin_cube,
          get_docstring_from_xml("test_origin_cube").c_str())
