@@ -84,7 +84,7 @@
 #include "c-interface-python.hh"
 
 #include "widget-headers.hh"
-#include "sequence-view-widget.hh"
+#include "validation-graphs/sequence-view-widget.hh"
 
 /*  ----------------------------------------------------------------- */
 /*                         Scripting:                                 */
