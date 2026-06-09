@@ -70,7 +70,6 @@
 
 #include "skeleton/BuildCas.h"
 #include "ligand/primitive-chi-angles.hh"
-#include "validation-graphs/sequence-view-widget.hh"
 
 #include "c-interface.h"
 #include "c-interface-gtk-widgets.h"
@@ -85,6 +84,7 @@
 #include "c-interface-python.hh"
 
 #include "widget-headers.hh"
+#include "sequence-view-widget.hh"
 
 /*  ----------------------------------------------------------------- */
 /*                         Scripting:                                 */
