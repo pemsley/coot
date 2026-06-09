@@ -5039,17 +5039,13 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
    int udd_user_defined_atom_colour_index_handle = SelAtom.mol->GetUDDHandle(mmdb::UDR_ATOM,
                                                                              "user-defined-atom-colour-index");
 
-   auto get_atom_colour_index = [udd_user_defined_atom_colour_index_handle, bond_colour_type] (mmdb:: Atom *at,
+   auto get_atom_colour_index = [udd_user_defined_atom_colour_index_handle] (mmdb:: Atom *at,
                                                                              const std::string &chain_id,
                                                                              coot::my_atom_colour_map_t &atom_colour_map) {
       int idx_col = atom_colour_map.index_for_chain(chain_id);
-      // Only honour the user-defined per-atom colour in a user-defined colouring mode,
-      // otherwise it leaks into other modes (e.g. colour-by-chain). c.f. atom_colour().
-      if (bond_colour_type == coot::COLOUR_BY_USER_DEFINED_COLOURS) {
-         int idx_col_udd;
-         if (at->GetUDData(udd_user_defined_atom_colour_index_handle, idx_col_udd) == mmdb::UDDATA_Ok) {
-            idx_col = idx_col_udd;
-         }
+      int idx_col_udd;
+      if (at->GetUDData(udd_user_defined_atom_colour_index_handle, idx_col_udd) == mmdb::UDDATA_Ok) {
+         idx_col = idx_col_udd;
       }
       return idx_col;
    };
