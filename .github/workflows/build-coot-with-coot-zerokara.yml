@@ -74,7 +74,7 @@ jobs:
           # Exception: the Coot phase's extract_fonts untars the bundled fonts straight
           # from deps/fonts/, so that one small dir must survive into a cache-hit run
           # (where deps/ otherwise wouldn't exist at all). Cache just it.
-          path: |
+          path: &deps_paths |
             coot-build/bin
             coot-build/sbin
             coot-build/lib
@@ -130,19 +130,7 @@ jobs:
         if: steps.cache-deps.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
         with:
-          path: |
-            coot-build/bin
-            coot-build/sbin
-            coot-build/lib
-            coot-build/lib64
-            coot-build/libexec
-            coot-build/include
-            coot-build/share
-            coot-build/etc
-            coot-build/var
-            coot-build/.cargo
-            coot-build/.rustup
-            coot-build/deps/fonts
+          path: *deps_paths
           key: ${{ steps.cache-deps.outputs.cache-primary-key }}
 
       # On a cache hit we never installed the OS packages (compilers, X libs, etc.) that
