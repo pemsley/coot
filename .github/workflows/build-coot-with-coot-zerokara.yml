@@ -62,9 +62,10 @@ jobs:
           sudo docker image prune --all --force || true
           df -h /
 
+      # Split restore/save so deps are cached right after they build, before the Coot phase + tests.
       - name: Restore cached dependency stack
         id: cache-deps
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           # Only the install tree is cached, never the deps/ source trees or build/ dirs
           # (those are huge and not needed to build Coot). A cache hit means the whole
@@ -122,6 +123,27 @@ jobs:
           find deps -mindepth 1 -maxdepth 1 ! -name fonts -exec rm -rf {} +
           rm -rf build
           df -h .
+
+      # Persist the freshly-built deps now (before the Coot phase + tests), so a later
+      # failure or timeout never discards them.
+      - name: Save dependency stack to cache
+        if: steps.cache-deps.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            coot-build/bin
+            coot-build/sbin
+            coot-build/lib
+            coot-build/lib64
+            coot-build/libexec
+            coot-build/include
+            coot-build/share
+            coot-build/etc
+            coot-build/var
+            coot-build/.cargo
+            coot-build/.rustup
+            coot-build/deps/fonts
+          key: ${{ steps.cache-deps.outputs.cache-primary-key }}
 
       # On a cache hit we never installed the OS packages (compilers, X libs, etc.) that
       # phase 1 normally installs, so the Coot phase must install them itself. On a cache
