@@ -69,6 +69,10 @@ jobs:
           # Only the install tree is cached, never the deps/ source trees or build/ dirs
           # (those are huge and not needed to build Coot). A cache hit means the whole
           # dependency stack is already present in the prefix.
+          #
+          # Exception: the Coot phase's extract_fonts untars the bundled fonts straight
+          # from deps/fonts/, so that one small dir must survive into a cache-hit run
+          # (where deps/ otherwise wouldn't exist at all). Cache just it.
           path: |
             coot-build/bin
             coot-build/sbin
@@ -81,6 +85,7 @@ jobs:
             coot-build/var
             coot-build/.cargo
             coot-build/.rustup
+            coot-build/deps/fonts
           # The dependency stack is fully determined by the script's pinned versions and
           # the build type, so key on both. Bump the vN salt to force a rebuild.
           key: coot-deps-ubuntu-${{ matrix.build_type }}-v1-${{ hashFiles('build-script/dl_and_build_coot.sh') }}
@@ -107,13 +112,15 @@ jobs:
 
       # The unpacked sources (deps/) and out-of-tree build dirs (build/) are the bulk of
       # the disk usage and are not needed for the Coot phase. Drop them so the runner does
-      # not run out of disk. (They are not in the cache path list above anyway.)
-      - name: Reclaim disk space (drop dependency sources & build trees)
+      # not run out of disk — but keep deps/fonts/, which the Coot phase's extract_fonts
+      # untars (and which is the only part of deps/ we cache).
+      - name: Reclaim disk space (drop dependency sources & build trees, keep fonts)
         if: steps.cache-deps.outputs.cache-hit != 'true'
         working-directory: ${{ env.BUILD_DIR }}
         run: |
           df -h .
-          rm -rf deps build
+          find deps -mindepth 1 -maxdepth 1 ! -name fonts -exec rm -rf {} +
+          rm -rf build
           df -h .
 
       # On a cache hit we never installed the OS packages (compilers, X libs, etc.) that
