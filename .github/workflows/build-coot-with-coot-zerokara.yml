@@ -155,24 +155,6 @@ jobs:
              ${{ steps.pkgflag.outputs.flag }} -distributable -noninteractive ${{ matrix.flag }}
              -branch '${{ github.ref_name }}' -coot-stage-only
 
-      - name: Collect build logs on failure
-        if: failure()
-        working-directory: ${{ env.BUILD_DIR }}
-        shell: bash
-        run: |
-          shopt -s nullglob
-          tar --zstd -cf build-logs.tar.zst \
-            *.log* {deps,build}/*/*.log* {build,deps}/*.log* \
-            "${{ steps.coot.outputs.dir }}"/*.log* "${{ steps.coot.outputs.dir }}"/chapi-build/*.log* || true
-
-      - name: Upload build logs on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-logs-ubuntu-${{ matrix.label }}
-          path: ${{ env.BUILD_DIR }}/build-logs.tar.zst
-          if-no-files-found: warn
-
       - name: Upload Coot tarball
         uses: actions/upload-artifact@v4
         with:
@@ -202,3 +184,21 @@ jobs:
           cd "$COOT_ROOT"
           . ./bin/coot-env.sh
           ./bin/python3 -c 'import coot_headless_api as chapi; print("chapi OK:", chapi)'
+
+      - name: Collect build logs on failure
+        if: failure()
+        working-directory: ${{ env.BUILD_DIR }}
+        shell: bash
+        run: |
+          shopt -s nullglob
+          tar --zstd -cf build-logs.tar.zst \
+            *.log* {deps,build}/*/*.log* {deps,build}/*/*/*.log* {build,deps}/*.log* \
+            "${{ steps.coot.outputs.dir }}"/*.log* "${{ steps.coot.outputs.dir }}"/chapi-build/*.log* || true
+
+      - name: Upload build logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs-ubuntu-${{ matrix.label }}
+          path: ${{ env.BUILD_DIR }}/build-logs.tar.zst
+          if-no-files-found: warn
