@@ -107,6 +107,10 @@ class gl_rama_plot_t {
    Texture texture_for_global_distribution_pro;
    HUDMesh hud_mesh_for_axes_and_ticks;
 
+   HUDTextureMesh *hud_tmesh_for_current_residue_p;
+   Texture *texture_for_current_residue_p;
+   bool have_current_residue_marker;
+
    // probably these should be in a lower-lever library.
    enum screen_position_origins_t { TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT};
 
@@ -131,7 +135,10 @@ public:
       hud_tmesh_for_gly_outlier("hud_tmesh_for_gly_outlier"),
       hud_tmesh_for_global_distribution_non_gly_pro("hud_tmesh_for_global_distribution_non_gly_pro"),
       hud_tmesh_for_global_distribution_pro("hud_tmesh_for_global_distribution_pro"),
-      hud_tmesh_for_global_distribution_gly("hud_tmesh_for_global_distribution_gly") { init(); }
+      hud_tmesh_for_global_distribution_gly("hud_tmesh_for_global_distribution_gly"),
+      hud_tmesh_for_current_residue_p(nullptr),
+      texture_for_current_residue_p(nullptr),
+      have_current_residue_marker(false) { init(); }
    void setup_buffers(float rama_plot_scale); // setup OpenGL things - must be done after OpenGL realize()
    void set_rama_plot_scale(float rs) { rama_plot_scale = rs; }
 
@@ -157,6 +164,9 @@ public:
    int get_number_of_outliers() const;
    int get_number_of_preferred() const;
    int get_number_of_phi_psi() const;
+
+   void set_current_residue(const coot::residue_spec_t &spec);
+   void clear_current_residue();
 };
 
 #endif // GL_RAMA_PLOT_HH

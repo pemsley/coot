@@ -5263,7 +5263,7 @@ int new_molecule_by_atom_selection(int imol_orig, const char* atom_selection_str
    auto recentre_on_new_fragment = [] (int imol) {
       graphics_info_t g;
       coot::view_info_t this_view(g.view_quaternion, g.RotationCentre(), g.zoom, "");
-      float new_zoom = 100.0;
+      float new_zoom = g.zoom; // preserve the current zoom when recentring on the new fragment
       coot::Cartesian new_rotation_centre = g.molecules[imol].centre_of_molecule();
       coot::view_info_t  new_view(g.view_quaternion, new_rotation_centre, new_zoom, "");
       int nsteps = int(1000.0/g.views_play_speed);

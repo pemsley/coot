@@ -28,6 +28,7 @@
 #ifndef GRAPHICS_INFO_H
 #define GRAPHICS_INFO_H
 
+#include "Material.hh"
 #include "compat/coot-sysdep.h"
 #include "geometry/residue-and-atom-specs.hh"
 #include "validation-graphs/validation-information.hh"
@@ -220,6 +221,7 @@ class graphics_info_t {
 
    static std::pair<double, double> mouse_begin;
    static std::pair<double, double> mouse_clicked_begin;
+   static std::pair<double, double> label_press_position; // for shift-click labeling on release
 
    static float rotation_centre_x;
    static float rotation_centre_y;
@@ -489,6 +491,9 @@ class graphics_info_t {
 #endif
 
    // void run_post_read_model_hook(int imol); // now public as it is called from handle_read_draw_molecule()
+
+   // things to do after setting the rotation centre.
+   void do_post_set_rotation_centre();
 
    void run_post_set_rotation_centre_hook();
    // which uses the following...
@@ -898,6 +903,11 @@ public:
    void on_glarea_drag_update_middle(GtkGestureDrag *gesture, double delta_x, double delta_y, GtkWidget *gl_area);
    void on_glarea_drag_end_middle(GtkGestureDrag *gesture, double x, double y, GtkWidget *gl_area);
 
+   void on_glarea_click_released(GtkGestureClick *self,
+                                gint n_press,
+                                gdouble x,
+                                gdouble y,
+                                gpointer user_data);
    void on_glarea_click(GtkGestureClick* self,
                         gint n_press,
                         gdouble x,
@@ -1141,6 +1151,8 @@ public:
 
    static coot::Cartesian smooth_scroll_start_point;
    static coot::Cartesian smooth_scroll_target_point;
+
+   static Material default_material_for_maps;
 
    // possibly for multi-threading, public access.
    void update_maps();
@@ -3974,6 +3986,9 @@ string   static std::string sessionid;
    bool coot_all_atom_contact_dots_are_begin_displayed_for(int imol) const;
    void coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int imol); // creates/updates
    // meshes in molecules.
+   static bool show_atom_overlaps_flag;
+   static GtkWidget *atom_overlaps_toggle_button;
+   void set_show_atom_overlaps(bool state);
    static float contact_dot_sphere_subdivisions;
    static bool get_exta_annotation_state();
 
@@ -4754,6 +4769,7 @@ string   static std::string sessionid;
       GtkWidget *close_button;
       GtkWidget *box;
       GtkWidget *outliers_label;
+      coot::residue_spec_t last_status_bar_spec; // for deduplication of status bar updates
       widgeted_rama_plot_t(int imol, const std::string &residue_selection,
                            const gl_rama_plot_t &rama, GtkWidget *gtk_gl_area, GtkWidget *button,
                            GtkWidget *box, GtkWidget *outliers_label) :

@@ -54,21 +54,17 @@
 #define snprintf _snprintf
 #endif
 
-#include "globjects.h" //includes gtk/gtk.h
-
 #include <vector>
 #include <string>
 
 #include <mmdb2/mmdb_manager.h>
 
-#include "coords/mmdb-extras.hh"
 #include "coords/mmdb.hh"
 #include "coords/mmdb-crystal.hh"
 
 #include "coot-utils/coot-map-utils.hh" // for make_rtop_orth_from()
 
 #include "coords/Cartesian.hh"
-#include "coords/Bond_lines.hh"
 
 #include "graphics-info.h"
 
@@ -88,6 +84,7 @@
 #include "c-interface-python.hh"
 
 #include "widget-headers.hh"
+#include "validation-graphs/sequence-view-widget.hh"
 
 /*  ----------------------------------------------------------------- */
 /*                         Scripting:                                 */
@@ -1993,17 +1990,48 @@ void update_go_to_atom_from_current_position() {
       update_go_to_atom_window_on_other_molecule_chosen(pp.second.first);
 
       graphics_info_t g;
-      std::cout << "if sequence view is displayed update highlighted position here A " << std::endl;
-      // now run a graphics_info_t function.
-
+      coot::residue_spec_t active_res_spec(atom_spec);
+      GtkWidget *seq_view_box = widget_from_builder("main_window_sequence_view_box");
+      if (seq_view_box) {
+         GtkWidget *item = gtk_widget_get_first_child(seq_view_box);
+         while (item) {
+            int imol_overlay = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item), "imol"));
+            GtkWidget *sv = GTK_WIDGET(g_object_get_data(G_OBJECT(item), "coot-sequence-view"));
+            if (sv) {
+               if (imol_overlay == imol)
+                  coot_sequence_view_set_active_residue(COOT_COOT_SEQUENCE_VIEW(sv), active_res_spec);
+               else
+                  coot_sequence_view_clear_active_residue(COOT_COOT_SEQUENCE_VIEW(sv));
+            }
+            item = gtk_widget_get_next_sibling(item);
+         }
+      }
    }
 }
 
 void
 update_sequence_view_current_position_highlight_from_active_atom() {
 
-   std::cout << "if sequence view is displayed update highlighted position here B " << std::endl;
-   // now run a graphics_info_t function.
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      coot::residue_spec_t active_res_spec(pp.second.second);
+      GtkWidget *seq_view_box = widget_from_builder("main_window_sequence_view_box");
+      if (seq_view_box) {
+         GtkWidget *item = gtk_widget_get_first_child(seq_view_box);
+         while (item) {
+            int imol_overlay = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item), "imol"));
+            GtkWidget *sv = GTK_WIDGET(g_object_get_data(G_OBJECT(item), "coot-sequence-view"));
+            if (sv) {
+               if (imol_overlay == imol)
+                  coot_sequence_view_set_active_residue(COOT_COOT_SEQUENCE_VIEW(sv), active_res_spec);
+               else
+                  coot_sequence_view_clear_active_residue(COOT_COOT_SEQUENCE_VIEW(sv));
+            }
+            item = gtk_widget_get_next_sibling(item);
+         }
+      }
+   }
 }
 
 
@@ -2457,9 +2485,9 @@ void fill_environment_widget(GtkWidget *widget) {
    // set the label button
    check_button = widget_from_builder("environment_distance_label_atom_checkbutton");
    if (g.environment_distance_label_atom) {
-     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check_button), 1);
+      gtk_check_button_set_active(GTK_CHECK_BUTTON(check_button), 1);
    } else {
-     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check_button), 0);
+      gtk_check_button_set_active(GTK_CHECK_BUTTON(check_button), 0);
    }
 }
 
@@ -2500,9 +2528,8 @@ void execute_environment_settings(GtkWidget *widget) {
       g.environment_min_distance = tmp;
    }
 
-   GtkWidget *label_check_button;
-   label_check_button = widget_from_builder("environment_distance_label_atom_checkbutton");
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(label_check_button))) {
+   GtkWidget *label_check_button = widget_from_builder("environment_distance_label_atom_checkbutton");
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(label_check_button))) {
       g.environment_distance_label_atom = 1;
    }
 

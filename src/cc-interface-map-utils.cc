@@ -81,7 +81,7 @@ handle_read_ccp4_map(const std::string &filename, int is_diff_map_flag) {
 
       istate = g.molecules[imol_new].read_ccp4_map(filename, is_diff_map_flag, *g.map_glob_extensions);
 
-      if (istate > -1) { // not a failure
+      if (istate > -1) { // if not a failure ...
 	 g.scroll_wheel_map = imol_new;  // change the current scrollable map.
 	 g.activate_scroll_radio_button_in_display_manager(imol_new);
       } else {
@@ -818,12 +818,12 @@ void emplacement_by_phaser(const std::string &half_map_1_file_name, const std::s
    auto run_subprocess = [] (const std::string &half_map_1_file_name, const std::string &half_map_2_file_name,
                              const std::string &model_file_name, coot::Cartesian sphere_center) {
 
-      // e.g. phenix.python $phenix/lib/python3.9/site-packages/New_Voyager/scripts/emplace_local.py \
-      // --map1 emd_32143_half_map_1.map --map2 emd_32143_half_map_2.map \
-      // --d_min 3.0 --model_file test-frag-nano.pdb \
+      // e.g. phenix.python $phenix/lib/python3.9/site-packages/New_Voyager/scripts/emplace_local.py -..
+      // --map1 emd_32143_half_map_1.map --map2 emd_32143_half_map_2.map -..
+      // --d_min 3.0 --model_file test-frag-nano.pdb -..
       // --sphere_center 123 69 111
 
-      // std::filesystem::path script_dir = "/Users/pemsley/Applications/phenix-2.0-5936/lib/python3.9/site-packages/New_Voyager/scripts";
+      // this is not the right way to setup phenix.
       std::filesystem::path script_dir = plain_path("$PHENIX/lib/$PHENIX_PYTHON_VERSION/site-packages/New_Voyager/scripts");
       std::filesystem::path py_file_path = script_dir / "emplace_local.py";
       std::cout << "DEBUG:: py_file_path " << py_file_path << std::endl;
@@ -862,7 +862,7 @@ void emplacement_by_phaser(const std::string &half_map_1_file_name, const std::s
       std::cout << "WARNING:: " << em_placement_output_file_name << " exists and can't be moved"<< std::endl;
    } else {
       if (is_valid_model_molecule(imol_model)) {
-         em_placement_data_t *data_p = new em_placement_data_t(em_placement_output_file_name);
+         em_placement_data_t *data_p = new em_placement_data_t(em_placement_output_file_name, 0);
          std::string model_file_name = "input-model-for-emplacement.pdb";
          write_pdb_file(imol_model, model_file_name.c_str());
          std::thread thread(run_subprocess, half_map_1_file_name, half_map_2_file_name, model_file_name, search_centre);

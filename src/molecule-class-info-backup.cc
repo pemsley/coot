@@ -2,7 +2,6 @@
 // #include "geometry/residue-and-atom-specs.hh"
 #include <utility>
 #include <cmath>
-#include <math.h> // for fabsf
 #include "molecule-class-info.h"
 
 #include "utils/logging.hh"
@@ -108,9 +107,9 @@ std::pair<bool, std::vector<coot::residue_spec_t> > molecule_class_info_t::compa
                                                       float delta_x = at_1->x - at_2->x;
                                                       float delta_y = at_1->y - at_2->y;
                                                       float delta_z = at_1->z - at_2->z;
-                                                      if (fabsf(delta_x) > 0.01) {
-                                                         if (fabsf(delta_y) > 0.01) {
-                                                            if (fabsf(delta_z) > 0.01) {
+                                                      if (fabs(delta_x) > 0.01) {
+                                                         if (fabs(delta_y) > 0.01) {
+                                                            if (fabs(delta_z) > 0.01) {
                                                                if (false)
                                                                   std::cout << "DEBUG:: atom " << coot::atom_spec_t(at_1) << " " << coot::atom_spec_t(at_2) << " "
                                                                             << delta_x << " " << delta_y << " " << delta_z << std::endl;
@@ -150,7 +149,7 @@ std::pair<bool, std::vector<coot::residue_spec_t> > molecule_class_info_t::compa
       if (int(history_filename_vec.size()) > backup_index) {
          // there should be a log function for unsigned int, int.
          logger.log(log_t::INFO, logging::function_name_t(__FUNCTION__),
-                    {logging::ltw(history_filename_vec.size()), logging::ltw(backup_index)});
+                    std::vector<logging::ltw>{logging::ltw(history_filename_vec.size()), logging::ltw(backup_index)});
 
          if (backup_index < int(history_filename_vec.size()) && backup_index >= 0) {
             std::string filename = history_filename_vec[backup_index].backup_file_name;
@@ -165,7 +164,7 @@ std::pair<bool, std::vector<coot::residue_spec_t> > molecule_class_info_t::compa
          }
       } else {
          logger.log(log_t::WARNING, logging::function_name_t(__FUNCTION__),
-                    {logging::ltw(std::string("bad backup_index")),
+                    std::vector<logging::ltw>{logging::ltw(std::string("bad backup_index")),
                      logging::ltw(history_filename_vec.size()), logging::ltw(backup_index)});
       }
    }
@@ -173,14 +172,14 @@ std::pair<bool, std::vector<coot::residue_spec_t> > molecule_class_info_t::compa
 }
 
 /*! \brief Get backup info
- * 
+ *
  * @param imol the model molecule index
  * @param backup_index the backup index to restore to
  * @return a Python list of the given description (str)
  *         and a timestamp (str).
  */
 coot::backup_file_info_t molecule_class_info_t::get_backup_info(int backup_index) {
-   
+
    coot::backup_file_info_t bfi;
    if (backup_index < int(history_filename_vec.size()) && backup_index >= 0) {
       coot::backup_file_info_t bfi = history_filename_vec[backup_index];

@@ -1316,6 +1316,9 @@ void set_map_colour(int imol, float red, float green, float blue);
 /*! \brief set the colour of the imolth map using a (7-character) hex colour */
 void set_map_hexcolour(int imol, const char *hex_colour);
 
+/*! \brief  Make the maps 25% brighter */
+void brighten_maps();
+
 /*! \brief set the contour level, direct control */
 void set_contour_level_absolute(int imol_map, float level);
 /*! \brief set the contour level, direct control in r.m.s.d. (if you like that sort of thing) */
@@ -5745,9 +5748,31 @@ PyObject *get_rotamer_name_py(int imol, const char *chain_id, int resno, const c
 /*! \brief fill all the residues of molecule number imol that have
    missing atoms.
 
-To be used to remove the effects of chainsaw.  */
+Note that not all the atoms can be filled by this method. It is for filling
+side-chain atom. The main chain atoms cannot be filled by this method.
+
+To be used to remove the effects of chainsaw.
+
+@param imol the molecule index
+
+*/
 void fill_partial_residues(int imol);
 
+/*! \brief fill the missing side-chain atoms of the specified residue
+
+Note that not all the atoms can be filled by this method. It is for filling
+side-chain atom. The main chain atoms cannot be filled by this method.
+
+If a mainchain, CA, C or N is missing, the best course is, if a map is available
+for fitting, to delete the residue and add a residue back, then mutate it back
+from ALA to whatever it used to be (if needed) and then auto-fit rotamer.
+
+@param imol the molecule index
+@param chain_id the chain-id
+@param resno the residue number
+@param inscode the residue's inscode (typically "")
+
+*/
 void fill_partial_residue(int imol, const char *chain_id, int resno, const char* inscode);
 
 /*! \brief Fill amino acid residues

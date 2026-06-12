@@ -26,7 +26,7 @@ dnl
 dnl Process this file with autoconf to produce a configure script.
 
 
-AC_INIT([coot],[1.2.x-pre])
+AC_INIT([coot],[1.3.1])
 AC_CONFIG_SRCDIR(src/main.cc)
 AM_INIT_AUTOMAKE
 
@@ -389,6 +389,9 @@ else
    RDKIT_CXXFLAGS="-I$rdkit_install_dir/include/rdkit -DRDKIT_HAS_CAIRO_SUPPORT"
 fi
 
+PKG_CHECK_MODULES([EIGEN3], [eigen3],
+   [RDKIT_CXXFLAGS="$RDKIT_CXXFLAGS $EIGEN3_CFLAGS"],
+   [AC_MSG_ERROR([eigen3 not found via pkg-config])])
 
 # test here for presence of coordgen in the RDKit.
 # To clarify, this is not related to how to configure Coot, it is related to how the RDKit was configured (and linked).
@@ -471,7 +474,7 @@ else
     AC_LANG_POP
     AC_MSG_RESULT(yes)
     AC_SUBST(GEMMI_CXXFLAGS)
-    AC_SUBST(GEMMI_LIBS, "-L$withval/lib -lgemmi_cpp")
+    AC_SUBST(GEMMI_LIBS, "-L$withval/lib64 -lgemmi_cpp")
 fi
 
 # 20090613 We need to be able to determine the build type, and embed
@@ -490,7 +493,7 @@ if test "x$with_sound" = xfalse ; then
 else
    AC_MSG_RESULT(yes)
    PKG_CHECK_MODULES(VORBISFILE, [vorbisfile >= 1.2])
-   PKG_CHECK_MODULES(openal, [openal >= 1.23])
+   PKG_CHECK_MODULES(openal, [openal >= 1.19])
    # uname_s=$(uname -s) # should autoconf do this for us? If so, I can't see where it is stored
    # if test "$uname_s" = Linux ; then
    #   PKG_CHECK_MODULES(ALSA, [alsa >= 1.2])
@@ -607,6 +610,7 @@ high-res/Makefile
 cootaneer/Makefile
 cootilus/Makefile
 greg-tests/Makefile
+graphs/Makefile
 python-tests/Makefile
 lidia-core/Makefile
 doc/Makefile

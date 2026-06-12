@@ -1,4 +1,95 @@
---- Items ---
+--- Items---
+
+o post-release: get gemmi drg into Layla
+
+o check the mask from chapi: non-binary? what does
+  it look like around alt conf ARGs?
+
+o --dictionary-with-mol is a real command line option?
+* Works for me.
+
+o use the PDB MCP with coot.
+* Already done.
+
+o when "flexible" is off, the conformer widgets should
+  become insensitive
+* Done
+
+o add get_hetgroups() to the api
+* Done
+
+o atom overlaps init() should try to load monomers if they
+  are not in the store
+* Done
+
+o copy fragment widget needs better active item
+* Done
+
+o filled bases in M2T
+
+o startup mouse button chooser save state immediately.
+* Done.
+
+o fix the "arrange waters" actions
+* Done.
+
+o replace fragment. seems to be hanging when replacing a domain
+
+o fill/fix set_symmetry_colour()
+
+o links from cif files should be visible in moorhen.
+  Needs code to transfer link in gemmi->mmdb.
+
+o Apply chem_comp_mod on reading a link
+
+o Try the PTM interface again, with minimal dictionary.
+
+o Get RRAATTSS added to Coot.
+
+o NCS Control  Only has one molecule shown
+
+o OAR and OQR look the same in RDKit depiction from restraints
+  They should not, there is a chirality issue.
+
+o import gesamt into libcootapi. Do soon.
+
+o goograph to modern GTK4?
+
+o What does Ctrl-Scroll do? How about binding it to bond width?
+
+o Blog post for "light mode" coot
+
+o get the "icon" start working on macOS - needs work on multi-resolution icon.
+
+o put pathology plots into chapi.
+
+o rotate/translate of an atom selects the whole residue
+
+o Future: map caps in shader for maps (not maps.shader) by
+  looking at the dot product (used for diffuse)
+
+o moorhen: use atom selection //A/1-30 and "colorRampChains"
+  there it selects the whole molecule and ignores the user seletion
+
+o Look at Open ADMET, avoidome
+
+o test base pairing restraints for SB.
+* They work.
+
+o fix the map caps so that they are the other way around.
+* Done.
+
+o try making xmap_dummy a non-static non-pointer - if it's even needed
+  in api.
+
+o Lucrezia: does mask by chain work? In moorhen
+
+o dig out the bone shaped cross-section for Easter?
+
+o it would be better if the view change on copy-fragment went to the right zoom and was smooth.
+
+o Clement says that the conformation generation in moorhen is slow
+  Test in chapi and add some timers.
 
 o debug:: pdbe_chem_comp_atom_depiction() added depiction of 36 atoms
 WARNING:: in init_refmac_mon_lib() unhandled category "_pdbe_chem_comp_rdkit_properties"
@@ -7,21 +98,162 @@ Read 63 atoms/links in restraints from /Users/pemsley/Projects/coot/git/coot-mai
 
 o DACA
 
+o ccpem: angular distribution of orientations in moorhen
+
+o the validate -> ramachandran plot should be an overlay
+
+o add a setting which will mean that quick-save and end session save
+  files are written to the local directory. Derek Logan
+
+o model-fragment.map is a good example of how the translation
+  in jiggle-fit should work but doesn't.
+
+o ccpem: angular distribution of particle orientations in moorhen
+
+o ccpem: map model fsc - coot and libcootapi
+
+o ccpem: latent space is done by cryodragon. Get some datasets!
+
+o ccpem: round-capped line "capsule" say should be a object type for generic objects.
+
+o ccpem: think about rotating a helix in 'proportial editing'
+
+o ccpem: helices as curvy cylinders - add to moleculestotriangles
+
+o MUST DO before release: Test reduce.cc output.
+* Coot seems OK/normal. I guess that the new code
+  was in a branch that was not merged.
+
+o Look at Open ADMET, avoidome
+
+o Add Hiranuma Inversion to the Cryo-EM menu (can I have a tooltip?)
+* Done.
+
+o Add Hiranuma Inversion to the Cryo-EM menu (can I have a tooltip?)
+* Done
+
+o test base pairing restraints for SB.
+* They work.
+
+o fix the map caps so that they are the other way around.
+* Done.
+
+o Look at Open ADMET, avoidome
+
+o Does AIZynthFinder do anything useful for us?
+* It is a tool for retrosynthetic planning. So, yes, it will do.
+
+o Lucrezia: does --dictionary-with-mol work?
+* Fixed.
+
+o test that Renumber Residues is working
+* Fixed.
+
+o bring back reorder chains.
+* Done.
+
+o When navigating the structure using the GoToAtom dialog, write the details of the atom in the status-bar
+* Done.
+
+o Fix drag and drop crash on Mac
+* Done.
+
+o fix the build/installation of curl - on home desktop.
+* Not now. Later.
+
+o the refinment setting frames needs to correctly set the menu items.
+* Done.
+
+o MUST DO before release: Read in a cryo-EM map. Coot no longer centres on the middle of
+  the map.
+* Done.
+
+o FLEV on 4zzn has a bug in the inner double bond positioning. Try just CQ8, no FLEV.
+* Done.
+
+o NCS jumping recentres to CA
+* Done.
+
+o Low rotamer probabilites in Validation graphs
+* Done.
+
+o Residue numbering in Validation graphs.
+* Done.
+
+o ccpem: rotate view in Z
+o install the xml files so that they can be found from whereever we start chapi.
+* No... find them at compile-time. Done.
+
+o symmetry as CA
+* Done.
+
+o Don't label symmetry atoms if they are not begin drawn!
+* Done.
+
+o Update sequence view on mutation, deletion and addition or renumber
+* Done.
+
+o zoom drag, lift shift, continue drag -> jump
+* Done.
+
+o Longer term: Add key-binding to labels? Or hoverovers?
+
+o Longer term: Add a search bar c.f. Ctrl-Shift-P: or the search bar in GNOME.
+
+o Make 10 ribbons representations (say) and try to delete the from the Display manager. stachowskitim
+
+o Ctrl-Shift right-mouse should rotate about screen z, but it does not. Consider how to do this without a mouse.
+
+o make a nice figure, using the ray tracer of 2ouz lasofoxifene with density and environment
+
+o delete the rama plot for a model when the model is removed using the display manager (or elsewhere)
+* Done.
+
+o Download EMDB dialog should be an overlay frame - rewrite in pure C++
+* Done.
+
+o rewite the download dialog to be an overlay
+* Done.
+
+o close the side-bar when difference maps frame is closed
+* Done.
+
+o "active residue" marker in the rama plot. Make it a circle/ring.
+* Done.
+
+o can I set the diffuse and ambient to light the map?
+* You can now.
+
+o Fix the pukka puckers markup!
+* Done.
+
+o make pop-diego face particles smaller
+* Done.
+
 o strip Aniso from pdb on write - add a button to the dialog
 * Done
 
 o changing the diff map colour should change the negative level also.
 * Done.
 
-o rotate/translate of an atom selects the whole residue
-
 o add NCS ligands
+* nearly done.
+
+o the refinment setting frames needs to correctly set the menu items.
+* Done.
 
 o delete symmetry waters
+* Done.
 
-o bring back reorder chain. (What did it do?)
+o sequence view (standard window) now says
+(MacCoot:20788): Gtk-WARNING **: 14:28:21.825: Trying to measure GtkBox 0x125ed4200 for width of 560, but it needs at least 600
+(MacCoot:20788): Gtk-WARNING **: 14:28:21.833: Trying to measure GtkBox 0x125ed4200 for width of 560, but it needs at least 600
+(MacCoot:20788): Gtk-WARNING **: 14:28:21.842: Trying to measure GtkBox 0x125ed4200 for width of 560, but it needs at least 600
+(MacCoot:20788): Gtk-WARNING **: 14:28:21.850: Trying to measure GtkBox 0x125ed4200 for width of 560, but it needs at least 600
+  on entry into the widget.
 
 o adjust the front blur shader.
+* Done. Nice
 
 o Fix the Fresel in the Fancy shader path
 
@@ -40,6 +272,16 @@ o Ribbon does not react to changing the material lighting.
 * Done.
 
 o give new-startup (and functions) a better name.
+* Done.
+
+o see 16f550bc87810afc46bcfc9d737c34cbd1bfc982)
+  ⏺ The issue is that extract_and_fill_emdb_code_from_pdb_file only parses PDB-format REMARK 900 lines.
+    When the file is mmCIF format, there are no REMARK 900 lines, so the EMDB code is never extracted
+    and the entry stays empty.
+
+    For mmCIF files, the equivalent information is in _pdbx_database_related.db_name / _pdbx_database_related.db_id.
+
+    Needs gemmi
 
 o The NCS graph does not load (is empty) even when there
   is NCS present & switching between NCS copies is working
@@ -55,10 +297,8 @@ o Geometry and Density fit correlation are calculated on the
 o get structure from accession code, no focus
   so "U" doesn't work.
 
-o dig out the bone shaped cross-section for Easter?
-
 o proportial editing, with chain-based selection for
-  rotation
+  rotation. Rotation is not proportional.
 
 o work with dragged maps off - is updating the map
   now problematic?
@@ -82,11 +322,6 @@ o how do I add mailing list chat to claude knowledge?
 
 o Sort out startup script locations
 * Done.
-
-o the validate -> ramachandran plot should be an overlay
-
-o model-fragment.map is a good example of how the translation
-  in jiggle-fit should work but doesn't.
 
 o double click in the solvent for a cryo-em map
   It is not looking at the contour level?
@@ -144,9 +379,6 @@ o reverse molecule to string in chapi
 o add get_h_bonds() to the Coot api (c.f molecules-container.hh)
   export to python directly, i.e. make get_hydrogen_bonds_py()
 
-o OAR and OQR look the same in RDKit depiction from restraints
-  They should not, there is a chirality issue.
-
 o remove gaussian_surface_to_map_molecule_v2() in chapi.
 
 o Clemens: make a GEMMI script that describes the
@@ -155,7 +387,7 @@ o Clemens: make a GEMMI script that describes the
 
 o fix updating NBCs during refinement
 
-o tom - cryodragon latent space data? 
+o tom - cryodragon latent space data?
   Also trajectories from dynamics
 
 o particle picking for moorhen? Use CPU code
@@ -197,8 +429,6 @@ o on exit:
   ccp4_shutdown() to write files into pre-defined directory.
 
 o can we add items to the File menu?
-
-o import gesamt into libcootapi. Do soon.
 
 o XDG bernie. Need to move where curlew packages are installed.
 
@@ -667,24 +897,13 @@ o Errington 2024
 o shader: for clipped bonds and atoms (c.f. normal) try skip
   rather than black(ish)
 
-o add that the carbonyl oxgen is rotated in the documenation for
-  flip peptide.
-
 o ctrl click refine drag atom in molten zone
 
->>>>>>> Stashed changes
 o Fit loop dialog too wide
 * Checked, I don't see where the width is set.
 
 o Rama plot doesn't label residue
-=======
 * Done.
-
-o Rama plot doesn't label residue 
-
-o add a setting which will mean that quick-save and end session save
-  files are written to the local directory. Derek Logan
->>>>>>> Stashed changes
 
 o what should coot say on loading a key-binding?
   What happens if there is a python error on reading
@@ -730,8 +949,6 @@ o about dialog should give date and commit for a pre-release
 o make sure you can edit chi on test30_0 structure, multi-carbo-coot-3.pdb
 
 o make better docs for rsr-functions and add them to the coot.i file
-
-o fix documenation for all_molecule_ramachandran_score_py()
 
 o J: add CUDA version of FFT and therefore sharpen/blur
 
@@ -1001,8 +1218,10 @@ o CSHL: Coot: where is keyboard mutate?
 o Score lucy's ligands.
 
 o bring delete_link to the user interface in Coot
+* Done.
 
 o key-binding: simple R - and add a shortcut too. Also triple-refine-auto-accept.
+* Done
 
 o Add delete_link() to libcootapi - it's in coot-molecule
 
@@ -1074,9 +1293,6 @@ o make molecules to triangles compile without coot libs
 o check chemistry - extra hydrogen atom when making a link.
 
 o does "make mask" have a place in the GUI in Coot?
-
-o where did we get to with alt conf colouring or selection (in Coot)
-  e.g. untangle chalenge challenge. Look at alt-conf-switcher.py
 
 o make some inchi keys for the G* dictionaries. Using my parser and making
   rdkit molecules - do they match the inchi keys from the wwwPDB CCD?
@@ -1326,9 +1542,6 @@ o Atom sphere radius depends on B-factor - proportional to cube root maybe?
 
 o draw 9c1h with molecular symmetry colouring :: 1
   turn on set_colour_by_ncs_chain(imol, 1)
-
-o "Proportional editing" molecule rotation :: 2
-  Actually "fragment" rotation makes more sense.
 
 o try texture atlas for text - make a new test app from scratch :: 4
 

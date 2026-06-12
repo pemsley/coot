@@ -142,8 +142,7 @@ void on_dataset_filechooser_dialog_response_gtk4(GtkDialog *dialog,
 }
 
 
-void on_map_filechooser_dialog_response_gtk4(GtkDialog *dialog,
-                                             int response) {
+void on_map_filechooser_dialog_response(GtkDialog *dialog, int response) {
 
    if (response == GTK_RESPONSE_ACCEPT) {
       GtkFileChooser *chooser = GTK_FILE_CHOOSER(dialog);
@@ -339,7 +338,7 @@ void open_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), TRUE);
    gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(dialog), "is-diff-map", "Is Difference Map", NULL, NULL);
 
-   g_signal_connect(dialog, "response", G_CALLBACK(on_map_filechooser_dialog_response_gtk4), NULL);
+   g_signal_connect(dialog, "response", G_CALLBACK(on_map_filechooser_dialog_response), NULL);
 
    set_directory_for_filechooser(dialog);
 
@@ -2003,21 +2002,29 @@ void HOLE_action(GSimpleAction *simple_action,
    graphics_info_t::graphics_grab_focus();
 }
 
+static GtkWidget *local_b_factors_toggle_button = nullptr;
+
 void local_b_factor_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                            G_GNUC_UNUSED GVariant *parameter,
                            G_GNUC_UNUSED gpointer user_data) {
 
-   std::cout << "local b-factor action" << std::endl;
+   set_show_local_b_factors(1);
 
-   GtkWidget *toolbar_hbox = widget_from_builder("main_window_toolbar_hbox");
-   GtkWidget *toggle_button = gtk_toggle_button_new_with_label("Local B-factors");
-   auto callback = +[] (GtkToggleButton *toggle_button, gpointer data) {
-      short int state = 0;
-      if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggle_button))) state = 1;
-      set_show_local_b_factors(state);
-   };
-   g_signal_connect(G_OBJECT(toggle_button), "toggled", G_CALLBACK(callback), nullptr);
-   gtk_box_append(GTK_BOX(toolbar_hbox), toggle_button);
+   if (!local_b_factors_toggle_button) {
+      GtkWidget *toolbar_hbox = widget_from_builder("main_window_toolbar_hbox");
+      GtkWidget *toggle_button = gtk_toggle_button_new_with_label("Local B-factors");
+      auto callback = +[] (GtkToggleButton *toggle_button, gpointer data) {
+         short int state = 0;
+         if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggle_button))) state = 1;
+         set_show_local_b_factors(state);
+      };
+      g_signal_connect(G_OBJECT(toggle_button), "toggled", G_CALLBACK(callback), nullptr);
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), TRUE);
+      gtk_box_append(GTK_BOX(toolbar_hbox), toggle_button);
+      local_b_factors_toggle_button = toggle_button;
+   } else {
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(local_b_factors_toggle_button), TRUE);
+   }
 }
 
 
@@ -2166,6 +2173,17 @@ void cryo_em_add_molecular_symmetry_mtrix_action(G_GNUC_UNUSED GSimpleAction *si
    if (pp.first) {
       int imol = pp.second.first;
       add_molecular_symmetry_from_mtrix_from_self_file(imol);
+   }
+}
+
+void cryo_em_hiranuma_inversion_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                       G_GNUC_UNUSED GVariant *parameter,
+                                       G_GNUC_UNUSED gpointer user_data) {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      hiranuma_inversion(imol);
    }
 }
 
@@ -2482,6 +2500,22 @@ void import_restraints_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    }
    graphics_info_t::graphics_grab_focus();
 
+}
+
+void edit_sort_chains_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                             G_GNUC_UNUSED GVariant *parameter,
+                             G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *frame    = widget_from_builder("sort_chains_frame");
+   GtkWidget *combobox = widget_from_builder("sort_chains_comboboxtext");
+   if (combobox) {
+      graphics_info_t g;
+      int imol_active = first_coords_imol();
+      auto mol_vec = g.get_model_molecule_vector();
+      GCallback func = G_CALLBACK(nullptr);
+      g.fill_combobox_with_molecule_options(combobox, func, imol_active, mol_vec);
+      gtk_widget_set_visible(frame, TRUE);
+   }
 }
 
 void quick_ligand_validate_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -3713,12 +3747,24 @@ void arrange_waters_around_protein_action(G_GNUC_UNUSED GSimpleAction *simple_ac
                                           G_GNUC_UNUSED GVariant *parameter,
                                           G_GNUC_UNUSED gpointer user_data) {
 
-   graphics_info_t::graphics_grab_focus();
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      move_waters_to_around_protein(imol);
+      graphics_info_t::graphics_grab_focus();
+   }
 }
 
 void assign_hetatms_for_this_residue_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                             G_GNUC_UNUSED GVariant *parameter,
                                             G_GNUC_UNUSED gpointer user_data) {
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      const coot::atom_spec_t &spec = pp.second.second;
+      hetify_residue(imol, spec.chain_id.c_str(), spec.res_no, spec.ins_code.c_str());
+      graphics_info_t::graphics_grab_focus();
+   }
    graphics_info_t::graphics_grab_focus();
 
 }
@@ -3727,6 +3773,12 @@ void assign_hetatoms_to_molecule_action(G_GNUC_UNUSED GSimpleAction *simple_acti
                                         G_GNUC_UNUSED GVariant *parameter,
                                         G_GNUC_UNUSED gpointer user_data) {
 
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      assign_hetatms(imol);
+      graphics_info_t::graphics_grab_focus();
+   }
    graphics_info_t::graphics_grab_focus();
 }
 
@@ -3968,6 +4020,15 @@ molecular_surface_action(G_GNUC_UNUSED GSimpleAction *simple_action,
       make_molecular_surface(imol, selection_string.c_str());
       graphics_draw();
    }
+   graphics_info_t::graphics_grab_focus();
+}
+
+void
+map_caps_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                G_GNUC_UNUSED GVariant *parameter,
+                G_GNUC_UNUSED gpointer user_data) {
+
+   add_density_map_cap();
    graphics_info_t::graphics_grab_focus();
 }
 
@@ -4335,11 +4396,13 @@ environment_distances_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                              G_GNUC_UNUSED GVariant *parameter,
                              G_GNUC_UNUSED gpointer user_data) {
 
-   GtkWidget *widget = widget_from_builder("environment_distance_dialog");
-   fill_environment_widget(widget);
-   set_transient_for_main_window(widget);
-   gtk_widget_set_visible(widget, TRUE);
-   graphics_info_t::graphics_grab_focus();
+   GtkWidget *dialog = widget_from_builder("environment_distances_dialog");
+   if (dialog) {
+      fill_environment_widget(dialog);
+      set_transient_for_main_window(dialog);
+      gtk_widget_set_visible(dialog, TRUE);
+      graphics_info_t::graphics_grab_focus();
+   }
 }
 
 
@@ -4493,9 +4556,25 @@ void atoms_overlaps_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
    if (pp.first) {
       int imol = pp.second.first;
+      graphics_info_t::show_atom_overlaps_flag = true;
       coot_all_atom_contact_dots(imol);
-   }
 
+      if (!graphics_info_t::atom_overlaps_toggle_button) {
+         GtkWidget *toolbar_hbox = widget_from_builder("main_window_toolbar_hbox");
+         GtkWidget *toggle_button = gtk_toggle_button_new_with_label("Atom Overlaps");
+         auto callback = +[] (GtkToggleButton *toggle_button, gpointer data) {
+            graphics_info_t g;
+            bool state = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggle_button));
+            g.set_show_atom_overlaps(state);
+         };
+         g_signal_connect(G_OBJECT(toggle_button), "toggled", G_CALLBACK(callback), nullptr);
+         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), TRUE);
+         gtk_box_append(GTK_BOX(toolbar_hbox), toggle_button);
+         graphics_info_t::atom_overlaps_toggle_button = toggle_button;
+      } else {
+         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(graphics_info_t::atom_overlaps_toggle_button), TRUE);
+      }
+   }
 }
 
 void all_atom_contact_dots_molprobity_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -5780,6 +5859,19 @@ delete_item(GSimpleAction *simple_action,
             m.delete_water(atom_spec);
             graphics_draw();
          }
+      } else {
+         // no atom picked. How about the case of symmetry-related atom
+         if (par == "water") {
+            coot::Symm_Atom_Pick_Info_t sap = g.symmetry_atom_close_to_screen_centre();
+            if (sap.success == GL_TRUE) {
+               if (g.is_valid_model_molecule(sap.imol)) {
+                  mmdb::Atom *at = g.molecules[sap.imol].atom_sel.atom_selection[sap.atom_index];
+                  coot::atom_spec_t atom_spec(at);
+                  g.molecules[sap.imol].delete_water(atom_spec);
+                  graphics_draw();
+               }
+            }
+         }
       }
       g.graphics_grab_focus();
    }
@@ -5807,14 +5899,39 @@ delete_item_water(GSimpleAction *simple_action,
                  GVariant *parameter,
                  gpointer user_data) {
 
+   std::cout << "DEBUG:: ......................... delete_item_water() " << std::endl;
+
    graphics_info_t g;
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   bool handled = false;
    if (pp.first) {
       auto atom_spec = pp.second.second;
-      coot::residue_spec_t res_spec(atom_spec);
       int imol = pp.second.first;
-      auto &m = g.molecules[imol];
-      m.delete_water(atom_spec);
+      mmdb::Atom *at = g.molecules[imol].get_atom(atom_spec);
+      coot::Cartesian atom_pos(at->x, at->y, at->z);
+      coot::Cartesian rc = g.RotationCentre();
+      double dd = (atom_pos - rc).amplitude();
+      if (dd < 0.4) {
+         auto &m = g.molecules[imol];
+         m.delete_water(atom_spec);
+         handled = true;
+      }
+   }
+
+   if (! handled) {
+
+      // no atom picked. How about the case of symmetry-related atom
+      if (true) {
+         coot::Symm_Atom_Pick_Info_t sap = g.symmetry_atom_close_to_screen_centre();
+         if (sap.success == GL_TRUE) {
+            if (g.is_valid_model_molecule(sap.imol)) {
+               mmdb::Atom *at = g.molecules[sap.imol].atom_sel.atom_selection[sap.atom_index];
+               coot::atom_spec_t atom_spec(at);
+               g.molecules[sap.imol].delete_water(atom_spec);
+               graphics_draw();
+            }
+         }
+      }
    }
 }
 
@@ -6204,6 +6321,7 @@ create_actions(GtkApplication *application) {
    add_action(        "bond_parameters_action",         bond_parameters_action);
    add_action(           "bond_colours_action",            bond_colours_action);
    add_action(             "fullscreen_action",              fullscreen_action);
+   add_action(               "map_caps_action",                map_caps_action);
    add_action(             "go_to_atom_action",              go_to_atom_action);
    add_action(         "label_CA_atoms_action",          label_CA_atoms_action);
    add_action(         "map_parameters_action",          map_parameters_action);
@@ -6345,7 +6463,7 @@ create_actions(GtkApplication *application) {
    add_action("mutate_base_to_type_G", mutate_base_to_type_G);
    add_action("mutate_base_to_type_T", mutate_base_to_type_T);
    add_action("mutate_base_to_type_C", mutate_base_to_type_C);
-   add_action("mutate_base_to_type_C", mutate_base_to_type_U);
+   add_action("mutate_base_to_type_U", mutate_base_to_type_U);
 
    // Draw menu
    add_action_with_param("bond_smoothness_action", bond_smoothness_action);
@@ -6397,6 +6515,7 @@ create_actions(GtkApplication *application) {
    add_action("cryo_em_make_partitioned_maps_action",        cryo_em_make_partitioned_maps_action);
    add_action("cryo_em_sharpen_blur_map_action",             cryo_em_sharpen_blur_map_action);
    add_action("cryo_em_assign_sequence_to_active_fragment_action", cryo_em_assign_sequence_to_active_fragment_action);
+   add_action("cryo_em_hiranuma_inversion_action",                cryo_em_hiranuma_inversion_action);
 
    add_action("jiggle_fit_chain_simple_action",                    jiggle_fit_chain_simple_action);
    add_action("jiggle_fit_molecule_simple_action",                 jiggle_fit_molecule_simple_action);
@@ -6425,5 +6544,6 @@ create_actions(GtkApplication *application) {
    add_action("generate_all_molecule_self_restraints_6_0_action",     generate_all_molecule_self_restraints_6_0_action);
    add_action("delete_all_extra_restraints_action",        delete_all_extra_restraints_action);
    add_action("import_restraints_action",                  import_restraints_action);
+   add_action("edit_sort_chains_action",                  edit_sort_chains_action);
 
 }

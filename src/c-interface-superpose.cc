@@ -274,7 +274,7 @@ void execute_superpose(GtkWidget *w) {
    if (!chain_mol2_checkbutton) std::cout << "----------- bad chain_mol2n_checkbutton" << std::endl;
 
    bool make_copy = false;
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton)))
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(checkbutton)))
       make_copy = true;
 
    if (imol1 >= 0 && imol1 < graphics_info_t::n_molecules()) {

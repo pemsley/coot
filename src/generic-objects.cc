@@ -74,6 +74,8 @@ void to_generic_object_add_line(int object_number,
    graphics_info_t g;
    std::pair<clipper::Coord_orth, clipper::Coord_orth> coords(x1, x2);
 
+   if (!graphics_info_t::use_graphics_interface_flag) return;
+
    std::string c(colour_name);
    if (object_number >= 0) {
       gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
@@ -412,6 +414,60 @@ void to_generic_object_add_torus(int object_number,
 
 }
 
+/*! \brief add multiple tori to generic object object_number */
+void to_generic_object_add_tori(int object_number, PyObject *torus_info_list_py) {
+
+   // c.f. to_generic_object_add_lines()
+
+   graphics_info_t g;
+   if (object_number >=0 && object_number < int(g.generic_display_objects.size())) {
+      if (PyList_Check(torus_info_list_py)) {
+         long ll = PyObject_Length(torus_info_list_py);
+         g.attach_buffers();
+         std::vector<meshed_generic_display_object::torus_t> tv;
+         tv.reserve(ll);
+         for (long l=0; l<ll; l++) {
+            PyObject *item_py = PyList_GetItem(torus_info_list_py, l);
+            if (PyList_Check(item_py)) {
+               long l_item = PyObject_Length(item_py);
+               if (l_item == 9) {
+                  PyObject *colour_py       = PyList_GetItem(item_py, 0);
+                  PyObject *radius_py       = PyList_GetItem(item_py, 1);
+                  PyObject *radius_inner_py = PyList_GetItem(item_py, 2);
+                  PyObject *cx_py           = PyList_GetItem(item_py, 3);
+                  PyObject *cy_py           = PyList_GetItem(item_py, 4);
+                  PyObject *cz_py           = PyList_GetItem(item_py, 5);
+                  PyObject *nx_py           = PyList_GetItem(item_py, 6);
+                  PyObject *ny_py           = PyList_GetItem(item_py, 7);
+                  PyObject *nz_py           = PyList_GetItem(item_py, 8);
+                  if (PyUnicode_Check(colour_py)) {
+                     std::string col = PyBytes_AS_STRING(PyUnicode_AsUTF8String(colour_py));
+                     double radius       = PyFloat_AsDouble(radius_py);
+                     double radius_inner = PyFloat_AsDouble(radius_inner_py);
+                     double cx = PyFloat_AsDouble(cx_py);
+                     double cy = PyFloat_AsDouble(cy_py);
+                     double cz = PyFloat_AsDouble(cz_py);
+                     double nx = PyFloat_AsDouble(nx_py);
+                     double ny = PyFloat_AsDouble(ny_py);
+                     double nz = PyFloat_AsDouble(nz_py);
+                     clipper::Coord_orth position(cx, cy, cz);
+                     clipper::Coord_orth normal(nx, ny, nz);
+                     meshed_generic_display_object::torus_t torus(position, normal, radius, radius_inner);
+                     torus.col = coot::old_generic_display_object_t::colour_values_from_colour_name(col);
+                     tv.push_back(torus);
+                  }
+               } else {
+                  std::cout << "wrong item length in to_generic_object_add_tori() " << std::endl;
+               }
+            }
+         }
+         g.generic_display_objects[object_number].add_tori(tv);
+         g.generic_display_objects[object_number].mesh.setup_buffers();
+      }
+   }
+   g.graphics_draw();
+}
+
 
 
 /*! \brief add point to generic object object_number */
@@ -711,7 +767,7 @@ PyObject *generic_object_name_py(unsigned int obj_number_in) {
      Py_INCREF(r);
    }
    return r;
-} 
+}
 #endif /* USE_PYTHON */
 
 
@@ -748,7 +804,8 @@ void close_generic_object(int object_number) {
       std::string label_name = stub + "_label";
       // GtkWidget *toggle_button = lookup_widget(g.generic_objects_dialog, toggle_button_name.c_str());
       // GtkWidget *label = lookup_widget(g.generic_objects_dialog, label_name.c_str());
-      std::cout << "WARNING:: in close_generic_object() set the toggle_button and label correctly " << std::endl;
+      std::cout << "WARNING:: in close_generic_object() set the toggle_button and label correctly "
+                << std::endl;
       GtkWidget *toggle_button = 0;
       GtkWidget *label = 0;
       if (toggle_button)
@@ -756,9 +813,11 @@ void close_generic_object(int object_number) {
       if (label)
 	 gtk_widget_set_visible(label, FALSE);
    }
+
+   g.graphics_draw();
 }
 
-/*! \brief has the generic object been closed? 
+/*! \brief has the generic object been closed?
 
    @return 1 for yes, 0 othersize
 */
@@ -812,6 +871,12 @@ void close_all_generic_objects() {
    GtkWidget *grid = widget_from_builder("generic_objects_dialog_grid");
    for (unsigned int i=0; i<n_for_row_delete; i++)
       gtk_grid_remove_row(GTK_GRID(grid), 0);
+
+   // Sync the atom overlaps toggle button
+   graphics_info_t::show_atom_overlaps_flag = false;
+   if (graphics_info_t::atom_overlaps_toggle_button) {
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(graphics_info_t::atom_overlaps_toggle_button), FALSE);
+   }
 
    graphics_draw();
 }

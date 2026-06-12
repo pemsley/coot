@@ -875,6 +875,83 @@ coot::peak_search::min_dist_to_protein(const clipper::Coord_orth &point,
 
 // static
 bool
+coot::peak_search::too_close_crystallographically(const clipper::Coord_frac &a,
+                                                  const clipper::Coord_frac &b,
+                                                  const clipper::Spacegroup &sg,
+                                                  const clipper::Cell &cell,
+                                                  float d_min) {
+   const float d_min_sq = d_min * d_min;
+   const clipper::Coord_orth a_orth = a.coord_orth(cell);
+   const int nsymops = sg.num_symops();
+   for (int isym = 0; isym < nsymops; isym++) {
+      const clipper::Symop &op = sg.symop(isym);
+      clipper::Coord_frac sym_b(
+         op.rot()(0,0)*b.u() + op.rot()(0,1)*b.v() + op.rot()(0,2)*b.w() + op.trn()[0],
+         op.rot()(1,0)*b.u() + op.rot()(1,1)*b.v() + op.rot()(1,2)*b.w() + op.trn()[1],
+         op.rot()(2,0)*b.u() + op.rot()(2,1)*b.v() + op.rot()(2,2)*b.w() + op.trn()[2]
+      );
+      for (int du = -1; du <= 1; du++) {
+         for (int dv = -1; dv <= 1; dv++) {
+            for (int dw = -1; dw <= 1; dw++) {
+               clipper::Coord_frac shifted(sym_b.u() + du, sym_b.v() + dv, sym_b.w() + dw);
+               clipper::Coord_orth shifted_orth = shifted.coord_orth(cell);
+               float d2 = (a_orth - shifted_orth).lengthsq();
+               if (d2 < d_min_sq) return true;
+            }
+         }
+      }
+   }
+   return false;
+}
+
+std::vector<std::pair<clipper::Coord_frac, float>>
+coot::peak_search::get_peaks_for_substructure(const clipper::Xmap<float> &xmap,
+                                              unsigned int n_peaks,
+                                              float d_min_atoms) const {
+   // Collect all local maxima (strictly greater than all 26 neighbours).
+   std::vector<std::pair<clipper::Coord_frac, float>> candidates;
+   clipper::Skeleton_basic::Neighbours neighb(xmap, 0.25, 1.75);
+   clipper::Xmap_base::Map_reference_index ix;
+   for (ix = xmap.first(); !ix.last(); ix.next()) {
+      float v = xmap[ix];
+      bool is_max = true;
+      for (int i = 0; i < neighb.size(); i++) {
+         if (v <= xmap.get_data(ix.coord() + neighb[i])) {
+            is_max = false;
+            break;
+         }
+      }
+      if (is_max)
+         candidates.push_back({ix.coord().coord_frac(xmap.grid_sampling()), v});
+   }
+   std::sort(candidates.begin(), candidates.end(),
+             [](const std::pair<clipper::Coord_frac, float> &x,
+                const std::pair<clipper::Coord_frac, float> &y) {
+                return x.second > y.second;
+             });
+
+   // Accept peaks in height order, rejecting any within d_min_atoms of an
+   // already-accepted peak under any symmetry operator or lattice translation.
+   const clipper::Spacegroup &sg = xmap.spacegroup();
+   const clipper::Cell &cell = xmap.cell();
+   std::vector<std::pair<clipper::Coord_frac, float>> accepted;
+   accepted.reserve(n_peaks);
+   for (const auto &cand : candidates) {
+      if (accepted.size() >= static_cast<std::size_t>(n_peaks)) break;
+      bool close = false;
+      for (const auto &acc : accepted) {
+         if (too_close_crystallographically(cand.first, acc.first, sg, cell, d_min_atoms)) {
+            close = true;
+            break;
+         }
+      }
+      if (!close) accepted.push_back(cand);
+   }
+   return accepted;
+}
+
+// static
+bool
 coot::peak_search::compare_ps_peaks(const std::pair<clipper::Coord_orth, float> &a,
                                     const std::pair<clipper::Coord_orth, float> &b) {
 

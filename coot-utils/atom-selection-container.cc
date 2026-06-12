@@ -319,7 +319,7 @@ get_atom_selection(std::string pdb_name,
                 << " use_gemmi: " << use_gemmi << std::endl;
 
    logger.log(log_t::DEBUG, logging::function_name_t(__FUNCTION__),
-              {logging::ltw("with file"), pdb_name, logging::ltw("use_gemmi"), use_gemmi});
+              std::vector<logging::ltw>{logging::ltw("with file"), pdb_name, logging::ltw("use_gemmi"), use_gemmi});
 
    mmdb::ERROR_CODE err;
    mmdb::Manager* MMDBManager;

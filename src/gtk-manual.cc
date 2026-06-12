@@ -484,12 +484,20 @@ void display_control_molecule_combo_box(const std::string &name, int imol,
    gtk_box_append(GTK_BOX(mol_vbox), hbox);
    gtk_widget_set_visible(hbox, TRUE);
 
-   // Create a vbox for mesh toggle buttons (initially hidden, shown when meshes are added)
+   // Create a scrolled window for mesh toggle buttons (initially hidden, shown when meshes are added)
+   GtkWidget *mesh_scrolled_window = gtk_scrolled_window_new();
+   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(mesh_scrolled_window),
+                                  GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+   gtk_scrolled_window_set_max_content_height(GTK_SCROLLED_WINDOW(mesh_scrolled_window), 200);
+   gtk_scrolled_window_set_propagate_natural_height(GTK_SCROLLED_WINDOW(mesh_scrolled_window), TRUE);
+   gtk_box_append(GTK_BOX(mol_vbox), mesh_scrolled_window);
+   gtk_widget_set_visible(mesh_scrolled_window, FALSE);
+
    GtkWidget *mesh_vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
    gtk_widget_set_margin_start(mesh_vbox, 30);
+   gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(mesh_scrolled_window), mesh_vbox);
    g_object_set_data(G_OBJECT(mol_vbox), "mesh_vbox", mesh_vbox);
-   gtk_box_append(GTK_BOX(mol_vbox), mesh_vbox);
-   gtk_widget_set_visible(mesh_vbox, FALSE);
+   g_object_set_data(G_OBJECT(mol_vbox), "mesh_scrolled_window", mesh_scrolled_window);
 
    // We need to add thesee items:
    // 1: molecule number label
@@ -573,8 +581,13 @@ void display_control_add_delete_molecule_button(int imol,
    // GtkWidget *vbox_for_molecules     = GTK_WIDGET(g_object_get_data(G_OBJECT(button), "vbox_for_molecules"));
    // GtkWidget *vbox_for_this_molecule = GTK_WIDGET(g_object_get_data(G_OBJECT(button), "vbox_for_this_molecule"));
 
-   g_object_set_data(G_OBJECT(delete_button), "hbox_for_this_molecule", hbox32); // bad name
-   g_object_set_data(G_OBJECT(delete_button), "vbox_for_molecules",     vbox_for_molecules);
+   // For models, hbox32 is inside a mol_vbox wrapper (which is the direct child
+   // of vbox_for_molecules). For maps, hbox32 is the direct child itself.
+   // We need to store the direct child so gtk_box_remove works correctly.
+   GtkWidget *parent = gtk_widget_get_parent(hbox32);
+   GtkWidget *child_to_remove = (parent == vbox_for_molecules) ? hbox32 : parent;
+   g_object_set_data(G_OBJECT(delete_button), "child_to_remove",    child_to_remove);
+   g_object_set_data(G_OBJECT(delete_button), "vbox_for_molecules", vbox_for_molecules);
 
    gtk_box_append(GTK_BOX (hbox32), delete_button);
    gtk_widget_set_margin_start (delete_button, 2);
@@ -716,8 +729,10 @@ void update_display_control_mesh_toggles(int imol) {
          n_gdo_for_imol++;
 
    int n_total = n_mol_meshes + n_gdo_for_imol;
+   GtkWidget *mesh_scrolled_window = GTK_WIDGET(g_object_get_data(G_OBJECT(mol_vbox), "mesh_scrolled_window"));
    if (n_total == 0) {
-      gtk_widget_set_visible(mesh_vbox, FALSE);
+      if (mesh_scrolled_window)
+         gtk_widget_set_visible(mesh_scrolled_window, FALSE);
       return;
    }
 
@@ -761,7 +776,8 @@ void update_display_control_mesh_toggles(int imol) {
          toggle_idx++;
       }
    }
-   gtk_widget_set_visible(mesh_vbox, TRUE);
+   if (mesh_scrolled_window)
+      gtk_widget_set_visible(mesh_scrolled_window, TRUE);
 }
 
 GtkWidget *molecule_index_to_display_manager_entry(int imol) {
@@ -1097,13 +1113,17 @@ on_display_control_delete_molecule_button_clicked(GtkButton       *button,
 		<< "on_display_control_delete_molecule_button_clicked"
 		<< std::endl;
 
-   // these are set in ...
-   GtkWidget *vbox_for_molecules     = GTK_WIDGET(g_object_get_data(G_OBJECT(button), "vbox_for_molecules"));
-   GtkWidget *hbox_for_this_molecule = GTK_WIDGET(g_object_get_data(G_OBJECT(button), "hbox_for_this_molecule"));
+   GtkWidget *vbox_for_molecules = GTK_WIDGET(g_object_get_data(G_OBJECT(button), "vbox_for_molecules"));
+   GtkWidget *child_to_remove   = GTK_WIDGET(g_object_get_data(G_OBJECT(button), "child_to_remove"));
 
-   // std::cout << "here are the widgets! " << vbox_for_molecules << " " << hbox_for_this_molecule << std::endl;
    if (vbox_for_molecules) {
-      gtk_box_remove(GTK_BOX(vbox_for_molecules), GTK_WIDGET(hbox_for_this_molecule));
+      if (child_to_remove) {
+         gtk_box_remove(GTK_BOX(vbox_for_molecules), child_to_remove);
+      } else {
+         std::cout << "ERROR:: missing child_to_remove" << std::endl;
+      }
+   } else {
+      std::cout << "ERROR:: missing vbox_for_molecules" << std::endl;
    }
 
    close_molecule(imol);

@@ -3,6 +3,7 @@
 
 #include "coot-molecule.hh"
 #include "coot-utils/json.hpp"
+#include "mmdb2/mmdb_atom.h"
 #include "utils/coot-utils.hh"
 #include "rama-plot-phi-psi.hh"
 #include "ligand/primitive-chi-angles.hh"
@@ -129,6 +130,8 @@ coot::molecule_t::get_torsions_for_residues_in_chain_as_json(const std::string &
          if (std::string(chain_p->GetChainID()) != chain_id) continue;
          int nres = chain_p->GetNumberOfResidues();
          for (int ires=1; ires<(nres-1); ires++) {
+
+            bool next_residue_is_PRO = false;
             mmdb::Residue *res_prev = chain_p->GetResidue(ires-1);
             mmdb::Residue *res_this = chain_p->GetResidue(ires);
             mmdb::Residue *res_next = chain_p->GetResidue(ires+1);
@@ -162,6 +165,13 @@ coot::molecule_t::get_torsions_for_residues_in_chain_as_json(const std::string &
                // GLY, ALA etc. have no chi angles
             }
 
+            if (strncmp("PRO", res_next->GetResName(), 3) == 0) {
+               int seq_no_this = res_this->GetSeqNum();
+               int seq_no_next = res_next->GetSeqNum();
+               if (seq_no_next == (seq_no_this + 1))
+                  next_residue_is_PRO = true;
+            }
+
             nlohmann::json j_res;
             j_res["residue_type"] = std::string(res_this->GetResName());
             j_res["res_no"] = res_this->GetSeqNum();
@@ -171,6 +181,7 @@ coot::molecule_t::get_torsions_for_residues_in_chain_as_json(const std::string &
             j_res["psi"] = pp.second.psi;
             j_res["tau"] = tau;
             j_res["chi_angles"] = j_chis;
+            j_res["next_residue_is_PRO"] = next_residue_is_PRO;
 
             j_residues.push_back(j_res);
          }

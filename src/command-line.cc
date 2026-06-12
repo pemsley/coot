@@ -109,6 +109,7 @@ parse_command_line(int argc, char ** argv ) {
       {"command", 1, 0, 0},
       {"ccp4-project", 1, 0, 0},
       {"dictionary", 1, 0, 0},
+      {"dictionary-with-mol", 1, 0, 0},
       {"code",       1, 0, 0},
       {"comp_id",    1, 0, 0},
       {"comp-id",    1, 0, 0},

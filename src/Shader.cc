@@ -36,6 +36,7 @@
 #include <glm/gtc/type_ptr.hpp>  // for value_ptr() 20240326-PE
 
 #include "Shader.hh"
+#include "stringify-error-code.hh"
 
 Shader::Shader() {
    program_id = 0; // unset
@@ -274,7 +275,6 @@ Shader::set_attribute_locations() {
    }
 }
 
-#include "stringify-error-code.hh"
 
 GLint
 Shader::glGetUniformLocation_internal(const std::string &key) {

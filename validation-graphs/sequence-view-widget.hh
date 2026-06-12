@@ -68,5 +68,9 @@ G_END_DECLS
 
 void coot_sequence_view_set_structure(CootSequenceView* self, int imol, mmdb::Manager *mol);
 
+void coot_sequence_view_set_active_residue(CootSequenceView* self, const coot::residue_spec_t &spec);
+
+void coot_sequence_view_clear_active_residue(CootSequenceView* self);
+
 
 #endif // SEQUENCE_VIEW_WIDGET_HH

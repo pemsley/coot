@@ -22,6 +22,7 @@
 #include "state.hpp"
 #include "geometry/protein-geometry.hh"
 #include "ligand_editor_canvas.hpp"
+#include "similar_ligands.hpp"
 #include <exception>
 #include <memory>
 #include <optional>
@@ -427,7 +428,7 @@ void LaylaState::file_fetch_molecule() {
     gtk_widget_set_margin_start(dialog_body, 10);
     gtk_widget_set_margin_top(dialog_body, 10);
 
-    GtkWidget *label = gtk_label_new("Type in drug name");
+    GtkWidget *label = gtk_label_new("Molecule name");
     gtk_box_append(GTK_BOX(dialog_body),label);
 
     GtkEntryBuffer *entry_buf = gtk_entry_buffer_new("", 0);
@@ -454,8 +455,7 @@ void LaylaState::file_fetch_molecule() {
         } else {
             const char *text_buf = gtk_entry_buffer_get_text(GTK_ENTRY_BUFFER(user_data));
             auto res = coot::layla::get_drug_via_wikipedia_and_drugbank_curl(std::string(text_buf));
-            LaylaState* self = static_cast<LaylaState*>(g_object_get_data(G_OBJECT(dialog),
-                                                                                        "ligand_builder_instance"));
+            LaylaState* self = static_cast<LaylaState*>(g_object_get_data(G_OBJECT(dialog), "ligand_builder_instance"));
             try {
                 if(res.empty()) {
                     throw std::runtime_error("Could not fetch MolFile from the internet.");
@@ -472,25 +472,23 @@ void LaylaState::file_fetch_molecule() {
                 }
                 gtk_window_destroy(GTK_WINDOW(dialog));
                 // todo: optionally delete the file
-            } catch(std::exception& e) {
+            } catch(const std::exception& e) {
                 g_warning("MolFile Fetch error: %s",e.what());
-                auto* message = gtk_message_dialog_new(
-                    GTK_WINDOW(dialog), 
-                    GTK_DIALOG_DESTROY_WITH_PARENT, 
-                    GTK_MESSAGE_ERROR, 
-                    GTK_BUTTONS_CLOSE, 
-                    "Error: Molecule could not be fetched.\n%s", 
-                    e.what()
-                );
-                g_signal_connect(message,"response",G_CALLBACK(+[](GtkDialog* message_dialog, gint response_id, gpointer user_data){
+                auto* message_dialog = gtk_message_dialog_new(GTK_WINDOW(dialog),
+                                                              GTK_DIALOG_DESTROY_WITH_PARENT,
+                                                              GTK_MESSAGE_ERROR,
+                                                              GTK_BUTTONS_CLOSE,
+                    "Error: Molecule could not be fetched.\n%s", e.what());
+                auto cb = +[] (GtkDialog* message_dialog, gint response_id, gpointer user_data) {
                     gtk_window_close(GTK_WINDOW(message_dialog));
-                }),nullptr);
-                gtk_widget_show(message);
+                };
+                g_signal_connect(message_dialog, "response", G_CALLBACK(cb), nullptr);
+                gtk_widget_show(message_dialog);
             }
         }
-   };
+    };
 
-   g_signal_connect(load_dialog, "response", G_CALLBACK(dialog_response), entry_buf);
+    g_signal_connect(load_dialog, "response", G_CALLBACK(dialog_response), entry_buf);
 }
 
 void LaylaState::file_new() {
@@ -776,6 +774,35 @@ void LaylaState::edit_redo() {
 
 void LaylaState::switch_display_mode(ligand_editor_canvas::DisplayMode mode) {
     coot_ligand_editor_canvas_set_display_mode(this->canvas, mode);
+}
+
+void LaylaState::search_for_similar_ligands() {
+
+    if (coot_ligand_editor_canvas_get_molecule_count(this->canvas) == 0) {
+        GtkWidget *d = gtk_message_dialog_new(this->main_window, GTK_DIALOG_MODAL,
+                                              GTK_MESSAGE_INFO, GTK_BUTTONS_CLOSE,
+                                              "There is no molecule to search with.");
+        g_signal_connect(d, "response", G_CALLBACK(+[](GtkDialog *dd, int, gpointer){
+            gtk_window_destroy(GTK_WINDOW(dd));
+        }), nullptr);
+        gtk_window_present(GTK_WINDOW(d));
+        return;
+    }
+
+    // Use the first molecule that has a valid RDKit molecule.
+    const RDKit::ROMol *mol = nullptr;
+    unsigned int mol_idx = 0;
+    unsigned int max_idx = coot_ligand_editor_canvas_get_max_molecule_idx(this->canvas);
+    for (unsigned int i = 0; i <= max_idx; i++) {
+        const RDKit::ROMol *m = coot_ligand_editor_canvas_get_rdkit_molecule(this->canvas, i);
+        if (m) { mol = m; mol_idx = i; break; }
+    }
+    if (! mol)
+        return;
+
+    coot::layla::search_for_similar_ligands(this->main_window, this->canvas, mol_idx,
+                                            this->monomer_library_info_store.get(),
+                                            *mol);
 }
 
 void coot::layla::initialize_global_instance(CootLigandEditorCanvas* canvas, GtkWindow* win, GtkLabel* status_label) {

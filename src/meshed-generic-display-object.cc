@@ -651,6 +651,13 @@ void meshed_generic_display_object::add_torus(const meshed_generic_display_objec
 }
 
 void
+meshed_generic_display_object::add_tori(const std::vector<meshed_generic_display_object::torus_t> &tv) {
+
+   for (unsigned int i=0; i<tv.size(); i++)
+      add_torus(tv[i]);
+}
+
+void
 meshed_generic_display_object::add_dashed_line(const coot::colour_holder &colour, const std::string &colour_name,
                                                const std::pair<clipper::Coord_orth, clipper::Coord_orth> &coords,
                                                const Material &material,

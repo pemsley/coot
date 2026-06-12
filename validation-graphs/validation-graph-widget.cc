@@ -83,6 +83,10 @@ const float AXIS_VERT_OFFSET = CHAIN_LABEL_VERT_OFFSET + CHAIN_SPACING * 2.f / 5
 const float GRAPH_VERT_OFFSET = AXIS_VERT_OFFSET - GRAPH_X_AXIS_SEPARATION;
 const int MARKER_VERT_PLACEMENT = AXIS_MARGIN - MARKER_LENGTH;
 
+// Padding reserved at the bottom of the widget for the residue-number tick
+// labels under the last chain.
+const int BOTTOM_LABEL_PAD = 32;
+
 /// Returns the maximum number of residues in a chain (maximum among all the chains)
 size_t max_chain_residue_count(CootValidationGraph* self) {
     using it_t = coot::chain_validation_information_t;
@@ -113,6 +117,29 @@ const coot::chain_validation_information_t* get_chain_with_id(CootValidationGrap
         //g_debug("Returning %p",retaddr);
         return retaddr;
     }
+}
+
+/// Returns the largest residue number found across the rviv of a single chain.
+int max_residue_number_for_chain(const coot::chain_validation_information_t& chain) {
+    int m = 0;
+    for (const auto& r : chain.rviv)
+        if (r.residue_spec.res_no > m) m = r.residue_spec.res_no;
+    return m;
+}
+
+/// Returns the largest residue number across all chains (or the selected chain).
+int max_residue_number(CootValidationGraph* self) {
+    int m = 0;
+    if (self->single_chain_id) {
+        const auto* chain = get_chain_with_id(self, *self->single_chain_id);
+        if (chain) m = max_residue_number_for_chain(*chain);
+    } else {
+        for (const auto& chain : self->_vi->cviv) {
+            int cm = max_residue_number_for_chain(chain);
+            if (cm > m) m = cm;
+        }
+    }
+    return m;
 }
 
 /// Returns maximum function value found for the given chain
@@ -179,8 +206,16 @@ double map_value_to_bar_proportion(double residue_value, double amplitude, coot:
     double floor = compute_floor_value(type);
     double base_proportion = (residue_value - floor) / amplitude;
     switch (type) {
-        case ty::LogProbability: { 
+        case ty::LogProbability: {
            return std::log10(base_proportion * 9.f + 1.f);
+        }
+        case ty::Probability: {
+           // residue_value is a percentage (0..100). Invert and log-scale so
+           // that low-probability (interesting) rotamers give large bars and
+           // common rotamers give small ones.
+           // p=100% -> 0, p=10% -> 0.5, p<=1% -> 1.
+           double p_pct = std::max(residue_value, 1.0);
+           return (2.0 - std::log10(p_pct)) / 2.0;
         }
         default: {
            if (base_proportion > 1.0) base_proportion = 1.0;
@@ -193,9 +228,13 @@ double map_bar_proportion_to_value(double bar_height_ratio, double amplitude, co
     using ty = coot::graph_data_type;
     double floor = compute_floor_value(type);
     switch (type) {
-        case ty::LogProbability: { 
+        case ty::LogProbability: {
             return (std::pow(10,bar_height_ratio) - 1.f) / 9.f * amplitude + floor;
-            
+
+        }
+        case ty::Probability: {
+            // Inverse of (2 - log10(p_pct)) / 2 above. Returns percentage.
+            return std::pow(10.0, 2.0 - 2.0 * bar_height_ratio);
         }
         default: {
             return bar_height_ratio * amplitude + floor;
@@ -231,7 +270,7 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot) {
 
     float w = static_cast<float>(gtk_widget_get_width(widget));
     float h = static_cast<float>(gtk_widget_get_height(widget));
-    
+
     // 1. Draw title
     graphene_rect_t m_graphene_rect = GRAPHENE_RECT_INIT(0, 0, w, h);
     cairo_t* cairo_canvas = gtk_snapshot_append_cairo(snapshot,&m_graphene_rect);
@@ -260,14 +299,20 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot) {
         // A GtkLabel as a child widget could also be used, but I have no idea how to manage layout inside widgets
 
         float base_height = TITLE_HEIGHT;
-        const float _max_chain_residue_count = self->single_chain_id ? get_chain_with_id(self,*self->single_chain_id)->rviv.size() : max_chain_residue_count(self);
-        float width_step = (w - (float) (GRAPH_HORIZ_OFFSET + RIGHT_SIDE_MARGIN)) / _max_chain_residue_count;
+        // x-position is now proportional to residue number, with residue 1
+        // at the left edge of the plot area. The width of one residue slot:
+        const int max_res_no = std::max(1, max_residue_number(self));
+        float width_step = (w - (float) (GRAPH_HORIZ_OFFSET + RIGHT_SIDE_MARGIN)) / static_cast<float>(max_res_no);
         const int chain_count =  self->single_chain_id ? 1 : self->_vi->cviv.size();
         float height_diff = 0;
         if (chain_count != 1) {
-            height_diff = (h - (float) TITLE_HEIGHT - (float) chain_count * (CHAIN_HEIGHT + CHAIN_SPACING)) / ((float) chain_count - 1.f);
+            // Hold BOTTOM_LABEL_PAD back at the bottom so the last chain's
+            // tick labels don't get pushed off the widget.
+            height_diff = (h - (float) TITLE_HEIGHT - (float) BOTTOM_LABEL_PAD
+                           - (float) chain_count * (CHAIN_HEIGHT + CHAIN_SPACING)) / ((float) chain_count - 1.f);
+            if (height_diff < 0.f) height_diff = 0.f;
         }
-        
+
         cairo_set_line_width(cairo_canvas,AXIS_LINE_WIDTH);
 
         for(const auto& chain: self->_vi->cviv) {
@@ -308,7 +353,7 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot) {
                 cairo_move_to(cairo_canvas, MARKER_VERT_PLACEMENT, axis_y_offset + marker_offset);
                 cairo_line_to(cairo_canvas, AXIS_MARGIN, axis_y_offset + marker_offset);
                 cairo_stroke(cairo_canvas);
-                
+
                 double marker_level;
                 if (coot::should_hang_down(self->_vi->type)) {
                     marker_level = map_bar_proportion_to_value(m / (float) VERTICAL_MARKER_COUNT, amplitude, self->_vi->type);
@@ -321,17 +366,19 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot) {
                 cairo_move_to(cairo_canvas, 0,axis_y_offset + marker_offset - layout_height/2.f);
                 pango_cairo_show_layout(cairo_canvas, pango_layout);
             }
-            
+
             // horizontal axis
             cairo_move_to(cairo_canvas, AXIS_MARGIN, axis_y_offset + AXIS_HEIGHT);
             cairo_line_to(cairo_canvas, w, axis_y_offset + AXIS_HEIGHT);
             cairo_stroke(cairo_canvas);
 
             base_height += AXIS_HEIGHT + GRAPH_VERT_OFFSET;
-            float base_width = GRAPH_HORIZ_OFFSET;
-            unsigned int idx = 0;
+            // place blocks at x proportional to residue number (offset 0 if
+            // chain starts at residue 1, offset 10 slots if it starts at 11).
             for(const auto& residue: chain.rviv) {
                 /// draw bar
+                float base_width = GRAPH_HORIZ_OFFSET +
+                                   (static_cast<float>(residue.residue_spec.res_no) - 1.0f) * width_step;
 
                 float bar_height = CHAIN_HEIGHT * std::max(std::min(map_value_to_bar_proportion(residue.function_value, amplitude, self->_vi->type),1.0),0.0);
                 float bar_y_offset = base_height;
@@ -345,8 +392,7 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot) {
                 GskRoundedRect outline;
                 gsk_rounded_rect_init_from_rect(&outline,
                                                 &m_graphene_rect,
-                                                0
-                                                );
+                                                0);
                 GdkRGBA residue_color_computed = residue_color;
                 GdkRGBA border_color_computed = border_color;
                 auto green_to_red = [&] (double bar_proportion) {
@@ -358,9 +404,11 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot) {
                    // residue_color_computed.green = 1.0 - (1.f - std::pow(bar_proportion,3)) * residue_color.green;
                    // residue_color_computed.blue  = 0.2; //std::pow(bar_proportion,5);
 
-                   residue_color_computed.red   = bar_proportion;
-                   residue_color_computed.green = 1.0 - bar_proportion;
-                   residue_color_computed.blue  = 0.2; //std::pow(bar_proportion,5);
+                   // Interpolate between muted green (0.3, 0.7, 0.35) and muted red (0.85, 0.25, 0.22)
+                   double t = bar_proportion;
+                   residue_color_computed.red   = 0.30 + t * 0.55;
+                   residue_color_computed.green = 0.70 - t * 0.45;
+                   residue_color_computed.blue  = 0.35 - t * 0.13;
                 };
                 auto red_to_green = [&](double bar_proportion) {
                     // dirty trick
@@ -368,43 +416,57 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot) {
                 };
 
 
-                switch (self->_vi->type) {
-                    case coot::graph_data_type::LogProbability:
-                    case coot::graph_data_type::Probability:
-                    case coot::graph_data_type::Score:
-                    case coot::graph_data_type::Correlation:
-                    {
-                       double prop = map_value_to_bar_proportion(residue.function_value, amplitude, self->_vi->type);
-                       // std::cout << "................. red_to_green " << residue.function_value << " "
-                       // << graph_type_str << " " << prop << std::endl;
-                        red_to_green(prop);
-                        break;
-                    }
-                    case coot::graph_data_type::Distortion:
-                    default: {
-                       double prop = map_value_to_bar_proportion(residue.function_value, amplitude, self->_vi->type);
-                       // std::cout << "................. green_to_red " << residue.function_value << " "
-                       // << graph_type_str << " " << prop << std::endl;
-                        green_to_red(prop);
-                    }
+               switch (self->_vi->type) {
+                   case coot::graph_data_type::LogProbability:
+                   case coot::graph_data_type::Score:
+                   {
+                      double prop = map_value_to_bar_proportion(residue.function_value, amplitude, self->_vi->type);
+                      red_to_green(prop);
+                      break;
+                   }
+                   case coot::graph_data_type::Correlation:
+                   {
+                      // Colour directly from the correlation value, not the bar proportion.
+                      // corr <= 0.2 -> fully red, corr >= 0.8 -> fully green, non-linear between.
+                      double corr = std::max(std::min(residue.function_value, 0.8), 0.2);
+                      double t = (corr - 0.2) / 0.6; // 0 at corr=0.2, 1 at corr=0.8
+                      double colour_prop = t * t;     // quadratic: biased toward red
+                      green_to_red(1.0 - colour_prop);
+                      break;
+                   }
+                   case coot::graph_data_type::Probability:
+                   {
+                      // Colour from the probability (in %) directly, decoupled from bar height:
+                      // p >= 10% -> green, p <= 1% -> red, log-linear between.
+                      double p_pct = std::max(std::min(residue.function_value, 10.0), 1.0);
+                      double colour_prop = 1.0 - std::log10(p_pct); // 1.0 at p=1%, 0.0 at p=10%
+                      green_to_red(colour_prop);
+                      break;
+                   }
+                   case coot::graph_data_type::Distortion:
+                   default: {
+                      double prop = map_value_to_bar_proportion(residue.function_value, amplitude, self->_vi->type);
+                      green_to_red(prop);
+                   }
                 }
                 GdkRGBA border_colors[] = {border_color_computed,border_color_computed,border_color_computed,border_color_computed};
                 gtk_snapshot_append_color(snapshot, &residue_color_computed, &m_graphene_rect);
                 gtk_snapshot_append_border(snapshot, &outline , border_thickness, border_colors);
 
-                // draw horizontal markers
-                if(++idx % HORIZONTAL_MARKER_INTERVAL == 0) {
-                    cairo_move_to(cairo_canvas,base_width + width_step/2.f, axis_y_offset + AXIS_HEIGHT);
-                    cairo_line_to(cairo_canvas,base_width + width_step/2.f, axis_y_offset + AXIS_HEIGHT + MARKER_LENGTH * 2);
-                    cairo_stroke(cairo_canvas);
-                    std::string marker_label = "<span size=\"x-small\" >" + std::to_string(idx) + "</span>";
-                    pango_layout_set_markup(pango_layout,marker_label.c_str(),-1);
-                    pango_layout_get_pixel_size(pango_layout,&layout_width,&layout_height);
-                    cairo_move_to(cairo_canvas, base_width + width_step/2.f - layout_width/2.f,axis_y_offset + AXIS_HEIGHT + MARKER_LENGTH * 2 );
-                    pango_cairo_show_layout(cairo_canvas, pango_layout);
-                }
+            }
 
-                base_width += width_step;
+            // draw horizontal markers at every HORIZONTAL_MARKER_INTERVAL residues
+            // (by residue number), independent of the per-chain residue list.
+            for (int rn = HORIZONTAL_MARKER_INTERVAL; rn <= max_res_no; rn += HORIZONTAL_MARKER_INTERVAL) {
+                float tx = GRAPH_HORIZ_OFFSET + (static_cast<float>(rn) - 1.0f) * width_step + width_step/2.f;
+                cairo_move_to(cairo_canvas, tx, axis_y_offset + AXIS_HEIGHT);
+                cairo_line_to(cairo_canvas, tx, axis_y_offset + AXIS_HEIGHT + MARKER_LENGTH * 2);
+                cairo_stroke(cairo_canvas);
+                std::string marker_label = "<span size=\"x-small\" >" + std::to_string(rn) + "</span>";
+                pango_layout_set_markup(pango_layout, marker_label.c_str(), -1);
+                pango_layout_get_pixel_size(pango_layout, &layout_width, &layout_height);
+                cairo_move_to(cairo_canvas, tx - layout_width/2.f, axis_y_offset + AXIS_HEIGHT + MARKER_LENGTH * 2);
+                pango_cairo_show_layout(cairo_canvas, pango_layout);
             }
             base_height += GRAPH_X_AXIS_SEPARATION + BOTTOM_MARGIN + height_diff;
         }
@@ -427,24 +489,19 @@ void coot_validation_graph_measure
         switch (orientation)
         {
         case GTK_ORIENTATION_HORIZONTAL:{
-            if (self->single_chain_id) {
-                const auto* chain = get_chain_with_id(self, *self->single_chain_id);
-                if(chain) {
-                    *minimum_size = chain->rviv.size() * (RESIDUE_WIDTH + RESIDUE_SPACING) * self->horizontal_scale + GRAPH_HORIZ_OFFSET + RIGHT_SIDE_MARGIN;
-                    *natural_size = chain->rviv.size() * (RESIDUE_WIDTH + RESIDUE_SPACING) * self->horizontal_scale + GRAPH_HORIZ_OFFSET + RIGHT_SIDE_MARGIN;
-                }
-            } else {
-                auto max_chain_residues = max_chain_residue_count(self);
-                *minimum_size = max_chain_residues * (RESIDUE_WIDTH + RESIDUE_SPACING) * self->horizontal_scale + GRAPH_HORIZ_OFFSET + RIGHT_SIDE_MARGIN;
-                *natural_size = max_chain_residues * (RESIDUE_WIDTH + RESIDUE_SPACING) * self->horizontal_scale + GRAPH_HORIZ_OFFSET + RIGHT_SIDE_MARGIN;
-            }
+            // x-position is now proportional to residue number, so size the
+            // widget by the largest residue number (not residue count).
+            int slots = max_residue_number(self);
+            if (slots < 1) slots = 1;
+            *minimum_size = slots * (RESIDUE_WIDTH + RESIDUE_SPACING) * self->horizontal_scale + GRAPH_HORIZ_OFFSET + RIGHT_SIDE_MARGIN;
+            *natural_size = *minimum_size;
             break;
         }
         case GTK_ORIENTATION_VERTICAL:{
             auto num_of_chains = self->single_chain_id ? 1 : self->_vi->cviv.size();
-            //g_debug("Num of chains: %u",num_of_chains);
-            auto size = num_of_chains * (CHAIN_HEIGHT + CHAIN_SPACING) + TITLE_HEIGHT;
-            //g_debug("Vertical size: %u",size);
+            // Extra room below the last chain so the residue-number tick labels
+            // (which sit MARKER_LENGTH*2 below the x-axis) aren't clipped.
+            auto size = num_of_chains * (CHAIN_HEIGHT + CHAIN_SPACING) + TITLE_HEIGHT + BOTTOM_LABEL_PAD;
             *minimum_size = size;
             *natural_size = size;
             break;

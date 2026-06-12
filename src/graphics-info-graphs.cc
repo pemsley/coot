@@ -151,12 +151,7 @@ void graphics_info_t::refresh_ramachandran_plot_model_list() {
    // noise
    // std::cout << "----------------------- refresh_ramachandran_plot_model_list --------- " << std::endl;
 
-   auto fn = +[] (GtkTreeModel* model, GtkTreePath* path, GtkTreeIter* iter, gpointer data) {
-      GtkListStore* list = GTK_LIST_STORE(model);
-      return gboolean(!gtk_list_store_remove(list,iter));
-   };
-
-   gtk_tree_model_foreach(GTK_TREE_MODEL(ramachandran_plot_model_list), fn, NULL);
+   gtk_list_store_clear(ramachandran_plot_model_list);
 
    for(int i=0; i<graphics_info_t::n_molecules(); i++) {
       if (graphics_info_t::molecules[i].has_model()) {
@@ -1044,6 +1039,20 @@ graphics_info_t::update_validation(int imol_changed_model) {
    if (coot_all_atom_contact_dots_are_begin_displayed_for(imol_changed_model)) {
       mmdb::Manager *mol = molecules[imol_changed_model].atom_sel.mol;
       coot_all_atom_contact_dots_instanced(mol, imol_changed_model);
+   }
+
+   // redraw the sequence view (CootSequenceView reads mmdb::Manager live in snapshot())
+   GtkWidget *seq_view_box = widget_from_builder("main_window_sequence_view_box");
+   if (seq_view_box) {
+      GtkWidget *item = gtk_widget_get_first_child(seq_view_box);
+      while (item) {
+         int imol_overlay = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item), "imol"));
+         if (imol_overlay == imol_changed_model) {
+            GtkWidget *sv = GTK_WIDGET(g_object_get_data(G_OBJECT(item), "coot-sequence-view"));
+            if (sv) gtk_widget_queue_draw(sv);
+         }
+         item = gtk_widget_get_next_sibling(item);
+      }
    }
 }
 

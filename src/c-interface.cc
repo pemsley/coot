@@ -35,6 +35,7 @@
 #include <glib.h>
 #include <gtk/gtk.h>
 #include <gtk/gtkshortcut.h>
+#include "glibconfig.h"
 #include "mmdb2/mmdb_selmngr.h"
 #include "pytypedefs.h"
 #ifdef USE_PYTHON
@@ -3143,18 +3144,26 @@ set_symmetry_colour_merge(float v) {
 }
 
 /*! \brief set the symmetry colour base */
-void set_symmetry_colour(float r, float g, float b) {
+void
+set_symmetry_colour(float r, float g, float b) {
 
    graphics_info_t::symmetry_colour[0] = r;
    graphics_info_t::symmetry_colour[1] = g;
    graphics_info_t::symmetry_colour[2] = b;
+
+   // The symmetry colour is baked into the symmetry-bonds mesh when it is built
+   // (make_glsl_symmetry_bonds() reads graphics_info_t::symmetry_colour), so the
+   // mesh must be regenerated for the molecules that are showing symmetry.
+   graphics_info_t::update_symmetry();
+   graphics_draw();
 
    std::string cmd = "set-symmetry-colour";
    std::vector<coot::command_arg_t> args;
    args.push_back(r);
    args.push_back(g);
    args.push_back(b);
-   add_to_history_typed(cmd, args);}
+   add_to_history_typed(cmd, args);
+}
 
 
 void set_colour_map_rotation_on_read_pdb(float f) {
@@ -3959,6 +3968,7 @@ std::pair<short int, float> float_from_entry(GtkWidget *entry) {
 
    std::pair<short int, float> p(0,0);
    const gchar *txt = gtk_editable_get_text(GTK_EDITABLE(entry));
+   std::cout << "DEBUG:: float_from_entry()::::::::::::::: " << txt << std::endl;
    if (txt) {
       float f = atof(txt);
       p.second = f;
@@ -8338,7 +8348,6 @@ void sequence_view(int imol) {
       gtk_widget_set_hexpand(scrolled_window, TRUE);
       gtk_widget_set_vexpand(scrolled_window, TRUE);
       gtk_widget_set_hexpand(frame, TRUE);
-      gtk_widget_set_vexpand(frame, TRUE);
 
       // The sequence-view is in the frame, the frame is in the scrolled window.
       // The scrolled window is in the overlay.
@@ -8366,6 +8375,7 @@ void sequence_view(int imol) {
       GtkWidget *button = gtk_button_new_from_icon_name("window-close");
       GtkStyleContext *sc = gtk_widget_get_style_context(button);
       gtk_style_context_add_class(sc, "circular");
+
       auto close_button_callback = +[] (GtkButton *button, gpointer data) {
          int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "imol"));
          std::cout << "close this sequence view " << imol << std::endl;
@@ -8400,6 +8410,8 @@ void sequence_view(int imol) {
       gtk_widget_set_visible(vbox, TRUE);
       g_object_set_data(G_OBJECT(button), "sequence_view_box", vbox);
       g_object_set_data(G_OBJECT(overlay), "imol", GINT_TO_POINTER(imol));
+      // Let update_validation() find this sequence view by imol and redraw it after model edits.
+      g_object_set_data(G_OBJECT(overlay), "coot-sequence-view", sv);
       // GTK_ALIGN_END works OK/as intended, except the main graphics widget (or window) is too narrow to see it.
       // Make the window wider and change this to GTK_ALIGN_END.
       // gtk_widget_set_halign(GTK_WIDGET(button), GTK_ALIGN_START);
@@ -8408,17 +8420,23 @@ void sequence_view(int imol) {
 
       gtk_box_append(GTK_BOX(vbox), overlay);
 
-      // int new_height;
-      // gtk_widget_measure(GTK_WIDGET(sv), GTK_ORIENTATION_VERTICAL, 0, &new_height, nullptr, nullptr, nullptr);
-      // gtk_widget_set_size_request(vbox, -1, new_height);
+      // Set max height on the scrolled window so that vertical scrolling
+      // kicks in for molecules with many chains.
+      int max_seq_view_height = 250;
+      gtk_scrolled_window_set_max_content_height(GTK_SCROLLED_WINDOW(scrolled_window), max_seq_view_height);
+      gtk_scrolled_window_set_propagate_natural_height(GTK_SCROLLED_WINDOW(scrolled_window), TRUE);
 
-      int minimum_size;
-      int natural_size;
-      gtk_widget_measure(GTK_WIDGET(sv), GTK_ORIENTATION_VERTICAL, 0, &minimum_size, &natural_size, nullptr, nullptr);
-      int current_height = gtk_widget_get_height(vbox);
-      if (current_height < natural_size) {
-         gtk_widget_set_size_request(vbox, -1, natural_size);
-      }
+      // The sequence view box is the first child of a GtkPaned. Set the paned
+      // position so the sequence view gets a reasonable initial height rather
+      // than being squeezed to a sliver by the graphics area.
+      int sv_min_height = 0;
+      int sv_nat_height = 0;
+      gtk_widget_measure(GTK_WIDGET(sv), GTK_ORIENTATION_VERTICAL, -1,
+                         &sv_min_height, &sv_nat_height, nullptr, nullptr);
+      int pane_height = std::min(sv_nat_height, max_seq_view_height);
+      GtkWidget *paned = widget_from_builder("main_window_sequence_view_vs_graphics_pane");
+      if (paned)
+         gtk_paned_set_position(GTK_PANED(paned), pane_height);
    }
 }
 

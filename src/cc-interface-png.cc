@@ -347,6 +347,9 @@ void display_png_from_string_in_a_dialog(const std::string &string, const std::s
 
 #ifdef HAVE_RSVG
 #include <librsvg/rsvg.h>
+#ifndef LIBRSVG_CHECK_VERSION
+#define LIBRSVG_CHECK_VERSION(major, minor, micro) 0
+#endif
 #endif
 
 #include "utils/next-file-version.hh"
@@ -476,28 +479,25 @@ void display_svg_from_string_in_a_dialog(const std::string &image_string, const 
 
       auto draw_svg = +[] (GtkDrawingArea *da, cairo_t *cr, int w, int h, gpointer data) {
 
-         GError *error = NULL;
          RsvgHandle *handle = static_cast<RsvgHandle *>(data);
-
-         GdkRectangle allocation;
-         gtk_widget_get_allocation(GTK_WIDGET(da), &allocation);
-         // Scale the SVG to fit the widget (optional, adjust as needed)
-         gboolean has_width, has_height, has_viewbox;
-         RsvgLength width, height;
-         RsvgRectangle viewbox;
          RsvgDimensionData dimension_data;
-         rsvg_handle_get_intrinsic_dimensions(handle, &has_width, &width, &has_height, &height,
-                                              &has_viewbox, &viewbox);
          rsvg_handle_get_dimensions(handle, &dimension_data);
-         std::cout << "in draw_svg(): dims " << dimension_data.width << " " << dimension_data.height << " "
-                   << " em: " << dimension_data.em << " ex: " << dimension_data.ex << std::endl;
 
          double scale = static_cast<double>(w / dimension_data.em);
          cairo_scale(cr, scale, scale);
          cairo_translate(cr, dimension_data.em/2.0, dimension_data.ex/2.0);
 
-         // Render the SVG
+#if LIBRSVG_CHECK_VERSION(2, 46, 0)
+         GError *error = NULL;
+         RsvgRectangle viewbox;
+         viewbox.x = 0;
+         viewbox.y = 0;
+         viewbox.width  = dimension_data.width;
+         viewbox.height = dimension_data.height;
          rsvg_handle_render_document(handle, cr, &viewbox, &error);
+#else
+         rsvg_handle_render_cairo(handle, cr);
+#endif
       };
 
       auto on_drawing_area_resize = +[] (GtkDrawingArea *da, int w, int h, gpointer data) {

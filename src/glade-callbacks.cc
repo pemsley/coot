@@ -2075,9 +2075,9 @@ on_environment_distance_dialog_ok_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-   GtkWidget *widget = widget_from_builder("environment_distance_dialog");
+   GtkWidget *dialog = widget_from_builder("environment_distances_dialog");
    execute_environment_settings(GTK_WIDGET(button));
-   gtk_widget_set_visible(widget, FALSE);
+   gtk_widget_set_visible(dialog, FALSE);
 
 }
 
@@ -5905,6 +5905,11 @@ on_python_scripting_button(GtkToggleButton *togglebutton, gpointer user_data) {
    toggle_reveal_python_scripting_entry();
 }
 
+extern "C" G_MODULE_EXPORT
+void
+on_claude_ai_button_clicked(GtkButton *button, gpointer user_data) {
+   toggle_claude_ai_terminal();
+}
 
 extern "C" G_MODULE_EXPORT
 void
@@ -6137,18 +6142,16 @@ on_generic_objects_display_all_togglebutton_toggled(GtkToggleButton *togglebutto
 
 extern "C" G_MODULE_EXPORT
 void
-on_generic_objects_close_all_button_clicked
-                                        (GtkButton       *button,
-                                        gpointer         user_data) {
+on_generic_objects_close_all_button_clicked(GtkButton       *button,
+                                            gpointer         user_data) {
   close_all_generic_objects();
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
-on_export_map_dialog_cancel_button_clicked
-                                        (GtkButton       *button,
-					 gpointer         user_data) {
+on_export_map_dialog_cancel_button_clicked(GtkButton       *button,
+					   gpointer         user_data) {
 
   GtkWidget *w = widget_from_builder("export_map_dialog");
   gtk_widget_set_visible(w, FALSE);
@@ -6562,6 +6565,20 @@ on_show_symmetry_yes_radiobutton_toggled(GtkCheckButton *checkbutton,
 
 extern "C" G_MODULE_EXPORT
 void
+on_symmetry_as_calphas_checkbutton_toggled(GtkCheckButton *checkbutton,
+                                           gpointer        user_data) {
+
+   short int state = gtk_check_button_get_active(checkbutton) ? 1 : 0;
+   int n_mol = graphics_n_molecules();
+   for (int imol=0; imol<n_mol; imol++) {
+      if (is_valid_model_molecule(imol)) {
+         symmetry_as_calphas(imol, state);
+      }
+   }
+}
+
+extern "C" G_MODULE_EXPORT
+void
 on_symmetry_radius_entry_activate(GtkEntry* self,
                                   gpointer user_data) {
 
@@ -6890,7 +6907,7 @@ on_ramachandran_plot_molecule_chooser_ok_button_clicked(GtkButton       *button,
    GtkWidget *combobox        = widget_from_builder("ramachandran_plot_molecule_chooser_model_combobox");
    GtkWidget *selection_entry = widget_from_builder("ramachandran_plot_molecule_chooser_residue_selection_entry");
    GtkWidget *scrolled        = widget_from_builder("ramachandran_plots_scrolled_window");
-   GtkWidget *pane            = widget_from_builder("main_window_ramchandran_and_validation_pane");
+   GtkWidget *pane            = widget_from_builder("main_window_ramachandran_and_validation_pane");
 
    std::string residue_selection_string = gtk_editable_get_text(GTK_EDITABLE(selection_entry));
 
@@ -7131,6 +7148,7 @@ on_first_startup_use_left_button_clicked(GtkButton       *button,
 
    preferences_internal_change_value_int(PREFERENCES_VIEW_ROTATION_MOUSE_BUTTON, 1);
    set_use_primary_mouse_button_for_view_rotation(1);
+   save_preferences(); // persist the choice immediately
 }
 
 extern "C" G_MODULE_EXPORT
@@ -7143,6 +7161,7 @@ on_first_startup_use_right_button_clicked(GtkButton       *button,
 
    preferences_internal_change_value_int(PREFERENCES_VIEW_ROTATION_MOUSE_BUTTON, 0);
    set_use_primary_mouse_button_for_view_rotation(0);
+   save_preferences(); // persist the choice immediately
 }
 
 extern "C" G_MODULE_EXPORT

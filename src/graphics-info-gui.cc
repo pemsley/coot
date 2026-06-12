@@ -445,7 +445,7 @@ graphics_info_t::set_file_for_save_filechooser(GtkWidget *filechooser) const {
 	}
       }
 
-      if (true)
+      if (false)
 	 std::cout << "DEBUG:: Setting filechooser with file: " << full_name
 		   << std::endl;
 
@@ -1821,21 +1821,21 @@ graphics_info_t::new_fill_combobox_with_coordinates_options(GtkWidget *combobox_
    gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(combobox_molecule), renderer, "text", 1, NULL);
    gtk_combo_box_set_model(GTK_COMBO_BOX(combobox_molecule), model);
 
+   // gtk_combo_box_set_active() takes the *row index* in the combobox, not the
+   // molecule number. They differ whenever there are gaps in the molecule list
+   // (maps, deleted molecules), which is why passing imol_active here used to fail
+   // to select the right item.
+   int active_row = -1;
    for (unsigned int ii=0; ii<molecule_indices.size(); ii++) {
-      const auto &imol = molecule_indices[ii];
-      const molecule_class_info_t &m = graphics_info_t::molecules[imol];
-      if (imol == imol_active) {
-         // 20220415-PE this doesn't work (for renumber residues - annoying)
-
-         std::cout << "!!!!!!!!!!! setting active on a gtk combobox " << imol_active << std::endl;
-         gtk_combo_box_set_active(GTK_COMBO_BOX(combobox_molecule), imol_active);
-         std::cout << "!!!!!!!!!!! combobox get_active() returns " <<  gtk_combo_box_get_active(GTK_COMBO_BOX(combobox_molecule)) << std::endl;
-         if (GTK_IS_COMBO_BOX(combobox_molecule))
-            std::cout << "!!!!!!!!!!! " << "combobox is a combobox" << std::endl;
-         if (GTK_IS_COMBO_BOX_TEXT(combobox_molecule))
-            std::cout << "!!!!!!!!!!! " << "combobox is a comboboxtext" << std::endl;
+      if (molecule_indices[ii] == imol_active) {
+         active_row = ii;
+         break;
       }
    }
+   if (active_row < 0 && !molecule_indices.empty())
+      active_row = 0; // fall back to the first molecule
+   if (active_row >= 0)
+      gtk_combo_box_set_active(GTK_COMBO_BOX(combobox_molecule), active_row);
 
 
    if (callback_func)
@@ -4334,7 +4334,7 @@ graphics_info_t::fill_difference_map_peaks_button_box() {
    };
 
 
-   GtkWidget *pane_to_show  = widget_from_builder("main_window_ramchandran_and_validation_pane");
+   GtkWidget *pane_to_show  = widget_from_builder("main_window_ramachandran_and_validation_pane");
    gtk_widget_set_visible(pane_to_show,  TRUE);
 
    GtkWidget *pane = widget_from_builder("main_window_graphics_rama_vs_graphics_pane");
@@ -4886,7 +4886,7 @@ graphics_info_t::fill_atoms_with_zero_occupancy_box_of_buttons(const std::vector
        GtkWidget *validation_graph_vbx = widget_from_builder("main_window_validation_graph_vbox");
        gtk_widget_set_visible(validation_graph_vbx, TRUE);
 
-       GtkWidget *pane_to_show  = widget_from_builder("main_window_ramchandran_and_validation_pane");
+       GtkWidget *pane_to_show  = widget_from_builder("main_window_ramachandran_and_validation_pane");
        gtk_widget_set_visible(pane_to_show,  TRUE);
 
        GtkWidget *pane = widget_from_builder("main_window_graphics_rama_vs_graphics_pane");

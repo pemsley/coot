@@ -930,8 +930,10 @@ namespace coot {
                                                unsigned int num_subdivisions) const;
 
       //! @return the instanced mesh for the specified molecule
-      instanced_mesh_t all_molecule_contact_dots(const coot::protein_geometry &geom,
-                                                 unsigned int num_subdivisions) const;
+      //!
+      //! This can modify the geom by loading dictionaries.
+      instanced_mesh_t all_molecule_contact_dots(coot::protein_geometry &geom,
+                                                 unsigned int num_subdivisions);
 
       generic_3d_lines_bonds_box_t
       make_exportable_environment_bond_box(coot::residue_spec_t &spec, float max_dist, coot::protein_geometry &geom) const;
@@ -1278,6 +1280,11 @@ namespace coot {
       // merge molecules helper functions
 
       bool is_het_residue(mmdb::Residue *residue_p) const;
+
+      // get hetgroups - don't include waters.
+      // the res-name is in the user-defined string
+      std::vector<coot::residue_spec_t> get_hetgroups() const;
+
       // return state, max_resno + 1, or 0, 1 of no residues in chain.
       //
       std::pair<short int, int> next_residue_number_in_chain(mmdb::Chain *w,
@@ -1447,6 +1454,21 @@ namespace coot {
 								      const user_defined_colour_table_t &udct,
                                                                       const clipper::Xmap<float> &xmap);
 
+      //! Get a map cap mesh (2D cross-section with stitched 3D isosurface walls)
+      simple_mesh_t get_map_cap_mesh(float contour_level,
+                                     const clipper::Coord_orth &base_point,
+                                     const clipper::Coord_orth &x_axis_uv,
+                                     const clipper::Coord_orth &y_axis_uv,
+                                     double x_axis_step_size,
+                                     double y_axis_step_size,
+                                     unsigned int n_x_axis_points,
+                                     unsigned int n_y_axis_points,
+                                     bool use_thread_pool, ctpl::thread_pool *thread_pool_p,
+                                     const clipper::Xmap<float> *other_map_for_colouring_p = nullptr,
+                                     float other_map_for_colouring_min_value = 0.0f,
+                                     float other_map_for_colouring_max_value = 1.0f,
+                                     float radial_map_colour_saturation = 0.5f);
+
       //! map histogram class
       class histogram_info_t {
       public:
@@ -1554,6 +1576,9 @@ namespace coot {
       int get_number_of_map_sections(int axis_id) const;
 
       // ---------------------------------- blender --------------------------------------
+
+      simple_mesh_t get_test_function_on_surface_mesh(const std::string &cid,
+                                                      const ramachandrans_container_t &rc);
 
       blender_mesh_t blender_mesh;
       std::vector<float> get_vertices_for_blender() const;

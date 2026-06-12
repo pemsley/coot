@@ -48,7 +48,7 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
 	stb_image.h stb_image_write.h glyco-tree.hh positron.hh mini-texture.hh texture-as-floats.hh pae.hh q-score.hh \
 	acedrg-types-for-residue.hh gl-matrix.h ortep.hh coot-align.hh grid-balls.hh dict-link-info.hh \
         dirichlet-process.hh cfc.hh cremer-pople.hh born.hh inchikey-store.hh cylinder-utils.hh gmm.hh nef-utils.hh ptm-database.hh \
-	read-amber-trajectory.hh rebox-map.hh coot-coord-utils-gemmi.hh
+	read-amber-trajectory.hh rebox-map.hh coot-coord-utils-gemmi.hh map-cap.hh edcalc.hh crowther.hh patterson.hh surface-on-torus.hh
 
 
 pkgincludedir = $(includedir)/coot/coot-utils
@@ -91,7 +91,7 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc coot-coord-utils-gemmi.cc \
 	shapes.cc cmtz-interface.cc pugixml.cpp parse-pisa.cc gltf-export.cc pae.cc \
 	gl-matrix.cc gl-matrix-eigensystem.cc coot-align.cc grid-balls.cc dict-link-info.cc \
 	cremer-pople.cc inchikey-store.cc cylinder-utils.cc nef-utils.cc gaussian-atom-map-for-mask.cc \
-	read-amber-trajectory.cc
+	read-amber-trajectory.cc surface-on-torus.cc
 
 #    $(top_builddir)/mini-mol/libcoot-mini-mol.la
 #    $(top_builddir)/utils/libcoot-utils.la
@@ -145,7 +145,7 @@ libcoot_map_utils_la_SOURCES = coot-map-utils.cc peak-search.cc peak-search-from
 	xmap-stats.cc maps-spherical.cc pepflip-using-difference-map.cc exp-fit.cc blob-line.cc \
         slurp-map.cc find-water-baddies.cc diff-diff-map-peaks.cc mini-texture.cc positron.cc \
         texture-as-floats.cc merge-C-and-N-terminii.cc born.cc rebox-map.cc \
-        crowther.cc patterson.cc
+        crowther.cc patterson.cc map-cap.cc edcalc.cc
 
 
 # should libcoot-coord-utils link $CLIPPER_LIBS directly? (Hence CLIPPER_LIBS is not needed here)
@@ -308,6 +308,27 @@ test_coord_utils_gemmi_LDADD = \
 	$(top_builddir)/geometry/libcoot-geometry.la \
 	$(top_builddir)/utils/libcoot-utils.la \
 	$(CLIPPER_LIBS) $(GEMMI_LIBS) $(CCP4SRS_LIBS) -lpthread
+
+# test_peak_search_SOURCES = test-peak-search.cc
+# test_peak_search_LDADD = \
+# ./libcoot-map-utils.la   \
+# ./libcoot-coord-utils.la \
+# $(top_builddir)/utils/libcoot-utils.la \
+# $(CLIPPER_LIBS) -lpthread
+
+# test_substructure_SOURCES = test-substructure.cc
+# test_substructure_LDADD = \
+# 	./libcoot-map-utils.la   \
+# 	./libcoot-coord-utils.la \
+# 	$(top_builddir)/utils/libcoot-utils.la \
+# 	$(CLIPPER_LIBS) -lpthread
+
+# test_substructure_real_data_SOURCES = test-substructure-real-data.cc
+# test_substructure_real_data_LDADD = \
+# 	./libcoot-map-utils.la   \
+# 	./libcoot-coord-utils.la \
+# 	$(top_builddir)/utils/libcoot-utils.la \
+# 	$(CLIPPER_LIBS) -lpthread
 
 # test_segmap_SOURCES = test-segmap.cc
 # test_segmap_LDADD = \

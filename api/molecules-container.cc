@@ -2273,6 +2273,29 @@ molecules_container_t::get_map_contours_mesh(int imol, double position_x, double
    return mesh;
 }
 
+coot::simple_mesh_t
+molecules_container_t::get_map_cap_mesh(int imol, float contour_level,
+                                        double base_point_x, double base_point_y, double base_point_z,
+                                        double x_axis_x, double x_axis_y, double x_axis_z,
+                                        double y_axis_x, double y_axis_y, double y_axis_z,
+                                        double x_axis_step_size, double y_axis_step_size,
+                                        unsigned int n_x_axis_points, unsigned int n_y_axis_points) {
+
+   coot::simple_mesh_t mesh;
+   if (is_valid_map_molecule(imol)) {
+      clipper::Coord_orth base_point(base_point_x, base_point_y, base_point_z);
+      clipper::Coord_orth x_axis_uv(x_axis_x, x_axis_y, x_axis_z);
+      clipper::Coord_orth y_axis_uv(y_axis_x, y_axis_y, y_axis_z);
+      mesh = molecules[imol].get_map_cap_mesh(contour_level, base_point, x_axis_uv, y_axis_uv,
+                                              x_axis_step_size, y_axis_step_size,
+                                              n_x_axis_points, n_y_axis_points,
+                                              map_is_contoured_using_thread_pool_flag, &thread_pool);
+   } else {
+      std::cout << "WARNING:: get_map_cap_mesh() Not a valid map molecule " << imol << std::endl;
+   }
+   return mesh;
+}
+
 //! get the mesh for the map contours using another map for colouring
 //!
 coot::simple_mesh_t
@@ -4795,7 +4818,7 @@ molecules_container_t::contact_dots_for_ligand(int imol, const std::string &cid,
 
 //! @return the instanced mesh for the specified molecule
 coot::instanced_mesh_t
-molecules_container_t::all_molecule_contact_dots(int imol, unsigned int num_subdivisions) const {
+molecules_container_t::all_molecule_contact_dots(int imol, unsigned int num_subdivisions) {
 
    coot::instanced_mesh_t im;
    if (is_valid_model_molecule(imol)) {
@@ -6966,5 +6989,38 @@ molecules_container_t::get_pucker_analysis_info(int imol) const {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
    return pai;
+}
+
+void
+molecules_container_t::test_function_on_torus(int imol, const std::string &cid) {
+
+   if (is_valid_model_molecule(imol)) {
+      coot::simple_mesh_t mesh = molecules[imol].get_test_function_on_surface_mesh(cid, ramachandrans_container);
+      if (! mesh.vertices.empty()) {
+         std::string fn = "test.gltf";
+         float roughness_factor = 0.7f;
+         float smoothness_factor = 0.7f;
+         bool use_binary_format = true;
+         mesh.export_to_gltf(fn, roughness_factor, smoothness_factor, use_binary_format);
+
+      }
+   }
+}
+
+//! Get the hetgroup in the given molecule.
+//!
+//! Excluding waters
+//!
+//! @param imol is the model molecule index
+//! @return a vector of residue specifiers
+std::vector<coot::residue_spec_t> molecules_container_t::get_hetgroups(int imol) {
+
+   std::vector<coot::residue_spec_t> v;
+   if (is_valid_model_molecule(imol)) {
+      v = molecules[imol].get_hetgroups();
+   }
+   return v;
+
+
 }
 

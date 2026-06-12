@@ -54,6 +54,8 @@
 
 #include "cis-peptide-info.hh"
 
+
+
 namespace coot {
 
    // a generally useful class to be used with std::map where the
@@ -254,7 +256,10 @@ namespace coot {
          const double &b = abcd[1];
          const double &c = abcd[2];
          const double &d = abcd[3];
-         double top = a * pt.x() + b * pt.y() + c * pt.z() + d;
+         // plane equation is a*x + b*y + c*z - d = 0 (see the constructor and
+         // plane_deviation() - so the signed distance from pt to the plane is
+         // (a*px + b*py + c*pz - d) / sqrt(a^2 + b^2 + c^2).
+         double top = a * pt.x() + b * pt.y() + c * pt.z() - d;
          double bot = a * a + b * b + c * c;
          double f = top / bot;
          double x_p = pt.x() - a * f;
@@ -490,6 +495,10 @@ namespace coot {
       void assign_base_atom_coords(mmdb::Residue *residue_p);
       mmdb::Atom *N1_or_9;
       mmdb::Atom *C1_prime;
+
+      static double compute_pucker_parameter(std::vector<clipper::Coord_orth>& coordinates);
+      static std::string classify_pucker(double P_deg);
+
    public:
       float plane_distortion;
       float out_of_plane_distance;
@@ -497,6 +506,8 @@ namespace coot {
       std::vector<clipper::Coord_orth> base_atoms_coords; // the perpendicular distance of the
                                                           // following phosphate is to the *BASE*
                                                           // atoms (stupid boy).
+      double P_deg;
+      std::string pucker_name;
 
       // Throw an exception if it is not possible to generate pucker info
       //
@@ -512,7 +523,6 @@ namespace coot {
       std::string puckered_atom() const;
       std::string to_json() const;
    };
-
 
 
    class graph_match_info_t {

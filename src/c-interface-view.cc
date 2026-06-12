@@ -252,6 +252,42 @@ void set_map_material_specular(int imol, float specular_strength, float shinines
 
 }
 
+//! \brief set default map material ambient
+void set_default_map_material_ambient(float r, float g, float b, float alpha) {
+
+   glm::vec4 a(r,g,b,alpha);
+   graphics_info_t::default_material_for_maps.ambient = a;
+
+}
+
+//! \brief set default map material ambient
+void set_default_map_material_diffuse(float r, float g, float b, float alpha) {
+
+   glm::vec4 d(r,g,b,alpha);
+   graphics_info_t::default_material_for_maps.diffuse = d;
+
+}
+
+//! \brief set the default map material ambient
+void set_map_material_ambient(int imol, float r, float g, float b, float alpha) {
+
+   if (is_valid_map_molecule(imol)) {
+      glm::vec4 a(r,g,b,alpha);
+      graphics_info_t::molecules[imol].material_for_maps.ambient = a;
+      graphics_draw();
+   }
+}
+
+//! \brief set the default map material diffuse
+void set_map_material_diffuse(int imol, float r, float g, float b, float alpha) {
+
+   if (is_valid_map_molecule(imol)) {
+      glm::vec4 d(r,g,b,alpha);
+      graphics_info_t::molecules[imol].material_for_maps.diffuse = d;
+      graphics_draw();
+   }
+}
+
 void set_model_material_specular(int imol, float specular_strength, float shininess) {
 
    if (is_valid_model_molecule(imol)) {

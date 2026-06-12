@@ -56,7 +56,7 @@ coot::pucker_analysis_info_t::pucker_analysis_info_t(mmdb::Residue *res_p,
 
       // store the geometry
       markup_info.base_ring_centre = lsq_plane.value().centre();
-      markup_info.base_ring_normal = lsq_plane.value().centre();
+      markup_info.base_ring_normal = lsq_plane.value().normal();
 
       std::vector<mmdb::Atom *> ribose_atoms(5, nullptr); // ribose atoms
       std::vector<coot::pucker_analysis_info_t::PUCKERED_ATOM_T> possible_puckers;
@@ -112,6 +112,10 @@ coot::pucker_analysis_info_t::pucker_analysis_info_t(mmdb::Residue *res_p,
                                   ribose_atoms[i_oop_atom]->z);
             ribose_atoms_coords.push_back(c);
          }
+
+         P_deg = compute_pucker_parameter(ribose_atoms_coords);
+         pucker_name = classify_pucker(P_deg);
+
          // oop: out of plane distance
          std::vector<std::pair<float, float> > pucker_distortion_and_oop_d(5);
          for (int i_oop_atom=0; i_oop_atom<5; i_oop_atom++) {
@@ -174,15 +178,14 @@ coot::pucker_analysis_info_t::to_json() const {
    j["plane_distortion"]      = j_plane_distortion;
    j["out_of_plane_distance"] = j_out_of_plane_distance;
    j["puckered_atom"]         = j_puckered_atom;
-
+   j["P_deg"] = P_deg;
+   j["pucker_name"] = pucker_name;
    // json["plane_distortion"] = plane_distortion;
    // json["out_of_plane_distance"] = out_of_plane_distance;
    // json["puckered_atom"] = puckered_atom();
    std::string s = j.dump(4);
    return s;
 }
-
-
 
 void
 coot::pucker_analysis_info_t::assign_base_atom_coords(mmdb::Residue *residue_p) {
@@ -302,8 +305,60 @@ coot::pucker_analysis_info_t::assign_base_atom_coords(mmdb::Residue *residue_p) 
          }
       }
    }
-} 
+}
 
+double coot::pucker_analysis_info_t::compute_pucker_parameter(std::vector<clipper::Coord_orth> &coordinates) {
+      clipper::Coord_orth c1_prime = coordinates[0];
+   clipper::Coord_orth c2_prime = coordinates[1];
+   clipper::Coord_orth c3_prime = coordinates[2];
+   clipper::Coord_orth c4_prime = coordinates[3];
+   clipper::Coord_orth o4_prime = coordinates[4];
+
+   double v_0 = clipper::Coord_orth::torsion(c4_prime, o4_prime, c1_prime, c2_prime);
+   double v_1 = clipper::Coord_orth::torsion(o4_prime, c1_prime, c2_prime, c3_prime);
+   double v_2 = clipper::Coord_orth::torsion(c1_prime, c2_prime, c3_prime, c4_prime);
+   double v_3 = clipper::Coord_orth::torsion(c2_prime, c3_prime, c4_prime, o4_prime);
+   double v_4 = clipper::Coord_orth::torsion(c3_prime, c4_prime, o4_prime, c1_prime);
+
+   constexpr double deg36_r = 36.0 * M_PI / 180.0;
+   constexpr double deg72_r = 72.0 * M_PI / 180.0;
+
+   double numerator = (v_4 + v_1) - (v_3 + v_0);
+   double denominator = 2.0 * v_2 * (std::sin(deg36_r) + std::sin(deg72_r));
+
+   double P_rad = std::atan2(numerator, denominator);
+   double P_deg = P_rad * 180.0 / M_PI;
+
+   // double taum = v_2 / std::cos(P_rad);
+
+   if (P_deg < 0)
+      P_deg += 360.0;
+   return P_deg;
+}
+std::string coot::pucker_analysis_info_t::classify_pucker(double P_deg) {
+   // https://pubs.acs.org/doi/10.1021/ja412079b Figure 1
+   const std::array<std::string, 10> puckers = {
+      "C3-endo",
+      "C4-exo",
+      "O4-endo",
+      "C1-exo",
+      "C2-endo",
+      "C3-exo",
+      "C4-endo",
+      "O4-exo",
+      "C1-endo",
+      "C2-exo"
+  };
+
+   P_deg = std::fmod(P_deg, 360.0);
+   if (P_deg < 0.0)
+      P_deg += 360.0;
+
+   // Canonical envelope pucker centres lie at P = 18° + 36°·k (Altona–Sundaralingam),
+   // so the nearest classification is given by floor(P_deg / 36) mod 10.
+   const auto index = static_cast<std::size_t>(std::floor(P_deg / 36.0)) % puckers.size();
+   return puckers[index];
+}
 
 // Use the 3' phosphate of the following residue to calculate its out
 // of plane distance (the plane being the base plane).  Decide from
@@ -339,10 +394,17 @@ coot::pucker_analysis_info_t::phosphate_distance_to_base_plane(mmdb::Residue *fo
                m += coot::util::int_to_string(base_atoms_coords.size());
                m += " atoms. ";
                throw std::runtime_error(m);
-            } else { 
+            } else {
                std::pair<double, double> oop_plus_dev =
                   coot::lsq_plane_deviation(base_atoms_coords, pt);
                oop = oop_plus_dev.first;
+               // overwrite the markup info so that phosphorus_position and
+               // projected_point refer to the following residue's P (which is
+               // the P used for the pukka-pucker test), not the current
+               // residue's own P.
+               markup_info.phosphorus_position = pt;
+               lsq_plane_info_t lsq_plane(base_atoms_coords);
+               markup_info.projected_point = lsq_plane.projected_point(pt);
                found = 1;
                break;
             }

@@ -23,6 +23,7 @@
  * Fifth Floor, Boston, MA, 02110-1301, USA.
  */
 
+#include "glib.h"
 #include "gtk/gtk.h"
 #ifdef USE_PYTHON
 #ifndef PYTHONH
@@ -1862,6 +1863,12 @@ void toggle_reveal_python_scripting_entry() {
 #endif
 }
 
+void toggle_claude_ai_terminal() {
+#ifdef HAVE_VTE
+   toggle_claude_vte_terminal_visibility();
+#endif
+}
+
 // We want to evaluate the string when we get a carriage return
 // in this entry widget
 void
@@ -2251,6 +2258,7 @@ void handle_get_accession_code(GtkWidget *frame, GtkWidget *entry) {
    };
 
    const gchar *text_c = gtk_editable_get_text(GTK_EDITABLE(entry));
+   bool do_message = true;
 
    if (! text_c) {
       std::cout << "WARNING:: handle_get_accession_code no text " << std::endl;
@@ -2263,6 +2271,7 @@ void handle_get_accession_code(GtkWidget *frame, GtkWidget *entry) {
       std::cout << "DEBUG:: extracted accession code handle mode n " << n << std::endl;
       if (n == COOT_EMDB_CODE) {
          fetch_emdb_map(text);
+         do_message = false;
       } else {
          if (n == COOT_COD_CODE) {
 #ifdef USE_LIBCURL
@@ -2273,7 +2282,8 @@ void handle_get_accession_code(GtkWidget *frame, GtkWidget *entry) {
          }
       }
    }
-   graphics_info_t::ephemeral_overlay_label("Press U to return to previous centre");
+   if (do_message)
+      graphics_info_t::ephemeral_overlay_label("Press U to return to previous centre");
    // and hide the accession code window
    gtk_widget_set_visible(frame, FALSE);
 }
@@ -2291,6 +2301,58 @@ void do_torsions_toggle(GtkWidget *checkbutton) {
       g.do_torsion_restraints = 0;
 }
 
+// Set the active item of a GtkComboBoxText to the entry whose parsed
+// numerical value matches `value`. If no entry matches, insert a new
+// item formatted from `value` at the position that keeps the list
+// in ascending numerical order, and select it.
+static void
+sync_refine_params_combobox_to_value(GtkComboBox *combo, double value) {
+
+   if (!combo) return;
+   GtkTreeModel *model = gtk_combo_box_get_model(combo);
+   if (!model) return;
+
+   const double eps_rel = 1.0e-4;
+   int n = gtk_tree_model_iter_n_children(model, nullptr);
+   int insert_pos = n;             // append by default
+   int match_idx  = -1;
+
+   for (int i = 0; i < n; i++) {
+      GtkTreeIter iter;
+      if (!gtk_tree_model_iter_nth_child(model, &iter, nullptr, i)) break;
+      gchar *text = nullptr;
+      gtk_tree_model_get(model, &iter, 0, &text, -1);
+      if (!text) continue;
+      double item_val = 0.0;
+      try { item_val = coot::util::string_to_float(text); }
+      catch (const std::runtime_error &) { g_free(text); continue; }
+      g_free(text);
+
+      double tol = std::max(eps_rel, eps_rel * std::fabs(value));
+      if (std::fabs(item_val - value) <= tol) {
+         match_idx = i;
+         break;
+      }
+      if (item_val > value && insert_pos == n) {
+         insert_pos = i; // first item greater than value -> insert here
+      }
+   }
+
+   if (match_idx < 0) {
+      // pick a sensible number of decimal places: enough to round-trip
+      // the value without dropping significant digits.
+      int n_dp = 2;
+      double av = std::fabs(value);
+      if (av > 0.0 && av < 0.1)   n_dp = 4;
+      else if (av < 1.0)          n_dp = 3;
+      std::string txt = coot::util::float_to_string_using_dec_pl(value, n_dp);
+      gtk_combo_box_text_insert_text(GTK_COMBO_BOX_TEXT(combo), insert_pos, txt.c_str());
+      match_idx = insert_pos;
+   }
+
+   gtk_combo_box_set_active(combo, match_idx);
+}
+
 void set_refine_params_comboboxes() {
 
    graphics_info_t g;
@@ -2298,13 +2360,20 @@ void set_refine_params_comboboxes() {
    GtkWidget *cb2 = widget_from_builder("refine_params_rama_restraints_combobox");
    GtkWidget *cb3 = widget_from_builder("refine_params_lennard_jones_epsilon_combobox");
    GtkWidget *cb4 = widget_from_builder("refine_params_torsion_weight_combobox");
-   GtkWidget *cb5 = widget_from_builder("refine_params_overall_weight_combobox");
    GtkWidget *tb  = widget_from_builder("refine_params_more_control_togglebutton");
 
-   if (cb1) gtk_combo_box_set_active(GTK_COMBO_BOX(cb1), g.refine_params_dialog_geman_mcclure_alpha_combobox_position);
-   if (cb2) gtk_combo_box_set_active(GTK_COMBO_BOX(cb2), g.refine_params_dialog_rama_restraints_weight_combobox_position);
-   if (cb3) gtk_combo_box_set_active(GTK_COMBO_BOX(cb3), g.refine_params_dialog_lennard_jones_epsilon_combobox_position);
-   if (cb4) gtk_combo_box_set_active(GTK_COMBO_BOX(cb4), g.refine_params_dialog_torsions_weight_combox_position);
+   if (cb1) sync_refine_params_combobox_to_value(GTK_COMBO_BOX(cb1), g.geman_mcclure_alpha);
+   if (cb2) sync_refine_params_combobox_to_value(GTK_COMBO_BOX(cb2), g.rama_plot_restraints_weight);
+   if (cb3) sync_refine_params_combobox_to_value(GTK_COMBO_BOX(cb3), g.lennard_jones_epsilon);
+   if (cb4) sync_refine_params_combobox_to_value(GTK_COMBO_BOX(cb4), g.torsion_restraints_weight);
+
+   // Keep the cached combobox positions in sync with the active index so the
+   // change-callbacks (which write these as `idx`) and any external callers
+   // see consistent state.
+   if (cb1) g.refine_params_dialog_geman_mcclure_alpha_combobox_position  = gtk_combo_box_get_active(GTK_COMBO_BOX(cb1));
+   if (cb2) g.refine_params_dialog_rama_restraints_weight_combobox_position = gtk_combo_box_get_active(GTK_COMBO_BOX(cb2));
+   if (cb3) g.refine_params_dialog_lennard_jones_epsilon_combobox_position = gtk_combo_box_get_active(GTK_COMBO_BOX(cb3));
+   if (cb4) g.refine_params_dialog_torsions_weight_combox_position        = gtk_combo_box_get_active(GTK_COMBO_BOX(cb4));
 
 
    if (tb) {
@@ -2474,7 +2543,6 @@ void toggle_environment_show_distances(GtkCheckButton *button) {
    graphics_info_t g;
 
    GtkWidget *hbox                    = widget_from_builder("environment_distance_distances_frame");
-   GtkWidget *distance_type_frame     = widget_from_builder("environment_distances_type_selection");
    GtkWidget *label_atom_check_button = widget_from_builder("environment_distance_label_atom_checkbutton");
 
    if (gtk_check_button_get_active(button)) {
@@ -2482,7 +2550,6 @@ void toggle_environment_show_distances(GtkCheckButton *button) {
       g.environment_show_distances = 1;
       gtk_widget_set_sensitive(hbox, TRUE);
       gtk_widget_set_sensitive(label_atom_check_button, TRUE);
-      gtk_widget_set_sensitive(distance_type_frame, TRUE);
 
       std::pair<int, int> r = g.get_closest_atom();
       if (r.first >= 0) {
@@ -2492,10 +2559,8 @@ void toggle_environment_show_distances(GtkCheckButton *button) {
       }
 
    } else {
-      // std::cout << "toggled evironment distances off" << std::endl;
       g.environment_show_distances = 0;
       gtk_widget_set_sensitive(hbox, FALSE);
-      gtk_widget_set_sensitive(distance_type_frame, FALSE);
       graphics_draw();
       // gtk_widget_set_sensitive(label_atom_check_button, FALSE); // keep it always active
    }
@@ -3291,6 +3356,7 @@ void close_molecule(int imol) {
 
    if (is_valid_model_molecule(imol) || is_valid_map_molecule(imol)) {
       g.delete_pointers_to_map_in_other_molecules(imol);
+      graphics_info_t::rama_plot_boxes_handle_close_molecule(imol);
       g.molecules[imol].close_yourself();
       // and close the graphics ligand view if it was a residue of this molecule
       g.close_graphics_ligand_view_for_mol(imol);
@@ -3308,6 +3374,9 @@ void close_molecule(int imol) {
 
    g.clear_up_moving_atoms_maybe(imol);
    g.update_scroll_wheel_map_on_molecule_close();
+
+   graphics_info_t::refresh_ramachandran_plot_model_list();
+   graphics_info_t::refresh_validation_graph_model_list();
 
    graphics_draw();
    std::string cmd = "close-molecule";
@@ -3497,6 +3566,22 @@ GtkWidget *wrapped_create_show_symmetry_window() {
     if (graphics_info_t::symmetry_atom_labels_expanded_flag)
        gtk_check_button_set_active(GTK_CHECK_BUTTON(checkbutton), TRUE);
 
+    //  The Symmetry as C-Alphas checkbutton - reflects state of first model molecule
+    GtkWidget *sym_ca_checkbutton = widget_from_builder("symmetry_as_calphas_checkbutton");
+    if (sym_ca_checkbutton) {
+       short int ca_state = 0;
+       int n_mol = graphics_n_molecules();
+       for (int ii=0; ii<n_mol; ii++) {
+          if (is_valid_model_molecule(ii)) {
+             if (graphics_info_t::molecules[ii].symmetry_as_calphas) {
+                ca_state = 1;
+                break;
+             }
+          }
+       }
+       gtk_check_button_set_active(GTK_CHECK_BUTTON(sym_ca_checkbutton), ca_state);
+    }
+
 #if 0
     // GtkWidget *colour_button = lookup_widget(show_symm_window, "symmetry_colorbutton");
     GtkWidget *colour_button = widget_from_builder("symmetry_colorbutton"); // a GtkButton
@@ -3676,6 +3761,21 @@ void set_map_hexcolour(int imol, const char *hex_colour) {
    coot::colour_holder ch(hex_colour);
    set_map_colour(imol, ch.red, ch.green, ch.blue);
 
+}
+
+void brighten_maps() {
+
+   graphics_info_t g;
+   auto map_list = g.get_map_molecule_vector();
+   for (unsigned int i=0; i<map_list.size(); i++) {
+      const auto &imol = map_list[i];
+      float rc = graphics_info_t::molecules[imol].map_colour.red;
+      float gc = graphics_info_t::molecules[imol].map_colour.green;
+      float bc = graphics_info_t::molecules[imol].map_colour.blue;
+      float fac = 1.25;
+      set_map_colour(imol, rc * fac, gc * fac, bc * fac);
+   }
+   g.graphics_draw();
 }
 
 
@@ -3981,7 +4081,9 @@ GtkWidget *wrapped_create_goto_atom_window() {
    if (widget) {
 
 #if (GTK_MAJOR_VERSION == 4)
-      // 20220528-PE FIXME widget raise
+      gtk_widget_set_visible(widget, TRUE);
+      gtk_window_unminimize(GTK_WINDOW(widget));
+      gtk_window_present(GTK_WINDOW(widget));
 #else
       if (!gtk_widget_get_mapped(widget))
          gtk_widget_set_visible(widget, TRUE);
@@ -5164,12 +5266,15 @@ on_instanced_mesh_generic_objects_dialog_object_check_button_toggled(GtkCheckBut
    int combo_ints = GPOINTER_TO_INT(user_data);
    int imol = combo_ints/1000;
    int obj_no = combo_ints - 1000 * imol;
+
    bool state = false;
    if (gtk_check_button_get_active(GTK_CHECK_BUTTON(button)))
       state = 1;
 
-   std::cout << "debug:: on_instanced_mesh_generic_objects_dialog_object_check_button_toggled() imol " << imol
-             << " obj_no " << obj_no << std::endl;
+   if (false)
+      std::cout << "debug:: on_instanced_mesh_generic_objects_dialog_object_check_button_toggled() imol " << imol
+                << " obj_no " << obj_no << std::endl;
+
    if (is_valid_model_molecule(imol) || is_valid_map_molecule(imol)) {
       molecule_class_info_t &m = graphics_info_t::molecules[imol];
       int n_meshes = m.instanced_meshes.size();
@@ -5207,7 +5312,8 @@ generic_objects_dialog_grid_add_object_for_molecule_internal(int imol,
       g_object_set_data(G_OBJECT(dialog), toggle_button_name.c_str(), checkbutton);
       g_object_set_data(G_OBJECT(dialog), label_name.c_str(), label);
 
-      std::cout << "debug:: imm with name " << label_str << " at row " << i_row << std::endl;
+      if (false)
+         std::cout << "debug:: imm with name " << label_str << " at row " << i_row << std::endl;
 
       // grid child left top width height
       gtk_grid_attach (GTK_GRID (grid), label,       0, i_row, 1, 1);
@@ -5228,6 +5334,26 @@ generic_objects_dialog_grid_add_object_for_molecule_internal(int imol,
 
 
 
+void on_grid_map_mesh_check_button_toggled(GtkCheckButton *checkbutton, gpointer user_data) {
+
+   int combo_ints = GPOINTER_TO_INT(user_data);
+   int imol = combo_ints/1000;
+   int obj_no = combo_ints - 1000 * imol;
+
+   bool state = false;
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(checkbutton)))
+      state = true;
+
+   if (is_valid_model_molecule(imol) || is_valid_map_molecule(imol)) {
+      molecule_class_info_t &m = graphics_info_t::molecules[imol];
+      int n_meshes = m.meshes.size();
+      if (obj_no >=0 && obj_no < n_meshes) {
+         m.meshes[obj_no].set_draw_mesh_state(state);
+         graphics_draw();
+      }
+   }
+}
+
 
 GtkWidget *wrapped_create_generic_objects_dialog() {
 
@@ -5242,6 +5368,26 @@ GtkWidget *wrapped_create_generic_objects_dialog() {
          child = next; // for next round
       };
       // std::cout << "There were " << child_count << " children in the grid" << std::endl;
+   };
+
+   auto generic_objects_dialog_grid_add_mesh_internal = +[] (int imol, unsigned int jth_mesh, unsigned int grid_row_offset,
+                                                             const Mesh &mesh, GtkWidget *dialog, GtkWidget *grid) {
+
+      int i_row = grid_row_offset;
+      GtkWidget *checkbutton = gtk_check_button_new_with_mnemonic (("Display"));
+      std::string label_str = mesh.name;
+
+      g_signal_connect(G_OBJECT(checkbutton), "toggled",
+		       G_CALLBACK(on_grid_map_mesh_check_button_toggled),
+		       GINT_TO_POINTER(imol * 1000 + jth_mesh));
+
+      GtkWidget *label = gtk_label_new(label_str.c_str());
+      gtk_grid_attach (GTK_GRID (grid), label,       0, i_row, 1, 1);
+      gtk_grid_attach (GTK_GRID (grid), checkbutton, 1, i_row, 1, 1);
+
+      if (mesh.get_draw_this_mesh())
+	 gtk_check_button_set_active(GTK_CHECK_BUTTON(checkbutton), TRUE);
+
    };
 
    graphics_info_t g;
@@ -5263,6 +5409,7 @@ GtkWidget *wrapped_create_generic_objects_dialog() {
          }
       }
 
+      // 2026-05-09-PE - why are instanced_meshes (still here)?
       for (unsigned int imol=0; imol<g.molecules.size(); imol++) {
          const molecule_class_info_t &m = g.molecules[imol];
          for (unsigned int j=0; j<m.instanced_meshes.size(); j++) {
@@ -5273,6 +5420,20 @@ GtkWidget *wrapped_create_generic_objects_dialog() {
             }
          }
       }
+
+      // 2026-05-09-PE
+      // generic display objects for models are now part of the models in the Display Control dialog
+      // But generic display objects for maps are not.
+      // So let's add them here for now. I think that they should also be in the Display Control dialog
+      for (unsigned int imol=0; imol<g.molecules.size(); imol++) {
+         for (unsigned int j=0; j<g.molecules[imol].meshes.size(); j++) {
+            const Mesh &mesh = g.molecules[imol].meshes[j];
+            if (! mesh.is_closed()) {
+               generic_objects_dialog_grid_add_mesh_internal(imol, j, io_count, mesh, dialog, grid);
+            }
+         }
+      }
+
    } else {
       std::cout << "failed to get grid " << std::endl;
    }

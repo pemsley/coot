@@ -46,7 +46,7 @@ else
         lidia-core coot-utils angles ccp4mg-utils db-main analysis cootaneer ideal ligand coords \
 	density-contour skeleton high-res build MoleculesToTriangles pli greg-tests \
 	python-tests cootilus fonts pyrogen data monomers \
-	man rama-data doc glTF pixmaps textures sounds reference-structures api layla validation-graphs src ui
+	man rama-data doc glTF pixmaps textures sounds reference-structures api layla graphs validation-graphs src ui
 endif
 endif
 
@@ -109,7 +109,7 @@ EXTRA_DIST = 		\
 
 # packdatadir is xxx/share/coot
 subpkgdatadir = $(pkgdatadir)
-subpkgdata_DATA = standard-residues.pdb
+subpkgdata_DATA = standard-residues.pdb cod-types-db-normalized.bin
 
 
 appdatadir = ${datarootdir}/appdata

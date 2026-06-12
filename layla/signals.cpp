@@ -54,6 +54,14 @@ layla_on_close(GtkButton* button, gpointer user_data) {
 
 extern "C" G_MODULE_EXPORT
 void
+layla_on_search_similar_button_clicked(GtkButton* button, gpointer user_data) {
+    LaylaState* state = GET_STATE();
+
+    state->search_for_similar_ligands();
+}
+
+extern "C" G_MODULE_EXPORT
+void
 layla_on_apply(GtkButton* button, gpointer user_data) {
     auto* dialog = gtk_builder_get_object(global_layla_gtk_builder,"layla_apply_dialog");
     gtk_window_present(GTK_WINDOW(dialog));
@@ -233,6 +241,14 @@ layla_on_invalid_molecule_toggled(GtkCheckButton* check_button, gpointer user_da
     CootLigandEditorCanvas* canvas = GET_CANVAS();
     coot_ligand_editor_canvas_set_allow_invalid_molecules(canvas, gtk_check_button_get_active(check_button));
 }
+
+extern "C" G_MODULE_EXPORT
+void
+layla_on_coordgen_toggled(GtkCheckButton* check_button, gpointer user_data) {
+    CootLigandEditorCanvas* canvas = GET_CANVAS();
+    coot_ligand_editor_canvas_set_coordgen_mode_enabled(canvas, gtk_check_button_get_active(check_button));
+}
+
 
 extern "C" G_MODULE_EXPORT
 void

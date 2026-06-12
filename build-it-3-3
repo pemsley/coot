@@ -1890,6 +1890,10 @@ else
    fi
 fi
 
+
+# eigen3.pc lives in $prfx/share/pkgconfig - great.
+PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$install_top_dir/share/pkgconfig
+
 if [ -e /opt/X11/lib/pkgconfig ] ; then
     PKG_CONFIG_PATH=/opt/X11/lib/pkgconfig:$PKG_CONFIG_PATH
 fi
@@ -2215,6 +2219,7 @@ if test -e $install_top_dir/bin/gsl-config ; then
         needed_gsl_version=1.15
         needed_gsl_version=1.16
         needed_gsl_version=2.7
+        needed_gsl_version=2.8
 
         if [ -e $install_top_dir/include/gsl/gsl_version.h ] ; then
             build_gsl=
@@ -2658,6 +2663,7 @@ test_for_already_installed_dependencies=true
 if true ; then
     # --------------------------------- gemmi from tar ----------------------------
     gemmi_version=0.7.4
+    gemmi_version=0.7.5
     skip_build=false
     echo testing for existance of $install_top_dir/include/gemmi/version.hpp >&2
     ls $install_top_dir/include/gemmi/version.hpp >&2
@@ -2674,7 +2680,7 @@ if true ; then
         date >&2
         echo gemmi build start_dir is $start_dir
         echo gemmi build start_dir is $start_dir >&2
-        echo use this, not the git repo: https://github.com/project-gemmi/gemmi/archive/refs/tags/v0.7.4.tar.gz
+        echo use this, not the git repo: https://github.com/project-gemmi/gemmi/archive/refs/tags/v$gemmi_version.tar.gz
         gemmi_tar_dir=https://github.com/project-gemmi/gemmi/archive/refs/tags
         (
             cd "$start_dir"
@@ -3105,24 +3111,29 @@ fi
 python3 -m pip install setuptools
 
 build_meson=true
-if command -v meson --version ; then
-
-    echo meson --version
+meson_required=1.2.3
+if command -v meson >/dev/null 2>&1 ; then
     which meson >&2
-    echo meson --version >&2
     meson --version >&2
-    if meson --version ; then
-        echo we have meson
+    if meson --version >/dev/null 2>&1 ; then
         v=$(meson --version)
-       if [[ $v < 1.2.3 ]] ; then
-          echo meson is too old, current version is $v
-          build_meson=true
-       else
-          build_meson=false
-       fi
+        echo we have meson version $v
+        # version-aware comparison (sort -V handles 1.10.1 vs 1.2.3 correctly)
+        oldest=$(printf '%s\n' "$meson_required" "$v" | sort -V | head -n1)
+        if [ "$oldest" = "$v" ] && [ "$v" != "$meson_required" ] ; then
+            echo meson is too old, current version is $v, need $meson_required
+            build_meson=true
+        else
+            echo meson version $v is new enough
+            build_meson=false
+        fi
     else
-       build_meson=true
+        echo meson found but --version failed
+        build_meson=true
     fi
+else
+    echo meson not found
+    build_meson=true
 fi
 
 if $build_meson = true ; then
@@ -3497,11 +3508,12 @@ fi
 if test -n "$build_gsl" ; then
     # wget http://www.mirror.ac.uk/sites/ftp.gnu.org/gnu/gsl/gsl-1.5.tar.gz
     # wget http://ftp.gnu.org/gnu/gsl/gsl-1.6.tar.gz
-    # if you change this, change needed_gsl_version above
+    # if you change this, change needed_gsl_version above - a mess that needs cleaning up.
     gsl_version=1.12
     gsl_version=1.15
     gsl_version=1.16
     gsl_version=2.7
+    gsl_version=2.8
     echo BUILDING: gsl $gsl_version
     echo BUILDING: gsl $gsl_version >&2
     #
@@ -3514,14 +3526,16 @@ if test -n "$build_gsl" ; then
     unset LD_LIBRARY_PATH
     gzip -dc ${AUTOBUILD_SOURCES}/gsl-$gsl_version.tar.gz | tar xf -
     cd gsl-$gsl_version
-    ./configure $generic_prefix
+    # 20260417-PE Amazing that I only see this now. libgls needs libgslcblas (or other blas)
+    # but is not a dependency
+    ./configure $generic_prefix LIBS="-lgslcblas -lm"
     $MAKE
     status=$?
     if [ "$status" != 0 ] ; then
         echo ERROR:: GSL make failed.
         exit 2
     else
-       echo 1 --------------------------------------------------------------- 
+       echo 1 ---------------------------------------------------------------
        echo '                                ' make install
        echo 1 ----------------------------------------------------------------
        $MAKE install
@@ -3816,7 +3830,13 @@ fi
 ############################### eigen ##########################################
 
 eigen_version=3.3.9
+build_eigen=true
 if [ -e $install_top_dir/include/eigen3 ] ; then
+   echo debug:: $install_top_dir/include/eigen3 exists so setting build_eigen false
+   build_eigen=false
+fi
+
+if [ "$build_eigen" = false ] ; then
    echo eigen3 is installed
    echo eigen3 is installed >&2
 else
@@ -3873,6 +3893,71 @@ else
     exit
 fi
 
+############################### maeparser ##########################################
+
+mae_parser_version=1.3.3
+
+build_maeparser=true
+
+if test -e $install_top_dir/include/maeparser/Writer.hpp ; then
+   build_maeparser=false
+fi
+
+if test $build_maeparser = true ; then
+   (
+      ${WGET} https://github.com/schrodinger/maeparser/archive/refs/tags/v$mae_parser_version.tar.gz
+      tar xf ${AUTOBUILD_SOURCES}/v$mae_parser_version.tar.gz
+      mkdir -p build-maeparser
+      cd build-maeparser
+      cmake -DCMAKE_INSTALL_PREFIX=$install_top_dir -DMAEPARSER_BUILD_TESTS=OFF ../maeparser-$mae_parser_version
+      $MAKE && make install
+      cd -
+   ) > $HOSTLOGDIR/26a-maeparser.txt 2>&1
+   echo BUILDING maeparser finished
+   echo BUILDING maeparser finished >&2
+else
+   echo not building maeparser
+fi
+
+############################### coordgen ##########################################
+
+coordgen_version=3.0.2
+
+build_coordgen=true
+if test -e $install_top_dir/include/coordgen/sketcherMinimizerMolecule.h ; then
+   build_coordgen=false
+fi
+
+if test $build_coordgen = true ; then
+   (
+      echo wget
+      echo ${WGET} https://github.com/schrodinger/coordgenlibs/archive/refs/tags/v$coordgen_version.tar.gz
+      ${WGET} https://github.com/schrodinger/coordgenlibs/archive/refs/tags/v$coordgen_version.tar.gz
+      echo done wget
+      tar xf ${AUTOBUILD_SOURCES}/v$coordgen_version.tar.gz
+      sed -ibackup -e 's/cmake_minimum_required(VERSION 3.2)/cmake_minimum_required(VERSION 3.5)/' coordgenlibs-$coordgen_version/CMakeLists.txt
+      mkdir -p build-coordgen
+      cd build-coordgen
+      echo cmake -DCMAKE_INSTALL_PREFIX=$install_top_dir \
+                 -DCOORDGEN_USE_MAEPARSER=ON \
+                 -DCOORDGEN_BUILD_TESTS=OFF \
+                 -DCOORDGEN_BUILD_EXAMPLE=OFF \
+         ../coordgenlibs-$coordgen_version
+      cmake -DCMAKE_INSTALL_PREFIX=$install_top_dir \
+            -DCOORDGEN_USE_MAEPARSER=ON \
+            -DCOORDGEN_BUILD_TESTS=OFF \
+            -DCOORDGEN_BUILD_EXAMPLE=OFF \
+         ../coordgenlibs-$coordgen_version
+      $MAKE && make install
+      cd -
+   ) > $HOSTLOGDIR/26b-coordgen.txt 2>&1
+   echo BUILDING coordgen finished
+   echo BUILDING coordgen finished >&2
+else
+   echo not building coordgen
+fi
+
+
 ############################### rdkit ##########################################
 
 # we need to set rdkit_tar_size because the WGET doesn't skip the download if the
@@ -3904,7 +3989,8 @@ if [ "$build_rdkit" = true ] ; then
    skip_this=false
    if [ "$test_for_already_installed_dependencies" = true ] ; then
       # this file is in 2018_09 but not in 2017_09
-      if [ -e $install_top_dir/include/rdkit/GraphMol/StereoGroup.h ] ;  then
+      # also check for coordgen headers (required since RDK_BUILD_COORDGEN_SUPPORT=ON)
+      if [ -e $install_top_dir/include/rdkit/GraphMol/StereoGroup.h ] && [ -e $install_top_dir/include/coordgen/sketcherMinimizer.h ] ;  then
          echo not building rdkit:
          echo not building rdkit: >&2
          skip_this=true
@@ -4128,16 +4214,22 @@ if [ "$build_rdkit" = true ] ; then
                # remove to see if this fixes the non-Darwin build.
                # -DCMAKE_STATIC_LINKER_FLAGS="$install_top_dir/lib/libintl.a"
 
+      # Bake $install_top_dir/lib into the RUNPATH of the installed RDKit libs.
+      # Without this, libRDKit*.so have empty RUNPATH and the loader can't find
+      # boost when coot pulls them in (DT_RUNPATH is not transitive).
       echo cmake \
                -DCMAKE_PREFIX_PATH=$install_top_dir \
                -DCatch2_DIR=$install_top_dir \
                -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python$python_version_extension$python_abiflags \
                $cmake_macosx_rpath \
+               -DCMAKE_INSTALL_RPATH=$install_top_dir/lib \
+               -DCMAKE_INSTALL_RPATH_USE_LINK_PATH=ON \
                -DPYTHON_EXECUTABLE=$install_top_dir/bin/python3 \
                -DPYTHON_LIBRARY=$install_top_dir/lib/python$python_version_extension/config-${python_version_extension}$python_abiflags-$python_arch/libpython$python_version_extension$python_abiflags.a \
                -DCMAKE_INSTALL_PREFIX=$install_top_dir \
                -DRDK_BUILD_INCHI_SUPPORT=ON \
-               -DRDK_BUILD_MAEPARSER_SUPPORT=OFF \
+               -DRDK_BUILD_MAEPARSER_SUPPORT=ON \
+               -DRDK_BUILD_COORDGEN_SUPPORT=ON \
                -DRDK_BUILD_CAIRO_SUPPORT=ON \
                -DRDK_INSTALL_INTREE=OFF \
                -DRDK_INSTALL_COMIC_FONTS=OFF \
@@ -4149,11 +4241,14 @@ if [ "$build_rdkit" = true ] ; then
                -DCatch2_DIR=$install_top_dir \
                -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python$python_version_extension$python_abiflags \
                $cmake_macosx_rpath \
+               -DCMAKE_INSTALL_RPATH=$install_top_dir/lib \
+               -DCMAKE_INSTALL_RPATH_USE_LINK_PATH=ON \
                -DPYTHON_EXECUTABLE=$install_top_dir/bin/python3 \
                -DPYTHON_LIBRARY=$install_top_dir/lib/python$python_version_extension/config-${python_version_extension}$python_abiflags-$python_arch/libpython$python_version_extension$python_abiflags.a \
                -DCMAKE_INSTALL_PREFIX=$install_top_dir \
                -DRDK_BUILD_INCHI_SUPPORT=ON \
-               -DRDK_BUILD_MAEPARSER_SUPPORT=OFF \
+               -DRDK_BUILD_MAEPARSER_SUPPORT=ON \
+               -DRDK_BUILD_COORDGEN_SUPPORT=ON \
                -DRDK_BUILD_CAIRO_SUPPORT=ON \
                -DRDK_INSTALL_INTREE=OFF \
                -DRDK_INSTALL_COMIC_FONTS=OFF \
@@ -5094,7 +5189,6 @@ echo bash ../coot/configure $coot_prefix \
       PYTHON=python3 \
       --with-boost=$install_top_dir  \
       --with-boost-libdir=$install_top_dir/lib  \
-      --with-enhanced-ligand-tools \
       --with-rdkit-prefix=$install_top_dir \
       --with-guile \
       $sqlite_config_args \
@@ -5110,7 +5204,6 @@ echo bash ../coot/configure $coot_prefix \
       COOT_BUILD_INFO_STRING="$coot_build_info_string" \
       --with-boost=$install_top_dir  \
       --with-boost-libdir=$install_top_dir/lib  \
-      --with-enhanced-ligand-tools \
       --with-rdkit-prefix=$install_top_dir \
       --with-guile \
       $sqlite_config_args \

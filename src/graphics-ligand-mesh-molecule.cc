@@ -515,9 +515,14 @@ graphics_ligand_mesh_molecule_t::draw(Shader *shader_p, Shader *hud_text_shader_
 
    // draw atoms (text)
    //
-   double window_rescale_factor_x = 900.0/static_cast<double>(widget_width);
-   double window_rescale_factor_y = 900.0/static_cast<double>(widget_height);
-   glm::vec2 position_on_canvas(-0.61, -0.61);
+   // Match the bond vertex shader (ligand-view.shader) so labels track bonds at any window size:
+   //   bond: X_ndc = (0.05 * atom.x) / aspect_ratio + (-0.6) + 0.02
+   //         Y_ndc = (0.05 * atom.y)                + (-0.6) + (-0.20)
+   // Glyph size still uses a pixel-to-NDC scaling (900/w, 900/h) because FT glyph metrics are in pixels.
+   float aspect_ratio = widget_width / widget_height;
+   if (aspect_ratio < 1.0f) aspect_ratio = 1.0f;
+   glm::vec2 position_on_canvas(-0.61f, -0.61f);
+   const glm::vec2 shader_hud_offset(0.02f, -0.20f); // matches x_off/y_off in ligand-view.shader
    bool gl_flag = true;
    for (unsigned int iat=0; iat<atoms.size(); iat++) {
       graphics_ligand_mesh_atom &atom = atoms[iat];
@@ -528,30 +533,26 @@ graphics_ligand_mesh_molecule_t::draw(Shader *shader_p, Shader *hud_text_shader_
          for (unsigned int i=0; i<atom_id_info.n_offsets(); i++) {
             const lig_build::offset_text_t &offset = atom_id_info.offsets[i];
             std::string label = offset.text;
-            glm::vec2 pos(-0.0, -0.0);
+            glm::vec2 pos(0.0f, 0.0f);
             pos += 0.05f * pos_t_to_glm(atom.atom_position);
             if (offset.text_pos_offset == lig_build::offset_text_t::UP)
                pos.y += 0.03f;
             if (offset.text_pos_offset == lig_build::offset_text_t::DOWN)
                pos.y -= 0.03f;
-            if (offset.subscript)   pos.y -= 0.012;
-            if (offset.superscript) pos.y += 0.012;
-            pos.x += 0.03 * 0.08 * offset.tweak.x;
-            pos.y += 0.03 * 0.08 * offset.tweak.y;
+            if (offset.subscript)   pos.y -= 0.012f;
+            if (offset.superscript) pos.y += 0.012f;
+            pos.x += 0.03f * 0.08f * offset.tweak.x;
+            pos.y += 0.03f * 0.08f * offset.tweak.y;
 
-            // 20230620-PE extra tweaking for the position to match the changes in ligand-view.shader
-            pos.x +=  0.02;
-            pos.y += -0.20;
+            // squeeze X to match the bond shader's aspect-ratio correction
+            pos.x /= aspect_ratio;
 
-            float sc = 0.000184;
-            // sc *= 0.5; // 20211016-PE
-            sc *= 0.4; // 20230930-PE
-            if (offset.subscript)   sc *= 0.9;
-            if (offset.superscript) sc *= 1.5; // "-" is too small! so scale it up
-            glm::vec2 scales(sc * 900.0/static_cast<double>(widget_width), sc * 900.0/static_cast<double>(widget_height));
-            // std::cout << ".... debug:: " << window_rescale_factor_x << " " << window_rescale_factor_y << std::endl;
-            glm::vec2 rejigged_pos(pos.x * window_rescale_factor_x, pos.y * window_rescale_factor_y);
-            hud_texture_tmesh.set_position_and_scales(rejigged_pos + position_on_canvas, scales);
+            float sc = 0.000184f;
+            sc *= 0.4f; // 20230930-PE
+            if (offset.subscript)   sc *= 0.9f;
+            if (offset.superscript) sc *= 1.5f; // "-" is too small! so scale it up
+            glm::vec2 scales(sc * 900.0f/widget_width, sc * 900.0f/widget_height);
+            hud_texture_tmesh.set_position_and_scales(pos + position_on_canvas + shader_hud_offset, scales);
             if (false)
                std::cout << "debug;: graphics_ligand_mesh_molecule_t::draw() calling draw_label(): iat " << iat << " ioff " << i
                          << " " << " \"" << offset.text << "\" subscript " << offset.subscript

@@ -210,6 +210,112 @@ int test_centre_of_molecule() {
    return status;
 }
 
+int test_centre_of_molecule_using_masses() {
+   starting_test(__FUNCTION__);
+   int status = 0;
+   mmdb::Manager *mol = read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   if (mol) {
+      gemmi::Structure st = gemmi_from_mmdb(mol);
+      auto result_mmdb = coot::centre_of_molecule_using_masses(mol);
+      auto result_gemmi = coot::centre_of_molecule_using_masses(st);
+      if (result_mmdb.first && result_gemmi.first) {
+         if (close_coord(result_mmdb.second, result_gemmi.second, 0.1))
+            status = 1;
+         else
+            std::cout << "MISMATCH centre_of_molecule_using_masses: mmdb=("
+                      << result_mmdb.second.x() << "," << result_mmdb.second.y() << "," << result_mmdb.second.z()
+                      << ") gemmi=("
+                      << result_gemmi.second.x() << "," << result_gemmi.second.y() << "," << result_gemmi.second.z()
+                      << ")" << std::endl;
+      }
+      delete mol;
+   }
+   return status;
+}
+
+int test_omega_torsion() {
+   starting_test(__FUNCTION__);
+   int status = 0;
+   mmdb::Manager *mol = read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   if (mol) {
+      gemmi::Structure st = gemmi_from_mmdb(mol);
+      // Get residues 10 and 11 from chain A using mmdb
+      int imod = 1;
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+         mmdb::Chain *chain_p = model_p->GetChain(0);
+         if (chain_p) {
+            // Use GetResidue by index: pick two consecutive residues
+            int nres = chain_p->GetNumberOfResidues();
+            if (nres >= 2) {
+               mmdb::Residue *res1_mmdb = chain_p->GetResidue(0);
+               mmdb::Residue *res2_mmdb = chain_p->GetResidue(1);
+               std::string altconf = "";
+               auto result_mmdb = coot::util::omega_torsion(res1_mmdb, res2_mmdb, altconf);
+               // Find corresponding gemmi residues
+               const auto &gemmi_chain = st.models[0].chains[0];
+               if (gemmi_chain.residues.size() >= 2) {
+                  auto result_gemmi = coot::util::omega_torsion(gemmi_chain.residues[0],
+                                                                gemmi_chain.residues[1],
+                                                                altconf);
+                  if (result_mmdb.first && result_gemmi.first) {
+                     if (close(result_mmdb.second, result_gemmi.second, 0.01))
+                        status = 1;
+                     else
+                        std::cout << "MISMATCH omega_torsion: mmdb=" << result_mmdb.second
+                                  << " gemmi=" << result_gemmi.second << std::endl;
+                  } else if (!result_mmdb.first && !result_gemmi.first) {
+                     // Both failed to find atoms — still a match
+                     status = 1;
+                  } else {
+                     std::cout << "MISMATCH omega_torsion: mmdb.found=" << result_mmdb.first
+                               << " gemmi.found=" << result_gemmi.first << std::endl;
+                  }
+               }
+            }
+         }
+      }
+      delete mol;
+   }
+   return status;
+}
+
+int test_cis_peptides_info_from_coords() {
+   starting_test(__FUNCTION__);
+   int status = 0;
+   mmdb::Manager *mol = read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   if (mol) {
+      gemmi::Structure st = gemmi_from_mmdb(mol);
+      auto result_mmdb  = coot::util::cis_peptides_info_from_coords(mol);
+      auto result_gemmi = coot::util::cis_peptides_info_from_coords(st);
+      if (result_mmdb.size() == result_gemmi.size()) {
+         bool all_match = true;
+         for (size_t i=0; i<result_mmdb.size(); i++) {
+            if (!(result_mmdb[i] == result_gemmi[i])) {
+               std::cout << "MISMATCH cis_peptides_info_from_coords: entry " << i
+                         << " differs" << std::endl;
+               all_match = false;
+            }
+            // Also check omega angles match
+            if (!close(result_mmdb[i].omega_torsion_angle,
+                       result_gemmi[i].omega_torsion_angle, 0.5)) {
+               std::cout << "MISMATCH cis_peptides_info_from_coords omega: mmdb="
+                         << result_mmdb[i].omega_torsion_angle
+                         << " gemmi=" << result_gemmi[i].omega_torsion_angle << std::endl;
+               all_match = false;
+            }
+         }
+         if (all_match)
+            status = 1;
+      } else {
+         std::cout << "MISMATCH cis_peptides_info_from_coords count: mmdb=" << result_mmdb.size()
+                   << " gemmi=" << result_gemmi.size() << std::endl;
+      }
+      delete mol;
+   }
+   return status;
+}
+
 int test_radius_of_gyration() {
    starting_test(__FUNCTION__);
    int status = 0;
@@ -236,15 +342,14 @@ int test_get_position_hash() {
    mmdb::Manager *mol = read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    if (mol) {
       gemmi::Structure st = gemmi_from_mmdb(mol);
-      float h_gemmi_1 = coot::get_position_hash(st);
-      float h_gemmi_2 = coot::get_position_hash(st);
-      // The mmdb and gemmi hashes differ because mmdb iterates TER atoms
-      // (which affect the x-difference chain) while gemmi has no TER atoms.
-      // Test that the gemmi hash is self-consistent and non-zero.
-      if (close(h_gemmi_1, h_gemmi_2) && std::fabs(h_gemmi_1) > 1.0)
+      float h_mmdb  = coot::get_position_hash(mol);
+      float h_gemmi = coot::get_position_hash(st);
+      // Now that the mmdb version guards against TER atoms, the hashes should match.
+      if (close(h_mmdb, h_gemmi) && std::fabs(h_mmdb) > 1.0)
          status = 1;
       else
-         std::cout << "FAIL get_position_hash: h1=" << h_gemmi_1 << " h2=" << h_gemmi_2 << std::endl;
+         std::cout << "MISMATCH get_position_hash: mmdb=" << h_mmdb
+                   << " gemmi=" << h_gemmi << std::endl;
       delete mol;
    }
    return status;
@@ -669,6 +774,202 @@ int test_alt_confs_in_molecule() {
    return status;
 }
 
+int test_get_CB_position_in_residue() {
+   starting_test(__FUNCTION__);
+   int status = 0;
+   mmdb::Manager *mol = read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   if (mol) {
+      gemmi::Structure st = gemmi_from_mmdb(mol);
+      // pick a non-GLY residue
+      mmdb::Residue *res = coot::util::get_residue("A", 50, "", mol);
+      if (res) {
+         std::string rn(res->GetResName());
+         if (rn != "GLY") {
+            auto r_mmdb = coot::util::get_CB_position_in_residue(res);
+            for (const auto &chain : st.models[0].chains) {
+               if (chain.name == "A") {
+                  for (const auto &gres : chain.residues) {
+                     if (gres.seqid.num.value == 50) {
+                        auto r_gemmi = coot::util::get_CB_position_in_residue(gres);
+                        if (r_mmdb.first && r_gemmi.first) {
+                           if (close_coord(r_mmdb.second, r_gemmi.second))
+                              status = 1;
+                           else
+                              std::cout << "MISMATCH get_CB_position_in_residue" << std::endl;
+                        }
+                        break;
+                     }
+                  }
+                  break;
+               }
+            }
+         } else {
+            status = 1; // skip for GLY
+         }
+      }
+      delete mol;
+   }
+   return status;
+}
+
+int test_residue_has_hydrogens_p() {
+   starting_test(__FUNCTION__);
+   int status = 0;
+   mmdb::Manager *mol = read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   if (mol) {
+      gemmi::Structure st = gemmi_from_mmdb(mol);
+      mmdb::Residue *res = coot::util::get_residue("A", 50, "", mol);
+      if (res) {
+         bool r_mmdb = coot::util::residue_has_hydrogens_p(res);
+         for (const auto &chain : st.models[0].chains) {
+            if (chain.name == "A") {
+               for (const auto &gres : chain.residues) {
+                  if (gres.seqid.num.value == 50) {
+                     bool r_gemmi = coot::util::residue_has_hydrogens_p(gres);
+                     if (r_mmdb == r_gemmi)
+                        status = 1;
+                     else
+                        std::cout << "MISMATCH residue_has_hydrogens_p: mmdb=" << r_mmdb
+                                  << " gemmi=" << r_gemmi << std::endl;
+                     break;
+                  }
+               }
+               break;
+            }
+         }
+      }
+      delete mol;
+   }
+   return status;
+}
+
+int test_residue_has_hetatms() {
+   starting_test(__FUNCTION__);
+   int status = 0;
+   mmdb::Manager *mol = read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   if (mol) {
+      gemmi::Structure st = gemmi_from_mmdb(mol);
+      mmdb::Residue *res = coot::util::get_residue("A", 50, "", mol);
+      if (res) {
+         int r_mmdb = coot::util::residue_has_hetatms(res);
+         for (const auto &chain : st.models[0].chains) {
+            if (chain.name == "A") {
+               for (const auto &gres : chain.residues) {
+                  if (gres.seqid.num.value == 50) {
+                     int r_gemmi = coot::util::residue_has_hetatms(gres);
+                     if (r_mmdb == r_gemmi)
+                        status = 1;
+                     else
+                        std::cout << "MISMATCH residue_has_hetatms: mmdb=" << r_mmdb
+                                  << " gemmi=" << r_gemmi << std::endl;
+                     break;
+                  }
+               }
+               break;
+            }
+         }
+      }
+      delete mol;
+   }
+   return status;
+}
+
+int test_min_resno_in_chain() {
+   starting_test(__FUNCTION__);
+   int status = 0;
+   mmdb::Manager *mol = read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   if (mol) {
+      gemmi::Structure st = gemmi_from_mmdb(mol);
+      mmdb::Model *model_p = mol->GetModel(1);
+      if (model_p) {
+         mmdb::Chain *chain_p = model_p->GetChain(0);
+         if (chain_p) {
+            auto r_mmdb = coot::util::min_resno_in_chain(chain_p);
+            const auto &g_chain = st.models[0].chains[0];
+            auto r_gemmi = coot::util::min_resno_in_chain(g_chain);
+            if (r_mmdb.first == r_gemmi.first && r_mmdb.second == r_gemmi.second)
+               status = 1;
+            else
+               std::cout << "MISMATCH min_resno_in_chain: mmdb=(" << r_mmdb.first << "," << r_mmdb.second
+                         << ") gemmi=(" << r_gemmi.first << "," << r_gemmi.second << ")" << std::endl;
+         }
+      }
+      delete mol;
+   }
+   return status;
+}
+
+int test_max_resno_in_chain() {
+   starting_test(__FUNCTION__);
+   int status = 0;
+   mmdb::Manager *mol = read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   if (mol) {
+      gemmi::Structure st = gemmi_from_mmdb(mol);
+      mmdb::Model *model_p = mol->GetModel(1);
+      if (model_p) {
+         mmdb::Chain *chain_p = model_p->GetChain(0);
+         if (chain_p) {
+            auto r_mmdb = coot::util::max_resno_in_chain(chain_p);
+            const auto &g_chain = st.models[0].chains[0];
+            auto r_gemmi = coot::util::max_resno_in_chain(g_chain);
+            if (r_mmdb.first == r_gemmi.first && r_mmdb.second == r_gemmi.second)
+               status = 1;
+            else
+               std::cout << "MISMATCH max_resno_in_chain: mmdb=(" << r_mmdb.first << "," << r_mmdb.second
+                         << ") gemmi=(" << r_gemmi.first << "," << r_gemmi.second << ")" << std::endl;
+         }
+      }
+      delete mol;
+   }
+   return status;
+}
+
+int test_get_number_of_protein_or_nucleotides() {
+   starting_test(__FUNCTION__);
+   int status = 0;
+   mmdb::Manager *mol = read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   if (mol) {
+      gemmi::Structure st = gemmi_from_mmdb(mol);
+      mmdb::Model *model_p = mol->GetModel(1);
+      if (model_p) {
+         mmdb::Chain *chain_p = model_p->GetChain(0);
+         if (chain_p) {
+            auto r_mmdb = coot::util::get_number_of_protein_or_nucleotides(chain_p);
+            const auto &g_chain = st.models[0].chains[0];
+            auto r_gemmi = coot::util::get_number_of_protein_or_nucleotides(g_chain);
+            if (r_mmdb.first == r_gemmi.first && r_mmdb.second == r_gemmi.second)
+               status = 1;
+            else
+               std::cout << "MISMATCH get_number_of_protein_or_nucleotides: mmdb=("
+                         << r_mmdb.first << "," << r_mmdb.second
+                         << ") gemmi=(" << r_gemmi.first << "," << r_gemmi.second << ")" << std::endl;
+         }
+      }
+      delete mol;
+   }
+   return status;
+}
+
+int test_non_standard_residue_types_in_molecule() {
+   starting_test(__FUNCTION__);
+   int status = 0;
+   mmdb::Manager *mol = read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   if (mol) {
+      gemmi::Structure st = gemmi_from_mmdb(mol);
+      auto types_mmdb = coot::util::non_standard_residue_types_in_molecule(mol);
+      auto types_gemmi = coot::util::non_standard_residue_types_in_molecule(st);
+      std::set<std::string> set_mmdb(types_mmdb.begin(), types_mmdb.end());
+      std::set<std::string> set_gemmi(types_gemmi.begin(), types_gemmi.end());
+      if (set_mmdb == set_gemmi)
+         status = 1;
+      else
+         std::cout << "MISMATCH non_standard_residue_types_in_molecule: mmdb=" << set_mmdb.size()
+                   << " gemmi=" << set_gemmi.size() << std::endl;
+      delete mol;
+   }
+   return status;
+}
+
 // ==================== test runner ====================
 
 int n_tests = 0;
@@ -773,12 +1074,23 @@ int main(int argc, char **argv) {
       status += run_test(test_get_residue_centre,                "get_residue_centre (gemmi vs mmdb)");
       status += run_test(test_get_CA_position_in_residue,        "get_CA_position_in_residue (gemmi vs mmdb)");
 
+      // Residue-level (continued)
+      status += run_test(test_get_CB_position_in_residue,        "get_CB_position_in_residue (gemmi vs mmdb)");
+      status += run_test(test_residue_has_hydrogens_p,           "residue_has_hydrogens_p (gemmi vs mmdb)");
+      status += run_test(test_residue_has_hetatms,               "residue_has_hetatms (gemmi vs mmdb)");
+      status += run_test(test_omega_torsion,                     "omega_torsion (gemmi vs mmdb)");
+      status += run_test(test_cis_peptides_info_from_coords,     "cis_peptides_info_from_coords (gemmi vs mmdb)");
+
       // Chain-level
       status += run_test(test_min_and_max_residues,              "min_and_max_residues (gemmi vs mmdb)");
+      status += run_test(test_min_resno_in_chain,                "min_resno_in_chain (gemmi vs mmdb)");
+      status += run_test(test_max_resno_in_chain,                "max_resno_in_chain (gemmi vs mmdb)");
       status += run_test(test_residue_types_in_chain,            "residue_types_in_chain (gemmi vs mmdb)");
+      status += run_test(test_get_number_of_protein_or_nucleotides, "get_number_of_protein_or_nucleotides (gemmi vs mmdb)");
 
       // Structure-level
       status += run_test(test_centre_of_molecule,                "centre_of_molecule (gemmi vs mmdb)");
+      status += run_test(test_centre_of_molecule_using_masses,   "centre_of_molecule_using_masses (gemmi vs mmdb)");
       status += run_test(test_radius_of_gyration,                "radius_of_gyration (gemmi vs mmdb)");
       status += run_test(test_get_position_hash,                 "get_position_hash (gemmi vs mmdb)");
       status += run_test(test_mol_has_symmetry,                  "mol_has_symmetry (gemmi vs mmdb)");
@@ -788,6 +1100,7 @@ int main(int argc, char **argv) {
       status += run_test(test_max_number_of_residues_in_chain,   "max_number_of_residues_in_chain (gemmi vs mmdb)");
       status += run_test(test_number_of_chains,                  "number_of_chains (gemmi vs mmdb)");
       status += run_test(test_residue_types_in_molecule,         "residue_types_in_molecule (gemmi vs mmdb)");
+      status += run_test(test_non_standard_residue_types_in_molecule, "non_standard_residue_types_in_molecule (gemmi vs mmdb)");
       status += run_test(test_max_resno_in_molecule,             "max_resno_in_molecule (gemmi vs mmdb)");
       status += run_test(test_max_min_max_residue_range,         "max_min_max_residue_range (gemmi vs mmdb)");
       status += run_test(test_alt_confs_in_molecule,             "alt_confs_in_molecule (gemmi vs mmdb)");

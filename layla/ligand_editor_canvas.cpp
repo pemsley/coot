@@ -99,6 +99,7 @@ CootLigandEditorCanvas::CootLigandEditorCanvas() noexcept {
     this->minimum_dimensions.height = 0;
     #endif
     self->allow_invalid_molecules = false;
+    self->use_coordgen = false;
     self->state_stack_pos = -1;
 }
 
@@ -569,7 +570,7 @@ int coot_ligand_editor_canvas_append_molecule(CootLigandEditorCanvas* self, std:
         g_debug("Appending new molecule to the widget...");
         // Might throw if the constructor fails.
         self->begin_edition();
-        self->molecules->push_back(CanvasMolecule(rdkit_mol, self->allow_invalid_molecules));
+        self->molecules->push_back(CanvasMolecule(rdkit_mol, self->allow_invalid_molecules, self->use_coordgen));
         #ifndef __EMSCRIPTEN__
         self->molecules->back()->apply_canvas_translation(
             gtk_widget_get_size(GTK_WIDGET(self), GTK_ORIENTATION_HORIZONTAL) / 2.0, 
@@ -618,7 +619,7 @@ void coot_ligand_editor_canvas_update_molecule_from_smiles(CootLigandEditorCanva
             *target_mol_opt->get() = std::move(*mol_ptr);
             auto& widget_mol = (*self->molecules)[molecule_idx];
             widget_mol->clear_cached_atom_coordinate_map();
-            widget_mol->lower_from_rdkit(!self->allow_invalid_molecules);
+            widget_mol->lower_from_rdkit(!self->allow_invalid_molecules, self->use_coordgen);
             self->finalize_edition();
             self->update_status("Molecule updated from SMILES.");
             delete mol_ptr;
@@ -634,6 +635,36 @@ void coot_ligand_editor_canvas_update_molecule_from_smiles(CootLigandEditorCanva
         self->update_status(msg.c_str());
         self->rollback_current_edition();
     }
+}
+
+void coot_ligand_editor_canvas_set_atom_names(CootLigandEditorCanvas* self, unsigned int molecule_idx,
+                                              const std::vector<std::string>& names,
+                                              const std::vector<std::string>& hydrogen_names) {
+    if(molecule_idx >= self->rdkit_molecules->size()) {
+        return;
+    }
+    auto& target_mol_opt = (*self->rdkit_molecules)[molecule_idx];
+    if(!target_mol_opt.has_value()) {
+        return;
+    }
+    RDKit::RWMol* mol = target_mol_opt->get();
+    self->begin_edition();
+    unsigned int n_atoms = mol->getNumAtoms();
+    for(unsigned int i = 0; i < n_atoms; i++) {
+        RDKit::Atom* at = mol->getAtomWithIdx(i);
+        // The visible heavy-atom name.
+        if(i < names.size() && !names[i].empty())
+            at->setProp("name", names[i]);
+        // The names of this atom's (implicit) hydrogens, stashed for later use
+        // by acedrg. These are not displayed - the molecule has no H atoms.
+        if(i < hydrogen_names.size() && !hydrogen_names[i].empty())
+            at->setProp("hydrogen_names", hydrogen_names[i]);
+    }
+    auto& widget_mol = (*self->molecules)[molecule_idx];
+    // This is a names-only change, so keep the existing 2D layout - do not
+    // clear the cached atom coordinate map (unlike update_molecule_from_smiles).
+    widget_mol->lower_from_rdkit(!self->allow_invalid_molecules, self->use_coordgen);
+    self->finalize_edition();
 }
 
 void coot_ligand_editor_canvas_undo_edition(CootLigandEditorCanvas* self) noexcept {
@@ -680,6 +711,14 @@ void coot_ligand_editor_canvas_set_allow_invalid_molecules(CootLigandEditorCanva
 
 bool coot_ligand_editor_canvas_get_allow_invalid_molecules(CootLigandEditorCanvas* self) noexcept {
     return self->allow_invalid_molecules;
+}
+
+void coot_ligand_editor_canvas_set_coordgen_mode_enabled(CootLigandEditorCanvas* self, bool value) noexcept {
+    g_debug("Coordgen mode set to %s", value ? "true" : "false");
+    self->use_coordgen = value;
+}
+bool coot_ligand_editor_canvas_get_coordgen_mode_enabled(CootLigandEditorCanvas* self) noexcept {
+    return self->use_coordgen;
 }
 
 DisplayMode coot_ligand_editor_canvas_get_display_mode(CootLigandEditorCanvas* self) noexcept {

@@ -49,6 +49,7 @@ typedef const char entry_char_type;
 #include "graphics-info.h"
 
 #include "cc-interface.hh" // for read_ccp4_map()
+#include "c-interface-generic-objects.h"
 
 #include "utils/logging.hh"
 extern logging logger;
@@ -224,6 +225,7 @@ on_model_toolbar_flip_peptide_button_clicked(GtkButton *button,
          auto &m = g.molecules[imol];
          coot::atom_spec_t atom_spec(aa.second.second);
          m.pepflip(atom_spec);
+         g.update_validation(imol);
          g.graphics_draw();
       }
    }
@@ -251,6 +253,7 @@ on_model_toolbar_side_chain_180_button_clicked(GtkButton *button,
       // change this signature to use a residue spec and an alt_conf.
       int istatus = m.do_180_degree_side_chain_flip(spec.chain_id, spec.res_no,
 						    spec.ins_code, alt_conf, g.Geom_p());
+      g.update_validation(imol);
       g.graphics_draw();
    }
 
@@ -651,6 +654,13 @@ extern "C" G_MODULE_EXPORT
 void on_add_PTM_apply_button_clicked(GtkButton *button,
                                      gpointer user_data) {
 
+   auto mutate_by_overlap = [] (int imol, mmdb::Residue *residue_p, const std::string &new_residue_type) {
+      std::string chain_id = residue_p->GetChainID();
+      int res_no = residue_p->GetSeqNum();
+      graphics_info_t g;
+      g.molecules[imol].mutate_by_overlap(chain_id, res_no, new_residue_type);
+   };
+
    GtkWidget *combobox = widget_from_builder("add_PTM_combobox");
    if (combobox) {
       graphics_info_t g;
@@ -670,14 +680,22 @@ void on_add_PTM_apply_button_clicked(GtkButton *button,
                   if (mn.first)
                      new_residue_type_exists = true;
                   if (new_residue_type_exists) {
-                     std::string chain_id = residue_p->GetChainID();
-                     int res_no = residue_p->GetSeqNum();
-                     g.molecules[imol].mutate_by_overlap(chain_id, res_no, new_residue_type);
+                     mutate_by_overlap(imol, residue_p, new_residue_type);
                      g.graphics_draw();
                   } else {
-                     get_monomer_dictionary_in_subthread(new_residue_type, false);
-                     ephemeral_overlay_label("Fetching dictionary - try again");
+                     // try_dynamic_add uses the cache.
+                     graphics_info_t::Geom_p()->try_dynamic_add(new_residue_type, g.cif_dictionary_read_number++);
+                     mn = g.Geom_p()->get_monomer_name(new_residue_type, imol_enc_any);
+                     if (mn.first) {
+                        mutate_by_overlap(imol, residue_p, new_residue_type);
+                        g.graphics_draw();
+                     } else {
+                        get_monomer_dictionary_in_subthread(new_residue_type, false);
+                        ephemeral_overlay_label("Fetching dictionary - try again");
+                     }
                   }
+               } else {
+                  std::cout << "WARNING:: on_add_PTM_apply_button_clicked()0 no id" << std::endl;
                }
             }
          }
@@ -755,9 +773,11 @@ void
 on_diff_map_peaks_close_button_clicked(GtkButton       *button,
                                        gpointer         user_data) {
 
-   GtkWidget *vbox = widget_from_builder("diff_map_peaks_outer_vbox");
+   GtkWidget *vbox         = widget_from_builder("diff_map_peaks_outer_vbox");
+   GtkWidget *dialog_vbox  = widget_from_builder("dialog-vbox78");
    clear_diff_map_peaks();
    gtk_widget_set_visible(vbox, FALSE);
+   gtk_widget_set_visible(dialog_vbox, FALSE);
    graphics_info_t::hide_vertical_validation_frame_if_appropriate();
 }
 
@@ -2193,10 +2213,12 @@ void
 on_emplacement_cancel_button_clicked(G_GNUC_UNUSED GtkButton       *button,
                                      G_GNUC_UNUSED gpointer         user_data) {
 
-   GtkWidget *frame = widget_from_builder("emplacement_frame");
+   GtkWidget *dialog = widget_from_builder("emplacement_dialog");
+   gtk_widget_set_visible(dialog, FALSE);
 
-   gtk_widget_set_visible(frame, FALSE);
-
+   int obj = generic_object_index("Emplacement Sphere");
+   if (obj >= 0)
+      close_generic_object(obj);
 }
 
 extern "C" G_MODULE_EXPORT
@@ -2289,4 +2311,25 @@ on_find_ncs_ligands_cancel_button_clicked(G_GNUC_UNUSED GtkButton       *button,
    if (frame) {
       gtk_widget_set_visible(frame, FALSE);
    }
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_sort_chains_cancel_button_clicked(G_GNUC_UNUSED GtkButton *button,
+                                     G_GNUC_UNUSED gpointer   user_data) {
+
+   GtkWidget *frame = widget_from_builder("sort_chains_frame");
+   gtk_widget_set_visible(frame, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_sort_chains_ok_button_clicked(G_GNUC_UNUSED GtkButton *button,
+                                 G_GNUC_UNUSED gpointer   user_data) {
+
+   GtkWidget *combobox = widget_from_builder("sort_chains_comboboxtext");
+   int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+   sort_chains(imol);
+   GtkWidget *frame = widget_from_builder("sort_chains_frame");
+   gtk_widget_set_visible(frame, FALSE);
 }

@@ -256,6 +256,87 @@ int test_gompertz_scale() {
 }
 
 
+int test_self_score(const std::string &pdb_file_name) {
+
+   int n_fail = 0;
+   coot::daca daca;
+
+   std::pair<int, int> result = daca.self_test(pdb_file_name);
+   int n_total   = result.first;
+   int n_misses  = result.second;
+
+   if (n_total < 0) {
+      std::cout << "FAIL: test_self_score could not run (file problem?)" << std::endl;
+      n_fail++;
+   } else if (n_total == 0) {
+      std::cout << "FAIL: test_self_score found no contacts" << std::endl;
+      n_fail++;
+   } else if (n_misses != 0) {
+      std::cout << "FAIL: test_self_score " << n_misses << " misses out of "
+                << n_total << " contacts" << std::endl;
+      n_fail++;
+   } else {
+      std::cout << "PASS test_self_score (" << n_total << " contacts, 0 misses)" << std::endl;
+   }
+
+   return n_fail;
+}
+
+int test_self_score_perturbed(const std::string &pdb_file_name) {
+
+   int n_fail = 0;
+   coot::daca daca;
+
+   float perturbation = 0.1f;
+   std::pair<int, int> result = daca.self_test_perturbed(pdb_file_name, perturbation);
+   int n_total  = result.first;
+   int n_misses = result.second;
+
+   if (n_total < 0) {
+      std::cout << "FAIL: test_self_score_perturbed could not run (file problem?)" << std::endl;
+      n_fail++;
+   } else if (n_total == 0) {
+      std::cout << "FAIL: test_self_score_perturbed found no contacts" << std::endl;
+      n_fail++;
+   } else if (n_misses == 0) {
+      std::cout << "FAIL: test_self_score_perturbed expected some misses but got none" << std::endl;
+      n_fail++;
+   } else {
+      float miss_frac = static_cast<float>(n_misses) / static_cast<float>(n_total);
+      std::cout << "PASS test_self_score_perturbed (" << n_total << " contacts, "
+                << n_misses << " misses, " << 100.0f * miss_frac << "%)" << std::endl;
+   }
+
+   return n_fail;
+}
+
+int test_perturbation_scan(const std::string &pdb_file_name) {
+
+   int n_fail = 0;
+
+   std::cout << "perturbation_scan: perturbation n_total n_misses miss_fraction" << std::endl;
+   for (int i=0; i<=30; i++) {
+      float perturbation = static_cast<float>(i) * 0.01f;
+      coot::daca daca;
+      std::pair<int, int> result = daca.self_test_perturbed(pdb_file_name, perturbation);
+      int n_total  = result.first;
+      int n_misses = result.second;
+      if (n_total <= 0) {
+         std::cout << "FAIL: perturbation_scan could not run at perturbation "
+                   << perturbation << std::endl;
+         n_fail++;
+         break;
+      }
+      float miss_frac = static_cast<float>(n_misses) / static_cast<float>(n_total);
+      std::cout << "perturbation_scan: " << perturbation << " "
+                << n_total << " " << n_misses << " " << miss_frac << std::endl;
+   }
+
+   if (n_fail == 0)
+      std::cout << "PASS test_perturbation_scan" << std::endl;
+   return n_fail;
+}
+
 int main(int argc, char **argv) {
 
    int n_fail = 0;
@@ -265,6 +346,13 @@ int main(int argc, char **argv) {
    n_fail += test_box_index_ordering();
    n_fail += test_atom_names_for_fragments();
    n_fail += test_gompertz_scale();
+
+   if (argc > 1) {
+      std::string pdb_file_name(argv[1]);
+      n_fail += test_self_score(pdb_file_name);
+      n_fail += test_self_score_perturbed(pdb_file_name);
+      n_fail += test_perturbation_scan(pdb_file_name);
+   }
 
    if (n_fail == 0)
       std::cout << "All DACA tests passed" << std::endl;

@@ -238,8 +238,7 @@ startup_realize(GtkWidget *gl_area) {
                 << std::endl;
 
    auto run_command_line_scripts_callback = +[] (gpointer user_data) {
-
-      // run_command_line_scripts();
+      run_command_line_scripts();
       return G_SOURCE_REMOVE;
    };
    g_idle_add(run_command_line_scripts_callback, nullptr);
@@ -475,10 +474,17 @@ on_glarea_click(GtkGestureClick* click_gesture,
    graphics_info_t g;
    g.on_glarea_click(click_gesture, n_press, x, y, user_data);
 
-   // Not in Gtk4.
-   // GtkWidget *w;
-   // GtkWindow *window = gtk_widget_get_window(w);
-   // GtkWidget *focused_widget = gtk_window_get_focus(window);
+}
+
+void
+on_glarea_click_released(GtkGestureClick* click_gesture,
+                         gint n_press,
+                         gdouble x,
+                         gdouble y,
+                         gpointer user_data) {
+
+   graphics_info_t g;
+   g.on_glarea_click_released(click_gesture, n_press, x, y, user_data);
 
 }
 
@@ -586,6 +592,7 @@ void setup_gestures_for_opengl_widget_in_main_window(GtkWidget *glarea) {
 
    gtk_widget_add_controller(GTK_WIDGET(glarea), GTK_EVENT_CONTROLLER(click_controller));
    g_signal_connect(click_controller, "pressed",  G_CALLBACK(on_glarea_click),  glarea);
+   g_signal_connect(click_controller, "released", G_CALLBACK(on_glarea_click_released), glarea);
 
    gtk_widget_add_controller(GTK_WIDGET(glarea), GTK_EVENT_CONTROLLER(scroll_controller));
    g_signal_connect(scroll_controller, "scroll",  G_CALLBACK(on_glarea_scrolled),  glarea);
@@ -804,7 +811,7 @@ startup_create_splash_screen_window() {
    GtkWidget *splash_screen_window = gtk_window_new();
    gtk_window_set_title(GTK_WINDOW(splash_screen_window), "Coot-Splash");
    gtk_window_set_decorated(GTK_WINDOW(splash_screen_window), FALSE);
-   GtkWidget *picture = create_local_picture("coot-1.2.png");
+   GtkWidget *picture = create_local_picture("coot-1.3.1.png");
 
    gtk_widget_set_hexpand(GTK_WIDGET(picture),TRUE);
    gtk_widget_set_vexpand(GTK_WIDGET(picture),TRUE);
@@ -944,7 +951,7 @@ startup_application_activate(GtkApplication *application,
       // change "glade" to "ui" one day.
       // 20240218-PE today is that day!
       std::string dir_ui = coot::util::append_dir_dir(dir, "ui");
-      std::string ui_file_name = "coot-gtk4.ui";
+      std::string ui_file_name = "coot.ui";
       std::string ui_file_full = coot::util::append_dir_file(dir_ui, ui_file_name);
       if (coot::file_exists(ui_file_name))
          ui_file_full = ui_file_name;
@@ -985,7 +992,7 @@ startup_application_activate(GtkApplication *application,
             version_str += s;
          }
       }
-      // override the value in the coot-gtk4.ui file.
+      // override the value in the coot.ui file.
       gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(about_dialog), version_str.c_str());
 
 
@@ -1082,10 +1089,33 @@ startup_application_activate(GtkApplication *application,
             GFile *file = (GFile *)g_value_get_object(value);
             if (file) {
                std::cout << "DEBUG:: got file: " << file << std::endl;
-               const gchar *filename = g_file_get_path(file);
-               std::cout << "DEBUG:: got filename: " << filename << std::endl;
-               handle_drag_and_drop_string(filename);
-               status = TRUE;
+               gchar *filename = g_file_get_path(file);
+               if (filename) {
+                  std::cout << "DEBUG:: got filename: " << filename << std::endl;
+                  handle_drag_and_drop_string(filename);
+                  status = TRUE;
+                  g_free(filename);
+               } else {
+                  // macOS GTK4 sometimes gives a GFile built from an already-URI
+                  // string, so the colon gets re-encoded (file%3A///...). Unescape
+                  // and strip the file:// prefix to recover the local path.
+                  gchar *uri = g_file_get_uri(file);
+                  std::cout << "DEBUG:: g_file_get_path() returned null; uri: "
+                            << (uri ? uri : "(null)") << std::endl;
+                  if (uri) {
+                     gchar *unescaped = g_uri_unescape_string(uri, NULL);
+                     if (unescaped) {
+                        const gchar *path = unescaped;
+                        if (g_str_has_prefix(path, "file://"))
+                           path += strlen("file://");
+                        std::cout << "DEBUG:: recovered path: " << path << std::endl;
+                        handle_drag_and_drop_string(path);
+                        status = TRUE;
+                        g_free(unescaped);
+                     }
+                     g_free(uri);
+                  }
+               }
             } else {
                std::cout << "got null file " << std::endl;
             }

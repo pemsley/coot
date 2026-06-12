@@ -35,8 +35,11 @@
 
 #include <string>
 
+#include <fstream>
+
 #include <coot-utils/json.hpp>
 #include "python-results-container.hh"
+#include "graphics-info.h"
 #include "utils/coot-utils.hh"
 #include "widget-from-builder.hh"
 #include "vte.hh"
@@ -322,17 +325,44 @@ void setup_python_vte_terminal() {
 
    g_signal_connect(terminal, "child-exited", G_CALLBACK(on_vte_child_exited), nullptr);
 
-   // Add Cmd+V (macOS) / Ctrl+Shift+V paste support
+   // Add Cmd/Ctrl keyboard shortcuts: V=paste, +/-/0=font size
    GtkEventController *key_controller = gtk_event_controller_key_new();
    g_signal_connect(key_controller, "key-pressed",
                     G_CALLBACK(+[](GtkEventControllerKey *controller,
                                    guint keyval, guint keycode,
                                    GdkModifierType state,
                                    gpointer user_data) -> gboolean {
-                       if (keyval == GDK_KEY_v &&
-                           (state & GDK_META_MASK || state & GDK_CONTROL_MASK)) {
-                          VteTerminal *t = VTE_TERMINAL(user_data);
+                       bool cmd_or_ctrl = (state & GDK_META_MASK) || (state & GDK_CONTROL_MASK);
+                       if (!cmd_or_ctrl) return FALSE;
+                       VteTerminal *t = VTE_TERMINAL(user_data);
+                       if (keyval == GDK_KEY_v) {
                           vte_terminal_paste_clipboard(t);
+                          return TRUE;
+                       }
+                       if (keyval == GDK_KEY_plus || keyval == GDK_KEY_equal) {
+                          const PangoFontDescription *fd = vte_terminal_get_font(t);
+                          PangoFontDescription *fd_copy = pango_font_description_copy(fd);
+                          gint size = pango_font_description_get_size(fd_copy);
+                          pango_font_description_set_size(fd_copy, size + PANGO_SCALE);
+                          vte_terminal_set_font(t, fd_copy);
+                          pango_font_description_free(fd_copy);
+                          return TRUE;
+                       }
+                       if (keyval == GDK_KEY_minus) {
+                          const PangoFontDescription *fd = vte_terminal_get_font(t);
+                          PangoFontDescription *fd_copy = pango_font_description_copy(fd);
+                          gint size = pango_font_description_get_size(fd_copy);
+                          if (size > 6 * PANGO_SCALE) {
+                             pango_font_description_set_size(fd_copy, size - PANGO_SCALE);
+                             vte_terminal_set_font(t, fd_copy);
+                          }
+                          pango_font_description_free(fd_copy);
+                          return TRUE;
+                       }
+                       if (keyval == GDK_KEY_0) {
+                          PangoFontDescription *fd = pango_font_description_from_string("Monospace 10");
+                          vte_terminal_set_font(t, fd);
+                          pango_font_description_free(fd);
                           return TRUE;
                        }
                        return FALSE;
@@ -395,6 +425,28 @@ void setup_python_vte_terminal() {
 void toggle_vte_terminal_visibility() {
 
    if (!vte_paned_widget) return;
+
+   // If there is a notebook (Claude terminal was set up), use it
+   GtkWidget *notebook = GTK_WIDGET(
+      g_object_get_data(G_OBJECT(vte_paned_widget), "vte_notebook"));
+   if (notebook) {
+      gboolean visible = gtk_widget_get_visible(notebook);
+      if (visible) {
+         int current_page = gtk_notebook_get_current_page(GTK_NOTEBOOK(notebook));
+         if (current_page == 0) {
+            gtk_widget_set_visible(notebook, FALSE);
+            return;
+         }
+      }
+      gtk_widget_set_visible(notebook, TRUE);
+      gtk_notebook_set_current_page(GTK_NOTEBOOK(notebook), 0);
+      spawn_vte_helper();
+      if (vte_terminal_widget)
+         gtk_widget_grab_focus(vte_terminal_widget);
+      return;
+   }
+
+   // Fallback: no notebook, just the scrolled window directly in the paned
    GtkWidget *scrolled = GTK_WIDGET(g_object_get_data(G_OBJECT(vte_paned_widget),
                                                        "vte_scrolled_window"));
    if (!scrolled) return;
@@ -412,13 +464,333 @@ void toggle_vte_terminal_visibility() {
 void show_vte_terminal() {
 
    if (!vte_paned_widget) return;
+
+   GtkWidget *notebook = GTK_WIDGET(
+      g_object_get_data(G_OBJECT(vte_paned_widget), "vte_notebook"));
+   if (notebook) {
+      gtk_widget_set_visible(notebook, TRUE);
+      gtk_notebook_set_current_page(GTK_NOTEBOOK(notebook), 0);
+      spawn_vte_helper();
+      if (vte_terminal_widget)
+         gtk_widget_grab_focus(vte_terminal_widget);
+      return;
+   }
+
    GtkWidget *scrolled = GTK_WIDGET(g_object_get_data(G_OBJECT(vte_paned_widget),
                                                        "vte_scrolled_window"));
    if (!scrolled) return;
    gtk_widget_set_visible(scrolled, TRUE);
-   spawn_vte_helper(); // spawn on first show
+   spawn_vte_helper();
    if (vte_terminal_widget)
       gtk_widget_grab_focus(vte_terminal_widget);
+}
+
+// ---------------------------------------------------------------------------
+//   Claude AI VTE terminal
+// ---------------------------------------------------------------------------
+
+static GtkWidget *claude_vte_terminal_widget = nullptr;
+static GtkWidget *claude_vte_scrolled_widget = nullptr;
+static bool claude_vte_spawned = false;
+
+static void
+on_claude_vte_child_exited(VteTerminal *terminal, gint status, gpointer user_data) {
+   g_info("Claude process exited with status %d", status);
+   claude_vte_spawned = false;
+}
+
+// Write a temporary MCP config JSON file that points at the Coot socket bridge.
+// Returns the path to the written file (in /tmp).
+static std::string
+write_claude_mcp_config() {
+
+   int port = graphics_info_t::remote_control_port_number;
+   if (port == 0) port = 9090;
+
+   std::string bridge_script = coot::package_data_dir() + "/mcp/coot_mcp_socket_bridge.py";
+
+   json config;
+   config["mcpServers"]["coot"] = {
+      {"command", "python3"},
+      {"args", {bridge_script}}
+   };
+
+   std::string path = "/tmp/coot-claude-mcp-config.json";
+   std::ofstream ofs(path);
+   ofs << config.dump(2) << std::endl;
+   ofs.close();
+   return path;
+}
+
+static void
+on_claude_spawn_callback(VteTerminal *terminal, GPid pid, GError *error, gpointer user_data) {
+
+   if (error) {
+      g_warning("Claude VTE: Failed to spawn claude: %s", error->message);
+      claude_vte_spawned = false; // allow the user to try again
+      if (terminal) {
+         std::string m = std::string("\r\n  Failed to start claude: ") + error->message + "\r\n\r\n";
+         vte_terminal_feed(terminal, m.c_str(), -1);
+      }
+      return;
+   }
+   if (pid != -1)
+      g_info("Claude process spawned with PID %d", pid);
+}
+
+static void spawn_claude_in_vte() {
+
+   if (claude_vte_spawned) return;
+   if (!claude_vte_terminal_widget) return;
+
+   VteTerminal *terminal = VTE_TERMINAL(claude_vte_terminal_widget);
+
+   // If the claude CLI is not installed, tell the user in the terminal rather than
+   // failing silently. Leave claude_vte_spawned false so they can retry after installing.
+   gchar *claude_path = g_find_program_in_path("claude");
+   if (!claude_path) {
+      const char *msg =
+         "\r\n  The \"claude\" command was not found on your PATH.\r\n"
+         "  Install the Claude Code CLI, then reopen this tab to try again.\r\n"
+         "  See https://docs.claude.com/claude-code for installation.\r\n\r\n";
+      vte_terminal_feed(terminal, msg, -1);
+      return;
+   }
+   g_free(claude_path);
+
+   claude_vte_spawned = true;
+
+   // Ensure the JSON-RPC listener is running
+   if (!graphics_info_t::try_port_listener) {
+      graphics_info_t::try_port_listener = 1;
+      if (graphics_info_t::remote_control_port_number == 0)
+         graphics_info_t::remote_control_port_number = 9090;
+      graphics_info_t::remote_control_hostname = "localhost";
+      extern void make_socket_listener_maybe();
+      make_socket_listener_maybe();
+   }
+
+   std::string mcp_config_path = write_claude_mcp_config();
+
+   const char *argv[] = {
+      "claude",
+      "--mcp-config", mcp_config_path.c_str(),
+      nullptr
+   };
+
+   vte_terminal_spawn_async(
+      terminal,
+      VTE_PTY_DEFAULT,
+      nullptr,          // working directory (inherit)
+      const_cast<char **>(argv),
+      nullptr,          // envv (inherit)
+      G_SPAWN_SEARCH_PATH,
+      nullptr, nullptr, nullptr, // child_setup, data, destroy
+      -1,               // timeout (default)
+      nullptr,          // cancellable
+      on_claude_spawn_callback,
+      nullptr           // user_data
+   );
+}
+
+static GtkWidget *
+create_vte_terminal_with_style() {
+
+   GtkWidget *terminal = vte_terminal_new();
+   if (!terminal) return nullptr;
+
+   VteTerminal *vte = VTE_TERMINAL(terminal);
+   PangoFontDescription *font_desc = pango_font_description_from_string("Monospace 10");
+   vte_terminal_set_font(vte, font_desc);
+   pango_font_description_free(font_desc);
+   vte_terminal_set_scrollback_lines(vte, 1000);
+   vte_terminal_set_scroll_on_output(vte, TRUE);
+
+   GdkRGBA fg = {0.9, 0.9, 0.9, 1.0};
+   GdkRGBA bg = {0.15, 0.15, 0.15, 1.0};
+   vte_terminal_set_color_foreground(vte, &fg);
+   vte_terminal_set_color_background(vte, &bg);
+
+   // Cmd/Ctrl keyboard shortcuts: V=paste, +/-/0=font size
+   GtkEventController *key_controller = gtk_event_controller_key_new();
+   g_signal_connect(key_controller, "key-pressed",
+                    G_CALLBACK(+[](GtkEventControllerKey *controller,
+                                   guint keyval, guint keycode,
+                                   GdkModifierType state,
+                                   gpointer user_data) -> gboolean {
+                       bool cmd_or_ctrl = (state & GDK_META_MASK) || (state & GDK_CONTROL_MASK);
+                       if (!cmd_or_ctrl) return FALSE;
+                       VteTerminal *t = VTE_TERMINAL(user_data);
+                       if (keyval == GDK_KEY_v) {
+                          vte_terminal_paste_clipboard(t);
+                          return TRUE;
+                       }
+                       if (keyval == GDK_KEY_plus || keyval == GDK_KEY_equal) {
+                          const PangoFontDescription *fd = vte_terminal_get_font(t);
+                          PangoFontDescription *fd_copy = pango_font_description_copy(fd);
+                          gint size = pango_font_description_get_size(fd_copy);
+                          pango_font_description_set_size(fd_copy, size + PANGO_SCALE);
+                          vte_terminal_set_font(t, fd_copy);
+                          pango_font_description_free(fd_copy);
+                          return TRUE;
+                       }
+                       if (keyval == GDK_KEY_minus) {
+                          const PangoFontDescription *fd = vte_terminal_get_font(t);
+                          PangoFontDescription *fd_copy = pango_font_description_copy(fd);
+                          gint size = pango_font_description_get_size(fd_copy);
+                          if (size > 6 * PANGO_SCALE) {
+                             pango_font_description_set_size(fd_copy, size - PANGO_SCALE);
+                             vte_terminal_set_font(t, fd_copy);
+                          }
+                          pango_font_description_free(fd_copy);
+                          return TRUE;
+                       }
+                       if (keyval == GDK_KEY_0) {
+                          PangoFontDescription *fd = pango_font_description_from_string("Monospace 10");
+                          vte_terminal_set_font(t, fd);
+                          pango_font_description_free(fd);
+                          return TRUE;
+                       }
+                       return FALSE;
+                    }),
+                    vte);
+   gtk_widget_add_controller(terminal, key_controller);
+
+   return terminal;
+}
+
+// When the user switches notebook tab directly (rather than via the Py/AI buttons),
+// make sure the terminal for that tab has its child process running. Both spawn
+// functions are idempotent.
+static void
+on_vte_notebook_switch_page(GtkNotebook *notebook, GtkWidget *page, guint page_num, gpointer user_data) {
+   if (page_num == 0)
+      spawn_vte_helper();
+   else if (page_num == 1)
+      spawn_claude_in_vte();
+}
+
+void setup_claude_vte_terminal() {
+
+   // Set up lazily and only once. Doing this at startup reparented the Python VTE
+   // into the notebook (below) before it was needed, which broke the Python terminal.
+   if (!vte_paned_widget) {
+      g_warning("Claude VTE: Python VTE paned not set up yet");
+      return;
+   }
+   if (g_object_get_data(G_OBJECT(vte_paned_widget), "vte_notebook"))
+      return; // already set up
+
+   claude_vte_terminal_widget = create_vte_terminal_with_style();
+   if (!claude_vte_terminal_widget) {
+      g_warning("Failed to create Claude VTE terminal widget");
+      return;
+   }
+
+   g_signal_connect(claude_vte_terminal_widget, "child-exited",
+                    G_CALLBACK(on_claude_vte_child_exited), nullptr);
+
+   // Create a scrolled window for the Claude terminal
+   claude_vte_scrolled_widget = gtk_scrolled_window_new();
+   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(claude_vte_scrolled_widget),
+                                  GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+   gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(claude_vte_scrolled_widget),
+                                 claude_vte_terminal_widget);
+   gtk_widget_set_size_request(claude_vte_scrolled_widget, -1, 150);
+
+   // Insert into the existing paned as a sibling of the Python terminal.
+   // We wrap both scrolled windows in a GtkNotebook so the user can switch tabs.
+   GtkWidget *python_scrolled = GTK_WIDGET(
+      g_object_get_data(G_OBJECT(vte_paned_widget), "vte_scrolled_window"));
+   if (!python_scrolled) {
+      g_warning("Claude VTE: Python scrolled window not found");
+      return;
+   }
+
+   // Create a notebook to hold both terminals
+   GtkWidget *notebook = gtk_notebook_new();
+   gtk_notebook_set_tab_pos(GTK_NOTEBOOK(notebook), GTK_POS_BOTTOM);
+   g_signal_connect(notebook, "switch-page",
+                    G_CALLBACK(on_vte_notebook_switch_page), nullptr);
+
+   // Reparent the Python scrolled window into the notebook
+   g_object_ref(python_scrolled);
+   gtk_paned_set_end_child(GTK_PANED(vte_paned_widget), nullptr);
+
+   GtkWidget *py_label = gtk_label_new("Python");
+   gtk_notebook_append_page(GTK_NOTEBOOK(notebook), python_scrolled, py_label);
+   g_object_unref(python_scrolled);
+
+   // Add the Claude terminal tab
+   GtkWidget *ai_label = gtk_label_new("AI");
+   gtk_notebook_append_page(GTK_NOTEBOOK(notebook), claude_vte_scrolled_widget, ai_label);
+
+   // Put the notebook into the paned
+   gtk_paned_set_end_child(GTK_PANED(vte_paned_widget), notebook);
+   gtk_paned_set_resize_end_child(GTK_PANED(vte_paned_widget), FALSE);
+   gtk_paned_set_shrink_end_child(GTK_PANED(vte_paned_widget), FALSE);
+
+   // The notebook now gates the visibility of both terminals, so the individual
+   // page contents must be visible (the Python scrolled window was created hidden
+   // by setup_python_vte_terminal()).
+   gtk_widget_set_visible(python_scrolled, TRUE);
+   gtk_widget_set_visible(claude_vte_scrolled_widget, TRUE);
+   // Start with the whole terminal area hidden.
+   gtk_widget_set_visible(notebook, FALSE);
+
+   // Store the notebook so toggle functions can find it
+   g_object_set_data(G_OBJECT(vte_paned_widget), "vte_notebook", notebook);
+   // Update the Python scrolled window pointer — now the notebook controls visibility
+   g_object_set_data(G_OBJECT(vte_paned_widget), "vte_scrolled_window", python_scrolled);
+}
+
+void toggle_claude_vte_terminal_visibility() {
+
+   if (!vte_paned_widget) return;
+
+   GtkWidget *notebook = GTK_WIDGET(
+      g_object_get_data(G_OBJECT(vte_paned_widget), "vte_notebook"));
+   if (!notebook) {
+      setup_claude_vte_terminal(); // lazy first-time setup
+      notebook = GTK_WIDGET(g_object_get_data(G_OBJECT(vte_paned_widget), "vte_notebook"));
+      if (!notebook) return;
+   }
+
+   gboolean visible = gtk_widget_get_visible(notebook);
+   if (visible) {
+      // If already showing the AI tab, hide the notebook
+      int current_page = gtk_notebook_get_current_page(GTK_NOTEBOOK(notebook));
+      if (current_page == 1) {
+         gtk_widget_set_visible(notebook, FALSE);
+         return;
+      }
+   }
+
+   // Show the notebook and switch to the AI tab
+   gtk_widget_set_visible(notebook, TRUE);
+   gtk_notebook_set_current_page(GTK_NOTEBOOK(notebook), 1);
+   spawn_claude_in_vte();
+   if (claude_vte_terminal_widget)
+      gtk_widget_grab_focus(claude_vte_terminal_widget);
+}
+
+void show_claude_vte_terminal() {
+
+   if (!vte_paned_widget) return;
+
+   GtkWidget *notebook = GTK_WIDGET(
+      g_object_get_data(G_OBJECT(vte_paned_widget), "vte_notebook"));
+   if (!notebook) {
+      setup_claude_vte_terminal(); // lazy first-time setup
+      notebook = GTK_WIDGET(g_object_get_data(G_OBJECT(vte_paned_widget), "vte_notebook"));
+      if (!notebook) return;
+   }
+
+   gtk_widget_set_visible(notebook, TRUE);
+   gtk_notebook_set_current_page(GTK_NOTEBOOK(notebook), 1);
+   spawn_claude_in_vte();
+   if (claude_vte_terminal_widget)
+      gtk_widget_grab_focus(claude_vte_terminal_widget);
 }
 
 #endif // HAVE_VTE

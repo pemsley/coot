@@ -93,6 +93,7 @@
 #include "draw-2.hh"
 #include "pick.hh"
 #include "utils/logging.hh"
+#include "validation-graphs/sequence-view-widget.hh"
 extern logging logger;
 
 // static
@@ -1262,6 +1263,7 @@ graphics_info_t::setRotationCentre(coot::Cartesian new_centre, bool force_jump) 
    if (!already_here) {
       if (force_jump) {
          setRotationCentreSimple(new_centre);
+         do_post_set_rotation_centre();
          run_post_set_rotation_centre_hook();
       } else {
          if (graphics_info_t::smooth_scroll == 1) {
@@ -1272,6 +1274,7 @@ graphics_info_t::setRotationCentre(coot::Cartesian new_centre, bool force_jump) 
 
          if (needs_centre_jump)  {
             setRotationCentreSimple(new_centre);
+            do_post_set_rotation_centre();
             run_post_set_rotation_centre_hook();
          }
       }
@@ -1293,6 +1296,7 @@ graphics_info_t::setRotationCentreAndZoom(coot::Cartesian centre,
    rotation_centre_y = centre.get_y();
    rotation_centre_z = centre.get_z();
    zoom = target_zoom;
+   do_post_set_rotation_centre();
    run_post_set_rotation_centre_hook();
 }
 
@@ -1939,6 +1943,53 @@ graphics_info_t::run_post_manipulation_hook_py(int imol, int mode) {
 }
 #endif
 
+void
+graphics_info_t::do_post_set_rotation_centre() {
+
+   if (use_graphics_interface_flag) {
+      std::pair<bool, std::pair<int, coot::atom_spec_t> > aa = active_atom_spec();
+      if (aa.first) {
+         int imol_active = aa.second.first;
+         coot::residue_spec_t active_res_spec(aa.second.second);
+         GtkWidget *seq_view_box = widget_from_builder("main_window_sequence_view_box");
+         if (seq_view_box) {
+            GtkWidget *item = gtk_widget_get_first_child(seq_view_box);
+            while (item) {
+               int imol_overlay = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item), "imol"));
+               GtkWidget *sv = GTK_WIDGET(g_object_get_data(G_OBJECT(item), "coot-sequence-view"));
+               if (sv) {
+                  std::cout << "debug:: in while..... widget sv: " << sv << std::endl;
+                  if (imol_overlay == imol_active) {
+                     coot_sequence_view_set_active_residue(COOT_COOT_SEQUENCE_VIEW(sv), active_res_spec);
+                  } else {
+                     coot_sequence_view_clear_active_residue(COOT_COOT_SEQUENCE_VIEW(sv));
+                  }
+               }
+               item = gtk_widget_get_next_sibling(item);
+            }
+         }
+
+         // update the current residue marker on the Ramachandran plot
+         if (!showing_intermediate_atoms_from_refinement()) {
+            for (auto &rpb : rama_plot_boxes) {
+               if (rpb.imol == imol_active) {
+                  rpb.rama.set_current_residue(active_res_spec);
+               } else {
+                  rpb.rama.clear_current_residue();
+               }
+               if (rpb.gtk_gl_area)
+                  gtk_widget_queue_draw(rpb.gtk_gl_area);
+            }
+         } else {
+            for (auto &rpb : rama_plot_boxes) {
+               rpb.rama.clear_current_residue();
+               if (rpb.gtk_gl_area)
+                  gtk_widget_queue_draw(rpb.gtk_gl_area);
+            }
+         }
+      }
+   }
+}
 
 void
 graphics_info_t::run_post_set_rotation_centre_hook() {
@@ -2047,14 +2098,16 @@ graphics_info_t::update_environment_distances_by_rotation_centre_maybe(int imol_
    // Oh this is grimly "long hand".
    graphics_info_t g;
    if (g.environment_show_distances) {
-      coot::at_dist_info_t at_d_i = g.molecules[imol_in].closest_atom(RotationCentre());
-      if (at_d_i.atom) {
-    int atom_index;
-    if (at_d_i.atom->GetUDData(g.molecules[imol_in].atom_sel.UDDAtomIndexHandle,
-       atom_index) == mmdb::UDDATA_Ok) {
-       g.mol_no_for_environment_distances = imol_in;
-       g.update_environment_distances_maybe(atom_index, imol_in);
-    }
+      if (is_valid_model_molecule(imol_in)) {
+         coot::at_dist_info_t at_d_i = g.molecules[imol_in].closest_atom(RotationCentre());
+         if (at_d_i.atom) {
+            int atom_index;
+            if (at_d_i.atom->GetUDData(g.molecules[imol_in].atom_sel.UDDAtomIndexHandle,
+               atom_index) == mmdb::UDDATA_Ok) {
+               g.mol_no_for_environment_distances = imol_in;
+               g.update_environment_distances_maybe(atom_index, imol_in);
+            }
+         }
       }
    }
 }
@@ -6925,12 +6978,8 @@ void graphics_info_t::hide_vertical_validation_frame_if_appropriate() {
 
    bool should_hide = !rama_plot_shown && !should_show_vbox;
 
-   std::cout << "here in hide_vertical_validation_frame_if_appropriate rama_plot_shown : " << rama_plot_shown << std::endl;
-   std::cout << "here in hide_vertical_validation_frame_if_appropriate should_show_vbox : " << should_show_vbox << std::endl;
-   std::cout << "here in hide_vertical_validation_frame_if_appropriate should_hide: " << should_hide << std::endl;
-
-   if(should_hide) {
-      GtkWidget* pane = widget_from_builder("main_window_ramchandran_and_validation_pane");
+   if (should_hide) {
+      GtkWidget* pane = widget_from_builder("main_window_ramachandran_and_validation_pane");
       gtk_widget_set_visible(pane, FALSE);
    }
 }

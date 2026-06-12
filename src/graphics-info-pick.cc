@@ -772,7 +772,7 @@ graphics_info_t::move_dragged_anchored_atom(double screen_x, double screen_y) {
 
    auto get_position_diff = [mouse_coords_to_clip_space] (double screen_x, double screen_y) {
 
-      if (true)
+      if (false)
          std::cout << "in move_atom_pull_target_postion() "
                    << " screen_x " << screen_x << " screen_y " << screen_y
                    << " delta " << screen_x - mouse_begin.first  << " "
@@ -851,9 +851,7 @@ graphics_info_t::move_dragged_anchored_atom(double screen_x, double screen_y) {
 
 }
 
-
-void
-graphics_info_t::move_atom_pull_target_position(double screen_x, double screen_y, bool control_is_pressed) {
+void graphics_info_t::move_atom_pull_target_position(double screen_x, double screen_y, bool control_is_pressed) {
 
    // we pass control_is_pressed so that, if we are in noughties_physics mode,
    // then we move just one atom, not the whole lot
@@ -1178,14 +1176,15 @@ graphics_info_t::rotate_intermediate_atoms_round_screen_z(double angle) {
 	       regularize_object_bonds_box.clear_up();
 	       regularize_object_bonds_box = bonds.make_graphical_bonds();
 	    }
+	    moving_atoms_molecule.bonds_box = regularize_object_bonds_box;
 	    graphics_draw();
 	 }
       }
    }
-} 
+}
 
 // Presumes that rotation centre can be got from mmdb::Atom *rot_trans_rotation_origin_atom;
-// 
+//
 void
 graphics_info_t::rotate_intermediate_atoms_round_screen_x(double angle) {
 
@@ -1234,6 +1233,7 @@ graphics_info_t::rotate_intermediate_atoms_round_screen_x(double angle) {
 	       regularize_object_bonds_box.clear_up();
 	       regularize_object_bonds_box = bonds.make_graphical_bonds();
 	    }
+	    moving_atoms_molecule.bonds_box = regularize_object_bonds_box;
 	    graphics_draw();
 	 }
       }

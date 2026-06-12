@@ -432,7 +432,10 @@ graphics_info_t::setup_key_bindings() {
                                 }
                              }
                              std::string chain_id_next = chain_ids[idx_next];
-                             clipper::Coord_orth current_position = coot::co(at);
+                             // Use the actual rotation centre (not the active atom's
+                             // position) so that an off-atom view is mapped to the
+                             // equivalent off-atom point in the next NCS chain.
+                             clipper::Coord_orth current_position = get_rotation_centre_co();
                              bool forward_flag = true;
                              glm::mat4 quat_mat = glm::toMat4(view_quaternion);
                              clipper::Mat33<double> current_view_mat = glm_to_mat33(quat_mat);
@@ -790,6 +793,7 @@ graphics_info_t::setup_key_bindings() {
             g.setup_delete_item_pulse(residue_p);
             coot::residue_spec_t residue_spec(residue_p);
             g.molecules[imol].delete_residue(residue_spec);
+            g.update_validation(imol);
          }
       }
       return gboolean(TRUE);
@@ -885,7 +889,7 @@ graphics_info_t::setup_key_bindings() {
    };
 
    auto lc_toggle_validation_side_panel = [] () {
-      GtkWidget* pane = widget_from_builder("main_window_ramchandran_and_validation_pane");
+      GtkWidget* pane = widget_from_builder("main_window_ramachandran_and_validation_pane");
       if (pane) {
          if (gtk_widget_get_visible(pane) == TRUE) {
             gtk_widget_set_visible(pane, FALSE);

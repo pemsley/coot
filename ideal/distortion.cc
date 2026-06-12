@@ -1652,7 +1652,6 @@ coot::refinement_results_mini_stats_t
 coot::distortion_bond_mini_stats(const coot::simple_restraint &bond_restraint,
                                  const gsl_vector *v) {
 
-   refinement_results_mini_stats_t mini_stats;
    int idx = 3*bond_restraint.atom_index_1;
    clipper::Coord_orth a1(gsl_vector_get(v,idx),
 			  gsl_vector_get(v,idx+1),
@@ -1667,7 +1666,10 @@ coot::distortion_bond_mini_stats(const coot::simple_restraint &bond_restraint,
    double bit = sqrt(b_i_sqrd) - bond_restraint.target_value;
    double distortion = weight * bit *bit;
    double observed = std::sqrt(b_i_sqrd);
-   return refinement_results_mini_stats_t(BOND_RESTRAINT, distortion, bond_restraint.target_value, observed);
+   refinement_results_mini_stats_t mini_stats(BOND_RESTRAINT, distortion, bond_restraint.target_value, observed);
+   if (bond_restraint.sigma > 0.0)
+      mini_stats.nZ = bit / bond_restraint.sigma;
+   return mini_stats;
 }
 
 double
@@ -1794,7 +1796,10 @@ coot::distortion_angle_mini_stats(const coot::simple_restraint &angle_restraint,
 
    double distortion = weight * bit * bit;
    double observed = clipper::Util::rad2d(theta);
-   return refinement_results_mini_stats_t(ANGLE_RESTRAINT, distortion, angle_restraint.target_value, observed);
+   refinement_results_mini_stats_t mini_stats(ANGLE_RESTRAINT, distortion, angle_restraint.target_value, observed);
+   if (angle_restraint.sigma > 0.0)
+      mini_stats.nZ = bit / angle_restraint.sigma;
+   return mini_stats;
 }
 
 //

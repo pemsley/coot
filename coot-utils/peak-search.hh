@@ -153,6 +153,26 @@ namespace coot {
 
       void set_max_closeness(float d) { max_closeness = d; }
 
+      // Return true if a and b are within d_min of each other under any
+      // symmetry operator or lattice translation of the given cell and
+      // space group.  Used by get_peaks_for_substructure().
+      static bool too_close_crystallographically(const clipper::Coord_frac &a,
+                                                 const clipper::Coord_frac &b,
+                                                 const clipper::Spacegroup &sg,
+                                                 const clipper::Cell &cell,
+                                                 float d_min);
+
+      // Substructure peak picking: find up to n_peaks local maxima on
+      // xmap (strictly greater than all 26 grid neighbours), ranked by
+      // height, filtered so that no two accepted peaks are within
+      // d_min_atoms Å of each other under any symmetry operator or
+      // lattice translation.  Returns (fractional coord, density value)
+      // pairs in descending height order.
+      std::vector<std::pair<clipper::Coord_frac, float>>
+      get_peaks_for_substructure(const clipper::Xmap<float> &xmap,
+                                 unsigned int n_peaks,
+                                 float d_min_atoms = 3.0f) const;
+
    };
 }
 

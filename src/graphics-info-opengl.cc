@@ -861,14 +861,14 @@ glm::vec4 colour_holder_to_glm(const coot::colour_holder &ch); // in meshed-gene
 bool
 graphics_info_t::coot_all_atom_contact_dots_are_begin_displayed_for(int imol) const {
 
+   if (!show_atom_overlaps_flag) return false;
+
    bool status = false;
    for (unsigned int i=0; i<generic_display_objects.size(); i++) {
       const auto &gdo = generic_display_objects[i];
+      if (gdo.mesh.this_mesh_is_closed) continue;
       if (gdo.imol == imol) {
          const std::string &mesh_name = gdo.mesh.name;
-         unsigned int n_instances = generic_display_objects[i].mesh.get_n_instances();
-         std::cout << "debug mesh " << i << " has name " << mesh_name
-                   << " and " << n_instances << " instances" << std::endl;
          if (mesh_name.find("Contact Dots for Molecule") != std::string::npos) {
             status = true;
             break;
@@ -882,6 +882,32 @@ graphics_info_t::coot_all_atom_contact_dots_are_begin_displayed_for(int imol) co
    return status;
 }
 
+void
+graphics_info_t::set_show_atom_overlaps(bool state) {
+
+   show_atom_overlaps_flag = state;
+   for (unsigned int i=0; i<generic_display_objects.size(); i++) {
+      auto &gdo = generic_display_objects[i];
+      if (gdo.mesh.this_mesh_is_closed) continue;
+      const std::string &mesh_name = gdo.mesh.name;
+      if (mesh_name.find("Contact Dots for Molecule") != std::string::npos ||
+          mesh_name.find("clashes insta-mesh") != std::string::npos) {
+         gdo.mesh.set_draw_this_mesh(state);
+      }
+   }
+   for (unsigned int i=0; i<molecules.size(); i++) {
+      molecule_class_info_t &m = molecules[i];
+      for (unsigned int j=0; j<m.instanced_meshes.size(); j++) {
+         Instanced_Markup_Mesh &imm = m.instanced_meshes[j];
+         std::string name = imm.get_name();
+         if (name.find("Contact Dots") != std::string::npos ||
+             name.find("Clashes") != std::string::npos) {
+            imm.set_draw_status(state);
+         }
+      }
+   }
+   graphics_draw();
+}
 
 // probably not the right place for this function
 //

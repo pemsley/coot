@@ -26,7 +26,8 @@
 #include "gtk/gtk.h"
 #include "src/graphics-info.h"
 
-ProgressBarPopUp::ProgressBarPopUp(const std::string &title, const std::string &description) noexcept {
+ProgressBarPopUp::ProgressBarPopUp(const std::string &title, const std::string &description) noexcept
+   : frame(nullptr), owns_window(true) {
    this->window = (GtkWindow*) gtk_window_new();
    this->progress_bar = (GtkProgressBar*) gtk_progress_bar_new();
 
@@ -45,11 +46,18 @@ ProgressBarPopUp::ProgressBarPopUp(const std::string &title, const std::string &
    gtk_window_present(this->window);
 }
 
+ProgressBarPopUp::ProgressBarPopUp(GtkWidget *frame, GtkProgressBar *progress_bar) noexcept
+   : window(nullptr), progress_bar(progress_bar), frame(frame), owns_window(false) {
+}
+
 ProgressBarPopUp::ProgressBarPopUp(ProgressBarPopUp&& other) noexcept {
    this->window = other.window;
    this->progress_bar = other.progress_bar;
+   this->frame = other.frame;
+   this->owns_window = other.owns_window;
    other.window = nullptr;
    other.progress_bar = nullptr;
+   other.frame = nullptr;
 }
 
 void ProgressBarPopUp::pulse() noexcept {
@@ -76,13 +84,24 @@ void ProgressBarPopUp::set_text(const std::string &text) noexcept {
 }
 
 ProgressBarPopUp::~ProgressBarPopUp() {
-   if(this->window) {
-      gtk_window_close(this->window);
+   if (owns_window) {
+      if (this->window) {
+         gtk_window_close(this->window);
+      }
+   } else {
+      if (this->frame) {
+         g_idle_add(+[](gpointer user_data) {
+            GtkWidget *frame = GTK_WIDGET(user_data);
+            gtk_widget_set_visible(frame, FALSE);
+            return FALSE;
+         }, this->frame);
+      }
    }
 }
 
-ProgressNotifier::ProgressNotifier(std::shared_ptr<ProgressBarPopUp> popup) noexcept 
-:progress_bar_popup(std::move(popup)) { }
+ProgressNotifier::ProgressNotifier(std::shared_ptr<ProgressBarPopUp> popup) noexcept
+:progress_bar_popup(std::move(popup)),
+ cancel_flag(std::make_shared<std::atomic<bool>>(false)) { }
 
 void ProgressNotifier::update_progress(float frac) noexcept {
 
@@ -129,6 +148,14 @@ void ProgressNotifier::set_text(const std::string &text) noexcept {
       delete data;
       return FALSE;
    }, data);
+}
+
+void ProgressNotifier::cancel() noexcept {
+   cancel_flag->store(true);
+}
+
+bool ProgressNotifier::is_cancelled() const noexcept {
+   return cancel_flag->load();
 }
 
 ProgressNotifier::~ProgressNotifier() {

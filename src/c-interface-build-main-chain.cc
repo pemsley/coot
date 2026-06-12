@@ -24,6 +24,7 @@
  * Fifth Floor, Boston, MA, 02110-1301, USA.
  */
 
+#include "geometry/residue-and-atom-specs.hh"
 #ifdef USE_PYTHON
 #include <Python.h>  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
@@ -809,6 +810,19 @@ void make_link_py(int imol, PyObject *spec_1, PyObject *spec_2,
        make_link(imol, s1, s2, link_name, length);
 }
 #endif
+
+//! delete links
+void delete_links_containing_residue_py(int imol, PyObject *residue_spec_py) {
+
+   if (is_valid_model_molecule(imol)) {
+      std::pair<bool, coot::residue_spec_t> res_spec_pair = make_residue_spec_py(residue_spec_py);
+      if (res_spec_pair.first) {
+         auto res_spec = res_spec_pair.second;
+         graphics_info_t::molecules[imol].delete_any_link_containing_residue(res_spec);
+      }
+   }
+   graphics_draw();
+}
 
 int add_nucleotide(int imol, const char *chain_id, int res_no) {
 
