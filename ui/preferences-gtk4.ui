@@ -54,7 +54,7 @@
                             <property name="halign">center</property>
                             <child>
                               <object class="GtkImage">
-                                <property name="icon-name">preferences-system</property>
+                                <property name="icon-name">preferences-system-symbolic</property>
                              </object>
                             </child>
                             <child>
@@ -79,7 +79,7 @@
                             <property name="halign">center</property>
                             <child>
                               <object class="GtkImage">
-                                <property name="icon-name">preferences-system-sharing</property>
+                                <property name="icon-name">preferences-system-sharing-symbolic</property>
                              </object>
                             </child>
                             <child>
@@ -154,7 +154,7 @@
                             <property name="halign">center</property>
                             <child>
                               <object class="GtkImage">
-                                <property name="icon-name">applications-graphics</property>
+                                <property name="icon-name">applications-graphics-symbolic</property>
                              </object>
                             </child>
                             <child>
@@ -179,7 +179,7 @@
                             <property name="halign">center</property>
                             <child>
                               <object class="GtkImage">
-                                <property name="icon-name">dialog-question</property>
+                                <property name="icon-name">dialog-question-symbolic</property>
                               </object>
                             </child>
                             <child>
