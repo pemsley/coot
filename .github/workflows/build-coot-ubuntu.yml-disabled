@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: wget test data
       run:  wget -nv https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/data/greg-data.tar.gz
@@ -20,14 +20,14 @@ jobs:
 
     - name: cache test data
       id: cache-coot-test-data
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
          path: src/greg-data
          key:  coot-test-data
 
     - name: Cache coot dependencies
       id: cache-coot-dependencies-ubuntu
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
          path: /home/runner/install/coot-Linux-ubuntu
          key:  coot-deps-ubuntu-v2-${{ github.run_id }}
@@ -55,7 +55,7 @@ jobs:
       run:  bash build-it-3-3 || echo done
 
     - name: Upload build logs
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: build-logs-public-html-package
         path: /home/runner/public_html
@@ -148,7 +148,7 @@ jobs:
       run:  find /home/runner/install/coot-Linux-ubuntu/lib > installed-lib-files.log
 
     - name: upload installed-lib-files.log
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: upload-installed-lib-files-log-package
         path: ./installed-lib-files.log
@@ -158,21 +158,21 @@ jobs:
       run:  find /home/runner/install/coot-Linux-ubuntu/include > installed-include-files.log
 
     - name: upload installed-include-files.log
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: upload-installed-include-files-log-package
         path: ./installed-include-files.log
         retention-days: 3
 
     - name: Upload config.log
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: upload-config-log-package
         path: ./config.log
         retention-days: 3
 
     - name: Upload build-logs
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: ubuntu-coot-and-dependency-logs
         path: /home/runner/public_html
@@ -194,7 +194,7 @@ jobs:
     #   run:  cd python-tests && ../src/coot-1 --no-graphics --script run_the_unit_tests.py && cd -
 
     - name: Upload binaries
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: ubuntu-binaries-package
         path: /home/runner/install

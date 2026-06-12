@@ -20,7 +20,7 @@ jobs:
 
     - name: cache macos libcootapi build homebrew
       id: coot-macos-homebrew
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: /opt/homebrew
         key:  coot-macos-build-homebrew-cache
@@ -45,7 +45,7 @@ jobs:
          dwarfutils gsl rdkit pygobject3 gtk4 glm automake
          py3cairo pygobject3 swig
 
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Set fftw for future use
       run: echo "fftw_prefix=/opt/homebrew/Cellar/clipper4coot/2.1.20180802_3/fftw2" >> $GITHUB_ENV

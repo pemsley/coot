@@ -43,12 +43,12 @@ jobs:
           echo "Coot source dir: $dir"
 
       - name: Checkout Coot (source under test)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           path: coot-build/${{ steps.coot.outputs.dir }}
 
       - name: Checkout the coot_zerokara build script
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: hgonomeg/coot_zerokara
           ref: main
@@ -65,7 +65,7 @@ jobs:
       # Split restore/save so deps are cached right after they build, before the Coot phase + tests.
       - name: Restore cached dependency stack
         id: cache-deps
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           # Only the install tree is cached, never the deps/ source trees or build/ dirs
           # (those are huge and not needed to build Coot). A cache hit means the whole
@@ -128,7 +128,7 @@ jobs:
       # failure or timeout never discards them.
       - name: Save dependency stack to cache
         if: steps.cache-deps.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: *deps_paths
           key: ${{ steps.cache-deps.outputs.cache-primary-key }}
@@ -156,7 +156,7 @@ jobs:
              -branch '${{ github.ref_name }}' -coot-stage-only
 
       - name: Upload Coot tarball
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: coot-ubuntu-${{ matrix.label }}-x86_64
           path: ${{ env.BUILD_DIR }}/coot-*.tar.zst
@@ -197,7 +197,7 @@ jobs:
 
       - name: Upload build logs on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: build-logs-ubuntu-${{ matrix.label }}
           path: ${{ env.BUILD_DIR }}/build-logs.tar.zst
