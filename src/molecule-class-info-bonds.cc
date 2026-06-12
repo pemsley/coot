@@ -144,14 +144,10 @@ molecule_class_info_t::clear_non_drawn_bonds(bool regen_bonds) {
 void
 molecule_class_info_t::clear_user_defined_atom_colours() {
 
-   // "clear" by name, "reset"  by nature
-
    if (atom_sel.mol) {
       int udd_handle = atom_sel.mol->GetUDDHandle(mmdb::UDR_ATOM, "user-defined-atom-colour-index");
       if (udd_handle != 0) {
-         for (int i=0; i<atom_sel.n_selected_atoms; i++) {
-            atom_sel.atom_selection[i]->PutUDData(udd_handle, -1);
-         }
+	       udd_handle = 0; // reset
       }
    }
 }

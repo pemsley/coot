@@ -1697,7 +1697,6 @@ void  do_edit_copy_fragment() {
    GtkWidget *combobox_molecule = widget_from_builder("copy_fragment_combobox"); // its a GtkComboBoxText
    GCallback callback_func = G_CALLBACK(NULL); // combobox is only used when it's read on OK response
 
-   // new_fill_combobox_with_coordinates_options() doesn't set the active item - I don't understand why.
    g.new_fill_combobox_with_coordinates_options(combobox_molecule, callback_func, imol_active);
    g_object_set_data(G_OBJECT(frame), "combobox", combobox_molecule); // for reading. 20220828-PE still needed?
    gtk_widget_set_visible(frame, TRUE);

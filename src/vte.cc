@@ -527,6 +527,11 @@ on_claude_spawn_callback(VteTerminal *terminal, GPid pid, GError *error, gpointe
 
    if (error) {
       g_warning("Claude VTE: Failed to spawn claude: %s", error->message);
+      claude_vte_spawned = false; // allow the user to try again
+      if (terminal) {
+         std::string m = std::string("\r\n  Failed to start claude: ") + error->message + "\r\n\r\n";
+         vte_terminal_feed(terminal, m.c_str(), -1);
+      }
       return;
    }
    if (pid != -1)
@@ -537,9 +542,23 @@ static void spawn_claude_in_vte() {
 
    if (claude_vte_spawned) return;
    if (!claude_vte_terminal_widget) return;
-   claude_vte_spawned = true;
 
    VteTerminal *terminal = VTE_TERMINAL(claude_vte_terminal_widget);
+
+   // If the claude CLI is not installed, tell the user in the terminal rather than
+   // failing silently. Leave claude_vte_spawned false so they can retry after installing.
+   gchar *claude_path = g_find_program_in_path("claude");
+   if (!claude_path) {
+      const char *msg =
+         "\r\n  The \"claude\" command was not found on your PATH.\r\n"
+         "  Install the Claude Code CLI, then reopen this tab to try again.\r\n"
+         "  See https://docs.claude.com/claude-code for installation.\r\n\r\n";
+      vte_terminal_feed(terminal, msg, -1);
+      return;
+   }
+   g_free(claude_path);
+
+   claude_vte_spawned = true;
 
    // Ensure the JSON-RPC listener is running
    if (!graphics_info_t::try_port_listener) {
@@ -640,7 +659,27 @@ create_vte_terminal_with_style() {
    return terminal;
 }
 
+// When the user switches notebook tab directly (rather than via the Py/AI buttons),
+// make sure the terminal for that tab has its child process running. Both spawn
+// functions are idempotent.
+static void
+on_vte_notebook_switch_page(GtkNotebook *notebook, GtkWidget *page, guint page_num, gpointer user_data) {
+   if (page_num == 0)
+      spawn_vte_helper();
+   else if (page_num == 1)
+      spawn_claude_in_vte();
+}
+
 void setup_claude_vte_terminal() {
+
+   // Set up lazily and only once. Doing this at startup reparented the Python VTE
+   // into the notebook (below) before it was needed, which broke the Python terminal.
+   if (!vte_paned_widget) {
+      g_warning("Claude VTE: Python VTE paned not set up yet");
+      return;
+   }
+   if (g_object_get_data(G_OBJECT(vte_paned_widget), "vte_notebook"))
+      return; // already set up
 
    claude_vte_terminal_widget = create_vte_terminal_with_style();
    if (!claude_vte_terminal_widget) {
@@ -661,11 +700,6 @@ void setup_claude_vte_terminal() {
 
    // Insert into the existing paned as a sibling of the Python terminal.
    // We wrap both scrolled windows in a GtkNotebook so the user can switch tabs.
-   if (!vte_paned_widget) {
-      g_warning("Claude VTE: Python VTE paned not set up yet");
-      return;
-   }
-
    GtkWidget *python_scrolled = GTK_WIDGET(
       g_object_get_data(G_OBJECT(vte_paned_widget), "vte_scrolled_window"));
    if (!python_scrolled) {
@@ -676,6 +710,8 @@ void setup_claude_vte_terminal() {
    // Create a notebook to hold both terminals
    GtkWidget *notebook = gtk_notebook_new();
    gtk_notebook_set_tab_pos(GTK_NOTEBOOK(notebook), GTK_POS_BOTTOM);
+   g_signal_connect(notebook, "switch-page",
+                    G_CALLBACK(on_vte_notebook_switch_page), nullptr);
 
    // Reparent the Python scrolled window into the notebook
    g_object_ref(python_scrolled);
@@ -694,7 +730,12 @@ void setup_claude_vte_terminal() {
    gtk_paned_set_resize_end_child(GTK_PANED(vte_paned_widget), FALSE);
    gtk_paned_set_shrink_end_child(GTK_PANED(vte_paned_widget), FALSE);
 
-   // Start hidden
+   // The notebook now gates the visibility of both terminals, so the individual
+   // page contents must be visible (the Python scrolled window was created hidden
+   // by setup_python_vte_terminal()).
+   gtk_widget_set_visible(python_scrolled, TRUE);
+   gtk_widget_set_visible(claude_vte_scrolled_widget, TRUE);
+   // Start with the whole terminal area hidden.
    gtk_widget_set_visible(notebook, FALSE);
 
    // Store the notebook so toggle functions can find it
@@ -709,7 +750,11 @@ void toggle_claude_vte_terminal_visibility() {
 
    GtkWidget *notebook = GTK_WIDGET(
       g_object_get_data(G_OBJECT(vte_paned_widget), "vte_notebook"));
-   if (!notebook) return;
+   if (!notebook) {
+      setup_claude_vte_terminal(); // lazy first-time setup
+      notebook = GTK_WIDGET(g_object_get_data(G_OBJECT(vte_paned_widget), "vte_notebook"));
+      if (!notebook) return;
+   }
 
    gboolean visible = gtk_widget_get_visible(notebook);
    if (visible) {
@@ -735,7 +780,11 @@ void show_claude_vte_terminal() {
 
    GtkWidget *notebook = GTK_WIDGET(
       g_object_get_data(G_OBJECT(vte_paned_widget), "vte_notebook"));
-   if (!notebook) return;
+   if (!notebook) {
+      setup_claude_vte_terminal(); // lazy first-time setup
+      notebook = GTK_WIDGET(g_object_get_data(G_OBJECT(vte_paned_widget), "vte_notebook"));
+      if (!notebook) return;
+   }
 
    gtk_widget_set_visible(notebook, TRUE);
    gtk_notebook_set_current_page(GTK_NOTEBOOK(notebook), 1);

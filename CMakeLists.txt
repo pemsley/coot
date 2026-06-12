@@ -26,6 +26,7 @@ find_package(GEMMI REQUIRED)
 find_package(Threads REQUIRED)
 find_package(Boost COMPONENTS iostreams regex thread serialization REQUIRED)
 find_package(glm REQUIRED)
+find_package(Doxygen REQUIRED)
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 
@@ -182,6 +183,7 @@ add_library(cootapi SHARED
             ${coot_src}/lidia-core/svg-molecule.cc
             ${coot_src}/lidia-core/cod-types.cc
             ${coot_src}/lidia-core/cod-atom-types.cc
+            ${coot_src}/lidia-core/cod-types-similarity.cc
             ${coot_src}/lidia-core/chemical-feature-clusters.cc
             ${coot_src}/lidia-core/bond-record-container-t.cc
             ${coot_src}/lidia-core/atom-types.cc
@@ -456,6 +458,7 @@ add_library(cootapi SHARED
             ${coot_src}/lidia-core/lbg-shared.cc
             ${coot_src}/lidia-core/cod-types.cc
             ${coot_src}/lidia-core/cod-atom-types.cc
+            ${coot_src}/lidia-core/cod-types-similarity.cc
             ${coot_src}/lidia-core/chemical-feature-clusters.cc
             ${coot_src}/lidia-core/bond-record-container-t.cc
             ${coot_src}/lidia-core/atom-types.cc
@@ -529,8 +532,47 @@ if(MAEPARSER_LIBS)
     target_link_libraries(cootapi PUBLIC ${MAEPARSER_LIBS})
 endif()
 
+# --- Embedded API docstrings -------------------------------------------------
+# Parse the doxygen XML at build time and generate a C++ source that embeds the
+# docstrings into the module, so the documentation is available at runtime even
+# when the source tree (and the doxygen XML) has been removed.
+set(COOT_DOCSTRING_XML ${coot_src}/api/doxy-sphinx/xml/classmolecules__container__t.xml)
+set(COOT_DOCSTRINGS_GENERATED ${CMAKE_CURRENT_BINARY_DIR}/coot-docstrings-generated.cc)
+
+add_executable(coot-make-docstrings ${coot_src}/api/make-docstrings-source.cc
+                                    ${coot_src}/api/coot-docstring-extract.cc
+                                    ${coot_src}/coot-utils/pugixml.cpp)
+target_include_directories(coot-make-docstrings PRIVATE ${coot_src} ${coot_src}/api ${coot_src}/coot-utils)
+target_compile_features(coot-make-docstrings PRIVATE cxx_std_17)
+
+# Only depend on the XML if it exists at configure time, so a fresh tree without
+# doxygen output still configures and builds (with an empty docstring table).
+if (EXISTS ${COOT_DOCSTRING_XML})
+  set(COOT_DOCSTRING_XML_DEP ${COOT_DOCSTRING_XML})
+else()
+  set(COOT_DOCSTRING_XML_DEP "")
+endif()
+
+add_custom_command(
+  OUTPUT ${COOT_DOCSTRINGS_GENERATED}
+  COMMAND coot-make-docstrings ${COOT_DOCSTRING_XML} ${COOT_DOCSTRINGS_GENERATED}
+  DEPENDS coot-make-docstrings ${COOT_DOCSTRING_XML_DEP}
+  COMMENT "Generating embedded API docstrings from doxygen XML"
+  VERBATIM)
+# -----------------------------------------------------------------------------
+
+configure_file(
+        ${CMAKE_CURRENT_SOURCE_DIR}/api/doxy-sphinx/coot-api-dox.cfg
+        ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+        @ONLY
+)
+
+doxygen_add_docs(docs)
+
 nanobind_add_module(coot_headless_api ${coot_src}/api/molecules-container-nanobind.cc
-                                      ${coot_src}/api/molecules-container-nanobind-functions.cc)
+                                      ${coot_src}/api/molecules-container-nanobind-functions.cc
+                                      ${coot_src}/api/coot-docstring-extract.cc
+                                      ${COOT_DOCSTRINGS_GENERATED})
 
 # on macOS only?
 # target_compile_options(cootapi PRIVATE -fsanitize=address -fno-omit-frame-pointer)
@@ -592,8 +634,24 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   target_link_libraries(cootapi PRIVATE netapi32.lib)
 endif()
 
+# Generate the doxygen XML that the embedded-docstring generator consumes
+# (COOT_DOCSTRING_XML, above). Run doxygen directly with the curated config file
+# from its own directory: the INPUT paths in coot-api-dox.cfg are relative to
+# api/doxy-sphinx/, and with no OUTPUT_DIRECTORY set the XML lands in
+# api/doxy-sphinx/xml/ - exactly where the generator looks for it.
+#
+# Note: doxygen_add_docs() is deliberately not used here - it generates its own
+# Doxyfile and ignores the curated INPUT list and PREDEFINED macros in the cfg.
+# add_custom_target(docs
+# COMMAND ${DOXYGEN_EXECUTABLE} coot-api-dox.cfg
+# WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/api/doxy-sphinx
+# COMMENT "Generating API documentation XML with Doxygen"
+# VERBATIM)
+
+#WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/api/doxy-sphinx
+
 target_include_directories(coot_headless_api PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${coot_src}/ccp4mg-utils
-                                                     ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4mg-utils/pygl
+                                                     ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4mg-utils/pygl ${coot_src}/api
                                                      ${MMDB2_INCLUDE_DIR} ${SSM_INCLUDE_DIR} ${CLIPPER-CORE_INCLUDE_DIR}
                                                      ${CLIPPER-MMDB_INCLUDE_DIR} ${CLIPPER-CCP4_INCLUDE_DIR}
                                                      ${FFTW2_INCLUDE_DIRS}
@@ -662,6 +720,8 @@ set_target_properties(coot_headless_api PROPERTIES INSTALL_RPATH_USE_LINK_PATH T
 install(TARGETS cootmoleculestotriangles cootapi)
 
 install(FILES standard-residues.pdb  DESTINATION share/coot)
+
+install(FILES cod-types-db-normalized.bin DESTINATION share/coot)
 
 install(FILES data/syminfo.lib       DESTINATION share/coot/data)
 

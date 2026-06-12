@@ -74,6 +74,8 @@ void to_generic_object_add_line(int object_number,
    graphics_info_t g;
    std::pair<clipper::Coord_orth, clipper::Coord_orth> coords(x1, x2);
 
+   if (!graphics_info_t::use_graphics_interface_flag) return;
+
    std::string c(colour_name);
    if (object_number >= 0) {
       gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));

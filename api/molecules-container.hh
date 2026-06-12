@@ -3,6 +3,7 @@
 #define MOLECULES_CONTAINER_HH
 
 #include <memory>
+#include "geometry/residue-and-atom-specs.hh"
 #ifdef SWIG
 #include "Python.h"
 #endif
@@ -938,6 +939,16 @@ public:
    //! @param cid is the atom selection CID e.g "//A/15/OH" (atom OH in residue 15 of chain A)
    //! @param occ_new is the new occupancy
    void set_occupancy(int imol, const std::string &cid, float occ_new);
+
+   //! Get the hetgroup in the given molecule.
+   //!
+   //! Excluding waters
+   //!
+   //! The residue name is returned as the `string_user_data` part of the residue spec
+   //!
+   //! @param imol is the model molecule index
+   //! @return a vector of residue specifiers
+   std::vector<coot::residue_spec_t> get_hetgroups(int imol);
 
    //! Get atom selection as json
    //!
@@ -3021,11 +3032,13 @@ public:
 
    //! Contact dots for the whole molecule/model
    //!
+   //! Note that this is not const because it can dynamically modify geom by adding dictionaries.
+   //!
    //! @param imol is the model molecule index
    //! @param smoothness_factor is 1, 2 or 3 (3 is the most smooth). Recently added (20230202)
    //!
    //! @return the instanced mesh for the specified molecule.
-   coot::instanced_mesh_t all_molecule_contact_dots(int imol, unsigned int smoothness_factor) const;
+   coot::instanced_mesh_t all_molecule_contact_dots(int imol, unsigned int smoothness_factor);
 
    //! Get a simple molecule
    //!
@@ -3575,10 +3588,15 @@ public:
    //! @param n_rmsd number of sd, e.g. 4.8
    //! @param use_conformers is True for flexible ligands
    //! @param n_conformers set the number of conformers
+   //! @param eigen_orientation_search_mode controls how many eigenvector orientations are tried per cluster:
+   //!        0 = sorted (identity only, fastest, the default - trusts the sorted eigenvalue axis order),
+   //!        1 = legacy (the historical helix orientation set),
+   //!        2 = full (all 24 signed axis permutations - use for near-degenerate shapes, e.g. flat rings or rods)
    //!
    //! @return a vector/list of indices of molecules for the best fitting ligands to this blob.
    std::vector<int> fit_ligand_right_here(int imol_protein, int imol_map, int imol_ligand, float x, float y, float z,
-                                          float n_rmsd, bool use_conformers, unsigned int n_conformers);
+                                          float n_rmsd, bool use_conformers, unsigned int n_conformers,
+                                          int eigen_orientation_search_mode = 0);
 
    //! Ligand Fitting
    //!
@@ -3606,10 +3624,15 @@ public:
    //! @param n_rmsd the number of sd used as a cut-off for the map level when finding clusters, e.g. 1.2
    //! @param use_conformers is True for flexible ligands
    //! @param n_conformers set the number of conformers
+   //! @param eigen_orientation_search_mode controls how many eigenvector orientations are tried per cluster:
+   //!        0 = sorted (identity only, fastest, the default - trusts the sorted eigenvalue axis order),
+   //!        1 = legacy (the historical helix orientation set),
+   //!        2 = full (all 24 signed axis permutations - use for near-degenerate shapes, e.g. flat rings or rods)
    //!
    //! @return a vector/list of interesting information about the fitted ligands
    std::vector<fit_ligand_info_t> fit_ligand(int imol_protein, int imol_map, int imol_ligand,
-                                             float n_rmsd, bool use_conformers, unsigned int n_conformers);
+                                             float n_rmsd, bool use_conformers, unsigned int n_conformers,
+                                             int eigen_orientation_search_mode = 0);
 
    //! Fit multiple ligands (place-holder)
    //!

@@ -215,9 +215,9 @@ rotamer_outliers = coot.rotamer_graphs_py(0)
 correlation_stats = coot.map_to_model_correlation_stats_per_residue_range_py(
     0,      # imol_model
     "A",    # chain_id
-    1,      # start_resno
-    100,    # end_resno
-    1       # imol_map
+    1,      # imol_map
+    3,      # n_residues_per_residue_range
+    1       # exclude_mainchain_NOC_flag
 )
 
 # Geometry validation

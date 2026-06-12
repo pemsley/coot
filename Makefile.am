@@ -109,7 +109,7 @@ EXTRA_DIST = 		\
 
 # packdatadir is xxx/share/coot
 subpkgdatadir = $(pkgdatadir)
-subpkgdata_DATA = standard-residues.pdb
+subpkgdata_DATA = standard-residues.pdb cod-types-db-normalized.bin
 
 
 appdatadir = ${datarootdir}/appdata
