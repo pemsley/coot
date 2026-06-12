@@ -159,7 +159,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coot-ubuntu-${{ matrix.label }}-x86_64
-          path: ${{ env.BUILD_DIR }}/coot-*.tar.gz
+          path: ${{ env.BUILD_DIR }}/coot-*.tar.zst
           if-no-files-found: error
           retention-days: 7
 
@@ -168,7 +168,7 @@ jobs:
       - name: Unpack the tarball into a clean location
         run: |
           mkdir -p "$GITHUB_WORKSPACE/coot-test"
-          tar xf "$BUILD_DIR"/coot-*.tar.gz -C "$GITHUB_WORKSPACE/coot-test"
+          tar --zstd -xf "$BUILD_DIR"/coot-*.tar.zst -C "$GITHUB_WORKSPACE/coot-test"
           # The tarball unpacks to a single top-level dir; capture it.
           COOT_ROOT="$(find "$GITHUB_WORKSPACE/coot-test" -maxdepth 1 -mindepth 1 -type d | head -n1)"
           echo "COOT_ROOT=$COOT_ROOT" >> "$GITHUB_ENV"
