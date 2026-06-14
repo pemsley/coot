@@ -1492,14 +1492,8 @@ coot::molecule_t::make_colour_table(bool dark_bg_flag) const {
             colour_table[icol] = cc.to_glm();
             done_colours.insert(icol);
 
-            // Was there a user-defined bond colour that supersedes this for this colour
-            // index? Apply it only in a user-defined colouring mode - user-defined colours
-            // must not leak into other colouring modes (e.g. colour-by-chain).
-            // c.f. Bond_lines_container::atom_colour().
-            bool user_defined_colour_mode =
-               (bonds_box_type == coot::api_bond_colour_t::COLOUR_BY_USER_DEFINED_COLOURS____BONDS) ||
-               (bonds_box_type == coot::api_bond_colour_t::COLOUR_BY_USER_DEFINED_COLOURS_CA_BONDS);
-            if (user_defined_colour_mode && ! user_defined_bond_colours.empty()) {
+            // was there a user-defined bond colour that superceeds this for this colour index?
+            if (! user_defined_bond_colours.empty()) {
 
                std::map<unsigned int, colour_holder>::const_iterator it;
                it = user_defined_bond_colours.find(icol);
