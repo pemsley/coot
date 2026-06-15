@@ -1,9 +1,23 @@
 --- Items---
 
+o post-release: import gesamt into libcootapi. Do soon.
+  First post-release item!
+  Needs to be Gemmified first.
+
+o look at UniProt codes P15924 and Q96Q06
+  from 2025.12.19.695427.full.pdf
+
+o Does non-drawn bonds work with B-factor or occupanccy
+  representation?
+
+o post-release: RRAATTSS in chapi?
+
+o post-release: check the mask from chapi: non-binary? what does
+  it look like around alt conf ARGs?
+
 o post-release: get gemmi drg into Layla
 
-o check the mask from chapi: non-binary? what does
-  it look like around alt conf ARGs?
+o post-release: "\" means toggle symmetry
 
 o --dictionary-with-mol is a real command line option?
 * Works for me.
@@ -25,13 +39,16 @@ o atom overlaps init() should try to load monomers if they
 o copy fragment widget needs better active item
 * Done
 
-o filled bases in M2T
-
 o startup mouse button chooser save state immediately.
 * Done.
 
 o fix the "arrange waters" actions
 * Done.
+
+o NCS Control Only has one molecule shown
+* Done.
+
+o filled bases in M2T
 
 o replace fragment. seems to be hanging when replacing a domain
 
@@ -44,14 +61,8 @@ o Apply chem_comp_mod on reading a link
 
 o Try the PTM interface again, with minimal dictionary.
 
-o Get RRAATTSS added to Coot.
-
-o NCS Control  Only has one molecule shown
-
 o OAR and OQR look the same in RDKit depiction from restraints
   They should not, there is a chirality issue.
-
-o import gesamt into libcootapi. Do soon.
 
 o goograph to modern GTK4?
 
