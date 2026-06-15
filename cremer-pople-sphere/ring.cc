@@ -51,7 +51,9 @@ coot::simple_mesh_t make_ring(
    const glm::vec4  &oxygen_colour = {0.85f, 0.1f, 0.1f, 1.0f};
 
    auto frame = outward_frame(dir);
-   auto local = ring_atoms_equal_bonds(cp_theta, cp_phi, 0.3f, 0.6f);
+   // Ring footprint scales with bond_length so the whole ring tracks SPHERE_R
+   // (the puckering amplitude Q and the ring radius, not just the atom/bond sizes).
+   auto local = ring_atoms_equal_bonds(cp_theta, cp_phi, 0.375f * bond_length, 0.75f * bond_length);
 
    std::array<glm::vec3,6> world;
    for (int i = 0; i < 6; i++) {
@@ -60,7 +62,7 @@ coot::simple_mesh_t make_ring(
 
    for (int i = 0; i < 6; i++) {
       mesh.add_submesh(make_stick(world[i], world[(i+1)%6],
-                                 bond_length*0.08f, bond_colour));
+                                 bond_length*0.05f, bond_colour));
    }
 
    for (int i = 0; i < 6; i++) {
