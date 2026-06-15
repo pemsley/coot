@@ -1563,7 +1563,7 @@ Add a new atom or replace an existent atom with the chosen element.
             <child>
               <object class="GtkButton" id="layla_apply_button">
                 <property name="halign">end</property>
-                <property name="label">Apply</property>
+                <property name="label">Generate Restraints</property>
                 <property name="tooltip-markup">Generate CIF restraint dictionary with an external program</property>
                 <signal name="clicked" handler="layla_on_apply" swapped="no" />
                 <child>
@@ -1597,7 +1597,7 @@ Paul Emsley</property>
     <property name="version">v1.0</property>
   </object>
   <object class="GtkWindow" id="layla_apply_dialog">
-    <property name="title">Apply</property>
+    <property name="title">Coot: Generate Restraints</property>
     <property name="transient-for">layla_window</property>
     <property name="hide-on-close">true</property>
     <child>
