@@ -109,71 +109,57 @@ endif()
 
 #  pyrogen, auxil, goograph, src ignored.
 
+# gemmi-only MoleculesToTriangles library. The atom-identity token is
+# const gemmi::Atom* throughout; the original mmdb-based .cpp files are
+# deliberately NOT compiled here. Every mmdb-touching translation unit is
+# replaced by its coot::m2t -gemmi twin; the remaining .cpp files are the
+# mmdb-free geometry / rendering base classes that the twins rest on.
 add_library(cootmoleculestotriangles SHARED
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXBall.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXChargeTable.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXCircle.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXCircleNode.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXCoord.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXCreator.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXException.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXFFTSolventMap.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXFortranFile.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXNewHood.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXQADSurface.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXQADSurfaceStaticData.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXSpace.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXSphereElement.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXSphereNode.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXSphereTriangle.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXSphereTriangleEdge.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXSurface.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXSurfaceMaker.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXSurfaceVertex.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXTorusElement.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXTorusNode.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXTriangle.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXUtils.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXVCN.cpp
-            #${coot_src}/MoleculesToTriangles/CXXSurface/ElectroSurface.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/AtomPropertyRampColorRule.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/BallsPrimitive.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/BondsPrimitive.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/BoxSectionPrimitive.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/ColorRule.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/ColorScheme.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/CompoundSelection.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/gemmi-selection.cc
-            ${coot_src}/MoleculesToTriangles/CXXClasses/gemmi-bonds.cc
-            ${coot_src}/MoleculesToTriangles/CXXClasses/gemmi-sse.cc
+            # --- CXXSurface engine: gemmi twins ---
             ${coot_src}/MoleculesToTriangles/CXXSurface/CXXUtils-gemmi.cc
             ${coot_src}/MoleculesToTriangles/CXXSurface/CXXTriangle-gemmi.cc
             ${coot_src}/MoleculesToTriangles/CXXSurface/CXXTorusNode-gemmi.cc
             ${coot_src}/MoleculesToTriangles/CXXSurface/CXXSphereNode-gemmi.cc
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXSphereTriangleEdge-gemmi.cc
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXSphereTriangle-gemmi.cc
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXCircleNode-gemmi.cc
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXCircle-gemmi.cc
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXNewHood-gemmi.cc
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXBall-gemmi.cc
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXSphereElement-gemmi.cc
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXTorusElement-gemmi.cc
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXSurface-gemmi.cc
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXSurfaceMaker-gemmi.cc
+            # --- CXXSurface: mmdb-free geometry support (no twin needed) ---
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXCoord.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXException.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXSurfaceVertex.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXVCN.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXChargeTable.cpp
+            # --- CXXClasses: gemmi twins ---
+            ${coot_src}/MoleculesToTriangles/CXXClasses/gemmi-selection.cc
+            ${coot_src}/MoleculesToTriangles/CXXClasses/gemmi-bonds.cc
+            ${coot_src}/MoleculesToTriangles/CXXClasses/gemmi-sse.cc
             ${coot_src}/MoleculesToTriangles/CXXClasses/MyMolecule-gemmi.cc
             ${coot_src}/MoleculesToTriangles/CXXClasses/DishyBase-gemmi.cc
             ${coot_src}/MoleculesToTriangles/CXXClasses/SolidColorRule-gemmi.cc
             ${coot_src}/MoleculesToTriangles/CXXClasses/ColorScheme-gemmi.cc
             ${coot_src}/MoleculesToTriangles/CXXClasses/DiscreteSegment-gemmi.cc
             ${coot_src}/MoleculesToTriangles/CXXClasses/MolecularRepresentation-gemmi.cc
+            ${coot_src}/MoleculesToTriangles/CXXClasses/SurfacePrimitive-gemmi.cc
             ${coot_src}/MoleculesToTriangles/CXXClasses/FlatFanPrimitive-gemmi.cc
             ${coot_src}/MoleculesToTriangles/CXXClasses/CylindersPrimitive-gemmi.cc
             ${coot_src}/MoleculesToTriangles/CXXClasses/SticksPrimitive-gemmi.cc
             ${coot_src}/MoleculesToTriangles/CXXClasses/BoxSectionPrimitive-gemmi.cc
+            # --- CXXClasses: mmdb-free rendering / geometry base classes ---
+            ${coot_src}/MoleculesToTriangles/CXXClasses/BallsPrimitive.cpp
             ${coot_src}/MoleculesToTriangles/CXXClasses/CXXMatrix.cpp
             ${coot_src}/MoleculesToTriangles/CXXClasses/CylinderPoint.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/CylindersPrimitive.cpp
             ${coot_src}/MoleculesToTriangles/CXXClasses/DirectedPositionedEntity.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/DiscreteSegment.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/DishyBase.cpp
             ${coot_src}/MoleculesToTriangles/CXXClasses/DisplayPrimitive.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/ElectrostaticColorScheme.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/FlatFanPrimitive.cpp
             ${coot_src}/MoleculesToTriangles/CXXClasses/Light.cpp
             ${coot_src}/MoleculesToTriangles/CXXClasses/LinesPrimitive.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/MolecularRepresentation.cpp
             ${coot_src}/MoleculesToTriangles/CXXClasses/MolecularRepresentationInstance.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/MyMolecule.cpp
             ${coot_src}/MoleculesToTriangles/CXXClasses/NRStuff.cpp
             ${coot_src}/MoleculesToTriangles/CXXClasses/oglPolyhedron.cpp
             ${coot_src}/MoleculesToTriangles/CXXClasses/Polyhedron.cpp
@@ -183,16 +169,14 @@ add_library(cootmoleculestotriangles SHARED
             ${coot_src}/MoleculesToTriangles/CXXClasses/Representation.cpp
             ${coot_src}/MoleculesToTriangles/CXXClasses/RepresentationInstance.cpp
             ${coot_src}/MoleculesToTriangles/CXXClasses/RotatedTranslatedScaledEntity.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/SecondaryColorScheme.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/SolidColorRule.cpp
             ${coot_src}/MoleculesToTriangles/CXXClasses/SpherePrimitive.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/SticksPrimitive.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/SurfacePrimitive.cpp
+            # mmdb-free statics (knownColors, colorHexToColor) reused by SolidColorRule-gemmi.cc;
+            # extracted from SolidColorRule.cpp so we don't drag in the mmdb-based CompoundSelection.
+            ${coot_src}/MoleculesToTriangles/CXXClasses/SolidColorRule-statics-gemmi.cc
             ${coot_src}/MoleculesToTriangles/CXXClasses/Vector2.cpp
             ${coot_src}/MoleculesToTriangles/CXXClasses/Vector3.cpp
             ${coot_src}/MoleculesToTriangles/CXXClasses/VertexColorNormalPrimitive.cpp
             ${coot_src}/MoleculesToTriangles/CXXClasses/lfit.c
-            #  ${coot_src}/MoleculesToTriangles/CXXClasses/tubes.cc - not ready yet
 )
 
 
@@ -216,6 +200,7 @@ add_library(cootapi SHARED
             ${coot_src}/utils/threads.cc
             ${coot_src}/utils/win-compat.cc
             ${coot_src}/coot-utils/coot-coord-utils-gemmi.cc
+            ${coot_src}/coot-utils/coot-coord-utils-mmdb-free.cc
             ${coot_src}/geometry/residue-and-atom-specs-gemmi.cc
             )
 
@@ -384,6 +369,15 @@ add_executable(test-gemmi-bonds
    ${coot_src}/MoleculesToTriangles/CXXClasses/test-gemmi-bonds.cc
    ${coot_src}/MoleculesToTriangles/CXXClasses/gemmi-bonds.cc)
 target_link_libraries(test-gemmi-bonds PRIVATE gemmi::gemmi_cpp)
+
+# gemmi-native MoleculesToTriangles end-to-end driver: coords -> representation -> glTF.
+# Links the whole coot::m2t engine (cootmoleculestotriangles) and brings in the
+# simple_mesh_t glTF exporter directly (header-data only, no extra coot-utils lib).
+add_executable(m2t-gemmi-to-gltf
+   ${coot_src}/MoleculesToTriangles/gemmi-testing/m2t-gemmi-to-gltf.cc
+   ${coot_src}/coot-utils/gltf-export.cc)
+target_include_directories(m2t-gemmi-to-gltf PRIVATE ${coot_src} ${coot_src}/coot-utils ${GLM_INCLUDE_DIRS})
+target_link_libraries(m2t-gemmi-to-gltf PRIVATE cootmoleculestotriangles gemmi::gemmi_cpp glm::glm)
 
 target_compile_features(coot-mini-rsr PRIVATE cxx_std_17)
 
