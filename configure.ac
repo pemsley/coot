@@ -466,6 +466,7 @@ if test "x$with_gemmi" = xfalse ; then
     AC_MSG_RESULT(no)
 else
     AC_LANG_PUSH(C++)
+    GEMMI_LIB_DIR=lib64 # or simply "lib"? Needs searching, I think.
     GEMMI_CXXFLAGS="-I$with_gemmi/include -DUSE_GEMMI=1"
     save_CPPFLAGS="$CPPFLAGS"
     CPPFLAGS="$CPPFLAGS $GEMMI_CXXFLAGS"
@@ -474,7 +475,7 @@ else
     AC_LANG_POP
     AC_MSG_RESULT(yes)
     AC_SUBST(GEMMI_CXXFLAGS)
-    AC_SUBST(GEMMI_LIBS, "-L$withval/lib64 -lgemmi_cpp")
+    AC_SUBST(GEMMI_LIBS, "-R$withval/$gemmi_lib_dir -L$withval/$gemmi_lib_dir -lgemmi_cpp")
 fi
 
 # 20090613 We need to be able to determine the build type, and embed

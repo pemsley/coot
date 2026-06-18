@@ -63,7 +63,7 @@ libcoot_layla_la_LIBADD = $(top_builddir)/geometry/libcoot-geometry.la \
                           $(top_builddir)/lidia-core/libcoot-lidia-core.la \
                           $(top_builddir)/utils/libcoot-utils.la \
                           $(GTK_LIBS) $(GLIB_LIBS) \
-                          $(RDKIT_LIBS) -lRDKitFMCS $(CURL_LIBS) \
+                          $(RDKIT_LIBS) -lRDKitFMCS $(GEMMI_LIBS) $(CURL_LIBS) \
                           -lpthread
 
 libcoot_layla_la_LDFLAGS = $(SHARED_LDFLAGS)
@@ -83,5 +83,5 @@ libexec_PROGRAMS = layla-bin
 
 layla_bin_SOURCES = main.cpp
 
-layla_bin_LDADD = libcoot-layla.la $(top_builddir)/utils/libcoot-utils.la $(GTK_LIBS) $(GLIB_LIBS)
+layla_bin_LDADD = libcoot-layla.la $(top_builddir)/utils/libcoot-utils.la $(GTK_LIBS) $(GLIB_LIBS) $(GEMMI_LIBS)
 
