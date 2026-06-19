@@ -85,6 +85,12 @@ else
                rm -rf ${INSTALL_DIR}/include/eigen3
                rm -rf ${INSTALL_DIR}/share/eigen3
                ;;
+           zlib) echo "Clear zlib"
+               rm -rf ${DEPENDENCY_BUILD_DIR}/zlib_build
+               rm -rf ${INSTALL_DIR}/include/zlib.h
+               rm -rf ${INSTALL_DIR}/include/zconf.h
+               rm -rf ${INSTALL_DIR}/lib/libz.a
+               ;;
            *) echo "Unknown module $mod to clear. Ignoring." ;;
         esac
         done
@@ -126,6 +132,7 @@ BUILD_GEMMI=false
 BUILD_MAEPARSER=false
 BUILD_COORDGEN=false
 BUILD_EIGEN=false
+BUILD_ZLIB=false
 
 
 if test -d ${INSTALL_DIR}/include/boost; then
@@ -176,6 +183,12 @@ else
     BUILD_EIGEN=true
 fi
 
+if test -f ${INSTALL_DIR}/include/zlib.h; then
+    true
+else
+    BUILD_ZLIB=true
+fi
+
 for mod in $MODULES; do
     case $mod in
        boost) echo "Force build boost"
@@ -202,6 +215,9 @@ for mod in $MODULES; do
        eigen) echo "Force build eigen"
        BUILD_EIGEN=true
        ;;
+       zlib) echo "Force build zlib"
+       BUILD_ZLIB=true
+       ;;
     esac
 done
 
@@ -214,6 +230,23 @@ echo "BUILD_GEMMI     " $BUILD_GEMMI
 echo "BUILD_MAEPARSER " $BUILD_MAEPARSER
 echo "BUILD_COORDGEN  " $BUILD_COORDGEN
 echo "BUILD_EIGEN     " $BUILD_EIGEN
+echo "BUILD_ZLIB      " $BUILD_ZLIB
+
+#zlib
+if [ $BUILD_ZLIB = true ]; then
+    getzlib
+    mkdir -p ${DEPENDENCY_BUILD_DIR}/zlib_build &&\
+    cd ${DEPENDENCY_BUILD_DIR}/zlib_build &&\
+    emcmake cmake -DCMAKE_C_FLAGS="${LHASA_CMAKE_FLAGS}" \
+          -DCMAKE_CXX_FLAGS="${LHASA_CMAKE_FLAGS}" \
+          -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} \
+          -DZLIB_BUILD_STATIC=ON \
+          -DZLIB_BUILD_SHARED=OFF \
+          -DZLIB_BUILD_EXAMPLES=OFF \
+          ${DEPENDENCY_DIR}/zlib-$zlib_release &&\
+    emmake make -j ${NUMPROCS} &&\
+    emmake make install || fail "Failed to build and install zlib"
+fi
 
 #Boost
 #boost with cmake
