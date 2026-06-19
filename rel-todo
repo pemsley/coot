@@ -1,12 +1,14 @@
 --- Items---
 
+o ldaddr (?) for chapi to find its files on relocatable binaries
+
+o transfer link information between gemmi and mmdb
+  talking point in ccp4 meeting.
+
+o reverse of get_rdkit_mol_pickle_base64
+  i.e. a function that accepts a rdkit pickle and creates a molecule and dictionary
+
 o post-release: get gemmi drg into Layla
-
-o check the mask from chapi: non-binary? what does
-  it look like around alt conf ARGs?
-
-o --dictionary-with-mol is a real command line option?
-* Works for me.
 
 o post-release: put cairo into the rdkit build
 
@@ -20,12 +22,16 @@ o post-release: Get lots of nucleic acid structures
   2MG H2U M2G OMG OMC PSU 5MC 7MG
 
 o Try mmdb->gemmi for MoleculesToTriangles
+* Done.
 
 o revert all colour leaking changes
+* Done.
 
 o --dictionary-with-mol is a real command line option?
 * Seems fine.
->>>>>>> Stashed changes
+
+o check the mask from chapi: non-binary? what does
+  it look like around alt conf ARGs?
 
 o use the PDB MCP with coot.
 * Already done.
