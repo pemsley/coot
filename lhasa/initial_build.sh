@@ -97,17 +97,6 @@ else
     exit
 fi
 
-# Create an empty file silly.c and then compile it with USE_ZLIB and USE_LIBPNG to force emsdk to get zlib/png.
-echo "Attempting to get emsdk zlib/png ports"
-echo
-echo "" > silly.c
-emcc silly.c -s USE_ZLIB=1 -s USE_LIBPNG=1 -s USE_FREETYPE=1 -pthread -sMEMORY64=1 -Wno-experimental
-emcc silly.c -s USE_ZLIB=1 -s USE_LIBPNG=1 -s USE_FREETYPE=1 -pthread
-rm -f silly.c
-rm -f a.out.js
-rm -f a.out.wasm
-rm -f a.out.worker.js
-
 setcolor cyan
 if test x"${MEMORY64}" = x"1"; then
     echo "#####################################################"
