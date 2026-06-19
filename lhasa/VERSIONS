@@ -1,6 +1,6 @@
 #!/bin/sh
 
-rdkit_release="Release_2026_03_2"
+rdkit_release="Release_2026_03_3"
 graphene_release="1.10.8"
 libsigcpp_release="3.8.0"
 boost_release="1.91.0-1"
