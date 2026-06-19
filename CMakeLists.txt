@@ -1,4 +1,12 @@
 cmake_minimum_required(VERSION 3.13)
+
+# Build-variant dispatch: configure with -DCOOT_GEMMI=ON to use CMakeLists-gemmi.txt
+# (the mmdb->gemmi migration build) instead of this full build. Both build dirs coexist.
+if(COOT_GEMMI)
+   include(${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists-gemmi.txt)
+   return()
+endif()
+
 cmake_policy(SET CMP0048 NEW)
 project(coot)
 find_package(PkgConfig)
@@ -345,6 +353,7 @@ add_library(cootapi SHARED
             ${coot_src}/coot-utils/blob-line.cc
             ${coot_src}/coot-utils/coot-coord-utils-glyco.cc
             ${coot_src}/coot-utils/coot-coord-utils.cc
+            ${coot_src}/coot-utils/coot-coord-utils-mmdb-free.cc
             ${coot_src}/coot-utils/merge-molecules.cc
             ${coot_src}/coot-utils/texture-as-floats.cc
             ${coot_src}/coot-utils/coot-coord-extras.cc
