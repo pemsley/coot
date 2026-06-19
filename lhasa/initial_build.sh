@@ -266,6 +266,8 @@ if [ $BUILD_EIGEN = true ]; then
     emcmake cmake -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} \
           -DEIGEN_BUILD_DOC=OFF \
           -DEIGEN_BUILD_TESTING=OFF \
+          -DEIGEN_BUILD_BLAS=OFF \
+          -DEIGEN_BUILD_LAPACK=OFF \
           ${DEPENDENCY_DIR}/eigen-$eigen_release &&\
     emmake make -j ${NUMPROCS} &&\
     emmake make install || fail "Failed to install Eigen"
