@@ -637,6 +637,36 @@ void coot_ligand_editor_canvas_update_molecule_from_smiles(CootLigandEditorCanva
     }
 }
 
+void coot_ligand_editor_canvas_set_atom_names(CootLigandEditorCanvas* self, unsigned int molecule_idx,
+                                              const std::vector<std::string>& names,
+                                              const std::vector<std::string>& hydrogen_names) {
+    if(molecule_idx >= self->rdkit_molecules->size()) {
+        return;
+    }
+    auto& target_mol_opt = (*self->rdkit_molecules)[molecule_idx];
+    if(!target_mol_opt.has_value()) {
+        return;
+    }
+    RDKit::RWMol* mol = target_mol_opt->get();
+    self->begin_edition();
+    unsigned int n_atoms = mol->getNumAtoms();
+    for(unsigned int i = 0; i < n_atoms; i++) {
+        RDKit::Atom* at = mol->getAtomWithIdx(i);
+        // The visible heavy-atom name.
+        if(i < names.size() && !names[i].empty())
+            at->setProp("name", names[i]);
+        // The names of this atom's (implicit) hydrogens, stashed for later use
+        // by acedrg. These are not displayed - the molecule has no H atoms.
+        if(i < hydrogen_names.size() && !hydrogen_names[i].empty())
+            at->setProp("hydrogen_names", hydrogen_names[i]);
+    }
+    auto& widget_mol = (*self->molecules)[molecule_idx];
+    // This is a names-only change, so keep the existing 2D layout - do not
+    // clear the cached atom coordinate map (unlike update_molecule_from_smiles).
+    widget_mol->lower_from_rdkit(!self->allow_invalid_molecules, self->use_coordgen);
+    self->finalize_edition();
+}
+
 void coot_ligand_editor_canvas_undo_edition(CootLigandEditorCanvas* self) noexcept {
     self->undo_edition();
     self->queue_resize();

@@ -44,6 +44,13 @@ void coot_ligand_editor_canvas_set_active_tool(CootLigandEditorCanvas* self, std
 int coot_ligand_editor_canvas_append_molecule(CootLigandEditorCanvas* self, std::shared_ptr<RDKit::RWMol> rdkit_mol) noexcept;
 void coot_ligand_editor_canvas_update_molecule_from_smiles(CootLigandEditorCanvas* self, unsigned int molecule_idx, const char* smiles);
 
+/// Set the "name" property on the atoms of the molecule with the given index,
+/// and optionally a "hydrogen_names" property holding the names of each atom's
+/// (implicit) hydrogens for later use by acedrg. Both vectors are indexed by
+/// atom index; an empty string leaves that atom's property unchanged. The 2D
+/// layout is preserved. Use with DisplayMode::AtomNames to show the names.
+void coot_ligand_editor_canvas_set_atom_names(CootLigandEditorCanvas* self, unsigned int molecule_idx, const std::vector<std::string>& names, const std::vector<std::string>& hydrogen_names);
+
 void coot_ligand_editor_canvas_set_scale(CootLigandEditorCanvas* self, float scale) noexcept;
 float coot_ligand_editor_canvas_get_scale(CootLigandEditorCanvas* self) noexcept;
 
