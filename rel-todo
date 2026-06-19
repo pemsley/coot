@@ -2,11 +2,20 @@
 
 o ldaddr (?) for chapi to find its files on relocatable binaries
 
-o transfer link information between gemmi and mmdb
-  talking point in ccp4 meeting.
-
 o reverse of get_rdkit_mol_pickle_base64
   i.e. a function that accepts a rdkit pickle and creates a molecule and dictionary
+
+o post-release: import gesamt into libcootapi. Do soon.
+  First post-release item!
+  Needs to be Gemmified first.
+
+o Does non-drawn bonds work with B-factor or occupanccy
+  representation?
+
+o replace fragment. seems to be hanging when replacing a domain
+
+
+o post-release: filled bases in M2T
 
 o post-release: get gemmi drg into Layla
 
@@ -20,6 +29,21 @@ o post-release: Get lots of nucleic acid structures
   is_nucleotide() returns true.
 
   2MG H2U M2G OMG OMC PSU 5MC 7MG
+
+o post-release: RRAATTSS in chapi?
+
+o post-release: check the mask from chapi: non-binary? what does
+  it look like around alt conf ARGs?
+
+o post-release: get gemmi drg into Layla
+
+o post-release: "\" means toggle symmetry
+
+o post-release: transfer link information between gemmi and mmdb
+  - talking point in ccp4 meeting.
+
+o post-release: look at UniProt codes P15924 and Q96Q06
+  from 2025.12.19.695427.full.pdf
 
 o Try mmdb->gemmi for MoleculesToTriangles
 * Done.
@@ -62,7 +86,8 @@ o startup mouse button chooser save state immediately.
 o fix the "arrange waters" actions
 * Done.
 
-o replace fragment. seems to be hanging when replacing a domain
+o NCS Control Only has one molecule shown
+* Done.
 
 o fill/fix set_symmetry_colour()
 * Done.
@@ -84,8 +109,6 @@ o Apply chem_comp_mod on reading a link
 
 o OAR and OQR look the same in RDKit depiction from restraints
   They should not, there is a chirality issue.
-
-o import gesamt into libcootapi. Do soon.
 
 o goograph to modern GTK4?
 
