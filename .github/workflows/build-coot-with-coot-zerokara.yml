@@ -36,7 +36,7 @@ jobs:
     steps:
       - name: Install prerequisites (RockyLinux minimal lacks these)
         run: |
-          dnf -y install --setopt=tsflags=nodocs git zstd which curl wget
+          dnf -y install --setopt=tsflags=nodocs git zstd which wget
           df -h /
 
       - name: Derive the Coot source dir name from the ref
