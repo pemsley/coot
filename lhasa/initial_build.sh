@@ -217,6 +217,8 @@ echo "BUILD_EIGEN     " $BUILD_EIGEN
 
 #Boost
 #boost with cmake
+# Bare version for installed CMake dirs; boost_release may have a packaging suffix (e.g. 1.91.0-1) used only in the download tag.
+boost_release_stripped="${boost_release%-*}"
 if [ $BUILD_BOOST = true ]; then
     getboost
     mkdir -p ${DEPENDENCY_BUILD_DIR}/boost &&\
@@ -232,7 +234,7 @@ if [ $BUILD_BOOST = true ]; then
     emmake make install || fail "Failed to build and install boost"
 fi
 
-BOOST_CMAKE_STUFF=`for i in ${INSTALL_DIR}/lib/cmake/boost*; do j=${i%-static}; k=${j%-$boost_release}; l=${k#${INSTALL_DIR}/lib/cmake/boost_}; echo -Dboost_${l}_DIR=$i; done`
+BOOST_CMAKE_STUFF=`for i in ${INSTALL_DIR}/lib/cmake/boost*; do j=${i%-static}; k=${j%-$boost_release_stripped}; l=${k#${INSTALL_DIR}/lib/cmake/boost_}; echo -Dboost_${l}_DIR=$i; done`
 
 # Eigen (header-only; plain cmake installs headers + cmake config files)
 if [ $BUILD_EIGEN = true ]; then
@@ -253,7 +255,7 @@ if [ $BUILD_MAEPARSER = true ]; then
     mkdir -p ${DEPENDENCY_BUILD_DIR}/maeparser_build &&\
     cd ${DEPENDENCY_BUILD_DIR}/maeparser_build &&\
     emcmake cmake -DCMAKE_EXE_LINKER_FLAGS="${LHASA_CMAKE_FLAGS}" \
-        -DBoost_DIR=${INSTALL_DIR}/lib/cmake/Boost-$boost_release \
+        -DBoost_DIR=${INSTALL_DIR}/lib/cmake/Boost-$boost_release_stripped \
         -DBoost_INCLUDE_DIR=${INSTALL_DIR}/include \
         ${BOOST_CMAKE_STUFF} \
         -DBoost_USE_STATIC_LIBS=ON \
@@ -274,7 +276,7 @@ if [ $BUILD_COORDGEN = true ]; then
     cd ${DEPENDENCY_BUILD_DIR}/coordgen_build &&\
     emcmake cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
         -DCMAKE_EXE_LINKER_FLAGS="${LHASA_CMAKE_FLAGS}" \
-        -DBoost_DIR=${INSTALL_DIR}/lib/cmake/Boost-$boost_release \
+        -DBoost_DIR=${INSTALL_DIR}/lib/cmake/Boost-$boost_release_stripped \
         -DBoost_INCLUDE_DIR=${INSTALL_DIR}/include \
         ${BOOST_CMAKE_STUFF} \
         -DBoost_USE_STATIC_LIBS=ON \
@@ -299,7 +301,7 @@ if [ $BUILD_RDKIT = true ]; then
     getrdkit
     mkdir -p ${DEPENDENCY_BUILD_DIR}/rdkit_build &&\
     cd ${DEPENDENCY_BUILD_DIR}/rdkit_build &&\
-    emcmake cmake -DBoost_DIR=${INSTALL_DIR}/lib/cmake/Boost-$boost_release \
+    emcmake cmake -DBoost_DIR=${INSTALL_DIR}/lib/cmake/Boost-$boost_release_stripped \
                   ${BOOST_CMAKE_STUFF} \
                   -DEigen3_DIR=${INSTALL_DIR}/share/eigen3/cmake \
                   -DRDK_BUILD_PYTHON_WRAPPERS=OFF \
