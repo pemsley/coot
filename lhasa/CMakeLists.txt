@@ -49,6 +49,11 @@ foreach(_dir IN LISTS _boost_comp_dirs)
     set(${_comp}_DIR "${_dir}" CACHE PATH "" FORCE)
 endforeach()
 
+# zlib is built into the prefix; point find_package(ZLIB) (pulled in transitively by Boost.Iostreams) at it, not the emscripten port.
+set(ZLIB_ROOT ${CMAKE_INSTALL_PREFIX})
+set(ZLIB_INCLUDE_DIR ${CMAKE_INSTALL_PREFIX}/include)
+set(ZLIB_LIBRARY ${CMAKE_INSTALL_PREFIX}/lib/libz.a)
+
 find_package(Boost CONFIG REQUIRED COMPONENTS iostreams serialization)
 find_package(RDKit REQUIRED)
 find_package(Eigen3 REQUIRED)

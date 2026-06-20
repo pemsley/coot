@@ -11,7 +11,7 @@ jobs:
 
     steps:
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       # Home on macOS is /Users/runner
       - name: where are we?
@@ -22,14 +22,14 @@ jobs:
 
       - name: cache macos libcootapi build homebrew
         id: cache-macos-libcootapi-homebrew
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: /opt/homebrew
           key:  macos-libcootapi-homebrew-build-homebrew-cache
 
       - name: Cache test data tar
         id: macos-libcootapi-test-data-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: test-molecule-container-test-data.tar.gz
           key: macos-libcootapi-test-data-cache

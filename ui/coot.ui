@@ -11312,7 +11312,7 @@ Do you want to continue?
                     <property name="spacing">5</property>
                     <child>
                       <object class="GtkImage">
-                        <property name="icon-name">edit-delete</property>
+                        <property name="icon-name">edit-delete-symbolic</property>
                       </object>
                     </child>
                     <child>
@@ -11333,7 +11333,7 @@ Do you want to continue?
                     <property name="spacing">5</property>
                     <child>
                       <object class="GtkImage">
-                        <property name="icon-name">edit-undo</property>
+                        <property name="icon-name">edit-undo-symbolic</property>
                       </object>
                     </child>
                     <child>
@@ -11355,7 +11355,7 @@ Do you want to continue?
                     <property name="spacing">5</property>
                     <child>
                       <object class="GtkImage">
-                        <property name="icon-name">edit-redo</property>
+                        <property name="icon-name">edit-redo-symbolic</property>
                       </object>
                     </child>
                     <child>
