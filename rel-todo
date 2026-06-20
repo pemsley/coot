@@ -2,18 +2,26 @@
 
 o ldaddr (?) for chapi to find its files on relocatable binaries
 
-o reverse of get_rdkit_mol_pickle_base64
-  i.e. a function that accepts a rdkit pickle and creates a molecule and dictionary
+o Fix h-bond flag for contacts for Lucy
+
+o Does non-drawn bonds work with B-factor or occupanccy
+  representation?
+
+o check the rotamer plots don't depend on hydrogen atoms.
+
+o replace fragment. seems to be hanging when replacing a domain
+
 
 o post-release: import gesamt into libcootapi. Do soon.
   First post-release item!
   Needs to be Gemmified first.
 
-o Does non-drawn bonds work with B-factor or occupanccy
-  representation?
+o reverse of get_rdkit_mol_pickle_base64
+  i.e. a function that accepts a rdkit pickle and creates a molecule and dictionary
+* Done
 
-o replace fragment. seems to be hanging when replacing a domain
-
+o try alpha non-zero 2luz for model material
+* Doesn't do anything, it seems. Maybe Fancy Lighting is needed.
 
 o post-release: filled bases in M2T
 
