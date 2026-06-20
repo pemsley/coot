@@ -913,7 +913,11 @@ public:
    //! Get a list of atom names and their associated AceDRG atom types
    //!
    //! @param compound_id is the 3-letter code for the residue/ligand in the first model, e.g. "TYR" for tyrosine
-   //! @param imol_enc is the molecule index for the residue type/compound_id
+   //! @param imol_enc is the molecule index for the residue type/compound_id. `imol_enc` should
+   //!        match the imol_enc passed to import_cif_dictionary() for this compound; use
+   //!         IMOL_ENC_ANY (-999999) (use get_imol_enc_any()) for a dictionary imported for all
+   //!         molecules. (Do not pass the return value of import_cif_dictionary() here — that is a 1/0
+   //!         success flag.)
    //!
    //! @return a list of atom names and their associated AceDRG atom types, return an empty list
    //! on failure (e.g. when atoms types are not in the dictionary)
@@ -927,7 +931,11 @@ public:
    //! does not contain _chem_comp_acedrg atom type annotations.
    //!
    //! @param compound_id is the 3-letter code for the residue/ligand, e.g. "TYR" for tyrosine
-   //! @param imol_enc is the molecule index for the residue type/compound_id
+   //! @param imol_enc is the molecule index for the residue type/compound_id. `imol_enc` should
+   //!        match the imol_enc passed to import_cif_dictionary() for this compound; use
+   //!         IMOL_ENC_ANY (-999999) (use get_imol_enc_any()) for a dictionary imported for all
+   //!         molecules. (Do not pass the return value of import_cif_dictionary() here — that is a 1/0
+   //!         success flag.)
    //!
    //! @return a list of atom names and their associated computed COD atom types (level 4),
    //! return an empty list on failure
@@ -951,7 +959,7 @@ public:
    //! @param imol is the model molecule index
    //! @param residue_cid is the atom selection CID e.g "//A/15" (residue 15 of chain A)
    //!
-   //! @return a `coot::acedrg_types_for_residue_t` - which contains a vector/list of bond descriptions.
+   //! @return a coot::acedrg_types_for_residue_t - which contains a vector/list of bond descriptions.
    coot::acedrg_types_for_residue_t get_acedrg_atom_types_for_ligand(int imol, const std::string &residue_cid) const;
 
    //! Set the occupancy for the given atom selection
