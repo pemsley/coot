@@ -1141,6 +1141,11 @@ NB_MODULE(coot_headless_api, m) {
     .def("ray_trace_shutdown",
          &molecules_container_t::ray_trace_shutdown,
          get_docstring_from_xml("ray_trace_shutdown").c_str())
+    .def("rdkit_mol_pickle_base64_to_molecule",
+         &molecules_container_t::rdkit_mol_pickle_base64_to_molecule,
+         nb::arg("encoded_pickle_string_for_mol"),
+         nb::arg("conformer_id"),
+         get_docstring_from_xml("rdkit_mol_pickle_base64_to_molecule").c_str())
     .def("read_coordinates",
          &molecules_container_t::read_coordinates,
          nb::arg("file_name"),

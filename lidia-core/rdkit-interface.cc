@@ -860,7 +860,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
                         else
                            rdkit_at->setChiralTag(RDKit::Atom::CHI_TETRAHEDRAL_CW);
                      }
-               
+
                      if (atom_info.pdbx_stereo_config.second == "S") {
                         if (inverted)
                            rdkit_at->setChiralTag(RDKit::Atom::CHI_TETRAHEDRAL_CW);
@@ -874,9 +874,9 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 
          if (debug)
             std::cout << "DEBUG:: ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ "
-                      << "in constructing rdkit molecule, now adding a conf " 
-                      << "number of atoms comparison added_atom names size: " 
-                      << added_atom_names.size() << " vs m.getNumAtoms() " 
+                      << "in constructing rdkit molecule, now adding a conf "
+                      << "number of atoms comparison added_atom names size: "
+                      << added_atom_names.size() << " vs m.getNumAtoms() "
                       << m.getNumAtoms() << std::endl;
 
          std::vector<std::string> alt_confs_in_residue = get_alt_confs_in_residue(residue_p);
@@ -911,9 +911,8 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 
             int conf_id = m.addConformer(conf);
 
-            // RDKit::MolOps::assignStereochemistry(m, false, true, true); // this does not assign 
+            // RDKit::MolOps::assignStereochemistry(m, false, true, true); // this does not assign
             // stereochemistry on m
-   
 
             // 20161013 do we need to this these days?  It adds chirality to the SD in 2ZC
             // Needs more consideration.
@@ -3970,53 +3969,84 @@ coot::join_molecules(const RDKit::ROMol &mol, int atom_index, const RDKit::ROMol
    return v;
 }
 
+#include <set>
+
 mmdb::Residue *coot::residue_from_rdkit_mol(const RDKit::ROMol &mol, int conf_id, const std::string &new_comp_id) {
 
-   std::cout << "DEBUG:: residue_from_rdkit_mol()::::::::::::::::::::::::::::::: --- start ---" << std::endl;
    const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
    mmdb::Residue *r = nullptr;
    std::vector<mmdb::Atom *> atoms;
    unsigned int n_atoms = mol.getNumAtoms();
    std::map<std::string, unsigned int> ele_count;
    if (n_atoms > 0) {
-      unsigned int iconf = 0;
-      const RDKit::Conformer &conf = mol.getConformer(iconf);
-      for (unsigned int i=0; i<n_atoms; i++) {
-         const RDKit::Atom *rat = mol.getAtomWithIdx(i);
-         mmdb::Atom *at = new mmdb::Atom;
-         int atomic_number = rat->getAtomicNum();
-         std::string ele = tbl->getElementSymbol(atomic_number);
-         ele_count[ele]++;
-         try {
-            std::string name;
-            rat->getProp("name", name); // They must have been made by caller
-            // this name extraction code is common code
-            if (name.size() == 1) name = " " + name + "  ";
-            if (name.size() == 2) name = " " + name + " ";
-            if (name.size() == 3) name = " " + name;
-            at->SetAtomName(name.c_str());
+      try {
+
+         const RDKit::Conformer &conf = mol.getConformer(conf_id);
+
+         // store the existing names
+         std::set<std::string> extant_atom_names;
+         for (unsigned int i=0; i<n_atoms; i++) {
+            const RDKit::Atom *rat = mol.getAtomWithIdx(i);
+            try {
+               std::string name;
+               rat->getProp("name", name);
+               extant_atom_names.insert(name);
+            }
+            catch (const KeyErrorException &kee) {}
+         }
+
+         for (unsigned int i=0; i<n_atoms; i++) {
+            const RDKit::Atom *rat = mol.getAtomWithIdx(i);
+            mmdb::Atom *at = new mmdb::Atom;
+            int atomic_number = rat->getAtomicNum();
+            std::string ele = tbl->getElementSymbol(atomic_number);
+            ele_count[ele]++;
             at->SetElementName(ele.c_str());
             RDGeom::Point3D p = conf.getAtomPos(i);
             mmdb::realtype occ = 1.0;
             mmdb::realtype tFac = 30.0;
-            std::cout << "DEBUG:: residue atom " << i << " \"" << name << "\" at " << p.x << " " << p.y << " " << p.z << std::endl;
             at->SetCoordinates(p.x, p.y, p.z, occ, tFac);
+            try {
+               std::string name;
+               rat->getProp("name", name); // They must have been made by caller
+               // this name extraction code is common code
+               if (name.size() == 1) name = " " + name + "  ";
+               if (name.size() == 2) name = " " + name + " ";
+               if (name.size() == 3) name = " " + name;
+               if (false)
+                  std::cout << "DEBUG:: extracted residue atom " << i << " \"" << name
+                            << "\" at " << p.x << " " << p.y << " " << p.z << std::endl;
+               at->SetAtomName(name.c_str());
+            }
+            catch (const KeyErrorException &kee) {
+               // std::cout << "DEBUG:: residue_from_rdkit_mol(): " << kee.what() << std::endl;
+
+               // OK, there was no atom name, let's invent one.
+               std::string name = ele;
+               name += std::to_string(ele_count[ele]);
+               if (name.size() == 2) name = " " + name + " ";
+               if (name.size() == 3) name = " " + name;
+               if (false)
+                  std::cout << "DEBUG:: residue atom " << i << " with invented name \"" << name
+                            << "\" at " << p.x << " " << p.y << " " << p.z << std::endl;
+               at->SetAtomName(name.c_str());
+            }
             atoms.push_back(at);
          }
-         catch (const std::runtime_error &rte) {
-            std::cout << "DEBUG:: rte " << rte.what() << std::endl;
+         if (! atoms.empty()) {
+            r = new mmdb::Residue;
+            r->SetResID(new_comp_id.c_str(), 1, "");
+            for (unsigned int i=0; i<atoms.size(); i++) {
+               mmdb::Atom *at = atoms[i];
+               r->AddAtom(at);
+            }
          }
       }
-      if (! atoms.empty()) {
-         r = new mmdb::Residue;
-         r->SetResID(new_comp_id.c_str(), 1, "");
-         for (unsigned int i=0; i<atoms.size(); i++) {
-            mmdb::Atom *at = atoms[i];
-            r->AddAtom(at);
-         }
+      catch (const RDKit::ConformerException &ce) {
+         std::cout << "WARNING:: residue_from_rdkit_mol(): input molecule had no conformer matching "
+                   << conf_id << std::endl;
       }
    }
-   std::cout << "DEBUG:: residue_from_rdkit_mol()::::::::::::::::::::::::::::::: returning " << r << std::endl;
    return r;
 }
 

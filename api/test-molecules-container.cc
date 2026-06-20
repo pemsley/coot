@@ -7139,6 +7139,50 @@ int test_rdkit_mol(molecules_container_t &mc) {
 }
 #endif
 
+#include <GraphMol/MolPickler.h>
+#include "utils/base64-encode-decode.hh"
+#include <GraphMol/ForceFieldHelpers/MMFF/MMFF.h>
+
+int test_rdkit_mol_pickle(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+
+   // setup
+   std::string smiles = "c1ncccc1(CCO)";
+   RDKit::ROMol *mol = RDKit::SmilesToMol(smiles);
+   RDKit::MolOps::addHs(*mol);
+   int conf_id = RDKit::DGeomHelpers::EmbedMolecule(*mol); //! returns conf id, or -1 on failure
+   if (conf_id < 0) {
+      // fail
+   } else {
+      std::pair<int, double> res = RDKit::MMFF::MMFFOptimizeMolecule(*mol); //! geometry cleanup
+      std::cout << "debug:: test_rdkit_mol_pickle(); res: " << res.first << " " << res.second << std::endl;
+      RDKIT_GRAPHMOL_EXPORT RDKit::MolPickler mp;
+      unsigned int pickleFlags = RDKit::PicklerOps::AtomProps
+         | RDKit::PicklerOps::BondProps
+         | RDKit::PicklerOps::MolProps;
+      std::string pickle_string;
+      mp.pickleMol(mol, pickle_string, pickleFlags);
+      std::string epm = moorhen_base64::base64_encode((const unsigned char*)pickle_string.c_str(), pickle_string.size());
+
+      if (false) {
+         std::cout << "pickle_string length " << pickle_string.size() << std::endl;
+         std::cout << "epm length " << epm.size() << std::endl;
+      }
+
+      // now do the test
+      int conf_id = 0;
+      int imol_new = mc.rdkit_mol_pickle_base64_to_molecule(epm, conf_id);
+      if (mc.is_valid_model_molecule(imol_new))
+         status = 1;
+   }
+
+#endif
+   return status;
+}
 
 
 int test_lsq_superpose(molecules_container_t &mc) {
@@ -8514,7 +8558,8 @@ int main(int argc, char **argv) {
          // status += run_test(test_gaussian_surface_to_map_molecule, "gaussian-surface to map", mc);
          // status += run_test(test_density_mesh,          "density mesh",             mc);
          // status += run_test(test_molecular_placement_pipeline_r_chain, "MR R-chain", mc);
-         status += run_test(test_molecular_placement_pipeline, "MR pipeline", mc);
+         // status += run_test(test_molecular_placement_pipeline, "MR pipeline", mc);
+         status += run_test(test_rdkit_mol_pickle, "RDKit Mol Pickle", mc);
          if (status == n_tests) all_tests_status = 0;
 
          print_results_summary();

@@ -691,6 +691,14 @@ public:
    //! @param imol_enc the molecule for the ligand (typically is imol_enc_any)
    //! @return a pickle string, return an empty string on failure.
    std::string get_rdkit_mol_pickle_base64(const std::string &residue_name, int imol_enc);
+   //! given an rdkit molecule, create a new molecule and posssibly create a (minimal) dictionary
+   //! if the compound_id is sane
+   //!
+   //! @param encoded_picked_string the base64 encoded pickle string
+   //! @param conformer_id the id of the conformer (typically 0)
+   //! @return the new molecule number. Return -1 on failure
+   int rdkit_mol_pickle_base64_to_molecule(const std::string &encoded_picked_string, int conformer_id);
+
 #endif
 
    // -------------------------------- coordinates utils -----------------------------------
