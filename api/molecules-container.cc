@@ -1617,7 +1617,17 @@ molecules_container_t::rotamer_analysis(int imol_model) const {
 
          // double residue_density_score = coot::util::map_score(residue_atoms, n_residue_atoms, xmap, 1);
 
-         if (n_residue_atoms > 5) {
+         // Use the heavy-atom count, not the total atom count, so that the set of
+         // residues plotted does not depend on whether hydrogens have been added.
+         // (GLY and ALA have <= 5 heavy atoms and so are correctly skipped here.)
+         int n_heavy_atoms = 0;
+         for (int iat=0; iat<n_residue_atoms; iat++) {
+            std::string ele(residue_atoms[iat]->element);
+            if (ele != " H" && ele != " D")
+               n_heavy_atoms++;
+         }
+
+         if (n_heavy_atoms > 5) {
 
             std::string res_name = residue_p->GetResName();
             if (true) {
