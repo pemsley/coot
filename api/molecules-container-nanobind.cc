@@ -34,6 +34,9 @@
 
 
 #include "molecules-container.hh"
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+#include "lidia-core/cod-atom-type-t.hh" // cod::atom_type_t (bound below)
+#endif
 
 namespace nb = nanobind;
 
@@ -1583,6 +1586,17 @@ NB_MODULE(coot_headless_api, m) {
        .def_rw("r_2", &coot::plain_atom_overlap_t::r_2)
        .def_rw("is_h_bond", &coot::plain_atom_overlap_t::is_h_bond)
     ;
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+    nb::class_<cod::atom_type_t>(m,"cod_atom_type_t")
+    .def(nb::init<>())
+       .def_ro("level_4", &cod::atom_type_t::level_4)
+       .def_ro("level_3", &cod::atom_type_t::level_3)
+       .def_prop_ro("level_2", [] (const cod::atom_type_t &t) { return t.level_2.string(); })
+       .def_ro("hash_value", &cod::atom_type_t::hash_value)
+       .def_ro("neighb_degrees", &cod::atom_type_t::neighb_degrees)
+       .def("neighb_degrees_str", [] (cod::atom_type_t &t) { return t.neighb_degrees_str(); })
+    ;
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
     nb::class_<positioned_atom_spec_t>(m,"positioned_atom_spec_t")
     .def(nb::init<>())
     .def_ro("atom_spec", &positioned_atom_spec_t::atom_spec)

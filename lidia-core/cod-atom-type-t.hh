@@ -67,7 +67,7 @@ namespace cod {
    };
    std::ostream &operator<<(std::ostream &s,
 			    const atom_level_2_type::atom_level_2_component_type &c);
-   
+
    // a container for strings of COD atom types at various levels.
    // The first one was at the 4th level - most sophisticated and
    // with 3rd neighbour info
