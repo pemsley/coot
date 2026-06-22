@@ -2,15 +2,21 @@
 
 o ldaddr (?) for chapi to find its files on relocatable binaries
 
-o Fix h-bond flag for contacts for Lucy
-
 o Does non-drawn bonds work with B-factor or occupanccy
   representation?
+* Done.
+
+o Fix h-bond flag for contacts for Lucy
+* Done.
 
 o check the rotamer plots don't depend on hydrogen atoms.
+* Done.
 
 o replace fragment. seems to be hanging when replacing a domain
+* Can't reproduce.
 
+o fix this in cif parser:
+  WARNING:: in init_refmac_mon_lib() unhandled category "_pdbx_chem_comp_synonyms" file: test-cifs/A1DIB.cif
 
 o post-release: import gesamt into libcootapi. Do soon.
   First post-release item!
