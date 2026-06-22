@@ -325,11 +325,13 @@ Bond_lines_container::Bond_lines_container(atom_selection_container_t asc,
 Bond_lines_container::Bond_lines_container(const atom_selection_container_t &SelAtom,
                                            int imol,
                                            const coot::protein_geometry *protein_geom,
-                                           Bond_lines_container::bond_representation_type br_type) {
+                                           Bond_lines_container::bond_representation_type br_type,
+                                           const std::set<int> &no_bonds_to_these_atoms_in) {
 
    // std::cout << "*************************** Bond_lines_container() constructor with geom and type " << br_type << std::endl;
 
    init(); // sets geom to null pointer
+   no_bonds_to_these_atoms = no_bonds_to_these_atoms_in; // honour non-drawn bonds in these representations
    verbose_reporting = 0;
    do_disulfide_bonds_flag = 1;
    udd_has_ca_handle = -1;
