@@ -51,7 +51,7 @@ cod::atom_level_2_type::atom_level_2_type(const RDKit::Atom *base_atom_p,
    //
    // first is int,string, number of rings and atom-ring,string
    // e.g. 2,"C[5a,6a]"  1,"N[6a]"
-   // 
+   //
    // second is the  vector of hybridization of the neighbours, e.g.(2,2,3)
    //
    // 20170606 this is now a member data item
@@ -66,16 +66,16 @@ cod::atom_level_2_type::atom_level_2_type(const RDKit::Atom *base_atom_p,
       unsigned int degree = at_neighb->getDegree();
       int n = at_neighb->getAtomicNum();
       std::pair<int,std::string> ring_info = make_ring_info_string(at_neighb);
-      
+
       std::string atom_ele = tbl->getElementSymbol(n);
 
       // std::string s = atom_ele;
       // s += ring_info.second;
       // s += "-";
-      
+
       atom_level_2_component_type c(at_neighb, rdkm);
       components.push_back(c);
-      
+
       nbrIdx++;
    }
 
@@ -161,10 +161,10 @@ cod::atom_level_2_type::extra_electron_type() const {
 	 int n_size_1 = components[i].neighb_degrees.size(); // int for comparison below
 	 int n_size = components[i].neighb_extra_elect.size(); // int for comparison below
 	 if (n_size != n_size_1) {
-	    std::cout << "------ mismatch sizes: " << n_size << " " << n_size_1 << std::endl;
+	    std::cout << "------ extra_electron_type(): mismatch sizes: "
+                      << n_size << " " << n_size_1 << std::endl;
 	 }
-	 int idx_last = n_size - 1;
-	 for (int j=0; j<n_size; j++) { 
+	 for (int j=0; j<n_size; j++) {
 	    if (j != 0) {
 	       s += "_";
 	       // std::cout << "s: " << s << std::endl;
@@ -290,7 +290,7 @@ cod::atom_level_2_type::level_2_component_sorter(const atom_level_2_component_ty
    //
    // neighb hybrids: _2_0 before _2_2
    //
-   // C[5a]-2_1_1 before C[5a]-1_0_0 
+   // C[5a]-2_1_1 before C[5a]-1_0_0
 
    // std::cout << "comparing l2 components: " << la << " " << lb << std::endl;
 
@@ -324,7 +324,7 @@ cod::atom_level_2_type::level_2_component_sorter(const atom_level_2_component_ty
 	       } else {
 		  if ((la.number_of_rings > 0) && (lb.number_of_rings == 0)) {
 		     return false;
-		  } else { 
+		  } else {
 
 		     if (la.number_of_rings > lb.number_of_rings) {
 			return true;
@@ -434,7 +434,7 @@ std::pair<int, std::string>
 cod::make_ring_info_string(const RDKit::Atom *atom_p) {
 
    std::string atom_ring_string;
-   
+
    std::vector<int> ring_size_vec;
    std::vector<int> ring_is_arom_vec; // flags
 
@@ -448,7 +448,7 @@ cod::make_ring_info_string(const RDKit::Atom *atom_p) {
       // sorting by ring size is done when the ring info is constructed
       // and added to atoms - no here
       // std::sort(ring_si.begin(), ring_info.end());
-	 
+
       atom_ring_string = "[";
       for (unsigned int i_ring=0; i_ring<ring_size_vec.size(); i_ring++) {
 
@@ -457,7 +457,7 @@ cod::make_ring_info_string(const RDKit::Atom *atom_p) {
 
 	 // If this ring is aromatic we need at append "a" to the (typically)
 	 // n_atoms_in_ring = 6.
-	 // 
+	 //
 	 int n_atoms_in_ring = ring_size_vec[i_ring];
 
 	 atom_ring_string += coot::util::int_to_string(n_atoms_in_ring);
@@ -479,7 +479,7 @@ cod::make_ring_info_string(const RDKit::Atom *atom_p) {
 
 
 cod::atom_level_2_type::atom_level_2_component_type::atom_level_2_component_type(const RDKit::Atom *at, const RDKit::ROMol &rdkm) {
-      
+
    // Version 147 atom types
    // s += coot::util::int_to_string(degree);
 
