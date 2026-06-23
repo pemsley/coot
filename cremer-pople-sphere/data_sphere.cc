@@ -33,7 +33,7 @@ glm::vec4 density_to_colour(float t) {
 
    // Viridis: perceptually uniform, colourblind-safe, beautiful
    const glm::vec4 stops[5] = {
-      { 0.267f, 0.004f, 0.329f, 0.0f },  // 0.00 – empty    (transparent indigo)
+      { 0.12f,  0.11f,  0.15f,  1.0f },  // 0.00 – empty    (dark charcoal)
       { 0.231f, 0.322f, 0.545f, 1.0f },  // 0.25 – sparse   (steel blue)
       { 0.129f, 0.569f, 0.549f, 1.0f },  // 0.50 – moderate (teal)
       { 0.369f, 0.788f, 0.384f, 1.0f },  // 0.75 – dense    (lime green)
