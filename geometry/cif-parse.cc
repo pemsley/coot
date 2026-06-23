@@ -184,8 +184,8 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
          s = mmdb::GetErrorDescription(mmdb::ERROR_CODE(ierr));
          rmit.error_messages.push_back(s);
          clipper::String cs = "CIF error rc=";
-         cs += ierr;
-         cs += " reason:";
+         cs += std::to_string(ierr);
+         cs += "\nreason:";
          cs += mmdb::mmcif::GetCIFMessage (err_buff, ierr);
          rmit.error_messages.push_back(cs);
 
