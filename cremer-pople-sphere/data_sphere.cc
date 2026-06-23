@@ -31,13 +31,13 @@ glm::vec4 energy_to_colour(float t) {
 glm::vec4 density_to_colour(float t) {
    t = glm::clamp(t, 0.0f, 1.0f);
 
-   // 5-stop heat map: dark-navy → blue → teal → yellow → red
+   // Viridis: perceptually uniform, colourblind-safe, beautiful
    const glm::vec4 stops[5] = {
-      { 0.05f, 0.05f, 0.20f, 1.0f },  // 0.00 – no data  (dark navy)
-      { 0.10f, 0.20f, 0.90f, 1.0f },  // 0.25 – sparse   (blue)
-      { 0.10f, 0.80f, 0.70f, 1.0f },  // 0.50 – moderate (teal)
-      { 0.90f, 0.85f, 0.10f, 1.0f },  // 0.75 – dense    (yellow)
-      { 0.90f, 0.10f, 0.10f, 1.0f },  // 1.00 – hotspot  (red)
+      { 0.267f, 0.004f, 0.329f, 0.0f },  // 0.00 – empty    (transparent indigo)
+      { 0.231f, 0.322f, 0.545f, 1.0f },  // 0.25 – sparse   (steel blue)
+      { 0.129f, 0.569f, 0.549f, 1.0f },  // 0.50 – moderate (teal)
+      { 0.369f, 0.788f, 0.384f, 1.0f },  // 0.75 – dense    (lime green)
+      { 0.993f, 0.906f, 0.145f, 1.0f },  // 1.00 – hotspot  (bright yellow)
    };
 
    const float scaled = t * 4.0f;
