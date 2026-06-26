@@ -609,6 +609,11 @@ NB_MODULE(coot_headless_api, m) {
          nb::arg("compound_id"), nb::arg("imol_enc"),
          "Compute AceDRG/COD atom types from dictionary restraints via RDKit. "
          "Unlike get_acedrg_atom_types() which reads pre-stored types, this computes them.")
+    .def("get_monomer_restraints_as_json",
+         &molecules_container_t::get_monomer_restraints_as_json,
+         nb::arg("compound_id"), nb::arg("imol_enc"),
+         "Get the monomer restraints for the given compound as a JSON string "
+         "(the JSON equivalent of the Python monomer_restraints_for_molecule_py()).")
     .def("get_acedrg_atom_types_for_ligand",
          &molecules_container_t::get_acedrg_atom_types_for_ligand,
          nb::arg("imol"), nb::arg("residue_cid"),
@@ -1136,6 +1141,11 @@ NB_MODULE(coot_headless_api, m) {
     .def("ray_trace_shutdown",
          &molecules_container_t::ray_trace_shutdown,
          get_docstring_from_xml("ray_trace_shutdown").c_str())
+    .def("rdkit_mol_pickle_base64_to_molecule",
+         &molecules_container_t::rdkit_mol_pickle_base64_to_molecule,
+         nb::arg("encoded_pickle_string_for_mol"),
+         nb::arg("conformer_id"),
+         get_docstring_from_xml("rdkit_mol_pickle_base64_to_molecule").c_str())
     .def("read_coordinates",
          &molecules_container_t::read_coordinates,
          nb::arg("file_name"),

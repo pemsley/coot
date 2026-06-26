@@ -260,44 +260,52 @@ void ncs_update_ghosts(int imol) {
    if (is_valid_model_molecule(imol)) {
       int incs = graphics_info_t::molecules[imol].update_ncs_ghosts();
       if (incs)
-	 graphics_draw();
+         graphics_draw();
    }
 }
 
 GtkWidget *wrapped_create_ncs_control_dialog() {
 
    GtkWidget *w = widget_from_builder("ncs_control_dialog");
+   GtkWidget *ncs_control_vbox = widget_from_builder("ncs_control_vbox");
+   graphics_info_t::clear_out_container(ncs_control_vbox);
 
-   for (int imol=0; imol<graphics_info_t::n_molecules(); imol++)
-      if (is_valid_model_molecule(imol))
-	 graphics_info_t::molecules[imol].fill_ncs_control_frame(w);
-   return w; 
+   for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
+      if (is_valid_model_molecule(imol)) {
+         std::cout << "debug:: calling fill_ncs_control_frame() for imol " << imol << std::endl;
+         graphics_info_t::molecules[imol].fill_ncs_control_frame(w);
+      }
+   }
+
+   return w;
 }
 
 
 void ncs_control_change_ncs_master_to_chain(int imol, int ichain) {
 
    std::cout << "DEBUG:: ncs_control_change_ncs_master_to_chain imol: " << imol
-	     << " and ichain: " << ichain << std::endl;
+             << " and ichain: " << ichain << std::endl;
+
    if (is_valid_model_molecule(imol)) {
       std::vector<std::string> chain_ids =
-	 coot::util::chains_in_molecule(graphics_info_t::molecules[imol].atom_sel.mol);
+         coot::util::chains_in_molecule(graphics_info_t::molecules[imol].atom_sel.mol);
       if (ichain < int(chain_ids.size()))
-	 graphics_info_t::molecules[imol].set_ncs_master_chain(chain_ids[ichain], graphics_info_t::ncs_homology_level);
+         graphics_info_t::molecules[imol].set_ncs_master_chain(chain_ids[ichain], graphics_info_t::ncs_homology_level);
       graphics_draw();
-   } 
+   }
 }
 
 void ncs_control_change_ncs_master_to_chain_id(int imol, const char *chain_id) {
 
    std::cout << "DEBUG ncs_control_change_ncs_master_to_chain_id imol: " << imol
-	     << " and chain_id: " << chain_id << std::endl;
+             << " and chain_id: " << chain_id << std::endl;
+
    if (is_valid_model_molecule(imol)) {
      std::vector<std::string> chain_ids =
        coot::util::chains_in_molecule(graphics_info_t::molecules[imol].atom_sel.mol);
      std::vector<std::string>::iterator match = find(chain_ids.begin(), chain_ids.end(), chain_id);
      if (match != chain_ids.end())
-	graphics_info_t::molecules[imol].set_ncs_master_chain(chain_id, graphics_info_t::ncs_homology_level);
+        graphics_info_t::molecules[imol].set_ncs_master_chain(chain_id, graphics_info_t::ncs_homology_level);
      graphics_draw();
    }
 }
@@ -305,7 +313,7 @@ void ncs_control_change_ncs_master_to_chain_id(int imol, const char *chain_id) {
 void ncs_control_change_ncs_master_to_chain_update_widget(GtkWidget *w, int imol, int ichain) {
 
    std::cout << "DEBUG ncs_control_change_ncs_master_to_chain_update_widget imol: " << imol
-	     << " and ichain: " << ichain << std::endl;
+             << " and ichain: " << ichain << std::endl;
    if (is_valid_model_molecule(imol)) {
       ncs_control_change_ncs_master_to_chain(imol, ichain);
 

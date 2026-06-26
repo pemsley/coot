@@ -691,6 +691,14 @@ public:
    //! @param imol_enc the molecule for the ligand (typically is imol_enc_any)
    //! @return a pickle string, return an empty string on failure.
    std::string get_rdkit_mol_pickle_base64(const std::string &residue_name, int imol_enc);
+   //! given an rdkit molecule, create a new molecule and posssibly create a (minimal) dictionary
+   //! if the compound_id is sane
+   //!
+   //! @param encoded_picked_string the base64 encoded pickle string
+   //! @param conformer_id the id of the conformer (typically 0)
+   //! @return the new molecule number. Return -1 on failure
+   int rdkit_mol_pickle_base64_to_molecule(const std::string &encoded_picked_string, int conformer_id);
+
 #endif
 
    // -------------------------------- coordinates utils -----------------------------------
@@ -905,7 +913,11 @@ public:
    //! Get a list of atom names and their associated AceDRG atom types
    //!
    //! @param compound_id is the 3-letter code for the residue/ligand in the first model, e.g. "TYR" for tyrosine
-   //! @param imol_enc is the molecule index for the residue type/compound_id
+   //! @param imol_enc is the molecule index for the residue type/compound_id. `imol_enc` should
+   //!        match the imol_enc passed to import_cif_dictionary() for this compound; use
+   //!         IMOL_ENC_ANY (-999999) (use get_imol_enc_any()) for a dictionary imported for all
+   //!         molecules. (Do not pass the return value of import_cif_dictionary() here — that is a 1/0
+   //!         success flag.)
    //!
    //! @return a list of atom names and their associated AceDRG atom types, return an empty list
    //! on failure (e.g. when atoms types are not in the dictionary)
@@ -919,18 +931,35 @@ public:
    //! does not contain _chem_comp_acedrg atom type annotations.
    //!
    //! @param compound_id is the 3-letter code for the residue/ligand, e.g. "TYR" for tyrosine
-   //! @param imol_enc is the molecule index for the residue type/compound_id
+   //! @param imol_enc is the molecule index for the residue type/compound_id. `imol_enc` should
+   //!        match the imol_enc passed to import_cif_dictionary() for this compound; use
+   //!         IMOL_ENC_ANY (-999999) (use get_imol_enc_any()) for a dictionary imported for all
+   //!         molecules. (Do not pass the return value of import_cif_dictionary() here — that is a 1/0
+   //!         success flag.)
    //!
    //! @return a list of atom names and their associated computed COD atom types (level 4),
    //! return an empty list on failure
    std::vector<std::pair<std::string, std::string> > get_computed_acedrg_atom_types(const std::string &compound_id, int imol_enc);
+
+   //! Get the monomer restraints for the given compound as a JSON string
+   //!
+   //! This is the JSON equivalent of the (Python) `monomer_restraints_for_molecule_py()`.
+   //! The returned object has the following keys, each holding an array of restraints:
+   //! "_chem_comp", "_chem_comp_atom", "_chem_comp_bond", "_chem_comp_angle",
+   //! "_chem_comp_tor", "_chem_comp_plane_atom" and "_chem_comp_chir".
+   //!
+   //! @param compound_id is the 3-letter code for the residue/ligand in the first model, e.g. "TYR" for tyrosine
+   //! @param imol_enc is the molecule index for the residue type/compound_id
+   //!
+   //! @return a JSON string for the restraints, or an empty string on failure (e.g. no dictionary)
+   std::string get_monomer_restraints_as_json(const std::string &compound_id, int imol_enc);
 
    //! Get AceDRG atom types for ligand bonds
    //!
    //! @param imol is the model molecule index
    //! @param residue_cid is the atom selection CID e.g "//A/15" (residue 15 of chain A)
    //!
-   //! @return a `coot::acedrg_types_for_residue_t` - which contains a vector/list of bond descriptions.
+   //! @return a coot::acedrg_types_for_residue_t - which contains a vector/list of bond descriptions.
    coot::acedrg_types_for_residue_t get_acedrg_atom_types_for_ligand(int imol, const std::string &residue_cid) const;
 
    //! Set the occupancy for the given atom selection

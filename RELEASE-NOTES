@@ -1,4 +1,31 @@
 
+  Release Notes for 1.3.2
+
+ o FEATURE: Add AI button: for people who want to use an LLM to
+            communicate with Coot
+
+ o CHANGE:  First startup dialog now saves preferences immediately
+            rather than on exit
+
+ o CHANGE:  Ligand-fitting code made more robust
+
+ o BUG-FIX: Better margins for SSM dialog
+
+ o BUG-FIX: Fix user-defined atom colours leaking into other
+            colouring modes
+
+ o BUG-FIX: Fix the vertical scrolling of the sequence view
+
+ o BUG-FIX: Ligand-fitting: Conformer option now insensitive without
+            conformer generation
+
+ o BUG-FIX:  Copy Fragment molecule selector now has a default
+
+ o BUG-FIX:  Now we use the user-defined colour for symmetry-related
+             atoms
+
+-----
+
   Release Notes for 1.3.1
 
  o BUG-FIX: Fix crash on clicking on Sequence View
@@ -2329,7 +2356,7 @@ Release 0.9.7
 
   o CHANGE:  Typesetting improvements in lidia
 
-  o BUG-FIX: Set the suggested file name in the classic dialog on saving 
+  o BUG-FIX: Set the suggested file name in the classic dialog on saving
              coordinates [Andy Purkiss, Arnaud Basle]
 
   o BUG-FIX: Setting the formal charge in lidia now works properly
@@ -2344,8 +2371,8 @@ Release 0.9.7
 
   o BUG-FIX: mini-rsr now optionally uses trans peptide restrints
 
-  o BUG-FIX: 4-char Hydrogen atom names from PBDx are now correctly read (folding in an 
-             mmdb2 fix)
+  o BUG-FIX: 4-char Hydrogen atom names from PBDx are now correctly read
+             (folding in a mmdb2 fix)
 
 -----
 
@@ -2445,11 +2472,11 @@ Release 0.9.7
 
   o BUG-FIX: Add missing plane distortions in print_residue_distortions()
 
-  o BUG-FIX: PISA interface works with newer version of pisa 
+  o BUG-FIX: PISA interface works with newer version of pisa
              [Maria Jose Sanchez Barrena]
 
   o BUG-FIX: Only check once for probe when showing the Validation menu.
-  
+
   o BUG-FIX: Resetting of Own font colour on opening the preferences
              dialog fixed.
 

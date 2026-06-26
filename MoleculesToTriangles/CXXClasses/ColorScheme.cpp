@@ -77,7 +77,7 @@ std::shared_ptr<ColorScheme> ColorScheme::colorChainsScheme(){
     std::shared_ptr<ColorScheme> result(new ColorScheme());
     std::string colorNames[] = {
                                 //    "RED","GREEN","BLUE","CYAN","MAGENTA","YELLOW","WHITE"
-                                "Salmon", "Sandy Brown",
+                                "Salmon", "SandyBrown",
                                 "Burlywood", "Goldenrod",
                                 "tomato", "limegreen", "royalblue", "gold", "aquamarine", "maroon",
                                 "lightsalmon", "deeppink", "brown"

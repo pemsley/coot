@@ -1,12 +1,69 @@
 --- Items---
 
+o ldaddr (?) for chapi to find its files on relocatable binaries
+
+o Fix h-bond flag for contacts for Lucy
+
+o Does non-drawn bonds work with B-factor or occupanccy
+  representation?
+
+o check the rotamer plots don't depend on hydrogen atoms.
+
+o replace fragment. seems to be hanging when replacing a domain
+
+
+o post-release: import gesamt into libcootapi. Do soon.
+  First post-release item!
+  Needs to be Gemmified first.
+
+o reverse of get_rdkit_mol_pickle_base64
+  i.e. a function that accepts a rdkit pickle and creates a molecule and dictionary
+* Done
+
+o try alpha non-zero 2luz for model material
+* Doesn't do anything, it seems. Maybe Fancy Lighting is needed.
+
+o post-release: filled bases in M2T
+
 o post-release: get gemmi drg into Layla
+
+o post-release: put cairo into the rdkit build
+
+o post-release: put pathology plots into chapi
+
+o post-release: Get lots of nucleic acid structures
+  find _pdbx_struct_mod_residue to get a list
+  of modified nucleotides so that coot-utils
+  is_nucleotide() returns true.
+
+  2MG H2U M2G OMG OMC PSU 5MC 7MG
+
+o post-release: RRAATTSS in chapi?
+
+o post-release: check the mask from chapi: non-binary? what does
+  it look like around alt conf ARGs?
+
+o post-release: get gemmi drg into Layla
+
+o post-release: "\" means toggle symmetry
+
+o post-release: transfer link information between gemmi and mmdb
+  - talking point in ccp4 meeting.
+
+o post-release: look at UniProt codes P15924 and Q96Q06
+  from 2025.12.19.695427.full.pdf
+
+o Try mmdb->gemmi for MoleculesToTriangles
+* Done.
+
+o revert all colour leaking changes
+* Done.
+
+o --dictionary-with-mol is a real command line option?
+* Seems fine.
 
 o check the mask from chapi: non-binary? what does
   it look like around alt conf ARGs?
-
-o --dictionary-with-mol is a real command line option?
-* Works for me.
 
 o use the PDB MCP with coot.
 * Already done.
@@ -25,7 +82,11 @@ o atom overlaps init() should try to load monomers if they
 o copy fragment widget needs better active item
 * Done
 
-o filled bases in M2T
+o copy fragment needs better active item
+* Done.
+
+o replace-fragment seemed to hang
+* Can't reproduce
 
 o startup mouse button chooser save state immediately.
 * Done.
@@ -33,25 +94,29 @@ o startup mouse button chooser save state immediately.
 o fix the "arrange waters" actions
 * Done.
 
-o replace fragment. seems to be hanging when replacing a domain
+o NCS Control Only has one molecule shown
+* Done.
 
 o fill/fix set_symmetry_colour()
+* Done.
+
+o Try the PTM interface again, with minimal dictionary.
+* Done.
+
+o NCS Ghost Control Only has one molecule shown
+* Done.
+
+o Get RRAATTSS added to Coot.
 
 o links from cif files should be visible in moorhen.
   Needs code to transfer link in gemmi->mmdb.
 
+o filled bases in M2T
+
 o Apply chem_comp_mod on reading a link
-
-o Try the PTM interface again, with minimal dictionary.
-
-o Get RRAATTSS added to Coot.
-
-o NCS Control  Only has one molecule shown
 
 o OAR and OQR look the same in RDKit depiction from restraints
   They should not, there is a chirality issue.
-
-o import gesamt into libcootapi. Do soon.
 
 o goograph to modern GTK4?
 
