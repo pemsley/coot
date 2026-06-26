@@ -12,6 +12,28 @@ o check the rotamer plots don't depend on hydrogen atoms.
 o replace fragment. seems to be hanging when replacing a domain
 
 
+o fix make_all_atom_overlaps for chapi
+
+o replace fragment. seems to be hanging when replacing a domain
+
+o can coot do semi-opaque bonds?
+
+o put cod-types-db-normalized.bin into data dir
+
+o Does non-drawn bonds work with B-factor or occupanccy
+  representation?
+
+o add parens to decoloned: Charles Lesburg
+
+o see Craig Bingman notes
+
+o post-release: "Site View" zooms in on ligand and residues
+  that are within 4.5A of the ligand. Make non-ligand
+  bonds thin.
+
+o post-release: add R-vectors - directions we can build
+  in without bumping into the protein. Pale green.
+
 o post-release: import gesamt into libcootapi. Do soon.
   First post-release item!
   Needs to be Gemmified first.
@@ -37,6 +59,9 @@ o post-release: Get lots of nucleic acid structures
   is_nucleotide() returns true.
 
   2MG H2U M2G OMG OMC PSU 5MC 7MG
+
+o post-release: look at UniProt codes P15924 and Q96Q06
+  from 2025.12.19.695427.full.pdf
 
 o post-release: RRAATTSS in chapi?
 
@@ -110,8 +135,6 @@ o Get RRAATTSS added to Coot.
 
 o links from cif files should be visible in moorhen.
   Needs code to transfer link in gemmi->mmdb.
-
-o filled bases in M2T
 
 o Apply chem_comp_mod on reading a link
 
