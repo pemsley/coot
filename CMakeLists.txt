@@ -527,15 +527,12 @@ add_library(cootapi SHARED
             ${coot_src}/docking/rigid-body-dock.cc
             ${coot_src}/docking/semiflex-refine.cc
             ${coot_src}/docking/haddock-utils.cc
-            # Cremer-Pople
-            ${coot_src}/cremer-pople-sphere/data_sphere.cc
-            ${coot_src}/cremer-pople-sphere/density_map.cc
-            ${coot_src}/cremer-pople-sphere/primitives.cc
-            ${coot_src}/cremer-pople-sphere/ring.cc
-            ${coot_src}/cremer-pople-sphere/scene.cc
             )
 
-
+# wretched mae - 20 Sept 2025
+# 2026-04-07-PE back again. Turn off (again, failed to resolve on Ubuntu GitHub action)
+# find_library(MAEPARSER_LIBS maeparser)
+# target_link_libraries(cootapi PRIVATE ${MAEPARSER_LIBS})
 # wretched mae - fixed by Jordan?
 find_library(MAEPARSER_LIBS maeparser)
 if(MAEPARSER_LIBS)
@@ -685,10 +682,6 @@ add_executable(test-molecules-container ${coot_src}/api/test-molecules-container
 add_executable(test-docking ${coot_src}/docking/test-docking.cc)
 
 add_executable(mmcif-tests ${coot_src}/api/mmcif-tests-main.cc ${coot_src}/api/mmcif-tests.cc)
-
-add_executable(mesh-to-gltf ${coot_src}/cremer-pople-sphere/main.cpp)
-target_link_libraries(mesh-to-gltf cootapi glm::glm)
-target_include_directories(mesh-to-gltf PRIVATE ${coot_src})
 
 target_compile_features(coot-mini-rsr PRIVATE cxx_std_17)
 
