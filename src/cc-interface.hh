@@ -3731,6 +3731,8 @@ void display_pae_from_file_in_a_dialog(int imol, const std::string &file_name);
 
 void read_interesting_places_json_file(const std::string &file_name);
 
+void read_interesting_places_json(const std::string &json_as_string);
+
 //! return the section index (the middle section currently)
 int setup_tomo_slider(int imol);
 void tomo_section_view(int imol, int axis_id);
