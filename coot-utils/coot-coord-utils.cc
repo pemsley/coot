@@ -1104,8 +1104,8 @@ coot::copy_segid(mmdb::Residue *provider, mmdb::Residue *receiver) {
 std::string
 coot::chain_atoms_segid(mmdb::Chain *chain_p) {
 
-   int n_residue_atoms;
-   mmdb::PPAtom residue_atoms;
+   int n_residue_atoms = 0;
+   mmdb::PPAtom residue_atoms = 0;
 
    std::vector<std::string> seg_ids;
 
@@ -1128,15 +1128,14 @@ coot::chain_atoms_segid(mmdb::Chain *chain_p) {
          }
       }
    }
-   
 
    if (seg_ids.size() == 0) {
       std::string mess = "No segids for chain ";
       mess += chain_p->GetChainID();
       throw std::runtime_error(mess);
    }
-   return seg_ids[0]; 
-} 
+   return seg_ids[0];
+}
 
 
 
@@ -5452,7 +5451,7 @@ coot::util::compare_residues(const std::pair<mmdb::Residue *, int> &a,
    }
 
    return 1;
-} 
+}
 
 
 // Use the results of the above to give us a sequence string:

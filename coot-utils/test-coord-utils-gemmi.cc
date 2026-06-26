@@ -31,6 +31,7 @@
 #include <cmath>
 #include <vector>
 #include <set>
+#include <map>
 
 #include <mmdb2/mmdb_manager.h>
 #include <clipper/core/coords.h>
@@ -54,6 +55,24 @@ reference_data(const std::string &file) {
    } else {
       return file;
    }
+}
+
+// Resolve a coot data fixture across the two places it can live: the source tree at
+// build/test time (pointed at by COOT_TEST_DATA_DIR, or MOORHEN_TEST_DATA_DIR), and
+// $prefix/share/coot after installation (coot::package_data_dir()). Returns the first
+// candidate that exists, else the bare filename.
+std::string coot_test_data(const std::string &file) {
+   std::vector<std::string> dirs;
+   if (const char *e = getenv("COOT_TEST_DATA_DIR"))    dirs.push_back(e);
+   if (const char *e = getenv("MOORHEN_TEST_DATA_DIR")) dirs.push_back(e);
+   dirs.push_back(coot::package_data_dir());
+   dirs.push_back(".");
+   for (const auto &d : dirs) {
+      std::string p = coot::util::append_dir_file(d, file);
+      if (coot::file_exists(p))
+         return p;
+   }
+   return file;
 }
 
 mmdb::Manager *read_pdb(const std::string &file_name) {
@@ -184,6 +203,59 @@ int test_is_hydrogen_atom() {
    bool r2 = coot::is_hydrogen_atom(at_c);
    if (r1 && !r2)
       status = 1;
+   return status;
+}
+
+// nucleotide_is_DNA: DNA (deoxyribose) has no O2'. Differential test over the real
+// standard-residues.pdb fixture (has RNA A/C/G with O2' and DNA DA/DC/DG/DT without):
+// for every nucleotide residue, the mmdb and gemmi overloads must agree. Reading a real
+// file means copy_from_mmdb gets populated label_atom_id, so trimmed gemmi names (O2')
+// match - exercising the padded-vs-unpadded path through the actual pipeline. Pairs
+// mmdb<->gemmi residues by chain/seqid/resname (robust to ordering).
+int test_nucleotide_is_DNA() {
+   starting_test(__FUNCTION__);
+   int status = 0;
+   mmdb::Manager *mol = read_pdb(coot_test_data("standard-residues.pdb"));
+   if (mol) {
+      gemmi::Structure st = gemmi_from_mmdb(mol);
+      // gemmi side: key -> (is_nucleotide, nucleotide_is_DNA)
+      std::map<std::string, std::pair<bool, bool> > gmap;
+      for (const auto &gchain : st.models[0].chains) {
+         for (const auto &gres : gchain.residues) {
+            std::string key = gchain.name + "/" + std::to_string(gres.seqid.num.value) + "/" + gres.name;
+            gmap[key] = std::make_pair((bool)coot::util::is_nucleotide(gres),
+                                       coot::util::nucleotide_is_DNA(gres));
+         }
+      }
+      int n_checked = 0, n_dna = 0, n_rna = 0, n_mismatch = 0;
+      mmdb::Model *model_p = mol->GetModel(1);
+      for (int ich = 0; ich < model_p->GetNumberOfChains(); ich++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ich);
+         for (int ires = 0; ires < chain_p->GetNumberOfResidues(); ires++) {
+            mmdb::Residue *mres = chain_p->GetResidue(ires);
+            std::string key = std::string(chain_p->GetChainID()) + "/" +
+                              std::to_string(mres->GetSeqNum()) + "/" + mres->GetResName();
+            auto it = gmap.find(key);
+            if (it == gmap.end()) continue;
+            if (!it->second.first) continue;  // not a nucleotide
+            bool r_mmdb  = coot::util::nucleotide_is_DNA(mres);
+            bool r_gemmi = it->second.second;
+            n_checked++;
+            if (r_mmdb != r_gemmi) {
+               n_mismatch++;
+               std::cout << "MISMATCH nucleotide_is_DNA " << key
+                         << " mmdb=" << r_mmdb << " gemmi=" << r_gemmi << std::endl;
+            }
+            if (r_gemmi) n_dna++; else n_rna++;
+         }
+      }
+      std::cout << "   nucleotide_is_DNA: checked=" << n_checked
+                << " dna=" << n_dna << " rna=" << n_rna << " mismatch=" << n_mismatch << std::endl;
+      // require coverage of both classes and full agreement
+      if (n_checked > 0 && n_dna > 0 && n_rna > 0 && n_mismatch == 0)
+         status = 1;
+      delete mol;
+   }
    return status;
 }
 
@@ -1069,6 +1141,7 @@ int main(int argc, char **argv) {
       status += run_test(test_co,                                "co (gemmi vs mmdb)");
       status += run_test(test_is_hydrogen_atom,                  "is_hydrogen_atom (gemmi)");
       status += run_test(test_is_nucleotide,                     "is_nucleotide (gemmi)");
+      status += run_test(test_nucleotide_is_DNA,                 "nucleotide_is_DNA (gemmi vs mmdb)");
 
       // Residue-level
       status += run_test(test_get_residue_centre,                "get_residue_centre (gemmi vs mmdb)");
