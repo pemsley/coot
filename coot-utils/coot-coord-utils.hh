@@ -1279,6 +1279,7 @@ namespace coot {
       // Use the results of the above to give us a sequence string:
       std::string model_sequence(const std::vector<std::pair<mmdb::Residue *, int> > &sa,
                                  bool allow_ligands = true);
+      // this does a simple sequence number and insrtion code test - used for sorting.
       bool compare_residues(const std::pair<mmdb::Residue *, int> &a,
                             const std::pair<mmdb::Residue *, int> &b);
 
