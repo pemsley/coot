@@ -36,6 +36,8 @@ AM_CPPFLAGS = \
 
 pkgincludedir = $(includedir)/coot/api
 
+EXTRA_DIST = make-docstrings-source.cc
+
 pkginclude_HEADERS = \
 coot-molecule.hh	 make-a-dodec.hh	    lsq-results.hh                         \
 colour-functions.hh	 gensurf.hh		    validation-information.hh              \
@@ -51,7 +53,8 @@ symmetry-info.hh         instancing.hh              merge-molecule-results-info-
 coot-molecule-bonds.hh   clipper-ccp4-map-file-wrapper.hh blender-mesh.hh                  \
 ncs-ghosts.hh            moved-atom.hh              moved-residue.hh \
 filo-tests.hh            plain-atom-overlap.hh      test-molecules-container.hh \
-lucrezia-tests.hh        user-defined-colour-table.hh positioned-atom-spec.hh
+lucrezia-tests.hh        user-defined-colour-table.hh positioned-atom-spec.hh \
+coot-docstring-extract.hh
 
 lib_LTLIBRARIES=libcoot-api.la
 
@@ -68,7 +71,7 @@ moorhen-h-bonds.cc           molecules-container-bucca-ml-growing.cc          in
 molecules-container-maps.cc  coot-molecule-change-chain-id.cc                 coot-molecule-modelling.cc \
 blender-mesh.cc              coot-molecule-blender.cc                         molecules-container-blender.cc \
 ghost-molecule-display.cc    model-analysis.cc                                coot-molecule-json.cc \
-molecules-container-pyrogen.cc                                                molecules-container-molecular-placement.cc
+coot-docstring-extract.cc    molecules-container-pyrogen.cc                   molecules-container-molecular-placement.cc
 
 libcoot_api_la_LDFLAGS = $(SHARED_LDFLAGS)            \
    $(top_builddir)/MoleculesToTriangles/CXXClasses/libMoleculesToTrianglesCXXClasses.la \

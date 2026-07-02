@@ -21,6 +21,7 @@ pkginclude_HEADERS = lbg-shared.hh lbg-molfile.hh lig-build.hh \
 	rdkit-interface.hh use-rdkit.hh cod-types.hh neighbour-sorter.hh \
 	bond-record-container-t.hh bond-table-record-t.hh \
 	cod-atom-types.hh cod-atom-type-t.hh primes.hh \
+	cod-types-similarity.hh \
 	chemical-feature-clusters.hh third-neighbour-info-t.hh get-residue.hh \
 	svg-molecule.hh svg-container.hh
 
@@ -38,6 +39,7 @@ AM_CPPFLAGS = \
 libcoot_lidia_core_la_SOURCES = lbg-shared.cc lbg-molfile.cc lig-build.cc \
 	rdkit-interface.cc cod-types.cc atom-types.cc bond-record-container-t.cc \
 	cod-atom-type-t.cc cod-atom-types.cc bond-table-record-t.cc \
+	cod-types-similarity.cc \
 	chemical-feature-clusters.cc get-residue.cc svg-molecule.cc
 
 # Are these needed?
@@ -67,7 +69,7 @@ libcoot_lidia_core_la_LDFLAGS = $(SHARED_LDFLAGS)
 
 # test_molfile_LDADD: libcoot-lidia-core.la
 
-check_PROGRAMS = test-lig-build
+check_PROGRAMS = test-lig-build test-cod-types-similarity
 
 test_lig_build_SOURCES = test-lig-build.cc
 
@@ -78,4 +80,9 @@ test_lig_build_LDFLAGS = -lcoot-lidia-core      \
    $(top_builddir)/utils/libcoot-utils.la       \
    $(CLIPPER_LIBS)                              \
    $(RDKIT_LIBS)
+
+# The normalize/load/search machinery is RDKit-free; link the lib for convenience.
+test_cod_types_similarity_SOURCES = test-cod-types-similarity.cc
+
+test_cod_types_similarity_LDADD = libcoot-lidia-core.la
 

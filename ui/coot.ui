@@ -11312,7 +11312,7 @@ Do you want to continue?
                     <property name="spacing">5</property>
                     <child>
                       <object class="GtkImage">
-                        <property name="icon-name">edit-delete</property>
+                        <property name="icon-name">edit-delete-symbolic</property>
                       </object>
                     </child>
                     <child>
@@ -11333,7 +11333,7 @@ Do you want to continue?
                     <property name="spacing">5</property>
                     <child>
                       <object class="GtkImage">
-                        <property name="icon-name">edit-undo</property>
+                        <property name="icon-name">edit-undo-symbolic</property>
                       </object>
                     </child>
                     <child>
@@ -11355,7 +11355,7 @@ Do you want to continue?
                     <property name="spacing">5</property>
                     <child>
                       <object class="GtkImage">
-                        <property name="icon-name">edit-redo</property>
+                        <property name="icon-name">edit-redo-symbolic</property>
                       </object>
                     </child>
                     <child>
@@ -13220,7 +13220,7 @@ density (too big to be waters):
                                 <property name="orientation">vertical</property>
                                 <child>
                                   <object class="GtkCheckButton" id="ncs_controller_molecule_n_display_ncs_checkbutton">
-                                    <property name="label" translatable="yes">xxx Display Non-cystallographic Ghosts</property>
+                                    <property name="label" translatable="yes">Display Non-cystallographic Ghosts</property>
                                     <property name="can-focus">1</property>
                                     <property name="use-underline">1</property>
                                   </object>
@@ -13236,7 +13236,7 @@ density (too big to be waters):
                                         <property name="orientation">vertical</property>
                                         <child>
                                           <object class="GtkLabel" id="label264">
-                                            <property name="label" translatable="yes">xxx Displayed Chains</property>
+                                            <property name="label" translatable="yes">Displayed Chains</property>
                                             <property name="justify">center</property>
                                             <property name="xalign">0.4</property>
                                           </object>
@@ -13246,7 +13246,7 @@ density (too big to be waters):
                                             <property name="orientation">vertical</property>
                                             <child>
                                               <object class="GtkCheckButton" id="ncs_controller_molecule_n_display_chain_ich_checkbutton">
-                                                <property name="label" translatable="yes">xxx Chain A</property>
+                                                <property name="label" translatable="yes">Chain A</property>
                                                 <property name="can-focus">1</property>
                                                 <property name="use-underline">1</property>
                                               </object>

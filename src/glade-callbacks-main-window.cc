@@ -1846,7 +1846,7 @@ on_glyco_wta_fit_button_clicked(G_GNUC_UNUSED GtkButton       *button,
          if (t == "NAG-NAG-BMA")            tt = "NAG-NAG-BMA";
          if (t == "High Mannose")           tt = "high-mannose";
          if (t == "Hybrid")                 tt = "hybrid";
-         if (t == "Mammalian Bianntennary") tt = "mammalian-biantennary";
+         if (t == "Mammalian Biantennary")  tt = "mammalian-biantennary";
          if (t == "Plant Bianntennary")     tt = "plant-biantennary";
          clipper::Xmap<float> xmap = g.molecules[imol_map].xmap;
          coot::residue_spec_t res_spec(coot::atom_spec_t(aa.second));

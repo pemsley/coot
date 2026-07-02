@@ -118,6 +118,9 @@ class LaylaState {
     void edit_redo();
     // Display
     void switch_display_mode(ligand_editor_canvas::DisplayMode mode);
+    // Search the monomer library for monomers similar to the current sketch
+    // (by acedrg/COD atom types) and show them as a grid of 2D thumbnails.
+    void search_for_similar_ligands();
 };
 
 /// Let this be the singleton used by the editor executable.

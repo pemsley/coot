@@ -2870,7 +2870,7 @@ public:        //                      public
    // ncs control
 
    void move_reference_chain_to_symm_chain_position(coot::Symm_Atom_Pick_Info_t naii);
-   void fill_ncs_control_frame(GtkWidget *dialog) const; // called for every coords mol
+   void fill_ncs_control_frame(GtkWidget *dialog); // called for every coords mol
    void fill_ncs_control_frame_internal(GtkWidget *dialog) const; // called if needed.
    void old_fill_ncs_control_frame_internal(GtkWidget *dialog) const; // delete one day
    void ncs_control_change_ncs_master_to_chain_update_widget(GtkWidget *w, int ichain) const;

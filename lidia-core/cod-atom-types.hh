@@ -129,4 +129,10 @@ namespace cod {
       get_cod_atom_types(RDKit::ROMol &rdkm, bool add_name_as_property = true);
    };
 
+   // Assign unique PDB-style atom names (per-element counter, 4-char padded) to
+   // any atom that does not already have a "name" property. A C++ port of
+   // pyrogen's add_atom_names(). get_cod_atom_types() requires a "name" on every
+   // atom; the names themselves do not affect the computed atom types.
+   void add_atom_names(RDKit::RWMol &mol);
+
 }

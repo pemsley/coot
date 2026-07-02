@@ -425,34 +425,29 @@ std::string Renderer::text_span_to_pango_markup(const TextSpan& span, const std:
             // std::cout<<html_color.str()<<' '<<style.color.r<<' '<<style.color.g<<' '<<style.color.b<<'\n';
             ret += "color=\"" + html_color.str() + "\" ";
         }
-        if(!style.size.empty()) {
-            ret += "size=\"" + style.size + "\" ";
+        // Subscripts/superscripts: set the size and shift the baseline
+        // explicitly instead of using Pango <sub>/<sup>. Since Pango 1.50 those
+        // tags derive their size from the font's OpenType subscript metrics,
+        // which on some platforms (notably macOS) renders them far too small.
+        // An explicit size + rise is font- and platform-independent.
+        const bool is_sub_or_super = (style.positioning == TextPositioning::Sub ||
+                                      style.positioning == TextPositioning::Super);
+        if(!style.size.empty() || is_sub_or_super) {
+            std::string sz = style.size.empty() ? std::string("medium") : style.size;
+            if(is_sub_or_super)
+                sz = (sz == "small" || sz == "x-small") ? "xx-small" : "x-small";
+            ret += "size=\"" + sz + "\" ";
         }
         if(!style.weight.empty()) {
             ret += "weight=\"" + style.weight + "\" ";
         }
-        ret += ">";
-        switch(style.positioning) {
-            case TextPositioning::Sub: {
-                ret += "<sub>";
-                break;
-            }
-            case TextPositioning::Super: {
-                // The string below begins with 
-                // the invisible U+200B unicode character.
-                // This is a workaround for what's likely 
-                // a bug in pango font rendering engine.
-                // Without it, the superscript is relative 
-                // to the subscript (atom count)
-                // instead of the atom's symbol
-                ret += "​<sup>";
-                break;
-            }
-            default:
-            case TextPositioning::Normal: {
-                // nothing
-            }
+        // rise is in Pango units (1/1024 pt); negative = down (subscript).
+        if(style.positioning == TextPositioning::Sub) {
+            ret += "rise=\"-3000\" ";
+        } else if(style.positioning == TextPositioning::Super) {
+            ret += "rise=\"5000\" ";
         }
+        ret += ">";
     }
     if(span.has_subspans()) {
         const auto& subspans = span.as_subspans();
@@ -468,20 +463,8 @@ std::string Renderer::text_span_to_pango_markup(const TextSpan& span, const std:
         ret += caption;
     }
     if(style_block) {
-        switch(span.style.positioning) {
-            case TextPositioning::Sub: {
-                ret += "</sub>";
-                break;
-            }
-            case TextPositioning::Super: {
-                ret += "</sup>";
-                break;
-            }
-            default:
-            case TextPositioning::Normal: {
-                // nothing
-            }
-        }
+        // The baseline shift and size for sub/superscripts are now span
+        // attributes (set above), so there are no <sub>/<sup> tags to close.
         ret += "</span>";
     }
     return ret;

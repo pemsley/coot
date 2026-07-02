@@ -59,6 +59,9 @@ namespace coot {
       std::pair<bool, clipper::Coord_orth> get_CA_position_in_residue(const gemmi::Residue &res);
       std::pair<bool, clipper::Coord_orth> get_CB_position_in_residue(const gemmi::Residue &res);
       short int is_nucleotide(const gemmi::Residue &r);
+      // true if the residue has no O2'/O2* (i.e. deoxyribose). gemmi atom names are
+      // unpadded, so we test "O2'"/"O2*" (not the mmdb-padded " O2'"/" O2*").
+      bool nucleotide_is_DNA(const gemmi::Residue &r);
       bool residue_has_hydrogens_p(const gemmi::Residue &res);
       int residue_has_hetatms(const gemmi::Residue &res);
 

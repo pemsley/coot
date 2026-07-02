@@ -8344,14 +8344,16 @@ molecule_class_info_t::get_save_molecule_filename(const std::string &dir) {
    graphics_info_t g;
    bool decolonify = g.decoloned_backup_file_names_flag;
    std::string t_name_1 = name_;
-   if (g.unpathed_backup_file_names_flag)
+   if (decolonify)
       t_name_1 = name_for_display_manager();
    std::string t_name_2 = replace_char(t_name_1, '/');
    std::string t_name_3 = replace_char(t_name_2, ' ');
+   std::string t_name_4 = replace_char(t_name_3, '(');
+   std::string t_name_5 = replace_char(t_name_4, ')');
 #ifdef WINDOWS_MINGW
    std::string t_name_x = replace_char(t_name_3, '\\');
    std::string t_name_y = replace_char(t_name_x, ':');
-   t_name_3 = t_name_y;
+   t_name_5 = t_name_y;
 #endif
 
    if (save_time_string.empty()) {
@@ -8370,10 +8372,10 @@ molecule_class_info_t::get_save_molecule_filename(const std::string &dir) {
          save_time_string = replace_char(save_time_string, ':');
    }
    std::string time_string = save_time_string;
-   std::string t_name_4 = t_name_3 + "_" + time_string;
+   std::string t_name_6 = t_name_5 + "_" + time_string;
 
    std::string index_string = coot::util::int_to_string(history_index);
-   std::string t_name_5 = t_name_4 + "_modification_" + index_string;
+   std::string t_name_7 = t_name_6 + "_modification_" + index_string;
 
    std::string extension = ".pdb";
    if (coot::is_mmcif_filename(name_))
@@ -8383,9 +8385,9 @@ molecule_class_info_t::get_save_molecule_filename(const std::string &dir) {
    if (g.backup_compress_files_flag)
       extension += ".gz";
 
-   std::string t_name_6 = t_name_5 + extension;
+   std::string t_name_8 = t_name_7 + extension;
 
-   std::string save_file_name = coot::util::append_dir_file(dir, t_name_6);
+   std::string save_file_name = coot::util::append_dir_file(dir, t_name_8);
    return save_file_name;
 
 }

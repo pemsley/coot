@@ -5684,9 +5684,7 @@ int test_user_defined_bond_colours_v2(molecules_container_t &mc) {
       if (ig.instancing_data_A.size() == 25) {
          // as it should be!
 
-         // VDW-BALLS is not a user-defined-colour mode, so the [11]th atom ("CA") must
-         // NOT pick up the user-defined colour (1,0,1) - user colours no longer leak
-         // into other colouring modes (see Bond_lines_container::atom_colour()).
+         // The colour of the [11]th atom ("CA") should be 1,0,1
 
          for (unsigned int i=0; i<25; i++) {
             const auto &sphere = ig.instancing_data_A[i];
@@ -5694,10 +5692,11 @@ int test_user_defined_bond_colours_v2(molecules_container_t &mc) {
                std::cout << "sphere " << i << " pos " << glm::to_string(sphere.position)
                          << " colour " << glm::to_string(sphere.colour) << std::endl;
             if (i == 11) { // the is "CA" the CA in the first residue (strangely)
-               bool is_user_colour = close_float(sphere.colour[0], 1.0) &&
-                                     close_float(sphere.colour[1], 0.0) &&
-                                     close_float(sphere.colour[2], 1.0);
-               status = is_user_colour ? 0 : 1;
+               status = 0;
+               if (close_float(sphere.colour[0], 1.0))
+                  if (close_float(sphere.colour[1], 0.0))
+                     if (close_float(sphere.colour[2], 1.0))
+                        status = 1;
             }
          }
 
@@ -5746,7 +5745,7 @@ int test_user_defined_bond_colours_v3(molecules_container_t &mc) {
 
    if (mc.is_valid_model_molecule(imol)) {
       std::map<unsigned int, std::array<float, 4> > colour_map;
-      colour_map[51] = {0.627, 0.529, 0.401};
+      colour_map[51] = {0.627, 0.529, 0.400};
       colour_map[52] = {0.424, 0.627, 0.400};
       colour_map[53] = {0.957, 0.263, 0.212};
       bool C_only = false;
@@ -5760,11 +5759,11 @@ int test_user_defined_bond_colours_v3(molecules_container_t &mc) {
 
       // now test the colours:
       auto bonds = mc.get_bonds_mesh_for_selection_instanced(imol, "/", mode, false, 0.2, 1.0, false, false, false, true, 1);
+      auto &geom = bonds.geom;
       auto ca = get_colour_analysis(bonds);
 
-      // User-defined colours must NOT leak into COLOUR-BY-CHAIN-AND-DICTIONARY mode;
-      // they apply only in USER-DEFINED-COLOURS mode (see Bond_lines_container::atom_colour()).
-      // So none of the user-defined colours should appear here.
+      // colour 53 supercedes/replaces the others
+      //
       bool col_51 = false;
       bool col_52 = false;
       bool col_53 = false;
@@ -5773,17 +5772,10 @@ int test_user_defined_bond_colours_v3(molecules_container_t &mc) {
          if (is_near_colour(ca_row.col, colour_map[51])) col_51 = true;
          if (is_near_colour(ca_row.col, colour_map[52])) col_52 = true;
          if (is_near_colour(ca_row.col, colour_map[53])) col_53 = true;
-         if (is_near_colour(ca_row.col, colour_map[51])) {
-            std::cout << "colour " << glm::to_string(ca_row.col) << " with " << ca_row.count
-                      << "counts is close to col 51" << std::endl;
-         }
       }
-      std::cout << "debug: test_user_defined_bond_colours_v3: col_51 " << col_51 << std::endl;
-      std::cout << "debug: test_user_defined_bond_colours_v3: col_52 " << col_52 << std::endl;
-      std::cout << "debug: test_user_defined_bond_colours_v3: col_53 " << col_53 << std::endl;
       if (col_51 == false)
          if (col_52 == false)
-            if (col_53 == false)
+            if (col_53 == true)
                status = true;
    }
 
@@ -5861,18 +5853,12 @@ int test_other_user_defined_colours_other(molecules_container_t &mc) {
          }
          std::vector<colour_analysis_row> ca_1 = get_colour_analysis(bonds_1);
          std::vector<colour_analysis_row> ca_3 = get_colour_analysis(bonds_3);
-         // Setting user-defined atom colours must NOT change COLOUR-BY-CHAIN-AND-DICTIONARY
-         // rendering - user-defined colours no longer leak into other colouring modes
-         // (see Bond_lines_container::atom_colour()). So the colour analysis before (ca_1)
-         // and after (ca_3) setting the user colours should be identical.
-         if (ca_1.size() == ca_3.size()) {
-            bool all_same = true;
-            for (unsigned int i=0; i<ca_1.size(); i++)
-               if (ca_1[i].count != ca_3[i].count)
-                  all_same = false;
-            if (all_same)
-               status = 1;
-         }
+         // different vec indices because UD colour becomes the first colour.
+         // This is weird. When run in "single test only" the indices need to
+         // be 4 and 3. It might have something to do with reading the ATP at the start.
+         //
+         if (ca_3[3].count == (ca_1[2].count - 85))
+            status = 1;
 
       }
    }
@@ -7153,6 +7139,50 @@ int test_rdkit_mol(molecules_container_t &mc) {
 }
 #endif
 
+#include <GraphMol/MolPickler.h>
+#include "utils/base64-encode-decode.hh"
+#include <GraphMol/ForceFieldHelpers/MMFF/MMFF.h>
+
+int test_rdkit_mol_pickle(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+
+   // setup
+   std::string smiles = "c1ncccc1(CCO)";
+   RDKit::ROMol *mol = RDKit::SmilesToMol(smiles);
+   RDKit::MolOps::addHs(*mol);
+   int conf_id = RDKit::DGeomHelpers::EmbedMolecule(*mol); //! returns conf id, or -1 on failure
+   if (conf_id < 0) {
+      // fail
+   } else {
+      std::pair<int, double> res = RDKit::MMFF::MMFFOptimizeMolecule(*mol); //! geometry cleanup
+      std::cout << "debug:: test_rdkit_mol_pickle(); res: " << res.first << " " << res.second << std::endl;
+      RDKIT_GRAPHMOL_EXPORT RDKit::MolPickler mp;
+      unsigned int pickleFlags = RDKit::PicklerOps::AtomProps
+         | RDKit::PicklerOps::BondProps
+         | RDKit::PicklerOps::MolProps;
+      std::string pickle_string;
+      mp.pickleMol(mol, pickle_string, pickleFlags);
+      std::string epm = moorhen_base64::base64_encode((const unsigned char*)pickle_string.c_str(), pickle_string.size());
+
+      if (false) {
+         std::cout << "pickle_string length " << pickle_string.size() << std::endl;
+         std::cout << "epm length " << epm.size() << std::endl;
+      }
+
+      // now do the test
+      int conf_id = 0;
+      int imol_new = mc.rdkit_mol_pickle_base64_to_molecule(epm, conf_id);
+      if (mc.is_valid_model_molecule(imol_new))
+         status = 1;
+   }
+
+#endif
+   return status;
+}
 
 
 int test_lsq_superpose(molecules_container_t &mc) {
@@ -8206,9 +8236,6 @@ int test_template(molecules_container_t &mc) {
 int n_tests = 0;
 static std::vector<std::pair<std::string, int> > test_results;
 
-// If set (via "--by-name <test-name>"), only the test with this exact name is run.
-static std::string g_only_test_name;
-
 void
 write_test_name(const std::string &test_name) {
 
@@ -8219,9 +8246,6 @@ write_test_name(const std::string &test_name) {
 
 int
 run_test(int (*test_func) (molecules_container_t &mc), const std::string &test_name, molecules_container_t &mc) {
-
-   if (! g_only_test_name.empty() && test_name != g_only_test_name)
-      return 0; // --by-name: skip this test (not run, not counted)
 
    n_tests++;
    write_test_name(test_name);
@@ -8287,14 +8311,6 @@ int main(int argc, char **argv) {
       std::string arg(argv[1]);
       if (arg == "last-test-only")
          last_test_only = true;
-      if (arg == "--by-name") {
-         if (argc > 2) {
-            g_only_test_name = argv[2];
-         } else {
-            std::cout << "Usage: " << argv[0] << " --by-name <test-name>" << std::endl;
-            return 1;
-         }
-      }
    }
 
    int all_tests_status = 1; // fail!
@@ -8542,12 +8558,8 @@ int main(int argc, char **argv) {
          // status += run_test(test_gaussian_surface_to_map_molecule, "gaussian-surface to map", mc);
          // status += run_test(test_density_mesh,          "density mesh",             mc);
          // status += run_test(test_molecular_placement_pipeline_r_chain, "MR R-chain", mc);
-         status += run_test(test_molecular_placement_pipeline, "MR pipeline", mc);
-
-         if (! g_only_test_name.empty() && n_tests == 0) {
-            std::cout << "ERROR:: --by-name: no test matched \"" << g_only_test_name << "\"" << std::endl;
-            return 1;
-         }
+         // status += run_test(test_molecular_placement_pipeline, "MR pipeline", mc);
+         status += run_test(test_rdkit_mol_pickle, "RDKit Mol Pickle", mc);
          if (status == n_tests) all_tests_status = 0;
 
          print_results_summary();

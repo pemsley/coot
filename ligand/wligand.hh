@@ -131,7 +131,8 @@ namespace coot {
                const std::vector <dict_torsion_restraint_t> &non_const_torsions,
                const std::vector<float> &torsion_set,
                const std::string &ligand_chain_id,
-               int isample);
+               int isample,
+               bool regularize_flag);
 
       // can throw a std::runtime_error
       // (if the dictionary/atoms are not found)

@@ -79,8 +79,7 @@ RDKit::RWMol molecules_container_t::get_rdkit_mol(const std::string &residue_nam
 #endif //RD_MOLPICKLE_H
 
 
-std::string
-molecules_container_t::get_rdkit_mol_pickle_base64(const std::string &residue_name, int imol_enc) {
+std::string molecules_container_t::get_rdkit_mol_pickle_base64(const std::string &residue_name, int imol_enc) {
 
    RDKIT_GRAPHMOL_EXPORT RDKit::MolPickler mp;
    std::string pickle_string;
@@ -108,7 +107,49 @@ molecules_container_t::get_rdkit_mol_pickle_base64(const std::string &residue_na
    }
    return pickle_string;
 }
-#endif
+
+//! given an rdkit molecule, create a new molecule and posssibly create a (minimal) dictionary
+//! if the compound_id is sane
+//!
+//! @param encoded_picked_string the base64 encoded pickle string
+//! @return the new molecule number. Return -1 on failure
+int molecules_container_t::rdkit_mol_pickle_base64_to_molecule(const std::string &encoded_picked_string, int conformer_id) {
+
+   int imol = -1;
+
+   std::string d = moorhen_base64::base64_decode(encoded_picked_string);
+   RDKit::ROMol mol;
+   RDKit::MolPickler::molFromPickle(d, mol);
+
+   int conf_id = 0;
+   std::string comp_id = "";
+
+   // try to get the residue name - sometimes it's not there
+   try {
+      mol.getProp("name", comp_id);
+   }
+   catch (const KeyErrorException &kee) {
+      std::cout << "DEBUG:: rdkit_mol_pickle_base64_to_molecule(): rdkit mol has no name prop" << std::endl;
+   }
+
+   mmdb::Residue *residue = coot::residue_from_rdkit_mol(mol, conf_id, comp_id);
+   if (residue) {
+      mmdb::Manager *mmol = coot::util::create_mmdbmanager_from_residue(residue);
+      int imol_in_hope = molecules.size();
+      atom_selection_container_t atom_sel = make_asc(mmol);
+      coot::molecule_t m = coot::molecule_t(comp_id,  imol_in_hope);
+      m.atom_sel = atom_sel;
+      molecules.push_back(m);
+      imol = imol_in_hope;
+   } else {
+      std::cout << "DEBUG:: rdkit_mol_pickle_base64_to_molecule(): null residue from residue_from_rdkit_mol()"
+                << std::endl;
+   }
+
+   return imol;
+}
+
+#endif // MAKE_ENHANCED_LIGAND_TOOLS - it a block - not just this function
 
 
 //! Ligand Fit

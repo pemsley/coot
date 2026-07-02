@@ -34,6 +34,7 @@
 
 #include "primes.hh"
 #include "cod-atom-types.hh"
+#include "cod-types-similarity.hh"
 
 
 void
@@ -1108,6 +1109,95 @@ cod::atom_types_t::make_hash_index(const RDKit::Atom *at, const cod::primes &pri
 		<< std::endl;
    }
    return hash_value;
+}
+
+
+// Compute the normalized non-H acedrg/COD type set for an RDKit molecule.
+// A sanitized copy is typed, so the input molecule is not modified.
+// Can throw std::runtime_error (from the atom typer).
+std::set<std::string>
+cod::normalized_types_for_rdkit_mol(const RDKit::ROMol &mol_in) {
+
+   std::set<std::string> result;
+
+   // get_cod_atom_types() needs a non-const ROMol (no const beginAtoms()), and
+   // sanitization may modify the molecule, so work on a copy.
+   RDKit::RWMol mol(mol_in);
+   coot::rdkit_mol_sanitize(mol);
+
+   // The acedrg/COD types count explicit hydrogen neighbours (the database type
+   // strings contain H), but a freshly-sketched molecule carries its hydrogens
+   // implicitly - so make them explicit to match the reference database.
+   RDKit::MolOps::addHs(mol);
+
+   // get_cod_atom_types() reads an atom "name" property. A sketched molecule has
+   // none, so create temporary PDB-style names on the fly. The names do not
+   // affect the computed types.
+   cod::add_atom_names(mol);
+
+   cod::atom_types_t typer;
+   std::vector<cod::atom_type_t> types = typer.get_cod_atom_types(mol);
+   for (const auto &at : types) {
+      const std::string &l4 = at.level_4;
+      if (l4 == "H") continue;
+      if (l4.compare(0, 2, "H(") == 0) continue;
+      result.insert(cod::normalize_atom_type(l4));
+   }
+   return result;
+}
+
+
+// PDB-style 4-character padding (a port of pyrogen's pad_atom_name()).
+static std::string pad_atom_name(const std::string &name, const std::string &element) {
+   std::string padded = name;
+   if (element.length() == 1) {
+      if (name.length() == 2) padded = " " + name + " ";
+      if (name.length() == 3) padded = " " + name;
+   }
+   if (element.length() == 2) {
+      if (name.length() == 2) padded = name + "  ";
+      if (name.length() == 3) padded = name + " ";
+   }
+   return padded;
+}
+
+// A C++ port of pyrogen's add_atom_names(): give every atom that lacks a "name"
+// property a unique PDB-style name (per-element counter, e.g. " C1 ", " O2 ",
+// "CL1 "), avoiding clashes with names already present.
+void
+cod::add_atom_names(RDKit::RWMol &mol) {
+
+   std::map<unsigned int, int> nz; // atomic number -> running count
+   std::set<std::string> atom_names;
+
+   // collect names that are already set
+   for (unsigned int iat=0; iat<mol.getNumAtoms(); iat++) {
+      std::string n;
+      if (mol.getAtomWithIdx(iat)->getPropIfPresent("name", n))
+         atom_names.insert(n);
+   }
+
+   for (unsigned int iat=0; iat<mol.getNumAtoms(); iat++) {
+      RDKit::Atom *at = mol.getAtomWithIdx(iat);
+      if (at->hasProp("name")) continue;
+
+      unsigned int z = at->getAtomicNum();
+      nz[z] = (nz.find(z) != nz.end()) ? (nz[z] + 1) : 1;
+
+      std::string ele = at->getSymbol();
+      for (auto &c : ele) c = std::toupper(static_cast<unsigned char>(c));
+
+      int inc = 0;
+      std::string name = ele + std::to_string(nz[z] + inc);
+      std::string p_name = pad_atom_name(name, ele);
+      while (atom_names.find(p_name) != atom_names.end()) {
+         inc++;
+         name = ele + std::to_string(nz[z] + inc);
+         p_name = pad_atom_name(name, ele);
+      }
+      at->setProp("name", p_name);
+      atom_names.insert(p_name);
+   }
 }
 
 

@@ -377,6 +377,18 @@ molecule_class_info_t::fill_ghost_info(short int do_rtops_flag,
 
          // std::cout << "DEUBG:: in fill_ghost_info() nchains is " << nchains << std::endl;
 
+         // NCS ghost finding costs O(nchains * natoms) for the per-chain atom
+         // selections and O(nchains^2) for the pairwise chain matching. For
+         // structures with very many chains (large cryo-EM assemblies, e.g. a
+         // capsid with thousands of chains) this is both prohibitively slow and
+         // not useful, so don't attempt it.
+         const int ncs_ghost_chain_limit = 100;
+         if (nchains > ncs_ghost_chain_limit) {
+            logger.log(log_t::INFO, logging::function_name_t("fill_ghost_info"),
+                       "skipping NCS ghost search - too many chains:", std::to_string(nchains));
+            return 0;
+         }
+
          if (nchains <= 0) {
             std::cout << "bad nchains in molecule " << nchains
                       << std::endl;
@@ -478,7 +490,7 @@ molecule_class_info_t::add_ncs_ghosts_no_explicit_master(const std::vector<std::
                                                          bool allow_offset_flag) {
 
    // debug input
-   if (true) {
+   if (false) {
       std::cout << "DEBUG:: in add_ncs_ghosts_no_explicit_master() ncs chain_ids are ";
       for (unsigned int i=0; i<chain_ids.size(); i++) {
          std::cout << ":" << chain_ids[i] << ": ";

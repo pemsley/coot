@@ -781,6 +781,13 @@ coot::atom_overlaps_container_t::make_all_atom_overlaps() {
                               if (! kludge_filter(at_1, at_2)) {
                                  double ovl = get_overlap_volume(d, r_2, r_1);
                                  atom_overlap_t ao(pscontact[i].id2, at_1, at_2, r_1 ,r_2, ovl);
+                                 // flag H-bonds, as make_overlaps() does, so that an overlap
+                                 // that is actually a favourable H-bond (H...acceptor) is not
+                                 // mistaken for a clash. (The h_bond_info_t constructor is
+                                 // symmetric in its two atoms.)
+                                 h_bond_info_t hbi(at_1, at_2, udd_h_bond_type_handle);
+                                 if (hbi.is_h_bond_H_and_acceptor)
+                                    ao.is_h_bond = true;
                                  overlaps.push_back(ao);
                               }
                            }
@@ -1535,7 +1542,7 @@ coot::atom_overlaps_container_t::all_atom_contact_dots(double dot_density_in,
 
          unsigned int n_threads = get_max_number_of_threads();
 
-         n_threads = 1;
+         // n_threads = 1; // 20260621-PE why was this here?
 
          if (n_threads == 0) {
             ao = all_atom_contact_dots_internal_single_thread(dot_density_in, mol, i_sel_hnd, i_sel_hnd,

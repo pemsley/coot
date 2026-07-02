@@ -191,7 +191,8 @@ coot::regularize_minimol_molecule(const coot::minimol::molecule &molin,
                                                    pseudos);
 
       if (nrestraints > 0) {
-         restraints.minimize(flags);
+         int n_steps_max = 30;
+         restraints.minimize(flags,n_steps_max);
       }
 
       m = coot::minimol::molecule(mol);

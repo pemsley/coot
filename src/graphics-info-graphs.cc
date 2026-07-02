@@ -438,6 +438,7 @@ get_validation_data_for_rotamer_analysis(int imol) {
 
    if (nSelResidues > 2) {
 
+      graphics_info_t g;
       for (int ir=0; ir<nSelResidues; ir++) {
          mmdb::Residue *residue_p = SelResidues[ir];
          coot::residue_spec_t res_spec(residue_p);
@@ -448,16 +449,29 @@ get_validation_data_for_rotamer_analysis(int imol) {
 
          // double residue_density_score = coot::util::map_score(residue_atoms, n_residue_atoms, xmap, 1);
 
-         if (n_residue_atoms > 5) {
+         // Use the heavy-atom count, not the total atom count, so that the set of
+         // residues plotted does not depend on whether hydrogens have been added.
+         // (GLY and ALA have <= 5 heavy atoms and so are correctly skipped here.)
+         int n_heavy_atoms = 0;
+         for (int iat=0; iat<n_residue_atoms; iat++) {
+            std::string ele(residue_atoms[iat]->element);
+            if (ele != " H" && ele != " D")
+               n_heavy_atoms++;
+         }
 
-            // std::string res_name = residue_p->GetResName();
+         if (n_heavy_atoms > 5) {
+
+            std::string res_name = residue_p->GetResName();
             // coot::rotamer rot(residue_p);
             // coot::rotamer_probability_info_t rpi = rot.probability_of_this_rotamer();
+
+            // belt and braces test
+            if (res_name == "ALA") continue;
+            if (res_name == "GLY") continue;
 
             // 2026-03-02-PE - new style
             const std::string alt_conf;
             float rotamer_lowest_probability = 0.01;
-            graphics_info_t g;
             coot::rotamer_probability_info_t d_score = g.get_rotamer_probability(residue_p, alt_conf, mol, rotamer_lowest_probability, 1);
             float prob = d_score.probability;
             // std::cout << "probs " << coot::residue_spec_t(residue_p) << " :  " << prob << " " << d_score.probability << std::endl;

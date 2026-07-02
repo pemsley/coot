@@ -78,7 +78,7 @@ endif
 # for pure coordinates (mmdb) things
 # - note to self: don't some of these include usage of clipper::Coord_orth - which
 # means that we should add $CLIPPER_LIBS to libcoot_coord_utils_la_LDADD
-libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc coot-coord-utils-gemmi.cc \
+libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc coot-coord-utils-mmdb-free.cc coot-coord-utils-gemmi.cc \
 	coot-coord-utils-nucleotides.cc coot-rama.cc coot-h-bonds.cc hole.cc read-sm-cif.cc \
 	bonded-pairs.cc helix-analysis.cc elastic.cc glyco-torsions.cc coot-least-squares.cc \
 	atom-overlaps.cc reduce.cc atom-selection-container.cc contact-info.cc coot-shelx-ins.cc \

@@ -509,9 +509,12 @@ molecule_class_info_t::fill_symmetry_control_frame(GtkWidget *symmetry_controlle
 
 // NCS control
 void
-molecule_class_info_t::fill_ncs_control_frame(GtkWidget *ncs_control_dialog) const {
+molecule_class_info_t::fill_ncs_control_frame(GtkWidget *ncs_control_dialog) {
 
    if (atom_sel.n_selected_atoms > 0) {
+      if (ncs_ghosts.empty())
+         fill_ghost_info(1, 0.7);
+      std::cout << "debug:: fill_ncs_control_frame() ncs_ghosts size " << ncs_ghosts.size() << std::endl;
       if (ncs_ghosts.size() > 0) {
          fill_ncs_control_frame_internal(ncs_control_dialog);
       }
@@ -525,10 +528,13 @@ molecule_class_info_t::fill_ncs_control_frame(GtkWidget *ncs_control_dialog) con
 void
 molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_dialog) const {
 
-   if (! ncs_control_dialog) return;
+   if (! ncs_control_dialog) {
+      std::cout << "debug:: =================== fill_ncs_control_frame_internal() null dialog!" << std::endl;
+      return;
+   }
 
    GtkWidget *ncs_control_vbox = widget_from_builder("ncs_control_vbox");
-   graphics_info_t::clear_out_container(ncs_control_vbox);
+   // graphics_info_t::clear_out_container(ncs_control_vbox);
 
    std::string m("Molecule ");
    m += dotted_chopped_name();

@@ -115,7 +115,7 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
 		  std::cout << "\"" <<  torsion_restraint_atom_names[iname_2] << "\" ";
 	       std::cout << std::endl;
 	    }
-	    
+
 	    int n_match = 0;
 	    for (unsigned int iname_1=0; iname_1<ring_atom_names.size(); iname_1++) {
 	       for (unsigned int iname_2=0; iname_2<torsion_restraint_atom_names.size(); iname_2++) { 
@@ -138,14 +138,14 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
    } else {
       // urgh.  What to do...
       non_const_non_ring_torsions = non_const_torsions;
-   } 
- 
+   }
+
    if (false)
       std::cout << "This residue has " << m_torsions.size() << " defined non-H torsions "
 	        << "of which " << n_non_const_torsionable << " are (non-const) rotatable and "
 	        << non_const_non_ring_torsions.size() << " are non-const and non-ring torsions"
 	        << std::endl;
-   
+
    if (debug_wiggly_ligands) {
       for (unsigned int itor=0; itor<m_torsions.size(); itor++) { 
 	 std::cout << " non-H torsion:   " << itor << " " << m_torsions[itor] << "\n";
@@ -155,12 +155,12 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
 		   << non_const_non_ring_torsions[itor] << "\n";
       }
    }
-   
+
    if (non_const_non_ring_torsions.empty()) {
 
       // " Did you forget to read the dictionary?";
-      
-      std::pair<bool, dictionary_residue_restraints_t> p = 
+
+      std::pair<bool, dictionary_residue_restraints_t> p =
 	 pg->get_monomer_restraints(monomer_type, imol_ligand);
 
       m = "Requested flexible molecule for ligand ";
@@ -239,7 +239,7 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
                                       tree.set_dihedral_multi(v);
                                       minimol::residue wiggled_ligand_residue = tree.GetResidue();
                                       wl = optimize(wiggled_ligand_residue, pg, non_const_non_ring_torsions,
-                                                    torsion_set, ligand_chain_id, isample);
+                                                    torsion_set, ligand_chain_id, isample, optimize_geometry_flag);
                                    }
                                    catch (const std::runtime_error &rte) {
                                       // std::cout << ".... rte isample " << isample << " " << rte.what() << std::endl;
@@ -258,7 +258,7 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
                                          minimol::residue wiggled_ligand_residue = tree.GetResidue();
 
                                          wl = optimize(wiggled_ligand_residue, pg, non_const_non_ring_torsions,
-                                                       torsion_set, ligand_chain_id, isample);
+                                                       torsion_set, ligand_chain_id, isample, optimize_geometry_flag);
                                          delete r;
                                       }
                                       catch (const std::runtime_error &rte_inner) {
@@ -279,7 +279,17 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
 
       std::atomic<int> count(0);
 
+      // Throttle the number of conformer jobs that are in flight at once. The
+      // shared thread pool has more workers than we want to use here - running
+      // every conformer's refinement concurrently blows the (32-bit WASM) memory
+      // ceiling. Keep at most n_threads jobs queued/running at a time.
+      int max_in_flight = (n_threads > 0) ? n_threads : 1;
+
       for (int isample=0; isample<n_samples; isample++) {
+
+         while ((isample - count) >= max_in_flight)
+            std::this_thread::sleep_for(std::chrono::milliseconds(5));
+
          std::vector<float> torsion_set = get_torsions_by_random(non_const_non_ring_torsions);
 
          thread_pool_p->push(make_a_wiggled_ligand, isample, std::cref(ligand_in), torsion_set,
@@ -553,15 +563,26 @@ coot::wligand::optimize(const coot::minimol::residue &wiggled_ligand_residue,
                         const std::vector <dict_torsion_restraint_t> &non_const_torsions,
                         const std::vector<float> &torsion_set,
                         const std::string &ligand_chain_id,
-                        int isample) {
+                        int isample,
+                        bool regularize_flag) {
+
+   std::cout << "DEBUG:: -------- starting optimize() " << isample << std::endl;
+
    installed_wiggly_ligand_info_t wl;
 
    minimol::fragment wiggled_ligand_frag(ligand_chain_id);
-   try { 
+   try {
       wiggled_ligand_frag.addresidue(wiggled_ligand_residue, 0);
       minimol::molecule wiggled_ligand(wiggled_ligand_frag);
-      minimol::molecule reg_ligand = regularize_minimol_molecule(wiggled_ligand, pg);
-      wl.mol = reg_ligand;
+      // regularize_minimol_molecule() sets up a full restraints container per
+      // conformer - expensive in both CPU and memory. Only do it when the caller
+      // actually asked for geometry optimization.
+      if (regularize_flag) {
+         minimol::molecule reg_ligand = regularize_minimol_molecule(wiggled_ligand, pg);
+         wl.mol = reg_ligand;
+      } else {
+         wl.mol = wiggled_ligand;
+      }
       wl.add_torsions(non_const_torsions, torsion_set);
    }
    catch (const std::runtime_error &rte) {

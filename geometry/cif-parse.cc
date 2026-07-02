@@ -27,6 +27,7 @@
 #include <map>
 #include <algorithm>  // needed for sort? Yes.
 #include <stdexcept>  // Thow execption.
+#include <string>
 
 #include "mini-mol/atom-quads.hh"
 #include "geometry/protein-geometry.hh"
@@ -160,6 +161,14 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 
    } else {
 
+      // return the size of the file in bytes, or -1 if it could not be opened.
+      auto length_of_file = [] (const std::string &file_name) -> int {
+         std::ifstream f(file_name.c_str(), std::ios::binary | std::ios::ate);
+         if (! f)
+            return -1;
+         return static_cast<int>(f.tellg());
+      };
+
       int ierr = ciffile.ReadMMCIFFile(ciffilename.c_str());
       std::string comp_id_1;
       std::string comp_id_2;  // initially unset
@@ -184,9 +193,18 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
          s = mmdb::GetErrorDescription(mmdb::ERROR_CODE(ierr));
          rmit.error_messages.push_back(s);
          clipper::String cs = "CIF error rc=";
-         cs += ierr;
-         cs += " reason:";
+         cs += std::to_string(ierr);
+         cs += "\nreason:";
          cs += mmdb::mmcif::GetCIFMessage (err_buff, ierr);
+         // was it a failed download?
+         int ll = length_of_file(ciffilename);
+         if (ll < 0) {
+            cs += "\nFile could not be opened.";
+         } else {
+            if (ll < 100) {
+               cs += "\nFile consists of only " + std::to_string(ll) + " bytes.";
+            }
+         }
          rmit.error_messages.push_back(cs);
 
       } else {

@@ -181,3 +181,17 @@ geteigen() {
     fi
     echo
 }
+
+getzlib() {
+    cdcheckout
+    if [ -r zlib-$zlib_release ]; then
+        echo "Using existing zlib"
+    else
+        echo "Downloading zlib source"
+        curl -fL https://github.com/madler/zlib/archive/refs/tags/v$zlib_release.tar.gz -o zlib_$zlib_release.tar.gz || fail "Failed to download zlib source"
+        echo
+        echo "Unpacking zlib source"
+        tar xf "zlib_$zlib_release.tar.gz" || fail "Failed to unpack zlib source"
+    fi
+    echo
+}
