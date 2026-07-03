@@ -14,73 +14,36 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # Lesser General Public License for more details.
 
-"""Natural-language command interface for Coot.
+"""Entry point for Coot's natural-language Command tab.
 
-The C++ "Command" terminal tab passes each line the user types to
-``run_command()``.  This module parses that text into a Coot Python API
-call and executes it.  Because all of the parsing lives here (pure
-Python), new commands can be added by editing this file and
-re-installing - no C++ recompile is needed.
-
-To add a command, write a handler that takes the regex ``match`` object
-and returns a human-readable string, then register it in ``COMMANDS``
-with a regex pattern.  Patterns are matched against the lower-cased,
-whitespace-normalised input.
+The C++ Command terminal calls :func:`run_command` with each line the
+user types.  This module is deliberately thin: it delegates to the
+:mod:`coot_commands` package, where the registry and the individual
+command modules live.  Keeping this shim stable means the C++ side never
+has to change as commands are added.
 """
-
-import re
-
-try:
-    import coot
-except ImportError:
-    coot = None
-
-
-def _set_model_displayed(match, state):
-    imol = int(match.group("imol"))
-    if coot is not None:
-        coot.set_mol_displayed(imol, state)
-    return ("Showing" if state else "Hiding") + " model %d" % imol
-
-
-def _cmd_show_model(match):
-    return _set_model_displayed(match, 1)
-
-
-def _cmd_hide_model(match):
-    return _set_model_displayed(match, 0)
-
-
-# Each entry is (compiled_pattern, handler).  Handlers receive the regex
-# match object and return a message string.  The first pattern that
-# matches wins, so order from most to least specific.
-COMMANDS = [
-    (re.compile(r"^(?:show|display)\s+model\s+(?P<imol>\d+)$"),     _cmd_show_model),
-    (re.compile(r"^(?:hide|undisplay)\s+model\s+(?P<imol>\d+)$"),   _cmd_hide_model),
-]
 
 
 def run_command(text):
     """Parse *text* and execute the matching Coot command.
 
     Returns a string describing the outcome, suitable for display in the
-    Command terminal.  Never raises: parsing or execution errors are
-    reported in the returned string instead.
+    Command terminal.  Never raises: import, parsing, or execution errors
+    are reported in the returned string instead.
     """
-    if text is None:
+    if text is None or not text.strip():
         return ""
-    # Normalise: collapse internal whitespace and lower-case for matching.
-    stripped = text.strip()
-    if not stripped:
-        return ""
-    normalised = re.sub(r"\s+", " ", stripped).lower()
 
-    for pattern, handler in COMMANDS:
-        match = pattern.match(normalised)
-        if match:
-            try:
-                return handler(match)
-            except Exception as e:
-                return "Error running %r: %s" % (stripped, e)
+    try:
+        from coot_commands.registry import dispatch
+    except Exception as e:
+        return f"Error: could not load command modules: {e}"
 
-    return "Unrecognised command: %r" % stripped
+    try:
+        result = dispatch(text)
+    except Exception as e:
+        return f"Error running {text.strip()!r}: {e}"
+
+    if result is None:
+        return f"Unrecognised command: {text.strip()!r}  (try \"help\")"
+    return result

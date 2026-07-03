@@ -45,6 +45,24 @@ dist_pkgpython_PYTHON = \
    coot_command_interface.py \
    $(TEXI_FILE)
 
+# Natural-language command interface package. The nobase_ prefix preserves the
+# coot_commands/ directory layout under site-packages so it stays importable.
+# Add each new command module here (e.g. coot_commands/commands/maps.py).
+nobase_dist_pkgpython_PYTHON = \
+   coot_commands/__init__.py                  \
+   coot_commands/registry.py                  \
+   coot_commands/types.py                     \
+   coot_commands/docs.py                      \
+   coot_commands/commands/__init__.py         \
+   coot_commands/commands/display.py          \
+   coot_commands/commands/fetch.py            \
+   coot_commands/commands/view.py             \
+   coot_commands/commands/maps.py             \
+   coot_commands/commands/navigation.py       \
+   coot_commands/commands/representation.py   \
+   coot_commands/commands/labels.py           \
+   coot_commands/commands/help.py
+
 # VTE REPL helper script — installed to pkgdatadir/python/ (not site-packages)
 # because it is executed as a subprocess, not imported as a module.
 vtepythondir = $(pkgdatadir)/python
