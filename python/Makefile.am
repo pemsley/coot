@@ -42,6 +42,7 @@ dist_pkgpython_PYTHON = \
    coot_chemical_feature_clusters.py coot_res_spec_utils.py coot_output_to_window.py \
    populate_python_menus.py coot_hole.py refine.py what_check.py coot_servalcat_outliers.py \
    coot_testing_utils.py point_group_symmetry.py gphl_screen.py \
+   coot_command_interface.py \
    $(TEXI_FILE)
 
 # VTE REPL helper script — installed to pkgdatadir/python/ (not site-packages)

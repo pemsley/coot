@@ -670,6 +670,115 @@ on_vte_notebook_switch_page(GtkNotebook *notebook, GtkWidget *page, guint page_n
       spawn_claude_in_vte();
 }
 
+// ---------------------------------------------------------------------------
+//   Natural-language "Command" tab
+// ---------------------------------------------------------------------------
+//
+// Unlike the Python and AI tabs, this is not a VTE terminal. It is a simple
+// output text view plus an input entry. Each line the user types is handed to
+// the Python function coot_command_interface.run_command(), which parses the
+// natural-language text into a Coot API call and executes it. All of the
+// parsing lives in Python, so new commands can be added by editing
+// python/coot_command_interface.py and re-installing - no C++ recompile needed.
+
+static GtkWidget *command_output_view = nullptr;
+static GtkWidget *command_entry_widget = nullptr;
+
+static void command_output_append(const std::string &text) {
+
+   if (!command_output_view) return;
+   GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(command_output_view));
+   GtkTextIter end;
+   gtk_text_buffer_get_end_iter(buffer, &end);
+   gtk_text_buffer_insert(buffer, &end, text.c_str(), -1);
+
+   // Scroll so the newly-inserted text is visible
+   gtk_text_buffer_get_end_iter(buffer, &end);
+   GtkTextMark *mark = gtk_text_buffer_create_mark(buffer, nullptr, &end, FALSE);
+   gtk_text_view_scroll_mark_onscreen(GTK_TEXT_VIEW(command_output_view), mark);
+   gtk_text_buffer_delete_mark(buffer, mark);
+}
+
+static void run_natural_language_command(const std::string &input) {
+
+   // Escape the input so it can be embedded in a double-quoted Python string
+   // literal. The input is a single line (from a GtkEntry), so we only need to
+   // guard backslashes and double-quotes.
+   std::string esc;
+   for (char c : input) {
+      if (c == '\\' || c == '"') esc += '\\';
+      esc += c;
+   }
+
+   // __import__ returns the already-cached module, so this stays a single
+   // expression (Py_eval_input) and needs no separate import statement.
+   std::string code =
+      "__import__('coot_command_interface').run_command(\"" + esc + "\")";
+   execute_python_results_container_t rc = execute_python_code_with_result_internal(code);
+
+   std::string message;
+   if (!rc.error_message.empty()) {
+      message = "Error: " + rc.error_message;
+   } else if (rc.result && PyUnicode_Check(rc.result)) {
+      const char *s = PyUnicode_AsUTF8(rc.result);
+      if (s) message = s;
+   } else if (rc.result && rc.result != Py_None) {
+      PyObject *str_obj = PyObject_Str(rc.result);
+      if (str_obj) {
+         const char *s = PyUnicode_AsUTF8(str_obj);
+         if (s) message = s;
+         Py_DECREF(str_obj);
+      }
+   }
+
+   if (!rc.stdout.empty())
+      command_output_append(rc.stdout);
+   if (!message.empty())
+      command_output_append(message + "\n");
+}
+
+static void on_command_entry_activate(GtkEntry *entry, gpointer user_data) {
+
+   const char *text = gtk_editable_get_text(GTK_EDITABLE(entry));
+   if (!text) return;
+   std::string input(text);
+   if (input.find_first_not_of(" \t") == std::string::npos) return; // blank line
+
+   command_output_append("> " + input + "\n");
+   run_natural_language_command(input);
+   gtk_editable_set_text(GTK_EDITABLE(entry), "");
+}
+
+static GtkWidget *create_command_tab_widget() {
+
+   GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
+
+   GtkWidget *scrolled = gtk_scrolled_window_new();
+   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled),
+                                  GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+   gtk_widget_set_vexpand(scrolled, TRUE);
+
+   command_output_view = gtk_text_view_new();
+   gtk_text_view_set_editable(GTK_TEXT_VIEW(command_output_view), FALSE);
+   gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(command_output_view), FALSE);
+   gtk_text_view_set_monospace(GTK_TEXT_VIEW(command_output_view), TRUE);
+   gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(command_output_view), GTK_WRAP_WORD_CHAR);
+   gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled), command_output_view);
+
+   command_entry_widget = gtk_entry_new();
+   gtk_entry_set_placeholder_text(GTK_ENTRY(command_entry_widget),
+                                  "Type a command, e.g. \"show model 0\"");
+   g_signal_connect(command_entry_widget, "activate",
+                    G_CALLBACK(on_command_entry_activate), nullptr);
+
+   gtk_box_append(GTK_BOX(box), scrolled);
+   gtk_box_append(GTK_BOX(box), command_entry_widget);
+
+   command_output_append("Coot command interface. Try: show model 0 / hide model 0\n");
+
+   return box;
+}
+
 void setup_claude_vte_terminal() {
 
    // Set up lazily and only once. Doing this at startup reparented the Python VTE
@@ -724,6 +833,11 @@ void setup_claude_vte_terminal() {
    // Add the Claude terminal tab
    GtkWidget *ai_label = gtk_label_new("AI");
    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), claude_vte_scrolled_widget, ai_label);
+
+   // Add the natural-language Command tab
+   GtkWidget *command_widget = create_command_tab_widget();
+   GtkWidget *cmd_label = gtk_label_new("Command");
+   gtk_notebook_append_page(GTK_NOTEBOOK(notebook), command_widget, cmd_label);
 
    // Put the notebook into the paned
    gtk_paned_set_end_child(GTK_PANED(vte_paned_widget), notebook);
@@ -791,6 +905,56 @@ void show_claude_vte_terminal() {
    spawn_claude_in_vte();
    if (claude_vte_terminal_widget)
       gtk_widget_grab_focus(claude_vte_terminal_widget);
+}
+
+// The Command tab lives in the same notebook as the Python and AI tabs
+// (page 2). setup_claude_vte_terminal() creates that notebook and adds all
+// three tabs, so we reuse it here for lazy first-time setup.
+
+void show_command_vte_terminal() {
+
+   if (!vte_paned_widget) return;
+
+   GtkWidget *notebook = GTK_WIDGET(
+      g_object_get_data(G_OBJECT(vte_paned_widget), "vte_notebook"));
+   if (!notebook) {
+      setup_claude_vte_terminal(); // lazy first-time setup
+      notebook = GTK_WIDGET(g_object_get_data(G_OBJECT(vte_paned_widget), "vte_notebook"));
+      if (!notebook) return;
+   }
+
+   gtk_widget_set_visible(notebook, TRUE);
+   gtk_notebook_set_current_page(GTK_NOTEBOOK(notebook), 2);
+   if (command_entry_widget)
+      gtk_widget_grab_focus(command_entry_widget);
+}
+
+void toggle_command_vte_terminal_visibility() {
+
+   if (!vte_paned_widget) return;
+
+   GtkWidget *notebook = GTK_WIDGET(
+      g_object_get_data(G_OBJECT(vte_paned_widget), "vte_notebook"));
+   if (!notebook) {
+      setup_claude_vte_terminal(); // lazy first-time setup
+      notebook = GTK_WIDGET(g_object_get_data(G_OBJECT(vte_paned_widget), "vte_notebook"));
+      if (!notebook) return;
+   }
+
+   gboolean visible = gtk_widget_get_visible(notebook);
+   if (visible) {
+      // If already showing the Command tab, hide the notebook
+      int current_page = gtk_notebook_get_current_page(GTK_NOTEBOOK(notebook));
+      if (current_page == 2) {
+         gtk_widget_set_visible(notebook, FALSE);
+         return;
+      }
+   }
+
+   gtk_widget_set_visible(notebook, TRUE);
+   gtk_notebook_set_current_page(GTK_NOTEBOOK(notebook), 2);
+   if (command_entry_widget)
+      gtk_widget_grab_focus(command_entry_widget);
 }
 
 #endif // HAVE_VTE
