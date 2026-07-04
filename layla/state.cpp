@@ -515,7 +515,9 @@ void LaylaState::file_save() {
 void LaylaState::save_file(unsigned int idx, const char* filename, GtkWindow* parent) noexcept {
     try {
         const auto* mol = coot_ligand_editor_canvas_get_rdkit_molecule(this->canvas, idx);
-        RDKit::MolToMolFile(*mol,std::string(filename));
+        auto format = coot::layla::io::format_from_extension(filename)
+                          .value_or(coot::layla::io::CheminformaticsFileFormat::Molfile);
+        coot::layla::io::mol_to_file(*mol, std::string(filename), format);
         g_info("MolFile Save: Molecule file saved.");
         this->update_status("File saved.");
         this->current_filesave_filename = std::string(filename);
@@ -543,6 +545,26 @@ void LaylaState::run_file_save_dialog(unsigned int molecule_idx) noexcept {
     // This isn't the best practice but it tremendously simplifies things
     // by saving us from unnecessary boilerplate.
     g_object_set_data(G_OBJECT(save_dialog), "ligand_builder_instance", this);
+
+    // Offer a pickable list of output formats. The chosen format is ultimately
+    // taken from the resulting filename's extension in save_file().
+    GListStore* filters = g_list_store_new(GTK_TYPE_FILE_FILTER);
+    auto add_filter = [filters](const char* name, std::initializer_list<const char*> suffixes) {
+        GtkFileFilter* filter = gtk_file_filter_new();
+        gtk_file_filter_set_name(filter, name);
+        for(const char* suffix : suffixes) {
+            gtk_file_filter_add_suffix(filter, suffix);
+        }
+        g_list_store_append(filters, filter);
+        g_object_unref(filter);
+    };
+    add_filter("MDL Molfile (*.mol, *.mdf)", {"mol", "mdf"});
+    add_filter("SDF (*.sdf)", {"sdf"});
+    add_filter("InChI (*.inchi)", {"inchi"});
+    add_filter("CDXML (*.cdxml)", {"cdxml"});
+    gtk_file_dialog_set_filters(save_dialog, G_LIST_MODEL(filters));
+    g_object_unref(filters);
+
     gtk_file_dialog_save(save_dialog, this->main_window, NULL, +[](GObject* source_object, GAsyncResult* res, gpointer user_data){
         GError** e = NULL;
         GFile* file = gtk_file_dialog_save_finish(GTK_FILE_DIALOG(source_object), res, e);
@@ -673,6 +695,17 @@ int LaylaState::load_molecule_from_file(const std::string& path, bool set_as_cur
         return new_mol_id;
     } catch(const std::exception& e) {
         g_warning("MolFile Import error: %s", e.what());
+        auto* message = gtk_message_dialog_new(
+            this->main_window,
+            GTK_DIALOG_DESTROY_WITH_PARENT,
+            GTK_MESSAGE_ERROR,
+            GTK_BUTTONS_CLOSE,
+            "Error: Molecule could not be loaded.\n%s",
+            e.what());
+        g_signal_connect(message, "response", G_CALLBACK(+[](GtkDialog* dialog, gint response_id, gpointer user_data) {
+            gtk_window_destroy(GTK_WINDOW(dialog));
+        }), nullptr);
+        gtk_widget_set_visible(message, TRUE);
         return -1;
     }
 }

@@ -53,9 +53,9 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .value("InChI", lhasa::CheminformaticsFileFormat::InChI)
     .value("CDXML", lhasa::CheminformaticsFileFormat::CDXML);
   // TODO: RDKit typedefinitions
-  // function("rdkit_mol_from_smiles", &lhasa::rdkit_mol_from_smiles);
+  // function("rdkit_mol_from_smiles", &coot::layla::io::rdkit_mol_from_smiles);
   // TODO: RDKit typedefinitions
-  // function("rdkit_mol_to_smiles", &lhasa::rdkit_mol_to_smiles);
+  // function("rdkit_mol_to_smiles", &coot::layla::io::rdkit_mol_to_smiles);
   // TODO: RDKit typedefinitions
   // function("rdkit_mol_from_pickle", &lhasa::rdkit_mol_from_pickle);
   // TODO: RDKit typedefinitions

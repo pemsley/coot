@@ -114,6 +114,7 @@ std::optional<CheminformaticsFileFormat> format_from_extension(const std::string
     std::string ext = path.substr(dot + 1);
     std::transform(ext.begin(), ext.end(), ext.begin(), [](unsigned char c){ return std::tolower(c); });
     if (ext == "mol")   return CheminformaticsFileFormat::Molfile;
+    if (ext == "mdf")   return CheminformaticsFileFormat::Molfile;
     if (ext == "sdf")   return CheminformaticsFileFormat::SDF;
     if (ext == "inchi") return CheminformaticsFileFormat::InChI;
     if (ext == "cdxml") return CheminformaticsFileFormat::CDXML;

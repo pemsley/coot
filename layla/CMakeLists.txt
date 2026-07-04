@@ -36,7 +36,7 @@ find_path(RDKIT_INCLUDE_DIR GraphMol/RDKitBase.h PATH_SUFFIXES rdkit REQUIRED)
 set(RDKIT_COMPONENTS
     Depictor MolTransforms SmilesParse MolDraw2D GraphMol RDInchiLib RDGeneral
     RDGeometryLib FileParsers Descriptors ChemTransforms SubstructMatch
-    GenericGroups DataStructs FMCS)
+    GenericGroups DataStructs FMCS RDChemDrawLib)
 set(RDKIT_LIBRARIES "")
 foreach(_c IN LISTS RDKIT_COMPONENTS)
   find_library(RDKIT_${_c}_LIB "RDKit${_c}" REQUIRED)

@@ -23,7 +23,7 @@ LDLIBS=-fuse-ld=mold \
         -Wl,--export-dynamic,--rpath=$(COOT_DIR)/lib \
         -lfreetype -lm -ldl -lpthread -lpng \
         -lcoot-geometry -lcoot-lidia-core -lcoot-utils \
-        -lRDKitDepictor -lRDKitMolTransforms -lRDKitSmilesParse -lRDKitMolDraw2D -lRDKitGraphMol -lRDKitRDInchiLib  -lRDKitRDGeneral -lRDKitRDGeometryLib -lRDKitFileParsers -lRDKitDescriptors -lRDKitChemTransforms -lRDKitSubstructMatch -lRDKitGenericGroups -lRDKitDataStructs -lRDKitFMCS \
+        -lRDKitDepictor -lRDKitMolTransforms -lRDKitSmilesParse -lRDKitMolDraw2D -lRDKitGraphMol -lRDKitRDInchiLib  -lRDKitRDGeneral -lRDKitRDGeometryLib -lRDKitFileParsers -lRDKitDescriptors -lRDKitChemTransforms -lRDKitSubstructMatch -lRDKitGenericGroups -lRDKitDataStructs -lRDKitFMCS -lRDKitRDChemDrawLib \
         -lcoordgen \
         -lboost_iostreams -lboost_serialization -lcurl
 
@@ -35,6 +35,7 @@ HEADERS = \
     state.hpp \
     ui.hpp \
     utils.hpp \
+    file_io.hpp \
     notifier.hpp \
     generators.hpp \
     inchi_key_database.hpp \
@@ -53,6 +54,7 @@ SOURCES = \
     signals.cpp \
     ui.cpp \
     utils.cpp \
+    file_io.cpp \
     notifier.cpp \
     generators.cpp \
     inchi_key_database.cpp \
