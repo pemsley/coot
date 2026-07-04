@@ -63,6 +63,7 @@ add_library(coot-layla SHARED
     state.cpp
     ui.cpp
     utils.cpp
+    file_io.cpp
     qed.cpp
     ligand_editor_canvas.cpp
     ligand_editor_canvas/core.cpp

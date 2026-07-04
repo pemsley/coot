@@ -109,6 +109,10 @@ class LaylaState {
     void file_save();
     void file_save_as();
     void file_open();
+    /// Loads a molecule from `path` (format inferred from extension) and appends
+    /// it to the canvas. Only updates the interactive save target when
+    /// `set_as_current_filesave` is true. Returns the new molecule id, or -1.
+    int load_molecule_from_file(const std::string& path, bool set_as_current_filesave) noexcept;
     void file_export(ExportMode mode);
     void file_import_molecule();
     void file_fetch_molecule();
@@ -121,6 +125,9 @@ class LaylaState {
     // Search the monomer library for monomers similar to the current sketch
     // (by acedrg/COD atom types) and show them as a grid of 2D thumbnails.
     void search_for_similar_ligands();
+    // CCP4i2 interop mode (--ccp4i2_mode)
+    void enable_ccp4i2_mode() noexcept;
+    void send_to_ccp4i2() noexcept;
 };
 
 /// Let this be the singleton used by the editor executable.

@@ -90,6 +90,8 @@ target_sources(lh PRIVATE
   ../layla/qed.cpp
   ../layla/utils.hpp
   ../layla/utils.cpp
+  ../layla/file_io.hpp
+  ../layla/file_io.cpp
   ../layla/ligand_editor_canvas.hpp
   ../layla/ligand_editor_canvas.cpp
   ../layla/ligand_editor_canvas/core.hpp

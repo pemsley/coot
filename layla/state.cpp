@@ -35,6 +35,7 @@
 #include <rdkit/GraphMol/SmilesParse/SmilesParse.h>
 #include <rdkit/GraphMol/FileParsers/FileParsers.h>
 #include "utils.hpp"
+#include "file_io.hpp"
 // todo: remove dependency on lidia-core
 #include "lidia-core/rdkit-interface.hh"
 #include "utils/coot-utils.hh"

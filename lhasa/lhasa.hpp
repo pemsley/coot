@@ -25,6 +25,7 @@
 #include <string>
 #include <memory>
 #include "../layla/ligand_editor_canvas.hpp"
+#include "../layla/file_io.hpp"
 #include <emscripten/val.h>
 
 
@@ -36,13 +37,7 @@ std::unique_ptr<RDKit::RWMol> rdkit_mol_from_pickle(std::string pickle_string);
 std::string rdkit_mol_to_smiles(const RDKit::ROMol& mol);
 std::string rdkit_mol_to_pickle_base64(const RDKit::ROMol& mol);
 
-/// This is for file import/export
-enum class CheminformaticsFileFormat {
-    Molfile,
-    SDF, 
-    InChI, 
-    CDXML
-};
+using CheminformaticsFileFormat = coot::layla::io::CheminformaticsFileFormat;
 
 unsigned int append_from_smiles(CootLigandEditorCanvas& canvas, std::string smiles);
 unsigned int append_from_import(CootLigandEditorCanvas& canvas, std::string data, CheminformaticsFileFormat format);

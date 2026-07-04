@@ -27,6 +27,7 @@ pkginclude_HEADERS = \
 	notifier.hpp \
 	ui.hpp \
 	utils.hpp \
+	file_io.hpp \
 	state.hpp \
 	qed.hpp \
 	ligand_editor_canvas/core.hpp  \
@@ -48,6 +49,7 @@ libcoot_layla_la_SOURCES = \
 	state.cpp \
 	ui.cpp \
 	utils.cpp \
+	file_io.cpp \
 	qed.cpp \
 	ligand_editor_canvas/core.cpp \
 	ligand_editor_canvas.cpp \
