@@ -34,6 +34,7 @@
 #include <fcntl.h>
 
 #include <string>
+#include <vector>
 
 #include <fstream>
 
@@ -684,6 +685,13 @@ on_vte_notebook_switch_page(GtkNotebook *notebook, GtkWidget *page, guint page_n
 static GtkWidget *command_output_view = nullptr;
 static GtkWidget *command_entry_widget = nullptr;
 
+// Command history for the entry: Up/Down cycle through previous commands, like a
+// shell. command_history_pos indexes into command_history; a value equal to
+// command_history.size() means the user is editing a fresh (unsubmitted) line.
+static std::vector<std::string> command_history;
+static std::size_t command_history_pos = 0;
+static const std::size_t COMMAND_HISTORY_MAX = 100;
+
 static void command_output_append(const std::string &text) {
 
    if (!command_output_view) return;
@@ -747,6 +755,46 @@ static void on_command_entry_activate(GtkEntry *entry, gpointer user_data) {
    command_output_append("> " + input + "\n");
    run_natural_language_command(input);
    gtk_editable_set_text(GTK_EDITABLE(entry), "");
+
+   // Record in history (skip if identical to the previous command), cap the
+   // size, and reset the browse position to the fresh-line slot.
+   if (command_history.empty() || command_history.back() != input) {
+      command_history.push_back(input);
+      if (command_history.size() > COMMAND_HISTORY_MAX)
+         command_history.erase(command_history.begin());
+   }
+   command_history_pos = command_history.size();
+}
+
+// Up/Down browse the command history, replacing the entry text. Returns TRUE
+// when the key was consumed so the entry does not also act on it.
+static gboolean
+on_command_entry_key_pressed(GtkEventControllerKey *controller,
+                             guint keyval, guint keycode,
+                             GdkModifierType state, gpointer user_data) {
+
+   GtkEditable *editable = GTK_EDITABLE(user_data);
+
+   if (keyval == GDK_KEY_Up) {
+      if (command_history.empty()) return TRUE;
+      if (command_history_pos > 0) command_history_pos--;
+      gtk_editable_set_text(editable, command_history[command_history_pos].c_str());
+      gtk_editable_set_position(editable, -1); // cursor to end
+      return TRUE;
+   }
+
+   if (keyval == GDK_KEY_Down) {
+      if (command_history.empty()) return TRUE;
+      if (command_history_pos < command_history.size()) command_history_pos++;
+      if (command_history_pos == command_history.size())
+         gtk_editable_set_text(editable, ""); // past the newest -> fresh line
+      else
+         gtk_editable_set_text(editable, command_history[command_history_pos].c_str());
+      gtk_editable_set_position(editable, -1);
+      return TRUE;
+   }
+
+   return FALSE;
 }
 
 static GtkWidget *create_command_tab_widget() {
@@ -770,6 +818,14 @@ static GtkWidget *create_command_tab_widget() {
                                   "Type a command, e.g. \"show model 0\"");
    g_signal_connect(command_entry_widget, "activate",
                     G_CALLBACK(on_command_entry_activate), nullptr);
+
+   // Up/Down history browsing. Use the capture phase so we see the arrow keys
+   // before the entry's own handling.
+   GtkEventController *history_controller = gtk_event_controller_key_new();
+   gtk_event_controller_set_propagation_phase(history_controller, GTK_PHASE_CAPTURE);
+   g_signal_connect(history_controller, "key-pressed",
+                    G_CALLBACK(on_command_entry_key_pressed), command_entry_widget);
+   gtk_widget_add_controller(command_entry_widget, history_controller);
 
    gtk_box_append(GTK_BOX(box), scrolled);
    gtk_box_append(GTK_BOX(box), command_entry_widget);

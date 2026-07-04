@@ -4,7 +4,7 @@
 
   <menu id="menubar">
     <submenu>
-      <attribute name="label">File Test</attribute>
+      <attribute name="label">File</attribute>
       <section>
         <item>
           <attribute name="label">Open Coordinates...</attribute>

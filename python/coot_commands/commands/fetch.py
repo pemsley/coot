@@ -28,7 +28,6 @@ from typing import Any, Optional
 from coot_commands.registry import command
 from coot_commands.types import CommandError
 
-
 CATEGORY = "Fetch"
 
 

@@ -46,8 +46,13 @@ def run_command(text: Optional[str]) -> str:
     try:
         result = dispatch(text)
     except Exception as e:
-        return f"Error running {text.strip()!r}: {e}"
+        import traceback
+        detail = str(e) or repr(e)
+        tb = traceback.format_exc().rstrip()
+        return (f"Error running {text.strip()!r}: {type(e).__name__}: {detail}\n"
+                f"{tb}")
 
     if result is None:
         return f"Unrecognised command: {text.strip()!r}  (try \"help\")"
+
     return result
