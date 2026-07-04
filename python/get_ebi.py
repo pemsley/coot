@@ -68,21 +68,16 @@ def coot_urlretrieve(url, file_name, reporthook=None):
     """Helper function to avoid downloading empty files
     returns download filename upon success or False when fail."""
 
-    import urllib.request, urllib.parse, urllib.error
+    import urllib.request, urllib.error, shutil
     local_filename = False
-    class CootURLopener(urllib.request.FancyURLopener):
-        def http_error_default(self, url, fp, errcode, errmsg, headers):
-            # handle errors the way you'd like to
-            # we just pass
-            pass
-
-    # opener = CootURLopener(context=ssl_context)
-    opener = CootURLopener()
     try:
-        local_filename, header = opener.retrieve(url, file_name, reporthook)
-    except:
-        # we could catch more here, but dont bother for now
-        print("WARNING:: retrieve of url %s failed" %url)
+        request = urllib.request.Request(url, headers={"User-Agent": "coot"})
+        with urllib.request.urlopen(request) as response:
+            with open(file_name, "wb") as out_file:
+                shutil.copyfileobj(response, out_file)
+        local_filename = file_name
+    except Exception as e:
+        print("WARNING:: retrieve of url %s failed: %s" % (url, e))
 
     return local_filename
 
@@ -167,7 +162,7 @@ def get_ebi_pdb(id):
 
     # print "======= id:", id
     down_id = id.lower()
-    pdb_url_str = pdbe_server + "/" + pdbe_pdb_file_dir + "/" + down_id + ".ent"
+    pdb_url_str = pdbe_server + "/" + pdbe_pdb_file_dir + "/pdb" + down_id + ".ent"
     cif_url_str = pdbe_server + "/" + pdbe_pdb_file_dir + "/" + down_id + ".cif"
     url_status = get_url_str(id, pdb_url_str, "pdb", None)
     # e.g. http://ftp.ebi.ac.uk/pub/databases/pdb +

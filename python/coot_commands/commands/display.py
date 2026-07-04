@@ -1,6 +1,6 @@
 # coot_commands/commands/display.py
 #
-# Copyright 2026 by Medical Research Council
+# Copyright 2026 Jordan Dialpuri, Medical Research Council Laboratory of Molecular Biology
 #
 # This file is part of Coot
 #
@@ -22,7 +22,7 @@ from coot_commands.types import resolve_model, resolve_map
 try:
     import coot
 except ImportError:
-    coot = None  # allows this module to be imported/tested without Coot
+    coot = None  
 
 
 CATEGORY = "Display"

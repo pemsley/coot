@@ -1,6 +1,6 @@
 # coot_commands/commands/view.py
 #
-# Copyright 2026 by Medical Research Council
+# Copyright 2026 Jordan Dialpuri, Medical Research Council Laboratory of Molecular Biology
 #
 # This file is part of Coot
 #

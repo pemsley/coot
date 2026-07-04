@@ -1,7 +1,7 @@
 # coot_commands/docs.py
 #
-# Copyright 2026 by Medical Research Council
-#
+# Copyright 2026 Jordan Dialpuri, Medical Research Council Laboratory of Molecular Biology
+
 # This file is part of Coot
 #
 # This program is free software; you can redistribute it and/or modify
