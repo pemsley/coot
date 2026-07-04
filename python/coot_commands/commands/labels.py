@@ -16,6 +16,10 @@
 
 """Commands for atom labels."""
 
+from __future__ import annotations
+
+from typing import Optional
+
 from coot_commands.registry import command
 
 try:
@@ -30,7 +34,7 @@ CATEGORY = "Labels"
 @command(r"(?:clear|remove) (?:all )?labels",
          examples=["clear labels", "remove all labels"],
          category=CATEGORY)
-def clear_labels(**_):
+def clear_labels(**_: Optional[str]) -> str:
     """Remove all atom labels."""
     if coot is not None:
         coot.remove_all_atom_labels()

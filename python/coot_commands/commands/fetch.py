@@ -21,6 +21,10 @@ Fetch menu uses): the PDBe for coordinates and EDS maps, and PDB-REDO for
 re-refined models and maps.
 """
 
+from __future__ import annotations
+
+from typing import Any, Optional
+
 from coot_commands.registry import command
 from coot_commands.types import CommandError
 
@@ -28,7 +32,7 @@ from coot_commands.types import CommandError
 CATEGORY = "Fetch"
 
 
-def _get_ebi():
+def _get_ebi() -> Any:
     """Import the get_ebi helper module, or raise a readable error."""
     try:
         import get_ebi
@@ -37,7 +41,7 @@ def _get_ebi():
         raise CommandError(f"fetch is unavailable ({e})")
 
 
-def _report(code, result, what):
+def _report(code: str, result: Any, what: str) -> str:
     """Turn a get_ebi return value into a user message.
 
     The helpers return a molecule number, a list of molecule numbers, or
@@ -59,7 +63,7 @@ def _report(code, result, what):
          examples=["fetch 1abc from pdb-redo", "fetch pdb-redo 1abc"],
          category=CATEGORY,
          notes="Fetches the re-refined model and maps from PDB-REDO.")
-def fetch_pdb_redo(code=None, code2=None):
+def fetch_pdb_redo(code: Optional[str] = None, code2: Optional[str] = None) -> str:
     """Fetch a re-refined model and maps from PDB-REDO."""
     acc = code if code is not None else code2
     result = _get_ebi().get_pdb_redo(acc.lower())
@@ -72,7 +76,7 @@ def fetch_pdb_redo(code=None, code2=None):
          category=CATEGORY,
          notes="Fetches coordinates and the 2Fo-Fc / Fo-Fc maps from the "
                "Electron Density Server (EDS).")
-def fetch_pdb_and_map(code=None, code2=None):
+def fetch_pdb_and_map(code: Optional[str] = None, code2: Optional[str] = None) -> str:
     """Fetch coordinates and maps (via EDS)."""
     acc = code if code is not None else code2
     result = _get_ebi().get_eds_pdb_and_mtz(acc.lower())
@@ -84,7 +88,7 @@ def fetch_pdb_and_map(code=None, code2=None):
          category=CATEGORY,
          notes="Fetches coordinates from the PDBe. Add \"and map\" to also "
                "fetch maps, or \"from pdb-redo\" for the re-refined version.")
-def fetch_pdb(code):
+def fetch_pdb(code: str) -> str:
     """Fetch coordinates from the PDBe."""
     result = _get_ebi().get_ebi_pdb(code.lower())
     return _report(code, result, "PDB")

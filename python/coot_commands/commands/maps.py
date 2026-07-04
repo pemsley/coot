@@ -16,6 +16,10 @@
 
 """Commands for map contouring and colouring."""
 
+from __future__ import annotations
+
+from typing import Optional
+
 from coot_commands.registry import command
 from coot_commands.types import resolve_map, resolve_colour, as_float
 
@@ -33,7 +37,7 @@ CATEGORY = "Maps"
          category=CATEGORY,
          notes="Sets the contour level in sigma (map RMSD units). With no "
                "map number, acts on the active map.")
-def contour_sigma(level, map=None):
+def contour_sigma(level: str, map: Optional[str] = None) -> str:
     """Set a map's contour level in sigma."""
     imol = resolve_map(map)
     lvl = as_float(level, "contour level")
@@ -48,7 +52,7 @@ def contour_sigma(level, map=None):
          notes="Sets the absolute contour level (map units). With no map "
                "number, acts on the active map. Add \"sigma\" to contour in "
                "RMSD units instead.")
-def contour_absolute(level, map=None):
+def contour_absolute(level: str, map: Optional[str] = None) -> str:
     """Set a map's absolute contour level."""
     imol = resolve_map(map)
     lvl = as_float(level, "contour level")
@@ -61,7 +65,7 @@ def contour_absolute(level, map=None):
          examples=["colour map 1 blue", "colour map cyan"],
          category=CATEGORY,
          notes="With no map number, acts on the active map.")
-def colour_map(colour, map=None):
+def colour_map(colour: str, map: Optional[str] = None) -> str:
     """Set a map's colour."""
     imol = resolve_map(map)
     r, g, b = resolve_colour(colour)
@@ -75,7 +79,7 @@ def colour_map(colour, map=None):
          category=CATEGORY,
          notes="Marks the map as a difference map (green/red, contoured "
                "either side of zero). With no number, acts on the active map.")
-def set_difference_map(map=None):
+def set_difference_map(map: Optional[str] = None) -> str:
     """Mark a map as a difference map."""
     imol = resolve_map(map)
     if coot is not None:

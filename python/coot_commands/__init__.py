@@ -27,13 +27,15 @@ The public entry point is :func:`~coot_commands.registry.dispatch`, used
 by the ``coot_command_interface`` shim that the C++ Command tab calls.
 """
 
+from __future__ import annotations
+
 import importlib
 import pkgutil
 
 from . import commands
 
 
-def _discover_command_modules():
+def _discover_command_modules() -> None:
     """Import every module under coot_commands.commands so they register."""
     for _finder, name, _ispkg in pkgutil.iter_modules(commands.__path__):
         importlib.import_module(f"{__name__}.commands.{name}")

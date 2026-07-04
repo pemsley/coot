@@ -30,21 +30,23 @@ or from inside Coot::
     print(d.to_markdown())
 """
 
+from __future__ import annotations
+
 from collections import OrderedDict
 
 import coot_commands  # noqa: F401  - ensures all command modules are imported
-from coot_commands.registry import all_commands
+from coot_commands.registry import Command, all_commands
 
 
-def commands_by_category():
+def commands_by_category() -> "OrderedDict[str, list[Command]]":
     """Return an OrderedDict of category -> list of Command, sorted."""
-    grouped = OrderedDict()
+    grouped: OrderedDict[str, list[Command]] = OrderedDict()
     for cmd in sorted(all_commands(), key=lambda c: (c.category, c.name)):
         grouped.setdefault(cmd.category, []).append(cmd)
     return grouped
 
 
-def to_markdown():
+def to_markdown() -> str:
     """Render the full command reference as a Markdown string."""
     lines = [
         "# Coot command reference",

@@ -27,6 +27,10 @@ one the GUI menus would act on): ``resolve_model`` uses the active
 residue's molecule, and ``resolve_map`` uses the refinement map.
 """
 
+from __future__ import annotations
+
+from typing import Any, Optional
+
 try:
     import coot
 except ImportError:
@@ -41,13 +45,13 @@ class CommandError(Exception):
     """
 
 
-def _require_coot():
+def _require_coot() -> Any:
     if coot is None:
         raise CommandError("the Coot API is not available")
     return coot
 
 
-def as_int(value, what="value"):
+def as_int(value: Optional[str], what: str = "value") -> int:
     """Coerce a captured string to an int, or raise CommandError."""
     try:
         return int(value)
@@ -55,7 +59,7 @@ def as_int(value, what="value"):
         raise CommandError(f"expected a whole number for {what}, got {value!r}")
 
 
-def as_float(value, what="value"):
+def as_float(value: Optional[str], what: str = "value") -> float:
     """Coerce a captured string to a float, or raise CommandError."""
     try:
         return float(value)
@@ -63,7 +67,7 @@ def as_float(value, what="value"):
         raise CommandError(f"expected a number for {what}, got {value!r}")
 
 
-def active_model():
+def active_model() -> int:
     """Return the molecule number of the active model, or raise.
 
     The active model is the one under the pointer / last picked, matching
@@ -85,7 +89,7 @@ def active_model():
     raise CommandError("no active model - load or click a model first")
 
 
-def active_map():
+def active_map() -> int:
     """Return the molecule number of the active (refinement) map, or raise."""
     c = _require_coot()
     imol = c.imol_refinement_map()
@@ -94,7 +98,7 @@ def active_map():
     raise CommandError("no active map - open a map first")
 
 
-def resolve_model(value=None):
+def resolve_model(value: Optional[str] = None) -> int:
     """Resolve a model reference to a molecule number (imol).
 
     Accepts a plain integer, or ``None``/"active"/"this"/"current" to mean
@@ -107,7 +111,7 @@ def resolve_model(value=None):
     return as_int(value, "model number")
 
 
-def resolve_map(value=None):
+def resolve_map(value: Optional[str] = None) -> int:
     """Resolve a map reference to a molecule number, defaulting to the active map."""
     if value is None or str(value).lower() in ("active", "this", "current", "it"):
         return active_map()
@@ -115,7 +119,7 @@ def resolve_map(value=None):
 
 
 # Named colours -> (r, g, b) floats in 0..1, for map/background colour commands.
-COLOURS = {
+COLOURS: dict[str, tuple[float, float, float]] = {
     "black":   (0.0, 0.0, 0.0),
     "white":   (1.0, 1.0, 1.0),
     "red":     (1.0, 0.0, 0.0),
@@ -134,7 +138,7 @@ COLOURS = {
 }
 
 
-def resolve_colour(name):
+def resolve_colour(name: str) -> tuple[float, float, float]:
     """Resolve a colour name to an (r, g, b) tuple, or raise CommandError."""
     key = str(name).strip().lower()
     if key in COLOURS:

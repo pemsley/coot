@@ -21,13 +21,15 @@ metadata each one carries - so the help text stays correct automatically
 as commands are added.
 """
 
+from __future__ import annotations
+
 from coot_commands.registry import command, all_commands
 
 
 @command(r"(?:help|commands|what can i do)\??",
          examples=["help"],
          category="Help")
-def show_help():
+def show_help() -> str:
     """List the available commands, grouped by category."""
     by_category = {}
     for cmd in all_commands():

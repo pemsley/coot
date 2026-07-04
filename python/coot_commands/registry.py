@@ -27,7 +27,14 @@ future fuzzy "did you mean" suggestions) lives here, so every command
 benefits without having to think about it.
 """
 
+from __future__ import annotations
+
 import re
+from typing import Callable, Iterable, Optional
+
+# A command handler takes keyword arguments (the regex named groups, each a
+# str or None) and returns a message string.
+Handler = Callable[..., str]
 
 
 class Command:
@@ -39,7 +46,9 @@ class Command:
     a matter of filling these in on the decorator.
     """
 
-    def __init__(self, pattern, handler, help_text, examples, category, notes):
+    def __init__(self, pattern: str, handler: Handler, help_text: str,
+                 examples: Iterable[str], category: str,
+                 notes: Optional[str]) -> None:
         self.regex = re.compile(pattern, re.IGNORECASE)
         self.pattern = pattern
         self.handler = handler
@@ -49,11 +58,11 @@ class Command:
         self.notes = notes
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self.handler.__name__
 
     @property
-    def description(self):
+    def description(self) -> str:
         """The long-form description: the handler docstring, if any."""
         return (self.handler.__doc__ or "").strip()
 
@@ -64,7 +73,9 @@ class Command:
 _COMMANDS = []
 
 
-def command(pattern, help=None, examples=(), category="General", notes=None):
+def command(pattern: str, help: Optional[str] = None,
+            examples: Iterable[str] = (), category: str = "General",
+            notes: Optional[str] = None) -> Callable[[Handler], Handler]:
     """Decorator registering *handler* for inputs matching *pattern*.
 
     *pattern* is a regular expression matched (case-insensitively) against
@@ -86,7 +97,7 @@ def command(pattern, help=None, examples=(), category="General", notes=None):
     * *notes* - optional extra prose for the generated docs (caveats,
       argument details) that would be too long for *help*.
     """
-    def decorator(handler):
+    def decorator(handler: Handler) -> Handler:
         doc_first_line = (handler.__doc__ or "").strip().splitlines()
         default_help = doc_first_line[0] if doc_first_line else ""
         help_text = help if help is not None else default_help
@@ -95,17 +106,17 @@ def command(pattern, help=None, examples=(), category="General", notes=None):
     return decorator
 
 
-def all_commands():
+def all_commands() -> list[Command]:
     """Return the list of registered :class:`Command` objects."""
     return list(_COMMANDS)
 
 
-def normalise(text):
+def normalise(text: str) -> str:
     """Collapse runs of whitespace and strip the ends."""
     return re.sub(r"\s+", " ", text.strip())
 
 
-def dispatch(text):
+def dispatch(text: str) -> Optional[str]:
     """Find and run the command matching *text*.
 
     Returns the handler's result string, or ``None`` if nothing matched

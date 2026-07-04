@@ -16,6 +16,10 @@
 
 """Commands that change how models are drawn: carbon colours, symmetry."""
 
+from __future__ import annotations
+
+from typing import Optional
+
 from coot_commands.registry import command
 from coot_commands.types import resolve_model
 
@@ -34,7 +38,7 @@ CATEGORY = "Representation"
          category=CATEGORY,
          notes="Uses grey for carbon atoms. With no model number, acts on "
                "the active model.")
-def grey_carbons(model=None, model2=None):
+def grey_carbons(model: Optional[str] = None, model2: Optional[str] = None) -> str:
     """Use grey carbon colours for a model."""
     imol = resolve_model(model if model is not None else model2)
     if coot is not None:
@@ -48,7 +52,7 @@ def grey_carbons(model=None, model2=None):
          category=CATEGORY,
          notes="Uses per-element carbon colouring. With no model number, "
                "acts on the active model.")
-def coloured_carbons(model=None, model2=None):
+def coloured_carbons(model: Optional[str] = None, model2: Optional[str] = None) -> str:
     """Use element-coloured carbons for a model."""
     imol = resolve_model(model if model is not None else model2)
     if coot is not None:
@@ -59,7 +63,7 @@ def coloured_carbons(model=None, model2=None):
 @command(r"show symmetry",
          examples=["show symmetry"],
          category=CATEGORY)
-def show_symmetry(**_):
+def show_symmetry(**_: Optional[str]) -> str:
     """Show symmetry-related molecules."""
     if coot is not None:
         coot.set_show_symmetry_master(1)
@@ -69,7 +73,7 @@ def show_symmetry(**_):
 @command(r"hide symmetry",
          examples=["hide symmetry"],
          category=CATEGORY)
-def hide_symmetry(**_):
+def hide_symmetry(**_: Optional[str]) -> str:
     """Hide symmetry-related molecules."""
     if coot is not None:
         coot.set_show_symmetry_master(0)

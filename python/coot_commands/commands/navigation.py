@@ -16,6 +16,10 @@
 
 """Commands that move the view centre around the structure."""
 
+from __future__ import annotations
+
+from typing import Optional
+
 from coot_commands.registry import command
 from coot_commands.types import resolve_model, as_int
 
@@ -36,7 +40,7 @@ CATEGORY = "Navigation"
          notes="Centres on the CA of the given chain/residue. With no model "
                "number, uses the active model. Chain and residue may be "
                "separated by a space or a slash.")
-def go_to_residue(chain, resno, model=None):
+def go_to_residue(chain: str, resno: str, model: Optional[str] = None) -> str:
     """Centre the view on a chain/residue."""
     imol = resolve_model(model)
     res = as_int(resno, "residue number")
@@ -50,7 +54,7 @@ def go_to_residue(chain, resno, model=None):
          examples=["centre at 12.0 4.5 -3.2"],
          category=CATEGORY,
          notes="Centres the view on the given orthogonal coordinates.")
-def centre_at_xyz(x, y, z):
+def centre_at_xyz(x: str, y: str, z: str) -> str:
     """Centre the view on an x, y, z position."""
     from coot_commands.types import as_float
     xf, yf, zf = (as_float(v, "coordinate") for v in (x, y, z))

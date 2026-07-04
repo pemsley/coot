@@ -20,6 +20,10 @@ These mirror the Draw > View menu.  Several are toggles (spin, rock,
 fullscreen) - issuing the command again turns the effect off.
 """
 
+from __future__ import annotations
+
+from typing import Optional
+
 from coot_commands.registry import command
 from coot_commands.types import resolve_colour, as_float, CommandError
 
@@ -37,7 +41,7 @@ CATEGORY = "View"
          category=CATEGORY,
          notes="Colour names: black, white, grey, and the other named "
                "colours accepted by colour commands.")
-def set_background(colour):
+def set_background(colour: str) -> str:
     """Set the background colour."""
     r, g, b = resolve_colour(colour)
     if coot is not None:
@@ -49,7 +53,7 @@ def set_background(colour):
          examples=["spin"],
          category=CATEGORY,
          notes="Toggles idle spinning; issue again to stop.")
-def spin_view(**_):
+def spin_view(**_: Optional[str]) -> str:
     """Toggle spinning the view."""
     if coot is not None:
         coot.toggle_idle_spin_function()
@@ -60,7 +64,7 @@ def spin_view(**_):
          examples=["rock"],
          category=CATEGORY,
          notes="Toggles idle rocking; issue again to stop.")
-def rock_view(**_):
+def rock_view(**_: Optional[str]) -> str:
     """Toggle rocking the view."""
     if coot is not None:
         coot.toggle_idle_rock_function()
@@ -70,7 +74,7 @@ def rock_view(**_):
 @command(r"(?:use )?(?P<mode>orthographic|perspective)(?: (?:view|projection))?",
          examples=["orthographic", "perspective view"],
          category=CATEGORY)
-def set_projection(mode):
+def set_projection(mode: str) -> str:
     """Switch between orthographic and perspective projection."""
     perspective = 1 if mode.lower() == "perspective" else 0
     if coot is not None:
@@ -82,7 +86,7 @@ def set_projection(mode):
          examples=["fullscreen"],
          category=CATEGORY,
          notes="Toggles fullscreen; issue again to leave fullscreen.")
-def toggle_fullscreen(**_):
+def toggle_fullscreen(**_: Optional[str]) -> str:
     """Toggle fullscreen mode."""
     if coot is not None:
         coot.fullscreen()
@@ -93,7 +97,7 @@ def toggle_fullscreen(**_):
          examples=["zoom to 30", "set zoom 50"],
          category=CATEGORY,
          notes="Larger numbers zoom out. Typical range ~10-100.")
-def set_zoom(factor):
+def set_zoom(factor: str) -> str:
     """Set the view zoom factor."""
     f = as_float(factor, "zoom factor")
     if coot is not None:

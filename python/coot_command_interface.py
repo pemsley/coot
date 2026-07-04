@@ -23,8 +23,12 @@ command modules live.  Keeping this shim stable means the C++ side never
 has to change as commands are added.
 """
 
+from __future__ import annotations
 
-def run_command(text):
+from typing import Optional
+
+
+def run_command(text: Optional[str]) -> str:
     """Parse *text* and execute the matching Coot command.
 
     Returns a string describing the outcome, suitable for display in the

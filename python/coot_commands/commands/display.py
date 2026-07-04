@@ -16,6 +16,10 @@
 
 """Commands that show and hide models and maps."""
 
+from __future__ import annotations
+
+from typing import Optional
+
 from coot_commands.registry import command
 from coot_commands.types import resolve_model, resolve_map
 
@@ -32,7 +36,7 @@ CATEGORY = "Display"
          examples=["show model 0", "display model"],
          category=CATEGORY,
          notes="With no number, acts on the active model.")
-def show_model(model=None):
+def show_model(model: Optional[str] = None) -> str:
     """Show (display) a model."""
     imol = resolve_model(model)
     if coot is not None:
@@ -44,7 +48,7 @@ def show_model(model=None):
          examples=["hide model 0", "undisplay model"],
          category=CATEGORY,
          notes="With no number, acts on the active model.")
-def hide_model(model=None):
+def hide_model(model: Optional[str] = None) -> str:
     """Hide (undisplay) a model."""
     imol = resolve_model(model)
     if coot is not None:
@@ -56,7 +60,7 @@ def hide_model(model=None):
          examples=["show map 1", "display map"],
          category=CATEGORY,
          notes="With no number, acts on the active (refinement) map.")
-def show_map(map=None):
+def show_map(map: Optional[str] = None) -> str:
     """Show (display) a map."""
     imol = resolve_map(map)
     if coot is not None:
@@ -68,7 +72,7 @@ def show_map(map=None):
          examples=["hide map 1", "undisplay map"],
          category=CATEGORY,
          notes="With no number, acts on the active (refinement) map.")
-def hide_map(map=None):
+def hide_map(map: Optional[str] = None) -> str:
     """Hide (undisplay) a map."""
     imol = resolve_map(map)
     if coot is not None:
@@ -80,7 +84,7 @@ def hide_map(map=None):
          examples=["show only active"],
          category=CATEGORY,
          notes="Hides every model except the active one.")
-def display_only_active(**_):
+def display_only_active(**_: Optional[str]) -> str:
     """Show only the active model, hiding the others."""
     if coot is not None:
         coot.display_only_active()
