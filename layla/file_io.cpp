@@ -62,6 +62,14 @@ std::unique_ptr<RDKit::RWMol> mol_from_string(const std::string& data, Cheminfor
             mol = std::move(mols.front());
             break;
         }
+        case CheminformaticsFileFormat::SMILES: {
+            // A .smi file is just the SMILES token; strip surrounding whitespace
+            // (trailing newline) so the parser doesn't choke on it.
+            auto begin = data.find_first_not_of(" \t\r\n");
+            auto end = data.find_last_not_of(" \t\r\n");
+            mol = rdkit_mol_from_smiles(begin == std::string::npos ? std::string() : data.substr(begin, end - begin + 1));
+            break;
+        }
         default: {
             throw std::runtime_error("Unknown file format");
         }
@@ -91,6 +99,9 @@ std::string mol_to_string(const RDKit::ROMol& mol, CheminformaticsFileFormat for
         case CheminformaticsFileFormat::CDXML: {
             return RDKit::v2::MolToChemDrawBlock(mol);
         }
+        case CheminformaticsFileFormat::SMILES: {
+            return rdkit_mol_to_smiles(mol) + "\n";
+        }
         default: {
             throw std::runtime_error("Unknown file format");
         }
@@ -118,6 +129,7 @@ std::optional<CheminformaticsFileFormat> format_from_extension(const std::string
     if (ext == "sdf")   return CheminformaticsFileFormat::SDF;
     if (ext == "inchi") return CheminformaticsFileFormat::InChI;
     if (ext == "cdxml") return CheminformaticsFileFormat::CDXML;
+    if (ext == "smi")   return CheminformaticsFileFormat::SMILES;
     return std::nullopt;
 }
 

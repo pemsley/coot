@@ -51,7 +51,8 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .value("Molfile", lhasa::CheminformaticsFileFormat::Molfile)
     .value("SDF", lhasa::CheminformaticsFileFormat::SDF)
     .value("InChI", lhasa::CheminformaticsFileFormat::InChI)
-    .value("CDXML", lhasa::CheminformaticsFileFormat::CDXML);
+    .value("CDXML", lhasa::CheminformaticsFileFormat::CDXML)
+    .value("SMILES", lhasa::CheminformaticsFileFormat::SMILES);
   // TODO: RDKit typedefinitions
   // function("rdkit_mol_from_smiles", &coot::layla::io::rdkit_mol_from_smiles);
   // TODO: RDKit typedefinitions

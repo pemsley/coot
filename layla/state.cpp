@@ -562,6 +562,7 @@ void LaylaState::run_file_save_dialog(unsigned int molecule_idx) noexcept {
     add_filter("SDF (*.sdf)", {"sdf"});
     add_filter("InChI (*.inchi)", {"inchi"});
     add_filter("CDXML (*.cdxml)", {"cdxml"});
+    add_filter("SMILES (*.smi)", {"smi"});
     gtk_file_dialog_set_filters(save_dialog, G_LIST_MODEL(filters));
     g_object_unref(filters);
 

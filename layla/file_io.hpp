@@ -37,7 +37,8 @@ enum class CheminformaticsFileFormat {
     Molfile,
     SDF,
     InChI,
-    CDXML
+    CDXML,
+    SMILES
 };
 
 // Molecule <-> in-memory string in the given format. Both throw std::exception
