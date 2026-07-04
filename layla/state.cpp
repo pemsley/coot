@@ -647,28 +647,7 @@ void LaylaState::file_open() {
         if(file) {
             //g_info("I have a file");
             const char* path = g_file_get_path(file);
-            try {
-                RDKit::RWMol* mol = RDKit::MolFileToMol(std::string(path),true,false,false);
-                if(!mol) {
-                    throw std::runtime_error("RDKit::RWMol* is a nullptr. The MolFile could not be loaded.");
-                }
-                g_info("MolFile Import: Molecule constructed.");
-                int new_mol_id = self->append_molecule(mol);
-                if(new_mol_id >= 0) {
-                    self->current_filesave_molecule = static_cast<unsigned int>(new_mol_id);
-                    self->current_filesave_filename = std::string(path);
-                }
-            } catch(std::exception& e) {
-                g_warning("MolFile Import error: %s",e.what());
-                auto* message = gtk_message_dialog_new(
-                    GTK_WINDOW(source_object), 
-                    GTK_DIALOG_DESTROY_WITH_PARENT, 
-                    GTK_MESSAGE_ERROR, 
-                    GTK_BUTTONS_CLOSE, 
-                    "Error: Molecule could not be loaded.\n%s", 
-                    e.what()
-                );
-            }
+            self->load_molecule_from_file(std::string(path), /*set_as_current_filesave=*/true);
             g_object_unref(file);
         }
         if(e) {
@@ -680,6 +659,60 @@ void LaylaState::file_open() {
 #warning "You're compiling Layla with an unsupported version of GTK. Some functionality will be broken."
     g_warning("Layla has been compiled with an unsupported version of GTK. Some functionality is broken.");
 #endif
+}
+
+int LaylaState::load_molecule_from_file(const std::string& path, bool set_as_current_filesave) noexcept {
+    try {
+        auto mol = coot::layla::io::mol_from_file(path);
+        g_info("MolFile Import: Molecule constructed from %s.", path.c_str());
+        int new_mol_id = this->append_molecule(mol.release());
+        if(new_mol_id >= 0 && set_as_current_filesave) {
+            this->current_filesave_molecule = static_cast<unsigned int>(new_mol_id);
+            this->current_filesave_filename = path;
+        }
+        return new_mol_id;
+    } catch(const std::exception& e) {
+        g_warning("MolFile Import error: %s", e.what());
+        return -1;
+    }
+}
+
+void LaylaState::enable_ccp4i2_mode() noexcept {
+    auto* apply_button = gtk_builder_get_object(global_layla_gtk_builder, "layla_apply_button");
+    auto* send_button = gtk_builder_get_object(global_layla_gtk_builder, "layla_send_to_ccp4i2_button");
+    if(apply_button) {
+        gtk_widget_set_visible(GTK_WIDGET(apply_button), FALSE);
+    }
+    if(send_button) {
+        gtk_widget_set_visible(GTK_WIDGET(send_button), TRUE);
+    }
+}
+
+void LaylaState::send_to_ccp4i2() noexcept {
+    // Guard the empty canvas: get_max_molecule_idx() returns size()-1, which
+    // underflows to UINT_MAX when there are no molecules.
+    if(coot_ligand_editor_canvas_get_molecule_count(this->canvas) == 0) {
+        this->update_status("No molecules to send to CCP4i2.");
+        return;
+    }
+    unsigned int written = 0;
+    unsigned int max_idx = coot_ligand_editor_canvas_get_max_molecule_idx(this->canvas);
+    for(unsigned int i = 0; i <= max_idx; i++) {
+        // Empty SMILES marks a deleted/empty slot in the sparse molecule vector.
+        if(coot_ligand_editor_canvas_get_smiles_for_molecule(this->canvas, i).empty()) {
+            continue;
+        }
+        try {
+            const auto* mol = coot_ligand_editor_canvas_get_rdkit_molecule(this->canvas, i);
+            std::string filename = std::to_string(i) + ".mol";
+            coot::layla::io::mol_to_file(*mol, filename, coot::layla::io::CheminformaticsFileFormat::Molfile);
+            g_info("CCP4i2: wrote %s", filename.c_str());
+            written++;
+        } catch(const std::exception& e) {
+            g_warning("CCP4i2 send error for molecule %u: %s", i, e.what());
+        }
+    }
+    this->update_status((std::to_string(written) + " MolFile(s) written for CCP4i2.").c_str());
 }
 
 void LaylaState::file_export(ExportMode mode) {

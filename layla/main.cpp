@@ -28,6 +28,8 @@
 #include "ui.hpp"
 // #include "network_utils.hpp"
 
+static gboolean ccp4i2_mode = FALSE;
+static gchar** input_files = NULL;
 
 int main(int argc, char** argv) {
 
@@ -44,6 +46,15 @@ int main(int argc, char** argv) {
     gtk_init();
 
     GtkApplication* app = gtk_application_new("org.pemsley.Layla", G_APPLICATION_NON_UNIQUE);
+
+    const GOptionEntry option_entries[] = {
+        { "ccp4i2_mode", 0, 0, G_OPTION_ARG_NONE, &ccp4i2_mode,
+          "Run in CCP4i2 interop mode", NULL },
+        { G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &input_files,
+          NULL, "[FILE.mol]" },
+        { NULL }
+    };
+    g_application_add_main_option_entries(G_APPLICATION(app), option_entries);
 
     GError *error = NULL;
     g_application_register(G_APPLICATION(app), NULL, &error);
@@ -78,9 +89,16 @@ int main(int argc, char** argv) {
 
         gtk_window_present(GTK_WINDOW(win));
         gtk_application_add_window(app, GTK_WINDOW(win));
+
+        if(ccp4i2_mode) {
+            coot::layla::global_instance->enable_ccp4i2_mode();
+            if(input_files && input_files[0]) {
+                coot::layla::global_instance->load_molecule_from_file(input_files[0], /*set_as_current_filesave=*/false);
+            }
+        }
     }), NULL);
 
-    auto ret = g_application_run(G_APPLICATION(app), 0, 0);
+    auto ret = g_application_run(G_APPLICATION(app), argc, argv);
     g_info("Exiting...");
     delete coot::layla::global_instance;
     return ret;
