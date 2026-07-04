@@ -40,7 +40,7 @@
 #include "utils/coot-utils.hh"
 #include "inchi_key_database.hpp"
 #include <string>
-#include "python_utils.hpp"
+#include "network_utils.hpp"
 
 using namespace coot::layla;
 
@@ -454,7 +454,7 @@ void LaylaState::file_fetch_molecule() {
             return;
         } else {
             const char *text_buf = gtk_entry_buffer_get_text(GTK_ENTRY_BUFFER(user_data));
-            auto res = coot::layla::get_drug_via_wikipedia_and_drugbank_curl(std::string(text_buf));
+            auto res = coot::layla::get_drug_via_wikipedia_and_chembl_curl(std::string(text_buf));
             LaylaState* self = static_cast<LaylaState*>(g_object_get_data(G_OBJECT(dialog), "ligand_builder_instance"));
             try {
                 if(res.empty()) {
