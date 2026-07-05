@@ -21,7 +21,7 @@ from __future__ import annotations
 from typing import Optional
 
 from coot_commands.registry import command
-from coot_commands.types import resolve_model
+from coot_commands.types import resolve_model, ArgType
 
 try:
     import coot
@@ -34,8 +34,9 @@ CATEGORY = "Representation"
 
 @command(r"(?:colou?r )?(?:carbons?|carbon colou?rs?) (?:of model (?P<model>\S+) )?grey|"
          r"grey carbons?(?: (?:for|of) model (?P<model2>\S+))?",
-         examples=["colour carbons grey", "grey carbons"],
+         examples=["colour carbons grey", "grey carbons", "grey carbons for model 0"],
          category=CATEGORY,
+         arg_types={"model": ArgType.MODEL, "model2": ArgType.MODEL},
          notes="Uses grey for carbon atoms. With no model number, acts on "
                "the active model.")
 def grey_carbons(model: Optional[str] = None, model2: Optional[str] = None) -> str:
@@ -48,8 +49,10 @@ def grey_carbons(model: Optional[str] = None, model2: Optional[str] = None) -> s
 
 @command(r"(?:colou?r )?(?:carbons?|carbon colou?rs?) (?:of model (?P<model>\S+) )?coloured|"
          r"colou?red carbons?(?: (?:for|of) model (?P<model2>\S+))?",
-         examples=["colour carbons coloured", "coloured carbons"],
+         examples=["colour carbons coloured", "coloured carbons",
+                   "coloured carbons for model 0"],
          category=CATEGORY,
+         arg_types={"model": ArgType.MODEL, "model2": ArgType.MODEL},
          notes="Uses per-element carbon colouring. With no model number, "
                "acts on the active model.")
 def coloured_carbons(model: Optional[str] = None, model2: Optional[str] = None) -> str:

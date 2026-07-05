@@ -1,0 +1,201 @@
+# coot_commands/completion.py
+#
+# Copyright 2026 Jordan Dialpuri, Medical Research Council Laboratory of Molecular Biology
+#
+# This file is part of Coot
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published
+# by the Free Software Foundation; either version 3 of the License, or (at
+# your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+
+"""Tab completion for the Coot command interface.
+
+The Command tab calls :func:`complete` with whatever the user has typed so
+far and completes the current word, the way a shell does.  There are two
+kinds of completion, and both fall out of the command definitions with no
+per-command bookkeeping:
+
+* *Keywords* - the fixed words of a command ("show", "model", "map").
+  These come from each command's ``examples``.  We match an example
+  against the command's own regex to learn which of its words are literal
+  keywords and which are argument values, so only keywords are offered as
+  keyword completions.
+
+* *Argument values* - the live options for an argument, e.g. the loaded
+  model numbers after "show model ".  A command declares the type of each
+  argument with ``arg_types`` (see :class:`coot_commands.types.ArgType`);
+  the completion engine asks that type for its current candidates.
+
+Completion works one word at a time.  Given the words typed so far, we
+collect every command word that could come next, then return the longest
+common prefix (so a single Tab fills in as much as is unambiguous) plus the
+full list of options to show the user when there is more than one.
+"""
+
+from __future__ import annotations
+
+from typing import List, Sequence, Tuple
+
+from coot_commands.registry import all_commands, normalise
+
+
+def _spec_candidates(spec: object) -> List[str]:
+    """Resolve an ``arg_types`` entry to its current candidate strings.
+
+    Accepts an :class:`~coot_commands.types.ArgType` (anything with a
+    ``candidates()`` method), a zero-argument callable, or a plain iterable
+    of strings.  Any failure yields no candidates rather than raising.
+    """
+    if spec is None:
+        return []
+    getter = getattr(spec, "candidates", None)
+    if callable(getter):
+        try:
+            return [str(v) for v in getter()]
+        except Exception:
+            return []
+    if callable(spec):
+        try:
+            return [str(v) for v in spec()]
+        except Exception:
+            return []
+    if isinstance(spec, str):
+        return [spec]
+    try:
+        return [str(v) for v in spec]
+    except TypeError:
+        return []
+
+
+def _example_words(cmd, example: str) -> Tuple[List[str], List[bool], List]:
+    """Split *example* into words, marking which are argument values.
+
+    Returns ``(words, is_arg, arg_name)`` parallel lists.  A word is an
+    argument value when it matches one of the command regex's named groups;
+    the group name is recorded in *arg_name* so the caller can look the
+    argument's type up in ``cmd.arg_types``.
+    """
+    ex = normalise(example)
+    words = ex.split(" ") if ex else []
+    is_arg = [False] * len(words)
+    arg_name: List = [None] * len(words)
+
+    match = cmd.regex.match(ex)
+    if match:
+        # Map each captured value back to its group name; the first group to
+        # claim a value wins (values are distinct in practice).
+        value_group = {}
+        for name, value in match.groupdict().items():
+            if value:
+                value_group.setdefault(value, name)
+        for i, word in enumerate(words):
+            if word in value_group:
+                is_arg[i] = True
+                arg_name[i] = value_group[word]
+    return words, is_arg, arg_name
+
+
+def _prefix_matches(cmd, words_ex, is_arg, arg_name, fixed) -> bool:
+    """Do the already-typed *fixed* words fit this example's earlier words?
+
+    A keyword word must match exactly (case-insensitively).  An argument
+    word matches a typed value only when that value is one of the
+    argument's current candidates - otherwise "perspective view" would let
+    "view" be offered after any first word.  When an argument has no
+    candidates to check against (a free-form argument, or a type whose
+    values are momentarily unavailable) we accept the typed value.
+    """
+    for i, typed in enumerate(fixed):
+        if is_arg[i]:
+            options = _spec_candidates(cmd.arg_types.get(arg_name[i]))
+            if options and typed.lower() not in {o.lower() for o in options}:
+                return False
+        elif words_ex[i].lower() != typed.lower():
+            return False
+    return True
+
+
+def _sorted(candidates: Sequence[str]) -> List[str]:
+    """Sort candidates numerically when they are all numbers, else by name."""
+    items = list(candidates)
+    if items and all(c.isdigit() for c in items):
+        return sorted(items, key=int)
+    return sorted(items)
+
+
+def _common_prefix(strings: Sequence[str]) -> str:
+    """Longest common (case-sensitive) prefix of *strings*."""
+    if not strings:
+        return ""
+    lo = min(strings)
+    hi = max(strings)
+    n = 0
+    for a, b in zip(lo, hi):
+        if a != b:
+            break
+        n += 1
+    return lo[:n]
+
+
+def complete(text: str) -> Tuple[str, List[str]]:
+    """Complete the command line *text*.
+
+    Returns ``(replacement, options)``:
+
+    * *replacement* is the new command-line text - the input with the
+      current word extended as far as is unambiguous.  It is empty when
+      there is nothing to complete or no progress can be made.
+    * *options* is the list of candidate words to show the user, non-empty
+      only when the completion is ambiguous (more than one candidate).
+    """
+    raw = text or ""
+    norm = normalise(raw)
+    trailing_space = bool(raw) and raw[-1].isspace()
+    words = norm.split(" ") if norm else []
+
+    # Are we completing a fresh word (after a space, or on an empty line) or
+    # extending the word under the cursor?
+    if trailing_space or not words:
+        fixed, partial = words, ""
+    else:
+        fixed, partial = words[:-1], words[-1]
+    pos = len(fixed)
+    partial_low = partial.lower()
+
+    candidates = set()
+    for cmd in all_commands():
+        for example in cmd.examples:
+            words_ex, is_arg, arg_name = _example_words(cmd, example)
+            if len(words_ex) <= pos:
+                continue
+            if not _prefix_matches(cmd, words_ex, is_arg, arg_name, fixed):
+                continue
+            if is_arg[pos]:
+                spec = cmd.arg_types.get(arg_name[pos])
+                for value in _spec_candidates(spec):
+                    if value.lower().startswith(partial_low):
+                        candidates.add(value)
+            else:
+                keyword = words_ex[pos]
+                if keyword.lower().startswith(partial_low):
+                    candidates.add(keyword)
+
+    if not candidates:
+        return "", []
+
+    ordered = _sorted(candidates)
+    if len(ordered) == 1:
+        # Unambiguous: fill it in and add a space, ready for the next word.
+        return " ".join(fixed + [ordered[0]]) + " ", []
+
+    # Ambiguous: extend the word by the shared prefix and list the options.
+    prefix = _common_prefix(ordered)
+    word = prefix if len(prefix) >= len(partial) else partial
+    replacement = " ".join(fixed + [word]) if (fixed or word) else ""
+    return replacement, ordered

@@ -29,7 +29,8 @@ residue's molecule, and ``resolve_map`` uses the refinement map.
 
 from __future__ import annotations
 
-from typing import Any, Optional
+import enum
+from typing import Any, List, Optional
 
 try:
     import coot
@@ -145,3 +146,67 @@ def resolve_colour(name: str) -> tuple[float, float, float]:
         return COLOURS[key]
     raise CommandError(
         f"unknown colour {name!r} (known: {', '.join(sorted(set(COLOURS)))})")
+
+
+# ---------------------------------------------------------------------------
+#   Argument types (for tab completion)
+# ---------------------------------------------------------------------------
+#
+# A command declares the *type* of each of its regex named groups via the
+# ``arg_types`` argument to the ``@command`` decorator, e.g.
+# ``arg_types={"model": ArgType.MODEL}``.  The completion engine
+# (:mod:`coot_commands.completion`) asks the type for its current candidate
+# values, so pressing Tab after "show model " lists the loaded models.  The
+# type is metadata only - it does not affect how a command runs.
+
+
+def loaded_models() -> List[str]:
+    """Molecule numbers of the currently loaded models, as strings."""
+    if coot is None:
+        return []
+    try:
+        return [str(i) for i in range(coot.graphics_n_molecules())
+                if coot.is_valid_model_molecule(i) == 1]
+    except Exception:
+        return []
+
+
+def loaded_maps() -> List[str]:
+    """Molecule numbers of the currently loaded maps, as strings."""
+    if coot is None:
+        return []
+    try:
+        return [str(i) for i in range(coot.graphics_n_molecules())
+                if coot.is_valid_map_molecule(i) == 1]
+    except Exception:
+        return []
+
+
+def colour_names() -> List[str]:
+    """The named colours accepted by the colour/background commands."""
+    return sorted(set(COLOURS))
+
+
+class ArgType(enum.Enum):
+    """The kind of value a command argument accepts.
+
+    Each member knows how to enumerate its current candidate values via
+    :meth:`candidates`, which the completion engine calls when the user
+    presses Tab at that argument's position.  Add a member here (and a
+    branch in :meth:`candidates`) to teach completion about a new kind of
+    argument; commands then opt in with ``arg_types={"group": ArgType.X}``.
+    """
+
+    MODEL = "model"
+    MAP = "map"
+    COLOUR = "colour"
+
+    def candidates(self) -> List[str]:
+        """Return the current completion candidates for this type."""
+        if self is ArgType.MODEL:
+            return loaded_models()
+        if self is ArgType.MAP:
+            return loaded_maps()
+        if self is ArgType.COLOUR:
+            return colour_names()
+        return []

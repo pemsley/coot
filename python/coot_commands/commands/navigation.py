@@ -21,7 +21,7 @@ from __future__ import annotations
 from typing import Optional
 
 from coot_commands.registry import command
-from coot_commands.types import resolve_model, as_int
+from coot_commands.types import resolve_model, as_int, ArgType
 
 try:
     import coot
@@ -37,6 +37,7 @@ CATEGORY = "Navigation"
          r"(?:residue |res )?(?P<chain>[A-Za-z0-9])[ /](?P<resno>-?\d+)",
          examples=["go to A 45", "centre on A/45", "go to model 0 B 12"],
          category=CATEGORY,
+         arg_types={"model": ArgType.MODEL},
          notes="Centres on the CA of the given chain/residue. With no model "
                "number, uses the active model. Chain and residue may be "
                "separated by a space or a slash.")

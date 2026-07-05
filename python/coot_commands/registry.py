@@ -30,11 +30,17 @@ benefits without having to think about it.
 from __future__ import annotations
 
 import re
-from typing import Callable, Iterable, Optional
+from typing import Callable, Dict, Iterable, Optional
 
 # A command handler takes keyword arguments (the regex named groups, each a
 # str or None) and returns a message string.
 Handler = Callable[..., str]
+
+# Maps a regex named group to the kind of value it accepts.  Used only by the
+# completion engine; the value is typically an ``ArgType`` member (see
+# :mod:`coot_commands.types`) but any object with a ``candidates()`` method, a
+# zero-argument callable, or a plain iterable of strings works too.
+ArgTypes = Dict[str, object]
 
 
 class Command:
@@ -48,7 +54,8 @@ class Command:
 
     def __init__(self, pattern: str, handler: Handler, help_text: str,
                  examples: Iterable[str], category: str,
-                 notes: Optional[str]) -> None:
+                 notes: Optional[str],
+                 arg_types: Optional[ArgTypes] = None) -> None:
         self.regex = re.compile(pattern, re.IGNORECASE)
         self.pattern = pattern
         self.handler = handler
@@ -56,6 +63,7 @@ class Command:
         self.examples = tuple(examples)
         self.category = category
         self.notes = notes
+        self.arg_types = dict(arg_types) if arg_types else {}
 
     @property
     def name(self) -> str:
@@ -75,7 +83,8 @@ _COMMANDS = []
 
 def command(pattern: str, help: Optional[str] = None,
             examples: Iterable[str] = (), category: str = "General",
-            notes: Optional[str] = None) -> Callable[[Handler], Handler]:
+            notes: Optional[str] = None,
+            arg_types: Optional[ArgTypes] = None) -> Callable[[Handler], Handler]:
     """Decorator registering *handler* for inputs matching *pattern*.
 
     *pattern* is a regular expression matched (case-insensitively) against
@@ -96,12 +105,16 @@ def command(pattern: str, help: Optional[str] = None,
       Markdown (e.g. "View", "Maps", "Navigation").
     * *notes* - optional extra prose for the generated docs (caveats,
       argument details) that would be too long for *help*.
+    * *arg_types* - maps a named group to the kind of value it accepts (an
+      :class:`~coot_commands.types.ArgType`), so tab completion can offer
+      live candidates, e.g. ``arg_types={"model": ArgType.MODEL}``.
     """
     def decorator(handler: Handler) -> Handler:
         doc_first_line = (handler.__doc__ or "").strip().splitlines()
         default_help = doc_first_line[0] if doc_first_line else ""
         help_text = help if help is not None else default_help
-        _COMMANDS.append(Command(pattern, handler, help_text, examples, category, notes))
+        _COMMANDS.append(Command(pattern, handler, help_text, examples,
+                                 category, notes, arg_types))
         return handler
     return decorator
 

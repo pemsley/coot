@@ -25,7 +25,7 @@ from __future__ import annotations
 from typing import Optional
 
 from coot_commands.registry import command
-from coot_commands.types import resolve_colour, as_float, CommandError
+from coot_commands.types import resolve_colour, as_float, CommandError, ArgType
 
 try:
     import coot
@@ -39,6 +39,7 @@ CATEGORY = "View"
 @command(r"(?:set )?background (?:colou?r )?(?:to )?(?P<colour>\S+)",
          examples=["background black", "set background colour to white"],
          category=CATEGORY,
+         arg_types={"colour": ArgType.COLOUR},
          notes="Colour names: black, white, grey, and the other named "
                "colours accepted by colour commands.")
 def set_background(colour: str) -> str:
@@ -73,7 +74,8 @@ def rock_view(**_: Optional[str]) -> str:
 
 @command(r"(?:use )?(?P<mode>orthographic|perspective)(?: (?:view|projection))?",
          examples=["orthographic", "perspective view"],
-         category=CATEGORY)
+         category=CATEGORY,
+         arg_types={"mode": ("orthographic", "perspective")})
 def set_projection(mode: str) -> str:
     """Switch between orthographic and perspective projection."""
     perspective = 1 if mode.lower() == "perspective" else 0

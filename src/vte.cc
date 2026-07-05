@@ -775,6 +775,43 @@ on_command_entry_key_pressed(GtkEventControllerKey *controller,
 
    GtkEditable *editable = GTK_EDITABLE(user_data);
 
+   // Tab autocompletes the word under the cursor.
+   if (keyval == GDK_KEY_Tab || keyval == GDK_KEY_ISO_Left_Tab) {
+      const char *cur = gtk_editable_get_text(editable);
+      std::string input(cur ? cur : "");
+
+      std::string esc;
+      for (char c : input) {
+         if (c == '\\' || c == '"') esc += '\\';
+         esc += c;
+      }
+      std::string code =
+         "__import__('coot_command_interface').complete_command(\"" + esc + "\")";
+      execute_python_results_container_t rc =
+         execute_python_code_with_result_internal(code);
+
+      std::string reply;
+      if (rc.result && PyUnicode_Check(rc.result)) {
+         const char *s = PyUnicode_AsUTF8(rc.result);
+         if (s) reply = s;
+      }
+      if (reply.empty()) return TRUE; // nothing to complete
+
+      std::string replacement = reply;
+      std::string options;
+      std::string::size_type nl = reply.find('\n');
+      if (nl != std::string::npos) {
+         replacement = reply.substr(0, nl);
+         options = reply.substr(nl + 1);
+      }
+
+      gtk_editable_set_text(editable, replacement.c_str());
+      gtk_editable_set_position(editable, -1); // cursor to end
+      if (!options.empty())
+         command_output_append(options + "\n");
+      return TRUE;
+   }
+
    if (keyval == GDK_KEY_Up) {
       if (command_history.empty()) return TRUE;
       if (command_history_pos > 0) command_history_pos--;

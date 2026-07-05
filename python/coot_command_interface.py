@@ -56,3 +56,25 @@ def run_command(text: Optional[str]) -> str:
         return f"Unrecognised command: {text.strip()!r}  (try \"help\")"
 
     return result
+
+
+def complete_command(text: Optional[str]) -> str:
+    """Tab-complete the command line *text* for the Command tab.
+
+    Returns a string the C++ side interprets: the first line is the new
+    entry text (the input with the current word completed as far as is
+    unambiguous); any following line lists the candidate words to display
+    when the completion is ambiguous.  An empty string means "nothing to
+    complete".  Never raises.
+    """
+    try:
+        from coot_commands.completion import complete
+        replacement, options = complete(text or "")
+    except Exception:
+        return ""
+
+    if not replacement and not options:
+        return ""
+    if options:
+        return replacement + "\n" + "  ".join(options)
+    return replacement

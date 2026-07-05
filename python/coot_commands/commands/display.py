@@ -21,7 +21,7 @@ from __future__ import annotations
 from typing import Optional
 
 from coot_commands.registry import command
-from coot_commands.types import resolve_model, resolve_map
+from coot_commands.types import resolve_model, resolve_map, ArgType
 
 try:
     import coot
@@ -35,6 +35,7 @@ CATEGORY = "Display"
 @command(r"(?:show|display) model(?: (?P<model>\S+))?",
          examples=["show model 0", "display model"],
          category=CATEGORY,
+         arg_types={"model": ArgType.MODEL},
          notes="With no number, acts on the active model.")
 def show_model(model: Optional[str] = None) -> str:
     """Show (display) a model."""
@@ -47,6 +48,7 @@ def show_model(model: Optional[str] = None) -> str:
 @command(r"(?:hide|undisplay) model(?: (?P<model>\S+))?",
          examples=["hide model 0", "undisplay model"],
          category=CATEGORY,
+         arg_types={"model": ArgType.MODEL},
          notes="With no number, acts on the active model.")
 def hide_model(model: Optional[str] = None) -> str:
     """Hide (undisplay) a model."""
@@ -59,6 +61,7 @@ def hide_model(model: Optional[str] = None) -> str:
 @command(r"(?:show|display) map(?: (?P<map>\S+))?",
          examples=["show map 1", "display map"],
          category=CATEGORY,
+         arg_types={"map": ArgType.MAP},
          notes="With no number, acts on the active (refinement) map.")
 def show_map(map: Optional[str] = None) -> str:
     """Show (display) a map."""
@@ -71,6 +74,7 @@ def show_map(map: Optional[str] = None) -> str:
 @command(r"(?:hide|undisplay) map(?: (?P<map>\S+))?",
          examples=["hide map 1", "undisplay map"],
          category=CATEGORY,
+         arg_types={"map": ArgType.MAP},
          notes="With no number, acts on the active (refinement) map.")
 def hide_map(map: Optional[str] = None) -> str:
     """Hide (undisplay) a map."""
