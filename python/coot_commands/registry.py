@@ -129,6 +129,23 @@ def normalise(text: str) -> str:
     return re.sub(r"\s+", " ", text.strip())
 
 
+def unmatched_examples() -> list[tuple[str, str]]:
+    """Return ``(command_name, example)`` pairs that don't match their command.
+
+    Every example should be dispatchable by its own command - otherwise the
+    phrasing advertised in ``help`` and the reference silently fails, and
+    tab completion (which learns a command's shape by matching examples
+    against the regex) mis-classifies the example's words.  Tests and the
+    docs generator call this to catch such drift at authoring time.
+    """
+    problems = []
+    for cmd in _COMMANDS:
+        for example in cmd.examples:
+            if not cmd.regex.match(normalise(example)):
+                problems.append((cmd.name, example))
+    return problems
+
+
 def dispatch(text: str) -> Optional[str]:
     """Find and run the command matching *text*.
 

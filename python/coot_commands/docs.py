@@ -86,4 +86,13 @@ def to_markdown() -> str:
 
 if __name__ == "__main__":
     import sys
+    from coot_commands.registry import unmatched_examples
+
+    # Warn (but still generate) if any advertised example can't be dispatched
+    # by its own command - such examples fail when typed and mislead tab
+    # completion. See registry.unmatched_examples.
+    for name, example in unmatched_examples():
+        sys.stderr.write(
+            f"warning: example {example!r} does not match command {name}\n")
+
     sys.stdout.write(to_markdown())

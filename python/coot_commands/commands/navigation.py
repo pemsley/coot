@@ -38,17 +38,22 @@ CATEGORY = "Navigation"
          examples=["go to A 45", "centre on A/45", "go to model 0 B 12"],
          category=CATEGORY,
          arg_types={"model": ArgType.MODEL},
-         notes="Centres on the CA of the given chain/residue. With no model "
-               "number, uses the active model. Chain and residue may be "
-               "separated by a space or a slash.")
+         notes="Centres on the given chain/residue, picking a sensible atom "
+               "(CA for protein, P/C1' for nucleotides, and so on) so it "
+               "works for waters, ligands and nucleic acids too. With no "
+               "model number, uses the active model. Chain and residue may "
+               "be separated by a space or a slash.")
 def go_to_residue(chain: str, resno: str, model: Optional[str] = None) -> str:
     """Centre the view on a chain/residue."""
     imol = resolve_model(model)
     res = as_int(resno, "residue number")
+    chain_id = chain.upper()
     if coot is not None:
         coot.set_go_to_atom_molecule(imol)
-        coot.set_go_to_atom_chain_residue_atom_name(chain.upper(), res, " CA ")
-    return f"Centred on {chain.upper()}/{res} of model {imol}"
+        success = coot.set_go_to_atom_from_res_spec_py([chain_id, res, ""])
+        if success <= 0:
+            return f"No residue {chain_id}/{res} in model {imol}"
+    return f"Centred on {chain_id}/{res} of model {imol}"
 
 
 @command(r"centre at (?P<x>-?[\d.]+) (?P<y>-?[\d.]+) (?P<z>-?[\d.]+)",
