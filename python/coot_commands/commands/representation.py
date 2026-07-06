@@ -63,6 +63,120 @@ def coloured_carbons(model: Optional[str] = None, model2: Optional[str] = None) 
     return f"Model {imol}: coloured carbons"
 
 
+# A ribbon/surface representation is added to a model as one or more extra
+# "meshes" (the colour-by-chain ribbon adds one mesh per chain).  Coot's
+# add_molecular_representation() returns 0 regardless of what it added, and its
+# remove_molecular_representation() does not touch these meshes, so we cannot
+# hide by a "representation index".  Instead we record the *mesh indices* that
+# each show appended and toggle their draw state with set_draw_mesh(), which is
+# the call that actually shows/hides a mesh.  Keyed by (imol, style) -> mesh
+# indices.
+_REPS: dict[tuple[int, str], list[int]] = {}
+
+# secondary_structure_usage: 2 == CALC_SECONDARY_STRUCTURE, so ribbons get
+# sensible helices/strands even when the model has no header SS records.
+_CALC_SECONDARY_STRUCTURE = 2
+
+
+def _mesh_count(imol: int) -> int:
+    """Number of extra meshes attached to a model.
+
+    draw_mesh_state() returns -1 for an out-of-range index, so we probe
+    upward until it does - there is no direct "how many meshes" call.
+    """
+    n = 0
+    while coot.draw_mesh_state(imol, n) != -1:
+        n += 1
+    return n
+
+
+def _show_rep(imol: int, style: str, colour_scheme: str, label: str) -> str:
+    """Show a ribbon/surface representation, tracking the meshes it adds.
+
+    If we have shown this representation before, re-enable those meshes
+    rather than building a duplicate set.
+    """
+    if coot is None:
+        return f"Model {imol}: showing {label}"
+    tracked = _REPS.get((imol, style))
+    if tracked:
+        for idx in tracked:
+            coot.set_draw_mesh(imol, idx, 1)
+        return f"Model {imol}: showing {label}"
+    before = _mesh_count(imol)
+    coot.add_molecular_representation_py(
+        imol, "//", colour_scheme, style, _CALC_SECONDARY_STRUCTURE)
+    after = _mesh_count(imol)
+    if after <= before:
+        return f"Model {imol}: could not add {label}"
+    _REPS[(imol, style)] = list(range(before, after))
+    return f"Model {imol}: showing {label}"
+
+
+def _hide_rep(imol: int, style: str, label: str) -> str:
+    """Hide a previously shown ribbon/surface representation, if any.
+
+    The mesh indices stay tracked so a later "show" re-enables the same
+    meshes instead of rebuilding them.
+    """
+    idxs = _REPS.get((imol, style))
+    if not idxs:
+        return f"Model {imol}: no {label} to hide"
+    if coot is not None:
+        for idx in idxs:
+            coot.set_draw_mesh(imol, idx, 0)
+    return f"Model {imol}: hiding {label}"
+
+
+@command(r"show ribbons?(?: (?:for|of) model (?P<model>\S+))?",
+         examples=["show ribbons", "show ribbons for model 0"],
+         category=CATEGORY,
+         arg_types={"model": ArgType.MODEL},
+         notes="Draws a ribbon (cartoon) representation of the whole model, "
+               "coloured by chain. With no model number, acts on the active "
+               "model.")
+def show_ribbons(model: Optional[str] = None) -> str:
+    """Show a ribbon representation of a model."""
+    imol = resolve_model(model)
+    return _show_rep(imol, "Ribbon", "colorRampChainsScheme", "ribbons")
+
+
+@command(r"hide ribbons?(?: (?:for|of) model (?P<model>\S+))?",
+         examples=["hide ribbons", "hide ribbons for model 0"],
+         category=CATEGORY,
+         arg_types={"model": ArgType.MODEL},
+         notes="Removes the ribbon representation added by 'show ribbons'. "
+               "With no model number, acts on the active model.")
+def hide_ribbons(model: Optional[str] = None) -> str:
+    """Hide the ribbon representation of a model."""
+    imol = resolve_model(model)
+    return _hide_rep(imol, "Ribbon", "ribbons")
+
+
+@command(r"show (?:molecular )?surface(?: (?:for|of) model (?P<model>\S+))?",
+         examples=["show surface", "show surface for model 0"],
+         category=CATEGORY,
+         arg_types={"model": ArgType.MODEL},
+         notes="Draws a molecular surface for the whole model, coloured by "
+               "chain. With no model number, acts on the active model.")
+def show_surface(model: Optional[str] = None) -> str:
+    """Show a molecular surface of a model."""
+    imol = resolve_model(model)
+    return _show_rep(imol, "MolecularSurface", "Chain", "molecular surface")
+
+
+@command(r"hide (?:molecular )?surface(?: (?:for|of) model (?P<model>\S+))?",
+         examples=["hide surface", "hide surface for model 0"],
+         category=CATEGORY,
+         arg_types={"model": ArgType.MODEL},
+         notes="Removes the molecular surface added by 'show surface'. With "
+               "no model number, acts on the active model.")
+def hide_surface(model: Optional[str] = None) -> str:
+    """Hide the molecular surface of a model."""
+    imol = resolve_model(model)
+    return _hide_rep(imol, "MolecularSurface", "molecular surface")
+
+
 @command(r"show symmetry",
          examples=["show symmetry"],
          category=CATEGORY)
