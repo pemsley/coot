@@ -34,13 +34,19 @@ find_package(Python 3
   REQUIRED COMPONENTS Interpreter Development.Module
   OPTIONAL_COMPONENTS Development.SABIModule)
 
-# Prefer nanobind's own cmake directory inside its Python package so that
-# NB_DIR resolves correctly and the bundled robin_map is found.
-# The system /usr/lib/cmake/nanobind/ breaks NB_DIR's relative path logic.
+# Ask the installed nanobind for its own cmake directory. nanobind is noarch, so
+# deriving the path from Python_STDLIB breaks where distros split arch/noarch dirs
+# (e.g. Fedora: stdlib in /usr/lib64, but nanobind lands in /usr/lib). Querying the
+# module returns the real location and keeps NB_DIR's relative layout (robin_map) intact.
 if(NOT nanobind_DIR)
-  # Use Python_STDLIB (not Python_SITELIB) so this works inside venvs too,
-  # since venvs share the system stdlib but have their own site-packages.
-  set(nanobind_DIR "${Python_STDLIB}/site-packages/nanobind/cmake")
+  execute_process(
+    COMMAND "${Python_EXECUTABLE}" -m nanobind --cmake_dir
+    RESULT_VARIABLE _nanobind_query_result
+    OUTPUT_VARIABLE _nanobind_cmake_dir
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  if(_nanobind_query_result EQUAL 0 AND IS_DIRECTORY "${_nanobind_cmake_dir}")
+    set(nanobind_DIR "${_nanobind_cmake_dir}")
+  endif()
 endif()
 find_package(nanobind CONFIG REQUIRED)
 
