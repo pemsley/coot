@@ -55,23 +55,13 @@ std::string lhasa::export_mol_to_pickle_base64(CootLigandEditorCanvas& canvas, u
 unsigned int lhasa::append_from_pickle_base64(CootLigandEditorCanvas& canvas, std::string base64_pickle_string) {
     std::string pickle_string = moorhen_base64::base64_decode(base64_pickle_string);
     auto appendee = rdkit_mol_from_pickle(pickle_string);
-    auto smiles = rdkit_mol_to_smiles(*appendee.get());
+    auto smiles = coot::layla::io::rdkit_mol_to_smiles(*appendee.get());
     g_info("Smiles from pickle: %s -> %s", base64_pickle_string.c_str(), smiles.c_str());
     return canvas.append_molecule(std::move(appendee));
 }
 
-std::string lhasa::rdkit_mol_to_smiles(const RDKit::ROMol& mol) {
-    auto ret = RDKit::MolToSmiles(mol, true);
-    return ret;
-}
-
-std::unique_ptr<RDKit::RWMol> lhasa::rdkit_mol_from_smiles(std::string smiles) {
-    std::unique_ptr<RDKit::RWMol> ret(RDKit::SmilesToMol(smiles, 0, false));
-    return ret;
-}
-
 unsigned int lhasa::append_from_smiles(CootLigandEditorCanvas& canvas, std::string smiles) {
-    return canvas.append_molecule(rdkit_mol_from_smiles(smiles));
+    return canvas.append_molecule(coot::layla::io::rdkit_mol_from_smiles(smiles));
 }
 
 std::unique_ptr<coot::ligand_editor_canvas::ActiveTool> lhasa::make_active_tool(emscripten::val tool) {
@@ -126,65 +116,9 @@ coot::ligand_editor_canvas::ElementInsertion lhasa::element_insertion_from_symbo
 
 std::string lhasa::export_mol(CootLigandEditorCanvas& canvas, unsigned int molecule_idx, lhasa::CheminformaticsFileFormat format) {
     const auto& mol = canvas.get_rdkit_molecule(molecule_idx);
-    switch(format) {
-        case CheminformaticsFileFormat::Molfile: {
-            return RDKit::MolToMolBlock(mol);
-        }
-        case CheminformaticsFileFormat::SDF: {
-            return RDKit::MolToMolBlock(mol) + "$$$$\n";
-        }
-        case CheminformaticsFileFormat::InChI: {
-#ifdef RDK_BUILD_INCHI_SUPPORT
-            RDKit::ExtraInchiReturnValues rv;
-            return RDKit::MolToInchi(mol, rv);
-#else
-            throw std::runtime_error("RDKit was built without InChI support");
-#endif
-        }
-        case CheminformaticsFileFormat::CDXML: {
-            return RDKit::v2::MolToChemDrawBlock(mol);
-        }
-        default: {
-            throw std::runtime_error("Unknown file format");
-        }
-    }
+    return coot::layla::io::mol_to_string(mol, format);
 }
 
 unsigned int lhasa::append_from_import(CootLigandEditorCanvas& canvas, std::string data, lhasa::CheminformaticsFileFormat format) {
-    std::shared_ptr<RDKit::RWMol> mol;
-    switch(format) {
-        case CheminformaticsFileFormat::Molfile:
-        case CheminformaticsFileFormat::SDF: {
-            mol = RDKit::v2::FileParsers::MolFromMolBlock(data);
-            break;
-        }
-        case CheminformaticsFileFormat::InChI: {
-#ifdef RDK_BUILD_INCHI_SUPPORT
-            RDKit::ExtraInchiReturnValues rv;
-            mol.reset(RDKit::InchiToMol(data, rv));
-#else
-            throw std::runtime_error("RDKit was built without InChI support");
-#endif
-            break;
-        }
-        case CheminformaticsFileFormat::CDXML: {
-            auto mols = RDKit::v2::MolsFromChemDrawBlock(data);
-            if (mols.empty()) {
-                throw std::runtime_error("No molecules found in CDXML data");
-            }
-            if (mols.size() > 1) {
-                g_warning("Multiple molecules found in CDXML data. Only the first one will be imported.");
-            }
-            /// Hmmm, maybe we should import all the molecules, not just the first one?
-            mol = std::move(mols.front());
-            break;
-        }
-        default: {
-            throw std::runtime_error("Unknown file format");
-        }
-    }
-    if (!mol) {
-        throw std::runtime_error("Failed to parse molecule from input data");
-    }
-    return canvas.append_molecule(std::move(mol));
+    return canvas.append_molecule(coot::layla::io::mol_from_string(data, format));
 }

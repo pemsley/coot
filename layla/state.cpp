@@ -35,12 +35,13 @@
 #include <rdkit/GraphMol/SmilesParse/SmilesParse.h>
 #include <rdkit/GraphMol/FileParsers/FileParsers.h>
 #include "utils.hpp"
+#include "file_io.hpp"
 // todo: remove dependency on lidia-core
 #include "lidia-core/rdkit-interface.hh"
 #include "utils/coot-utils.hh"
 #include "inchi_key_database.hpp"
 #include <string>
-#include "python_utils.hpp"
+#include "network_utils.hpp"
 
 using namespace coot::layla;
 
@@ -454,7 +455,7 @@ void LaylaState::file_fetch_molecule() {
             return;
         } else {
             const char *text_buf = gtk_entry_buffer_get_text(GTK_ENTRY_BUFFER(user_data));
-            auto res = coot::layla::get_drug_via_wikipedia_and_drugbank_curl(std::string(text_buf));
+            auto res = coot::layla::get_drug_via_wikipedia_and_chembl_curl(std::string(text_buf));
             LaylaState* self = static_cast<LaylaState*>(g_object_get_data(G_OBJECT(dialog), "ligand_builder_instance"));
             try {
                 if(res.empty()) {
@@ -514,7 +515,9 @@ void LaylaState::file_save() {
 void LaylaState::save_file(unsigned int idx, const char* filename, GtkWindow* parent) noexcept {
     try {
         const auto* mol = coot_ligand_editor_canvas_get_rdkit_molecule(this->canvas, idx);
-        RDKit::MolToMolFile(*mol,std::string(filename));
+        auto format = coot::layla::io::format_from_extension(filename)
+                          .value_or(coot::layla::io::CheminformaticsFileFormat::Molfile);
+        coot::layla::io::mol_to_file(*mol, std::string(filename), format);
         g_info("MolFile Save: Molecule file saved.");
         this->update_status("File saved.");
         this->current_filesave_filename = std::string(filename);
@@ -542,6 +545,27 @@ void LaylaState::run_file_save_dialog(unsigned int molecule_idx) noexcept {
     // This isn't the best practice but it tremendously simplifies things
     // by saving us from unnecessary boilerplate.
     g_object_set_data(G_OBJECT(save_dialog), "ligand_builder_instance", this);
+
+    // Offer a pickable list of output formats. The chosen format is ultimately
+    // taken from the resulting filename's extension in save_file().
+    GListStore* filters = g_list_store_new(GTK_TYPE_FILE_FILTER);
+    auto add_filter = [filters](const char* name, std::initializer_list<const char*> suffixes) {
+        GtkFileFilter* filter = gtk_file_filter_new();
+        gtk_file_filter_set_name(filter, name);
+        for(const char* suffix : suffixes) {
+            gtk_file_filter_add_suffix(filter, suffix);
+        }
+        g_list_store_append(filters, filter);
+        g_object_unref(filter);
+    };
+    add_filter("MDL Molfile (*.mol, *.mdf)", {"mol", "mdf"});
+    add_filter("SDF (*.sdf)", {"sdf"});
+    add_filter("InChI (*.inchi)", {"inchi"});
+    add_filter("CDXML (*.cdxml)", {"cdxml"});
+    add_filter("SMILES (*.smi)", {"smi"});
+    gtk_file_dialog_set_filters(save_dialog, G_LIST_MODEL(filters));
+    g_object_unref(filters);
+
     gtk_file_dialog_save(save_dialog, this->main_window, NULL, +[](GObject* source_object, GAsyncResult* res, gpointer user_data){
         GError** e = NULL;
         GFile* file = gtk_file_dialog_save_finish(GTK_FILE_DIALOG(source_object), res, e);
@@ -646,28 +670,7 @@ void LaylaState::file_open() {
         if(file) {
             //g_info("I have a file");
             const char* path = g_file_get_path(file);
-            try {
-                RDKit::RWMol* mol = RDKit::MolFileToMol(std::string(path),true,false,false);
-                if(!mol) {
-                    throw std::runtime_error("RDKit::RWMol* is a nullptr. The MolFile could not be loaded.");
-                }
-                g_info("MolFile Import: Molecule constructed.");
-                int new_mol_id = self->append_molecule(mol);
-                if(new_mol_id >= 0) {
-                    self->current_filesave_molecule = static_cast<unsigned int>(new_mol_id);
-                    self->current_filesave_filename = std::string(path);
-                }
-            } catch(std::exception& e) {
-                g_warning("MolFile Import error: %s",e.what());
-                auto* message = gtk_message_dialog_new(
-                    GTK_WINDOW(source_object), 
-                    GTK_DIALOG_DESTROY_WITH_PARENT, 
-                    GTK_MESSAGE_ERROR, 
-                    GTK_BUTTONS_CLOSE, 
-                    "Error: Molecule could not be loaded.\n%s", 
-                    e.what()
-                );
-            }
+            self->load_molecule_from_file(std::string(path), /*set_as_current_filesave=*/true);
             g_object_unref(file);
         }
         if(e) {
@@ -679,6 +682,71 @@ void LaylaState::file_open() {
 #warning "You're compiling Layla with an unsupported version of GTK. Some functionality will be broken."
     g_warning("Layla has been compiled with an unsupported version of GTK. Some functionality is broken.");
 #endif
+}
+
+int LaylaState::load_molecule_from_file(const std::string& path, bool set_as_current_filesave) noexcept {
+    try {
+        auto mol = coot::layla::io::mol_from_file(path);
+        g_info("MolFile Import: Molecule constructed from %s.", path.c_str());
+        int new_mol_id = this->append_molecule(mol.release());
+        if(new_mol_id >= 0 && set_as_current_filesave) {
+            this->current_filesave_molecule = static_cast<unsigned int>(new_mol_id);
+            this->current_filesave_filename = path;
+        }
+        return new_mol_id;
+    } catch(const std::exception& e) {
+        g_warning("MolFile Import error: %s", e.what());
+        auto* message = gtk_message_dialog_new(
+            this->main_window,
+            GTK_DIALOG_DESTROY_WITH_PARENT,
+            GTK_MESSAGE_ERROR,
+            GTK_BUTTONS_CLOSE,
+            "Error: Molecule could not be loaded.\n%s",
+            e.what());
+        g_signal_connect(message, "response", G_CALLBACK(+[](GtkDialog* dialog, gint response_id, gpointer user_data) {
+            gtk_window_destroy(GTK_WINDOW(dialog));
+        }), nullptr);
+        gtk_widget_set_visible(message, TRUE);
+        return -1;
+    }
+}
+
+void LaylaState::enable_ccp4i2_mode() noexcept {
+    auto* apply_button = gtk_builder_get_object(global_layla_gtk_builder, "layla_apply_button");
+    auto* send_button = gtk_builder_get_object(global_layla_gtk_builder, "layla_send_to_ccp4i2_button");
+    if(apply_button) {
+        gtk_widget_set_visible(GTK_WIDGET(apply_button), FALSE);
+    }
+    if(send_button) {
+        gtk_widget_set_visible(GTK_WIDGET(send_button), TRUE);
+    }
+}
+
+void LaylaState::send_to_ccp4i2() noexcept {
+    // Guard the empty canvas: get_max_molecule_idx() returns size()-1, which
+    // underflows to UINT_MAX when there are no molecules.
+    if(coot_ligand_editor_canvas_get_molecule_count(this->canvas) == 0) {
+        this->update_status("No molecules to send to CCP4i2.");
+        return;
+    }
+    unsigned int written = 0;
+    unsigned int max_idx = coot_ligand_editor_canvas_get_max_molecule_idx(this->canvas);
+    for(unsigned int i = 0; i <= max_idx; i++) {
+        // Empty SMILES marks a deleted/empty slot in the sparse molecule vector.
+        if(coot_ligand_editor_canvas_get_smiles_for_molecule(this->canvas, i).empty()) {
+            continue;
+        }
+        try {
+            const auto* mol = coot_ligand_editor_canvas_get_rdkit_molecule(this->canvas, i);
+            std::string filename = std::to_string(i) + ".mol";
+            coot::layla::io::mol_to_file(*mol, filename, coot::layla::io::CheminformaticsFileFormat::Molfile);
+            g_info("CCP4i2: wrote %s", filename.c_str());
+            written++;
+        } catch(const std::exception& e) {
+            g_warning("CCP4i2 send error for molecule %u: %s", i, e.what());
+        }
+    }
+    this->update_status((std::to_string(written) + " MolFile(s) written for CCP4i2.").c_str());
 }
 
 void LaylaState::file_export(ExportMode mode) {
