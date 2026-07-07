@@ -122,7 +122,7 @@ std::filesystem::path this_library_dir() {
 void other_setup_code() {
 
    std::filesystem::path lib_dir = this_library_dir();
-   std::cout << "DEBUG:: in other_setup_code(): lib_dir is " << lib_dir.string() << std::endl;
+   // std::cout << "DEBUG:: in other_setup_code(): lib_dir is " << lib_dir.string() << std::endl;
    coot::set_package_data_dir(lib_dir.string());
 
 }
