@@ -527,6 +527,12 @@ add_library(cootapi SHARED
             ${coot_src}/docking/rigid-body-dock.cc
             ${coot_src}/docking/semiflex-refine.cc
             ${coot_src}/docking/haddock-utils.cc
+            # Cremer-Pople
+            ${coot_src}/cremer-pople-sphere/data_sphere.cc
+            ${coot_src}/cremer-pople-sphere/density_map.cc
+            ${coot_src}/cremer-pople-sphere/primitives.cc
+            ${coot_src}/cremer-pople-sphere/ring.cc
+            ${coot_src}/cremer-pople-sphere/scene.cc
             )
 
 # wretched mae - 20 Sept 2025
