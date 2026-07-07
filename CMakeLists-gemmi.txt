@@ -253,10 +253,12 @@ configure_file(
 
 doxygen_add_docs(docs)
 
-nanobind_add_module(coot_headless_api ${coot_src}/api/molecules-container-nanobind.cc
-                                      ${coot_src}/api/molecules-container-nanobind-functions.cc
-                                      ${coot_src}/api/coot-docstring-extract.cc
-                                      ${COOT_DOCSTRINGS_GENERATED})
+# nanobind_add_module(coot_headless_api ${coot_src}/api/molecules-container-nanobind.cc
+#                                       ${coot_src}/api/molecules-container-nanobind-functions.cc
+#                                       ${coot_src}/api/coot-docstring-extract.cc
+#                                       ${COOT_DOCSTRINGS_GENERATED})
+
+# target_compile_definitions(coot_headless_api PRIVATE COOT_SOURCE_DIR="${coot_SOURCE_DIR}" COOT_GEMMI=1)
 
 # on macOS only?
 # target_compile_options(cootapi PRIVATE -fsanitize=address -fno-omit-frame-pointer)
@@ -264,17 +266,17 @@ nanobind_add_module(coot_headless_api ${coot_src}/api/molecules-container-nanobi
 
 set(MAKE_COOT_HEADLESS_API_PYI 1)
 
-if (MAKE_COOT_HEADLESS_API_PYI)
-  # thanks Jordan (install coot_headless_api.pyi in the right place)
-  nanobind_add_stub(coot_headless_api_ext_stub
-    MODULE coot_headless_api
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/coot_headless_api.pyi
-    PYTHON_PATH $<TARGET_FILE_DIR:coot_headless_api>
-    DEPENDS coot_headless_api
-  )
-  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/coot_headless_api.pyi DESTINATION ${Python_SITELIB_REL})
-  # MARKER_FILE py.typed
-endif()
+# if (MAKE_COOT_HEADLESS_API_PYI)
+#   # thanks Jordan (install coot_headless_api.pyi in the right place)
+#   nanobind_add_stub(coot_headless_api_ext_stub
+#     MODULE coot_headless_api
+#     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/coot_headless_api.pyi
+#     PYTHON_PATH $<TARGET_FILE_DIR:coot_headless_api>
+#     DEPENDS coot_headless_api
+#   )
+#   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/coot_headless_api.pyi DESTINATION ${Python_SITELIB_REL})
+#   # MARKER_FILE py.typed
+# endif()
 
 # macOS doesn't have libelf
 if (ENABLE_DWARF)
@@ -306,7 +308,6 @@ endif()
 
 target_compile_features(cootapi PRIVATE cxx_std_17)
 
-target_compile_definitions(coot_headless_api PRIVATE COOT_SOURCE_DIR="${coot_SOURCE_DIR}")
 
 # Charles adds this MSVC CXX compiler test
 if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
@@ -334,29 +335,29 @@ endif()
 
 #WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/api/doxy-sphinx
 
-target_include_directories(coot_headless_api PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${coot_src}/ccp4mg-utils
-                                                     ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4mg-utils/pygl ${coot_src}/api
-                                                     ${CLIPPER-CORE_INCLUDE_DIR}
-                                                     ${CLIPPER-MMDB_INCLUDE_DIR} ${CLIPPER-CCP4_INCLUDE_DIR}
-                                                     ${FFTW2_INCLUDE_DIRS}
-                                                     ${RDKit_INCLUDE_DIRS} ${GLM_INCLUDE_DIRS}
-                                                     ${GSL_INCLUDE_DIRS} ${PNG_PNG_INCLUDE_DIR})
+# target_include_directories(coot_headless_api PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${coot_src}/ccp4mg-utils
+#                                                     ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4mg-utils/pygl ${coot_src}/api
+#                                                     ${CLIPPER-CORE_INCLUDE_DIR}
+#                                                     ${CLIPPER-MMDB_INCLUDE_DIR} ${CLIPPER-CCP4_INCLUDE_DIR}
+#                                                     ${FFTW2_INCLUDE_DIRS}
+#                                                     ${RDKit_INCLUDE_DIRS} ${GLM_INCLUDE_DIRS}
+#                                                     ${GSL_INCLUDE_DIRS} ${PNG_PNG_INCLUDE_DIR})
 
-add_executable(coot-findligand ${coot_src}/ligand/find-ligand.cc)
+# add_executable(coot-findligand ${coot_src}/ligand/find-ligand.cc)
 
-add_executable(coot-findwaters ${coot_src}/ligand/find-waters.cc)
+# add_executable(coot-findwaters ${coot_src}/ligand/find-waters.cc)
 
-add_executable(coot-mini-rsr ${coot_src}/ideal/mini-rsr.cc)
+# add_executable(coot-mini-rsr ${coot_src}/ideal/mini-rsr.cc)
 
-add_executable(coot-res-tracer-libcootapi ${coot_src}/ligand/res-tracer.cc)
+# add_executable(coot-res-tracer-libcootapi ${coot_src}/ligand/res-tracer.cc)
 
-add_executable(test-molecules-container ${coot_src}/api/test-molecules-container.cc
-                                        ${coot_src}/api/filo-tests.cc
-                                        ${coot_src}/api/lucrezia-tests.cc)
+# add_executable(test-molecules-container ${coot_src}/api/test-molecules-container.cc
+#                                         ${coot_src}/api/filo-tests.cc
+#                                         ${coot_src}/api/lucrezia-tests.cc)
 
-add_executable(test-docking ${coot_src}/docking/test-docking.cc)
+# add_executable(test-docking ${coot_src}/docking/test-docking.cc)
 
-add_executable(mmcif-tests ${coot_src}/api/mmcif-tests-main.cc ${coot_src}/api/mmcif-tests.cc)
+# add_executable(mmcif-tests ${coot_src}/api/mmcif-tests-main.cc ${coot_src}/api/mmcif-tests.cc)
 
 # gemmi-native MoleculesToTriangles selection module (mmdb->gemmi migration, Phase 1).
 # Self-contained: only needs the selection sources + gemmi.
@@ -379,48 +380,48 @@ add_executable(m2t-gemmi-to-gltf
 target_include_directories(m2t-gemmi-to-gltf PRIVATE ${coot_src} ${coot_src}/coot-utils ${GLM_INCLUDE_DIRS})
 target_link_libraries(m2t-gemmi-to-gltf PRIVATE cootmoleculestotriangles gemmi::gemmi_cpp glm::glm)
 
-target_compile_features(coot-mini-rsr PRIVATE cxx_std_17)
+# target_compile_features(coot-mini-rsr PRIVATE cxx_std_17)
 
-target_compile_features(coot-res-tracer-libcootapi PRIVATE cxx_std_17)
+# target_compile_features(coot-res-tracer-libcootapi PRIVATE cxx_std_17)
 
-target_link_libraries(coot_headless_api PUBLIC cootapi  ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY}
-                      ${RDKit_libs_for_libcootapi} ${libdwarf} ${libelf})
+# target_link_libraries(coot_headless_api PUBLIC cootapi  ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY}
+#                       ${RDKit_libs_for_libcootapi} ${libdwarf} ${libelf})
 
-target_include_directories(coot-findligand PRIVATE ${CLIPPER-CORE_INCLUDE_DIR} ${coot_src})
+# target_include_directories(coot-findligand PRIVATE ${CLIPPER-CORE_INCLUDE_DIR} ${coot_src})
 
-target_include_directories(coot-findwaters PRIVATE ${CLIPPER-CORE_INCLUDE_DIR} ${coot_src})
+# target_include_directories(coot-findwaters PRIVATE ${CLIPPER-CORE_INCLUDE_DIR} ${coot_src})
 
-target_include_directories(coot-mini-rsr PRIVATE ${coot_src} ${PNG_INCLUDE_DIR})
+# target_include_directories(coot-mini-rsr PRIVATE ${coot_src} ${PNG_INCLUDE_DIR})
 
-target_include_directories(coot-res-tracer-libcootapi PRIVATE ${coot_src} ${PNG_INCLUDE_DIR})
+# target_include_directories(coot-res-tracer-libcootapi PRIVATE ${coot_src} ${PNG_INCLUDE_DIR})
 
-target_link_libraries(coot-findligand PUBLIC cootapi ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} Boost::thread Threads::Threads)
+# target_link_libraries(coot-findligand PUBLIC cootapi ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} Boost::thread Threads::Threads)
 
-target_link_libraries(coot-findwaters PUBLIC cootapi ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY})
+# target_link_libraries(coot-findwaters PUBLIC cootapi ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY})
 
-target_link_libraries(coot-mini-rsr PUBLIC cootapi ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} Threads::Threads)
+# target_link_libraries(coot-mini-rsr PUBLIC cootapi ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} Threads::Threads)
 
-target_link_libraries(coot-res-tracer-libcootapi PUBLIC cootapi ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} Threads::Threads)
+# target_link_libraries(coot-res-tracer-libcootapi PUBLIC cootapi ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} Threads::Threads)
 
-target_include_directories(test-molecules-container PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${coot_src}/ccp4mg-utils ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4mg-utils/pygl ${CLIPPER-CORE_INCLUDE_DIR} ${CLIPPER-MMDB_INCLUDE_DIR} ${CLIPPER-CCP4_INCLUDE_DIR} ${FFTW2_INCLUDE_DIRS} ${RDKit_INCLUDE_DIRS} ${PNG_INCLUDE_DIR})
+# target_include_directories(test-molecules-container PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${coot_src}/ccp4mg-utils ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4mg-utils/pygl ${CLIPPER-CORE_INCLUDE_DIR} ${CLIPPER-MMDB_INCLUDE_DIR} ${CLIPPER-CCP4_INCLUDE_DIR} ${FFTW2_INCLUDE_DIRS} ${RDKit_INCLUDE_DIRS} ${PNG_INCLUDE_DIR})
 
-target_link_libraries(test-molecules-container PUBLIC cootapi ${SSM_LIBRARY} ${CLIPPER-MINIMOL_LIBRARY} ${CLIPPER-MMDB_LIBRARY} ${CLIPPER-CIF_LIBRARY} ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${CLIPPER-CONTRIB_LIBRARY} ${FFTW2_LIBRARY} ${RFFTW2_LIBRARY} ${CCP4C_LIBRARY} ${ZLIB_LIBRARIES} ${GSL_LIBRARIES} ${RDKit_libs_for_libcootapi} ${PNG_LIBRARY} gemmi::gemmi_cpp ${libdwarf} ${libelf} Threads::Threads)
+# target_link_libraries(test-molecules-container PUBLIC cootapi ${SSM_LIBRARY} ${CLIPPER-MINIMOL_LIBRARY} ${CLIPPER-MMDB_LIBRARY} ${CLIPPER-CIF_LIBRARY} ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${CLIPPER-CONTRIB_LIBRARY} ${FFTW2_LIBRARY} ${RFFTW2_LIBRARY} ${CCP4C_LIBRARY} ${ZLIB_LIBRARIES} ${GSL_LIBRARIES} ${RDKit_libs_for_libcootapi} ${PNG_LIBRARY} gemmi::gemmi_cpp ${libdwarf} ${libelf} Threads::Threads)
 
-target_include_directories(test-docking PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${coot_src}/ccp4mg-utils ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4mg-utils/pygl ${CLIPPER-CORE_INCLUDE_DIR} ${CLIPPER-CCP4_INCLUDE_DIR} ${GSL_INCLUDE_DIRS} ${GLM_INCLUDE_DIRS})
+# target_include_directories(test-docking PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${coot_src}/ccp4mg-utils ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4mg-utils/pygl ${CLIPPER-CORE_INCLUDE_DIR} ${CLIPPER-CCP4_INCLUDE_DIR} ${GSL_INCLUDE_DIRS} ${GLM_INCLUDE_DIRS})
 
-target_link_libraries(test-docking PUBLIC cootapi ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${GSL_LIBRARIES} glm::glm Threads::Threads)
+# target_link_libraries(test-docking PUBLIC cootapi ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${GSL_LIBRARIES} glm::glm Threads::Threads)
 
-target_include_directories(mmcif-tests PRIVATE ${CLIPPER-MMDB_INCLUDE_DIR})
+# target_include_directories(mmcif-tests PRIVATE ${CLIPPER-MMDB_INCLUDE_DIR})
 
-target_link_libraries(mmcif-tests PUBLIC)
+# target_link_libraries(mmcif-tests PUBLIC)
 
 set_target_properties(cootapi PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 
 set_target_properties(cootapi PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-set_target_properties(coot_headless_api PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+# set_target_properties(coot_headless_api PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 
-set_target_properties(coot_headless_api PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
+# set_target_properties(coot_headless_api PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 install(TARGETS cootmoleculestotriangles cootapi)
 
@@ -472,9 +473,9 @@ install(DIRECTORY ${CMAKE_SOURCE_DIR}/monomers DESTINATION share/coot/lib/data
         FILES_MATCHING PATTERN "*" PATTERN "*Makefile.*" EXCLUDE)
 
 # Thanks Charles B.
-install(TARGETS coot_headless_api DESTINATION ${Python_SITELIB_REL})
+# install(TARGETS coot_headless_api DESTINATION ${Python_SITELIB_REL})
 
-install(TARGETS coot_headless_api DESTINATION lib)
+# install(TARGETS coot_headless_api DESTINATION lib)
 
 # thanks merkys
 set_target_properties(cootapi PROPERTIES SOVERSION 1.2)
