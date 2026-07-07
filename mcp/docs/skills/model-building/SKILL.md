@@ -48,7 +48,7 @@ print(f"Mean correlation: {mean_corr:.3f}, residues below 0.4: {n_below}/{len(co
 ```
 
 **Interpretation:**
-- Mean > 0.7, few residues below 0.4 → chain is well placed, proceed to residue-level work
+- Mean > 0.7, few residues below 0.4 → chain is well-placed, proceed to residue-level work
 - Mean 0.4–0.7, moderate number below 0.4 → chain placed but needs refinement
 - Mean near zero, high variance, many negative → **chain is in the wrong place**, jiggle fit first
 
@@ -84,7 +84,7 @@ These large negative returns are not errors — they mean the current position i
 a local optimum, or the function had difficulty scoring. Do not treat them as failures
 without checking the actual correlation afterwards.
 
-**Blur factor guidance:** the blur smooths the map by a Fourier filter, effectively
+**Blur factor guidance:** the blur smooths the map by a something like a Fourier filter, effectively
 low-pass filtering it. A higher blur factor produces a smoother map with broader
 features, which helps the chain find the correct region before fine-grained fitting.
 For cryo-EM maps, blur factors of 100–200 are typical starting points.
@@ -205,8 +205,7 @@ Fixing only one problem (e.g., Ramachandran) while leaving others (rotamer, dens
 ### After fixing ANY residue:
 3. **ALWAYS** re-check ALL the same metrics, Sometime residues/issues are just
      not fixable (that's what makes refinement and model-building tricky).
-4. **ONLY MOVE** on to the next residue/issue unless you have tried to make all of
-     these are true:
+4.   Try to make the following true (but knowing that it might not actually be possible)
    - Ramachandran probability > 0.02 (preferably > 0.1)
    - Rotamer score > 1.0% (preferably > 5%)
    - Density correlation > 0.7 (all-atom and side-chain, preferably > 0.8)
@@ -218,7 +217,7 @@ Fixing only one problem (e.g., Ramachandran) while leaving others (rotamer, dens
      with refine_residues_py() for that residue and its upstream and downstream
      neighbours (if any).
    - Poor density fit → try alternative rotamers, check for missing atoms
-   - Persistent clashes → refine with the addition of spatial neighbors using
+   - Persistent clashes → refine with the addition of spatial neighbours using
      `residues_near_residue()`
 6. **NEVER** declare a residue "fixed" based on only one metric improving
 7. **ALWAYS** re-validate after each additional fix
@@ -273,7 +272,7 @@ if rotamer_score_after < 1.0:
     print("Rotamer still bad - trying auto_fit_best_rotamer")
     coot.auto_fit_best_rotamer(0, "A", 41, "", "", 1, 1, 0.01)
     coot.refine_residues_py(0, [["A", 40, ""], ["A", 41, ""], ["A", 42, ""]])
-    
+
     # 6. ALWAYS re-check after additional fixes
     rotamer_score_final = [r for r in coot.rotamer_graphs_py(0) 
                            if r[0] == 'A' and r[1] == 41][0][3]
@@ -626,6 +625,71 @@ coot.set_secondary_structure_restraints_type(1)  # alpha helix
 coot.set_secondary_structure_restraints_type(2)  # beta strand
 coot.set_secondary_structure_restraints_type(0)  # off - ALWAYS restore to this
 ```
+
+### 14. Rebuilding a Residue with a Missing Main-chain N Atom
+
+If a residue is missing a **main-chain** atom — most commonly the amide **N** — the ordinary atom/side-chain filling tools **silently do nothing**. They rebuild atoms onto an existing N–CA–C frame, so a residue with no N gives them nothing to build from. Do **not** infer "unfixable" from these no-ops; they are the wrong tools for a missing main-chain atom.
+
+Observed no-ops on a CYS that had only `CA, CB, C, O` (no N, no SG):
+
+- `fill_partial_residues(imol)` — whole-molecule fill; skips the residue
+- `fill_partial_residue(imol, chain, resno, ins)` — single-residue fill; skips it
+- `mutate_and_autofit_residue_range(...)` — cannot seat a side chain without the N frame
+- `spin_N_py(imol, spec, angle)` — **repositions an existing N** (it interchanges the N and CB positions); it does **not create** one, so it is a no-op when no N exists. Its docstring ("on N-terminal addition the N ends up pointing the wrong way") is the signpost: the N is *created* by terminal-residue building, and `spin_N_py` is only the follow-up that orients it.
+
+**The fix: delete the broken residue and rebuild it with `add_terminal_residue()`**, which regenerates a complete main-chain (N included) by fitting to the map. It comes back as an ALA stub; then restore the correct residue type and side chain.
+
+```python
+imol, imap = 0, 1
+coot.set_refinement_immediate_replacement(1)
+cp = coot.make_backup_checkpoint(imol, "before A72 mainchain-N rebuild")
+
+# 1. Delete the residue that is missing its main-chain N
+coot.delete_residue(imol, "A", 72, "")
+
+# 2. Rebuild from the neighbour. Building forward from 71 (or backward from
+#    73) regenerates a full main-chain, CREATING the N atom. add_terminal_residue
+#    returns 1 on success, 0 on failure. The residue returns as an ALA stub
+#    (N, CA, C, O, CB).
+ok = coot.add_terminal_residue(imol, "A", 71, "auto", 1)
+
+# 3. Confirm the N now exists before proceeding
+atoms = [a[0][0].strip() for a in coot.residue_info_py(imol, "A", 72, "")]
+assert "N" in atoms, "add_terminal_residue did not create the N atom"
+
+# 4. Restore the real residue type and seat its side chain
+coot.mutate_and_autofit_residue_range(imol, "A", 72, 72, "C")   # "C" = CYS
+
+# 5. Only if the newly built N points the wrong way, spin it into place
+#    (spin_N works now that an N exists; 120 deg swaps N and CB)
+# coot.spin_N_py(imol, ["A", 72, ""], 120.0)
+
+# 6. Refine with neighbours to seat the new backbone into density
+coot.refine_residues_py(imol, [["A", 71, ""], ["A", 72, ""], ["A", 73, ""]])
+```
+
+**Verify main-chain geometry** (not just the validation metrics) — a correctly rebuilt N gives an ideal peptide bond and Cα–N distance:
+
+```python
+import math
+
+def atom_dist(imol, c1, r1, a1, c2, r2, a2):
+    def xyz(c, r, a):
+        for at in coot.residue_info_py(imol, c, r, ""):
+            if at[0][0].strip() == a:
+                return at[2]
+        return None
+    p, q = xyz(c1, r1, a1), xyz(c2, r2, a2)
+    return math.dist(p, q) if p and q else None
+
+# targets: C(i-1)-N(i) ~1.33 A ; N-CA ~1.46 A
+print(atom_dist(0, "A", 71, "C", "A", 72, "N"))
+print(atom_dist(0, "A", 72, "N", "A", 72, "CA"))
+```
+
+**Notes:**
+- A rebuilt *complete* residue often shows a **lower** density correlation than the broken fragment did, because the fragment's correlation was computed over fewer atoms. Compare like with like: a complete residue at 0.62 in a mobile loop is a better model than a 4-atom stub scoring 0.68.
+- This is the general recipe for **any** missing main-chain atom, not just N: delete and rebuild rather than trying to patch a single atom into an incomplete frame.
 
 
 ## NCS-Related Chains: Always Use Copy, Never Rebuild
