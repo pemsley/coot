@@ -218,7 +218,7 @@ Fixing only one problem (e.g., Ramachandran) while leaving others (rotamer, dens
      neighbours (if any).
    - Poor density fit → try alternative rotamers, check for missing atoms
    - Persistent clashes → refine with the addition of spatial neighbours using
-     `residues_near_residue()`
+     `residues_near_residue_py()`
 6. **NEVER** declare a residue "fixed" based on only one metric improving
 7. **ALWAYS** re-validate after each additional fix
 
@@ -336,7 +336,7 @@ is NOT fixed. The side chain is clearly wrong. The backbone geometry might be OK
 - Refining 40-43 succeeded: Residue 41 improved from p=0.00004 to p=0.308
 
 **Neighboring Residues:**
-- You can use coot.residues_near_residue() to find residues that are close in space
+- You can use coot.residues_near_residue_py() to find residues that are close in space
   but distant in sequence, so that they can be added to the residue selection for
   refinement.
 
