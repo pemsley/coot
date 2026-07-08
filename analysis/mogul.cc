@@ -27,6 +27,7 @@
 #include <math.h>
 
 #include "utils/coot-utils.hh"
+#include "utils/colour-holder.hh"
 #include "lidia-core/lig-build.hh"
 
 #include "mogul-interface.hh"

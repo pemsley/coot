@@ -28,7 +28,7 @@
 #include <sys/stat.h>
 
 #include "similar_ligands.hpp"
-#include "url_fetch.hpp"
+#include "network_utils.hpp"
 
 #include "utils/coot-utils.hh"
 #include "geometry/protein-geometry.hh"

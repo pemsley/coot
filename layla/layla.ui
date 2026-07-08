@@ -1561,6 +1561,15 @@ Add a new atom or replace an existent atom with the chosen element.
               </object>
             </child>
             <child>
+              <object class="GtkButton" id="layla_send_to_ccp4i2_button">
+                <property name="halign">end</property>
+                <property name="label">Send to CCP4i2</property>
+                <property name="visible">false</property>
+                <property name="tooltip-markup">Write canvas molecules as MolFiles for CCP4i2</property>
+                <signal name="clicked" handler="layla_on_send_to_ccp4i2" swapped="no"/>
+              </object>
+            </child>
+            <child>
               <object class="GtkButton" id="layla_apply_button">
                 <property name="halign">end</property>
                 <property name="label">Generate Restraints</property>

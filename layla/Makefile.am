@@ -27,6 +27,7 @@ pkginclude_HEADERS = \
 	notifier.hpp \
 	ui.hpp \
 	utils.hpp \
+	file_io.hpp \
 	state.hpp \
 	qed.hpp \
 	ligand_editor_canvas/core.hpp  \
@@ -34,9 +35,8 @@ pkginclude_HEADERS = \
 	ligand_editor_canvas/tools.hpp \
 	ligand_editor_canvas/render.hpp \
 	ligand_editor_canvas.hpp \
-	url_fetch.hpp \
 	similar_ligands.hpp \
-	python_utils.hpp
+	network_utils.hpp
 
 pkgincludedir = $(includedir)/coot/layla
 
@@ -49,21 +49,21 @@ libcoot_layla_la_SOURCES = \
 	state.cpp \
 	ui.cpp \
 	utils.cpp \
+	file_io.cpp \
 	qed.cpp \
 	ligand_editor_canvas/core.cpp \
 	ligand_editor_canvas.cpp \
 	ligand_editor_canvas/model.cpp \
 	ligand_editor_canvas/tools.cpp \
 	ligand_editor_canvas/render.cpp \
-	url_fetch.cpp \
 	similar_ligands.cpp \
-	python_utils.cpp
+	network_utils.cpp
 
 libcoot_layla_la_LIBADD = $(top_builddir)/geometry/libcoot-geometry.la \
                           $(top_builddir)/lidia-core/libcoot-lidia-core.la \
                           $(top_builddir)/utils/libcoot-utils.la \
                           $(GTK_LIBS) $(GLIB_LIBS) \
-                          $(RDKIT_LIBS) -lRDKitFMCS $(GEMMI_LIBS) $(CURL_LIBS) \
+                          $(RDKIT_LIBS) -lRDKitFMCS -lRDKitRDChemDrawLib $(GEMMI_LIBS) $(CURL_LIBS) \
                           -lpthread
 
 libcoot_layla_la_LDFLAGS = $(SHARED_LDFLAGS)

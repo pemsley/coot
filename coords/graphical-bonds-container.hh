@@ -117,17 +117,11 @@ public:
          std::string res_name = r->GetResName();
          if (res_name == "HOH")
             return 2.0f;
-         if (res_name == "CA")
-            return 4.0f;
-         if (res_name == "MG")
-            return 4.0f;
-         if (res_name == "IOD")
-            return 4.0f;
-         if (res_name == "CL")
-            return 4.0f;
-         if (res_name == "NA")
-            return 4.0f;
-         if (res_name == "K")
+         static const std::set<std::string> fat_ion_residues = {
+            "CA","MG","IOD","CL","NA","K","ZN","FE","MN","CU","NI","CO","CD","HG",
+         };
+         // use .contains() in the future
+         if (fat_ion_residues.find(res_name) != fat_ion_residues.end())
             return 4.0f;
       }
       return scale;

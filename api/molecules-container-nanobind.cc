@@ -1,4 +1,5 @@
 
+#include <dlfcn.h>
 #include <filesystem>
 #include <unordered_map>
 #include <sstream>
@@ -17,13 +18,11 @@
 #include <clipper/core/ramachandran.h>
 #include <clipper/clipper-ccp4.h>
 
-#include "coot-docstring-extract.hh"
-#include "coords/mmdb-crystal.hh"
-#include "coot-utils/acedrg-types-for-residue.hh"
-#include "coot-utils/g_triangle.hh"
-#include "ideal/simple-restraint.hh"
-#include "mini-mol/mini-mol-utils.hh"
+// #include "coot-docstring-extract.hh"
+
 #include "utils/coot-utils.hh"
+
+#include "mini-mol/mini-mol-utils.hh"
 
 #if NB_VERSION_MAJOR // for flychecking
 #include <nanobind/nanobind.h>
@@ -31,7 +30,6 @@
 #include <nanobind/stl/shared_ptr.h>    // <-- CRITICAL: Provides std::shared_ptr bindings
 #include <nanobind/stl/vector.h>        // Typically useful for RDKit
 #endif
-
 
 #include "molecules-container.hh"
 
@@ -81,6 +79,8 @@ class molecules_container_js : public molecules_container_t {
 // Helper to cache and retrieve docstrings from XML
 std::unordered_map<std::string, std::string> docstring_cache;
 
+#include "coot-docstring-extract.hh"
+
 std::string get_docstring_from_xml(const std::string& func_name) {
 
    if (docstring_cache.empty()) {
@@ -110,6 +110,21 @@ std::string get_docstring_from_xml(const std::string& func_name) {
 		<< " - out of " << docstring_cache.size() << " docstrings" << std::endl;
    }
    return "";
+}
+
+std::filesystem::path this_library_dir() {
+   Dl_info info;
+   if (dladdr(reinterpret_cast<void *>(&this_library_dir), &info) && info.dli_fname)
+      return std::filesystem::canonical(info.dli_fname).parent_path();
+   return {};
+}
+
+void other_setup_code() {
+
+   std::filesystem::path lib_dir = this_library_dir();
+   std::cout << "DEBUG:: in other_setup_code(): lib_dir is " << lib_dir.string() << std::endl;
+   coot::set_package_data_dir(lib_dir.string());
+
 }
 
 NB_MODULE(coot_headless_api, m) {
@@ -184,6 +199,8 @@ NB_MODULE(coot_headless_api, m) {
     .def("close_read",&clipper::CCP4MAPfile::close_read)
     .def("close_write",&clipper::CCP4MAPfile::close_write)
     ;
+#if COOT_GEMMI
+# else
     nb::class_<mmdb::Atom>(m,"Atom")
     .def(nb::init<>())
     .def_prop_rw("x",[](mmdb::Atom &t) { return t.x ; },[](mmdb::Atom &t, float value) { t.x = value; })
@@ -257,6 +274,7 @@ NB_MODULE(coot_headless_api, m) {
     .def("GetNumberOfAtoms", nb::overload_cast<>(&mmdb::Residue::GetNumberOfAtoms))
     .def("GetNumberOfAtoms_countTers", nb::overload_cast<bool>(&mmdb::Residue::GetNumberOfAtoms))
     ;
+#endif
     nb::class_<molecules_container_t>(m,"molecules_container_t")
     .def(nb::init<bool>(), nb::arg("be_verbose_when_reading_dictionary"), "molecules container Documentation")
     .def("M2T_updateFloatParameter",
@@ -1926,4 +1944,5 @@ NB_MODULE(coot_headless_api, m) {
     .def_ro("moved_atoms", &coot::api::moved_residue_t::moved_atoms)
     .def("add_atom",&coot::api::moved_residue_t::add_atom)
     ;
+    other_setup_code();
 }

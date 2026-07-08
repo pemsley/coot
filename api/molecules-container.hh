@@ -1120,6 +1120,7 @@ public:
    //! glTF files can be imported into Blender or other 3D graphics applications
    //!
    //! Same parameters as the `get_bonds_mesh` function.
+   //! @param mode is "COLOUR-BY-CHAIN-AND-DICTIONARY", "CA+LIGANDS" or "VDW-BALLS"
    //! `draw_hydrogen_atoms_flag` and `draw_missing_residue_loops` are typically False.
    //! This API will change - we want to specify surfaces and ribbons too.
    void export_model_molecule_as_gltf(int imol,

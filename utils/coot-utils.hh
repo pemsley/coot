@@ -35,6 +35,13 @@ namespace coot {
 
    std::string get_home_dir();
 
+
+   // Set an override for package_data_dir(). It is set by libcootapi so that
+   // chapi can find its data files on startup when the nanobindings are bound.
+   // The value is held in a file-local variable in coot-utils.cc.
+   // 2026-07-05-PE don't use this unless you know what you're doing!
+   void set_package_data_dir(const std::string &pdd);
+
    // The user can set COOT_DATA_DIR (in fact this is the usual case
    // when using binaries) and that should over-ride the built-in
    // PKGDATADIR.

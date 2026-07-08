@@ -3,6 +3,7 @@
 //
 
 #include "density_map.hh"
+#include <cstdint>
 #include <fstream>
 #include <iostream>
 #include <sstream>

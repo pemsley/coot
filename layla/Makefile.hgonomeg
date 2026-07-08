@@ -8,8 +8,7 @@ CXXFLAGS= \
    -I$(COOT_DIR)/include \
    -I$(COOT_DIR)/include/coot \
    -I/usr/include/rdkit \
-   -I/usr/include/python3.13 \
-   -DUSE_PYTHON \
+   -I/usr/include/eigen3 \
    -DUSE_LIBCURL \
    -DVERSION="\"dummyVERSION\"" \
    `pkg-config --cflags gtk4` \
@@ -22,10 +21,11 @@ LDLIBS=-fuse-ld=mold \
        `pkg-config --libs gtk4`  \
         -g \
         -Wl,--export-dynamic,--rpath=$(COOT_DIR)/lib \
-        -lfreetype -lm -ldl \
+        -lfreetype -lm -ldl -lpthread -lpng \
         -lcoot-geometry -lcoot-lidia-core -lcoot-utils \
-        -lRDKitDepictor -lRDKitMolTransforms -lRDKitSmilesParse -lRDKitMolDraw2D -lRDKitGraphMol -lRDKitRDInchiLib  -lRDKitRDGeneral -lRDKitRDGeometryLib -lRDKitFileParsers -lRDKitDescriptors -lRDKitChemTransforms -lRDKitSubstructMatch -lRDKitGenericGroups -lRDKitDataStructs \
-        -lboost_iostreams -lboost_serialization -lboost_python313 -lpython3.13 -lcurl
+        -lRDKitDepictor -lRDKitMolTransforms -lRDKitSmilesParse -lRDKitMolDraw2D -lRDKitGraphMol -lRDKitRDInchiLib  -lRDKitRDGeneral -lRDKitRDGeometryLib -lRDKitFileParsers -lRDKitDescriptors -lRDKitChemTransforms -lRDKitSubstructMatch -lRDKitGenericGroups -lRDKitDataStructs -lRDKitFMCS -lRDKitRDChemDrawLib \
+        -lcoordgen \
+        -lboost_iostreams -lboost_serialization -lcurl
 
 	   # -lcoot-ligand -lcoot-ideal -lcoot-coords -lcoot-map-utils -lcoot-coord-utils -lcoot-geometry -lmmdb2 
        #`pkg-config --libs epoxy` 
@@ -35,6 +35,7 @@ HEADERS = \
     state.hpp \
     ui.hpp \
     utils.hpp \
+    file_io.hpp \
     notifier.hpp \
     generators.hpp \
     inchi_key_database.hpp \
@@ -44,7 +45,8 @@ HEADERS = \
     ligand_editor_canvas/render.hpp \
     ligand_editor_canvas.hpp \
     layla_embedded.hpp \
-    python_utils.hpp \
+    network_utils.hpp \
+    similar_ligands.hpp \
     qed.hpp
 
 SOURCES = \
@@ -52,6 +54,7 @@ SOURCES = \
     signals.cpp \
     ui.cpp \
     utils.cpp \
+    file_io.cpp \
     notifier.cpp \
     generators.cpp \
     inchi_key_database.cpp \
@@ -61,7 +64,8 @@ SOURCES = \
     ligand_editor_canvas/render.cpp \
     ligand_editor_canvas.cpp \
     layla_embedded.cpp \
-    python_utils.cpp \
+    network_utils.cpp \
+    similar_ligands.cpp \
     qed.cpp \
     main.cpp
 
@@ -69,7 +73,7 @@ SOURCES = \
 
 OBJS := $(patsubst %.cpp,%.o,$(SOURCES))
 
-%.o: %.cc $(HEADERS)
+%.o: %.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 layla: $(OBJS) $(HEADERS)
