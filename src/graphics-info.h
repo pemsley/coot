@@ -4800,6 +4800,10 @@ string   static std::string sessionid;
    static std::pair<bool, std::string> servalcat_fofc;
    static std::pair<bool, std::string> servalcat_refine; // output "pdb" file name
 
+   // not static (for now?)
+   int servalcat_refine_xray_with_keywords(int imol, int imol_map, const std::string &output_prefix,
+                                           const std::string &keyword_pairs_json);
+
    static std::pair<bool, std::string> acedrg_link;
    static bool acedrg_running; // not link acedrg - this is acedrg from CCD
 
