@@ -101,6 +101,7 @@ namespace cod {
       std::string level_4;
       std::string level_3; // as 4 but without 3rd neighbour info
       atom_level_2_type level_2;
+      std::string hybrid; // acedrg sp string (SP1/SP2/SP3/SP-NON/SPDn), == libmol Atom*_sp
       std::vector<unsigned int> neighb_degrees; // for "colon type" - e.g. 3:3:2
       int hash_value; // can be zero (?), so use -1 for fail.
       std::list<third_neighbour_info_t> tnil;

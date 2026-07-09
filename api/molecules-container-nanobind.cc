@@ -1592,6 +1592,7 @@ NB_MODULE(coot_headless_api, m) {
        .def_ro("level_4", &cod::atom_type_t::level_4)
        .def_ro("level_3", &cod::atom_type_t::level_3)
        .def_prop_ro("level_2", [] (const cod::atom_type_t &t) { return t.level_2.string(); })
+       .def_ro("hybrid", &cod::atom_type_t::hybrid)
        .def_ro("hash_value", &cod::atom_type_t::hash_value)
        .def_ro("neighb_degrees", &cod::atom_type_t::neighb_degrees)
        .def("neighb_degrees_str", [] (cod::atom_type_t &t) { return t.neighb_degrees_str(); })
