@@ -32,6 +32,7 @@
 #include <sstream>   // ditto.
 #include <cstdio>    // 20090806 Justin Lecher says we need this on Gentoo
 #include <iomanip>
+#include <filesystem>
 
 #include <math.h>  // for fabs
 
@@ -964,7 +965,6 @@ coot::get_home_dir() {
    return ""; //empty
 }
 
-#include <filesystem>
 
 // The user can set COOT_DATA_DIR (in fact this is the usual case
 // when using binaries) and that should over-ride the built-in
