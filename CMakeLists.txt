@@ -42,13 +42,19 @@ find_package(Python 3
   REQUIRED COMPONENTS Interpreter Development.Module
   OPTIONAL_COMPONENTS Development.SABIModule)
 
-# Prefer nanobind's own cmake directory inside its Python package so that
-# NB_DIR resolves correctly and the bundled robin_map is found.
-# The system /usr/lib/cmake/nanobind/ breaks NB_DIR's relative path logic.
+# Ask the installed nanobind for its own cmake directory. nanobind is noarch, so
+# deriving the path from Python_STDLIB breaks where distros split arch/noarch dirs
+# (e.g. Fedora: stdlib in /usr/lib64, but nanobind lands in /usr/lib). Querying the
+# module returns the real location and keeps NB_DIR's relative layout (robin_map) intact.
 if(NOT nanobind_DIR)
-  # Use Python_STDLIB (not Python_SITELIB) so this works inside venvs too,
-  # since venvs share the system stdlib but have their own site-packages.
-  set(nanobind_DIR "${Python_STDLIB}/site-packages/nanobind/cmake")
+  execute_process(
+    COMMAND "${Python_EXECUTABLE}" -m nanobind --cmake_dir
+    RESULT_VARIABLE _nanobind_query_result
+    OUTPUT_VARIABLE _nanobind_cmake_dir
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  if(_nanobind_query_result EQUAL 0 AND IS_DIRECTORY "${_nanobind_cmake_dir}")
+    set(nanobind_DIR "${_nanobind_cmake_dir}")
+  endif()
 endif()
 find_package(nanobind CONFIG REQUIRED)
 
@@ -528,6 +534,12 @@ add_library(cootapi SHARED
             ${coot_src}/docking/rigid-body-dock.cc
             ${coot_src}/docking/semiflex-refine.cc
             ${coot_src}/docking/haddock-utils.cc
+            # Cremer-Pople
+            ${coot_src}/cremer-pople-sphere/data_sphere.cc
+            ${coot_src}/cremer-pople-sphere/density_map.cc
+            ${coot_src}/cremer-pople-sphere/primitives.cc
+            ${coot_src}/cremer-pople-sphere/ring.cc
+            ${coot_src}/cremer-pople-sphere/scene.cc
             )
 
 # wretched mae - 20 Sept 2025
@@ -543,10 +555,11 @@ if(MAEPARSER_LIBS)
 endif()
 
 # --- Embedded API docstrings -------------------------------------------------
-# Parse the doxygen XML at build time and generate a C++ source that embeds the
-# docstrings into the module, so the documentation is available at runtime even
-# when the source tree (and the doxygen XML) has been removed.
-set(COOT_DOCSTRING_XML ${coot_src}/api/doxy-sphinx/xml/classmolecules__container__t.xml)
+# Chain: doxygen (curated .cfg) -> XML -> coot-make-docstrings -> generated .cc,
+# which is compiled into the coot_headless_api module so the docstrings are
+# available at runtime even when the source tree has been removed. Everything
+# lives in the build tree; the source-code build only needs the XML, not
+# sphinx/breathe/HTML.
 set(COOT_DOCSTRINGS_GENERATED ${CMAKE_CURRENT_BINARY_DIR}/coot-docstrings-generated.cc)
 
 add_executable(coot-make-docstrings ${coot_src}/api/make-docstrings-source.cc
@@ -555,29 +568,51 @@ add_executable(coot-make-docstrings ${coot_src}/api/make-docstrings-source.cc
 target_include_directories(coot-make-docstrings PRIVATE ${coot_src} ${coot_src}/api ${coot_src}/coot-utils)
 target_compile_features(coot-make-docstrings PRIVATE cxx_std_17)
 
-# Only depend on the XML if it exists at configure time, so a fresh tree without
-# doxygen output still configures and builds (with an empty docstring table).
-if (EXISTS ${COOT_DOCSTRING_XML})
-  set(COOT_DOCSTRING_XML_DEP ${COOT_DOCSTRING_XML})
-else()
-  set(COOT_DOCSTRING_XML_DEP "")
-endif()
-
-add_custom_command(
-  OUTPUT ${COOT_DOCSTRINGS_GENERATED}
-  COMMAND coot-make-docstrings ${COOT_DOCSTRING_XML} ${COOT_DOCSTRINGS_GENERATED}
-  DEPENDS coot-make-docstrings ${COOT_DOCSTRING_XML_DEP}
-  COMMENT "Generating embedded API docstrings from doxygen XML"
-  VERBATIM)
-# -----------------------------------------------------------------------------
-
+# Expand the @CMAKE_CURRENT_SOURCE_DIR@ / @CMAKE_CURRENT_BINARY_DIR@ tokens in the
+# curated doxygen config into <build>/Doxyfile (this is the only place they are
+# expanded). OUTPUT_DIRECTORY in the .cfg points at ${CMAKE_CURRENT_BINARY_DIR}/doxygen.
 configure_file(
         ${CMAKE_CURRENT_SOURCE_DIR}/api/doxy-sphinx/coot-api-dox.cfg
         ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
         @ONLY
 )
 
-doxygen_add_docs(docs)
+# The molecules_container_t XML is the file the docstring extractor reads; it
+# stands in for the whole xml/ tree as this command's output. Listing the parsed
+# headers as DEPENDS means editing any of them re-runs doxygen. NB: doxygen_add_docs()
+# is deliberately NOT used - it writes its own Doxyfile and ignores the curated
+# INPUT/PREDEFINED in the .cfg.
+set(COOT_DOCSTRING_XML ${CMAKE_CURRENT_BINARY_DIR}/doxygen/xml/classmolecules__container__t.xml)
+set(COOT_DOXYGEN_INPUTS
+    ${coot_src}/api/molecules-container.hh   ${coot_src}/api/coot-molecule.hh
+    ${coot_src}/coot-utils/simple-mesh.hh    ${coot_src}/api/instancing.hh
+    ${coot_src}/api/superpose-results.hh     ${coot_src}/api/validation-information.hh
+    ${coot_src}/coot-utils/vertex.hh         ${coot_src}/geometry/residue-and-atom-specs.hh
+    ${coot_src}/coot-utils/sfcalc-genmap.hh  ${coot_src}/coot-utils/coot-density-stats.hh
+    ${coot_src}/coot-utils/coot-map-utils.hh ${coot_src}/coords/mmdb-crystal.hh
+    ${coot_src}/coords/Cartesian.hh          ${coot_src}/api/generic-3d-lines.hh
+    ${coot_src}/analysis/stats.hh            ${coot_src}/api/moorhen-h-bonds.hh
+    ${coot_src}/api/coot-colour.hh           ${coot_src}/api/api-cell.hh
+    ${coot_src}/coot-utils/g_triangle.hh     ${coot_src}/api/residue-validation-information.hh)
+
+add_custom_command(
+  OUTPUT ${COOT_DOCSTRING_XML}
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/doxygen
+  COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+  DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile ${COOT_DOXYGEN_INPUTS}
+  COMMENT "Generating API documentation XML with Doxygen"
+  VERBATIM)
+
+# Convenience target: `make docs` (re)generates just the XML.
+add_custom_target(docs DEPENDS ${COOT_DOCSTRING_XML})
+
+add_custom_command(
+  OUTPUT ${COOT_DOCSTRINGS_GENERATED}
+  COMMAND coot-make-docstrings ${COOT_DOCSTRING_XML} ${COOT_DOCSTRINGS_GENERATED}
+  DEPENDS coot-make-docstrings ${COOT_DOCSTRING_XML}
+  COMMENT "Generating embedded API docstrings from doxygen XML"
+  VERBATIM)
+# -----------------------------------------------------------------------------
 
 nanobind_add_module(coot_headless_api ${coot_src}/api/molecules-container-nanobind.cc
                                       ${coot_src}/api/molecules-container-nanobind-functions.cc
@@ -643,22 +678,6 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   )
   target_link_libraries(cootapi PRIVATE netapi32.lib)
 endif()
-
-# Generate the doxygen XML that the embedded-docstring generator consumes
-# (COOT_DOCSTRING_XML, above). Run doxygen directly with the curated config file
-# from its own directory: the INPUT paths in coot-api-dox.cfg are relative to
-# api/doxy-sphinx/, and with no OUTPUT_DIRECTORY set the XML lands in
-# api/doxy-sphinx/xml/ - exactly where the generator looks for it.
-#
-# Note: doxygen_add_docs() is deliberately not used here - it generates its own
-# Doxyfile and ignores the curated INPUT list and PREDEFINED macros in the cfg.
-# add_custom_target(docs
-# COMMAND ${DOXYGEN_EXECUTABLE} coot-api-dox.cfg
-# WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/api/doxy-sphinx
-# COMMENT "Generating API documentation XML with Doxygen"
-# VERBATIM)
-
-#WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/api/doxy-sphinx
 
 target_include_directories(coot_headless_api PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${coot_src}/ccp4mg-utils
                                                      ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4mg-utils/pygl ${coot_src}/api

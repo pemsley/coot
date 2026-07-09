@@ -19,7 +19,11 @@
  * 02110-1301, USA
  */
 
+#if COOT_GEMMI
+#include "mini-mol-gemmi.hh"
+#else
 #include "mini-mol.hh"
+#endif
 
 namespace coot { 
 
