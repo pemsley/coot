@@ -1,6 +1,19 @@
 --- Items---
 
-o ldaddr (?) for chapi to find its files on relocatable binaries
+o "Send to CCP4i2" button replaces "Generate Restraints"
+  with command line option to layla.
+
+o ldaddr (?) for chapi to find its files on relocatable binaries.
+  metals and inchikey db.
+
+o fix api documentation generation
+
+o add servalcat_refine_xray_with_keywords
+  int servalcat_refine_xray_with_keywords(int imol, int imol_map, const std::string &output_prefix,
+                                          const std::string &keyword_pairs_json)
+
+o apply the ligand fitting fix from Moorhen.
+* Done.
 
 o Does non-drawn bonds work with B-factor or occupanccy
   representation?
@@ -21,6 +34,9 @@ o fix this in cif parser:
 o fix make_all_atom_overlaps for chapi
 
 o replace fragment. seems to be hanging when replacing a domain
+
+o COD cif does not parse:
+ ~/.cache/Coot/coot-download/8101179.cif
 
 o can coot do semi-opaque bonds?
 
