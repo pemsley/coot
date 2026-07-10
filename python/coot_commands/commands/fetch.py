@@ -28,6 +28,11 @@ from typing import Any, Optional
 from coot_commands.registry import command
 from coot_commands.types import CommandError
 
+try:
+    import coot
+except ImportError:
+    coot = None
+
 CATEGORY = "Fetch"
 
 
@@ -91,3 +96,13 @@ def fetch_pdb(code: str) -> str:
     """Fetch coordinates from the PDBe."""
     result = _get_ebi().get_ebi_pdb(code.lower())
     return _report(code, result, "PDB")
+
+
+@command(r"fetch (?:monomer |ligand |pdb )?(?P<code>\w{3})",
+         examples=["fetch 3GP", "fetch monomer ATP"],
+         category=CATEGORY,
+         notes="Fetches a monomer (by 3-letter code) from the CCD dictionary. "
+               "Four-or-more character codes are treated as PDB accessions.")
+def fetch_monomer(code: str) -> str:
+    """Fetch a monomer from the CCD dictionary."""
+    return _report(code, coot.get_monomer(code.upper()), "monomer")

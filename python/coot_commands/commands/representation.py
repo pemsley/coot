@@ -21,7 +21,8 @@ from __future__ import annotations
 from typing import Optional
 
 from coot_commands.registry import command
-from coot_commands.types import resolve_model, ArgType
+from coot_commands.types import (resolve_model, first_present, ArgType,
+                                 ACTIVE_MODEL_NOTE)
 
 try:
     import coot
@@ -37,14 +38,13 @@ CATEGORY = "Representation"
          examples=["colour carbons grey", "grey carbons", "grey carbons for model 0"],
          category=CATEGORY,
          arg_types={"model": ArgType.MODEL, "model2": ArgType.MODEL},
-         notes="Uses grey for carbon atoms. With no model number, acts on "
-               "the active model.")
+         notes="Uses grey for carbon atoms. " + ACTIVE_MODEL_NOTE)
 def grey_carbons(model: Optional[str] = None, model2: Optional[str] = None) -> str:
     """Use grey carbon colours for a model."""
-    imol = resolve_model(model if model is not None else model2)
+    imol = resolve_model(first_present(model, model2))
     if coot is not None:
         coot.set_use_grey_carbons_for_molecule(imol, 1)
-    return f"Model {imol}: grey carbons"
+    return f"Using grey carbons for model {imol}"
 
 
 @command(r"(?:colou?r )?(?:carbons?|carbon colou?rs?) (?:of model (?P<model>\S+) )?coloured|"
@@ -53,14 +53,13 @@ def grey_carbons(model: Optional[str] = None, model2: Optional[str] = None) -> s
                    "coloured carbons for model 0"],
          category=CATEGORY,
          arg_types={"model": ArgType.MODEL, "model2": ArgType.MODEL},
-         notes="Uses per-element carbon colouring. With no model number, "
-               "acts on the active model.")
+         notes="Uses per-element carbon colouring. " + ACTIVE_MODEL_NOTE)
 def coloured_carbons(model: Optional[str] = None, model2: Optional[str] = None) -> str:
     """Use element-coloured carbons for a model."""
-    imol = resolve_model(model if model is not None else model2)
+    imol = resolve_model(first_present(model, model2))
     if coot is not None:
         coot.set_use_grey_carbons_for_molecule(imol, 0)
-    return f"Model {imol}: coloured carbons"
+    return f"Using coloured carbons for model {imol}"
 
 
 # A ribbon/surface representation is added to a model as one or more extra
@@ -97,20 +96,20 @@ def _show_rep(imol: int, style: str, colour_scheme: str, label: str) -> str:
     rather than building a duplicate set.
     """
     if coot is None:
-        return f"Model {imol}: showing {label}"
+        return f"Showing {label} for model {imol}"
     tracked = _REPS.get((imol, style))
     if tracked:
         for idx in tracked:
             coot.set_draw_mesh(imol, idx, 1)
-        return f"Model {imol}: showing {label}"
+        return f"Showing {label} for model {imol}"
     before = _mesh_count(imol)
     coot.add_molecular_representation_py(
         imol, "//", colour_scheme, style, _CALC_SECONDARY_STRUCTURE)
     after = _mesh_count(imol)
     if after <= before:
-        return f"Model {imol}: could not add {label}"
+        return f"Could not add {label} to model {imol}"
     _REPS[(imol, style)] = list(range(before, after))
-    return f"Model {imol}: showing {label}"
+    return f"Showing {label} for model {imol}"
 
 
 def _hide_rep(imol: int, style: str, label: str) -> str:
@@ -121,11 +120,11 @@ def _hide_rep(imol: int, style: str, label: str) -> str:
     """
     idxs = _REPS.get((imol, style))
     if not idxs:
-        return f"Model {imol}: no {label} to hide"
+        return f"No {label} to hide for model {imol}"
     if coot is not None:
         for idx in idxs:
             coot.set_draw_mesh(imol, idx, 0)
-    return f"Model {imol}: hiding {label}"
+    return f"Hiding {label} for model {imol}"
 
 
 @command(r"show ribbons?(?: (?:for|of) model (?P<model>\S+))?",
@@ -133,8 +132,7 @@ def _hide_rep(imol: int, style: str, label: str) -> str:
          category=CATEGORY,
          arg_types={"model": ArgType.MODEL},
          notes="Draws a ribbon (cartoon) representation of the whole model, "
-               "coloured by chain. With no model number, acts on the active "
-               "model.")
+               "coloured by chain. " + ACTIVE_MODEL_NOTE)
 def show_ribbons(model: Optional[str] = None) -> str:
     """Show a ribbon representation of a model."""
     imol = resolve_model(model)
@@ -146,7 +144,7 @@ def show_ribbons(model: Optional[str] = None) -> str:
          category=CATEGORY,
          arg_types={"model": ArgType.MODEL},
          notes="Removes the ribbon representation added by 'show ribbons'. "
-               "With no model number, acts on the active model.")
+               + ACTIVE_MODEL_NOTE)
 def hide_ribbons(model: Optional[str] = None) -> str:
     """Hide the ribbon representation of a model."""
     imol = resolve_model(model)
@@ -158,7 +156,7 @@ def hide_ribbons(model: Optional[str] = None) -> str:
          category=CATEGORY,
          arg_types={"model": ArgType.MODEL},
          notes="Draws a molecular surface for the whole model, coloured by "
-               "chain. With no model number, acts on the active model.")
+               "chain. " + ACTIVE_MODEL_NOTE)
 def show_surface(model: Optional[str] = None) -> str:
     """Show a molecular surface of a model."""
     imol = resolve_model(model)
@@ -169,8 +167,8 @@ def show_surface(model: Optional[str] = None) -> str:
          examples=["hide surface", "hide surface for model 0"],
          category=CATEGORY,
          arg_types={"model": ArgType.MODEL},
-         notes="Removes the molecular surface added by 'show surface'. With "
-               "no model number, acts on the active model.")
+         notes="Removes the molecular surface added by 'show surface'. "
+               + ACTIVE_MODEL_NOTE)
 def hide_surface(model: Optional[str] = None) -> str:
     """Hide the molecular surface of a model."""
     imol = resolve_model(model)

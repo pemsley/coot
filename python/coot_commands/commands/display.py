@@ -21,7 +21,9 @@ from __future__ import annotations
 from typing import Optional
 
 from coot_commands.registry import command
-from coot_commands.types import resolve_model, resolve_map, ArgType
+from coot_commands.types import (RES_SPEC, resolve_model, resolve_map,
+                                 resolve_residue, ArgType,
+                                 ACTIVE_MODEL_NOTE, ACTIVE_MAP_NOTE)
 
 try:
     import coot
@@ -36,7 +38,7 @@ CATEGORY = "Display"
          examples=["show model 0", "display model"],
          category=CATEGORY,
          arg_types={"model": ArgType.MODEL},
-         notes="With no number, acts on the active model.")
+         notes=ACTIVE_MODEL_NOTE)
 def show_model(model: Optional[str] = None) -> str:
     """Show (display) a model."""
     imol = resolve_model(model)
@@ -49,7 +51,7 @@ def show_model(model: Optional[str] = None) -> str:
          examples=["hide model 0", "undisplay model"],
          category=CATEGORY,
          arg_types={"model": ArgType.MODEL},
-         notes="With no number, acts on the active model.")
+         notes=ACTIVE_MODEL_NOTE)
 def hide_model(model: Optional[str] = None) -> str:
     """Hide (undisplay) a model."""
     imol = resolve_model(model)
@@ -62,7 +64,7 @@ def hide_model(model: Optional[str] = None) -> str:
          examples=["show map 1", "display map"],
          category=CATEGORY,
          arg_types={"map": ArgType.MAP},
-         notes="With no number, acts on the active (refinement) map.")
+         notes=ACTIVE_MAP_NOTE)
 def show_map(map: Optional[str] = None) -> str:
     """Show (display) a map."""
     imol = resolve_map(map)
@@ -75,7 +77,7 @@ def show_map(map: Optional[str] = None) -> str:
          examples=["hide map 1", "undisplay map"],
          category=CATEGORY,
          arg_types={"map": ArgType.MAP},
-         notes="With no number, acts on the active (refinement) map.")
+         notes=ACTIVE_MAP_NOTE)
 def hide_map(map: Optional[str] = None) -> str:
     """Hide (undisplay) a map."""
     imol = resolve_map(map)
@@ -93,3 +95,32 @@ def display_only_active(**_: Optional[str]) -> str:
     if coot is not None:
         coot.display_only_active()
     return "Showing only the active model"
+
+
+@command(r"(?:show|display) (?:residue )?environment(?: " + RES_SPEC + r")?",
+         examples=["show residue environment", "show environment A/89"],
+         category=CATEGORY,
+         notes="Shows the environment distances (contacts and H-bonds) around "
+               "a residue, centring on it. With no residue named, uses the "
+               "active residue (the one at the centre of the screen).")
+def show_environment(chain: Optional[str] = None,
+                     resno: Optional[str] = None) -> str:
+    """Show the environment distances around a residue."""
+    if coot is None:
+        return "Showing the residue environment"
+    imol, chain_id, res, ins = resolve_residue(chain, resno)
+    coot.set_go_to_atom_molecule(imol)
+    coot.set_go_to_atom_from_res_spec_py([chain_id, res, ins])
+    coot.set_show_environment_distances(1)
+    return f"Showing the environment of {chain_id}/{res} of model {imol}"
+
+
+@command(r"(?:hide|undisplay) (?:residue )?environment",
+         examples=["hide residue environment", "hide environment"],
+         category=CATEGORY,
+         notes="Hides the residue environment distances.")
+def hide_environment(**_: Optional[str]) -> str:
+    """Hide the residue environment distances."""
+    if coot is not None:
+        coot.set_show_environment_distances(0)
+    return "Hiding the residue environment"

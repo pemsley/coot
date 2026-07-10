@@ -1,0 +1,398 @@
+# test_coot_commands.py
+#
+# Copyright 2026 Jordan Dialpuri, Medical Research Council Laboratory of Molecular Biology
+#
+# This file is part of Coot
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published
+# by the Free Software Foundation; either version 3 of the License, or (at
+# your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+
+"""Standalone tests for the coot_commands package (no Coot required).
+
+Run from the python/ directory:
+
+    python3 test_coot_commands.py
+
+The command modules do ``try: import coot / except ImportError: coot = None``,
+so they load without Coot; the argument-value tests inject a small fake ``coot``
+so that model/map completion is deterministic.  The suite is also discoverable
+by pytest (the ``test_*`` functions) if it is ever available.
+"""
+
+import contextlib
+
+import coot_commands  # noqa: F401  - triggers command discovery/registration
+from coot_commands import types
+from coot_commands.commands import ligand as ligand_mod
+from coot_commands.commands import model_edit as model_edit_mod
+from coot_commands.commands import models as models_mod
+from coot_commands.commands import session as session_mod
+from coot_commands.commands import validation as validation_mod
+from coot_commands.completion import complete
+from coot_commands.registry import unmatched_examples
+import coot_command_interface as cli
+
+
+class _FakeCoot:
+    """Just enough of the coot API for the completion value providers.
+
+    Models live at molecule numbers 0, 1, 2; a map lives at 3.
+    """
+
+    def graphics_n_molecules(self):
+        return 4
+
+    def is_valid_model_molecule(self, i):
+        return 1 if i in (0, 1, 2) else 0
+
+    def is_valid_map_molecule(self, i):
+        return 1 if i == 3 else 0
+
+
+class _FakeCootFull(_FakeCoot):
+    """A richer fake for exercising command *behaviour* via dispatch.
+
+    Adds molecule names, an active model/map, and the handful of scoring
+    and search calls the ligand/blob/list commands make, recording their
+    arguments so tests can assert what the command asked Coot to do.
+    """
+
+    NAMES = {0: "tutorial-modern", 1: "1hr2_final",
+             2: "ligand-blob", 3: "tutorial-map"}
+
+    def __init__(self):
+        self.centre = None
+        self.search = {}
+        self.displayed = {}
+
+    # --- names -----------------------------------------------------------
+    def molecule_name_stub_py(self, imol, include_path_flag):
+        return self.NAMES.get(imol, "")
+
+    def molecule_name(self, imol):
+        return self.NAMES.get(imol, "")
+
+    # --- active model / map ---------------------------------------------
+    def active_residue_py(self):
+        return [0, "A", 10, "", " CA "]
+
+    def imol_refinement_map(self):
+        return 3
+
+    def map_is_difference_map(self, imol):
+        return 0
+
+    # --- unmodelled blobs -----------------------------------------------
+    def find_blobs_py(self, imol_model, imol_map, cut_off):
+        # Deliberately not volume-sorted, so the command's own sort is tested.
+        return [[[1.0, 2.0, 3.0], 5.0], [[4.0, 5.0, 6.0], 9.0]]
+
+    def set_rotation_centre(self, x, y, z):
+        self.centre = (x, y, z)
+
+    # --- residue edits (OXT / terminal residue) --------------------------
+    def add_OXT_to_residue(self, imol, chain_id, resno, ins_code):
+        self.search["oxt"] = (imol, chain_id, resno, ins_code)
+        return 1
+
+    def add_terminal_residue(self, imol, chain_id, resno, restype, immediate):
+        self.search["terminal"] = (imol, chain_id, resno, restype, immediate)
+        return 1
+
+    def backrub_rotamer(self, imol, chain_id, resno, ins_code, alt_conf):
+        self.search["backrub"] = (imol, chain_id, resno, ins_code)
+
+    # --- superposition ---------------------------------------------------
+    def superpose(self, imol1, imol2, move_flag):
+        self.search["superpose"] = (imol1, imol2, move_flag)
+
+    # --- ligand fitting --------------------------------------------------
+    def get_monomer(self, comp_id):
+        self.search["comp_id"] = comp_id
+        return 4
+
+    def add_ligand_clear_ligands(self):
+        self.search["cleared"] = True
+
+    def set_ligand_search_protein_molecule(self, imol):
+        self.search["protein"] = imol
+
+    def set_ligand_search_map_molecule(self, imol):
+        self.search["map"] = imol
+
+    def add_ligand_search_ligand_molecule(self, imol):
+        self.search["ligand"] = imol
+
+    def set_find_ligand_here_cluster(self, state):
+        self.search["here"] = state
+
+    def execute_ligand_search_py(self):
+        return [5]
+
+    def set_mol_displayed(self, imol, state):
+        self.displayed[imol] = state
+
+
+@contextlib.contextmanager
+def _use_coot(fake, *modules):
+    """Install *fake* as ``coot`` in ``types`` and each command *module*.
+
+    Command handlers read their module-global ``coot`` at call time, so a
+    dispatch-level test must patch the module that owns the handler as well
+    as ``types`` (which resolves the active model/map).  State is restored
+    on exit even if the test raises.
+    """
+    mods = [types, *modules]
+    saved = [m.coot for m in mods]
+    for m in mods:
+        m.coot = fake
+    try:
+        yield fake
+    finally:
+        for m, s in zip(mods, saved):
+            m.coot = s
+
+
+def test_examples_match_their_own_pattern():
+    """Every example must be dispatchable by its own command."""
+    problems = unmatched_examples()
+    assert problems == [], f"examples that don't match their pattern: {problems}"
+
+
+def test_keyword_completion_fills_unambiguous_word():
+    assert complete("sh") == ("show ", [])
+    assert complete("show mo") == ("show model ", [])
+
+
+def test_keyword_completion_lists_options_and_shared_prefix():
+    replacement, options = complete("show ")
+    assert options == ["environment", "map", "model", "only", "residue",
+                       "ribbons", "sequence", "surface", "symmetry"]
+    assert replacement == "show "
+    # "view" must NOT leak here from the "perspective view" example.
+    assert "view" not in options
+
+
+def test_keyword_completion_extends_shared_prefix():
+    # Both "map" and "model" start with "m", so Tab fills the shared "m".
+    replacement, options = complete("show m")
+    assert options == ["map", "model"]
+    assert replacement == "show m"
+
+
+def test_colour_value_completion():
+    _, options = complete("background ")
+    assert options == types.colour_names()
+    assert complete("colour map 1 bl") == ("colour map 1 bl", ["black", "blue"])
+
+
+def test_projection_literal_completion():
+    assert complete("ort") == ("orthographic ", [])
+    assert complete("per") == ("perspective ", [])
+
+
+def test_no_completion_for_unknown_input():
+    assert complete("wibble") == ("", [])
+    assert cli.complete_command("wibble") == ""
+
+
+def test_model_value_completion_with_fake_coot():
+    saved = types.coot
+    types.coot = _FakeCoot()
+    try:
+        # Numbers sort numerically, not lexically.
+        replacement, options = complete("show model ")
+        assert options == ["0", "1", "2"], options
+        assert replacement == "show model "
+        # A single matching value is filled in.
+        assert complete("show model 1") == ("show model 1 ", [])
+        # Maps and models are distinct sets.
+        assert complete("show map ") == ("show map 3 ", [])
+    finally:
+        types.coot = saved
+
+
+def test_interface_protocol_string():
+    # First line is the replacement; a second line lists ambiguous options.
+    assert cli.complete_command("sh") == "show "
+    assert cli.complete_command("show ") == \
+        "show \nenvironment  map  model  only  residue  ribbons  sequence  " \
+        "surface  symmetry"
+
+
+def test_model_completion_shows_molecule_names():
+    # Tab-listing a model/map argument decorates each number with its name,
+    # while the value inserted into the line stays the bare number.
+    with _use_coot(_FakeCootFull()):
+        replacement, options = complete("show model ")
+        assert options == ["0 (tutorial-modern)", "1 (1hr2_final)",
+                           "2 (ligand-blob)"], options
+        assert replacement == "show model "
+        # Filling in a single unambiguous value uses the number, not the label.
+        assert complete("show model 1") == ("show model 1 ", [])
+
+
+def test_new_command_keyword_completion():
+    # list -> the two list commands' nouns.
+    assert complete("list ")[1] == ["maps", "models", "molecules"]
+    # fit -> only "ligand", so it fills in.
+    assert complete("fit ") == ("fit ligand ", [])
+    # find and "go to" offer the new nouns among their options.
+    assert "blobs" in complete("find ")[1]
+    assert "blob" in complete("go to ")[1]
+
+
+def test_list_models_and_maps_report_names():
+    with _use_coot(_FakeCootFull(), session_mod):
+        models = cli.run_command("list models")
+        assert "3 model(s):" in models
+        assert "0: tutorial-modern" in models
+        maps = cli.run_command("list maps")
+        assert "1 map(s):" in maps
+        assert "3: tutorial-map" in maps
+
+
+def test_list_commands_without_coot():
+    # Handlers must degrade gracefully when Coot is unavailable.
+    assert cli.run_command("list models") == "No models loaded"
+    assert cli.run_command("list maps") == "No maps loaded"
+
+
+def test_find_blobs_then_go_to_blob():
+    fake = _FakeCootFull()
+    with _use_coot(fake, validation_mod):
+        out = cli.run_command("find blobs")
+        assert "2 unmodelled blob(s)" in out
+        # Largest blob (volume 9) is numbered 1.
+        assert "blob 1 at (4.0, 5.0, 6.0)" in out
+        go = cli.run_command("go to blob 1")
+        assert fake.centre == (4.0, 5.0, 6.0)
+        assert "Centred on blob 1" in go
+        # Out-of-range blob is a clean error, not a crash.
+        assert "does not exist" in cli.run_command("go to blob 9")
+
+
+def test_go_to_blob_without_blobs_errors():
+    validation_mod._last_blobs = []
+    out = cli.run_command("go to blob 1")
+    assert "find blobs" in out
+
+
+def test_fit_ligand_runs_search():
+    fake = _FakeCootFull()
+    with _use_coot(fake, ligand_mod):
+        out = cli.run_command("fit ligand LIG")
+        assert "Fitted ligand LIG" in out
+        assert "5" in out  # the fitted solution's molecule number
+        assert fake.search["comp_id"] == "LIG"
+        assert fake.search["protein"] == 0    # active model
+        assert fake.search["map"] == 3        # refinement map
+        assert fake.search["here"] == 0       # whole-map search
+        # The "here" variant restricts the search to the view centre.
+        here = cli.run_command("fit ligand ATP here")
+        assert fake.search["here"] == 1
+        assert "at the view centre" in here
+
+
+def test_add_oxt_to_named_residue():
+    fake = _FakeCootFull()
+    with _use_coot(fake, model_edit_mod):
+        out = cli.run_command("add OXT to A/89")
+        assert "Added OXT to A/89" in out
+        # Model defaults to the active model (0); ins code blank.
+        assert fake.search["oxt"] == (0, "A", 89, "")
+
+
+def test_add_oxt_defaults_to_active_residue():
+    # With no residue named, the command must act on the active residue,
+    # which the fake reports as A/10 of model 0.
+    fake = _FakeCootFull()
+    with _use_coot(fake, model_edit_mod):
+        out = cli.run_command("add OXT")
+        assert fake.search["oxt"] == (0, "A", 10, "")
+        assert "Added OXT to A/10" in out
+
+
+def test_add_terminal_residue_named_and_typed():
+    fake = _FakeCootFull()
+    with _use_coot(fake, model_edit_mod):
+        # Default type is "auto".
+        cli.run_command("add terminal residue to A/89")
+        assert fake.search["terminal"] == (0, "A", 89, "auto", 1)
+        # An explicit "as ALA" forces the residue type.
+        out = cli.run_command("add terminal residue to A 89 as ALA")
+        assert fake.search["terminal"] == (0, "A", 89, "ALA", 1)
+        assert "(ALA)" in out
+
+
+def test_add_terminal_residue_defaults_to_active():
+    fake = _FakeCootFull()
+    with _use_coot(fake, model_edit_mod):
+        out = cli.run_command("add terminal residue")
+        # Active residue is A/10 of model 0.
+        assert fake.search["terminal"] == (0, "A", 10, "auto", 1)
+        assert "Added a terminal residue to A/10" in out
+
+
+def test_backrub_without_spec_uses_active_residue():
+    # Regression: a per-residue command with no residue spec must still match
+    # its own command and act on the active residue (A/10 of model 0) - not
+    # fall through to the "back" navigation command.
+    fake = _FakeCootFull()
+    with _use_coot(fake, model_edit_mod):
+        out = cli.run_command("backrub rotamer")
+        assert fake.search["backrub"] == (0, "A", 10, "")
+        assert "Backrub-fitted A/10" in out
+
+
+def test_superpose_copies_by_default():
+    fake = _FakeCootFull()
+    with _use_coot(fake, models_mod):
+        out = cli.run_command("superpose model 0 onto model 1")
+        # superpose(reference=1, moving=0, flag=1 -> copy).
+        assert fake.search["superpose"] == (1, 0, 1)
+        assert "copy of model 0 onto model 1" in out
+        # "in place" moves the source instead of copying (flag 0).
+        moved = cli.run_command("superpose model 0 onto model 1 in place")
+        assert fake.search["superpose"] == (1, 0, 0)
+        assert "(moved)" in moved
+
+
+def test_superpose_onto_itself_errors():
+    assert "onto itself" in cli.run_command("superpose model 2 onto model 2")
+
+
+def test_fit_ligand_unknown_code_errors():
+    class _NoDict(_FakeCootFull):
+        def get_monomer(self, *_):
+            return -1
+    with _use_coot(_NoDict(), ligand_mod):
+        out = cli.run_command("fit ligand ZZZ")
+        assert "could not get a dictionary" in out
+
+
+def _run():
+    tests = [v for k, v in sorted(globals().items())
+             if k.startswith("test_") and callable(v)]
+    failures = 0
+    for test in tests:
+        try:
+            test()
+            print(f"PASS {test.__name__}")
+        except AssertionError as e:
+            failures += 1
+            print(f"FAIL {test.__name__}: {e}")
+    print(f"\n{len(tests) - failures}/{len(tests)} passed")
+    return failures == 0
+
+
+if __name__ == "__main__":
+    import sys
+    sys.exit(0 if _run() else 1)

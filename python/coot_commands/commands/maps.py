@@ -21,7 +21,8 @@ from __future__ import annotations
 from typing import Optional
 
 from coot_commands.registry import command
-from coot_commands.types import resolve_map, resolve_colour, as_float, ArgType
+from coot_commands.types import (resolve_map, resolve_colour, as_float, ArgType,
+                                 ACTIVE_MAP_NOTE)
 
 try:
     import coot
@@ -36,8 +37,8 @@ CATEGORY = "Maps"
          examples=["contour map 1 to 1.5 sigma", "contour to 1.2 rmsd"],
          category=CATEGORY,
          arg_types={"map": ArgType.MAP},
-         notes="Sets the contour level in sigma (map RMSD units). With no "
-               "map number, acts on the active map.")
+         notes="Sets the contour level in sigma (map RMSD units). "
+               + ACTIVE_MAP_NOTE)
 def contour_sigma(level: str, map: Optional[str] = None) -> str:
     """Set a map's contour level in sigma."""
     imol = resolve_map(map)
@@ -51,9 +52,8 @@ def contour_sigma(level: str, map: Optional[str] = None) -> str:
          examples=["contour map 1 to 0.35", "contour to 0.3"],
          category=CATEGORY,
          arg_types={"map": ArgType.MAP},
-         notes="Sets the absolute contour level (map units). With no map "
-               "number, acts on the active map. Add \"sigma\" to contour in "
-               "RMSD units instead.")
+         notes="Sets the absolute contour level (map units). " + ACTIVE_MAP_NOTE
+               + " Add \"sigma\" to contour in RMSD units instead.")
 def contour_absolute(level: str, map: Optional[str] = None) -> str:
     """Set a map's absolute contour level."""
     imol = resolve_map(map)
@@ -67,7 +67,7 @@ def contour_absolute(level: str, map: Optional[str] = None) -> str:
          examples=["colour map 1 blue", "colour map cyan"],
          category=CATEGORY,
          arg_types={"map": ArgType.MAP, "colour": ArgType.COLOUR},
-         notes="With no map number, acts on the active map.")
+         notes=ACTIVE_MAP_NOTE)
 def colour_map(colour: str, map: Optional[str] = None) -> str:
     """Set a map's colour."""
     imol = resolve_map(map)
@@ -82,7 +82,7 @@ def colour_map(colour: str, map: Optional[str] = None) -> str:
          category=CATEGORY,
          arg_types={"map": ArgType.MAP},
          notes="Marks the map as a difference map (green/red, contoured "
-               "either side of zero). With no number, acts on the active map.")
+               "either side of zero). " + ACTIVE_MAP_NOTE)
 def set_difference_map(map: Optional[str] = None) -> str:
     """Mark a map as a difference map."""
     imol = resolve_map(map)

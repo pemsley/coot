@@ -21,7 +21,7 @@ from __future__ import annotations
 from typing import Optional
 
 from coot_commands.registry import command
-from coot_commands.types import resolve_model, as_int, ArgType
+from coot_commands.types import resolve_model, as_int, ArgType, ACTIVE_MODEL_NOTE
 
 try:
     import coot
@@ -40,9 +40,9 @@ CATEGORY = "Navigation"
          arg_types={"model": ArgType.MODEL},
          notes="Centres on the given chain/residue, picking a sensible atom "
                "(CA for protein, P/C1' for nucleotides, and so on) so it "
-               "works for waters, ligands and nucleic acids too. With no "
-               "model number, uses the active model. Chain and residue may "
-               "be separated by a space or a slash.")
+               "works for waters, ligands and nucleic acids too. "
+               + ACTIVE_MODEL_NOTE + " Chain and residue may be separated by "
+               "a space or a slash.")
 def go_to_residue(chain: str, resno: str, model: Optional[str] = None) -> str:
     """Centre the view on a chain/residue."""
     imol = resolve_model(model)
@@ -69,7 +69,7 @@ def _step_residue(direction: str) -> str:
         return f"Stepped to the {direction} residue"
     active = coot.active_residue_py()
     if not active:
-        return "No active residue - click a model first"
+        return "No active residue - centre on a model first"
     imol, chain, resno, ins_code, atom_name = active[:5]
     coot.set_go_to_atom_molecule(imol)
     finder = (coot.goto_next_atom_maybe_py if direction == "next"
@@ -82,21 +82,23 @@ def _step_residue(direction: str) -> str:
     return f"Centred on {n_chain}/{n_resno} of model {imol}"
 
 
-@command(r"(?:go to |goto )?(?:next|forward)(?: residue| res)?",
+@command(r"(?:go to |goto )?(?:next|forward)(?: residue| res)?$",
          examples=["next residue", "next", "forward residue"],
          category=CATEGORY,
          notes="Centres on the next residue after the active one (like the "
-               "space bar). Click a model first to set the active residue.")
+               "space bar). The active residue is the one at the centre of "
+               "the screen.")
 def next_residue(**_: Optional[str]) -> str:
     """Centre on the next residue."""
     return _step_residue("next")
 
 
-@command(r"(?:go to |goto )?(?:previous|prev|back)(?: residue| res)?",
+@command(r"(?:go to |goto )?(?:previous|prev|back)(?: residue| res)?$",
          examples=["previous residue", "prev", "back residue"],
          category=CATEGORY,
          notes="Centres on the residue before the active one (like "
-               "shift-space). Click a model first to set the active residue.")
+               "shift-space). The active residue is the one at the centre of "
+               "the screen.")
 def previous_residue(**_: Optional[str]) -> str:
     """Centre on the previous residue."""
     return _step_residue("previous")

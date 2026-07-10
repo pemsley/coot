@@ -6967,7 +6967,7 @@ Do you want to continue?
                   <property name="tooltip-text">Toggle natural-language command terminal</property>
                   <child>
                     <object class="GtkLabel">
-                      <property name="label" translatable="yes">Cmd</property>
+                      <property name="label" translatable="yes">CLI</property>
                     </object>
                   </child>
                 </object>

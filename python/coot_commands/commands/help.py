@@ -23,7 +23,7 @@ as commands are added.
 
 from __future__ import annotations
 
-from coot_commands.registry import command, all_commands
+from coot_commands.registry import command
 
 
 @command(r"(?:help|commands|what can i do)\??",
@@ -31,14 +31,15 @@ from coot_commands.registry import command, all_commands
          category="Help")
 def show_help() -> str:
     """List the available commands, grouped by category."""
-    by_category = {}
-    for cmd in all_commands():
-        by_category.setdefault(cmd.category, []).append(cmd)
+    # Reuse the docs generator's grouping so help and the Markdown reference
+    # order commands identically.  Imported lazily to avoid an import cycle
+    # during command auto-discovery.
+    from coot_commands.docs import commands_by_category
 
     lines = ["Available commands (type any of the examples):", ""]
-    for category in sorted(by_category):
+    for category, cmds in commands_by_category().items():
         lines.append(f"{category}:")
-        for cmd in by_category[category]:
+        for cmd in cmds:
             example = cmd.examples[0] if cmd.examples else cmd.name
             summary = cmd.help_text or ""
             lines.append(f"  {example:<26} {summary}")

@@ -152,8 +152,15 @@ def dispatch(text: str) -> Optional[str]:
     Returns the handler's result string, or ``None`` if nothing matched
     (the caller decides how to report an unrecognised command).  Handler
     exceptions propagate to the caller.
+
+    The input is first passed through :func:`coot_commands.speech.from_speech`,
+    which rewrites dictated forms ("model zero" -> "model 0") to canonical
+    text, so spoken commands (e.g. macOS Dictation typed into the Command tab)
+    match the same patterns as typed ones.  It is a no-op on already-canonical
+    input.
     """
-    norm = normalise(text)
+    from coot_commands.speech import from_speech
+    norm = normalise(from_speech(text))
     for cmd in _COMMANDS:
         match = cmd.regex.match(norm)
         if match:

@@ -73,6 +73,22 @@ def _spec_candidates(spec: object) -> List[str]:
         return []
 
 
+def _spec_label(spec: object, value: str) -> str:
+    """Display label for an argument *value*, or the value itself.
+
+    A type may define ``label(value)`` to decorate the value shown in the
+    completion menu (e.g. adding a molecule name) without changing the value
+    inserted into the command line.  Any failure falls back to the value.
+    """
+    labeller = getattr(spec, "label", None)
+    if callable(labeller):
+        try:
+            return str(labeller(value))
+        except Exception:
+            return value
+    return value
+
+
 def _example_words(cmd, example: str) -> Tuple[List[str], List[bool], List]:
     """Split *example* into words, marking which are argument values.
 
@@ -169,6 +185,11 @@ def complete(text: str) -> Tuple[str, List[str]]:
     partial_low = partial.lower()
 
     candidates = set()
+    # Display labels for candidates (value -> label); only differs from the
+    # value for argument types that decorate it, e.g. a model number gaining
+    # its molecule name.  The value is what gets inserted; the label is what
+    # the user sees in an ambiguous option list.
+    labels: dict = {}
     for cmd in all_commands():
         for example in cmd.examples:
             words_ex, is_arg, arg_name = _example_words(cmd, example)
@@ -181,10 +202,12 @@ def complete(text: str) -> Tuple[str, List[str]]:
                 for value in _spec_candidates(spec):
                     if value.lower().startswith(partial_low):
                         candidates.add(value)
+                        labels[value] = _spec_label(spec, value)
             else:
                 keyword = words_ex[pos]
                 if keyword.lower().startswith(partial_low):
                     candidates.add(keyword)
+                    labels.setdefault(keyword, keyword)
 
     if not candidates:
         return "", []
@@ -195,7 +218,9 @@ def complete(text: str) -> Tuple[str, List[str]]:
         return " ".join(fixed + [ordered[0]]) + " ", []
 
     # Ambiguous: extend the word by the shared prefix and list the options.
+    # The prefix is computed from the values (what gets inserted), while the
+    # options shown to the user carry their display labels.
     prefix = _common_prefix(ordered)
     word = prefix if len(prefix) >= len(partial) else partial
     replacement = " ".join(fixed + [word]) if (fixed or word) else ""
-    return replacement, ordered
+    return replacement, [labels.get(v, v) for v in ordered]

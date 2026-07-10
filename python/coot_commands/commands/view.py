@@ -47,7 +47,7 @@ def set_background(colour: str) -> str:
     r, g, b = resolve_colour(colour)
     if coot is not None:
         coot.set_background_colour(r, g, b)
-    return f"Background set to {colour.lower()}"
+    return f"Set background to {colour.lower()}"
 
 
 @command(r"spin(?: view)?",
@@ -105,4 +105,4 @@ def set_zoom(factor: str) -> str:
     if coot is not None:
         coot.set_zoom(f)
         coot.graphics_draw()
-    return f"Zoom set to {f:g}"
+    return f"Set zoom to {f:g}"

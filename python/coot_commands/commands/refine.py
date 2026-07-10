@@ -21,7 +21,9 @@ from __future__ import annotations
 from typing import Optional
 
 from coot_commands.registry import command
-from coot_commands.types import resolve_model, as_int, CommandError
+from coot_commands.types import (RES_SPEC, resolve_model, resolve_residue,
+                                 as_int, CommandError, ACTIVE_MODEL_NOTE,
+                                 ACTIVE_RESIDUE_NOTE)
 
 try:
     import coot
@@ -58,6 +60,40 @@ def _refine_zone(imol: int, chain_id: str, res1: int, res2: int) -> str:
     return f"Refined {chain_id}/{lo}-{hi} of model {imol}"
 
 
+def _chain_residue_range(imol: int, chain_id: str) -> tuple[int, int]:
+    """First and last residue numbers of a chain, from its serial numbers."""
+    n = coot.chain_n_residues(chain_id, imol)
+    if n <= 0:
+        raise CommandError(f"no chain {chain_id} in model {imol}")
+    first = coot.seqnum_from_serial_number(imol, chain_id, 0)
+    last = coot.seqnum_from_serial_number(imol, chain_id, n - 1)
+    return first, last
+
+def _refine_sphere(imol: int, chain_id: str, res: int, ins: str = "") -> str:
+    """Real-space refine the sphere of atoms around a residue.
+
+    ``rsr_sphere_refine`` acts on the *active* atom rather than taking a
+    residue argument, so we first set the go-to atom to the target residue
+    (which also makes it active), then refine, using the same immediate-
+    replacement save/restore dance as :func:`_refine_zone`.
+    """
+    if coot is None:
+        return f"Refined the sphere around {chain_id}/{res} of model {imol}"
+    if coot.imol_refinement_map() < 0:
+        raise CommandError("no map set for refinement - open a map first")
+    coot.set_go_to_atom_molecule(imol)
+    if coot.set_go_to_atom_from_res_spec_py([chain_id, res, ins]) <= 0:
+        return f"No residue {chain_id}/{res} in model {imol}"
+    replacement_state = coot.refinement_immediate_replacement_state()
+    coot.set_refinement_immediate_replacement(1)
+    try:
+        coot.rsr_sphere_refine()
+        coot.accept_regularizement()
+    finally:
+        if replacement_state == 0:
+            coot.set_refinement_immediate_replacement(0)
+    return f"Refined the sphere around {chain_id}/{res} of model {imol}"
+
 @command(r"(?:real[- ]space )?refine "
          r"(?:model (?P<model>\S+) )?"
          r"(?:residues? )?(?P<chain>[A-Za-z0-9])[ /](?P<res1>-?\d+)"
@@ -66,7 +102,7 @@ def _refine_zone(imol: int, chain_id: str, res1: int, res2: int) -> str:
                    "real space refine A 100 to 105"],
          category=CATEGORY,
          notes="Real-space refines the given residue range against the "
-               "refinement map. With no model number, uses the active model.")
+               "refinement map. " + ACTIVE_MODEL_NOTE)
 def refine_range(chain: str, res1: str, res2: str,
                  model: Optional[str] = None) -> str:
     """Real-space refine a range of residues."""
@@ -78,11 +114,29 @@ def refine_range(chain: str, res1: str, res2: str,
 
 @command(r"(?:real[- ]space )?refine "
          r"(?:model (?P<model>\S+) )?"
+         r"chain (?P<chain>[A-Za-z0-9])",
+         examples=["refine chain A", "refine chain B"],
+         category=CATEGORY,
+         notes="Real-space refines a whole chain (its full residue range) "
+               "against the refinement map. " + ACTIVE_MODEL_NOTE)
+def refine_chain(chain: str, model: Optional[str] = None) -> str:
+    """Real-space refine an entire chain."""
+    imol = resolve_model(model)
+    chain_id = chain.upper()
+    if coot is None:
+        return f"Refined chain {chain_id} of model {imol}"
+    first, last = _chain_residue_range(imol, chain_id)
+    _refine_zone(imol, chain_id, first, last)
+    return f"Refined chain {chain_id} ({first}-{last}) of model {imol}"
+
+
+@command(r"(?:real[- ]space )?refine "
+         r"(?:model (?P<model>\S+) )?"
          r"(?:residue |res )?(?P<chain>[A-Za-z0-9])[ /](?P<resno>-?\d+)",
          examples=["refine A 45", "refine A/45", "refine residue B 12"],
          category=CATEGORY,
          notes="Real-space refines a single residue against the refinement "
-               "map. With no model number, uses the active model.")
+               "map. " + ACTIVE_MODEL_NOTE)
 def refine_residue(chain: str, resno: str,
                    model: Optional[str] = None) -> str:
     """Real-space refine a single residue."""
@@ -95,14 +149,28 @@ def refine_residue(chain: str, resno: str,
          r"| this(?: residue)?| here)?$",
          examples=["refine", "refine active residue", "refine here"],
          category=CATEGORY,
-         notes="Real-space refines the active residue (the last one clicked) "
-               "against the refinement map.")
+         notes="Real-space refines the active residue (the one at the centre "
+               "of the screen) against the refinement map.")
 def refine_active(**_: Optional[str]) -> str:
     """Real-space refine the active residue."""
     if coot is None:
-        return "Refined the active residue"
+        return "There has been an issue"
     active = coot.active_residue_py()
     if not active:
-        return "No active residue - click a model first"
+        return "No active residue - centre on a model first"
     imol, chain, resno = active[0], active[1], active[2]
     return _refine_zone(imol, chain, resno, resno)
+
+
+@command(r"(?:real[- ]space )?refine sphere"
+         r"(?: model (?P<model>\S+))?"
+         r"(?: (?:residue |res )?" + RES_SPEC + r")?",
+         examples=["refine sphere A/89", "refine sphere A 89", "refine sphere"],
+         category=CATEGORY,
+         notes="Real-space refines the sphere of atoms around the named "
+               "residue against the refinement map. " + ACTIVE_RESIDUE_NOTE)
+def refine_sphere(chain: Optional[str] = None, resno: Optional[str] = None,
+                  model: Optional[str] = None) -> str:
+    """Real-space refine the sphere around a residue."""
+    imol, chain_id, res, ins = resolve_residue(chain, resno, model)
+    return _refine_sphere(imol, chain_id, res, ins)

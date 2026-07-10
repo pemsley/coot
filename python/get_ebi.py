@@ -20,7 +20,16 @@ import os
 import numbers
 import coot
 import coot_utils
-import pdbe_validation_data
+
+# pdbe_validation_data imports gi/Gtk at module load, which can fail to
+# initialise in Coot's embedded Python (a PyGObject override assertion). It is
+# only used for the optional validation-report GUI, so import it defensively -
+# a failure here must not stop coordinates being fetched.
+try:
+    import pdbe_validation_data
+except Exception as e:
+    pdbe_validation_data = None
+    print("WARNING:: pdbe_validation_data unavailable, validation disabled:", e)
 
 # was
 # https://www.ebi.ac.uk/pdbe-srv/view/files/1sar.ent
@@ -169,7 +178,15 @@ def get_ebi_pdb(id):
     #      /validation_reports/cb/1cbs/1cbs_validation.xml.gz
     # print "BL DEBUG:: get-ebi-pdb ======= url-status", url_status
     if coot_utils.valid_model_molecule_qm(url_status):
-        pdbe_validation_data.pdb_validate(down_id, url_status)
+        # pdb_validate builds a GTK3-era validation GUI that can throw under
+        # GTK4 (the cif branch below disables it for the same reason). The
+        # model is already loaded, so never let a validation failure sink the
+        # fetch.
+        if pdbe_validation_data is not None:
+            try:
+                pdbe_validation_data.pdb_validate(down_id, url_status)
+            except Exception as e:
+                print("WARNING:: pdb_validate failed (non-fatal):", e)
         return url_status
     else:
         cif_url_status = get_url_str(id, cif_url_str, "cif", None)
@@ -343,7 +360,9 @@ def get_eds_pdb_and_mtz(id):
 # not sure if coot function is better or python script function coot_urlretrieve
 # return 0 on success
 def net_get_url(my_url, file_name):
-    coot.coot_get_url(my_url, file_name)
+    # coot_get_url returns 0 on success; return it so callers can check status
+    # (previously this returned None, making every status check report failure).
+    return coot.coot_get_url(my_url, file_name)
 
 def get_pdb_redo(text):
 
@@ -386,7 +405,16 @@ def get_pdb_redo(text):
                 anom_map = coot.make_and_draw_map(mtz_file_name, "FAN", "PHAN", "", 0, 1)
                 if anom_map > -1:
                     coot.set_map_colour(anom_map, 0.5, 0.5, 0)
-                exec(compile(open(py_file_name, "rb").read(), py_file_name, 'exec'))
+                # The downloaded results script pops up a GTK dialog
+                # (interesting_things_gui). That helper is not in this scope and
+                # GTK dialogs fail in the embedded interpreter anyway, so the
+                # popup is optional - the model and maps are already loaded.
+                try:
+                    exec(compile(open(py_file_name, "rb").read(),
+                                 py_file_name, 'exec'))
+                except Exception as e:
+                    print("WARNING:: PDB-REDO results popup failed (non-fatal):", e)
+            return status_imol
             
 
 # BL says: to test, some examples

@@ -21,7 +21,7 @@ from __future__ import annotations
 from typing import List, Optional
 
 from coot_commands.registry import command
-from coot_commands.types import as_int, CommandError
+from coot_commands.types import as_int, describe_molecule, CommandError
 
 try:
     import coot
@@ -38,17 +38,6 @@ def _all_molecules() -> List[int]:
         return []
     return [i for i in range(coot.graphics_n_molecules())
             if coot.is_valid_model_molecule(i) or coot.is_valid_map_molecule(i)]
-
-
-def _describe(imol: int) -> str:
-    """A short 'map 1'/'model 0' label for a molecule number."""
-    if coot is None:
-        return f"molecule {imol}"
-    if coot.is_valid_map_molecule(imol):
-        return f"map {imol}"
-    if coot.is_valid_model_molecule(imol):
-        return f"model {imol}"
-    return f"molecule {imol}"
 
 
 def _close_one(imol: int, kind: Optional[str]) -> str:
@@ -68,7 +57,7 @@ def _close_one(imol: int, kind: Optional[str]) -> str:
         raise CommandError(f"molecule {imol} is not a map")
     if kind == "model" and not is_model:
         raise CommandError(f"molecule {imol} is not a model")
-    label = _describe(imol)
+    label = describe_molecule(imol)
     coot.close_molecule(imol)
     return f"Deleted {label}"
 
