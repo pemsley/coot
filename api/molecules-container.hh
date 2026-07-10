@@ -2723,7 +2723,9 @@ public:
    //! Get the sequence information
    //!
    //! @param imol is the molecule index
-   //! @return the sequence information
+   //! @return the sequence information as pairs of chain-id,sequence where
+   //!  the sequence is in single-letter-code. If the residue type is not a typical
+   //!  polymer then the resulting code will be "-".
    std::vector<std::pair<std::string, std::string> > get_sequence_info(int imol) const;
 
    //! Get mutation information
