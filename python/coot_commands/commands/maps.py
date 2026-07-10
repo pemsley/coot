@@ -77,7 +77,7 @@ def colour_map(colour: str, map: Optional[str] = None) -> str:
     return f"Coloured map {imol} {colour.lower()}"
 
 
-@command(r"(?:make (?:map )?)?(?:map (?P<map>\S+) )?(?:is )?(?:a )?difference map",
+@command(r"(?:make (?:map )?)?(?:map (?P<map>\S+) )?(?:is )?(?:a )?difference map$",
          examples=["map 1 is a difference map", "make map 2 a difference map"],
          category=CATEGORY,
          arg_types={"map": ArgType.MAP},

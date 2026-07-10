@@ -302,6 +302,25 @@ def colour_names() -> List[str]:
     return sorted(set(COLOURS))
 
 
+def first_difference_map() -> Optional[int]:
+    """Molecule number of the first loaded difference (Fo-Fc) map, or None.
+
+    Several commands need a difference map that already exists - updating
+    maps needs one to write into, and 'difference map peaks' searches one -
+    so the "find the difference map" scan lives here rather than in each.
+    """
+    if coot is None:
+        return None
+    for value in loaded_maps():
+        imol = int(value)
+        try:
+            if coot.map_is_difference_map(imol) == 1:
+                return imol
+        except Exception:
+            pass
+    return None
+
+
 def molecule_name(imol: int) -> str:
     """Short, path-less name of a molecule, or "" if unavailable.
 

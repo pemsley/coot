@@ -93,14 +93,29 @@ def load_tutorial(**_: Optional[str]) -> str:
     return "Loaded the tutorial model and data"
 
 
-@command(r"(?:show|display|view) sequence(?: (?:of |for )?model (?P<model>\S+))?",
-         examples=["show sequence", "show sequence of model 0"],
+@command(r"(?:open|display|view) sequence(?: (?:of |for )?model (?P<model>\S+))?",
+         examples=["open sequence", "open sequence of model 0"],
          category=CATEGORY,
          arg_types={"model": ArgType.MODEL},
-         notes="Opens the sequence view for the model. " + ACTIVE_MODEL_NOTE)
-def show_sequence(model: Optional[str] = None) -> str:
-    """Show the sequence view for a model."""
+         notes="Opens the sequence view for the model. Close it again with "
+               "'close sequence'. " + ACTIVE_MODEL_NOTE)
+def open_sequence(model: Optional[str] = None) -> str:
+    """Open the sequence view for a model."""
     imol = resolve_model(model)
     if coot is not None:
         coot.sequence_view(imol)
-    return f"Showing the sequence of model {imol}"
+    return f"Opened the sequence of model {imol}"
+
+
+@command(r"close sequence(?: (?:of |for )?model (?P<model>\S+))?",
+         examples=["close sequence", "close sequence of model 0"],
+         category=CATEGORY,
+         arg_types={"model": ArgType.MODEL},
+         notes="Closes the sequence view opened by 'open sequence'. "
+               + ACTIVE_MODEL_NOTE)
+def close_sequence(model: Optional[str] = None) -> str:
+    """Close the sequence view for a model."""
+    imol = resolve_model(model)
+    if coot is not None:
+        coot.remove_sequence_view_from_sequence_view_box(imol)
+    return f"Closed the sequence of model {imol}"

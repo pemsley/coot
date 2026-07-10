@@ -22,8 +22,8 @@ from typing import Optional
 
 from coot_commands.registry import command
 from coot_commands.types import (RES_SPEC, resolve_model, resolve_residue,
-                                 as_int, CommandError, ACTIVE_MODEL_NOTE,
-                                 ACTIVE_RESIDUE_NOTE)
+                                 as_int, ArgType, CommandError,
+                                 ACTIVE_MODEL_NOTE, ACTIVE_RESIDUE_NOTE)
 
 try:
     import coot
@@ -174,3 +174,28 @@ def refine_sphere(chain: Optional[str] = None, resno: Optional[str] = None,
     """Real-space refine the sphere around a residue."""
     imol, chain_id, res, ins = resolve_residue(chain, resno, model)
     return _refine_sphere(imol, chain_id, res, ins)
+
+
+@command(r"(?:shiftfield )?refine (?:the )?"
+         r"(?:b[- ]?factors?|b[- ]?values?|adps?|temperature factors?|"
+         r"atomic displacement parameters?)"
+         r"(?: (?:of |in |for )?model (?P<model>\S+))?",
+         examples=["refine b factors", "refine b-factors of model 0",
+                   "refine adps"],
+         category=CATEGORY,
+         arg_types={"model": ArgType.MODEL},
+         notes="Refines the atomic B-factors (ADPs) of the whole model using "
+               "the shiftfield method, against the reflection data. Needs a "
+               "map with reflection data set as the refinement map (unlike "
+               "real-space refinement, this is a whole-molecule reciprocal-"
+               "space step). " + ACTIVE_MODEL_NOTE)
+def refine_b_factors(model: Optional[str] = None) -> str:
+    """Refine the atomic B-factors (ADPs) of a model."""
+    imol = resolve_model(model)
+    if coot is None:
+        return f"Refined B-factors of model {imol}"
+    if coot.imol_refinement_map() < 0:
+        raise CommandError(
+            "no map set for refinement - open a map with reflection data first")
+    coot.shiftfield_b_factor_refinement(imol)
+    return f"Refined B-factors of model {imol}"

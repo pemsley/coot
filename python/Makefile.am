@@ -75,6 +75,7 @@ nobase_dist_pkgpython_PYTHON = \
    coot_commands/commands/session.py          \
    coot_commands/commands/state.py            \
    coot_commands/commands/models.py           \
+   coot_commands/commands/settings.py         \
    coot_commands/commands/help.py
 
 # VTE REPL helper script — installed to pkgdatadir/python/ (not site-packages)
