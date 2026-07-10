@@ -126,7 +126,7 @@ void other_setup_code() {
 
    std::filesystem::path lib_dir = this_library_dir();
    // std::cout << "DEBUG:: in other_setup_code(): lib_dir is " << lib_dir.string() << std::endl;
-   coot::set_package_data_dir(lib_dir.string());
+   // coot::set_package_data_dir(lib_dir.string());
 
 }
 
@@ -931,6 +931,10 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::get_rotamer_dodecs_instanced,
          nb::arg("imol"),
          get_docstring_from_xml("get_rotamer_dodecs_instanced").c_str())
+    .def("get_sequence_info",
+         &molecules_container_t::get_sequence_info,
+         nb::arg("imol"),
+         get_docstring_from_xml("get_sequence_info").c_str())
     .def("get_single_letter_codes_for_chain",
          &molecules_container_t::get_single_letter_codes_for_chain,
          nb::arg("imol"), nb::arg("chain_id"),

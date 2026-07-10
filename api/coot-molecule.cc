@@ -5245,7 +5245,56 @@ coot::molecule_t::set_occupancy(const std::string &cid, float occ_new) {
 std::vector<std::pair<std::string, std::string> >
 coot::molecule_t::get_sequence_info() const {
 
+   // 20260710-PE c.f. get_fragment_by_fragment_scores() function
+   auto residue_to_single_letter_code = [] (mmdb::Residue *residue_p) {
+      char code = '-';
+      std::string res_name = residue_p->GetResName();
+      if (res_name == "ALA") code = 'A';
+      if (res_name == "CYS") code = 'C';
+      if (res_name == "ASP") code = 'D';
+      if (res_name == "GLU") code = 'E';
+      if (res_name == "PHE") code = 'F';
+      if (res_name == "GLY") code = 'G';
+      if (res_name == "HIS") code = 'H';
+      if (res_name == "ILE") code = 'I';
+      if (res_name == "LYS") code = 'K';
+      if (res_name == "LEU") code = 'L';
+      if (res_name == "MET") code = 'M';
+      if (res_name == "MSE") code = 'M';
+      if (res_name == "ASN") code = 'N';
+      if (res_name == "PRO") code = 'P';
+      if (res_name == "GLN") code = 'Q';
+      if (res_name == "ARG") code = 'R';
+      if (res_name == "SER") code = 'S';
+      if (res_name == "THR") code = 'T';
+      if (res_name == "VAL") code = 'V';
+      if (res_name == "TRP") code = 'W';
+      if (res_name == "TYR") code = 'Y';
+      return code;
+   };
+
    std::vector<std::pair<std::string, std::string> > v;
+   // pairs of chain-id and single-letter code sequence
+   int imod = 1;
+   mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         int n_res = chain_p->GetNumberOfResidues();
+         std::string chain_id(chain_p->GetChainID());
+         std::string seq;
+         for (int ires=0; ires<n_res; ires++) {
+            mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+            if (residue_p) {
+               char slc = residue_to_single_letter_code(residue_p);
+               seq += slc;
+            }
+         }
+         v.push_back(std::pair<std::string, std::string>(chain_id, seq));
+      }
+   }
+
    return v;
 
 }
