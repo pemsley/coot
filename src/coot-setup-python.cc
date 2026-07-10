@@ -43,6 +43,7 @@
 
 #include <string>
 #include <iostream>
+#include <filesystem>
 
 #include <sys/stat.h>
 #include <glob.h>
@@ -74,11 +75,51 @@ void setup_python_basic(int argc, char **argv) {
       wchar_t* arg = Py_DecodeLocale(argv[i], NULL);
       _argv[i] = arg;
    }
-   Py_InitializeEx(0);
+   int initsigs = 0; // 20260710-PE skip initialization registration of signal handlers
 
-#if PY_VERSION_HEX > 0x030400F0
+#if PY_VERSION_HEX >= 0x03080000
 
-// #if PY_VERSION_HEX > 0x030A00F0
+   // Coot links its own libpython, but an un-named interpreter searches $PATH for
+   // "python3" to locate itself. It finds the system python and adopts its prefix,
+   // so /usr/lib/pythonX.Y/site-packages leads sys.path and shadows ours - in
+   // particular "import rdkit" then loads the system bindings against the RDKit we
+   // have already linked, and dies on an undefined symbol. So: name our prefix.
+   {
+      // prefix_dir() hands back ".../share/coot/../.." - tidy it, or sys.prefix
+      // (and everything sysconfig derives from it) carries the ".." along.
+      std::error_code ec;
+      std::filesystem::path pp = std::filesystem::weakly_canonical(coot::prefix_dir(), ec);
+      std::string prefix = ec ? coot::prefix_dir() : pp.string();
+      std::string py_version = std::string("python") +
+         std::to_string(PY_MAJOR_VERSION) + "." + std::to_string(PY_MINOR_VERSION);
+      std::string landmark = prefix + "/lib/" + py_version + "/os.py";
+      struct stat buf;
+      bool have_own_python = !prefix.empty() && (stat(landmark.c_str(), &buf) == 0);
+
+      PyConfig config;
+      PyConfig_InitPythonConfig(&config);
+      config.install_signal_handlers = initsigs;
+      config.parse_argv = 0; // sys.argv is set below - don't take over the command line
+
+      if (have_own_python) {
+         std::string py_exe = prefix + "/bin/python3";
+         PyConfig_SetBytesString(&config, &config.home,         prefix.c_str());
+         PyConfig_SetBytesString(&config, &config.program_name, py_exe.c_str());
+      } else {
+         std::cout << "WARNING:: setup_python_basic(): no Python stdlib at " << landmark
+                   << " - falling back to the system Python prefix" << std::endl;
+      }
+
+      PyStatus status = Py_InitializeFromConfig(&config);
+      PyConfig_Clear(&config);
+      if (PyStatus_Exception(status))
+         Py_ExitStatusException(status);
+   }
+
+#else
+   Py_InitializeEx(initsigs);
+#endif
+
 #if 0
 
    // new python setup - it takes control of the command line.
@@ -109,10 +150,6 @@ void setup_python_basic(int argc, char **argv) {
    PySys_SetArgvEx(argc, _argv, update_path);
 #endif
 
-#else
-   // ancient python
-   PySys_SetArgv(argc, _argv);
-#endif
 
    // We expect these to be null because we are outside a python script.
    // PyObject *globals = PyEval_GetGlobals();
