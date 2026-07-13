@@ -342,7 +342,7 @@ def check_missing_atoms(model: Optional[str] = None) -> str:
 
 
 @command(r"(?:(?:check|validate|list|show) )?highly[- ]?coordinated waters?"
-         + _MODEL + r"|check waters?" + _MODEL2,
+         + _MODEL + r"|(?:check|validate|list|show) waters?" + _MODEL2,
          examples=["check waters", "highly coordinated waters"],
          category=CATEGORY,
          arg_types={"model": ArgType.MODEL, "model2": ArgType.MODEL},
