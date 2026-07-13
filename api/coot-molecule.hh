@@ -206,6 +206,7 @@ namespace coot {
 
       modification_info_t modification_info;
 
+
       bool use_gemmi; // true now
       int imol_no; // this molecule's index in the container vector
       bool is_closed_flag;

@@ -45,6 +45,9 @@
 #include "header-info.hh"
 #include "positioned-atom-spec.hh"
 #include "user-defined-colour-table.hh"
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+#include "lidia-core/cod-atom-type-t.hh" // cod::atom_type_t, returned by get_computed_acedrg_atom_types()
+#endif
 
 //! the container of molecules. The class for all **libcootapi** functions.
 class molecules_container_t {
@@ -675,8 +678,8 @@ public:
    std::vector<std::string> non_standard_residue_types_in_model(int imol) const;
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
-   //! Extract ligand restraints from the dictionary store and make an rdkit molecule
-   //! Result to be eaten by C++ only.
+
+   //! Extract ligand restraints from the dictionary store and make an encoded pickled rdkit molecule
    //!
    //! @param residue_name the residue name
    //! @param imol_enc the molecule for the ligand (typically is imol_enc_any)
@@ -937,9 +940,12 @@ public:
    //!         molecules. (Do not pass the return value of import_cif_dictionary() here — that is a 1/0
    //!         success flag.)
    //!
-   //! @return a list of atom names and their associated computed COD atom types (level 4),
-   //! return an empty list on failure
-   std::vector<std::pair<std::string, std::string> > get_computed_acedrg_atom_types(const std::string &compound_id, int imol_enc);
+   //! @return a list of atom names and their associated computed COD atom types
+   //! (a `cod::atom_type_t` for each atom, which holds level_2/level_3/level_4 types,
+   //! the neighbour-degrees and the hash value), return an empty list on failure
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+   std::vector<std::pair<std::string, cod::atom_type_t> > get_computed_acedrg_atom_types(const std::string &compound_id, int imol_enc);
+#endif
 
    //! Get the monomer restraints for the given compound as a JSON string
    //!
@@ -1007,7 +1013,7 @@ public:
 
    //! Write a PNG for the given compound_id.
    //!
-   //! Currently this function does nothing (drawing is done with the not-allowed cairo)
+   //! Currently this function does nothing for Moorhen (drawing is done with the not-allowed cairo)
    //!
    //! @param compound_id is the 3-letter code for the residue/ligand in the first model, e.g. "TYR" for tyrosine
    //! @param imol is the model molecule index
@@ -2717,7 +2723,9 @@ public:
    //! Get the sequence information
    //!
    //! @param imol is the molecule index
-   //! @return the sequence information
+   //! @return the sequence information as pairs of chain-id,sequence where
+   //!  the sequence is in single-letter-code. If the residue type is not a typical
+   //!  polymer then the resulting code will be "-".
    std::vector<std::pair<std::string, std::string> > get_sequence_info(int imol) const;
 
    //! Get mutation information
@@ -3189,6 +3197,7 @@ public:
    coot::atom_overlaps_dots_container_t get_overlap_dots_for_ligand(int imol, const std::string &cid_ligand);
 
    //! Get Atom Overlaps
+   //!
    // not const because it can dynamically add dictionaries
    //! This function used to be called get_overlaps()
    //!
@@ -3723,6 +3732,7 @@ public:
    //! @return the success status, 1 for good, 0 for not good.
 
    int add_compound(int imol, const std::string &tlc, int imol_dict, int imol_map, float x, float y, float z);
+
    // This is a ligand function, not really a ligand-fitting function.
    //!
    //! Get svg for residue type

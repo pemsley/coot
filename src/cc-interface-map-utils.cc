@@ -34,6 +34,7 @@
 #include "cc-interface.hh"
 
 #include "coot-utils/coot-map-utils.hh"
+#include "coot-utils/json.hpp"
 
 #include "c-interface-generic-objects.h"
 #include "utils/logging.hh"
@@ -394,6 +395,24 @@ void servalcat_refine(int imol_model,
    }
 
 }
+
+//! Use servalcat for refinement for x-ray data.
+//!
+//! This presumes that the mtz for the data has already been associated with the map
+//!
+//! @param imol is the model molecule index
+//! @param imol is the map molecule index
+//! @param output_prefix is the prefix for the output
+//! @param keyword_pairs_json a JSON string of keyword pairs to control the refinement
+//! @return the model index of the refined molecule - or -1 on failure
+int servalcat_refine_xray_with_keywords(int imol, int imol_map, const std::string &output_prefix,
+                                        const std::string &keyword_pairs_json) {
+
+   graphics_info_t g;
+   return g.servalcat_refine_xray_with_keywords(imol, imol_map, output_prefix, keyword_pairs_json);
+}
+
+
 
 #include "c-interface-python.hh" // because we use display_python().
 #include "python-3-interface.hh"

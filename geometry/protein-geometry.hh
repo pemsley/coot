@@ -1380,7 +1380,7 @@ namespace coot {
       // Added to by the simple_mon_lib* functions.
       //
       // Use a map for faster lookups.  the key is the comp_id;
-      // 
+      //
       std::map<std::string,dictionary_residue_restraints_t> simple_monomer_descriptions;
 
       int  comp_atom(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc, bool is_from_pdbx_model_atom=false); 
@@ -1404,11 +1404,12 @@ namespace coot {
       void add_chem_links (mmdb::mmcif::PLoop mmCIFLoop); // references to the modifications
                                                 // to the link groups (the modifications
                                                 // themselves are in data_mod_list)
-      int  link_bond   (mmdb::mmcif::PLoop mmCIFLoop); 
-      void link_angle  (mmdb::mmcif::PLoop mmCIFLoop); 
-      void link_torsion(mmdb::mmcif::PLoop mmCIFLoop); 
+      int  link_bond   (mmdb::mmcif::PLoop mmCIFLoop);
+      void link_angle  (mmdb::mmcif::PLoop mmCIFLoop);
+      void link_torsion(mmdb::mmcif::PLoop mmCIFLoop);
       void link_plane  (mmdb::mmcif::PLoop mmCIFLoop);
       int  link_chiral  (mmdb::mmcif::PLoop mmCIFLoop); // return number of new chirals
+      void pdbx_chem_comp_synonyms(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc);
       void pdbx_chem_comp_descriptor(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc);
 
       void pdbe_chem_comp_atom_depiction(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc);
@@ -1418,7 +1419,7 @@ namespace coot {
       void gphl_chem_comp_info(mmdb::mmcif::PStruct structure, int imol_enc);
 
       // return the comp id (so that later we can associate the file name with the comp_id).
-      // 
+      //
       std::string chem_comp_component( mmdb::mmcif::PStruct structure, int imol_enc);
       std::string pdbx_chem_comp_model(mmdb::mmcif::PStruct structure, int imol_enc);
       // non-looping (single) tor

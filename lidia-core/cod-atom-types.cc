@@ -62,12 +62,14 @@ cod::fill_element_period_group_map() {
 }
 
 
+
+
 // can throw a std::runtime_error
 //
 // rdkit_mol is not const because there is no const beginAtoms() operator.
 //
 // add_name_as_property is an optional argument default true
-// 
+//
 std::vector<cod::atom_type_t>
 cod::atom_types_t::get_cod_atom_types(RDKit::ROMol &rdkm,
 				      bool add_name_as_property) {
@@ -152,8 +154,15 @@ cod::atom_types_t::get_cod_atom_types(RDKit::ROMol &rdkm,
    }
 
 
+   // Precompute acedrg's per-atom bondingIdx (stored as the int property
+   // "acedrg_bondingIdx") before building the per-atom types: the level_2
+   // (NB1NB2) component reads each neighbour's bondingIdx. This must run after
+   // the ring-size/ring-arom properties above (the geometry rule needs ring
+   // membership) and before the get_cod_atom_type() loop below.
+   set_acedrg_bonding_indices(rdkm);
+
    cod::primes primes(600000);
-   
+
    timeval start_time;
    timeval current_time;
    // gettimeofday(&start_time, NULL);
@@ -464,6 +473,10 @@ cod::atom_types_t::get_cod_atom_type(const RDKit::Atom *atom_base_p,
    if (nb_level < 3) { // this is always true, I think
       
       std::vector<atom_type_t> neighbour_types;
+      // each neighbour's degree (acedrg's nNB = connAtoms.size()), kept parallel
+      // to neighbour_types so the level_3/4 assembly can order groups the way
+      // acedrg's desSortMapKey2 does (length desc, then nNB desc).
+      std::vector<int> neighbour_n_neighbours;
 
       RDKit::ROMol::ADJ_ITER nbrIdx, endNbrs;
       boost::tie(nbrIdx, endNbrs) = rdkm.getAtomNeighbors(atom_p);
@@ -487,6 +500,7 @@ cod::atom_types_t::get_cod_atom_type(const RDKit::Atom *atom_base_p,
 				    rdkm, nb_level+1);
 	       
 	       neighbour_types.push_back(atom_type_local);
+	       neighbour_n_neighbours.push_back(neigh_atom_p->getDegree());
 
 	       if (atom_type_local.tnil.size()) {
 		  std::list<third_neighbour_info_t>::const_iterator it;
@@ -529,7 +543,8 @@ cod::atom_types_t::get_cod_atom_type(const RDKit::Atom *atom_base_p,
 	 nt[ii] = neighbour_types[ii].level_4; // FIXME
 
       std::pair<std::string, std::string> sp =
-	 make_cod_level_3_and_4_atom_type(atom_base_p, atom_ele, nt, tnil, nb_level);
+	 make_cod_level_3_and_4_atom_type(atom_base_p, atom_ele, nt, neighbour_n_neighbours,
+					  tnil, nb_level);
 
       // std::cout << "reseting atom_type " << nb_level << std::endl;
       atom_type = atom_type_t(sp.first, sp.second);
@@ -549,6 +564,13 @@ cod::atom_types_t::get_cod_atom_type(const RDKit::Atom *atom_base_p,
       // atom_level_2_type l2(atom_base_p, rdkm);
       atom_type.level_2 = atom_level_2_type(atom_base_p, rdkm);
       // std::cout << "with nb_level " << nb_level << " l2 is " << l2 << std::endl;
+
+      // acedrg's per-atom hybridisation string (== libmol Atom*_sp). It is a
+      // pure function of the bondingIdx that set_acedrg_bonding_indices()
+      // stored in the "acedrg_bondingIdx" property (0/unset -> "SP-NON").
+      int bonding_idx = 0;
+      atom_base_p->getPropIfPresent("acedrg_bondingIdx", bonding_idx);
+      atom_type.hybrid = strTransSP(bonding_idx);
    }
 
    return atom_type;
@@ -756,12 +778,34 @@ std::pair<std::string, std::string>
 cod::atom_types_t::make_cod_level_3_and_4_atom_type(const RDKit::Atom *base_atom_p,
 						    const std::string &atom_ele,
 						    const std::vector<std::string> &neighbour_types,
+						    const std::vector<int> &neighbour_n_neighbours,
 						    const std::list<third_neighbour_info_t> &tnil,
 						    int nb_level) {
 
    std::string s;
 
-   std::vector<std::string> n = sort_neighbours(neighbour_types, nb_level);
+   // Order the neighbour groups. Only the top-level, parenthesised groups
+   // (nb_level == 0) use acedrg's desSortMapKey2 ordering: string length
+   // descending, then neighbour degree (nNB) descending - this is what fixes
+   // e.g. S(SS)(Br) (nNB 2 vs 1) which coot used to emit as S(Br)(SS). The
+   // deeper, concatenated levels keep the plain (length desc, string asc) order
+   // (acedrg breaks length ties there by codClass map order, i.e. string), so
+   // that e.g. the leaves of H(CCHO) stay C,H,O rather than C,O,H.
+   std::vector<std::string> n;
+   if (nb_level == 0) {
+      std::vector<std::pair<std::string, int> > np;
+      np.reserve(neighbour_types.size());
+      for (unsigned int i=0; i<neighbour_types.size(); i++) {
+	 int deg = (i < neighbour_n_neighbours.size()) ? neighbour_n_neighbours[i] : 0;
+	 np.push_back(std::make_pair(neighbour_types[i], deg));
+      }
+      std::sort(np.begin(), np.end(), neighbour_pair_sorter);
+      n.resize(np.size());
+      for (unsigned int i=0; i<np.size(); i++)
+	 n[i] = np[i].first;
+   } else {
+      n = sort_neighbours(neighbour_types, nb_level);
+   }
 
    if (false) { // debugging
       std::string name;
@@ -1018,7 +1062,7 @@ cod::atom_types_t::neighbour_sorter(const std::string &a, const std::string &b) 
    if (a.length() < b.length())
       return false;
    return (a < b);
-} 
+}
 
 std::vector<std::string>
 cod::atom_types_t::sort_neighbours(const std::vector<std::string> &neighbours_in,
