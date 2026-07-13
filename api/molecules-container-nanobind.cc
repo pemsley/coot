@@ -57,28 +57,6 @@ struct ResiduePropertyInfo {
     double property;
 };
 
-class molecules_container_js : public molecules_container_t {
-    public:
-        explicit molecules_container_js(bool verbose=true) : molecules_container_t(verbose) {
-        }
-
-        int writePDBASCII(int imol, const std::string &file_name) {
-            const char *fname_cp = file_name.c_str();
-            return get_mol(imol)->WritePDBASCII(fname_cp);
-        }
-        int writeCIFASCII(int imol, const std::string &file_name) {
-            const char *fname_cp = file_name.c_str();
-            return get_mol(imol)->WriteCIFASCII(fname_cp);
-        }
-        int writeCCP4Map(int imol, const std::string &file_name) {
-            auto xMap = (*this)[imol].xmap;
-            auto clipperMap = clipper::CCP4MAPfile();
-            clipperMap.open_write(file_name);
-            clipperMap.export_xmap(xMap);
-            return 0;
-        }
-};
-
 // Helper to cache and retrieve docstrings from XML
 std::unordered_map<std::string, std::string> docstring_cache;
 
@@ -1483,12 +1461,6 @@ NB_MODULE(coot_headless_api, m) {
       .def_ro("deletions",        &coot::chain_mutation_info_container_t::deletions)
       .def_ro("mutations",        &coot::chain_mutation_info_container_t::mutations)
       ;
-    nb::class_<molecules_container_js, molecules_container_t>(m,"molecules_container_py")
-    .def(nb::init<bool>())
-    .def("writePDBASCII",&molecules_container_js::writePDBASCII)
-    .def("writeCIFASCII",&molecules_container_js::writeCIFASCII)
-    .def("writeCCP4Map",&molecules_container_js::writeCCP4Map)
-    ;
     nb::class_<coot::simple_rotamer>(m,"simple_rotamer")
     .def("P_r1234",&coot::simple_rotamer::P_r1234)
     .def("Probability_rich",&coot::simple_rotamer::Probability_rich)
