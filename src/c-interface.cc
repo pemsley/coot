@@ -7139,6 +7139,17 @@ execute_python_results_container_t execute_python_code_with_result_internal(cons
    // capture stdout - end
 
    PyObject *exec_result = PyRun_String(code.c_str(), Py_eval_input, global_dict, global_dict);
+
+   // Py_eval_input only accepts a single expression. Statements such as
+   // "import coot_utils" or "x = 5" fail to compile in this mode with a
+   // SyntaxError. In that case retry in statement (exec) mode. We restrict
+   // the fallback to SyntaxError so that a genuine runtime error (from an
+   // expression that already executed) is not run a second time.
+   if (!exec_result && PyErr_ExceptionMatches(PyExc_SyntaxError)) {
+      PyErr_Clear();
+      exec_result = PyRun_String(code.c_str(), Py_file_input, global_dict, global_dict);
+   }
+
    rc.result = exec_result;
    if (exec_result) {
       // get captured output
@@ -7231,7 +7242,6 @@ execute_python_results_container_t execute_python_multiline_code_with_result_int
    // capture stdout - end
 
    PyObject *exec_result = PyRun_String(code.c_str(), Py_file_input, global_dict, global_dict);
-   std::cout << "DEBUG:: ------------ exec_result " << exec_result << std::endl;
    if (exec_result) {
       rc.result = exec_result;
       // get captured output
@@ -7367,38 +7377,36 @@ PyObject *safe_python_command_with_return(const std::string &python_cmd) {
       const char *modulename = "coot";
       PyObject *pName = myPyString_FromString(modulename);
       PyObject *pModule_coot = PyImport_Import(pName);
+      Py_XDECREF(pName);
+      Py_XDECREF(pModule_coot);
 
       std::cout << "running command: " << command << std::endl;
-      PyObject* source_code = Py_CompileString(command.c_str(), "adhoc", Py_eval_input);
-      if (source_code) {
-         PyObject* func = PyFunction_New(source_code, d);
-         result = PyObject_CallObject(func, PyTuple_New(0));
-         std::cout << "--------------- in safe_python_command_with_return() result at: " << result << std::endl;
-         if (result) {
-            if(!PyUnicode_Check(result)) {
-                std::cout << "--------------- in safe_python_command_with_return() result is probably not a string." << std::endl;
-            }
-            PyObject* displayed = display_python(result);
-            PyObject* as_string = PyUnicode_AsUTF8String(displayed);
-            std::cout << "--------------- in safe_python_command_with_return() result: "
-                      << PyBytes_AS_STRING(as_string) << std::endl;
-            Py_XDECREF(displayed);
-            Py_XDECREF(as_string);
-         }
-         else {
-            std::cout << "--------------- in safe_python_command_with_return() result was null" << std::endl;
-            if(PyErr_Occurred()) {
-               std::cout << "--------------- in safe_python_command_with_return() Printing Python exception:" << std::endl;
-               PyErr_Print();
-            }
-         }
 
-         // debugging
-         // PyRun_String("import coot; print(dir(coot))", Py_file_input, d, d);
-         Py_XDECREF(func);
-         Py_XDECREF(source_code);
+      // Run in the __main__ dict (as both globals and locals) so that imports
+      // and assignments persist for subsequent calls. Try eval mode first so
+      // that an expression returns its value; if the command is a statement
+      // (e.g. "import coot_generator_3d_import") eval mode fails to compile
+      // with a SyntaxError, so fall back to statement (exec) mode.
+      result = PyRun_String(command.c_str(), Py_eval_input, d, d);
+      if (!result && PyErr_ExceptionMatches(PyExc_SyntaxError)) {
+         PyErr_Clear();
+         result = PyRun_String(command.c_str(), Py_file_input, d, d);
+      }
+
+      if (result) {
+         PyObject* displayed = display_python(result);
+         if (displayed) {
+            PyObject* as_string = PyUnicode_AsUTF8String(displayed);
+            if (as_string) {
+               std::cout << "--------------- in safe_python_command_with_return() result: "
+                         << PyBytes_AS_STRING(as_string) << std::endl;
+               Py_XDECREF(as_string);
+            }
+            Py_XDECREF(displayed);
+         }
       } else {
-         std::cout << "DEBUG:: in safe_python_command_with_return, null source_code" << std::endl;
+         if (PyErr_Occurred())
+            PyErr_Print();  // this also clears the error indicator
       }
    } else {
       std::cout << "ERROR:: Hopeless failure: module for __main__ is null" << std::endl;
