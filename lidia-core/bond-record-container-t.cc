@@ -110,8 +110,8 @@ cod::bond_record_container_t::write_atom_type_indices(const std::string &file_na
 
    std::ofstream f(file_name.c_str());
    if (f) {
-      std::map<std::string, unsigned int>::const_iterator it_map = level_4_atom_types_map.begin();
-      unsigned int n = level_4_atom_types_map.size();
+      std::map<std::string, unsigned int>::const_iterator it_map = cod_type_atom_types_map.begin();
+      unsigned int n = cod_type_atom_types_map.size();
       for (unsigned int i=0; i<n; i++) {
 	 f << std::setw(6) << it_map->second << " " << it_map->first << "\n";
 	 it_map++;
@@ -139,8 +139,8 @@ cod::bond_record_container_t::write(const std::string &atom_indices_file_name,
 	 // btr.write(f, max_atom_type_width);
 	 // dangerous, but should not fail
 	 btr.write(f,
-		   level_4_atom_types_map.find(btr.cod_type_1.level_4)->second,
-		   level_4_atom_types_map.find(btr.cod_type_2.level_4)->second);
+		   cod_type_atom_types_map.find(btr.cod_type_1.full_type)->second,
+		   cod_type_atom_types_map.find(btr.cod_type_2.full_type)->second);
       }
       f.close();
       status = true;
@@ -152,9 +152,9 @@ std::string::size_type
 cod::bond_record_container_t::get_max_atom_type_width() const {
 
    std::size_t m = 0;
-   for (unsigned int i=0; i<bonds.size(); i++) { 
-      std::string::size_type s1 = bonds[i].cod_type_1.level_4.length();
-      std::string::size_type s2 = bonds[i].cod_type_2.level_4.length();
+   for (unsigned int i=0; i<bonds.size(); i++) {
+      std::string::size_type s1 = bonds[i].cod_type_1.full_type.length();
+      std::string::size_type s2 = bonds[i].cod_type_2.full_type.length();
 
       if (s1 > m) m = s1;
       if (s2 > m) m = s2;
@@ -195,16 +195,16 @@ cod::bond_record_container_t::read_acedrg_table(const std::string &file_name) {
 	    const std::string &cod_type_1_level_2_str  = bits[6];
 	    const std::string &cod_type_2_level_2_str  = bits[7];
 
-	    atom_level_2_type cod_type_atom_1_l2(cod_type_1_level_2_str);
-	    atom_level_2_type cod_type_atom_2_l2(cod_type_2_level_2_str);
-	    
+	    nb1nb2_type cod_type_atom_1_l2(cod_type_1_level_2_str);
+	    nb1nb2_type cod_type_atom_2_l2(cod_type_2_level_2_str);
+
 	    const std::string &cod_type_1_level_4  = bits[10];
 	    const std::string &cod_type_2_level_4  = bits[11];
 
 	    std::string cod_type_1_level_3 =
-	       atom_type_t::level_4_type_to_level_3_type(cod_type_1_level_4);
+	       atom_type_t::cod_type_to_main_type(cod_type_1_level_4);
 	    std::string cod_type_2_level_3 =
-	       atom_type_t::level_4_type_to_level_3_type(cod_type_2_level_4);
+	       atom_type_t::cod_type_to_main_type(cod_type_2_level_4);
 
 	    if (false) // debug
 	       std::cout << "debug:: making an cod-atom from "
@@ -298,8 +298,8 @@ cod::bond_record_container_t::fill_cod_atom_type_map() {
    cod_atom_type_set.clear();
    for (unsigned int i=0; i<bonds.size(); i++) {
       if (false)
-	 std::cout << i << " inserting " << bonds[i].cod_type_1.level_4 << " " << bonds[i].cod_type_1.level_3
-		   << " " << bonds[i].cod_type_1.level_2.string() << " " << bonds[i].cod_type_1.hash_value
+	 std::cout << i << " inserting " << bonds[i].cod_type_1.full_type << " " << bonds[i].cod_type_1.main_type
+		   << " " << bonds[i].cod_type_1.nb1nb2.string() << " " << bonds[i].cod_type_1.hash_value
 		   << std::endl;
       cod_atom_type_set.insert(bonds[i].cod_type_1);
       cod_atom_type_set.insert(bonds[i].cod_type_2);
@@ -321,8 +321,8 @@ cod::bond_record_container_t::fill_level_4_atom_map() {
    std::set<std::string> set;
    std::cout << "pre  fill atom set" << std::endl;
    for (unsigned int i=0; i<bonds.size(); i++) {
-      set.insert(bonds[i].cod_type_1.level_4);
-      set.insert(bonds[i].cod_type_2.level_4);
+      set.insert(bonds[i].cod_type_1.full_type);
+      set.insert(bonds[i].cod_type_2.full_type);
    }
    std::cout << "post fill atom set " << set.size() << std::endl;
 
@@ -332,13 +332,13 @@ cod::bond_record_container_t::fill_level_4_atom_map() {
    std::cout << "pre  fill atom map" << std::endl;
    for (it=set.begin(); it!=set.end(); it++) {
       // std::cout << "    " << *it << std::endl;
-      level_4_atom_types_map[*it] = idx;
+      cod_type_atom_types_map[*it] = idx;
       idx++;
    }
    std::cout << "post fill atom map" << std::endl;
 
    std::map<std::string, unsigned int>::const_iterator it_map;
-   it_map = level_4_atom_types_map.begin();
+   it_map = cod_type_atom_types_map.begin();
 }
 
 void
@@ -348,13 +348,13 @@ cod::bond_record_container_t::fill_bonds_map() {
       const atom_type_t &c1 = bonds[i].cod_type_1;
       const atom_type_t &c2 = bonds[i].cod_type_2;
 
-      std::string c1l2 = c1.level_2.string();
-      std::string c2l2 = c2.level_2.string();
+      std::string c1l2 = c1.nb1nb2.string();
+      std::string c2l2 = c2.nb1nb2.string();
 
-      if (std::find(bonds_map[c1l2][c2l2][c1.level_3][c2.level_3].begin(),
-		    bonds_map[c1l2][c2l2][c1.level_3][c2.level_3].end(),
-		    bonds[i]) == bonds_map[c1l2][c2l2][c1.level_3][c2.level_3].end())
-	 bonds_map[c1l2][c2l2][c1.level_3][c2.level_3].push_back(bonds[i]);
+      if (std::find(bonds_map[c1l2][c2l2][c1.main_type][c2.main_type].begin(),
+		    bonds_map[c1l2][c2l2][c1.main_type][c2.main_type].end(),
+		    bonds[i]) == bonds_map[c1l2][c2l2][c1.main_type][c2.main_type].end())
+	 bonds_map[c1l2][c2l2][c1.main_type][c2.main_type].push_back(bonds[i]);
       else
 	 std::cout << "WARNING " << bonds[i] << " was already in the bonds_map" << std::endl;
 
@@ -362,10 +362,10 @@ cod::bond_record_container_t::fill_bonds_map() {
       if (! (c1 == c2)) {
 	 bond_table_record_t reverse_bond = bonds[i];
 	 std::swap(reverse_bond.cod_type_1, reverse_bond.cod_type_2);
-	 if (std::find(bonds_map[c2l2][c1l2][c2.level_3][c1.level_3].begin(),
-		       bonds_map[c2l2][c1l2][c2.level_3][c1.level_3].end(),
-		       reverse_bond) == bonds_map[c2l2][c1l2][c2.level_3][c1.level_3].end())
-	    bonds_map[c2l2][c1l2][c2.level_3][c1.level_3].push_back(reverse_bond);
+	 if (std::find(bonds_map[c2l2][c1l2][c2.main_type][c1.main_type].begin(),
+		       bonds_map[c2l2][c1l2][c2.main_type][c1.main_type].end(),
+		       reverse_bond) == bonds_map[c2l2][c1l2][c2.main_type][c1.main_type].end())
+	    bonds_map[c2l2][c1l2][c2.main_type][c1.main_type].push_back(reverse_bond);
 	 else
 	    std::cout << "WARNING " << reverse_bond << " was already in the bonds_map" << std::endl;
       }
@@ -448,15 +448,15 @@ cod::bond_record_container_t::read_bonds(const std::string &bonds_file_name,
 			    << std::setw(10) << std_dev << " "
 			    << std::setw( 8) << count
 			    << " idx_1: " << idx_1 << "    idx_2: " << idx_2 << "   "
-			    << type_1.level_4 << "   " << type_2.level_4 << "\n";
+			    << type_1.full_type << "   " << type_2.full_type << "\n";
 
 	       if (type_2 < type_1)
 		  std::swap(type_1, type_2);
 	       
 	       bond_table_record_t bond(type_1, type_2, bl, std_dev, count);
 
-	       std::string l3_type_1 = type_1.level_3;
-	       std::string l3_type_2 = type_2.level_3;
+	       std::string l3_type_1 = type_1.main_type;
+	       std::string l3_type_2 = type_2.main_type;
 
 	       // this function (read_bonds()) doesn't read the level-2 types
 	       // bonds_map[l3_type_1][l3_type_2].push_back(bond);
@@ -577,9 +577,9 @@ cod::bond_record_container_t::validate(mmdb::Residue *res,
 		     at_p->getProp("name", name);
 		     std::cout << "    " << iat << " " << name
 			       << "  " << v[iat].hash_value
-			       << "  \"" << v[iat].level_2.string() << "\""
-			       << "  \"" << v[iat].level_3 << "\""
-			       << "  \"" << v[iat].level_4 << "\"" << std::endl;
+			       << "  \"" << v[iat].nb1nb2.string() << "\""
+			       << "  \"" << v[iat].main_type << "\""
+			       << "  \"" << v[iat].full_type << "\"" << std::endl;
 		  }
 		  catch (const KeyErrorException &kee) {
 		     std::cout << "   " << iat << " " << kee.what()
@@ -634,10 +634,10 @@ cod::bond_record_container_t::validate(mmdb::Residue *res,
 			atom_type_t cod_type_1 = v[atom_idx_1];
 			atom_type_t cod_type_2 = v[atom_idx_2];
 
-			if (cod_type_2.level_4 < cod_type_1.level_4)
+			if (cod_type_2.full_type < cod_type_1.full_type)
 			   std::swap(cod_type_1, cod_type_2);
 		     
-			bond_table_record_t cod_bond = 
+			bond_table_record_t cod_bond =
 			   get_cod_bond_from_table(cod_type_1, cod_type_2);
 		     
 			double dist =
@@ -659,8 +659,8 @@ cod::bond_record_container_t::validate(mmdb::Residue *res,
 				  << std::setw(8) << z
 				  << std::endl;
 
-			   // << cod_type_1.level_3 << "  " << cod_type_1.level_4 << " "
-			   // << cod_type_2.level_3 << "  " << cod_type_2.level_4
+			   // << cod_type_1.main_type << "  " << cod_type_1.cod_type << " "
+			   // << cod_type_2.main_type << "  " << cod_type_2.cod_type
 		     }
 		  }
 		  catch (const std::runtime_error &rte) {
@@ -698,11 +698,11 @@ cod::bond_record_container_t::get_cod_bond_from_table(const cod::atom_type_t &co
 
    if (true) {
       std::cout << "  get_cod_bond_from_table() using "
-		<< cod_type_1.level_2.string() << "   "
-		<< cod_type_1.level_3 << std::endl;
+		<< cod_type_1.nb1nb2.string() << "   "
+		<< cod_type_1.main_type << std::endl;
       std::cout << "                                  "
-		<< cod_type_2.level_2.string() << "   "
-		<< cod_type_2.level_3 << std::endl;
+		<< cod_type_2.nb1nb2.string() << "   "
+		<< cod_type_2.main_type << std::endl;
    }
       
    std::map<std::string, std::map<std::string, std::map<std::string, std::map<std::string, std::vector<bond_table_record_t> > > > >::const_iterator it_l2_a;
@@ -712,13 +712,13 @@ cod::bond_record_container_t::get_cod_bond_from_table(const cod::atom_type_t &co
 
    std::map<std::string, std::vector<bond_table_record_t> >::const_iterator it_l3_b;
    
-   it_l2_a = bonds_map.find(cod_type_1.level_2.string());
+   it_l2_a = bonds_map.find(cod_type_1.nb1nb2.string());
    if (it_l2_a != bonds_map.end()) {
-      it_l2_b = it_l2_a->second.find(cod_type_2.level_2.string());
+      it_l2_b = it_l2_a->second.find(cod_type_2.nb1nb2.string());
       if (it_l2_b != it_l2_a->second.end()) {
-	 it_l3_a = it_l2_b->second.find(cod_type_1.level_3);
+	 it_l3_a = it_l2_b->second.find(cod_type_1.main_type);
 	 if (it_l3_a != it_l2_b->second.end()) {
-	    it_l3_b = it_l3_a->second.find(cod_type_2.level_3);
+	    it_l3_b = it_l3_a->second.find(cod_type_2.main_type);
 	    if (it_l3_b != it_l3_a->second.end()) {
 
 	       // OK, normal case, 2 level-3 hits
@@ -737,7 +737,7 @@ cod::bond_record_container_t::get_cod_bond_from_table(const cod::atom_type_t &co
 	       bond = make_bond_from_level_2_map(cod_type_1, cod_type_2, it_l2_b->second, approx_level);
 	       found_bond = true;
 	       
-	       // std::string m("missing cod_type_2 level_3 " + cod_type_1.level_2.string());
+	       // std::string m("missing cod_type_2 level_3 " + cod_type_1.nb1nb2.string());
 	       // throw(std::runtime_error(m));
 	    }
 	 } else {
@@ -748,15 +748,15 @@ cod::bond_record_container_t::get_cod_bond_from_table(const cod::atom_type_t &co
 	    found_bond = true;
 
 	    // t3_miss_diagnose(cod_type_1, cod_type_2); // debugging
-	    // std::string m("missing cod_type_1 level_3 " + cod_type_1.level_3);
+	    // std::string m("missing cod_type_1 level_3 " + cod_type_1.main_type);
 	    // throw(std::runtime_error(m));
 	 }
       } else {
-	 std::string m("missing cod_type_2 level_2 " + cod_type_2.level_2.string());
+	 std::string m("missing cod_type_2 level_2 " + cod_type_2.nb1nb2.string());
 	 throw(std::runtime_error(m));
       }
    } else {
-      std::string m("missing cod_type_1 level_2 " + cod_type_1.level_2.string());
+      std::string m("missing cod_type_1 level_2 " + cod_type_1.nb1nb2.string());
       throw(std::runtime_error(m));
    }
    return bond;
@@ -799,7 +799,7 @@ cod::bond_record_container_t::make_bond_from_level_3_vector(const cod::atom_type
 
    // when we are consolidating bonds, what should be the sum of counts so that we
    // think that we've properly constructed a bond.
-   // 
+   //
    unsigned int min_count_sum_for_merge = 4;
 
    if (v.size() > 1) {
@@ -807,7 +807,7 @@ cod::bond_record_container_t::make_bond_from_level_3_vector(const cod::atom_type
       bool found_bond = false;
       // first, is there an exact level_4 match?
       //
-      for (unsigned int i=0; i<v.size(); i++) { 
+      for (unsigned int i=0; i<v.size(); i++) {
 	 if (cod_type_1 == v[i].cod_type_1) {
 	    if (cod_type_2 == v[i].cod_type_2) {
 	       if (v[1].count >= min_count_for_l4_match) {
@@ -918,7 +918,7 @@ cod::bond_record_container_t::consolidate_bonds(const cod::atom_type_t &cod_type
    double sd = sqrt(var);
    return bond_table_record_t(cod_type_1, cod_type_2, mean, sd, n_sum, approx_level);
 }
-	       
+
 
 void
 cod::bond_record_container_t::t3_miss_diagnose(const atom_type_t &cod_type_1,
@@ -942,40 +942,40 @@ cod::bond_record_container_t::t3_miss_diagnose(const atom_type_t &cod_type_1,
 	    for (it_l3_b=it_l3_a->second.begin(); it_l3_b != it_l3_a->second.end(); it_l3_b++) {
 	       for (unsigned int i=0; i<it_l3_b->second.size(); i++) {
 		  const bond_table_record_t &bond = it_l3_b->second[i];
-		  if (bond.cod_type_1.l3_match(cod_type_1)) {
+		  if (bond.cod_type_1.main_type_match(cod_type_1)) {
 
-		     std::cout << "found-1 " << bond.cod_type_1.level_3 << std::endl;
-		     if (bond.cod_type_2.l3_match(cod_type_2)) {
-			std::cout << "found-2 " << cod_type_2.level_3 << std::endl;
+		     std::cout << "found-1 " << bond.cod_type_1.main_type << std::endl;
+		     if (bond.cod_type_2.main_type_match(cod_type_2)) {
+			std::cout << "found-2 " << cod_type_2.main_type << std::endl;
 			bond_found = bond;
 			found_bond = true;
 			break;
 		     } else {
-			std::cout << "  test for cod_type_2 " << bond.cod_type_2.level_3
-				  << " is not \n                      " << cod_type_2.level_3
+			std::cout << "  test for cod_type_2 " << bond.cod_type_2.main_type
+				  << " is not \n                      " << cod_type_2.main_type
 				  << std::endl;
 		     }
 		  }
-		  if (bond.cod_type_1.l3_match(cod_type_1)) {
-		     if (bond.cod_type_2.l3_match(cod_type_2)) {
+		  if (bond.cod_type_1.main_type_match(cod_type_1)) {
+		     if (bond.cod_type_2.main_type_match(cod_type_2)) {
 			vector_found = true;
 		     }
 		  }
 
 		  // reverse indexing
 
-		  if (bond.cod_type_1.l3_match(cod_type_2)) {
-		     std::cout << "Reverse Found-1 " << bond.cod_type_1.level_3 << std::endl;
-		     if (bond.cod_type_2.l3_match(cod_type_1)) {
-			std::cout << "Reverse Found-2 " << bond.cod_type_2.level_3
+		  if (bond.cod_type_1.main_type_match(cod_type_2)) {
+		     std::cout << "Reverse Found-1 " << bond.cod_type_1.main_type << std::endl;
+		     if (bond.cod_type_2.main_type_match(cod_type_1)) {
+			std::cout << "Reverse Found-2 " << bond.cod_type_2.main_type
 				  << "  !!! ::::::::::::::::::: " << std::endl;
 		     } else {
-			std::cout << "  reverse test for cod_type_2 " << bond.cod_type_2.level_3
+			std::cout << "  reverse test for cod_type_2 " << bond.cod_type_2.main_type
 				  << " is not \n                              "
-				  << cod_type_1.level_3 << std::endl;
+				  << cod_type_1.main_type << std::endl;
 		     }
 		  }
-		  
+
 	       }
 	       if (found_bond)
 		  break;
@@ -1028,7 +1028,7 @@ cod::bond_record_container_t::get_bond_distance_from_model(const std::string &at
    mmdb::Atom *at_2 = NULL;
 
    if (n_residue_atoms) {
-      for (int iat=0; iat<n_residue_atoms; iat++) { 
+      for (int iat=0; iat<n_residue_atoms; iat++) {
 	 mmdb::Atom *at_p = residue_atoms[iat];
 	 std::string atom_name = at_p->GetAtomName();
 	 if (atom_name == at_name_1)
@@ -1116,7 +1116,7 @@ cod::bond_record_container_t::make_db(const std::string &db_file_name) {
       sqlite3_exec(db, "BEGIN", db_callback, 0, &zErrMsg);
       // fill level 4 types
       db_add_level_4_types(db);
-      
+
       sqlite3_exec(db, "END", db_callback, 0, &zErrMsg);
    } else {
       std::cout << "WARNING:: empty db in make_db() " << std::endl;
@@ -1144,18 +1144,18 @@ cod::bond_record_container_t::db_add_level_4_types(sqlite3 *db) {
    bool status = true;
    std::string table_name = "COD_TYPE_4_INDICES";
 
-   // std::map<std::string, unsigned int>::const_iterator it_map = level_4_atom_types_map.begin();
-   // unsigned int n = level_4_atom_types_map.size();
+   // std::map<std::string, unsigned int>::const_iterator it_map = cod_type_atom_types_map.begin();
+   // unsigned int n = cod_type_atom_types_map.size();
    // std::cout << "in db_add_level_4_types() adding " << n << " atom types" << std::endl;
 
    std::map<atom_type_t, int>::const_iterator it_map = cod_atom_type_map.begin();
    unsigned int n = cod_atom_type_map.size();
 
    for (unsigned int i=0; i<n; i++) {
-      std::string level_4 = it_map->first.level_4;
-      std::string level_3 = it_map->first.level_3;
-      std::string level_2 = it_map->first.level_2.string();
-      std::string degree_colon_type = it_map->first.neighb_degrees_str();
+      std::string level_4 = it_map->first.cod_type;
+      std::string level_3 = it_map->first.main_type;
+      std::string level_2 = it_map->first.nb1nb2.string();
+      std::string degree_colon_type = it_map->first.nb2_extra_els_str();
       int hash_code = it_map->first.hash_value;
       std::string cmd = "INSERT INTO " + table_name + " ";
       cmd += "(level_4_atom_type, level_3_atom_type, level_2_atom_type, colon_degree_atom_type, hash_code, atom_index) ";
@@ -1210,14 +1210,14 @@ cod::bond_record_container_t::db_add_level_4_types(sqlite3 *db) {
 		     unsigned int index_1 = cod_atom_type_map[btr.cod_type_1];
 		     unsigned int index_2 = cod_atom_type_map[btr.cod_type_2];
 		     std::cout << ":::bond "
-			       << btr.cod_type_1.level_4 << " "
-			       << btr.cod_type_1.level_3 << " "
-			       << btr.cod_type_1.level_2.string() << " "
+			       << btr.cod_type_1.full_type << " "
+			       << btr.cod_type_1.main_type << " "
+			       << btr.cod_type_1.nb1nb2.string() << " "
 			       << btr.cod_type_1.hash_value
 			       << " index " << index_1 << " "
-			       << btr.cod_type_2.level_4 << " "
-			       << btr.cod_type_2.level_3 << " "
-			       << btr.cod_type_2.level_2.string() << " "
+			       << btr.cod_type_2.full_type << " "
+			       << btr.cod_type_2.main_type << " "
+			       << btr.cod_type_2.nb1nb2.string() << " "
 			       << btr.cod_type_2.hash_value
 			       << " index " << index_2
 			       << "\n";
@@ -1280,8 +1280,8 @@ cod::bond_record_container_t::db_add_level_4_types(sqlite3 *db) {
 		     if (zErrMsg) {
 			std::cout << "ERROR: processing command: " << cmd << " " << zErrMsg
 				  << " for "
-				  << btr.cod_type_1.level_4 << " "
-				  << btr.cod_type_2.level_4
+				  << btr.cod_type_1.cod_type << " "
+				  << btr.cod_type_2.cod_type
 				  << btr.hybridization_token << " "
 				  << btr.ring_token << " from "
 				  << btr.file_name << " line " << btr.line_number

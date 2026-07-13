@@ -941,8 +941,8 @@ public:
    //!         success flag.)
    //!
    //! @return a list of atom names and their associated computed COD atom types
-   //! (a `cod::atom_type_t` for each atom, which holds level_2/level_3/level_4 types,
-   //! the neighbour-degrees and the hash value), return an empty list on failure
+   //! (a `cod::atom_type_t` for each atom, which holds nb1nb2/main_type/cod_type types,
+   //! the nb2-extra-electrons and the hash value), return an empty list on failure
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
    std::vector<std::pair<std::string, cod::atom_type_t> > get_computed_acedrg_atom_types(const std::string &compound_id, int imol_enc);
 #endif
@@ -1412,6 +1412,8 @@ public:
    //! @returns either the specified atom or nullopt (None) if not found
    mmdb::Atom *get_atom_using_cid(int imol, const std::string &cid) const;
 
+#ifdef DOXYGEN_SHOULD_PARSE_THIS
+#else
    //! get an (mmdb-style) residue
    //!
    //! If more than one residue is selected by the selection cid, then the first
@@ -1424,8 +1426,6 @@ public:
    //! @returns either the specified residue or nullopt (None) if not found
    mmdb::Residue *get_residue_using_cid(int imol, const std::string &cid) const;
 
-#ifdef DOXYGEN_SHOULD_PARSE_THIS
-#else
    //! get atom - internal (C++) usage only
    //!
    //! @returns either the specified atom or null if not found - don't use this in emscript

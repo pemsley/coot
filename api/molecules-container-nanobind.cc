@@ -915,10 +915,6 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::get_residue_sidechain_average_position,
          nb::arg("imol"), nb::arg("cid"),
          get_docstring_from_xml("get_residue_sidechain_average_position").c_str())
-    .def("get_residue_using_cid",
-         &molecules_container_t::get_residue_using_cid,
-         nb::arg("imol"), nb::arg("cid"),
-         get_docstring_from_xml("get_residue_using_cid").c_str())
     .def("get_residues_near_residue",
          &molecules_container_t::get_residues_near_residue,
          nb::arg("imol"), nb::arg("residue_cid"), nb::arg("dist"),
@@ -1611,13 +1607,14 @@ NB_MODULE(coot_headless_api, m) {
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
     nb::class_<cod::atom_type_t>(m,"cod_atom_type_t")
     .def(nb::init<>())
-       .def_ro("level_4", &cod::atom_type_t::level_4)
-       .def_ro("level_3", &cod::atom_type_t::level_3)
-       .def_prop_ro("level_2", [] (const cod::atom_type_t &t) { return t.level_2.string(); })
-       .def_ro("hybrid", &cod::atom_type_t::hybrid)
+       .def_ro("full_type",  &cod::atom_type_t::full_type)
+       .def_ro("main_type", &cod::atom_type_t::main_type)
+       .def_prop_ro("nb1nb2", [] (const cod::atom_type_t &t) { return t.nb1nb2.string(); })
+       .def_ro("sp",      &cod::atom_type_t::sp)
+       .def_ro("element", &cod::atom_type_t::element)
        .def_ro("hash_value", &cod::atom_type_t::hash_value)
-       .def_ro("neighb_degrees", &cod::atom_type_t::neighb_degrees)
-       .def("neighb_degrees_str", [] (cod::atom_type_t &t) { return t.neighb_degrees_str(); })
+       .def_ro("nb2_extra_els", &cod::atom_type_t::nb2_extra_els)
+       .def("nb2_extra_els_str", [] (cod::atom_type_t &t) { return t.nb2_extra_els_str(); })
     ;
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
     nb::class_<positioned_atom_spec_t>(m,"positioned_atom_spec_t")
