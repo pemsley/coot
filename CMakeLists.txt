@@ -799,6 +799,13 @@ install(TARGETS coot_headless_api DESTINATION ${Python_SITELIB_REL})
 
 install(TARGETS coot_headless_api DESTINATION lib)
 
+# The chapi Python package: on import it points coot_headless_api at the
+# installed data dir. Installs as <site-packages>/chapi/__init__.py.
+# .... 2026-07-14 - I don't think this is the right thing to do.
+#   AFAICS, this works when Coot and Python share a (run-time) prefix.
+#   Is that the problem that I want to solve?
+# install(FILES ${coot_src}/chapi/__init__.py DESTINATION ${Python_SITELIB_REL}/chapi)
+
 # thanks merkys
 set_target_properties(cootapi PROPERTIES SOVERSION 1.2)
 set_target_properties(cootmoleculestotriangles PROPERTIES SOVERSION 1.2)

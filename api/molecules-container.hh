@@ -411,6 +411,9 @@ public:
    // -------------------------------- Basic Utilities -----------------------------------
    //! \name Basic Utilities
 
+   //! undocumented internal function
+   void set_package_data_dir(const std::string &pdd);
+
    //! Get the package version
    //!
    //! @return the package version, e.g. "1.1.11" - if this is a not yet a release version

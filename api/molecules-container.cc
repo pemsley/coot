@@ -127,6 +127,11 @@ molecules_container_t::init() {
    // std::cout << "::::::::::::::::: sizeof molecules_container_t " << sss << std::endl;
 }
 
+void molecules_container_t::set_package_data_dir(const std::string &pdd) {
+   std::cout << "DEBUG:: in set_package_data_dir() pdd is " << pdd << std::endl;
+   coot::set_package_data_dir(pdd);
+}
+
 unsigned int
 molecules_container_t::get_max_number_of_simple_mesh_vertices() const {
    return max_number_of_simple_mesh_vertices;
@@ -6126,6 +6131,12 @@ molecules_container_t::get_computed_acedrg_atom_types(const std::string &compoun
    std::vector<std::pair<std::string, std::string> > v;
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
+   // std::cout << "DEBUG:: have make_enhanced_ligand tools " << std::endl;
+#else
+   std::cout << "DEBUG:: NO make_enhanced_ligand tools " << std::endl;
+#endif
+
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
    std::pair<bool, coot::dictionary_residue_restraints_t> r_p =
       geom.get_monomer_restraints(compound_id, imol_enc);
@@ -6159,6 +6170,8 @@ molecules_container_t::get_computed_acedrg_atom_types(const std::string &compoun
          }
          delete mol;
       }
+   } else {
+      std::cout << "DEBUG:: no restraints found for compound_id: \"" << compound_id << "\" " << imol_enc << std::endl;
    }
 
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
