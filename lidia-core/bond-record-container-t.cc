@@ -1152,7 +1152,7 @@ cod::bond_record_container_t::db_add_level_4_types(sqlite3 *db) {
    unsigned int n = cod_atom_type_map.size();
 
    for (unsigned int i=0; i<n; i++) {
-		std::string level_4 = it_map->first.full_type;
+	  std::string level_4 = it_map->first.full_type;
       std::string level_3 = it_map->first.main_type;
       std::string level_2 = it_map->first.nb1nb2.string();
       std::string degree_colon_type = it_map->first.nb2_extra_els_str();
