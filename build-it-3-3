@@ -2160,10 +2160,10 @@ if [ "$CHAPI_ONLY" = true ] ; then
     python_version_squish=311
 
     # chapi
-    python_version=python3.12
-    pver=3.12.11
-    python_version_extension=3.12
-    python_version_squish=312
+    python_version=python3.14
+    pver=3.14.2
+    python_version_extension=3.14
+    python_version_squish=314
 
 fi
 

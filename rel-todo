@@ -1,16 +1,35 @@
 --- Items---
 
-o ldaddr (?) for chapi to find its files on relocatable binaries
+o "Send to CCP4i2" button replaces "Generate Restraints"
+  with command line option to layla.
 
-o Fix h-bond flag for contacts for Lucy
+o ldaddr (?) for chapi to find its files on relocatable binaries.
+  metals and inchikey db.
+
+o fix api documentation generation
+
+o add servalcat_refine_xray_with_keywords
+  int servalcat_refine_xray_with_keywords(int imol, int imol_map, const std::string &output_prefix,
+                                          const std::string &keyword_pairs_json)
+
+o apply the ligand fitting fix from Moorhen.
+* Done.
 
 o Does non-drawn bonds work with B-factor or occupanccy
   representation?
+* Done.
+
+o Fix h-bond flag for contacts for Lucy
+* Done.
 
 o check the rotamer plots don't depend on hydrogen atoms.
+* Done.
 
 o replace fragment. seems to be hanging when replacing a domain
+* Can't reproduce.
 
+o fix this in cif parser:
+  WARNING:: in init_refmac_mon_lib() unhandled category "_pdbx_chem_comp_synonyms" file: test-cifs/A1DIB.cif
 
 o make some CA models and write a script to convert that to
   full model (without a map)
@@ -18,6 +37,9 @@ o make some CA models and write a script to convert that to
 o fix make_all_atom_overlaps for chapi
 
 o replace fragment. seems to be hanging when replacing a domain
+
+o COD cif does not parse:
+ ~/.cache/Coot/coot-download/8101179.cif
 
 o can coot do semi-opaque bonds?
 

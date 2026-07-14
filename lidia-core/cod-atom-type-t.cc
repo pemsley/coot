@@ -22,6 +22,7 @@
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
 #include <algorithm>
+#include <cctype>
 
 #include <sys/time.h> // for time testing
 
@@ -36,6 +37,27 @@
 #include "cod-atom-types.hh"
 
 
+namespace {
+   // Replicates acedrg's compareNoCase (kernel/utility.cpp), the comparator that
+   // setAtomsNB1NB2_SP uses to order an atom's NB1 component strings: a
+   // case-insensitive character comparison where, on a shared prefix, the LONGER
+   // string sorts first (utility.cpp:309). Used to order the level_2 (NB1NB2)
+   // components so coot's level_2 string matches libmol's codNB1NB2_SP.
+   bool level_2_nb1_compare_no_case(const std::string &first,
+                                    const std::string &second) {
+      unsigned int i = 0;
+      while (i < first.length() && i < second.length()) {
+         int a = std::toupper(static_cast<unsigned char>(first[i]));
+         int b = std::toupper(static_cast<unsigned char>(second[i]));
+         if (a < b) return true;
+         if (a > b) return false;
+         ++i;
+      }
+      return first.length() > second.length();
+   }
+}
+
+
 // we are making cod types for which base atom?
 // base_atom_p.
 //
@@ -45,13 +67,13 @@
 // 					      const RDKit::ROMol &rdkm) {
 
 
-cod::atom_level_2_type::atom_level_2_type(const RDKit::Atom *base_atom_p,
+cod::nb1nb2_type::nb1nb2_type(const RDKit::Atom *base_atom_p,
 					  const RDKit::ROMol &rdkm) {
 
    //
    // first is int,string, number of rings and atom-ring,string
    // e.g. 2,"C[5a,6a]"  1,"N[6a]"
-   // 
+   //
    // second is the  vector of hybridization of the neighbours, e.g.(2,2,3)
    //
    // 20170606 this is now a member data item
@@ -66,16 +88,16 @@ cod::atom_level_2_type::atom_level_2_type(const RDKit::Atom *base_atom_p,
       unsigned int degree = at_neighb->getDegree();
       int n = at_neighb->getAtomicNum();
       std::pair<int,std::string> ring_info = make_ring_info_string(at_neighb);
-      
+
       std::string atom_ele = tbl->getElementSymbol(n);
 
       // std::string s = atom_ele;
       // s += ring_info.second;
       // s += "-";
-      
-      atom_level_2_component_type c(at_neighb, rdkm);
+
+      nb1nb2_component_type c(at_neighb, rdkm);
       components.push_back(c);
-      
+
       nbrIdx++;
    }
 
@@ -86,7 +108,7 @@ cod::atom_level_2_type::atom_level_2_type(const RDKit::Atom *base_atom_p,
    }
 
 
-   std::sort(components.begin(), components.end(), level_2_component_sorter);
+   std::sort(components.begin(), components.end(), nb1nb2_component_sorter);
 
    if (false) { // debug
 
@@ -120,31 +142,42 @@ cod::atom_level_2_type::atom_level_2_type(const RDKit::Atom *base_atom_p,
 		<< " ->  " << n_extra_elect << "\n"
 		<< std::endl;
 
-   std::string l2;
-
-   int i_last_component = components.size() -1;
-   int n_components = components.size();
-   for (int i=0; i<n_components; i++) {
-      l2 += components[i].element;
-      l2 += components[i].ring_info_string;
-      if (components[i].neighb_degrees.size()) {
-	 l2 += "-";
-	 int n_size = components[i].neighb_degrees.size(); // int for comparison below
-	 for (int j=0; j<n_size; j++) {
+   // Assemble each component (one per NB1 neighbour) into its string -
+   // element + ring bracket + "-" + the underscore-joined bondingIdx list - then
+   // sort those strings the way acedrg's setAtomsNB1NB2_SP does (compareNoCase),
+   // and join with ":". That reproduces libmol's codNB1NB2_SP ordering. coot
+   // used to emit the components in level_2_component_sorter order, which differs
+   // from acedrg's. The components vector itself is left in that sorter order, as
+   // extra_electron_type() (a different rung) still relies on it.
+   std::vector<std::string> comp_strings;
+   comp_strings.reserve(components.size());
+   for (unsigned int i=0; i<components.size(); i++) {
+      std::string cs = components[i].element;
+      cs += components[i].ring_info_string;
+      if (! components[i].neighb_degrees.empty()) {
+	 cs += "-";
+	 for (unsigned int j=0; j<components[i].neighb_degrees.size(); j++) {
 	    if (j != 0)
-	       l2 += "_";
-	    l2 += coot::util::int_to_string(components[i].neighb_degrees[j]);
+	       cs += "_";
+	    cs += coot::util::int_to_string(components[i].neighb_degrees[j]);
 	 }
-	 if (i != i_last_component)
-	    l2 += ":";
       }
+      comp_strings.push_back(cs);
+   }
+   std::sort(comp_strings.begin(), comp_strings.end(), level_2_nb1_compare_no_case);
+
+   std::string l2;
+   for (unsigned int i=0; i<comp_strings.size(); i++) {
+      if (i != 0)
+	 l2 += ":";
+      l2 += comp_strings[i];
    }
 
    str = l2;
 }
 
 std::string
-cod::atom_level_2_type::extra_electron_type() const {
+cod::nb1nb2_type::extra_electron_type() const {
 
    std::string s;
 
@@ -161,10 +194,10 @@ cod::atom_level_2_type::extra_electron_type() const {
 	 int n_size_1 = components[i].neighb_degrees.size(); // int for comparison below
 	 int n_size = components[i].neighb_extra_elect.size(); // int for comparison below
 	 if (n_size != n_size_1) {
-	    std::cout << "------ mismatch sizes: " << n_size << " " << n_size_1 << std::endl;
+	    std::cout << "------ extra_electron_type(): mismatch sizes: "
+                      << n_size << " " << n_size_1 << std::endl;
 	 }
-	 int idx_last = n_size - 1;
-	 for (int j=0; j<n_size; j++) { 
+	 for (int j=0; j<n_size; j++) {
 	    if (j != 0) {
 	       s += "_";
 	       // std::cout << "s: " << s << std::endl;
@@ -182,26 +215,26 @@ cod::atom_level_2_type::extra_electron_type() const {
 }
 
 int
-cod::atom_level_2_type::n_extra_electrons() const {
+cod::nb1nb2_type::n_extra_electrons() const {
 
    return n_extra_elect;
 }
 
 void
-cod::atom_type_t::set_neighb_degrees_string() {
+cod::atom_type_t::set_nb2_extra_els_string() {
 
    std::string s;
-   for (unsigned int i=0; i<neighb_degrees.size(); i++) {
-      s += coot::util::int_to_string(neighb_degrees[i]);
+   for (unsigned int i=0; i<nb2_extra_els.size(); i++) {
+      s += coot::util::int_to_string(nb2_extra_els[i]);
       s += ":";
    }
-   neighb_degrees_str_ = s;
+   nb2_extra_els_str_ = s;
 }
 
 
 std::ostream &
 cod::operator<<(std::ostream &s,
-		const atom_level_2_type::atom_level_2_component_type &c) {
+		const nb1nb2_type::nb1nb2_component_type &c) {
 
    s << "{" << c.element << " n-rings: " << c.number_of_rings << " ";
    if (! c.ring_info_string.empty())
@@ -223,7 +256,7 @@ cod::operator<<(std::ostream &s,
 //
 // static
 std::string
-cod::atom_type_t::level_4_type_to_level_3_type(const std::string &l4t)  {
+cod::atom_type_t::cod_type_to_main_type(const std::string &l4t)  {
 
    std::string s = l4t;
 
@@ -245,12 +278,12 @@ cod::atom_type_t::level_4_type_to_level_3_type(const std::string &l4t)  {
 //
 cod::atom_type_t::atom_type_t(const std::string &s1_hash,
 			      const std::string &colon_degrees_type,
-			      const cod::atom_level_2_type &l2,
+			      const cod::nb1nb2_type &l2,
 			      const std::string &s3, const std::string &s4) {
-   level_2 = l2;
-   level_3 = s3;
-   level_4 = s4;
-   neighb_degrees_str_ = colon_degrees_type;
+   nb1nb2 = l2;
+   main_type = s3;
+   full_type = s4;
+   nb2_extra_els_str_ = colon_degrees_type;
 
    try {
       hash_value = coot::util::string_to_int(s1_hash);
@@ -277,8 +310,8 @@ cod::hybridization_to_int(RDKit::Atom::HybridizationType h) {
 
 // static
 bool
-cod::atom_level_2_type::level_2_component_sorter(const atom_level_2_component_type &la,
-						 const atom_level_2_component_type &lb) {
+cod::nb1nb2_type::nb1nb2_component_sorter(const nb1nb2_component_type &la,
+						 const nb1nb2_component_type &lb) {
 
    // sp3 before sp2
    //
@@ -290,7 +323,7 @@ cod::atom_level_2_type::level_2_component_sorter(const atom_level_2_component_ty
    //
    // neighb hybrids: _2_0 before _2_2
    //
-   // C[5a]-2_1_1 before C[5a]-1_0_0 
+   // C[5a]-2_1_1 before C[5a]-1_0_0
 
    // std::cout << "comparing l2 components: " << la << " " << lb << std::endl;
 
@@ -324,7 +357,7 @@ cod::atom_level_2_type::level_2_component_sorter(const atom_level_2_component_ty
 	       } else {
 		  if ((la.number_of_rings > 0) && (lb.number_of_rings == 0)) {
 		     return false;
-		  } else { 
+		  } else {
 
 		     if (la.number_of_rings > lb.number_of_rings) {
 			return true;
@@ -434,7 +467,7 @@ std::pair<int, std::string>
 cod::make_ring_info_string(const RDKit::Atom *atom_p) {
 
    std::string atom_ring_string;
-   
+
    std::vector<int> ring_size_vec;
    std::vector<int> ring_is_arom_vec; // flags
 
@@ -442,29 +475,30 @@ cod::make_ring_info_string(const RDKit::Atom *atom_p) {
       atom_p->getProp("ring_size", ring_size_vec);
       atom_p->getProp("ring_arom", ring_is_arom_vec);
 
-      // sort ring_info so that the rings with more atoms are at
-      // the top.  Practically 6-rings should come above 5-rings.
-
-      // sorting by ring size is done when the ring info is constructed
-      // and added to atoms - no here
-      // std::sort(ring_si.begin(), ring_info.end());
-	 
-      atom_ring_string = "[";
+      // Build one token per ring ("5", "5a", "6a", ...) - the ring size with an
+      // "a" appended when the ring is aromatic - then sort the tokens
+      // lexicographically before joining them with ",". acedrg holds an atom's
+      // rings in a std::map<std::string,int> keyed on exactly this token
+      // (codClassify.cpp), so its bracket text comes out in sorted-string order.
+      // For equal ring size that places the non-aromatic ring ("5") before the
+      // aromatic one ("5a"), matching libmol's "[5,5a]" (coot used to emit the
+      // insertion order, e.g. "[5a,5]"). Duplicate tokens are kept (two
+      // non-aromatic 5-rings -> "[5,5]"), as acedrg does.
+      std::vector<std::string> ring_tokens;
+      ring_tokens.reserve(ring_size_vec.size());
       for (unsigned int i_ring=0; i_ring<ring_size_vec.size(); i_ring++) {
+	 std::string tok = coot::util::int_to_string(ring_size_vec[i_ring]);
+	 if (i_ring < ring_is_arom_vec.size() && ring_is_arom_vec[i_ring])
+	    tok += "a";
+	 ring_tokens.push_back(tok);
+      }
+      std::sort(ring_tokens.begin(), ring_tokens.end());
 
+      atom_ring_string = "[";
+      for (unsigned int i_ring=0; i_ring<ring_tokens.size(); i_ring++) {
 	 if (i_ring > 0)
 	    atom_ring_string += ",";
-
-	 // If this ring is aromatic we need at append "a" to the (typically)
-	 // n_atoms_in_ring = 6.
-	 // 
-	 int n_atoms_in_ring = ring_size_vec[i_ring];
-
-	 atom_ring_string += coot::util::int_to_string(n_atoms_in_ring);
-	 int arom = ring_is_arom_vec[i_ring];
-	 if (arom) {
-	    atom_ring_string += "a";
-	 }
+	 atom_ring_string += ring_tokens[i_ring];
       }
       atom_ring_string += "]";
    }
@@ -478,19 +512,26 @@ cod::make_ring_info_string(const RDKit::Atom *atom_p) {
 }
 
 
-cod::atom_level_2_type::atom_level_2_component_type::atom_level_2_component_type(const RDKit::Atom *at, const RDKit::ROMol &rdkm) {
-      
+cod::nb1nb2_type::nb1nb2_component_type::nb1nb2_component_type(const RDKit::Atom *at, const RDKit::ROMol &rdkm) {
+
    // Version 147 atom types
    // s += coot::util::int_to_string(degree);
 
    // 152+ we also need info on the hybridization of the neighbours of at_neighb
    //
-   std::vector<RDKit::Atom::HybridizationType> hv;
+   // The per-neighbour integer of a level_2 (NB1NB2) component is acedrg's
+   // bondingIdx (precomputed into the "acedrg_bondingIdx" atom property by
+   // atom_types_t::set_acedrg_bonding_indices()), NOT the RDKit hybridization.
+   // This is what makes the level_2 string match libmol's codNB1NB2_SP. For
+   // C/H the two coincide; they diverge for heteroatoms (N/O/S...).
+   std::vector<int> nb_bonding_idx;
    RDKit::ROMol::ADJ_ITER nbrIdx_n, endNbrs_n;
    boost::tie(nbrIdx_n, endNbrs_n) = rdkm.getAtomNeighbors(at);
    while(nbrIdx_n != endNbrs_n) {
       const RDKit::Atom *at_neighb_n = rdkm[*nbrIdx_n];
-      hv.push_back(at_neighb_n->getHybridization());
+      int b = 0;
+      at_neighb_n->getPropIfPresent("acedrg_bondingIdx", b);
+      nb_bonding_idx.push_back(b);
       int n_extra_elect = at_neighb_n->getExplicitValence() - at_neighb_n->getDegree() + at_neighb_n->getFormalCharge();
       neighb_extra_elect.push_back(n_extra_elect);
       nbrIdx_n++;
@@ -505,9 +546,8 @@ cod::atom_level_2_type::atom_level_2_component_type::atom_level_2_component_type
    number_of_rings = ring_info.first;
    ring_info_string = ring_info.second;
 
-   std::vector<int> v(hv.size());
-   for (unsigned int jj=0; jj<hv.size(); jj++)
-      v[jj] = hybridization_to_int(hv[jj]);
+   // sort descending, matching acedrg's setAtomsNB1NB2_SP (std::greater)
+   std::vector<int> v = nb_bonding_idx;
    std::sort(v.begin(), v.end());
    std::reverse(v.begin(), v.end());
 

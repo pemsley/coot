@@ -62,12 +62,14 @@ cod::fill_element_period_group_map() {
 }
 
 
+
+
 // can throw a std::runtime_error
 //
 // rdkit_mol is not const because there is no const beginAtoms() operator.
 //
 // add_name_as_property is an optional argument default true
-// 
+//
 std::vector<cod::atom_type_t>
 cod::atom_types_t::get_cod_atom_types(RDKit::ROMol &rdkm,
 				      bool add_name_as_property) {
@@ -83,17 +85,17 @@ cod::atom_types_t::get_cod_atom_types(RDKit::ROMol &rdkm,
 
    // Maybe add a vector of ring sizes to the atoms (most atoms will
    // not have a vector added (because they are not part of rings)).
-   // 
+   //
    std::vector<std::vector<int> > atomRings = ring_info_p->atomRings();
 
    // Now sort ring_info so that the rings with more atoms are at
    // the top.  Practically 6-rings should come after 5-rings.
    //
    std::vector<std::vector<int> > sorted_atomRings = atomRings;
-   // 
+   //
    //
    std::sort(sorted_atomRings.begin(), sorted_atomRings.end(), atomRingSorter);
-   
+
    for (unsigned int i_ring=0; i_ring<n_rings; i_ring++) {
       std::vector<int> ring_atom_indices = sorted_atomRings[i_ring];
 
@@ -102,7 +104,7 @@ cod::atom_types_t::get_cod_atom_types(RDKit::ROMol &rdkm,
 
       // don't include macrocycle ring info (and the like (like cycloheptane))
       if (n_ring_atoms <= 6) {
-	 for (unsigned int iat=0; iat<n_ring_atoms; iat++) { 
+	 for (unsigned int iat=0; iat<n_ring_atoms; iat++) {
 	    try {
 	       // fill these by reference
 	       std::vector<int> ring_size_vec;
@@ -152,8 +154,15 @@ cod::atom_types_t::get_cod_atom_types(RDKit::ROMol &rdkm,
    }
 
 
+   // Precompute acedrg's per-atom bondingIdx (stored as the int property
+   // "acedrg_bondingIdx") before building the per-atom types: the level_2
+   // (NB1NB2) component reads each neighbour's bondingIdx. This must run after
+   // the ring-size/ring-arom properties above (the geometry rule needs ring
+   // membership) and before the get_cod_atom_type() loop below.
+   set_acedrg_bonding_indices(rdkm);
+
    cod::primes primes(600000);
-   
+
    timeval start_time;
    timeval current_time;
    // gettimeofday(&start_time, NULL);
@@ -173,14 +182,14 @@ cod::atom_types_t::get_cod_atom_types(RDKit::ROMol &rdkm,
 
       if (false)
 	 std::cout << "atom type "
-		   << atom_type.hash_value << " types: " 
-		   << atom_type.level_2.string() << " "
-		   << atom_type.level_4 << std::endl;
+		   << atom_type.hash_value << " types: "
+		   << atom_type.nb1nb2.string() << " "
+		   << atom_type.full_type << std::endl;
       
       v.push_back(atom_type);
       
       if (add_name_as_property)
-	 (*ai)->setProp("CODAtomName", atom_type.level_4);
+	 (*ai)->setProp("CODAtomName", atom_type.full_type);
    }
    if (false) { // it's worth pre-computing the primes -600ms
       gettimeofday(&current_time, NULL);
@@ -464,6 +473,10 @@ cod::atom_types_t::get_cod_atom_type(const RDKit::Atom *atom_base_p,
    if (nb_level < 3) { // this is always true, I think
       
       std::vector<atom_type_t> neighbour_types;
+      // each neighbour's degree (acedrg's nNB = connAtoms.size()), kept parallel
+      // to neighbour_types so the level_3/4 assembly can order groups the way
+      // acedrg's desSortMapKey2 does (length desc, then nNB desc).
+      std::vector<int> neighbour_n_neighbours;
 
       RDKit::ROMol::ADJ_ITER nbrIdx, endNbrs;
       boost::tie(nbrIdx, endNbrs) = rdkm.getAtomNeighbors(atom_p);
@@ -487,6 +500,7 @@ cod::atom_types_t::get_cod_atom_type(const RDKit::Atom *atom_base_p,
 				    rdkm, nb_level+1);
 	       
 	       neighbour_types.push_back(atom_type_local);
+	       neighbour_n_neighbours.push_back(neigh_atom_p->getDegree());
 
 	       if (atom_type_local.tnil.size()) {
 		  std::list<third_neighbour_info_t>::const_iterator it;
@@ -526,15 +540,19 @@ cod::atom_types_t::get_cod_atom_type(const RDKit::Atom *atom_base_p,
 
       std::vector<std::string> nt(neighbour_types.size());
       for (unsigned int ii=0; ii<neighbour_types.size(); ii++)
-	 nt[ii] = neighbour_types[ii].level_4; // FIXME
+	 nt[ii] = neighbour_types[ii].full_type; // FIXME
 
       std::pair<std::string, std::string> sp =
-	 make_cod_level_3_and_4_atom_type(atom_base_p, atom_ele, nt, tnil, nb_level);
+	 make_cod_level_3_and_4_atom_type(atom_base_p, atom_ele, nt, neighbour_n_neighbours,
+					  tnil, nb_level);
 
       // std::cout << "reseting atom_type " << nb_level << std::endl;
       atom_type = atom_type_t(sp.first, sp.second);
       atom_type.tnil = tnil;
    }
+
+   // acedrg Atom*_elem - always populated, for every nb_level
+   atom_type.element = atom_base_p->getSymbol();
 
    if (nb_level == 0) {
       cod::atom_type_t at_for_colon = get_cod_atom_type(atom_base_p, 0, 0, 0, rdkm,
@@ -544,18 +562,25 @@ cod::atom_types_t::get_cod_atom_type(const RDKit::Atom *atom_base_p,
 
    if (nb_level == 0) {
       // level 2 doesn't have info about the central atom, but does about the neighbours
-      // 
+      //
       // std::string l2 = make_cod_level_2_atom_type(atom_base_p, rdkm);
-      // atom_level_2_type l2(atom_base_p, rdkm);
-      atom_type.level_2 = atom_level_2_type(atom_base_p, rdkm);
+      // nb1nb2_type l2(atom_base_p, rdkm);
+      atom_type.nb1nb2 = nb1nb2_type(atom_base_p, rdkm);
       // std::cout << "with nb_level " << nb_level << " l2 is " << l2 << std::endl;
+
+      // acedrg's per-atom hybridisation string (== libmol Atom*_sp). It is a
+      // pure function of the bondingIdx that set_acedrg_bonding_indices()
+      // stored in the "acedrg_bondingIdx" property (0/unset -> "SP-NON").
+      int bonding_idx = 0;
+      atom_base_p->getPropIfPresent("acedrg_bondingIdx", bonding_idx);
+      atom_type.sp = strTransSP(bonding_idx);
    }
 
    return atom_type;
 }
 
 
-unsigned int 
+unsigned int
 cod::atom_types_t::get_smallest_ring_info(const RDKit::Atom *atom_p) const {
 
    unsigned int sr = 0;
@@ -579,7 +604,7 @@ cod::atom_types_t::get_smallest_ring_info(const RDKit::Atom *atom_p) const {
 // that shares a ring with NB-3.
 // 
 cod::third_neighbour_info_t
-cod::atom_types_t::get_cod_nb_3_type(const RDKit::Atom *atom_base_p, // the original atom 
+cod::atom_types_t::get_cod_nb_3_type(const RDKit::Atom *atom_base_p, // the original atom
 				     const RDKit::Atom *atom_nb_1_p,
 				     const RDKit::Atom *atom_parent_p,
 				     const RDKit::Atom *atom_p,
@@ -756,12 +781,34 @@ std::pair<std::string, std::string>
 cod::atom_types_t::make_cod_level_3_and_4_atom_type(const RDKit::Atom *base_atom_p,
 						    const std::string &atom_ele,
 						    const std::vector<std::string> &neighbour_types,
+						    const std::vector<int> &neighbour_n_neighbours,
 						    const std::list<third_neighbour_info_t> &tnil,
 						    int nb_level) {
 
    std::string s;
 
-   std::vector<std::string> n = sort_neighbours(neighbour_types, nb_level);
+   // Order the neighbour groups. Only the top-level, parenthesised groups
+   // (nb_level == 0) use acedrg's desSortMapKey2 ordering: string length
+   // descending, then neighbour degree (nNB) descending - this is what fixes
+   // e.g. S(SS)(Br) (nNB 2 vs 1) which coot used to emit as S(Br)(SS). The
+   // deeper, concatenated levels keep the plain (length desc, string asc) order
+   // (acedrg breaks length ties there by codClass map order, i.e. string), so
+   // that e.g. the leaves of H(CCHO) stay C,H,O rather than C,O,H.
+   std::vector<std::string> n;
+   if (nb_level == 0) {
+      std::vector<std::pair<std::string, int> > np;
+      np.reserve(neighbour_types.size());
+      for (unsigned int i=0; i<neighbour_types.size(); i++) {
+	 int deg = (i < neighbour_n_neighbours.size()) ? neighbour_n_neighbours[i] : 0;
+	 np.push_back(std::make_pair(neighbour_types[i], deg));
+      }
+      std::sort(np.begin(), np.end(), neighbour_pair_sorter);
+      n.resize(np.size());
+      for (unsigned int i=0; i<np.size(); i++)
+	 n[i] = np[i].first;
+   } else {
+      n = sort_neighbours(neighbour_types, nb_level);
+   }
 
    if (false) { // debugging
       std::string name;
@@ -769,7 +816,7 @@ cod::atom_types_t::make_cod_level_3_and_4_atom_type(const RDKit::Atom *base_atom
 	 base_atom_p->getProp("name", name);
       else
 	 name = "<null-base-atom>";
-      std::cout << "---- in make_cod_type() atom name: " << name
+      std::cout << "---- in make_cod_level_3_and_4_atom_type() atom name: " << name
 		<< "  atom_ele " << atom_ele
 		<< " level " << nb_level
 		<< " has sorted neighbour_types:\n";
@@ -814,7 +861,7 @@ cod::atom_types_t::make_cod_level_3_and_4_atom_type(const RDKit::Atom *base_atom
 	    // now add neighbour info to s:
 	    //
 	    if (same.size() == 0) {
-	       if (nb_level == 0) { 
+	       if (nb_level == 0) {
 		  s += "(";
 		  s += n[i];
 		  s += ")";
@@ -1018,7 +1065,7 @@ cod::atom_types_t::neighbour_sorter(const std::string &a, const std::string &b) 
    if (a.length() < b.length())
       return false;
    return (a < b);
-} 
+}
 
 std::vector<std::string>
 cod::atom_types_t::sort_neighbours(const std::vector<std::string> &neighbours_in,
@@ -1138,10 +1185,10 @@ cod::normalized_types_for_rdkit_mol(const RDKit::ROMol &mol_in) {
    cod::atom_types_t typer;
    std::vector<cod::atom_type_t> types = typer.get_cod_atom_types(mol);
    for (const auto &at : types) {
-      const std::string &l4 = at.level_4;
-      if (l4 == "H") continue;
-      if (l4.compare(0, 2, "H(") == 0) continue;
-      result.insert(cod::normalize_atom_type(l4));
+      const std::string &ft = at.full_type;
+      if (ft == "H") continue;
+      if (ft.compare(0, 2, "H(") == 0) continue;
+      result.insert(cod::normalize_atom_type(ft));
    }
    return result;
 }

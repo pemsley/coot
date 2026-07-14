@@ -197,6 +197,7 @@ add_library(cootapi SHARED
             ${coot_src}/lidia-core/svg-molecule.cc
             ${coot_src}/lidia-core/cod-types.cc
             ${coot_src}/lidia-core/cod-atom-types.cc
+            ${coot_src}/lidia-core/cod-atom-types-acedrg.cc
             ${coot_src}/lidia-core/cod-types-similarity.cc
             ${coot_src}/lidia-core/chemical-feature-clusters.cc
             ${coot_src}/lidia-core/bond-record-container-t.cc

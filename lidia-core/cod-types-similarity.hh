@@ -45,7 +45,7 @@ namespace cod {
    // counts, and keep the central atom + [ring] annotation.
    //
    // e.g.  C[6a](C[6a]C[6a]H)2(OC){1|C<3>,2|H<1>}  ->  C[6a](CCH)2(CO)
-   std::string normalize_atom_type(const std::string &level_4);
+   std::string normalize_atom_type(const std::string &cod_type);
 
    // Reference database: comp_id -> set of normalized non-H type strings.
    class cod_types_db_t {

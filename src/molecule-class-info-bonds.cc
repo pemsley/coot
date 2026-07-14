@@ -67,7 +67,8 @@ molecule_class_info_t::user_defined_colours_representation(coot::protein_geometr
    bonds_box.clear_up();
    if (all_atoms_mode) {
 
-      Bond_lines_container bonds(atom_sel, imol_no, geom_p, Bond_lines_container::COLOUR_BY_USER_DEFINED_COLOURS);
+      Bond_lines_container bonds(atom_sel, imol_no, geom_p, Bond_lines_container::COLOUR_BY_USER_DEFINED_COLOURS,
+                                 no_bonds_to_these_atom_indices);
       bonds_box = bonds.make_graphical_bonds_no_thinning();
       bonds_box_type = coot::COLOUR_BY_USER_DEFINED_COLOURS____BONDS;
 
@@ -76,7 +77,7 @@ molecule_class_info_t::user_defined_colours_representation(coot::protein_geometr
       // CA mode then
 
       // std::cout << "::::::::::::::::::::::::::::: in user_defined_colours_representation() Path B " << std::endl;
-      std::set<int> no_bonds_to_these_atom_indices;
+      // use the molecule's non-drawn bonds (not a local empty set) so CA-mode honours them too
       Bond_lines_container bonds(geom_p, "dummy-CA-mode", no_bonds_to_these_atom_indices, false);
       bonds.do_Ca_plus_ligands_bonds(atom_sel, imol_no, geom_p, 2.4, 4.7,
                                      draw_missing_loops_flag,

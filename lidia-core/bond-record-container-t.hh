@@ -34,7 +34,7 @@ namespace cod {
 
    class bond_record_container_t {
       std::string::size_type get_max_atom_type_width() const;
-      std::map<std::string, unsigned int> level_4_atom_types_map; // convert from acedrg-table 
+      std::map<std::string, unsigned int> cod_type_atom_types_map; // convert from acedrg-table
                                                                   // COD string to its index
       bool write_atom_type_indices(const std::string &file_name) const;
 

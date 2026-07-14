@@ -86,15 +86,15 @@ void write_types(RDKit::RWMol &rdkm) {
          //
          if (false)
             std::cout << " " << std::right << std::setw(3) << iat << "    "
-                      << atom_ele << "    " << name << "     " << v[iat].level_4
+                      << atom_ele << "    " << name << "     " << v[iat].cod_type
                       << "\n";
 
          // Now I want to check the tier-2 types too
          //
          std::cout << " " << std::right << std::setw(3) << iat << "    "
                    << atom_ele << "    " << name << "     "
-                   << v[iat].level_2.string() << "  "
-                   << v[iat].level_4 << "  "
+                   << v[iat].nb1nb2.string() << "  "
+                   << v[iat].cod_type << "  "
                    << "\n";
       }
       catch (const KeyErrorException &err) { }
@@ -204,7 +204,7 @@ void molecule_from_SMILES(const std::string &smiles_string) {
 
          std::cout << "PE-TYPES:: -------- got " << v.size() << " atoms " << std::endl;
          for (unsigned int i=0; i<v.size(); i++)
-            std::cout << "   " << i << " " << v[i].level_4 << "" << std::endl;
+            std::cout << "   " << i << " " << v[i].cod_type << "" << std::endl;
       }
    }
    catch (const std::runtime_error &rte) {
@@ -224,15 +224,15 @@ write_bonds_by_type(RDKit::RWMol *rdkm, const std::vector<cod::atom_type_t> &v) 
             const RDKit::Bond *bond_p = rdkm->getBondWithIdx(ib);
             int idx_1 = bond_p->getBeginAtomIdx();
             int idx_2 = bond_p->getEndAtomIdx();
-            std::string t1 = v[idx_1].level_4;
-            std::string t2 = v[idx_2].level_4;
+            std::string t1 = v[idx_1].cod_type;
+            std::string t2 = v[idx_2].cod_type;
             if (t1 > t2) {
                // std::swap(t1, t2);
             }
             std::cout << "BOND level-4 " << t1 << "     " << t2 << std::endl;
-            // std::cout << "BOND level-3 " << v[idx_1].level_3 << "     " << v[idx_2].level_3 << std::endl;
-            // std::cout << "BOND level-2 " << v[idx_1].level_2.string() << "     "
-            // << v[idx_2].level_2.string() << std::endl;
+            // std::cout << "BOND level-3 " << v[idx_1].main_type << "     " << v[idx_2].main_type << std::endl;
+            // std::cout << "BOND level-2 " << v[idx_1].nb1nb2.string() << "     "
+            // << v[idx_2].nb1nb2.string() << std::endl;
          }
       }
    }
@@ -248,7 +248,7 @@ void molecule_from_mdl_mol(const std::string &file_name) {
          std::cout << "PE-TYPES:: -------- " << v.size() << " atoms " << " from "
                    << file_name << std::endl;
          for (unsigned int i=0; i<v.size(); i++)
-            std::cout << "   " << i << " " << v[i].level_4 << "" << std::endl;
+            std::cout << "   " << i << " " << v[i].cod_type << "" << std::endl;
          write_bonds_by_type(rdkm, v);
       } else {
          std::cout << "WARNING:: file " << file_name << " null molecule" << std::endl;

@@ -32,6 +32,9 @@
 #endif
 
 #include "molecules-container.hh"
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+#include "lidia-core/cod-atom-type-t.hh" // cod::atom_type_t (bound below)
+#endif
 
 namespace nb = nanobind;
 
@@ -52,28 +55,6 @@ struct ResiduePropertyInfo {
     std::string insCode;
     std::string restype;
     double property;
-};
-
-class molecules_container_js : public molecules_container_t {
-    public:
-        explicit molecules_container_js(bool verbose=true) : molecules_container_t(verbose) {
-        }
-
-        int writePDBASCII(int imol, const std::string &file_name) {
-            const char *fname_cp = file_name.c_str();
-            return get_mol(imol)->WritePDBASCII(fname_cp);
-        }
-        int writeCIFASCII(int imol, const std::string &file_name) {
-            const char *fname_cp = file_name.c_str();
-            return get_mol(imol)->WriteCIFASCII(fname_cp);
-        }
-        int writeCCP4Map(int imol, const std::string &file_name) {
-            auto xMap = (*this)[imol].xmap;
-            auto clipperMap = clipper::CCP4MAPfile();
-            clipperMap.open_write(file_name);
-            clipperMap.export_xmap(xMap);
-            return 0;
-        }
 };
 
 // Helper to cache and retrieve docstrings from XML
@@ -918,10 +899,6 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::get_residue_sidechain_average_position,
          nb::arg("imol"), nb::arg("cid"),
          get_docstring_from_xml("get_residue_sidechain_average_position").c_str())
-    .def("get_residue_using_cid",
-         &molecules_container_t::get_residue_using_cid,
-         nb::arg("imol"), nb::arg("cid"),
-         get_docstring_from_xml("get_residue_using_cid").c_str())
     .def("get_residues_near_residue",
          &molecules_container_t::get_residues_near_residue,
          nb::arg("imol"), nb::arg("residue_cid"), nb::arg("dist"),
@@ -934,6 +911,10 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::get_rotamer_dodecs_instanced,
          nb::arg("imol"),
          get_docstring_from_xml("get_rotamer_dodecs_instanced").c_str())
+    .def("get_sequence_info",
+         &molecules_container_t::get_sequence_info,
+         nb::arg("imol"),
+         get_docstring_from_xml("get_sequence_info").c_str())
     .def("get_single_letter_codes_for_chain",
          &molecules_container_t::get_single_letter_codes_for_chain,
          nb::arg("imol"), nb::arg("chain_id"),
@@ -1486,12 +1467,6 @@ NB_MODULE(coot_headless_api, m) {
       .def_ro("deletions",        &coot::chain_mutation_info_container_t::deletions)
       .def_ro("mutations",        &coot::chain_mutation_info_container_t::mutations)
       ;
-    nb::class_<molecules_container_js, molecules_container_t>(m,"molecules_container_py")
-    .def(nb::init<bool>())
-    .def("writePDBASCII",&molecules_container_js::writePDBASCII)
-    .def("writeCIFASCII",&molecules_container_js::writeCIFASCII)
-    .def("writeCCP4Map",&molecules_container_js::writeCCP4Map)
-    ;
     nb::class_<coot::simple_rotamer>(m,"simple_rotamer")
     .def("P_r1234",&coot::simple_rotamer::P_r1234)
     .def("Probability_rich",&coot::simple_rotamer::Probability_rich)
@@ -1607,6 +1582,19 @@ NB_MODULE(coot_headless_api, m) {
        .def_rw("r_2", &coot::plain_atom_overlap_t::r_2)
        .def_rw("is_h_bond", &coot::plain_atom_overlap_t::is_h_bond)
     ;
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+    nb::class_<cod::atom_type_t>(m,"cod_atom_type_t")
+    .def(nb::init<>())
+       .def_ro("full_type",  &cod::atom_type_t::full_type)
+       .def_ro("main_type", &cod::atom_type_t::main_type)
+       .def_prop_ro("nb1nb2", [] (const cod::atom_type_t &t) { return t.nb1nb2.string(); })
+       .def_ro("sp",      &cod::atom_type_t::sp)
+       .def_ro("element", &cod::atom_type_t::element)
+       .def_ro("hash_value", &cod::atom_type_t::hash_value)
+       .def_ro("nb2_extra_els", &cod::atom_type_t::nb2_extra_els)
+       .def("nb2_extra_els_str", [] (cod::atom_type_t &t) { return t.nb2_extra_els_str(); })
+    ;
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
     nb::class_<positioned_atom_spec_t>(m,"positioned_atom_spec_t")
     .def(nb::init<>())
     .def_ro("atom_spec", &positioned_atom_spec_t::atom_spec)

@@ -93,10 +93,10 @@ namespace {
 }
 
 std::string
-cod::normalize_atom_type(const std::string &level_4) {
+cod::normalize_atom_type(const std::string &cod_type) {
 
    // Strip the {...} environment.
-   std::string atype = level_4;
+   std::string atype = cod_type;
    std::size_t brace = atype.find('{');
    if (brace != std::string::npos)
       atype = atype.substr(0, brace);

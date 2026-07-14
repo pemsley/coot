@@ -669,6 +669,7 @@ libcootsumo_la_SOURCES = \
 	graphics-info-state.cc	 \
 	graphics-info-statics.cc \
 	graphics-info-superpose.cc	\
+	graphics-info-servalcat.cc	\
 	graphics-info-tick-function.cc \
 	graphics-info-trackball.cc	\
 	graphics-info-utils.cc	 \
