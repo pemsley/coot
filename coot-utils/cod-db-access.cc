@@ -46,7 +46,7 @@ public:
 
 
 // fill data_store with as a std::vector<double>
-// 
+//
 int db_select_callback(void *data_store, int argc, char **argv, char **azColName) {
    int status = 0;
    std::vector<double> *v = static_cast<std::vector<double> * > (data_store);
@@ -150,7 +150,7 @@ get_atom_index(const cod::atom_type_t &cod_1, sqlite3 *db) {
 
    if (db) {
       std::string cmd = "SELECT atom_index from COD_TYPE_4_INDICES WHERE level_4_atom_type = " +
-         coot::util::single_quote(cod_1.cod_type, "'");
+         coot::util::single_quote(cod_1.full_type, "'");
       int index = -1; // unset
       void *data_pointer = static_cast<void *>(&index);
       char *zErrMsg = 0;
@@ -158,12 +158,12 @@ get_atom_index(const cod::atom_type_t &cod_1, sqlite3 *db) {
       if (rc !=  SQLITE_OK) {
          if (zErrMsg) {
             std::cout << "ERROR: processing command " << cmd << " " << zErrMsg << std::endl;
-         } else { 
+         } else {
             std::cout << "ERROR: processing command " << cmd << std::endl;
             sqlite3_free(zErrMsg);
          }
       } else {
-         std::cout << "    " << cod_1.cod_type << " " << index << std::endl;
+         std::cout << "    " << cod_1.full_type << " " << index << std::endl;
          idx = index;
       }
    }
@@ -284,7 +284,7 @@ get_bond_record_try_type_2(const cod::atom_type_t &cod_1,
       if (rc_1 !=  SQLITE_OK) {
          if (zErrMsg_1) {
             std::cout << "ERROR: processing command " << cmd_1 << " " << zErrMsg_1 << std::endl;
-         } else { 
+         } else {
             std::cout << "ERROR: processing command " << cmd_1 << std::endl;
             sqlite3_free(zErrMsg_1);
          }
@@ -344,7 +344,7 @@ get_type_3_bonds_inner(const std::vector<int> &cod_1_type_3_atom_indices,
       if (one_or_two_is_vector == 1)
          cmd = "SELECT mean, sd, count from COD_TYPE_4_BONDS WHERE atom_index_1 = " +
             coot::util::int_to_string(cod_1_type_3_atom_indices[i]) + " AND atom_index_2 = " +
-            coot::util::int_to_string(idx_2) + 
+            coot::util::int_to_string(idx_2) +
             " AND hybridization = " + coot::util::single_quote(hybridization_info.string, "'") +
             " AND ring = " + coot::util::single_quote(ring_bool_str, "'");
       if (one_or_two_is_vector == 2)
@@ -480,8 +480,8 @@ get_bond_record_try_type_3(const cod::atom_type_t &cod_1,
    cod::bond_table_record_t btr;
    //
    bool done_2 = false;
-   if (cod_1.cod_type == cod_1.main_type) {
-      if (cod_2.cod_type == cod_2.main_type) {
+   if (cod_1.full_type == cod_1.main_type) {
+      if (cod_2.full_type == cod_2.main_type) {
          btr = get_bond_record_try_type_2(cod_1, cod_2, idx_1, idx_2, n_count_min, db);
          done_2 = true;
       }
@@ -510,7 +510,7 @@ get_bond_record_try_type_3(const cod::atom_type_t &cod_1,
       if (rc_1 !=  SQLITE_OK) {
          if (zErrMsg_1) {
             std::cout << "ERROR: processing command " << cmd_1 << " " << zErrMsg_1 << std::endl;
-         } else { 
+         } else {
             std::cout << "ERROR: processing command " << cmd_1 << std::endl;
             sqlite3_free(zErrMsg_1);
          }
@@ -689,7 +689,7 @@ get_hybridization_info_string(RDKit::RWMol &rdkm, unsigned int mol_atom_idx_1, u
       current++;
       n_bonds_at_2++;
    }
-   
+
    if (at_1->getAtomicNum() == 8) {
       if (at_2->getAtomicNum() == 15) {
          if (n_bonds_at_1 == 1)
@@ -742,7 +742,7 @@ get_ring_info_bool_str(RDKit::RingInfo* ring_info_p, int idx_1, int idx_2) {
 void debug_atom_types(const RDKit::RWMol &rdkm,
                       const std::vector<cod::atom_type_t> &v,
                       const coot::dictionary_residue_restraints_t &dict) {
-   
+
    if (v.size() != dict.number_of_atoms()) {
       std::cout << "debug_atom_types(): mismatch types " << v.size() << " "
                 << dict.number_of_atoms() << std::endl;
@@ -753,7 +753,7 @@ void debug_atom_types(const RDKit::RWMol &rdkm,
          at->getProp("name", name);
          std::string ee_type = v[i].nb1nb2.extra_electron_type();
          std::cout << " types for " << name
-                   << " type-4 " << v[i].cod_type
+                  << " type-4 " << v[i].full_type
                    << " nee " << v[i].nb1nb2.n_extra_electrons()
                    << " std-level_2: " << std::setw(20) << v[i].nb1nb2.string()
                    << " ee: " << ee_type
@@ -824,8 +824,8 @@ void validate_bonds(mmdb::Residue *residue_p,
                   // cod::bond_table_record_t btr = get_bond_table_record(cod_1, cod_2, db);
 
                   std::cout << "##### " << atom_name_1 << " " << atom_name_2 << " types:  l4: "
-                            << cod_1.cod_type << "  l2: " << cod_1.nb1nb2.extra_electron_type() << " and l4: "
-                            << cod_2.cod_type << "  l2: " << cod_2.nb1nb2.extra_electron_type() << std::endl;
+                            << cod_1.full_type << "  l2: " << cod_1.nb1nb2.extra_electron_type() << " and l4: "
+                            << cod_2.full_type << "  l2: " << cod_2.nb1nb2.extra_electron_type() << std::endl;
 
                   hybridization_info_t hybridization_info =
                      get_hybridization_info_string(rdkm, atom_1.first, atom_2.first);
@@ -865,12 +865,12 @@ void validate_bonds(mmdb::Residue *residue_p,
 
                         }
                      } else {
-                        std::cout << "No db atom type index for atom type " << cod_2.cod_type << std::endl;
+                        std::cout << "No db atom type index for atom type " << cod_2.full_type << std::endl;
                         // something like:
                         // cod::bond_table_record_t btr = get_bond_record_try_type_3(cod_1, cod_2, -1, -1, n_count_min, db);
                      }
                   } else {
-                     std::cout << "No db atom type index for atom type " << cod_1.cod_type << std::endl;
+                     std::cout << "No db atom type index for atom type " << cod_1.full_type << std::endl;
                      // so... what do we do now?
                   }
 
@@ -952,7 +952,7 @@ int main(int argc, char **argv) {
                   // (otherwise the atom types are not correct).
                   coot::dictionary_residue_restraints_t dict(residue_p);
 
-                  validate_bonds_for_residue_dict_db_file_name(residue_p, dict, 
+                  validate_bonds_for_residue_dict_db_file_name(residue_p, dict,
                                                                reprotonate_flag, db_file_name);
 
                } else {
@@ -985,7 +985,7 @@ int main(int argc, char **argv) {
                      geom.get_monomer_restraints(rmit.monomer_idx);
                   int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
                   mmdb::Residue *residue_p = dict.GetResidue(false, 20);
-                  validate_bonds_for_residue_dict_db_file_name(residue_p, dict, 
+                  validate_bonds_for_residue_dict_db_file_name(residue_p, dict,
                                                                reprotonate_flag, db_file_name);
                } else {
                   std::cout << "WARNING:: bad monomer index " << std::endl;

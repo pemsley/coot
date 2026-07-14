@@ -1,18 +1,18 @@
 /* lidia-core/dictionary-atom-types.cc
- * 
+ *
  * Copyright 2016 by Medical Research Council
  * Author: Paul Emsley
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
@@ -21,7 +21,7 @@
 
 #ifndef MAKE_ENHANCED_LIGAND_TOOLS
 int main(int argc, char **argv) {return 0;}
-#else 
+#else
 #include "lidia-core/cod-atom-types.hh"
 
 #include <map>
@@ -37,7 +37,7 @@ bool string_int_pair_sorter(const std::pair<std::string, unsigned int> &p1,
                             const std::pair<std::string, unsigned int> &p2) {
 
    return (p2.second < p1.second);
-} 
+}
 
 int find_string_in_vector(const std::vector<std::pair<std::string, unsigned int> > &v,
                           const std::string &t) {
@@ -46,10 +46,10 @@ int find_string_in_vector(const std::vector<std::pair<std::string, unsigned int>
    for (unsigned int i=0; i<v.size(); i++) {
       if (v[i].first == t) {
          return i;
-      } 
+      }
    }
    return r;
-} 
+}
 
 
 int main(int argc, char **argv) {
@@ -89,16 +89,16 @@ int main(int argc, char **argv) {
       if (! mol) {
          std::cout << "Null mol from mol_from_dictionary() for " <<  comp_id << std::endl;
       } else {
-         
+
          mmdb::Residue *residue_p = coot::util::get_first_residue(mol);
 
          if (! residue_p) {
             // pretty strange
             std::cout << "Null residue from mol from mol_from_dictionary() for "
                       << comp_id << std::endl;
-         } else { 
+         } else {
 
-            try { 
+            try {
                RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, imol, geom);
 
                cod::atom_types_t t;
@@ -107,20 +107,20 @@ int main(int argc, char **argv) {
                   // std::cout << comp_id << " was good" << std::endl;
                   for (unsigned int iat=0; iat<r.atom_info.size(); iat++) {
                      const std::string &key = r.atom_info[iat].type_energy;
-                     if (0) 
+                     if (0)
                         std::cout << comp_id << "  "
                                   << std::setw(4) << r.atom_info[iat].atom_id << "  "
-                                  << std::setw(6) << r.atom_info[iat].type_energy << "   " 
-                                  << v[iat].cod_type << "\n";
+                                  << std::setw(6) << r.atom_info[iat].type_energy << "   "
+                                  << v[iat].full_type << "\n";
 
                      it = atom_map.find(key);
                      if (it == atom_map.end()) {
-                        std::pair<std::string, unsigned int> p(v[iat].cod_type, 1);
+                        std::pair<std::string, unsigned int> p(v[iat].full_type, 1);
                         atom_map[key].push_back(p);
-                     } else { 
-                        int idx = find_string_in_vector(atom_map[key], v[iat].cod_type);
+                     } else {
+                        int idx = find_string_in_vector(atom_map[key], v[iat].full_type);
                         if (idx == -1) { // not found
-                           std::pair<std::string, unsigned int> p(v[iat].cod_type, 1);
+                           std::pair<std::string, unsigned int> p(v[iat].full_type, 1);
                            atom_map[key].push_back(p);
                         } else {
                            atom_map[key][idx].second++;
@@ -134,21 +134,21 @@ int main(int argc, char **argv) {
             }
             catch (const std::runtime_error &rte) {
                std::cout << "error:: rte " << rte.what() << " " << comp_id << std::endl;
-            } 
+            }
             catch (const std::exception &e) {
                std::cout << "error:: exception " << e.what() << " " << comp_id << std::endl;
-            } 
+            }
          }
       }
    }
 
    bool output_atom_map = false;
-   if (output_atom_map) { 
+   if (output_atom_map) {
       std::map<std::string, std::vector<std::pair<std::string, unsigned int> > >::iterator itv;
       for (itv=atom_map.begin(); itv!=atom_map.end(); itv++) {
          std::sort(itv->second.begin(), itv->second.end(), string_int_pair_sorter);
          std::cout << itv->first << "       ";
-         for (unsigned int i=0; i<itv->second.size(); i++) { 
+         for (unsigned int i=0; i<itv->second.size(); i++) {
             std::cout << "   " << itv->second[i].first  << " " << itv->second[i].second;
          }
          std::cout << "\n";
@@ -165,7 +165,7 @@ int main(int argc, char **argv) {
    // vector of refmac energy types (of which should only be one, of
    // course)
 
-   if (0) { 
+   if (0) {
       std::map<std::string, std::vector<std::pair<std::string, unsigned int> > >::iterator itv;
       std::map<std::string, std::vector<std::string> > cod_map;
       std::map<std::string, std::vector<std::string> >::const_iterator it_cod;
@@ -178,7 +178,7 @@ int main(int argc, char **argv) {
       for (it_cod=cod_map.begin(); it_cod!=cod_map.end(); it_cod++) {
          if (it_cod->second.size() != 1) {
             std::cout << "strange cod: " << std::left << std::setw(20) << it_cod->first << "     ";
-            for (unsigned int i=0; i<it_cod->second.size(); i++) { 
+            for (unsigned int i=0; i<it_cod->second.size(); i++) {
                std::cout << std::setw(5) << it_cod->second[i] << " ";
             }
             std::cout << "\n";
@@ -205,23 +205,23 @@ int main(int argc, char **argv) {
       if (! mol) {
          std::cout << "Null mol from mol_from_dictionary() for " <<  comp_id << std::endl;
       } else {
-         
+
          mmdb::Residue *residue_p = coot::util::get_first_residue(mol);
 
          if (! residue_p) {
             // pretty strange
             std::cout << "Null residue from mol from mol_from_dictionary() for "
                       << comp_id << std::endl;
-         } else { 
+         } else {
 
-            try { 
+            try {
                RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, imol, geom);
                cod::atom_types_t t;
                std::vector<cod::atom_type_t> v = t.get_cod_atom_types(rdkm);
                if (v.size() == r.atom_info.size()) {
                   for (unsigned int iat=0; iat<r.atom_info.size(); iat++) {
                      const std::string &te = r.atom_info[iat].type_energy;
-                     const std::string &key = v[iat].cod_type;
+                     const std::string &key = v[iat].full_type;
 
                      it = reverse_atom_map.find(key);
 
@@ -243,28 +243,28 @@ int main(int argc, char **argv) {
             }
             catch (const std::runtime_error &rte) {
                std::cout << "error:: rte " << rte.what() << " " << comp_id << std::endl;
-            } 
+            }
             catch (const std::exception &e) {
                std::cout << "error:: exception " << e.what() << " " << comp_id << std::endl;
-            } 
+            }
          }
       }
    }
 
    bool output_reverse_atom_map = true;
-   if (output_reverse_atom_map) { 
+   if (output_reverse_atom_map) {
       std::map<std::string, std::vector<std::pair<std::string, unsigned int> > >::iterator itv;
       for (itv=reverse_atom_map.begin(); itv!=reverse_atom_map.end(); itv++) {
          std::sort(itv->second.begin(), itv->second.end(), string_int_pair_sorter);
          std::cout << "cod type " << std::left << std::setw(20) << itv->first
                    << "       energy-lib-types: ";
-         for (unsigned int i=0; i<itv->second.size(); i++) { 
+         for (unsigned int i=0; i<itv->second.size(); i++) {
             std::cout << "   " << itv->second[i].first  << " " << itv->second[i].second;
          }
          std::cout << "\n";
       }
    }
-   
+
    return r;
 }
 
