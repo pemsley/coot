@@ -641,6 +641,11 @@ coot::restraints_container_t::geometric_distortions_pod(bool include_distortion_
       if (restraints_usage_flag & coot::PLANES_MASK) {
          if (rest.restraint_type == coot::PLANE_RESTRAINT) {
             distortion = coot::distortion_score_plane(rest, x);
+            for (const auto &a : rest.plane_atom_index) {
+               if (a.first >= 0) {
+                  atom_specs.push_back(atom_spec_t(atom[a.first]));
+               }
+            }
             atom_index = rest.plane_atom_index[0].first;
          }
       }
