@@ -22,7 +22,7 @@ from typing import Optional
 
 from coot_commands.registry import command
 from coot_commands.types import (RES_SPEC, resolve_model, resolve_residue,
-                                 as_int, ArgType, CommandError,
+                                 as_int, ArgType, CommandError, centre_on_residue,
                                  ACTIVE_MODEL_NOTE, ACTIVE_RESIDUE_NOTE)
 
 try:
@@ -44,9 +44,11 @@ def _refine_zone(imol: int, chain_id: str, res1: int, res2: int) -> str:
     """
     if coot is None:
         return f"Refined {chain_id}/{res1}-{res2} of model {imol}"
+    lo, hi = (res1, res2) if res1 <= res2 else (res2, res1)
+    # Bring the target on screen first, so the user sees what is being refined.
+    centre_on_residue(imol, chain_id, lo)
     if coot.imol_refinement_map() < 0:
         raise CommandError("no map set for refinement - open a map first")
-    lo, hi = (res1, res2) if res1 <= res2 else (res2, res1)
     replacement_state = coot.refinement_immediate_replacement_state()
     coot.set_refinement_immediate_replacement(1)
     try:

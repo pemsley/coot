@@ -698,6 +698,24 @@ def test_refine_b_factors_runs_shiftfield():
         assert calls["bf"] == 1
 
 
+def test_refine_residue_centres_on_the_target_first():
+    fake = _FakeCootFull()
+    calls = {}
+    fake.imol_refinement_map = lambda: 3
+    fake.set_go_to_atom_molecule = lambda imol: calls.__setitem__("goto_mol", imol)
+    fake.set_go_to_atom_from_res_spec_py = lambda spec: calls.setdefault("goto_spec", spec) or 1
+    fake.refinement_immediate_replacement_state = lambda: 0
+    fake.set_refinement_immediate_replacement = lambda s: None
+    fake.refine_zone = lambda imol, ch, lo, hi, ins: calls.__setitem__("zone", (imol, ch, lo, hi))
+    fake.accept_regularizement = lambda: None
+    with _use_coot(fake, refine_mod):
+        out = cli.run_command("refine A 45")
+    # The view was centred on A/45 before the refinement ran.
+    assert calls["goto_spec"] == ["A", 45, ""]
+    assert calls["zone"] == (0, "A", 45, 45)
+    assert "Refined A/45" in out
+
+
 def test_refine_b_factors_needs_a_map():
     fake = _FakeCootFull()
     fake.imol_refinement_map = lambda: -1   # no refinement map set

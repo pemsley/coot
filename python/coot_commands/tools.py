@@ -151,19 +151,83 @@ def command_tools(names: Optional[Iterable[str]] = None) -> List[Dict[str, Any]]
     return [command_to_tool(by_name[n]) for n in selected]
 
 
+# Custom (context/query) tools: agent-only tools that are NOT @command regex
+# handlers. A command is an ACTION triggered by typed or spoken language; a
+# custom tool is typically a QUERY returning live context - e.g. the residue at
+# the centre of the screen - so the model can resolve deictic references like
+# "here", "this residue" or "the current position" before it acts. Register one
+# with @custom_tool (see coot_commands.context_tools). They are always exposed
+# to the model (never dropped by retrieval), since such context is relevant
+# regardless of how a request is worded.
+_CUSTOM_TOOLS: Dict[str, Dict[str, Any]] = {}
+
+
+def custom_tool(name: str, description: str,
+                parameters: Optional[Dict[str, Any]] = None) -> Callable:
+    """Register *handler* as an agent tool named *name*.
+
+    *parameters* is a JSON-schema object for the arguments (default: none).  The
+    handler returns a result string (like a command handler); it receives the
+    model-supplied arguments as keyword arguments.
+    """
+    schema_params = parameters or {"type": "object", "properties": {}}
+
+    def decorator(handler: Callable[..., str]) -> Callable[..., str]:
+        _CUSTOM_TOOLS[name] = {
+            "schema": {
+                "type": "function",
+                "function": {
+                    "name": name,
+                    "description": description,
+                    "parameters": schema_params,
+                },
+            },
+            "handler": handler,
+        }
+        return handler
+
+    return decorator
+
+
+def custom_tools() -> List[Dict[str, Any]]:
+    """Tool definitions for the always-available custom (context) tools."""
+    return [entry["schema"] for entry in _CUSTOM_TOOLS.values()]
+
+
+def _custom_kwargs(handler: Callable, arguments: Dict[str, Any]) -> Dict[str, Any]:
+    """Filter *arguments* to those the custom *handler* actually accepts."""
+    sig = inspect.signature(handler)
+    if any(p.kind == inspect.Parameter.VAR_KEYWORD for p in sig.parameters.values()):
+        return dict(arguments)
+    allowed = {name for name, p in sig.parameters.items()
+               if p.kind in (inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                             inspect.Parameter.KEYWORD_ONLY)}
+    return {k: v for k, v in arguments.items() if k in allowed}
+
+
 def execute_tool(name: str, arguments: Optional[Dict[str, Any]] = None) -> str:
-    """Run the command *name* with the model-supplied *arguments*.
+    """Run the tool *name* (custom tool or command) with *arguments*.
 
     Returns the handler's result string, or a readable error string (never
     raises) so the agent loop can feed failures straight back to the model.
 
-    Arguments are coerced to strings and passed by the handler's parameter
-    name, mirroring exactly what ``registry.dispatch`` passes from a regex
-    ``groupdict`` - a missing argument arrives as ``None`` and the shared
+    Command arguments are coerced to strings and passed by the handler's
+    parameter name, mirroring exactly what ``registry.dispatch`` passes from a
+    regex ``groupdict`` - a missing argument arrives as ``None`` and the shared
     resolvers fall back to the active molecule (or raise a clear
     :class:`CommandError`).
     """
     arguments = arguments or {}
+
+    custom = _CUSTOM_TOOLS.get(name)
+    if custom is not None:
+        try:
+            return custom["handler"](**_custom_kwargs(custom["handler"], arguments))
+        except CommandError as e:
+            return f"Error: {e}"
+        except Exception as e:  # noqa: BLE001 - report any failure to the model
+            return f"Error running '{name}': {e}"
+
     cmd = _commands_by_name().get(name)
     if cmd is None:
         return f"Error: unknown command '{name}'"

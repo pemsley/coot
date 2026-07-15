@@ -234,6 +234,25 @@ def resolve_residue(chain: Optional[str] = None, resno: Optional[str] = None,
     return active_residue()
 
 
+def centre_on_residue(imol: int, chain_id: str, resno: int,
+                      ins_code: str = "") -> bool:
+    """Centre the view on a residue, best-effort, so edits are visible.
+
+    Residue-targeting *action* commands (refine, pepflip, ...) call this before
+    acting, so operating on a named residue - whether typed or issued by the
+    assistant - first brings it on screen ("go to A 45, then refine it"). It
+    never raises and returns ``True`` if the residue was found, so it can wrap
+    an edit without changing its error behaviour.
+    """
+    if coot is None:
+        return False
+    try:
+        coot.set_go_to_atom_molecule(imol)
+        return coot.set_go_to_atom_from_res_spec_py([chain_id, resno, ins_code]) > 0
+    except Exception:
+        return False
+
+
 # Named colours -> (r, g, b) floats in 0..1, for map/background colour commands.
 COLOURS: dict[str, tuple[float, float, float]] = {
     "black":   (0.0, 0.0, 0.0),

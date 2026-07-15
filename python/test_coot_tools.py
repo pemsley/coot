@@ -25,7 +25,11 @@ and coot_commands.agent's loop with an injected fake transport, so nothing
 here needs Coot or Ollama.  Also discoverable by pytest.
 """
 
+import io
 import json
+import socket
+import struct
+import threading
 
 import coot_commands  # noqa: F401  - triggers command discovery/registration
 from coot_commands import agent
@@ -237,7 +241,8 @@ def test_agent_uses_retrieved_subset_when_top_k_set():
     finally:
         retrieval._default_retriever = orig
     names = [t["function"]["name"] for t in captured["tools"]]
-    assert names == ["add_water"]
+    assert "add_water" in names                       # the retrieved command
+    assert "get_active_residue" in names              # custom tools are pinned
 
 
 def test_agent_falls_back_to_all_tools_when_retrieval_fails():
@@ -259,8 +264,10 @@ def test_agent_falls_back_to_all_tools_when_retrieval_fails():
         agent.run_agent("do something", chat=chat, top_k=5, verbose=False)
     finally:
         retrieval._default_retriever = orig
-    # Fallback exposes the full command set rather than raising.
-    assert len(captured["tools"]) == len({c.name for c in all_commands()})
+    # Fallback exposes the full command set (plus the pinned custom tools).
+    from coot_commands.tools import custom_tools
+    assert len(captured["tools"]) == (
+        len({c.name for c in all_commands()}) + len(custom_tools()))
 
 
 def test_chat_url_normalisation():
@@ -281,6 +288,311 @@ def test_embed_url_normalisation():
     assert n("http://127.0.0.1:11435/api") == full
     assert n(full) == full
     assert n(full + "/") == full
+
+
+# --- pluggable executor + events -------------------------------------------
+
+def test_run_agent_uses_injected_executor_and_emits_events():
+    calls = []
+
+    def execute(name, args):
+        calls.append((name, args))
+        return "did " + name
+
+    events = []
+    chat = _fake_chat_script(
+        {"role": "assistant", "content": None, "tool_calls": [
+            {"id": "c1", "function": {
+                "name": "add_water", "arguments": "{}"}}]},
+        {"role": "assistant", "content": "Added a water."},
+    )
+    out = agent.run_agent("add water", chat=chat, execute=execute,
+                          on_event=events.append, top_k=None, verbose=False)
+    assert out == "Added a water."
+    assert calls == [("add_water", {})]                      # our executor ran
+    kinds = [e["type"] for e in events]
+    assert "step" in kinds and kinds[-1] == "final"
+    step = next(e for e in events if e["type"] == "step")
+    assert step["tool"] == "add_water" and step["result"] == "did add_water"
+
+
+# --- socket client (loopback fake server) -----------------------------------
+
+def _recv_exactly(conn, n):
+    buf = b""
+    while len(buf) < n:
+        chunk = conn.recv(n - len(buf))
+        if not chunk:
+            break
+        buf += chunk
+    return buf
+
+
+def _fake_coot_server(responder):
+    """A one-shot loopback server framing like json-rpc.cc; returns its port."""
+    srv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    srv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    srv.bind(("127.0.0.1", 0))
+    srv.listen(1)
+    port = srv.getsockname()[1]
+
+    def run():
+        conn, _ = srv.accept()
+        (length,) = struct.unpack(">I", _recv_exactly(conn, 4))
+        request = json.loads(_recv_exactly(conn, length).decode("utf-8"))
+        payload = json.dumps(responder(request)).encode("utf-8")
+        conn.sendall(struct.pack(">I", len(payload)) + payload)
+        conn.close()
+        srv.close()
+
+    threading.Thread(target=run, daemon=True).start()
+    return port
+
+
+def test_socket_client_exec_python_returns_value():
+    from coot_commands.socket_client import CootSocketClient
+    seen = {}
+
+    def responder(req):
+        seen["req"] = req
+        return {"jsonrpc": "2.0", "id": str(req["id"]),
+                "result": {"value": "Centred on A/45"}}
+
+    port = _fake_coot_server(responder)
+    client = CootSocketClient(port=port)
+    assert client.exec_python("1 + 1") == "Centred on A/45"
+    assert seen["req"]["method"] == "python.exec"
+    assert seen["req"]["params"]["code"] == "1 + 1"
+    client.close()
+
+
+def test_socket_client_raises_on_server_error():
+    from coot_commands.socket_client import CootSocketClient, CootSocketError
+    port = _fake_coot_server(
+        lambda req: {"jsonrpc": "2.0", "id": str(req["id"]),
+                     "error": {"code": -32001, "message": "boom"}})
+    client = CootSocketClient(port=port)
+    try:
+        client.exec_python("bad")
+        assert False, "expected CootSocketError"
+    except CootSocketError as e:
+        assert "boom" in str(e)
+    client.close()
+
+
+def test_socket_executor_builds_execute_tool_call():
+    from coot_commands.socket_client import CootSocketClient, make_socket_executor
+    seen = {}
+
+    def responder(req):
+        seen["code"] = req["params"]["code"]
+        return {"jsonrpc": "2.0", "id": str(req["id"]),
+                "result": {"value": "Centred on A/45 of model 0"}}
+
+    port = _fake_coot_server(responder)
+    execute = make_socket_executor(CootSocketClient(port=port))
+    result = execute("go_to_residue", {"chain": "A", "resno": "45"})
+    assert result == "Centred on A/45 of model 0"
+    # The generated code invokes execute_tool with the name and JSON args.
+    assert "execute_tool" in seen["code"]
+    assert "go_to_residue" in seen["code"]
+    assert '"chain": "A"' in seen["code"] or "'chain': 'A'" in seen["code"]
+
+
+# --- agent_serve event loop -------------------------------------------------
+
+def test_agent_serve_streams_events_per_request(monkeypatch=None):
+    from coot_commands import agent_serve
+
+    # Stub run_agent so the serve loop is tested without a model: it drives one
+    # tool call through the injected executor and emits step/final events.
+    def fake_run_agent(text, *, messages, execute, on_event, verbose):
+        on_event({"type": "step", "tool": "load_tutorial", "args": {},
+                  "result": execute("load_tutorial", {})})
+        on_event({"type": "final", "text": "done: " + text})
+
+    orig = agent_serve.run_agent
+    agent_serve.run_agent = fake_run_agent
+
+    class FakeClient:
+        def exec_python(self, code):
+            return "Loaded the tutorial model and data"
+
+        def close(self):
+            pass
+
+    try:
+        stdin = io.StringIO('{"text": "load tutorial"}\n')
+        stdout = io.StringIO()
+        agent_serve.serve(stdin, stdout, client=FakeClient(), startup_status=False)
+    finally:
+        agent_serve.run_agent = orig
+
+    events = [json.loads(line) for line in stdout.getvalue().splitlines()]
+    kinds = [e["type"] for e in events]
+    assert kinds[0] == "ready"
+    assert "step" in kinds
+    assert any(e["type"] == "final" and e["text"] == "done: load tutorial"
+               for e in events)
+    assert any(e["type"] == "context" and "approx_tokens" in e for e in events)
+    assert kinds[-1] == "done"
+
+
+# --- custom (context) tools -------------------------------------------------
+
+def test_custom_tools_are_registered_and_schematised():
+    from coot_commands.tools import custom_tools
+    names = [t["function"]["name"] for t in custom_tools()]
+    assert "get_active_residue" in names
+    for tool in custom_tools():
+        assert tool["type"] == "function"
+        assert tool["function"]["description"]
+
+
+def test_execute_tool_dispatches_to_custom_tool():
+    from coot_commands import tools
+
+    @tools.custom_tool("unit_probe", "test probe",
+                       parameters={"type": "object",
+                                   "properties": {"x": {"type": "string"}}})
+    def _probe(x=None):
+        return f"probe:{x}"
+
+    try:
+        assert tools.execute_tool("unit_probe", {"x": "7"}) == "probe:7"
+        # Unknown/extra args are filtered out, not passed through as a TypeError.
+        assert tools.execute_tool("unit_probe", {"x": "7", "bogus": "9"}) == "probe:7"
+    finally:
+        tools._CUSTOM_TOOLS.pop("unit_probe", None)
+
+
+def test_get_active_residue_without_coot():
+    # Standalone (no coot) it reports the API is unavailable rather than raising.
+    from coot_commands.tools import execute_tool
+    out = execute_tool("get_active_residue", {})
+    assert "Coot API is not available" in out
+
+
+def test_agent_pins_custom_tools_even_with_no_commands():
+    captured = {}
+
+    def chat(messages, tools):
+        captured["tools"] = tools
+        return {"role": "assistant", "content": "ok"}
+
+    from coot_commands.tools import custom_tools
+    agent.run_agent("do nothing", chat=chat, tools=None, top_k=None, verbose=False)
+    names = [t["function"]["name"] for t in captured["tools"]]
+    for custom in custom_tools():
+        assert custom["function"]["name"] in names
+
+
+def test_run_agent_threads_conversation_across_calls():
+    conversation = []
+    chat1 = _fake_chat_script({"role": "assistant", "content": "refined A 42"})
+    agent.run_agent("refine the worst residue", chat=chat1,
+                    messages=conversation, top_k=None, verbose=False)
+    # The running conversation retains system + this turn.
+    assert [m["role"] for m in conversation] == ["system", "user", "assistant"]
+
+    chat2 = _fake_chat_script({"role": "assistant", "content": "ok"})
+    agent.run_agent("focus on the residue you just refined", chat=chat2,
+                    messages=conversation, top_k=None, verbose=False)
+    # The second call sees the first turn's history (that's the memory).
+    seen = chat2.state["seen"][0][0]
+    contents = [m.get("content") for m in seen]
+    assert "refine the worst residue" in contents
+    assert "refined A 42" in contents
+    assert "focus on the residue you just refined" in contents
+
+
+def test_agent_serve_threads_conversation_and_reset():
+    from coot_commands import agent_serve
+    snapshots = []
+
+    def fake_run_agent(text, *, messages, execute, on_event, verbose):
+        snapshots.append(list(messages))          # history coming into this turn
+        messages.append({"role": "user", "content": text})
+        messages.append({"role": "assistant", "content": "ok:" + text})
+        on_event({"type": "final", "text": "ok:" + text})
+
+    class FakeClient:
+        def exec_python(self, code):
+            return "x"
+
+        def close(self):
+            pass
+
+    orig = agent_serve.run_agent
+    agent_serve.run_agent = fake_run_agent
+    try:
+        stdin = io.StringIO('{"text": "first"}\n{"text": "second"}\n'
+                            '{"reset": true}\n{"text": "third"}\n')
+        stdout = io.StringIO()
+        agent_serve.serve(stdin, stdout, client=FakeClient(), startup_status=False)
+    finally:
+        agent_serve.run_agent = orig
+
+    assert snapshots[0] == []                                   # first: no history
+    assert any(m.get("content") == "first" for m in snapshots[1])  # second sees first
+    assert snapshots[2] == []                                   # after reset: cleared
+    events = [json.loads(line) for line in stdout.getvalue().splitlines()]
+    assert any(e["type"] == "reset" for e in events)
+
+
+def test_agent_serve_emits_startup_status():
+    from coot_commands import agent_serve
+
+    class FakeClient:
+        def connect(self):
+            pass          # RPC reachable
+
+        def exec_python(self, code):
+            return "x"
+
+        def close(self):
+            pass
+
+    orig_probe = agent_serve._probe_ollama
+    agent_serve._probe_ollama = lambda timeout=2.0: (True, "")
+    try:
+        stdout = io.StringIO()
+        agent_serve.serve(io.StringIO(""), stdout, client=FakeClient(),
+                          startup_status=True)
+    finally:
+        agent_serve._probe_ollama = orig_probe
+
+    events = [json.loads(line) for line in stdout.getvalue().splitlines()]
+    status = [e for e in events if e["type"] == "status"]
+    assert status, "expected a status event"
+    assert status[0]["rpc"] is True
+    assert status[0]["ollama"] is True
+    assert "model" in status[0]
+
+
+def test_agent_serve_startup_status_reports_rpc_failure():
+    from coot_commands import agent_serve
+
+    class DeadClient:
+        def connect(self):
+            raise RuntimeError("connection refused")
+
+        def close(self):
+            pass
+
+    orig_probe = agent_serve._probe_ollama
+    agent_serve._probe_ollama = lambda timeout=2.0: (False, "no server")
+    try:
+        stdout = io.StringIO()
+        agent_serve.serve(io.StringIO(""), stdout, client=DeadClient(),
+                          startup_status=True)
+    finally:
+        agent_serve._probe_ollama = orig_probe
+
+    status = [json.loads(l) for l in stdout.getvalue().splitlines()
+              if json.loads(l)["type"] == "status"][0]
+    assert status["rpc"] is False and "refused" in status["rpc_detail"]
+    assert status["ollama"] is False
 
 
 def _run():

@@ -662,7 +662,8 @@ create_vte_terminal_with_style() {
 
 // When the user switches notebook tab directly (rather than via the Py/AI buttons),
 // make sure the terminal for that tab has its child process running. Both spawn
-// functions are idempotent.
+// functions are idempotent. The Assistant tab does NOT auto-start anything: start
+// the JSON-RPC listener yourself (Coot's remote-control menu), then use the tab.
 static void
 on_vte_notebook_switch_page(GtkNotebook *notebook, GtkWidget *page, guint page_num, gpointer user_data) {
    if (page_num == 0)
@@ -872,6 +873,370 @@ static GtkWidget *create_command_tab_widget() {
    return box;
 }
 
+// ---------------------------------------------------------------------------
+//   "Assistant" tab - a local-model agent that drives Coot
+// ---------------------------------------------------------------------------
+//
+// Unlike the Command tab (instant, deterministic regex dispatch), the Assistant
+// tab hands a natural-language request to a small local language model that
+// plans a sequence of Coot commands to fulfil it. Those model calls are slow,
+// so the agent runs as a SEPARATE process (python3 -m coot_commands.agent_serve)
+// and we drive it over stdin/stdout:
+//   - a request is written as one JSON line: {"text": "..."}
+//   - the agent streams back newline-delimited JSON events
+//     (ready/tools/step/final/error/done) that we render into the transcript.
+// The agent executes each planned command back in THIS Coot over the JSON-RPC
+// socket (json-rpc.cc), which runs it on this main thread - so the GUI never
+// blocks on the model and command execution is never racy.
+
+static GtkWidget *assistant_output_view = nullptr;
+static GtkWidget *assistant_entry_widget = nullptr;
+static GtkWidget *assistant_context_label = nullptr;
+static GtkWidget *assistant_status_label = nullptr;
+static GtkWidget *assistant_spinner = nullptr;
+static GSubprocess *assistant_process = nullptr;
+static GDataInputStream *assistant_stdout = nullptr;
+
+// Show/hide the "thinking" spinner while the model works on a request.
+static void assistant_set_thinking(bool thinking) {
+   if (!assistant_spinner) return;
+   gtk_widget_set_visible(assistant_spinner, thinking);
+   if (thinking) gtk_spinner_start(GTK_SPINNER(assistant_spinner));
+   else          gtk_spinner_stop(GTK_SPINNER(assistant_spinner));
+}
+
+static void assistant_output_append(const std::string &text) {
+
+   if (!assistant_output_view) return;
+   GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(assistant_output_view));
+   GtkTextIter end;
+   gtk_text_buffer_get_end_iter(buffer, &end);
+   gtk_text_buffer_insert(buffer, &end, text.c_str(), -1);
+
+   gtk_text_buffer_get_end_iter(buffer, &end);
+   GtkTextMark *mark = gtk_text_buffer_create_mark(buffer, nullptr, &end, FALSE);
+   gtk_text_view_scroll_mark_onscreen(GTK_TEXT_VIEW(assistant_output_view), mark);
+   gtk_text_buffer_delete_mark(buffer, mark);
+}
+
+// Render one streamed JSON event line into the transcript.
+static void assistant_handle_event(const std::string &line) {
+
+   json ev;
+   try {
+      ev = json::parse(line);
+   } catch (...) {
+      return; // ignore any non-JSON noise on stdout
+   }
+   std::string type = ev.value("type", "");
+
+   if (type == "step") {
+      std::string tool = ev.value("tool", "");
+      std::string result = ev.value("result", "");
+      std::string args_str;
+      if (ev.contains("args") && ev["args"].is_object()) {
+         bool first = true;
+         for (auto it = ev["args"].begin(); it != ev["args"].end(); ++it) {
+            if (!first) args_str += ", ";
+            first = false;
+            const json &v = it.value();
+            args_str += it.key() + "=" + (v.is_string() ? v.get<std::string>() : v.dump());
+         }
+      }
+      assistant_output_append("  \xE2\x86\x92 " + tool + "(" + args_str + "): " + result + "\n");
+   } else if (type == "final") {
+      assistant_output_append("\n" + ev.value("text", "") + "\n");
+   } else if (type == "error") {
+      assistant_output_append("Error: " + ev.value("message", "") + "\n");
+   } else if (type == "context") {
+      // Update the "how full is the context" indicator.
+      if (assistant_context_label) {
+         int n_msgs = ev.value("messages", 0);
+         int approx_tokens = ev.value("approx_tokens", 0);
+         char buf[128];
+         if (approx_tokens >= 1000)
+            g_snprintf(buf, sizeof(buf), "Context: %d msgs \xC2\xB7 ~%.1fk tokens",
+                       n_msgs, approx_tokens / 1000.0);
+         else
+            g_snprintf(buf, sizeof(buf), "Context: %d msgs \xC2\xB7 ~%d tokens",
+                       n_msgs, approx_tokens);
+         gtk_label_set_text(GTK_LABEL(assistant_context_label), buf);
+      }
+   } else if (type == "reset") {
+      if (assistant_context_label)
+         gtk_label_set_text(GTK_LABEL(assistant_context_label), "New conversation");
+   } else if (type == "ready") {
+      if (assistant_status_label)
+         gtk_label_set_text(GTK_LABEL(assistant_status_label),
+                            "Assistant starting\xE2\x80\xA6");
+   } else if (type == "status") {
+      // Readiness indicator: whether the model server and the RPC are reachable.
+      bool ollama = ev.value("ollama", false);
+      bool rpc = ev.value("rpc", false);
+      if (assistant_status_label) {
+         std::string model = ev.value("model", "?");
+         std::string s = "Model " + model + (ollama ? ": connected" : ": UNREACHABLE") +
+                         "   \xC2\xB7   RPC: " + (rpc ? "ready" : "NOT connected");
+         gtk_label_set_text(GTK_LABEL(assistant_status_label), s.c_str());
+      }
+      // Surface the underlying reason for a failure so it can be diagnosed.
+      if (!rpc && ev.contains("rpc_detail"))
+         assistant_output_append("RPC not connected: " +
+                                 ev.value("rpc_detail", "") + "\n");
+      if (!ollama && ev.contains("ollama_detail"))
+         assistant_output_append("Model server unreachable: " +
+                                 ev.value("ollama_detail", "") + "\n");
+   } else if (type == "done") {
+      assistant_set_thinking(false);
+      if (assistant_entry_widget) {
+         gtk_widget_set_sensitive(assistant_entry_widget, TRUE);
+         gtk_widget_grab_focus(assistant_entry_widget);
+      }
+   }
+   // "ready" and "tools" events are informational; we don't clutter the
+   // transcript with them.
+}
+
+static void assistant_read_line_cb(GObject *source, GAsyncResult *res, gpointer user_data);
+
+static void assistant_queue_read() {
+   if (assistant_stdout)
+      g_data_input_stream_read_line_async(assistant_stdout, G_PRIORITY_DEFAULT,
+                                          nullptr, assistant_read_line_cb, nullptr);
+}
+
+static void assistant_read_line_cb(GObject *source, GAsyncResult *res, gpointer user_data) {
+
+   GDataInputStream *stream = G_DATA_INPUT_STREAM(source);
+   gsize length = 0;
+   GError *error = nullptr;
+   char *line = g_data_input_stream_read_line_finish(stream, res, &length, &error);
+
+   if (error) {
+      g_warning("Assistant: stdout read error: %s", error->message);
+      g_error_free(error);
+      return;
+   }
+   if (!line) {
+      // EOF: the agent process exited. Reset so the next request respawns it.
+      if (assistant_process) {
+         assistant_output_append("\n[assistant process ended]\n");
+         g_object_unref(assistant_process);
+         assistant_process = nullptr;
+      }
+      assistant_stdout = nullptr; // freed when this async op drops its ref
+      assistant_set_thinking(false);
+      if (assistant_entry_widget)
+         gtk_widget_set_sensitive(assistant_entry_widget, TRUE);
+      return;
+   }
+
+   assistant_handle_event(std::string(line, length));
+   g_free(line);
+   assistant_queue_read();
+}
+
+// Ask the embedded interpreter where coot_commands lives, so the spawned
+// python3 can import it via PYTHONPATH regardless of install layout.
+static std::string assistant_pythonpath() {
+
+   std::string code =
+      "__import__('os').path.dirname(__import__('coot_commands').__path__[0])";
+   execute_python_results_container_t rc = execute_python_code_with_result_internal(code);
+   if (rc.result && PyUnicode_Check(rc.result)) {
+      const char *s = PyUnicode_AsUTF8(rc.result);
+      if (s) return std::string(s);
+   }
+   return "";
+}
+
+// The port the agent uses to reach Coot's JSON-RPC socket. We deliberately do
+// NOT start the listener from here - start it yourself from Coot's remote-control
+// menu, then use the Assistant. (Auto-starting it proved unreliable.)
+static int assistant_rpc_port() {
+   int port = graphics_info_t::remote_control_port_number;
+   return port == 0 ? 9090 : port;
+}
+
+static void spawn_assistant_process() {
+
+   if (assistant_process) return;
+
+   int port = assistant_rpc_port();
+
+   GSubprocessLauncher *launcher = g_subprocess_launcher_new(
+      (GSubprocessFlags)(G_SUBPROCESS_FLAGS_STDIN_PIPE | G_SUBPROCESS_FLAGS_STDOUT_PIPE));
+   g_subprocess_launcher_setenv(launcher, "COOT_RPC_PORT",
+                                std::to_string(port).c_str(), TRUE);
+   std::string ppath = assistant_pythonpath();
+   if (!ppath.empty()) {
+      const char *existing = g_getenv("PYTHONPATH");
+      std::string combined = existing ? (ppath + ":" + existing) : ppath;
+      g_subprocess_launcher_setenv(launcher, "PYTHONPATH", combined.c_str(), TRUE);
+   }
+
+   GError *error = nullptr;
+   assistant_process = g_subprocess_launcher_spawn(
+      launcher, &error,
+      "python3", "-u", "-m", "coot_commands.agent_serve", nullptr);
+   g_object_unref(launcher);
+
+   if (!assistant_process) {
+      assistant_output_append(std::string("Failed to start assistant: ") +
+                              (error ? error->message : "unknown error") + "\n");
+      if (error) g_error_free(error);
+      return;
+   }
+
+   GInputStream *out_pipe = g_subprocess_get_stdout_pipe(assistant_process);
+   assistant_stdout = g_data_input_stream_new(out_pipe);
+   assistant_queue_read();
+}
+
+// Write one JSON line to the running agent's stdin. Returns false if there is
+// no live process to write to (the caller decides whether to spawn one first).
+static bool assistant_write_line(const json &obj) {
+
+   if (!assistant_process) return false;
+   GOutputStream *in_pipe = g_subprocess_get_stdin_pipe(assistant_process);
+   if (!in_pipe) return false;
+
+   std::string line = obj.dump() + "\n";
+   GError *error = nullptr;
+   g_output_stream_write_all(in_pipe, line.c_str(), line.size(),
+                             nullptr, nullptr, &error);
+   if (error) {
+      assistant_output_append(std::string("Write error: ") + error->message + "\n");
+      g_error_free(error);
+      return false;
+   }
+   g_output_stream_flush(in_pipe, nullptr, nullptr);
+   return true;
+}
+
+static void assistant_send_request(const std::string &text) {
+
+   spawn_assistant_process();
+   json req;
+   req["text"] = text;
+   assistant_write_line(req);
+}
+
+static void on_assistant_entry_activate(GtkEntry *entry, gpointer user_data) {
+
+   const char *text = gtk_editable_get_text(GTK_EDITABLE(entry));
+   if (!text) return;
+   std::string input(text);
+   if (input.find_first_not_of(" \t") == std::string::npos) return; // blank line
+
+   assistant_output_append("> " + input + "\n");
+   // Disable input until the agent signals "done", so requests don't overlap,
+   // and show the thinking spinner while the model works.
+   gtk_widget_set_sensitive(GTK_WIDGET(entry), FALSE);
+   assistant_send_request(input);
+   assistant_set_thinking(true);
+   gtk_editable_set_text(GTK_EDITABLE(entry), "");
+}
+
+static void on_assistant_new_chat_clicked(GtkButton *button, gpointer user_data) {
+
+   // Clear the transcript locally for immediate feedback...
+   if (assistant_output_view) {
+      GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(assistant_output_view));
+      gtk_text_buffer_set_text(buffer, "", -1);
+   }
+   if (assistant_context_label)
+      gtk_label_set_text(GTK_LABEL(assistant_context_label), "New conversation");
+   // ...and tell a running agent to drop its conversation memory. If none is
+   // running, the next request spawns a fresh one (which starts empty anyway).
+   json reset;
+   reset["reset"] = true;
+   assistant_write_line(reset);
+   if (assistant_entry_widget)
+      gtk_widget_grab_focus(assistant_entry_widget);
+}
+
+static void on_assistant_stop_clicked(GtkButton *button, gpointer user_data) {
+
+   if (assistant_process) {
+      g_subprocess_force_exit(assistant_process);
+      g_object_unref(assistant_process);
+      assistant_process = nullptr;
+      assistant_stdout = nullptr;
+      assistant_output_append("\n[stopped]\n");
+   }
+   assistant_set_thinking(false);
+   if (assistant_entry_widget)
+      gtk_widget_set_sensitive(assistant_entry_widget, TRUE);
+}
+
+static GtkWidget *create_assistant_tab_widget() {
+
+   GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
+
+   GtkWidget *scrolled = gtk_scrolled_window_new();
+   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled),
+                                  GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+   gtk_widget_set_vexpand(scrolled, TRUE);
+
+   assistant_output_view = gtk_text_view_new();
+   gtk_text_view_set_editable(GTK_TEXT_VIEW(assistant_output_view), FALSE);
+   gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(assistant_output_view), FALSE);
+   gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(assistant_output_view), GTK_WRAP_WORD_CHAR);
+   gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled), assistant_output_view);
+
+   GtkWidget *row = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
+   assistant_entry_widget = gtk_entry_new();
+   gtk_widget_set_hexpand(assistant_entry_widget, TRUE);
+   gtk_entry_set_placeholder_text(GTK_ENTRY(assistant_entry_widget),
+      "Ask the assistant, e.g. \"load the tutorial data and refine A 89\"");
+   g_signal_connect(assistant_entry_widget, "activate",
+                    G_CALLBACK(on_assistant_entry_activate), nullptr);
+
+   GtkWidget *new_chat_button = gtk_button_new_with_label("New chat");
+   g_signal_connect(new_chat_button, "clicked",
+                    G_CALLBACK(on_assistant_new_chat_clicked), nullptr);
+
+   GtkWidget *stop_button = gtk_button_new_with_label("Stop");
+   g_signal_connect(stop_button, "clicked",
+                    G_CALLBACK(on_assistant_stop_clicked), nullptr);
+
+   // "Thinking" spinner, hidden until a request is in flight.
+   assistant_spinner = gtk_spinner_new();
+   gtk_widget_set_visible(assistant_spinner, FALSE);
+
+   gtk_box_append(GTK_BOX(row), assistant_entry_widget);
+   gtk_box_append(GTK_BOX(row), assistant_spinner);
+   gtk_box_append(GTK_BOX(row), new_chat_button);
+   gtk_box_append(GTK_BOX(row), stop_button);
+
+   // A readiness line (model + RPC status) and a context-usage line, both dim.
+   assistant_status_label = gtk_label_new("");
+   gtk_widget_set_halign(assistant_status_label, GTK_ALIGN_START);
+   gtk_widget_add_css_class(assistant_status_label, "dim-label");
+
+   assistant_context_label = gtk_label_new("New conversation");
+   gtk_widget_set_halign(assistant_context_label, GTK_ALIGN_START);
+   gtk_widget_add_css_class(assistant_context_label, "dim-label");
+
+   gtk_box_append(GTK_BOX(box), scrolled);
+   gtk_box_append(GTK_BOX(box), assistant_status_label);
+   gtk_box_append(GTK_BOX(box), row);
+   gtk_box_append(GTK_BOX(box), assistant_context_label);
+
+   assistant_output_append(
+      "Coot Assistant [alpha] (local model).\n"
+      "Start the JSON-RPC listener yourself from Coot's remote-control menu,\n"
+      "then type a request, e.g. \"refine A 89 and pepflip A 32\".\n");
+   gtk_label_set_text(GTK_LABEL(assistant_status_label),
+                      "Start the RPC listener from the menu, then send a request.");
+
+   // Nothing is auto-started here: the agent process is spawned on the first
+   // request (assistant_send_request), and it connects to the JSON-RPC listener
+   // that you start yourself. Auto-starting the listener proved unreliable.
+   return box;
+}
+
 void setup_claude_vte_terminal() {
 
    // Set up lazily and only once. Doing this at startup reparented the Python VTE
@@ -931,6 +1296,11 @@ void setup_claude_vte_terminal() {
    GtkWidget *command_widget = create_command_tab_widget();
    GtkWidget *cmd_label = gtk_label_new("Command");
    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), command_widget, cmd_label);
+
+   // Add the local-model Assistant tab (alpha)
+   GtkWidget *assistant_widget = create_assistant_tab_widget();
+   GtkWidget *assistant_label = gtk_label_new("Assistant (alpha)");
+   gtk_notebook_append_page(GTK_NOTEBOOK(notebook), assistant_widget, assistant_label);
 
    // Put the notebook into the paned
    gtk_paned_set_end_child(GTK_PANED(vte_paned_widget), notebook);

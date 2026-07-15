@@ -27,7 +27,8 @@ from typing import Optional
 
 from coot_commands.registry import command
 from coot_commands.types import (RES_SPEC, OPT_RES_SPEC, resolve_residue,
-                                 ArgType, CommandError, ACTIVE_RESIDUE_NOTE)
+                                 ArgType, CommandError, centre_on_residue,
+                                 ACTIVE_RESIDUE_NOTE)
 
 try:
     import coot
@@ -191,5 +192,6 @@ def pepflip_residue(chain: Optional[str] = None, resno: Optional[str] = None,
     """Flip the peptide following a residue."""
     imol, chain_id, res, ins = resolve_residue(chain, resno, model)
     if coot is not None:
+        centre_on_residue(imol, chain_id, res, ins)  # show it before flipping
         coot.pepflip(imol, chain_id, res, ins, "")
     return f"Flipped the peptide at {chain_id}/{res} of model {imol}"
