@@ -776,13 +776,10 @@ Mesh::delete_gl_buffers() {
 
 
    if (false)
-      // std::cout << "INFO:: Mesh::delete_gl_buffers() called for mesh \"" << name << "\""
-      //           << " with vao " << vao << std::endl;
       logger.log(log_t::INFO, "Mesh::delete_gl_buffers() called for mesh", name, "with vao", vao);
 
    if (vao == VAO_NOT_SET) {
-      std::cout << "ERROR:: Mesh::delete_gl_buffers() called without the VAO set for mesh \""
-                << name << "\"" << std::endl;
+      // nothing was set
    } else {
       glBindVertexArray(vao);
       if (buffer_id != 0) { // 0 is not valid
@@ -793,12 +790,15 @@ Mesh::delete_gl_buffers() {
          buffer_id = 0;
       }
       glDeleteBuffers(1, &index_buffer_id);
+      index_buffer_id = 0;
 
       if (is_instanced) {
          glDeleteBuffers(1, &inst_model_translation_buffer_id);
          glDeleteBuffers(1, &inst_colour_buffer_id);
-         if (is_instanced_with_rts_matrix)
+         if (is_instanced_with_rts_matrix) {
             glDeleteBuffers(1, &inst_rts_buffer_id);
+            inst_rts_buffer_id = 0;
+         }
       }
       glDeleteVertexArrays(1, &vao);
       vao = VAO_NOT_SET;
@@ -867,6 +867,9 @@ Mesh::setup_buffers() {
    } else {
       // std::cout << "DEBUG:: Mesh::setup_buffers() ######### not first time \"" << name << "\" using VAO " << vao << std::endl;
    }
+
+   if (false)
+      std::cout << "debug:: in Mesh setup_buffers() name: " << name << " vao is " << vao << std::endl;
 
    // 20220304-PE wondering why binding of this VAO fails? It's because you forgot to setup_buffers()
    // before making new geometry. (Hopefully I will never read this again)

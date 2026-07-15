@@ -41,6 +41,7 @@
 #include "graphics-info.h"
 #include "create-menu-item-actions.hh"
 #include "setup-gui-components.hh"
+#include "vte.hh"
 #include "coot-setup-python.hh"
 #include "utils/coot-utils.hh"
 #include "command-line.hh"
@@ -110,8 +111,22 @@ void init_framebuffers(GtkWidget *glarea) {
 #include "stringify-error-code.hh"
 // from c-inteerface.cc
 
+// this is for debugging - remove when startup_realize problem is fixed.
+#include <utils/backward.hpp>
+
 void
 startup_realize(GtkWidget *gl_area) {
+
+#if 0
+   std::cout << "========================================================================" << std::endl;
+   std::cout << "                  startup_realize() " << std::endl;
+   std::cout << "========================================================================" << std::endl;
+
+   backward::StackTrace st;
+   backward::Printer p;
+   st.load_here(32);
+   p.print(st);
+#endif
 
    GdkDisplay *display = gdk_display_get_default();
    GListModel *lm = gdk_display_get_monitors(display);
@@ -254,9 +269,25 @@ startup_realize(GtkWidget *gl_area) {
 void
 startup_unrealize(GtkWidget *widget) {
 
+#if 0
+   std::cout << "=========================================================================" << std::endl;
+   std::cout << "               startup_unrealize() - OH NO!!!!" << std::endl;
+   std::cout << "=========================================================================" << std::endl;
+   backward::StackTrace st;
+   backward::Printer p;
+   st.load_here(128);
+   p.print(st);
+#endif
+
    gtk_gl_area_make_current (GTK_GL_AREA (widget));
    if (gtk_gl_area_get_error (GTK_GL_AREA (widget)) != NULL)
       return;
+
+   // The context is being torn down and will be re-realized with a fresh context.
+   // Reset the static meshes now, while this (old) context is still current, so they
+   // rebuild cleanly on the next realize instead of keeping stale VAO ids that could
+   // alias other meshes' VAOs in the new context.
+   graphics_info_t::reset_meshes_for_new_gl_context();
 
 }
 
@@ -1023,6 +1054,17 @@ startup_application_activate(GtkApplication *application,
       GtkWidget *graphics_hbox = widget_from_builder("main_window_graphics_hbox");
       GtkWidget *graphics_vbox = widget_from_builder("main_window_vbox");
       gtk_window_set_child(GTK_WINDOW(app_window), graphics_vbox);
+
+      // Set up the Python VTE terminal *before* presenting the window (and before the
+      // GL area is created and realized below). setup_python_vte_terminal() reparents
+      // main_window_graphics_overlay into a GtkPaned; doing that here, while the overlay
+      // is still unrealized, means the overlay and the GL area realize exactly once.
+      // When this ran later (from setup_gui_components(), after present) it pulled the
+      // overlay out of an already-realized tree, which destroyed and recreated the GL
+      // context and orphaned every mesh's VAO - crashing the HUD instanced draws.
+#ifdef HAVE_VTE
+      setup_python_vte_terminal();
+#endif
 
       gtk_window_present(GTK_WINDOW(app_window));
 

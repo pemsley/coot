@@ -146,6 +146,11 @@ public:
       normals_are_setup = false;
       // vao = VAO_NOT_SET;
    }
+   // use this when the GL context is unrealized/rerealized
+   void reset() {
+      clear(true);
+      first_time = true;
+   }
    bool empty() const { return (vertices.size() == 0); }
    void close();
    void set_is_headless(); // gets called when graphical::use_graphics_interface_flag is false
