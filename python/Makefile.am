@@ -56,6 +56,12 @@ nobase_dist_pkgpython_PYTHON = \
    coot_commands/types.py                     \
    coot_commands/gui.py                       \
    coot_commands/docs.py                      \
+   coot_commands/tools.py                     \
+   coot_commands/context_tools.py             \
+   coot_commands/agent.py                     \
+   coot_commands/retrieval.py                 \
+   coot_commands/socket_client.py             \
+   coot_commands/agent_serve.py               \
    coot_commands/new.py                       \
    coot_commands/try.py                       \
    coot_commands/commands/__init__.py         \
