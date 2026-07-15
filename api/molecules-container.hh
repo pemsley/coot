@@ -2873,7 +2873,7 @@ public:
    //! @return the Ramachandran plot restraints weight
    float get_rama_plot_restraints_weight() const { return rama_plot_restraints_weight; }
 
-   //! Turn on or off torsion restraints
+   //! Turn on or off torsion restraints in refinement
    //!
    //! @param state is True to mean that it is enabled
    void set_use_torsion_restraints(bool state) { use_torsion_restraints = state; }

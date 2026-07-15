@@ -95,7 +95,8 @@ std::string get_docstring_from_xml(const std::string& func_name) {
 
 std::filesystem::path this_library_dir() {
    Dl_info info;
-   if (dladdr(reinterpret_cast<void *>(&this_library_dir), &info) && info.dli_fname)
+   void * dl = reinterpret_cast<void *>(&this_library_dir);
+   if (dladdr(dl, &info) && info.dli_fname)
       return std::filesystem::canonical(info.dli_fname).parent_path();
    return {};
 }
