@@ -347,7 +347,6 @@ def new_molecule_by_smiles_string(tlc_text, smiles_text, force_libcheck=False):
 
         stub = comp_id + "-" + generator
         log_file_name = os.path.join(working_dir, stub + ".log")
-        print("::::::::: args", args)
         if generator == "acedrg":
             status = coot_utils.popen_command(generator, args, [], log_file_name, True,
                                    local_env=acedrg_env())
@@ -361,21 +360,24 @@ def new_molecule_by_smiles_string(tlc_text, smiles_text, force_libcheck=False):
             pdb_name = os.path.join(working_dir, stub + ".pdb")
             cif_name = os.path.join(working_dir, stub + ".cif")
 
-            print("************ calling coot.read_pdb()", pdb_name)
             imol = coot.read_pdb(pdb_name)
-            print("************ done call coot.read_pdb()", pdb_name)
             coot.read_cif_dictionary(cif_name)
             return imol
 
     def use_acedrg(three_letter_code):
+
         working_dir = coot_utils.get_directory("coot-acedrg")
-        stub = three_letter_code + "-acedrg"
-        smi_file_name = os.path.join(working_dir, stub + "-from-coot.smi")
-        coot_utils.save_string_to_file(smiles_text, smi_file_name, True)
-        dict_gen("acedrg",
-            three_letter_code,
-            ["-r", three_letter_code, "-i", smi_file_name, "-o", os.path.join(working_dir, stub)],
-            working_dir)
+        if working_dir:
+            stub = three_letter_code + "-acedrg"
+            smi_file_name = os.path.join(working_dir, stub + "-from-coot.smi")
+            coot_utils.save_string_to_file(smiles_text, smi_file_name, True)
+            dict_gen("acedrg",
+                three_letter_code,
+                ["-r", three_letter_code, "-i", smi_file_name, "-o", os.path.join(working_dir, stub)],
+                working_dir)
+            coot.get_monomer(three_letter_code)
+        else:
+            print("WARNING:: failed to get_directory() for coot-acedrg")
 
 
     # keep the legacy...
@@ -436,6 +438,9 @@ def new_molecule_by_smiles_string(tlc_text, smiles_text, force_libcheck=False):
         print("use_pyrogen()", three_letter_code, "use_mogul:", use_mogul)
 
         working_dir = coot_utils.get_directory("coot-pyrogen")
+        if not working_dir:
+            print("WARNING:: failed to get_directory() for coot-pyrogen")
+            return
         log_file_name = "pyrogen.log"  # in working_dir
 
         # Embed a test for mogul
@@ -506,9 +511,9 @@ def new_molecule_by_smiles_string(tlc_text, smiles_text, force_libcheck=False):
             print("****** Path C")
             use_pyrogen(three_letter_code)
         else:
-            print("****** Path D")
+            print("****** Path D-new")
             use_acedrg(three_letter_code)
-        print("****** Path E")
+        print("****** Path E-new")
 
     else:
         # invalid smiles length

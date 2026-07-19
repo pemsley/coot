@@ -31,6 +31,9 @@ o replace fragment. seems to be hanging when replacing a domain
 o fix this in cif parser:
   WARNING:: in init_refmac_mon_lib() unhandled category "_pdbx_chem_comp_synonyms" file: test-cifs/A1DIB.cif
 
+o make some CA models and write a script to convert that to
+  full model (without a map)
+
 o fix make_all_atom_overlaps for chapi
 
 o replace fragment. seems to be hanging when replacing a domain

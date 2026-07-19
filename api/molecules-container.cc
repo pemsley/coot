@@ -127,6 +127,11 @@ molecules_container_t::init() {
    // std::cout << "::::::::::::::::: sizeof molecules_container_t " << sss << std::endl;
 }
 
+void molecules_container_t::set_package_data_dir(const std::string &pdd) {
+   std::cout << "DEBUG:: in set_package_data_dir() pdd is " << pdd << std::endl;
+   coot::set_package_data_dir(pdd);
+}
+
 unsigned int
 molecules_container_t::get_max_number_of_simple_mesh_vertices() const {
    return max_number_of_simple_mesh_vertices;
@@ -6187,6 +6192,8 @@ molecules_container_t::get_computed_acedrg_atom_types(const std::string &compoun
          }
          delete mol;
       }
+   } else {
+      std::cout << "DEBUG:: no restraints found for compound_id: \"" << compound_id << "\" " << imol_enc << std::endl;
    }
 
    return v;

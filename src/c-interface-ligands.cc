@@ -4154,8 +4154,8 @@ void smiles_to_simple_3d(const std::string &smiles) {
    short int lang = coot::STATE_PYTHON;
    std::string tlc = "LIG";
    std::vector<coot::command_arg_t> args = { coot::command_arg_t(tlc), smiles };
-   std::string sc = g.state_command("generator_3d_import", "new_molecule_by_smiles_string", args, lang);
-   PyObject *r1 = safe_python_command_with_return("import generator_3d_import");
+   std::string sc = g.state_command("coot_generator_3d_import", "new_molecule_by_smiles_string", args, lang);
+   PyObject *r1 = safe_python_command_with_return("import coot_generator_3d_import");
    std::cout << "smiles_to_simple_3d(): r1: " << r1 << std::endl;
    std::cout << "smiles_to_simple_3d(): calling this: " << sc << std::endl;
    PyObject *r2 = safe_python_command_with_return(sc);

@@ -94,16 +94,21 @@ std::string get_docstring_from_xml(const std::string& func_name) {
 }
 
 std::filesystem::path this_library_dir() {
+
    Dl_info info;
-   void * dl = reinterpret_cast<void *>(&this_library_dir);
-   if (dladdr(dl, &info) && info.dli_fname)
+   void *ll = reinterpret_cast<void *>(&this_library_dir);
+   if (dladdr(ll, &info) && info.dli_fname) {
+      // std::cout << "DEBUG:: this_library_dir(): PATH A" << std::endl;
       return std::filesystem::canonical(info.dli_fname).parent_path();
+   }
+
+   std::cout << "DEBUG:: PATH this_library_dir(): B" << std::endl;
    return {};
 }
 
 void other_setup_code() {
 
-   std::filesystem::path lib_dir = this_library_dir();
+   // std::filesystem::path lib_dir = this_library_dir();
    // std::cout << "DEBUG:: in other_setup_code(): lib_dir is " << lib_dir.string() << std::endl;
    // coot::set_package_data_dir(lib_dir.string());
 

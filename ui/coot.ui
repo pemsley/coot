@@ -113,7 +113,7 @@
       </section>
       <section>
         <item>
-          <attribute name="label">Start RCP Server...</attribute>
+          <attribute name="label">Start RPC Server...</attribute>
           <attribute name="action">app.start_rpc_server_action</attribute>
         </item>
       </section>
