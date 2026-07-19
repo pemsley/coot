@@ -3,6 +3,11 @@
 o "Send to CCP4i2" button replaces "Generate Restraints"
   with command line option to layla.
 
+o look at 5moo - colour by chain ligand WOT
+
+o FAQ 4.1 “How does it look when Coot starts properly?”(  http://www.ysbl.york.ac.uk/%7Eemsley/coot/coot-startup.log )
+  the page was not found.
+
 o ldaddr (?) for chapi to find its files on relocatable binaries.
   metals and inchikey db.
 
