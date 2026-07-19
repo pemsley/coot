@@ -4908,6 +4908,7 @@ graphics_info_t::fill_rotamer_selection_buttons(GtkWidget *dialog, mmdb::Atom *a
    GtkWidget *rotamer_selection_dialog = dialog;
    // GtkWidget *rotamer_selection_button_vbox = lookup_widget(window, "rotamer_selection_button_vbox");
    GtkWidget *rotamer_selection_button_vbox = widget_from_builder("rotamer_selection_button_vbox");
+   clear_out_container(rotamer_selection_button_vbox);
    std::string alt_conf = active_atom->altLoc;
    mmdb::Residue *residue = active_atom->residue;
 
