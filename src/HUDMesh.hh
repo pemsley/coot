@@ -138,6 +138,8 @@ public:
 };
 
 class HUDMesh {
+
+   enum { VAO_NOT_SET = 99999999 };
    void setup_buffers();
    void init();
    bool first_time;
@@ -151,6 +153,7 @@ class HUDMesh {
    glm::vec2 offset_position;
    glm::vec2 window_resize_scales_correction;
    glm::vec2 window_resize_position_correction;
+   void delete_gl_buffers();
 
 public:
    GLuint vao;
@@ -190,6 +193,14 @@ public:
 
    void draw(Shader *shader);
    void close() { this_mesh_is_closed = true; }
+   // use this when the GL context is unrealized/rerealized
+   void reset() {
+      delete_gl_buffers();
+      first_time = true;
+      vertices.clear();
+      shades.clear();
+      triangles.clear();
+   }
 
 };
 

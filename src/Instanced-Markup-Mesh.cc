@@ -43,6 +43,9 @@ Instanced_Markup_Mesh::init() {
    draw_this_mesh = true;
    this_mesh_is_closed = false;
    vao = VAO_NOT_SET;
+   buffer_id = 0;
+   index_buffer_id = 0;
+   inst_attribs_buffer_id = 0;
 }
 
 void
@@ -55,6 +58,30 @@ Instanced_Markup_Mesh::clear() {
 
    // the buffers will be reset (deleted, created) on the setup_octasphere() and setup_instancing_buffers()
 
+}
+
+void
+Instanced_Markup_Mesh::delete_gl_buffers() {
+
+   // Frees the GL objects and resets the ids so the next setup_octasphere()/
+   // setup_instancing_buffers() regenerates them in the (new) context. Call only
+   // while the GL context is current - e.g. from the "unrealize" handler.
+
+   if (vao == VAO_NOT_SET) {
+      // nothing was stored
+   } else {
+      glBindVertexArray(vao);
+      if (buffer_id != 0)              glDeleteBuffers(1, &buffer_id);
+      if (index_buffer_id != 0)        glDeleteBuffers(1, &index_buffer_id);
+      if (inst_attribs_buffer_id != 0) glDeleteBuffers(1, &inst_attribs_buffer_id);
+      glDeleteVertexArrays(1, &vao);
+      vao = VAO_NOT_SET;
+      buffer_id = 0;
+      index_buffer_id = 0;
+      inst_attribs_buffer_id = 0;
+      n_instances = 0;
+      max_n_instances = 0;
+   }
 }
 
 void

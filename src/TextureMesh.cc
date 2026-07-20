@@ -147,6 +147,31 @@ TextureMesh::_(int err) {
 }
 
 void
+TextureMesh::delete_gl_buffers() {
+
+   // Frees the GL objects and resets the ids so a subsequent setup_buffers()/
+   // setup_instancing_buffers() creates fresh ones in the (new) context. Call only
+   // while the GL context is current - e.g. from the "unrealize" handler.
+
+   if (vao == VAO_NOT_SET) {
+      // nothing was stored
+   } else {
+      glBindVertexArray(vao);
+      if (buffer_id != 0)                 glDeleteBuffers(1, &buffer_id);
+      if (index_buffer_id != VAO_NOT_SET) glDeleteBuffers(1, &index_buffer_id);
+      if (is_instanced)                   glDeleteBuffers(1, &inst_positions_id);
+      glDeleteVertexArrays(1, &vao);
+      vao = VAO_NOT_SET;
+      buffer_id = 0;
+      index_buffer_id = VAO_NOT_SET;
+      inst_positions_id = -1;
+      is_instanced = false;
+      n_instances = 0;
+      n_instances_allocated = 0;
+   }
+}
+
+void
 TextureMesh::setup_buffers() {
 
    GLenum err = glGetError();

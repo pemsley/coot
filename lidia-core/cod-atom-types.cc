@@ -1101,7 +1101,7 @@ cod::atom_types_t::get_period_group(const RDKit::Atom *at) const {
 // return 0 on failure
 //
 // (don't use this function if you can avoid it)
-// 
+//
 unsigned int
 cod::atom_types_t::make_hash_index(const RDKit::Atom *at) const {
 
@@ -1126,7 +1126,7 @@ cod::atom_types_t::make_hash_index(const RDKit::Atom *at, const cod::primes &pri
    unsigned int smallest_ring = get_smallest_ring_info(at);
    unsigned int hash_min_ring = 2;
    unsigned int ring_info = std::max(smallest_ring, hash_min_ring);
-   
+
    bool arom = at->getIsAromatic();
 
    std::vector<unsigned int> pr = primes.get_primes();
@@ -1144,10 +1144,10 @@ cod::atom_types_t::make_hash_index(const RDKit::Atom *at, const cod::primes &pri
 
       std::string name;
       at->getProp("name", name);
-      
+
       // std::cout << "   " << name << " " << pg.first << " "
       // << pg.second << " hash-index " << hash_value << std::endl;
-      
+
       std::cout << "   " << name << " ar: " << arom << " ri: " << ring_info
 		<< " degree: " <<  8 + deg
 		<< " per: "    << 16 + pg.first

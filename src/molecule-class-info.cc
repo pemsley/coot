@@ -7054,8 +7054,10 @@ molecule_class_info_t::close_yourself() {
       // delete [] diff_map_draw_vectors;
       // diff_map_draw_vectors = NULL;
 
-      clipper::Xmap<float> empty;
-      xmap = empty; // clear xmap
+      std::cout << ":::::::::::::::::::::::::::: was_xmap() replacing with empty  ====================="
+                << std::endl;
+
+      xmap = clipper::Xmap<float>(); // clear xmap
    }
 
    if (was_nxmap) {
@@ -7068,8 +7070,7 @@ molecule_class_info_t::close_yourself() {
 
       // delete [] diff_map_draw_vectors;
       // diff_map_draw_vectors = NULL;
-      clipper::NXmap<float> empty;
-      nxmap = empty; // clear nxmap
+      nxmap = clipper::NXmap<float>(); // clear nxmap
    }
 
    bonds_box.clear_up();

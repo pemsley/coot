@@ -92,6 +92,7 @@ class TextureMesh {
    unsigned int draw_count; // so that I can animate the happy faces depending on the draw_count
    unsigned int inst_positions_id;
    static std::string _(int err);
+   void delete_gl_buffers();
    std::chrono::time_point<std::chrono::system_clock>  time_constructed;
    bool do_animation;
    float animation_A; // amplitude
@@ -99,7 +100,7 @@ class TextureMesh {
    float animation_w; // frequency
 
 public:
-   TextureMesh() : vao(VAO_NOT_SET), index_buffer_id(VAO_NOT_SET), draw_this_mesh(true) {
+   TextureMesh() : vao(VAO_NOT_SET), buffer_id(0), index_buffer_id(VAO_NOT_SET), draw_this_mesh(true) {
       n_instances_allocated = 0;
       n_instances = 0;
       is_instanced = false;
@@ -111,7 +112,7 @@ public:
       set_animation_paramaters(0.05, 1.0, 1.0);
    }
    explicit TextureMesh(const std::string &n):
-      vao(VAO_NOT_SET), index_buffer_id(VAO_NOT_SET), name(n), draw_this_mesh(true) {
+      vao(VAO_NOT_SET), buffer_id(0), index_buffer_id(VAO_NOT_SET), name(n), draw_this_mesh(true) {
       n_instances_allocated = 0;
       n_instances = 0;
       is_instanced = false;
@@ -134,6 +135,13 @@ public:
    // but for the other sections they need to be offset so the layout looks pretty.
    void setup_tomo_quad(float x_scale, float y_scale, float x_offset, float y_offset,float z_pos, bool texture_x_y_swap_flag);
    void setup_buffers();
+   // use this when the GL context is unrealized/rerealized (must be called while
+   // the context is still current, e.g. from the GtkGLArea "unrealize" handler).
+   // TextureMesh has no first_time flag - setup_buffers() always regenerates - so
+   // this just frees the GL objects of the old context and resets the ids.
+   void reset() {
+      delete_gl_buffers();
+   }
    void set_colour(const glm::vec4 &col_in);
    void setup_instancing_buffers(unsigned int n_happy_faces_max); // setup the buffer, don't add data
    std::string get_name() const { return name; }

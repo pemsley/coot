@@ -1698,6 +1698,7 @@ Texture graphics_info_t::texture_for_anchored_atom_markers;
 std::vector<glm::vec3> graphics_info_t::anchored_atom_marker_texture_positions;
 
 HUDTextureMesh graphics_info_t::tmesh_for_hud_geometry_tooltip_label = HUDTextureMesh("tmesh-for-hud-geometry-tooltip-labels");
+HUDTextureMesh graphics_info_t::tmesh_for_hud_button_label = HUDTextureMesh("tmesh-for-hud-button-label");
 
 HUDTextureMesh graphics_info_t::tmesh_for_hud_refinement_dialog_arrow = HUDTextureMesh("tmesh-for-hud-refinement-dialog-arrow");
 Texture graphics_info_t::texture_for_hud_refinement_dialog_arrow;

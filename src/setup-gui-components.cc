@@ -565,7 +565,11 @@ void setup_gui_components() {
    setup_get_monomer();
    setup_accession_code_frame();
 #ifdef HAVE_VTE
-   setup_python_vte_terminal();
+   // setup_python_vte_terminal() is now called earlier, in startup_application_activate()
+   // just before gtk_window_present(), so that reparenting the graphics overlay into the
+   // VTE GtkPaned happens before the GL area is realized. Doing it here (after present)
+   // tore the overlay out of a realized tree and re-realized the GL context, orphaning
+   // every mesh's VAO. See startup.cc.
    // The Claude AI terminal is set up lazily (the first time the AI terminal is
    // shown) so that it does not reparent the Python VTE into a notebook at
    // startup - doing that here broke the Python terminal. See setup_claude_vte_terminal().

@@ -751,14 +751,14 @@ Mesh::setup_debugging_instancing_buffers() {
 
    glGenBuffers(1, &inst_colour_buffer_id);
    glBindBuffer(GL_ARRAY_BUFFER, inst_colour_buffer_id);
-   glBufferData(GL_ARRAY_BUFFER, n_instances * sizeof(glm::vec4), &(inst_col_matrices[0]), GL_STATIC_DRAW);
+   glBufferData(GL_ARRAY_BUFFER, n_instances * sizeof(glm::vec4), inst_col_matrices.data(), GL_STATIC_DRAW);
    glEnableVertexAttribArray(2);
    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), 0);
    glVertexAttribDivisor(2, 1);
 
    glGenBuffers(1, &inst_model_translation_buffer_id);
    glBindBuffer(GL_ARRAY_BUFFER, inst_model_translation_buffer_id);
-   glBufferData(GL_ARRAY_BUFFER, n_instances * sizeof (glm::vec3), &(inst_trans_matrices[0]), GL_STATIC_DRAW);
+   glBufferData(GL_ARRAY_BUFFER, n_instances * sizeof (glm::vec3), inst_trans_matrices.data(), GL_STATIC_DRAW);
    glEnableVertexAttribArray(3);
    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0);
    glVertexAttribDivisor(3, 1);
@@ -776,13 +776,10 @@ Mesh::delete_gl_buffers() {
 
 
    if (false)
-      // std::cout << "INFO:: Mesh::delete_gl_buffers() called for mesh \"" << name << "\""
-      //           << " with vao " << vao << std::endl;
       logger.log(log_t::INFO, "Mesh::delete_gl_buffers() called for mesh", name, "with vao", vao);
 
    if (vao == VAO_NOT_SET) {
-      std::cout << "ERROR:: Mesh::delete_gl_buffers() called without the VAO set for mesh \""
-                << name << "\"" << std::endl;
+      // nothing was set
    } else {
       glBindVertexArray(vao);
       if (buffer_id != 0) { // 0 is not valid
@@ -793,12 +790,15 @@ Mesh::delete_gl_buffers() {
          buffer_id = 0;
       }
       glDeleteBuffers(1, &index_buffer_id);
+      index_buffer_id = 0;
 
       if (is_instanced) {
          glDeleteBuffers(1, &inst_model_translation_buffer_id);
          glDeleteBuffers(1, &inst_colour_buffer_id);
-         if (is_instanced_with_rts_matrix)
+         if (is_instanced_with_rts_matrix) {
             glDeleteBuffers(1, &inst_rts_buffer_id);
+            inst_rts_buffer_id = 0;
+         }
       }
       glDeleteVertexArrays(1, &vao);
       vao = VAO_NOT_SET;
@@ -867,6 +867,9 @@ Mesh::setup_buffers() {
    } else {
       // std::cout << "DEBUG:: Mesh::setup_buffers() ######### not first time \"" << name << "\" using VAO " << vao << std::endl;
    }
+
+   if (false)
+      std::cout << "debug:: in Mesh setup_buffers() name: " << name << " vao is " << vao << std::endl;
 
    // 20220304-PE wondering why binding of this VAO fails? It's because you forgot to setup_buffers()
    // before making new geometry. (Hopefully I will never read this again)
@@ -1308,7 +1311,7 @@ Mesh::setup_matrix_and_colour_instancing_buffers(const std::vector<glm::mat4> &m
    err = glGetError();
    if (err) std::cout << "error setup_matrix_and_colour_instancing_buffers() C0 "
                       << err << std::endl;
-   glBufferData(GL_ARRAY_BUFFER, n_instances * sizeof(glm::mat4), &(mats[0]), GL_DYNAMIC_DRAW);
+   glBufferData(GL_ARRAY_BUFFER, n_instances * sizeof(glm::mat4), mats.data(), GL_DYNAMIC_DRAW);
    if (err) std::cout << "error setup_matrix_and_colour_instancing_buffers() C1 " << err << std::endl;
 
    glEnableVertexAttribArray(3);
@@ -1339,7 +1342,7 @@ Mesh::setup_matrix_and_colour_instancing_buffers(const std::vector<glm::mat4> &m
    err = glGetError();
    if (err) std::cout << "error setup_matrix_and_colour_instancing_buffers() B0 "
                       << err << std::endl;
-   glBufferData(GL_ARRAY_BUFFER, n_instances * sizeof(glm::vec4), &(colours[0]), GL_DYNAMIC_DRAW);
+   glBufferData(GL_ARRAY_BUFFER, n_instances * sizeof(glm::vec4), colours.data(), GL_DYNAMIC_DRAW);
    glEnableVertexAttribArray(7);
    err = glGetError();
    if (err) std::cout << "error setup_matrix_and_colour_instancing_buffers() B1 "
@@ -1414,7 +1417,7 @@ Mesh::setup_matrix_and_colour_instancing_buffers_standard(const std::vector<glm:
    if (false)
       std::cout << "setup_matrix_and_colour_instancing_buffers_standard() allocating matrix buffer data "
                 << n_instances * 4 * sizeof(glm::mat4) << std::endl;
-   glBufferData(GL_ARRAY_BUFFER, n_instances * 4 * sizeof (glm::vec4), &(inst_rts_matrices[0]), GL_DYNAMIC_DRAW); // dynamic
+   glBufferData(GL_ARRAY_BUFFER, n_instances * 4 * sizeof (glm::vec4), inst_rts_matrices.data(), GL_DYNAMIC_DRAW); // dynamic
 
    err = glGetError(); if (err) std::cout << "GL ERROR:: setup_instancing_buffers() C1 " << err << std::endl;
    glEnableVertexAttribArray(3);
@@ -1447,7 +1450,7 @@ Mesh::setup_matrix_and_colour_instancing_buffers_standard(const std::vector<glm:
    if (false)
       std::cout << "setup_matrix_and_colour_instancing_buffers_old() allocating colour buffer data "
                 << n_instances * sizeof(glm::vec4) << std::endl;
-   glBufferData(GL_ARRAY_BUFFER, n_instances * sizeof(glm::vec4), &(inst_col_matrices[0]), GL_DYNAMIC_DRAW); // dynamic
+   glBufferData(GL_ARRAY_BUFFER, n_instances * sizeof(glm::vec4), inst_col_matrices.data(), GL_DYNAMIC_DRAW); // dynamic
    glEnableVertexAttribArray(7);
    err = glGetError();
    if (err) std::cout << "error setup_matrix_and_colour_instancing_buffers_standard() B1 "
@@ -1461,7 +1464,6 @@ Mesh::setup_matrix_and_colour_instancing_buffers_standard(const std::vector<glm:
    if (err) std::cout << "error setup_matrix_and_colour_instancing_buffers_standard() B3 "
                       << err << std::endl;
 
-   
 }
 
 

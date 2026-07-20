@@ -76,6 +76,25 @@ gl_rama_plot_t::clear() {
 
 }
 
+void
+gl_rama_plot_t::reset() {
+
+   // The GL context has been (or is about to be) re-realized. Reset the owned
+   // meshes so their VAOs/buffers are regenerated in the new context by the next
+   // setup_buffers(). Call this only while the (old) context is still current.
+
+   hud_tmesh_for_other_normal.reset();
+   hud_tmesh_for_other_outlier.reset();
+   hud_tmesh_for_pro_normal.reset();
+   hud_tmesh_for_pro_outlier.reset();
+   hud_tmesh_for_gly_normal.reset();
+   hud_tmesh_for_gly_outlier.reset();
+   hud_tmesh_for_global_distribution_non_gly_pro.reset();
+   hud_tmesh_for_global_distribution_pro.reset();
+   hud_tmesh_for_global_distribution_gly.reset();
+   hud_mesh_for_axes_and_ticks.reset();
+}
+
 bool
 gl_rama_plot_t::is_active() const {
 
@@ -787,7 +806,7 @@ gl_rama_plot_t::get_mouse_over_hit(double x_widget, double y_widget, int widget_
                                        glm::vec2 rpp_4a(rpp_3a.x/scales.x, rpp_3a.y/scales.y);
                                        glm::vec2 rpp_5a(rpp_4a.x/sf, rpp_4a.y/sf);
 
-                                       if (true)
+                                       if (false)
                                           std::cout << "debug:: window-pos-corr " << glm::to_string(window_resize_position_correction)
                                                     << " in " << x_widget << " " << y_widget
                                                     << " opengl " << x_opengl << " " << y_opengl << " "

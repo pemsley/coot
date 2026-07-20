@@ -1869,6 +1869,12 @@ void toggle_claude_ai_terminal() {
 #endif
 }
 
+void toggle_command_terminal() {
+#ifdef HAVE_VTE
+   toggle_command_vte_terminal_visibility();
+#endif
+}
+
 // We want to evaluate the string when we get a carriage return
 // in this entry widget
 void

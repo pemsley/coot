@@ -44,6 +44,7 @@ class LinesMesh {
    GLuint index_buffer_id;
    bool first_time;
    void init();
+   void delete_gl_buffers();
    void make_vertices_for_pulse(const glm::vec4 &colour, float radius,
                                 unsigned int n_rings,
                                 float theta_offset, bool broken_mode);
@@ -86,6 +87,12 @@ public:
    void draw(Shader *shader_p, const glm::vec3 &atom_position, const glm::mat4 &mvp,
              const glm::mat4 &view_rotation, bool use_view_rotation=false);
    void clear();
+   // use this when the GL context is unrealized/rerealized (must be called while
+   // the context is still current, e.g. from the GtkGLArea "unrealize" handler).
+   void reset() {
+      delete_gl_buffers();
+      first_time = true;
+   }
    bool empty() const { return (vertices.size() == 0); }
 };
 
