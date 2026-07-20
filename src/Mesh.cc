@@ -751,14 +751,14 @@ Mesh::setup_debugging_instancing_buffers() {
 
    glGenBuffers(1, &inst_colour_buffer_id);
    glBindBuffer(GL_ARRAY_BUFFER, inst_colour_buffer_id);
-   glBufferData(GL_ARRAY_BUFFER, n_instances * sizeof(glm::vec4), &(inst_col_matrices[0]), GL_STATIC_DRAW);
+   glBufferData(GL_ARRAY_BUFFER, n_instances * sizeof(glm::vec4), inst_col_matrices.data(), GL_STATIC_DRAW);
    glEnableVertexAttribArray(2);
    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), 0);
    glVertexAttribDivisor(2, 1);
 
    glGenBuffers(1, &inst_model_translation_buffer_id);
    glBindBuffer(GL_ARRAY_BUFFER, inst_model_translation_buffer_id);
-   glBufferData(GL_ARRAY_BUFFER, n_instances * sizeof (glm::vec3), &(inst_trans_matrices[0]), GL_STATIC_DRAW);
+   glBufferData(GL_ARRAY_BUFFER, n_instances * sizeof (glm::vec3), inst_trans_matrices.data(), GL_STATIC_DRAW);
    glEnableVertexAttribArray(3);
    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0);
    glVertexAttribDivisor(3, 1);
@@ -1311,7 +1311,7 @@ Mesh::setup_matrix_and_colour_instancing_buffers(const std::vector<glm::mat4> &m
    err = glGetError();
    if (err) std::cout << "error setup_matrix_and_colour_instancing_buffers() C0 "
                       << err << std::endl;
-   glBufferData(GL_ARRAY_BUFFER, n_instances * sizeof(glm::mat4), &(mats[0]), GL_DYNAMIC_DRAW);
+   glBufferData(GL_ARRAY_BUFFER, n_instances * sizeof(glm::mat4), mats.data(), GL_DYNAMIC_DRAW);
    if (err) std::cout << "error setup_matrix_and_colour_instancing_buffers() C1 " << err << std::endl;
 
    glEnableVertexAttribArray(3);
@@ -1342,7 +1342,7 @@ Mesh::setup_matrix_and_colour_instancing_buffers(const std::vector<glm::mat4> &m
    err = glGetError();
    if (err) std::cout << "error setup_matrix_and_colour_instancing_buffers() B0 "
                       << err << std::endl;
-   glBufferData(GL_ARRAY_BUFFER, n_instances * sizeof(glm::vec4), &(colours[0]), GL_DYNAMIC_DRAW);
+   glBufferData(GL_ARRAY_BUFFER, n_instances * sizeof(glm::vec4), colours.data(), GL_DYNAMIC_DRAW);
    glEnableVertexAttribArray(7);
    err = glGetError();
    if (err) std::cout << "error setup_matrix_and_colour_instancing_buffers() B1 "
@@ -1417,7 +1417,7 @@ Mesh::setup_matrix_and_colour_instancing_buffers_standard(const std::vector<glm:
    if (false)
       std::cout << "setup_matrix_and_colour_instancing_buffers_standard() allocating matrix buffer data "
                 << n_instances * 4 * sizeof(glm::mat4) << std::endl;
-   glBufferData(GL_ARRAY_BUFFER, n_instances * 4 * sizeof (glm::vec4), &(inst_rts_matrices[0]), GL_DYNAMIC_DRAW); // dynamic
+   glBufferData(GL_ARRAY_BUFFER, n_instances * 4 * sizeof (glm::vec4), inst_rts_matrices.data(), GL_DYNAMIC_DRAW); // dynamic
 
    err = glGetError(); if (err) std::cout << "GL ERROR:: setup_instancing_buffers() C1 " << err << std::endl;
    glEnableVertexAttribArray(3);
@@ -1450,7 +1450,7 @@ Mesh::setup_matrix_and_colour_instancing_buffers_standard(const std::vector<glm:
    if (false)
       std::cout << "setup_matrix_and_colour_instancing_buffers_old() allocating colour buffer data "
                 << n_instances * sizeof(glm::vec4) << std::endl;
-   glBufferData(GL_ARRAY_BUFFER, n_instances * sizeof(glm::vec4), &(inst_col_matrices[0]), GL_DYNAMIC_DRAW); // dynamic
+   glBufferData(GL_ARRAY_BUFFER, n_instances * sizeof(glm::vec4), inst_col_matrices.data(), GL_DYNAMIC_DRAW); // dynamic
    glEnableVertexAttribArray(7);
    err = glGetError();
    if (err) std::cout << "error setup_matrix_and_colour_instancing_buffers_standard() B1 "
@@ -1464,7 +1464,6 @@ Mesh::setup_matrix_and_colour_instancing_buffers_standard(const std::vector<glm:
    if (err) std::cout << "error setup_matrix_and_colour_instancing_buffers_standard() B3 "
                       << err << std::endl;
 
-   
 }
 
 
