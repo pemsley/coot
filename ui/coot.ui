@@ -6958,6 +6958,22 @@ Do you want to continue?
               </child>
 
               <child>
+                <object class="GtkButton" id="command_button">
+                  <property name="visible">True</property>
+                  <property name="can-focus">0</property>
+                  <signal name="clicked" handler="on_command_button_clicked" swapped="no"/>
+                  <property name="margin-start">2</property>
+                  <property name="halign">end</property>
+                  <property name="tooltip-text">Toggle natural-language command terminal</property>
+                  <child>
+                    <object class="GtkLabel">
+                      <property name="label" translatable="yes">CLI</property>
+                    </object>
+                  </child>
+                </object>
+              </child>
+
+              <child>
                 <object class="GtkButton" id="python_scripting_button">
                   <property name="can-focus">0</property>
                   <signal name="clicked" handler="on_python_scripting_button" swapped="no"/>
