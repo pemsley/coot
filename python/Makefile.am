@@ -52,12 +52,9 @@ nobase_dist_pkgpython_PYTHON = \
    coot_commands/__init__.py                  \
    coot_commands/registry.py                  \
    coot_commands/completion.py                \
-   coot_commands/speech.py                    \
    coot_commands/types.py                     \
    coot_commands/gui.py                       \
    coot_commands/docs.py                      \
-   coot_commands/new.py                       \
-   coot_commands/try.py                       \
    coot_commands/commands/__init__.py         \
    coot_commands/commands/delete.py           \
    coot_commands/commands/display.py          \

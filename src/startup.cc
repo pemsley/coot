@@ -1036,6 +1036,12 @@ startup_application_activate(GtkApplication *application,
       if (activate_data->cld.do_graphics)
          graphics_info.use_graphics_interface_flag = true;
 
+      if (activate_data->cld.show_command_terminal_button) {
+         GtkWidget *button = GTK_WIDGET(gtk_builder_get_object(builder, "command_terminal_button"));
+         if (button)
+            gtk_widget_set_visible(button, TRUE);
+      }
+
       // create the preference defaults
       make_preferences_internal();
 
