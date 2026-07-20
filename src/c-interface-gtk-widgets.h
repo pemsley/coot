@@ -495,6 +495,7 @@ void setup_guile_window_entry(GtkWidget *entry);
 void reveal_python_scripting_entry();
 void toggle_reveal_python_scripting_entry();
 void toggle_claude_ai_terminal();
+void toggle_command_terminal();
 
 /*  Check if this is needed still, I think not. */
 #ifdef USE_GUILE

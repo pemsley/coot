@@ -42,7 +42,41 @@ dist_pkgpython_PYTHON = \
    coot_chemical_feature_clusters.py coot_res_spec_utils.py coot_output_to_window.py \
    populate_python_menus.py coot_hole.py refine.py what_check.py coot_servalcat_outliers.py \
    coot_testing_utils.py point_group_symmetry.py gphl_screen.py \
+   coot_command_interface.py \
    $(TEXI_FILE)
+
+# Natural-language command interface package. The nobase_ prefix preserves the
+# coot_commands/ directory layout under site-packages so it stays importable.
+# Add each new command module here (e.g. coot_commands/commands/maps.py).
+nobase_dist_pkgpython_PYTHON = \
+   coot_commands/__init__.py                  \
+   coot_commands/registry.py                  \
+   coot_commands/completion.py                \
+   coot_commands/speech.py                    \
+   coot_commands/types.py                     \
+   coot_commands/gui.py                       \
+   coot_commands/docs.py                      \
+   coot_commands/new.py                       \
+   coot_commands/try.py                       \
+   coot_commands/commands/__init__.py         \
+   coot_commands/commands/delete.py           \
+   coot_commands/commands/display.py          \
+   coot_commands/commands/fetch.py            \
+   coot_commands/commands/view.py             \
+   coot_commands/commands/maps.py             \
+   coot_commands/commands/navigation.py       \
+   coot_commands/commands/refine.py           \
+   coot_commands/commands/representation.py   \
+   coot_commands/commands/labels.py           \
+   coot_commands/commands/model_edit.py       \
+   coot_commands/commands/build.py            \
+   coot_commands/commands/ligand.py           \
+   coot_commands/commands/validation.py       \
+   coot_commands/commands/session.py          \
+   coot_commands/commands/state.py            \
+   coot_commands/commands/models.py           \
+   coot_commands/commands/settings.py         \
+   coot_commands/commands/help.py
 
 # VTE REPL helper script — installed to pkgdatadir/python/ (not site-packages)
 # because it is executed as a subprocess, not imported as a module.
