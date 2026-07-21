@@ -203,6 +203,10 @@ typedef LinkContainer *PLinkContainer;
 // gemmi Structure meta (raw_remarks / metadata).
 class Compound : public ContainerClass { public: char Line[256] = {0}; };
 typedef Compound *PCompound;
+class Author   : public ContainerClass { public: char Line[256] = {0}; };
+typedef Author   *PAuthor;
+class Journal  : public ContainerClass { public: char Line[256] = {0}; };
+typedef Journal  *PJournal;
 class TitleContainer {
 public:
   std::vector<ContainerClass *> data;
@@ -213,8 +217,15 @@ public:
 };
 class Title {
 public:
-  TitleContainer compound, author;   // public so Coot's access_title can reach them
+  TitleContainer compound, author, journal;   // public so Coot's access_title can reach them
+  TitleContainer *GetCompound() { return &compound; }   // real Title exposes these
+  TitleContainer *GetAuthor()   { return &author; }     // publicly; access_title
+  TitleContainer *GetJournal()  { return &journal; }    // inherits GetJournal()
 };
+
+// gzip mode flag (mmdb_io_file.h). Minimal mmdb::io — the shim does I/O via gemmi,
+// so only this compression-mode enum is provided (Coot passes it to write calls).
+namespace io { enum GZ_MODE { GZM_NONE = 0, GZM_CHECK = 1, GZM_ENFORCE = 2 }; }
 
 // Crystal/symmetry record (mmdb_cryst.h). Minimal — used by Coot as a pointer
 // type; symmetry math goes through Manager::GetTMatrix (gemmi TODO).
@@ -236,16 +247,10 @@ inline void Mat4Init(mat44 &A) {
     for (int j = 0; j < 4; ++j) A[i][j] = (i == j) ? 1.0 : 0.0;
 }
 
-// mmdb::math graph-matching subsystem — forward decls only for now (headers use
-// Graph/GraphMatch/Edge by pointer/reference). Full gemmi-backed impl is a
-// separate task; see coot/mmdb-graph-matching-for-gemmi.md.
-namespace math {
-  class Graph; class GraphMatch; class Vertex; class Edge; class Alignment;
-  typedef Graph      *PGraph;
-  typedef GraphMatch *PGraphMatch;
-  typedef Vertex     *PVertex;   typedef Vertex **PPVertex;
-  typedef Edge       *PEdge;     typedef Edge   **PPEdge;
-}
+// mmdb::math graph-matching subsystem — full classes defined in _graph_impl.hh
+// (included at end of this file, after Atom/Residue are complete). Only the
+// Alignment class (unused by the cootapi build) stays a forward decl.
+namespace math { class Alignment; }
 
 struct AtomBond { PAtom atom = nullptr; int order = 0; };
 typedef AtomBond *PAtomBond; typedef AtomBond **PPAtomBond;
@@ -386,6 +391,11 @@ public:
   void set_tempFactor(realtype v) { g().b_iso = (float)v; }
   void set_altLoc(char c) { g().altloc = c; }
   void SetCharge(realtype ch) { g().charge = (signed char) ch; }
+  // coordinate/occupancy/B ESDs (MMDB public fields) — gemmi has none, so shim-
+  // owned; reference-returning so the rewritten `->sigX` covers reads and writes.
+  float &sigX()    { return _sigx; }   float &sigY()    { return _sigy; }
+  float &sigZ()    { return _sigz; }   float &sigOcc()  { return _sigocc; }
+  float &sigTemp() { return _sigtemp; }
   bool isMetal() const { return gemmi::Element(g().element).is_metal(); }
   // anisotropic B tensor — gemmi's SMat33<float> aniso. Reference-returning so the
   // rewritten `->u11` covers both reads (bonds display) and writes (SHELX import).
@@ -416,6 +426,11 @@ public:
   Chain   *GetChain();          // out-of-line (needs complete Residue/Chain)
   Model   *GetModel();          // out-of-line
   int   GetModelNum();
+  // residue-delegating accessors (bound by the Python API); out-of-line.
+  pstr GetLabelCompID();  pstr GetLabelAsymID();
+  int  GetLabelSeqID();   int  GetLabelEntityID();
+  int  GetResidueNo();    int  GetSSEType();
+  bool isSolvent();       bool isNTerminus();   bool isCTerminus();
   bool  isTer() const { return false; } // gemmi has no TER atoms; see notes
   void  SetCoordinates(realtype xx, realtype yy, realtype zz,
                        realtype occ, realtype tF);
@@ -452,6 +467,7 @@ public:
 private:
   friend class Residue;   // AddAtom pushes the strncpy'd altLoc buffer to gemmi
   mutable AtomName _name_buf{}; Element _elem_buf{}; mutable char _altloc_buf[4]{};
+  float _sigx = 0, _sigy = 0, _sigz = 0, _sigocc = 0, _sigtemp = 0;
 };
 
 // ===========================================================================
@@ -467,7 +483,18 @@ public:
   int    nAtoms = 0;        // MMDB public field; kept = atoms.size()
   void _sync_atom() { atom = atoms.data(); nAtoms = (int)atoms.size(); }
   // mmcif label_* (shim-owned; Coot sets when building dictionary residues)
-  ResName label_comp_id{}; ChainID label_asym_id{}; int label_seq_id = 0;
+  ResName label_comp_id{}; ChainID label_asym_id{}; int label_seq_id = 0, label_entity_id = 0;
+  pstr GetLabelCompID()   { return label_comp_id; }
+  pstr GetLabelAsymID()   { return label_asym_id; }
+  int  GetLabelSeqID()    { return label_seq_id; }
+  int  GetLabelEntityID() { return label_entity_id; }
+  int  GetResidueNo()     { return ri; }         // 0-based index within its chain
+  int  GetNofAltLocations() {                    // distinct non-blank altLocs
+    std::set<char> a; for (Atom *at : atoms) { char c = at->g().altloc; if (c && c != ' ') a.insert(c); }
+    return a.empty() ? 1 : (int) a.size();
+  }
+  bool isSugar()  { return false; }              // TODO: gemmi residue classification
+  bool isModRes() { return false; }              // TODO
 
   Residue() = default;
   explicit Residue(Chain *c);   // construct + add to chain (out-of-line)
@@ -531,7 +558,7 @@ public:
   int   GetModelNum();
   int  &GetIndex() { return ri; }     // ref: rewritten `->index` is assignable
   Chain   *GetChain() { return chain; }
-  Model   *GetModel() { return chain ? chain->model : nullptr; }
+  Model   *GetModel();                // out-of-line (Chain incomplete here)
   // terminus tests — positional within the chain (approximates MMDB's peptide-bond
   // check; good enough for Coot's terminal-residue handling). TODO: bond-aware.
   bool  isNTerminus() { return chain && ri == 0; }
@@ -598,6 +625,7 @@ public:
   }
   pstr     GetChainID();
   pstr     GetChainID(pstr buf) { if (buf) std::snprintf(buf, sizeof(ChainID), "%s", g().name.c_str()); return buf; }
+  Manager *GetCoordHierarchy() { return mgr; }   // parent manager
   void     SetChainID(const ChainID id) { g().name = id ? id : ""; }
   Chain() = default;
   Chain(Model *m, const ChainID id);   // construct + add to model (out-of-line)
@@ -911,6 +939,11 @@ public:
   // --- misc hierarchy/bond/UDData ops used by Coot ---
   void RemoveBonds() {}                       // gemmi has no persistent bond table
   void Delete(int /*DelKey*/) {}              // partial-hierarchy delete — no-op (TODO)
+  void DeleteAllModels() { st.models.clear(); build_from_gemmi(); }   // clears the hierarchy
+  void DeleteModel(int modelNo) {   // 1-based; erase model + rebuild wrappers
+    int i = modelNo - 1;
+    if (i >= 0 && i < (int)st.models.size()) { st.models.erase(st.models.begin() + i); build_from_gemmi(); }
+  }
   pstr GetInputBuffer(pstr buf, int &count) { count = 0; if (buf) buf[0] = '\0'; return buf; }
   // place an atom into the flat table (mmdb Manager::PutAtom) — the shim builds
   // hierarchy via Add*/gemmi, so this is a stub returning the index. TODO if a
@@ -1076,6 +1109,15 @@ inline pstr Atom::GetChainID()  { return res->GetChainID(); }
 inline int   Atom::GetSeqNum()   { return res->GetSeqNum(); }
 inline Chain *Atom::GetChain()   { return res ? res->GetChain() : nullptr; }
 inline Model *Atom::GetModel()   { return res ? res->chain->model : nullptr; }
+inline pstr Atom::GetLabelCompID()   { return res ? res->GetLabelCompID() : nullptr; }
+inline pstr Atom::GetLabelAsymID()   { return res ? res->GetLabelAsymID() : nullptr; }
+inline int  Atom::GetLabelSeqID()    { return res ? res->GetLabelSeqID() : 0; }
+inline int  Atom::GetLabelEntityID() { return res ? res->GetLabelEntityID() : 0; }
+inline int  Atom::GetResidueNo()     { return res ? res->GetResidueNo() : 0; }
+inline int  Atom::GetSSEType()       { return res ? res->SSE : SSE_None; }
+inline bool Atom::isSolvent()        { return res ? res->isSolvent() : false; }
+inline bool Atom::isNTerminus()      { return res ? res->isNTerminus() : false; }
+inline bool Atom::isCTerminus()      { return res ? res->isCTerminus() : false; }
 inline pstr  Atom::GetInsCode()  { return res->GetInsCode(); }
 inline pstr  Atom::GetResName()  { return res->GetResName(); }
 inline int   Atom::GetModelNum() { return res->GetModelNum(); }
@@ -1403,6 +1445,7 @@ inline Chain::Chain(Model *m, const ChainID id) { if (m) m->AddChain(this); SetC
 inline bool Residue::isCTerminus() {
   return chain && ri == (int)chain->residues.size() - 1;
 }
+inline Model *Residue::GetModel() { return chain ? chain->model : nullptr; }
 
 inline void Chain::Copy(PChain src) {
   Manager *pool = mgr ? mgr : src->mgr;
@@ -1483,3 +1526,7 @@ inline void GetMassCenter(PPAtom A, int nA, realtype &xc, realtype &yc, realtype
 // mmdb::mmcif::* (thin veneer over gemmi::cif) — re-opens mmdb{mmcif{...}}.
 // pstr/cpstr/realtype are already in scope from the headers above.
 #include "_mmcif_impl.hh"
+
+// mmdb::math::{Vertex,Edge,Graph,GraphMatch} — molecular graph + subgraph match.
+// Included after the mmdb namespace close so Atom/Residue are complete (MakeGraph).
+#include "_graph_impl.hh"
