@@ -36,6 +36,7 @@
 #include <clipper/core/xmap.h>
 #include <clipper/core/atomsf.h>
 
+#include "utils/coot-utils.hh"
 #include "edcalc.hh"
 
 namespace coot {
@@ -179,8 +180,21 @@ coot::calc_atom_map_edcalc(mmdb::Manager *mol,
 
    auto tp_accum_start = std::chrono::high_resolution_clock::now();
 
-   // Threading setup
-   unsigned int n_threads = std::thread::hardware_concurrency();
+   // Threading setup.
+   //
+   // Use coot's thread-count setting rather than std::thread::hardware_concurrency()
+   // directly, so that set_max_number_of_threads() (and COOT_N_THREADS) actually
+   // bound this function. get_max_number_of_threads() still falls back to the
+   // system CPU count when nothing has been set, so unconstrained callers behave
+   // as before.
+   //
+   // This matters where threads are a limited resource rather than merely a
+   // scheduling hint: under WebAssembly, pthreads are drawn from a fixed-size
+   // pool established at link time (-sPTHREAD_POOL_SIZE), and exhausting it
+   // deadlocks rather than degrades, because the on-demand fallback requires
+   // returning to the JS event loop -- which the spawn-then-join loop below
+   // never does.
+   unsigned int n_threads = coot::get_max_number_of_threads();
    if (n_threads == 0) n_threads = 4;
 
    // For each of the 27 colours: all same-colour blocks are non-adjacent,
