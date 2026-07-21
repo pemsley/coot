@@ -4549,7 +4549,8 @@ mmdb::Manager *
 coot::util::create_mmdbmanager_from_inverted_atom_selection(mmdb::Manager *orig_mol,
                                                             int SelectionHandle) {
 
-   std::cout << "----------------- create_mmdbmanager_from_inverted_atom_selection() " << std::endl;
+   if (false)
+      std::cout << "----------------- create_mmdbmanager_from_inverted_atom_selection() " << std::endl;
 
    // The idea here is that we want to have a selection that is
    // logical NOT of the SelectionHandle selection.
