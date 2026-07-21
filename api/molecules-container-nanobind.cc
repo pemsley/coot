@@ -98,7 +98,7 @@ std::filesystem::path this_library_dir() {
    Dl_info info;
    void *ll = reinterpret_cast<void *>(&this_library_dir);
    if (dladdr(ll, &info) && info.dli_fname) {
-      std::cout << "DEBUG:: this_library_dir(): PATH A" << std::endl;
+      // std::cout << "DEBUG:: this_library_dir(): PATH A" << std::endl;
       return std::filesystem::canonical(info.dli_fname).parent_path();
    }
 

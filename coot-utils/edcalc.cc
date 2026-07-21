@@ -181,6 +181,10 @@ coot::calc_atom_map_edcalc(mmdb::Manager *mol,
 
    // Threading setup
    unsigned int n_threads = std::thread::hardware_concurrency();
+#ifdef EMSCRIPTEN
+   n_threads = 3;
+#endif
+
    if (n_threads == 0) n_threads = 4;
 
    // For each of the 27 colours: all same-colour blocks are non-adjacent,

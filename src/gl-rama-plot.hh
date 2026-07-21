@@ -155,6 +155,9 @@ public:
    std::string residue_selection;
    float position_hash; // updated and tested in setup_from() so that we don't recalculate if we don't need to
    void clear(); // empty the residue phi,psi map and delete the gl buffers (keep the vao)
+   // reset the owned meshes so their VAOs are regenerated after a GL context
+   // re-realize. Call only while the context is current (from the unrealize handler).
+   void reset();
    bool is_active() const; // for mouse-overing
    mouse_over_hit_t get_mouse_over_hit(double x_mouse, double y_mouse,
                                        int widget_width, int widget_height) const;

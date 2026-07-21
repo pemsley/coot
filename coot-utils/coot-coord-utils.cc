@@ -3046,32 +3046,36 @@ coot::util::get_atom_using_fuzzy_search(const atom_spec_t &spec, mmdb::Manager *
                               }
                            }
                         }
-                        std::vector<std::string> test_names = {
-                           std::string(" ")  + spec.atom_name,
-                           std::string(" ")  + spec.atom_name + std::string("  "),
-                           std::string("  ") + spec.atom_name,
-                           std::string(" ") + spec.atom_name + std::string(" "),
-                           std::string("  ") + spec.atom_name + std::string(" "),
-                           spec.atom_name + std::string(" "),
-                        };
-                        for (const auto &t : test_names) {
-                           for (int iat=0; iat<n_residue_atoms; iat++) {
-                              mmdb:: Atom *at = residue_atoms[iat];
-                              if (! at->isTer()) {
-                                 std::string atom_name(at->name);
-                                 if (atom_name == t) {
-                                    rat = at;
-                                    break;
+                        if (! rat) {
+                           std::vector<std::string> test_names = {
+                              std::string(" ")  + spec.atom_name,
+                              std::string(" ")  + spec.atom_name + std::string("  "),
+                              std::string("  ") + spec.atom_name,
+                              std::string(" ") + spec.atom_name + std::string(" "),
+                              std::string("  ") + spec.atom_name + std::string(" "),
+                              spec.atom_name + std::string(" "),
+                              spec.atom_name + std::string("  "), // A305 in 9pic
+                           };
+                           for (const auto &t : test_names) {
+                              for (int iat=0; iat<n_residue_atoms; iat++) {
+                                 mmdb:: Atom *at = residue_atoms[iat];
+                                 if (! at->isTer()) {
+                                    std::string atom_name(at->name);
+                                    if (atom_name == t) {
+                                       rat = at;
+                                       break;
+                                    }
                                  }
                               }
+                              if (rat) break;
                            }
-                           if (rat) break;
                         }
                      }
                   }
                   if (rat) break;
                }
             }
+            if (rat) break;
          }
       }
    }

@@ -163,7 +163,6 @@ cod::bond_record_container_t::get_max_atom_type_width() const {
    return m;
 }
 
-
 bool
 cod::bond_record_container_t::read_acedrg_table(const std::string &file_name) {
 
@@ -1152,19 +1151,19 @@ cod::bond_record_container_t::db_add_level_4_types(sqlite3 *db) {
    unsigned int n = cod_atom_type_map.size();
 
    for (unsigned int i=0; i<n; i++) {
-	  std::string level_4 = it_map->first.full_type;
-      std::string level_3 = it_map->first.main_type;
-      std::string level_2 = it_map->first.nb1nb2.string();
+      std::string full_type = it_map->first.full_type;
+      std::string main_type = it_map->first.main_type;
+      std::string nb1nb2 = it_map->first.nb1nb2.string();
       std::string degree_colon_type = it_map->first.nb2_extra_els_str();
       int hash_code = it_map->first.hash_value;
       std::string cmd = "INSERT INTO " + table_name + " ";
       cmd += "(level_4_atom_type, level_3_atom_type, level_2_atom_type, colon_degree_atom_type, hash_code, atom_index) ";
       cmd += "VALUES (";
-      cmd += coot::util::single_quote(level_4, "'");
+      cmd += coot::util::single_quote(full_type, "'");
       cmd += ", ";
-      cmd += coot::util::single_quote(level_3, "'");
+      cmd += coot::util::single_quote(main_type, "'");
       cmd += ", ";
-      cmd += coot::util::single_quote(level_2, "'");
+      cmd += coot::util::single_quote(nb1nb2, "'");
       cmd += ", ";
       cmd += coot::util::single_quote(degree_colon_type, "'");
       cmd += ", ";

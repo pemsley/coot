@@ -3,6 +3,9 @@
 o "Send to CCP4i2" button replaces "Generate Restraints"
   with command line option to layla.
 
+o FAQ 4.1 “How does it look when Coot starts properly?”(  http://www.ysbl.york.ac.uk/%7Eemsley/coot/coot-startup.log )
+  the page was not found.
+
 o ldaddr (?) for chapi to find its files on relocatable binaries.
   metals and inchikey db.
 
@@ -11,6 +14,13 @@ o fix api documentation generation
 o add servalcat_refine_xray_with_keywords
   int servalcat_refine_xray_with_keywords(int imol, int imol_map, const std::string &output_prefix,
                                           const std::string &keyword_pairs_json)
+
+o look at 5moo - colour by chain ligand WOT. The hydrogen atoms are actually deuterium atoms -
+  and they are not in the dictionary.
+* Too esoteric and difficult to fix.
+
+o double-open a rotamers dialog.
+* Done.
 
 o apply the ligand fitting fix from Moorhen.
 * Done.

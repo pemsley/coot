@@ -2928,7 +2928,7 @@ void
 coot::undelocalise_methyl_carboxylates(RDKit::RWMol *rdkm) {
 
    // The valence of 2 1/2 on a methyl on one of the oxygens of a carboxylate
-   // 
+   //
    RDKit::ROMol::BondIterator bondIt;
    RDKit::ROMol::BondIterator bondIt_inner;
    for(bondIt=rdkm->beginBonds(); bondIt!=rdkm->endBonds(); ++bondIt) {
@@ -2953,13 +2953,13 @@ coot::undelocalise_methyl_carboxylates(RDKit::RWMol *rdkm) {
 
                               // OK, we have a carbon (atom_1) bonded to two Os via delocs -
                               // the oxygens are atom_2 and atom_2_in
-                              // 
+                              //
                               // rename for clarity
                               //
                               RDKit::Atom *O2 = atom_2_in;
 
                               // bondIt and bondIt_inner are the bonds that we will ultimately modify
-                              // 
+                              //
                               deloc_O_check_inner(rdkm, central_C, O1, O2, *bondIt, *bondIt_inner);
 
                            }
@@ -2973,25 +2973,25 @@ coot::undelocalise_methyl_carboxylates(RDKit::RWMol *rdkm) {
 
                               // OK, we have a carbon (atom_1) bonded to two Os via delocs -
                               // the oxygens are atom_2 and atom_2_in
-                              // 
+                              //
                               // rename for clarity
                               //
                               RDKit::Atom *O2 = atom_1_in;
                               deloc_O_check_inner(rdkm, central_C, O1, O2, *bondIt, *bondIt_inner);
-                           } 
-                        } 
+                           }
+                        }
                      }
                   }
                }
             }
          }
-            
+
          if (atom_1->getAtomicNum() == 8) {
             if (atom_2->getAtomicNum() == 6) {
                // rename for clarity
                RDKit::Atom *central_C = atom_2;
                RDKit::Atom *O1 = atom_1;
-               
+
                for(bondIt_inner=rdkm->beginBonds(); bondIt_inner!=rdkm->endBonds(); ++bondIt_inner) {
                   if ((*bondIt_inner)->getBondType() == RDKit::Bond::ONEANDAHALF) {
                      RDKit::Atom *atom_1_in = (*bondIt_inner)->getBeginAtom();

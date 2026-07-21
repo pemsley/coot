@@ -38,12 +38,43 @@ HUDTextureMesh::init() {
    position = glm::vec2(0,0);
    scales = glm::vec2(1,1);
    vao = VAO_NOT_SET; // unset
+   buffer_id = 0;
+   index_buffer_id = 0;
+   inst_positions_id = 0;
+   n_instances = 0;
    first_time = true;
    is_instanced = false;
    window_resize_scales_correction_set = false;
    window_resize_position_correction_set = false;
    window_resize_position_correction = glm::vec2(0,0);
    window_resize_scales_correction   = glm::vec2(1,1);
+}
+
+void
+HUDTextureMesh::delete_gl_buffers() {
+
+   // Frees the GL objects and resets the ids so that the next setup_buffers()/
+   // setup_instancing_buffers() regenerates them in the (new) context. Call this
+   // only while the GL context is current - e.g. from the "unrealize" handler.
+
+   if (vao == VAO_NOT_SET) {
+      // nothing was stored
+   } else {
+      glBindVertexArray(vao);
+      if (buffer_id != 0)
+         glDeleteBuffers(1, &buffer_id);
+      if (index_buffer_id != 0)
+         glDeleteBuffers(1, &index_buffer_id);
+      if (inst_positions_id != 0)
+         glDeleteBuffers(1, &inst_positions_id);
+      glDeleteVertexArrays(1, &vao);
+      vao = VAO_NOT_SET;
+      buffer_id = 0;
+      index_buffer_id = 0;
+      inst_positions_id = 0;
+      is_instanced = false;
+      n_instances = 0;
+   }
 }
 
 
