@@ -43,10 +43,10 @@ coot::protein_geometry::dreiding_torsion_energy(const std::string &comp_id,
 	 std::vector<std::string> name(4);
 	 std::vector<std::string> energy_type(4);
 	 std::vector<int> sp_hybrid(4);
-	 name[0] = atom_0->name;
-	 name[1] = atom_1->name;
-	 name[2] = atom_2->name;
-	 name[3] = atom_3->name;
+	 name[0] = atom_0->GetAtomName();
+	 name[1] = atom_1->GetAtomName();
+	 name[2] = atom_2->GetAtomName();
+	 name[3] = atom_3->GetAtomName();
 	 for (unsigned int i=0; i<4; i++) { 
 	    energy_type[i] = restraints.type_energy(name[i]);
 	    std::map<std::string, energy_lib_atom>::const_iterator atom_map_it =
@@ -58,10 +58,10 @@ coot::protein_geometry::dreiding_torsion_energy(const std::string &comp_id,
 	    }
 	    sp_hybrid[i] = atom_map_it->second.sp_hybridisation;
 	 }
-	 clipper::Coord_orth p0(atom_0->x, atom_0->y, atom_0->z);
-	 clipper::Coord_orth p1(atom_1->x, atom_1->y, atom_1->z);
-	 clipper::Coord_orth p2(atom_2->x, atom_2->y, atom_2->z);
-	 clipper::Coord_orth p3(atom_3->x, atom_3->y, atom_3->z);
+	 clipper::Coord_orth p0(atom_0->x(), atom_0->y(), atom_0->z());
+	 clipper::Coord_orth p1(atom_1->x(), atom_1->y(), atom_1->z());
+	 clipper::Coord_orth p2(atom_2->x(), atom_2->y(), atom_2->z());
+	 clipper::Coord_orth p3(atom_3->x(), atom_3->y(), atom_3->z());
 	 // double phi = clipper::Coord_orth::torsion(p0,p1,p2,p3);
 	 // d = dreiding_torsion_energy(phi, sp_hybrid[1], sp_hybrid[2], "dummy", false, false);
       }
@@ -100,10 +100,10 @@ coot::protein_geometry::dreiding_torsion_energy_params(const std::string &comp_i
 	 std::vector<std::string> name(4);
 	 std::vector<std::string> energy_type(4);
 	 std::vector<int> sp_hybrid(4);
-	 name[0] = quad.atom_1->name;
-	 name[1] = quad.atom_2->name;
-	 name[2] = quad.atom_3->name;
-	 name[3] = quad.atom_4->name;
+	 name[0] = quad.atom_1->GetAtomName();
+	 name[1] = quad.atom_2->GetAtomName();
+	 name[2] = quad.atom_3->GetAtomName();
+	 name[3] = quad.atom_4->GetAtomName();
 	 for (unsigned int i=0; i<4; i++) { 
 	    energy_type[i] = restraints.type_energy(name[i]);
 	    std::map<std::string, energy_lib_atom>::const_iterator atom_map_it =

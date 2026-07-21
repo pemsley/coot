@@ -262,10 +262,10 @@ coot::smcif::read_coordinates(mmdb::mmcif::PData data, const clipper::Cell &cell
                if (ele.first == "BR") charge = -1;
                if (ele.first == "I")  charge = -1;
 
-               at->charge = charge;
+               at->charge() = charge;
 
                if (alt_loc.length())
-                  strncpy(at->altLoc, alt_loc.c_str(), (alt_loc.size()+1)); // shove.
+                  strncpy(at->altLoc(), alt_loc.c_str(), (alt_loc.size()+1)); // shove.
 
                if (false)
                   std::cout << " found atom: \"" << label << "\" symbol: \"" << symbol
@@ -331,12 +331,12 @@ coot::smcif::read_coordinates(mmdb::mmcif::PData data, const clipper::Cell &cell
                clipper::U_aniso_frac caf(u11/(a*a), u22/(b*b), u33/(c*c),
                                          u12/(a*b), u13/(a*c), u23/(b*c));
                clipper::U_aniso_orth cao = caf.u_aniso_orth(cell);
-               at->u11 = cao(0,0);
-               at->u22 = cao(1,1);
-               at->u33 = cao(2,2);
-               at->u12 = cao(0,1);
-               at->u13 = cao(0,2);
-               at->u23 = cao(1,2);
+               at->u11() = cao(0,0);
+               at->u22() = cao(1,1);
+               at->u33() = cao(2,2);
+               at->u12() = cao(0,1);
+               at->u13() = cao(0,2);
+               at->u23() = cao(1,2);
                at->WhatIsSet |= mmdb::ASET_Anis_tFac; // is anisotropic
             }
          }
@@ -448,7 +448,7 @@ coot::smcif::read_sm_cif(const std::string &file_name) const {
                         mmdb::Chain *chain_p = new mmdb::Chain;
                         mmdb::Residue *residue_p = new mmdb::Residue;
                         chain_p->SetChainID("");
-                        residue_p->seqNum = 1;
+                        residue_p->GetSeqNum() = 1;
                         residue_p->SetResName("XXX");
                         for (unsigned int iat=0; iat<atoms.size(); iat++)
                            residue_p->AddAtom(atoms[iat]);

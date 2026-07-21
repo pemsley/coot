@@ -56,11 +56,11 @@ coot::api::rigid_body_fit(mmdb::Manager *mol, int udd_atom_selection_fitting_ato
                   if (! at->isTer()) {
                      std::string this_atom_name(at->GetAtomName());
                      if (moved_atoms_mol[ifrag][ires][iat].name == this_atom_name) {
-                        std::string this_atom_alt_conf(at->altLoc);
+                        std::string this_atom_alt_conf(at->altLoc());
                         if (this_atom_alt_conf == moved_atoms_mol[ifrag][ires][iat].altLoc) {
-                           at->x = moved_atoms_mol[ifrag][ires][iat].pos.x();
-                           at->y = moved_atoms_mol[ifrag][ires][iat].pos.y();
-                           at->z = moved_atoms_mol[ifrag][ires][iat].pos.z();
+                           at->x() = moved_atoms_mol[ifrag][ires][iat].pos.x();
+                           at->y() = moved_atoms_mol[ifrag][ires][iat].pos.y();
+                           at->z() = moved_atoms_mol[ifrag][ires][iat].pos.z();
                            n_moved++;
                         }
                      }

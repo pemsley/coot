@@ -143,12 +143,12 @@ int CXXQADSurface::prepareGrids (){
 		xyzMax[i] = -1e30;
 	}
 	for (int i=0; i< nSelectedAtoms; i++){
-		xyzMin[0] = fmin(xyzMin[0], selectedAtoms[i]->x);
-		xyzMin[1] = fmin(xyzMin[1], selectedAtoms[i]->y);
-		xyzMin[2] = fmin(xyzMin[2], selectedAtoms[i]->z);
-		xyzMax[0] = fmax(xyzMax[0], selectedAtoms[i]->x);
-		xyzMax[1] = fmax(xyzMax[1], selectedAtoms[i]->y);
-		xyzMax[2] = fmax(xyzMax[2], selectedAtoms[i]->z);
+		xyzMin[0] = fmin(xyzMin[0], selectedAtoms[i]->x());
+		xyzMin[1] = fmin(xyzMin[1], selectedAtoms[i]->y());
+		xyzMin[2] = fmin(xyzMin[2], selectedAtoms[i]->z());
+		xyzMax[0] = fmax(xyzMax[0], selectedAtoms[i]->x());
+		xyzMax[1] = fmax(xyzMax[1], selectedAtoms[i]->y());
+		xyzMax[2] = fmax(xyzMax[2], selectedAtoms[i]->z());
 	}
 	
 	//Expand max and min coordinates by maximum estimated atom radius + probe radius + 1 grid point
@@ -211,9 +211,9 @@ int CXXQADSurface::makeDistanceSqMap(){
 
 		Grid_range gd (clipperCell, clipperGridSampling, accessibleRadius);
 		
-		Coord_orth atomCoordOrth(selectedAtoms[iAtom]->x, 
-								 selectedAtoms[iAtom]->y, 
-								 selectedAtoms[iAtom]->z);
+		Coord_orth atomCoordOrth(selectedAtoms[iAtom]->x(), 
+								 selectedAtoms[iAtom]->y(), 
+								 selectedAtoms[iAtom]->z());
 		
 		Coord_frac uvw = atomCoordOrth.coord_frac( clipperCell);
 		Coord_grid g0 = uvw.coord_grid(clipperGridSampling) + gd.min();
@@ -270,9 +270,9 @@ int CXXQADSurface::addProbesFromVdwSurface(){
 	for (int iAtom = 0; iAtom < nSelectedAtoms; iAtom++){
 		double vdwRadius = fastGetAtomRadius(iAtom);
 
-		Coord_orth atomCoordOrth(selectedAtoms[iAtom]->x, 
-								 selectedAtoms[iAtom]->y, 
-								 selectedAtoms[iAtom]->z);
+		Coord_orth atomCoordOrth(selectedAtoms[iAtom]->x(), 
+								 selectedAtoms[iAtom]->y(), 
+								 selectedAtoms[iAtom]->z());
 		Coord_frac uvw = atomCoordOrth.coord_frac( clipperCell);
 		
 		Grid_range gd (clipperCell, clipperGridSampling, vdwRadius);
@@ -536,7 +536,7 @@ int CXXQADSurface::coordIsBuriedByNeighbours(Coord_orth &point,int iAtom1){
 	for (unsigned iAtom2 = 0; iAtom2<theNeighbourhood.size() && !buried; iAtom2++){
 		mmdb::Atom* Atom2 = selectedAtoms[theNeighbourhood[iAtom2]];
 		if (Atom2 != Atom1){
-			Coord_orth atomCoordOrth(Atom2->x, Atom2->y, Atom2->z);
+			Coord_orth atomCoordOrth(Atom2->x(), Atom2->y(), Atom2->z());
 			double accessibleRadius  = fastGetAtomRadius(iAtom2)+probeRadius;
 			double accessibleRadiusSq = accessibleRadius * accessibleRadius;
 			double dx = point[0] - atomCoordOrth[0];
@@ -824,9 +824,9 @@ double CXXQADSurface::getAtomRadius(mmdb::Atom* theAtom){
 	double theRadius;
 	if (iRadiusHandle>0){
 		int success = theAtom->GetUDData (iRadiusHandle, theRadius);
-		if (success != mmdb::UDDATA_Ok) theRadius = mmdb::getVdWaalsRadius(theAtom->element);
+		if (success != mmdb::UDDATA_Ok) theRadius = mmdb::getVdWaalsRadius(theAtom->GetElementName());
 	}
-	else theRadius = mmdb::getVdWaalsRadius(theAtom->element);
+	else theRadius = mmdb::getVdWaalsRadius(theAtom->GetElementName());
 	return theRadius;
 }
 
@@ -899,7 +899,7 @@ int CXXQADSurface::toruses()
 	for (int atomNr  = 0;atomNr < nSelectedAtoms; atomNr++) { 
 		mmdb::Atom* centralAtom = selectedAtoms[atomNr];
 
-		Coord_orth atomCoordOrth(centralAtom->x, centralAtom->y, centralAtom->z);
+		Coord_orth atomCoordOrth(centralAtom->x(), centralAtom->y(), centralAtom->z());
 		Coord_frac uvw = atomCoordOrth.coord_frac(clipperCell);
 		Grid_range gd (clipperCell, clipperGridSampling, getAtomRadius(centralAtom)+probeRadius);
 		Coord_grid g0 = uvw.coord_grid(clipperGridSampling) + gd.min();
@@ -927,7 +927,7 @@ int CXXQADSurface::toruses()
 			 ++circleIter){
 			CXXCircle &theCircle(*circleIter);
 			
-			if (centralAtom->serNum < theCircle.getAtomJ()->serNum){
+			if (centralAtom->serNum() < theCircle.getAtomJ()->serNum()){
 				if (theCircle.nSegments()>0){
 					const CXXCoord<CXXCoord_ftype>&torusCentre(theCircle.getCentreOfCircle());
 					const CXXCoord<CXXCoord_ftype>&torusAxis(theCircle.getNormal());
@@ -1046,8 +1046,8 @@ int CXXQADSurface::toruses()
                      ++nodeIter){
 					const CXXCircleNode &aNode(*nodeIter);
 					if (!aNode.isDeleted()){
-						if (aNode.getAtomK()->serNum > aNode.getAtomJ()->serNum &&
-							aNode.getAtomJ()->serNum > aNode.getAtomI()->serNum){
+						if (aNode.getAtomK()->serNum() > aNode.getAtomJ()->serNum() &&
+							aNode.getAtomJ()->serNum() > aNode.getAtomI()->serNum()){
 							CXXCoord<CXXCoord_ftype>nodeCXXCoord(aNode.getCoord());
 							Coord_orth newProbe(nodeCXXCoord[0], nodeCXXCoord[1], nodeCXXCoord[2]);
 							allowProbeToEatWithinGridRange(newProbe, gdAtom);

@@ -163,7 +163,7 @@ coot::dictionary_residue_restraints_t::init(mmdb::Residue *residue_p) {
       int n_all = nResidueAtoms;
       int n_non_H = 0;
       for (int iat=0; iat<nResidueAtoms; iat++) {
-	 std::string ele(residue_atoms[iat]->element);
+	 std::string ele(residue_atoms[iat]->GetElementName());
 	 if (ele != "H" && ele != " H" && ele != "D" && ele != " D")
 	    n_non_H++;
       }
@@ -172,9 +172,9 @@ coot::dictionary_residue_restraints_t::init(mmdb::Residue *residue_p) {
       // also fill atom_info with dict_atom objects
       for (int iat=0; iat<nResidueAtoms; iat++) {
 	 mmdb::Atom *at = residue_atoms[iat];
-	 std::string ele(residue_atoms[iat]->element);
-	 dict_atom da(at->name, at->name, ele, "", std::pair<bool, float> (false, 0));
-         clipper::Coord_orth pos(at->x, at->y, at->z);
+	 std::string ele(residue_atoms[iat]->GetElementName());
+	 dict_atom da(at->GetAtomName(), at->GetAtomName(), ele, "", std::pair<bool, float> (false, 0));
+         clipper::Coord_orth pos(at->x(), at->y(), at->z());
          da.model_Cartn = std::make_pair(true, pos);
 	 atom_info.push_back(da);
       }
@@ -191,15 +191,15 @@ coot::dictionary_residue_restraints_t::init(mmdb::Residue *residue_p) {
 	       mmdb::Atom *at_2 = AtomBonds[ibond].atom;
 	       if (at_2) { 
 		  if (at_1 < at_2) { // pointer comparison
-		     std::string at_name_1(at_1->name);
-		     std::string at_name_2(at_2->name);
+		     std::string at_name_1(at_1->GetAtomName());
+		     std::string at_name_2(at_2->GetAtomName());
 		     std::string type = "single";
 		     if (AtomBonds[ibond].order == 2)
 			type = "double";
 		     if (AtomBonds[ibond].order == 3)
 			type = "triple";
-		     clipper::Coord_orth pt_1(at_1->x, at_1->y, at_1->z);
-		     clipper::Coord_orth pt_2(at_2->x, at_2->y, at_2->z);
+		     clipper::Coord_orth pt_1(at_1->x(), at_1->y(), at_1->z());
+		     clipper::Coord_orth pt_2(at_2->x(), at_2->y(), at_2->z());
 		     double dist = sqrt((pt_1-pt_2).lengthsq());
 		     double dist_esd = 0.02;
 		     dict_bond_restraint_t br(at_name_1, at_name_2, type, dist, dist_esd, 0, 0, false);
@@ -234,17 +234,17 @@ coot::dictionary_residue_restraints_t::init(mmdb::Residue *residue_p) {
 		  // 
 		  if (at_1 && at_2 && at_3) { 
 
-		     clipper::Coord_orth pt_1(at_1->x, at_1->y, at_1->z);
-		     clipper::Coord_orth pt_2(at_2->x, at_2->y, at_2->z);
-		     clipper::Coord_orth pt_3(at_3->x, at_3->y, at_3->z);
+		     clipper::Coord_orth pt_1(at_1->x(), at_1->y(), at_1->z());
+		     clipper::Coord_orth pt_2(at_2->x(), at_2->y(), at_2->z());
+		     clipper::Coord_orth pt_3(at_3->x(), at_3->y(), at_3->z());
 		     // doesn't exist (mmdb problem)?
 		     // double angle = BondAngle(at_1, at_2, at_3);
 		     double angle = clipper::Util::rad2d(clipper::Coord_orth::angle(pt_1, pt_2, pt_3));
 		     // std::cout << "angle: " << angle << std::endl;
 		     if (angle > 0.001) {
-			std::string at_name_1(at_1->name);
-			std::string at_name_2(at_2->name);
-			std::string at_name_3(at_3->name);
+			std::string at_name_1(at_1->GetAtomName());
+			std::string at_name_2(at_2->GetAtomName());
+			std::string at_name_3(at_3->GetAtomName());
 			double angle_esd = 3;
 			dict_angle_restraint_t ar(at_name_1, at_name_2, at_name_3, angle, angle_esd);
 			angle_restraint.push_back(ar);
@@ -1324,7 +1324,7 @@ coot::dictionary_residue_restraints_t::GetResidue(bool idealised_flag, float b_f
             mmdb::Atom *at = residue_atoms[iat];
             if (! at->isTer()) {
                std::cout << "debug:: GetResidue() " << iat << " " << at->GetAtomName()
-                         << at->x << " " << at->y << " " << at->z << std::endl;
+                         << at->x() << " " << at->y() << " " << at->z() << std::endl;
             }
          }
 

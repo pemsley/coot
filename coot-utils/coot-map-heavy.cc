@@ -62,9 +62,9 @@ coot::util::fit_to_map_by_simplex_rigid(mmdb::PPAtom atom_selection,
    par.orig_atoms = atom_selection;
    clipper::Coord_orth co(0.0, 0.0, 0.0);
    for (int i=0; i<n_selected_atoms; i++)
-      co += clipper::Coord_orth(atom_selection[i]->x,
-                                atom_selection[i]->y,
-                                atom_selection[i]->z);
+      co += clipper::Coord_orth(atom_selection[i]->x(),
+                                atom_selection[i]->y(),
+                                atom_selection[i]->z());
    co = 1/float(n_selected_atoms) * co;
    par.atoms_centre = co;
    par.xmap = &xmap;
@@ -167,16 +167,16 @@ coot::util::simplex_apply_shifts_rigid_internal(gsl_vector *s,
 
    for (int i=0; i<par.n_atoms; i++) {
 
-      clipper::Coord_orth orig_p(par.orig_atoms[i]->x,
-                                 par.orig_atoms[i]->y,
-                                 par.orig_atoms[i]->z);
+      clipper::Coord_orth orig_p(par.orig_atoms[i]->x(),
+                                 par.orig_atoms[i]->y(),
+                                 par.orig_atoms[i]->z());
 
       clipper::Coord_orth point = orig_p.transform(rtop);
       point = par.atoms_centre + (orig_p - par.atoms_centre).transform(rtop);
 
-      par.orig_atoms[i]->x = point.x();
-      par.orig_atoms[i]->y = point.y();
-      par.orig_atoms[i]->z = point.z();
+      par.orig_atoms[i]->x() = point.x();
+      par.orig_atoms[i]->y() = point.y();
+      par.orig_atoms[i]->z() = point.z();
    }
 }
 
@@ -220,9 +220,9 @@ coot::util::my_f_simplex_rigid_internal (const gsl_vector *v,
 
    for (int i=0; i<p->n_atoms; i++) {
 
-      clipper::Coord_orth orig_p(p->orig_atoms[i]->x,
-                                 p->orig_atoms[i]->y,
-                                 p->orig_atoms[i]->z);
+      clipper::Coord_orth orig_p(p->orig_atoms[i]->x(),
+                                 p->orig_atoms[i]->y(),
+                                 p->orig_atoms[i]->z());
       point = p->atoms_centre + (orig_p - p->atoms_centre).transform(rtop);
 
       // we are trying to minimize, don't forget:
@@ -278,8 +278,8 @@ coot::util::z_weighted_density_score(const std::vector<mmdb::Atom *> &atoms,
                                      const clipper::Xmap<float> &map) {
    float sum_d = 0;
    for (unsigned int iat=0; iat<atoms.size(); iat++) {
-      clipper::Coord_orth co(atoms[iat]->x, atoms[iat]->y, atoms[iat]->z);
-      float d = z_weighted_density_at_point(co, atoms[iat]->element, atom_number_list, map);
+      clipper::Coord_orth co(atoms[iat]->x(), atoms[iat]->y(), atoms[iat]->z());
+      float d = z_weighted_density_at_point(co, atoms[iat]->GetElementName(), atom_number_list, map);
       sum_d += d;
    }
    return  sum_d;
@@ -332,7 +332,7 @@ coot::util::z_weighted_density_score_new(const std::vector<std::pair<mmdb::Atom 
    float sum_d = 0;
    for (unsigned int iat=0; iat<atom_atom_number_pairs.size(); iat++) {
       const mmdb::Atom *at = atom_atom_number_pairs[iat].first;
-      clipper::Coord_orth co(at->x, at->y, at->z);
+      clipper::Coord_orth co(at->x(), at->y(), at->z());
       float d = coot::util::density_at_point(map, co) * atom_atom_number_pairs[iat].second;
       sum_d += d;
    }
@@ -348,12 +348,12 @@ coot::util::debug_z_weighted_density_score_new(const std::vector<std::pair<mmdb:
    for (unsigned int iat=0; iat<atom_atom_number_pairs.size(); iat++) {
       const mmdb::Atom *atc = atom_atom_number_pairs[iat].first;
       mmdb::Atom *at = const_cast<mmdb::Atom *>(atc);
-      clipper::Coord_orth co(at->x, at->y, at->z);
+      clipper::Coord_orth co(at->x(), at->y(), at->z());
       float d = coot::util::density_at_point(map, co);
       float w = atom_atom_number_pairs[iat].second;
       sum_d += d * w;
       std::cout << "debug score " << iat << " " << atom_spec_t(at)
-                << " pos " << at->x << " " << at->y << " " << at->z
+                << " pos " << at->x() << " " << at->y() << " " << at->z()
                 << " weight: " << w << " density:" << d << " running sum " << sum_d << std::endl;
    }
    std::cout << "debug:: debug_z_weighted_density_score_new(): total: " << sum_d << std::endl;
@@ -418,14 +418,14 @@ coot::util::jiggle_atoms(const std::vector<mmdb::Atom *> &atoms,
          // now apply rtop to atoms (shift the atoms relative to the
          // centre_pt before doing the wiggle
          for (unsigned int i=0; i<atoms.size(); i++) {
-            clipper::Coord_orth pt_rel(atoms[i]->x - centre_pt.x(),
-            atoms[i]->y - centre_pt.y(),
-            atoms[i]->z - centre_pt.z());
+            clipper::Coord_orth pt_rel(atoms[i]->x() - centre_pt.x(),
+            atoms[i]->y() - centre_pt.y(),
+            atoms[i]->z() - centre_pt.z());
             clipper::Coord_orth new_pt = pt_rel.transform(rtop);
             new_pt += centre_pt;
-            new_atoms[i].x = new_pt.x();
-            new_atoms[i].y = new_pt.y();
-            new_atoms[i].z = new_pt.z();
+            new_atoms[i].x() = new_pt.x();
+            new_atoms[i].y() = new_pt.y();
+            new_atoms[i].z() = new_pt.z();
          }
    return std::pair<clipper::RTop_orth, std::vector<mmdb::Atom> > (rtop, new_atoms);
 }
@@ -447,14 +447,14 @@ coot::util::jiggle_atoms(const std::vector<mmdb::Atom > &atoms,
    // centre_pt before doing the wiggle
    clipper::RTop_orth rtop = make_rtop_orth_for_jiggle_atoms(jiggle_trans_scale_factor, annealing_factor);
    for (unsigned int i=0; i<atoms.size(); i++) {
-      clipper::Coord_orth pt_rel(atoms[i].x - centre_pt.x(),
-                                 atoms[i].y - centre_pt.y(),
-                                 atoms[i].z - centre_pt.z());
+      clipper::Coord_orth pt_rel(atoms[i].x() - centre_pt.x(),
+                                 atoms[i].y() - centre_pt.y(),
+                                 atoms[i].z() - centre_pt.z());
       clipper::Coord_orth new_pt = pt_rel.transform(rtop);
       new_pt += centre_pt;
-      new_atoms[i].x = new_pt.x();
-      new_atoms[i].y = new_pt.y();
-      new_atoms[i].z = new_pt.z();
+      new_atoms[i].x() = new_pt.x();
+      new_atoms[i].y() = new_pt.y();
+      new_atoms[i].z() = new_pt.z();
    }
    return std::pair<clipper::RTop_orth, std::vector<mmdb::Atom> > (rtop, new_atoms);
 }
@@ -772,12 +772,12 @@ coot::util::make_edcalc_map(const clipper::NXmap<float>& map_ref,  // for metric
    mol->GetSelIndex(atom_selection_handle, sel_atoms, n_sel_atoms);
    for (int ii=0; ii<n_sel_atoms; ii++) {
       mmdb::Atom *at = sel_atoms[ii];
-      std::string ele(at->element);
-      clipper::Coord_orth pt(at->x, at->y, at->z);
+      std::string ele(at->GetElementName());
+      clipper::Coord_orth pt(at->x(), at->y(), at->z());
       clipper::Atom cat;
       cat.set_element(ele);
       cat.set_coord_orth(pt);
-      cat.set_u_iso(at->tempFactor * 0.0125);
+      cat.set_u_iso(at->tempFactor() * 0.0125);
       // cat.set_u_iso(0.1);
       cat.set_occupancy(1.0);
       l.push_back(cat);

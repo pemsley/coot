@@ -159,16 +159,16 @@ coot::molecule_t::generate_local_self_restraints(int selHnd, float local_dist_ma
 
 	    mmdb::Atom *at_1 = SelAtom[pscontact[i].id1];
 	    mmdb::Atom *at_2 = SelAtom[pscontact[i].id2];
-	    std::string ele_1 = at_1->element;
-	    std::string ele_2 = at_2->element;
+	    std::string ele_1 = at_1->GetElementName();
+	    std::string ele_2 = at_2->GetElementName();
 	    if (ele_1 != " H" && ele_2 != " H") {
 	       bool ignore_this = false; // set for bonded and angled atoms
 	       bool in_same_res = false;
-	       if (at_1->residue == at_2->residue)
+	       if (at_1->GetResidue() == at_2->GetResidue())
 		  in_same_res = true;
 
 	       if (in_same_res) {
-		  std::string comp_id = at_1->residue->GetResName();
+		  std::string comp_id = at_1->GetResidue()->GetResName();
 		  std::string at_name_1 = at_1->GetAtomName();
 		  std::string at_name_2 = at_2->GetAtomName();
 

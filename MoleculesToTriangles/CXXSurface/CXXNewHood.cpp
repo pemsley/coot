@@ -49,7 +49,7 @@ CXXNewHood::CXXNewHood(mmdb::Atom* centralAtom, double radiusOfAtom1, double pro
 theAtomI(centralAtom), 
 theRadius(radiusOfAtom1+probeRadius), 
 theProbeRadius(probeRadius){
-	theCentre = CXXCoord<CXXCoord_ftype>(theAtomI->x, theAtomI->y, theAtomI->z);
+	theCentre = CXXCoord<CXXCoord_ftype>(theAtomI->x(), theAtomI->y(), theAtomI->z());
 }
 
 void CXXNewHood::initWith(const CXXCircleNode &aNode, double probeRadius) {
@@ -67,12 +67,12 @@ void CXXNewHood::initWith(const CXXBall *aBall){
 };
 
 int CXXNewHood::addAtom(mmdb::Atom* anAtomJ, double radiusOfAtom2){
-	if (anAtomJ->serNum == theAtomI->serNum) {
+	if (anAtomJ->serNum() == theAtomI->serNum()) {
 		//		std::cout << "Rejecting self " << anAtomJ->serNum << " " <<  theAtomI->serNum << endl;
 		return 0; //Worried this might not be unique
 	}
 	double radiusOfAtomJ = radiusOfAtom2 + theProbeRadius;
-	CXXCoord<CXXCoord_ftype>centreOfAtomJ = CXXCoord<CXXCoord_ftype>(anAtomJ->x, anAtomJ->y, anAtomJ->z);
+	CXXCoord<CXXCoord_ftype>centreOfAtomJ = CXXCoord<CXXCoord_ftype>(anAtomJ->x(), anAtomJ->y(), anAtomJ->z());
 	CXXCoord<CXXCoord_ftype>centreOfAtomI = theCentre;
 	
 	//This test is to deal with unlikely but possible event of being fed asphere with identical coordinates

@@ -310,9 +310,9 @@ int test_auto_fit_rotamer_1(molecules_container_t &mc_in) {
          if (r) {
             mmdb::Atom *cz = r->GetAtom(" CZ ");
             if (cz) {
-               coot::Cartesian pt_1(cz->x, cz->y, cz->z);
+               coot::Cartesian pt_1(cz->x(), cz->y(), cz->z());
                status = mc.auto_fit_rotamer(imol, "A", 61, "", "", imol_map);
-               coot::Cartesian pt_2(cz->x, cz->y, cz->z);
+               coot::Cartesian pt_2(cz->x(), cz->y(), cz->z());
                double dd = coot::Cartesian::lengthsq(pt_1, pt_2);
                double d = std::sqrt(dd);
                std::cout << "d " << d << std::endl;
@@ -398,9 +398,9 @@ int test_pepflips(molecules_container_t &mc) {
       coot::atom_spec_t atom_spec(res_spec.chain_id, res_spec.res_no, res_spec.ins_code, " O  ","");
       mmdb::Atom *at = mc.get_atom(imol, atom_spec);
       if (at) {
-         coot::Cartesian pt_1(at->x, at->y, at->z);
+         coot::Cartesian pt_1(at->x(), at->y(), at->z());
          mc.flip_peptide(imol, atom_spec, "");
-         coot::Cartesian pt_2(at->x, at->y, at->z);
+         coot::Cartesian pt_2(at->x(), at->y(), at->z());
          double dd = coot::Cartesian::lengthsq(pt_1, pt_2);
          double d = std::sqrt(dd);
          std::cout << "debug:: in test_pepflips() for " << atom_spec << " d is " << d << std::endl;
@@ -423,9 +423,9 @@ int test_pepflips(molecules_container_t &mc) {
          coot::atom_spec_t atom_spec_of_moving_O("A", 99, "", " O  ", "");
          mmdb::Atom *at = mc.get_atom(imol, atom_spec_of_moving_O);
          if (at) {
-            coot::Cartesian pt_1(at->x, at->y, at->z);
+            coot::Cartesian pt_1(at->x(), at->y(), at->z());
             mc.flip_peptide_using_cid(imol, atom_cid, "");
-            coot::Cartesian pt_2(at->x, at->y, at->z);
+            coot::Cartesian pt_2(at->x(), at->y(), at->z());
             double dd = coot::Cartesian::lengthsq(pt_1, pt_2);
             double d = std::sqrt(dd);
             if (d > 3.0) {
@@ -500,12 +500,12 @@ int test_undo_and_redo(molecules_container_t &mc) {
    std::string atom_cid = "//A/14/CA";
    coot::atom_spec_t atom_spec("A", 14, "", " O  ", "");
    mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
-   coot::Cartesian pt_1(at_1->x, at_1->y, at_1->z);
+   coot::Cartesian pt_1(at_1->x(), at_1->y(), at_1->z());
    mc.flip_peptide_using_cid(imol, atom_cid, "");
-   coot::Cartesian pt_2(at_1->x, at_1->y, at_1->z);
+   coot::Cartesian pt_2(at_1->x(), at_1->y(), at_1->z());
    mc.undo(imol); // deletes atoms so now at_1 is out of date
    mmdb::Atom *at_2 = mc.get_atom(imol, atom_spec);
-   coot::Cartesian pt_3(at_2->x, at_2->y, at_2->z);
+   coot::Cartesian pt_3(at_2->x(), at_2->y(), at_2->z());
 
    double dd_1 = coot::Cartesian::lengthsq(pt_1, pt_2);
    double dd_2 = coot::Cartesian::lengthsq(pt_1, pt_3);
@@ -519,7 +519,7 @@ int test_undo_and_redo(molecules_container_t &mc) {
          // now let's test redo
          mc.redo(imol); // deletes atoms so now at_1 is out of date
          mmdb::Atom *at_3 = mc.get_atom(imol, atom_spec);
-         coot::Cartesian pt_4(at_3->x, at_3->y, at_3->z);
+         coot::Cartesian pt_4(at_3->x(), at_3->y(), at_3->z());
          // modified and redone should be the same:
          double dd_3 = coot::Cartesian::lengthsq(pt_2, pt_4);
          double d_3 = std::sqrt(dd_3);
@@ -531,16 +531,16 @@ int test_undo_and_redo(molecules_container_t &mc) {
 
             coot::atom_spec_t atom_spec_b("A", 24, "", " O  ", "");
             mmdb::Atom *at_5 = mc.get_atom(imol, atom_spec_b);
-            coot::Cartesian pt_5(at_5->x, at_5->y, at_5->z);
+            coot::Cartesian pt_5(at_5->x(), at_5->y(), at_5->z());
             mc.flip_peptide_using_cid(imol, "//A/24/CA", "");
             mmdb::Atom *at_6 = mc.get_atom(imol, atom_spec_b);
-            coot::Cartesian pt_6(at_6->x, at_6->y, at_6->z);
+            coot::Cartesian pt_6(at_6->x(), at_6->y(), at_6->z());
             mc.undo(imol);
             mmdb::Atom *at_7 = mc.get_atom(imol, atom_spec_b);
-            coot::Cartesian pt_7(at_7->x, at_7->y, at_7->z);
+            coot::Cartesian pt_7(at_7->x(), at_7->y(), at_7->z());
             mc.redo(imol);
             mmdb::Atom *at_8 = mc.get_atom(imol, atom_spec_b);
-            coot::Cartesian pt_8(at_8->x, at_8->y, at_8->z);
+            coot::Cartesian pt_8(at_8->x(), at_8->y(), at_8->z());
 
             if (true) { // debugging
                std::cout << "pt_4 " << pt_4 << std::endl;
@@ -576,17 +576,17 @@ int test_undo_and_redo_2(molecules_container_t &mc) {
    coot::atom_spec_t atom_spec("A", 61, "", " CZ ", "");
    mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
    if (at_1) {
-      coot::Cartesian pt_1(at_1->x, at_1->y, at_1->z);
+      coot::Cartesian pt_1(at_1->x(), at_1->y(), at_1->z());
       int status_af = mc.auto_fit_rotamer(imol, "A", 61, "", "", imol_map);
       if (status_af == 1) {
-         coot::Cartesian pt_2(at_1->x, at_1->y, at_1->z);
+         coot::Cartesian pt_2(at_1->x(), at_1->y(), at_1->z());
          double dd = coot::Cartesian::lengthsq(pt_1, pt_2);
          double d = std::sqrt(dd);
          if (d > 6.0) {
             // OK, it moved (fitted)
             mc.undo(imol);
             mmdb::Atom *at_3 = mc.get_atom(imol, atom_spec);
-            coot::Cartesian pt_3(at_3->x, at_3->y, at_3->z);
+            coot::Cartesian pt_3(at_3->x(), at_3->y(), at_3->z());
             dd = coot::Cartesian::lengthsq(pt_1, pt_3);
             d = std::sqrt(dd);
             std::cout << "debug:: in test_undo_and_redo_2() d " << d << std::endl;
@@ -631,7 +631,7 @@ int test_set_residue_to_rotamer_number(molecules_container_t &mc) {
         mc.close_molecule(imol);
         return status;
     }
-    coot::Cartesian pos_start = coot::Cartesian(at_start->x, at_start->y, at_start->z);
+    coot::Cartesian pos_start = coot::Cartesian(at_start->x(), at_start->y(), at_start->z());
 
     int result = mc.set_residue_to_rotamer_number(imol, residue_cid, alt_conf, rotamer_number);
 
@@ -642,7 +642,7 @@ int test_set_residue_to_rotamer_number(molecules_container_t &mc) {
         mc.close_molecule(imol);
         return status;
     }
-    coot::Cartesian pos_end = coot::Cartesian(at_end->x, at_end->y, at_end->z);
+    coot::Cartesian pos_end = coot::Cartesian(at_end->x(), at_end->y(), at_end->z());
 
     double dist_moved = std::sqrt(coot::Cartesian::lengthsq(pos_start, pos_end));
     std::cout << "CG atom moved " << dist_moved << " Å by set_residue_to_rotamer_number()" << std::endl;
@@ -1211,9 +1211,9 @@ int test_crowther_rotation_with_model(molecules_container_t &mc) {
    int n_atoms;
    mol->GetSelIndex(SelHnd, sel_atoms, n_atoms);
    for (int i=0; i<n_atoms; i++) {
-      sel_atoms[i]->x += shift.x();
-      sel_atoms[i]->y += shift.y();
-      sel_atoms[i]->z += shift.z();
+      sel_atoms[i]->x() += shift.x();
+      sel_atoms[i]->y() += shift.y();
+      sel_atoms[i]->z() += shift.z();
    }
 
    std::cout << "INFO:: model centre: " << mol_centre.second.format()
@@ -1439,9 +1439,9 @@ int test_crowther_rotation_with_model(molecules_container_t &mc) {
       int na2;
       mol2->GetSelIndex(sel2, atoms2, na2);
       for (int i=0; i<na2; i++) {
-         atoms2[i]->x += cc2.x() - mc2.second.x();
-         atoms2[i]->y += cc2.y() - mc2.second.y();
-         atoms2[i]->z += cc2.z() - mc2.second.z();
+         atoms2[i]->x() += cc2.x() - mc2.second.x();
+         atoms2[i]->y() += cc2.y() - mc2.second.y();
+         atoms2[i]->z() += cc2.z() - mc2.second.z();
       }
       clipper::Xmap<float> model_map2 = coot::util::calc_atom_map(mol2, sel2, cell2, spacegroup, gs2);
       mol2->DeleteSelection(sel2);
@@ -1588,9 +1588,9 @@ int test_phased_translation_function(molecules_container_t &mc) {
    int n_atoms;
    mol->GetSelIndex(SelHnd, sel_atoms, n_atoms);
    for (int i=0; i<n_atoms; i++) {
-      sel_atoms[i]->x += shift.x();
-      sel_atoms[i]->y += shift.y();
-      sel_atoms[i]->z += shift.z();
+      sel_atoms[i]->x() += shift.x();
+      sel_atoms[i]->y() += shift.y();
+      sel_atoms[i]->z() += shift.z();
    }
 
    // Compute atom map for the model, extract fragment
@@ -1630,26 +1630,26 @@ int test_phased_translation_function(molecules_container_t &mc) {
 
    // Shift model back to origin (undo the cell-centre shift)
    for (int i=0; i<n_atoms; i++) {
-      sel_atoms[i]->x -= shift.x();
-      sel_atoms[i]->y -= shift.y();
-      sel_atoms[i]->z -= shift.z();
+      sel_atoms[i]->x() -= shift.x();
+      sel_atoms[i]->y() -= shift.y();
+      sel_atoms[i]->z() -= shift.z();
    }
    // Now centre at the true origin
    clipper::Coord_orth mc2 = mol_centre.second;
    for (int i=0; i<n_atoms; i++) {
-      sel_atoms[i]->x -= mc2.x();
-      sel_atoms[i]->y -= mc2.y();
-      sel_atoms[i]->z -= mc2.z();
+      sel_atoms[i]->x() -= mc2.x();
+      sel_atoms[i]->y() -= mc2.y();
+      sel_atoms[i]->z() -= mc2.z();
    }
 
    // Apply the rotation
    glm::mat3 rot_mat = glm::mat3_cast(best_rotation);
    for (int i=0; i<n_atoms; i++) {
-      glm::vec3 pos(sel_atoms[i]->x, sel_atoms[i]->y, sel_atoms[i]->z);
+      glm::vec3 pos(sel_atoms[i]->x(), sel_atoms[i]->y(), sel_atoms[i]->z());
       glm::vec3 rotated = rot_mat * pos;
-      sel_atoms[i]->x = rotated.x;
-      sel_atoms[i]->y = rotated.y;
-      sel_atoms[i]->z = rotated.z;
+      sel_atoms[i]->x() = rotated.x;
+      sel_atoms[i]->y() = rotated.y;
+      sel_atoms[i]->z() = rotated.z;
    }
 
    std::cout << "INFO:: model centred at origin and rotated, n_atoms=" << n_atoms << std::endl;
@@ -1787,7 +1787,7 @@ int test_molecular_placement_pipeline(molecules_container_t &mc) {
       for (int i=0; i<n_atoms; i++) {
          std::string aname(atoms[i]->GetAtomName());
          if (aname == " CA " || aname == "CA")
-            ca_coords.push_back(clipper::Coord_orth(atoms[i]->x, atoms[i]->y, atoms[i]->z));
+            ca_coords.push_back(clipper::Coord_orth(atoms[i]->x(), atoms[i]->y(), atoms[i]->z()));
       }
       mol_p->DeleteSelection(sel);
       return ca_coords;
@@ -1931,7 +1931,7 @@ int test_molecular_placement_pipeline_r_chain(molecules_container_t &mc) {
       for (int i=0; i<n_atoms; i++) {
          std::string aname(atoms[i]->GetAtomName());
          if (aname == " CA " || aname == "CA")
-            ca_coords.push_back(clipper::Coord_orth(atoms[i]->x, atoms[i]->y, atoms[i]->z));
+            ca_coords.push_back(clipper::Coord_orth(atoms[i]->x(), atoms[i]->y(), atoms[i]->z()));
       }
       mol_p->DeleteSelection(sel);
       return ca_coords;
@@ -2123,7 +2123,7 @@ int test_delete_residue(molecules_container_t &mc) {
 
 coot::Cartesian atom_to_cartesian(mmdb::Atom *at) {
 
-   return coot::Cartesian(at->x, at->y, at->z);
+   return coot::Cartesian(at->x(), at->y(), at->z());
 
 }
 
@@ -2342,20 +2342,20 @@ int test_rsr_using_multi_atom_cid(molecules_container_t &mc) {
                                           mmdb::Atom *at_1 = residue_p_1->GetAtom(iat);
                                           if (! at_1->isTer()) {
                                              std::string atom_name_1(at_1->GetAtomName());
-                                             std::string alt_conf_1(at_1->altLoc);
+                                             std::string alt_conf_1(at_1->altLoc());
 
                                              int n_atoms_2 = residue_p_2->GetNumberOfAtoms();
                                              for (int jat=0; jat<n_atoms_2; jat++) {
                                                 mmdb::Atom *at_2 = residue_p_2->GetAtom(jat);
                                                 if (! at_2->isTer()) {
                                                    std::string atom_name_2(at_2->GetAtomName());
-                                                   std::string alt_conf_2(at_2->altLoc);
+                                                   std::string alt_conf_2(at_2->altLoc());
                                                    if (atom_name_1 == atom_name_2) {
                                                       if (alt_conf_1 == alt_conf_2) {
                                                          n_checked++;
-                                                         float dx = at_1->x - at_2->x;
-                                                         float dy = at_1->y - at_2->y;
-                                                         float dz = at_1->z - at_2->z;
+                                                         float dx = at_1->x() - at_2->x();
+                                                         float dy = at_1->y() - at_2->y();
+                                                         float dz = at_1->z() - at_2->z();
                                                          if ((fabsf(dx) + fabsf(dy) + fabsf(dz)) > 0.01)
                                                             n_diffs++;
                                                       }
@@ -2406,7 +2406,7 @@ int test_rsr_using_multi_atom_cid(molecules_container_t &mc) {
 int test_add_terminal_residue(molecules_container_t &mc) {
 
    auto mmdb_to_cartesian = [] (mmdb::Atom *at) {
-      return coot::Cartesian(at->x, at->y, at->z);
+      return coot::Cartesian(at->x(), at->y(), at->z());
    };
 
    auto glm_to_cartesian = [] (const glm::vec3 &gp) {
@@ -4351,7 +4351,7 @@ int test_add_alt_conf(molecules_container_t &mc) {
       for (int iat=0; iat<n_residue_atoms; iat++) {
          mmdb::Atom *at = residue_atoms[iat];
          if (! at->isTer()) {
-            std::cout << iat << " " << coot::atom_spec_t(at) << " " << at->x << " " << at->y << " " << at->z << std::endl;
+            std::cout << iat << " " << coot::atom_spec_t(at) << " " << at->x() << " " << at->y() << " " << at->z() << std::endl;
          }
       }
       if (n_residue_atoms > 22)
@@ -6528,11 +6528,11 @@ int test_mask_atom_selection(molecules_container_t &mc) {
       if (n_selected_atoms > 0) {
          for (int i=0; i<n_selected_atoms; i++) {
             mmdb::Atom *at = atom_selection[i];
-            clipper::Coord_orth pos(at->x, at->y, at->z);
+            clipper::Coord_orth pos(at->x(), at->y(), at->z());
             std::cout << "in test_mask_atom_selection() found atom "
                       << at->GetResName() << " " << at->GetSeqNum() << " "
                       << ":" << at->GetAtomName() << ": " << pos.format() << std::endl;
-            float f = mc.get_density_at_position(imol_masked, at->x, at->y, at-> z);
+            float f = mc.get_density_at_position(imol_masked, at->x(), at->y(), at-> z());
             if (f < 0.00001) {
                status = 1;
             }
@@ -6589,7 +6589,7 @@ int test_B_factor_multiply(molecules_container_t &mc) {
       for (int iat=0; iat<n_residue_atoms; iat++) {
          mmdb::Atom *at = residue_atoms[iat];
          if (! at->isTer()) {
-            B_pre.push_back(at->tempFactor);
+            B_pre.push_back(at->tempFactor());
          }
       }
 
@@ -6601,7 +6601,7 @@ int test_B_factor_multiply(molecules_container_t &mc) {
          for (int iat=0; iat<n_residue_atoms; iat++) {
             mmdb::Atom *at = residue_atoms[iat];
             if (! at->isTer()) {
-               B_post.push_back(at->tempFactor);
+               B_post.push_back(at->tempFactor());
             }
          }
       }
@@ -6789,7 +6789,7 @@ int test_shiftfield_b_factor_refinement(molecules_container_t &mc) {
       for (int iat=0; iat<n_residue_atoms; iat++) {
          mmdb::Atom *at = residue_atoms[iat];
          if (! at->isTer()) {
-            sum += at->tempFactor;
+            sum += at->tempFactor();
             count++;
          }
       }
@@ -7707,7 +7707,7 @@ int test_set_occupancy(molecules_container_t &mc) {
                   for (int iat=0; iat<n_atoms; iat++) {
                      mmdb::Atom *at = residue_p->GetAtom(iat);
                      if (! at->isTer()) {
-                        if (at->occupancy < 0.00001) n_zero++;
+                        if (at->occupancy() < 0.00001) n_zero++;
                      }
                   }
                }

@@ -49,7 +49,7 @@ coot::angle_betwen_plane_and_vector(mmdb::Residue *residue_p,
       for (int iat=0; iat<n_residue_atoms; iat++) {
          mmdb::Atom *at = residue_atoms[iat];
          std::string atom_name(at->GetAtomName());
-         std::string alt_conf(at->altLoc);
+         std::string alt_conf(at->altLoc());
          std::vector<std::string>::const_iterator it =
             std::find(ring_atom_names.begin(), ring_atom_names.end(), atom_name);
          if (it != ring_atom_names.end()) {
@@ -84,7 +84,7 @@ coot::angle_betwen_plane_and_vector(mmdb::Residue *residue_p,
    clipper::Coord_orth pt_2 = co(bonding_atom);
    clipper::Coord_orth dv = pt_1 - pt_2;
 
-   std::string alt_conf(bonding_atom->altLoc);
+   std::string alt_conf(bonding_atom->altLoc());
    std::string res_name(residue_p->GetResName());
 
    std::vector<std::string> ring_atom_names;

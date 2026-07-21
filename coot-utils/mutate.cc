@@ -60,18 +60,18 @@ coot::util::mutate_internal(mmdb::Residue *residue,
       std::cout << "mutate_internal() Mutate Atom Tables" << std::endl;
       std::cout << "mutate_internal() Before " << residue_spec_t(residue) <<std::endl;
       for(int i=0; i<nResidueAtoms; i++)
-         std::cout << residue_atoms[i]->name << std::endl;
+         std::cout << residue_atoms[i]->GetAtomName() << std::endl;
       std::cout << "mutate_internal() To be replaced by: " << residue_spec_t(std_residue) << std::endl;
       for(int i=0; i<n_std_ResidueAtoms; i++)
-         std::cout << std_residue_atoms[i]->name << std::endl;
+         std::cout << std_residue_atoms[i]->GetAtomName() << std::endl;
    }
 
    // only touch the atoms with given alt conf, ignore the others.
    std::string to_residue_type = std_residue->GetResName();
    for(int i=0; i<nResidueAtoms; i++) {
-      std::string atom_alt_conf(residue_atoms[i]->altLoc);
+      std::string atom_alt_conf(residue_atoms[i]->altLoc());
       if (atom_alt_conf == alt_conf) { 
-         std::string residue_this_atom (residue_atoms[i]->name);
+         std::string residue_this_atom (residue_atoms[i]->GetAtomName());
          if (coot::is_main_chain_p(residue_atoms[i])) {
             if (to_residue_type == "MSE") {
                residue_atoms[i]->Het = 1;
@@ -80,12 +80,12 @@ coot::util::mutate_internal(mmdb::Residue *residue,
                   residue_atoms[i]->Het = 0; // from MSE to MET, say
             }
             if (to_residue_type == "PRO") {
-               std::string atom_name(residue_atoms[i]->name);
+               std::string atom_name(residue_atoms[i]->GetAtomName());
                if (atom_name == " H  ")   // PDBv3 FIXME
                   residue->DeleteAtom(i);
             }
             if (to_residue_type == "GLY") {
-               std::string atom_name(residue_atoms[i]->name);
+               std::string atom_name(residue_atoms[i]->GetAtomName());
                if (atom_name == " HA ")  // PDBv3 FIXME
                   residue->DeleteAtom(i);
                if (atom_name == " CB ")  // PDBv3 FIXME
@@ -101,11 +101,11 @@ coot::util::mutate_internal(mmdb::Residue *residue,
    }
 
    for(int i=0; i<n_std_ResidueAtoms; i++) {
-      std::string std_residue_this_atom (std_residue_atoms[i]->name);
+      std::string std_residue_this_atom (std_residue_atoms[i]->GetAtomName());
       if (! coot::is_main_chain_p(std_residue_atoms[i])) {
          if (is_from_shelx_ins_flag)
-            std_residue_atoms[i]->occupancy = 11.0;
-         std_residue_atoms[i]->tempFactor = b_factor;
+            std_residue_atoms[i]->occupancy() = 11.0;
+         std_residue_atoms[i]->tempFactor() = b_factor;
          mmdb::Atom *copy_at = new mmdb::Atom;
          copy_at->Copy(std_residue_atoms[i]);
          // std::cout << "adding atom " << coot::atom_spec_t(copy_at) << std::endl;
@@ -114,7 +114,7 @@ coot::util::mutate_internal(mmdb::Residue *residue,
             strcpy(copy_at->segID, old_seg_id_for_residue_atoms.c_str());
          }
          if (alt_conf != "")
-            strcpy(copy_at->altLoc, alt_conf.c_str());
+            strcpy(copy_at->altLoc(), alt_conf.c_str());
       }
    }
 
@@ -147,14 +147,14 @@ coot::util::mutate(mmdb::Residue *res, mmdb::Residue *std_res_unoriented, const 
    } else {
       for(int iat=0; iat<nResidueAtoms; iat++) {
          mmdb::Atom *at = residue_atoms[iat];
-         clipper::Coord_orth co(at->x, at->y, at->z);
+         clipper::Coord_orth co(at->x(), at->y(), at->z());
          std::map<std::string, clipper::RTop_orth>::const_iterator it = rtops.find(alt_conf);
          if (it != rtops.end()) { 
             clipper::Coord_orth rotted = co.transform(it->second);
 
-            at->x = rotted.x();
-            at->y = rotted.y();
-            at->z = rotted.z();
+            at->x() = rotted.x();
+            at->y() = rotted.y();
+            at->z() = rotted.z();
          }
       }
 
@@ -393,11 +393,11 @@ coot::util::mutate_base(mmdb::Residue *residue, mmdb::Residue *std_base,
          
       for (int j=0; j<n_match_atoms; j++) {
          for (int i=0; i<n_mol_base_atoms; i++) {
-            std::string atom_name = mol_base_atoms[i]->name;
+            std::string atom_name = mol_base_atoms[i]->GetAtomName();
             if (refrce_name_vector[j] == atom_name) {
-               refrce_atom_positions.push_back(clipper::Coord_orth(mol_base_atoms[i]->x,
-                                                                   mol_base_atoms[i]->y,
-                                                                   mol_base_atoms[i]->z));
+               refrce_atom_positions.push_back(clipper::Coord_orth(mol_base_atoms[i]->x(),
+                                                                   mol_base_atoms[i]->y(),
+                                                                   mol_base_atoms[i]->z()));
                if (debug)
                   std::cout << "Found " << atom_name << " in reference " << std::endl;
             }
@@ -406,11 +406,11 @@ coot::util::mutate_base(mmdb::Residue *residue, mmdb::Residue *std_base,
 
       for (int j=0; j<n_match_atoms; j++) {
          for (int i=0; i<n_std_base_atoms; i++) {
-         std::string atom_name = std_base_atoms[i]->name;
+         std::string atom_name = std_base_atoms[i]->GetAtomName();
             if (moving_name_vector[j] == atom_name) {
-               moving_atom_positions.push_back(clipper::Coord_orth(std_base_atoms[i]->x,
-                                                                   std_base_atoms[i]->y,
-                                                                   std_base_atoms[i]->z));
+               moving_atom_positions.push_back(clipper::Coord_orth(std_base_atoms[i]->x(),
+                                                                   std_base_atoms[i]->y(),
+                                                                   std_base_atoms[i]->z()));
                if (debug)
                   std::cout << "Found " << atom_name << " in moving (std) base " << std::endl;
             }
@@ -505,10 +505,10 @@ coot::util::mutate_base(mmdb::Residue *residue, mmdb::Residue *std_base,
                      for (int i=0; i<n_mol_base_atoms; i++) {
                         if (mol_base_atoms[i]) { 
                         
-                           if (mol_base_atom_names[iat] == mol_base_atoms[i]->name) {
+                           if (mol_base_atom_names[iat] == mol_base_atoms[i]->GetAtomName()) {
 
                               if (debug)
-                                 std::cout << ".... Deleting Atom " << mol_base_atoms[i]->name
+                                 std::cout << ".... Deleting Atom " << mol_base_atoms[i]->GetAtomName()
                                            << " i = " << i << std::endl;
                               
                               residue->DeleteAtom(i);
@@ -543,18 +543,18 @@ coot::util::mutate_base(mmdb::Residue *residue, mmdb::Residue *std_base,
                   for (unsigned int iat=0; iat<std_base_atom_names.size(); iat++) {
                      bool found = 0;
                      for (int i=0; i<n_std_base_atoms; i++) {
-                        if (std_base_atom_names[iat] == std_base_atoms[i]->name) {
-                           clipper::Coord_orth p(std_base_atoms[i]->x,
-                                                 std_base_atoms[i]->y,
-                                                 std_base_atoms[i]->z);
+                        if (std_base_atom_names[iat] == std_base_atoms[i]->GetAtomName()) {
+                           clipper::Coord_orth p(std_base_atoms[i]->x(),
+                                                 std_base_atoms[i]->y(),
+                                                 std_base_atoms[i]->z());
                            clipper::Coord_orth pt = p.transform(rtop);
                            std::string ele = std_base_atom_names[iat].substr(0,2);
                            at = new mmdb::Atom;
                            if (debug)
-                              std::cout << ".... Adding Atom " << std_base_atoms[i]->name
+                              std::cout << ".... Adding Atom " << std_base_atoms[i]->GetAtomName()
                                         << std::endl;
                            at->SetCoordinates(pt.x(), pt.y(), pt.z(), 1.0, b_factor);
-                           std::string new_atom_name = std_base_atoms[i]->name;
+                           std::string new_atom_name = std_base_atoms[i]->GetAtomName();
                            if (std_base_name == "DT")
                               if (new_atom_name == " C5M")
                                  if (! use_old_style_naming)
@@ -563,7 +563,7 @@ coot::util::mutate_base(mmdb::Residue *residue, mmdb::Residue *std_base,
                            at->SetElementName(ele.c_str());
                            std::string new_alt_conf("");
                            // force it down the atom's throat :) [is there a better way?]
-                           strncpy(at->altLoc, new_alt_conf.c_str(), 2);
+                           strncpy(at->altLoc(), new_alt_conf.c_str(), 2);
                            residue->AddAtom(at);
                            if (use_old_seg_id)
                               strcpy(at->segID, old_seg_id_for_residue_atoms.c_str());

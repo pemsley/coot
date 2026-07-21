@@ -53,7 +53,7 @@ public:
         FCXXCoord result = FCXXCoord (1.,1.,1.,0.);
         std::vector<SecondaryColorPair>::iterator pair = pairs.begin();
         while (pair != pairs.end()){
-            if (atom->residue->SSE == pair->getSecondary()){
+            if (atom->GetResidue()->SSE == pair->getSecondary()){
                 result = pair->getColor();
             }
             pair++;

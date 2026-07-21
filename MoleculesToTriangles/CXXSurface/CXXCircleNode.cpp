@@ -235,13 +235,13 @@ bool CXXCircleNode::shouldDeletePointer(CXXCircleNode* &aNodePointer){
 bool CXXCircleNode::equals(CXXCircleNode &node1, CXXCircleNode &node2){
     std::vector<int>ijkCentral(3);
     std::vector<int>ijkOther(3);
-    ijkCentral[0] = node1.getAtomI()->serNum;
-    ijkCentral[1] = node1.getAtomJ()->serNum;
-    ijkCentral[2] = node1.getAtomK()->serNum;
+    ijkCentral[0] = node1.getAtomI()->serNum();
+    ijkCentral[1] = node1.getAtomJ()->serNum();
+    ijkCentral[2] = node1.getAtomK()->serNum();
     sort(ijkCentral.begin(), ijkCentral.end());
-    ijkOther[0] = node2.getAtomI()->serNum;
-    ijkOther[1] = node2.getAtomJ()->serNum;
-    ijkOther[2] = node2.getAtomK()->serNum;
+    ijkOther[0] = node2.getAtomI()->serNum();
+    ijkOther[1] = node2.getAtomJ()->serNum();
+    ijkOther[2] = node2.getAtomK()->serNum();
     sort(ijkOther.begin(), ijkOther.end());
     if (ijkCentral[0] != ijkOther[0]) return false;
     if (ijkCentral[1] != ijkOther[1]) return false;

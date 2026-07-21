@@ -838,7 +838,7 @@ coot::dictionary_residue_restraints_t::change_names(mmdb::Residue *residue_p,
       residue_p->GetAtomTable(res_selection, num_residue_atoms);
       for (int iat=0; iat<num_residue_atoms; iat++) {
 	 mmdb::Atom *at = res_selection[iat];
-	 std::string atom_name = at->name;
+	 std::string atom_name = at->GetAtomName();
 	 for (unsigned int j=0; j<change_name.size(); j++) {
 	    if (change_name[j].first == atom_name) {
 	       // 4 chars?

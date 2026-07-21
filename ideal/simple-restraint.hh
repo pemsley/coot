@@ -2192,7 +2192,7 @@ namespace coot {
                              const gsl_vector *v) const;
 
       bool is_hydrogen(mmdb::Atom *at_p) const {
-         std::string ele = at_p->element;
+         std::string ele = at_p->GetElementName();
          if ((ele == "H") || (ele == " H"))
             return true;
          else
@@ -2203,7 +2203,7 @@ namespace coot {
       std::string get_type_energy(int imol, mmdb::Atom *at, const protein_geometry &geom) const {
          std::string r;
          if (at) {
-            std::string atom_name = at->name;
+            std::string atom_name = at->GetAtomName();
             const char *rn = at->GetResName();
             if (rn) {
                std::string residue_name = rn;
@@ -2293,9 +2293,9 @@ namespace coot {
          dist_crit_for_bonded_pairs = 3.0;
 
          for (int i=0; i<asc_in.n_selected_atoms; i++) {
-            initial_position_params_vec[3*i  ] = asc_in.atom_selection[i]->x;
-            initial_position_params_vec[3*i+1] = asc_in.atom_selection[i]->y;
-            initial_position_params_vec[3*i+2] = asc_in.atom_selection[i]->z;
+            initial_position_params_vec[3*i  ] = asc_in.atom_selection[i]->x();
+            initial_position_params_vec[3*i+1] = asc_in.atom_selection[i]->y();
+            initial_position_params_vec[3*i+2] = asc_in.atom_selection[i]->z();
          }
       }
 

@@ -79,7 +79,7 @@ coot::gaussian_surface_t::using_an_xmap(mmdb::Manager *mol, const std::string &c
    };
 
    auto mmdb_to_clipper = [] (mmdb::Atom *at) {
-      return clipper::Coord_orth(at->x, at->y, at->z);
+      return clipper::Coord_orth(at->x(), at->y(), at->z());
    };
 
    auto clipper_to_cart = [] (const clipper::Coord_orth &co) {

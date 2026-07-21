@@ -65,7 +65,7 @@ completelyEaten(0),
 nodeNumber(0),
 containsEatenNodes(0)
 {
-	centreOfSecondSphere = CXXCoord<CXXCoord_ftype>(theAtomJ->x, theAtomJ->y, theAtomJ->z); 
+	centreOfSecondSphere = CXXCoord<CXXCoord_ftype>(theAtomJ->x(), theAtomJ->y(), theAtomJ->z()); 
 	theNormal = centreOfSecondSphere - getCentreOfSphere();
 	radiusOfSecondSphere = radiusOfAtom2 + probeRadius;
 	

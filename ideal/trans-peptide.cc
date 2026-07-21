@@ -70,19 +70,19 @@ coot::restraints_container_t::add_link_trans_peptide(mmdb::Residue *first,
    fixed_flags[3] = is_fixed_second;
 
    for (int ifat=0; ifat<n_atom_1; ifat++) { 
-      std::string pdb_atom_name_1(atom_1_sel[ifat]->name);
+      std::string pdb_atom_name_1(atom_1_sel[ifat]->GetAtomName());
 
       if (pdb_atom_name_1 == " CA ") {
 	 for (int isat=0; isat<n_atom_2; isat++) { 
-	    std::string pdb_atom_name_2(atom_2_sel[isat]->name);
+	    std::string pdb_atom_name_2(atom_2_sel[isat]->GetAtomName());
 		     
 	    if (pdb_atom_name_2 == " C  ") {
 	       for (int itat=0; itat<n_atom_3; itat++) { 
-		  std::string pdb_atom_name_3(atom_3_sel[itat]->name);
+		  std::string pdb_atom_name_3(atom_3_sel[itat]->GetAtomName());
 			   
 		  if (pdb_atom_name_3 == " N  ") {
 		     for (int iffat=0; iffat<n_atom_4; iffat++) {
-			std::string pdb_atom_name_4(atom_4_sel[iffat]->name);
+			std::string pdb_atom_name_4(atom_4_sel[iffat]->GetAtomName());
 				 			   
 			if (pdb_atom_name_4 == " CA ") {
 
@@ -94,13 +94,13 @@ coot::restraints_container_t::add_link_trans_peptide(mmdb::Residue *first,
 			   if (false)
 			      std::cout << "trans-peptide restraint.... "
 					<< " from atoms \n    "
-					<< atom_1_sel[ifat]->name << " " 
+					<< atom_1_sel[ifat]->GetAtomName() << " " 
 					<< atom_1_sel[ifat]->GetSeqNum() << "\n    " 
-					<< atom_2_sel[isat]->name << " " 
+					<< atom_2_sel[isat]->GetAtomName() << " " 
 					<< atom_2_sel[isat]->GetSeqNum() << "\n    " 
-					<< atom_3_sel[itat]->name << " " 
+					<< atom_3_sel[itat]->GetAtomName() << " " 
 					<< atom_3_sel[itat]->GetSeqNum() << "\n    " 
-					<< atom_4_sel[iffat]->name << " " 
+					<< atom_4_sel[iffat]->GetAtomName() << " " 
 					<< atom_4_sel[iffat]->GetSeqNum() << "\n";
 
 			   // if the angle is currently trans, the we should add a
@@ -388,10 +388,10 @@ coot::restraints_container_t::add_trans_peptide_restraint(mmdb::Residue *first, 
    for (unsigned int i=0; i<=n_rest; i++) {
       simple_restraint &restraint = restraints_vec[i];
       if (restraint.restraint_type == coot::TRANS_PEPTIDE_RESTRAINT) {
-         mmdb::Residue *r_11 = atom[restraint.atom_index_1]->residue;
-         mmdb::Residue *r_12 = atom[restraint.atom_index_2]->residue;
-         mmdb::Residue *r_21 = atom[restraint.atom_index_3]->residue;
-         mmdb::Residue *r_22 = atom[restraint.atom_index_4]->residue;
+         mmdb::Residue *r_11 = atom[restraint.atom_index_1]->GetResidue();
+         mmdb::Residue *r_12 = atom[restraint.atom_index_2]->GetResidue();
+         mmdb::Residue *r_21 = atom[restraint.atom_index_3]->GetResidue();
+         mmdb::Residue *r_22 = atom[restraint.atom_index_4]->GetResidue();
          if (r_11 == first) {
             if (r_12 == first) {
                if (r_21 == second) {
@@ -422,10 +422,10 @@ coot::restraints_container_t::remove_trans_peptide_restraint(mmdb::Residue *firs
    for (unsigned int i=0; i<=n_rest; i++) {
       simple_restraint &restraint = restraints_vec[i];
       if (restraint.restraint_type == coot::TRANS_PEPTIDE_RESTRAINT) {
-         mmdb::Residue *r_11 = atom[restraint.atom_index_1]->residue;
-         mmdb::Residue *r_12 = atom[restraint.atom_index_2]->residue;
-         mmdb::Residue *r_21 = atom[restraint.atom_index_3]->residue;
-         mmdb::Residue *r_22 = atom[restraint.atom_index_4]->residue;
+         mmdb::Residue *r_11 = atom[restraint.atom_index_1]->GetResidue();
+         mmdb::Residue *r_12 = atom[restraint.atom_index_2]->GetResidue();
+         mmdb::Residue *r_21 = atom[restraint.atom_index_3]->GetResidue();
+         mmdb::Residue *r_22 = atom[restraint.atom_index_4]->GetResidue();
          if (r_11 == first) {
             if (r_12 == first) {
                if (r_21 == second) {

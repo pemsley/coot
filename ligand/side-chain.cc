@@ -141,20 +141,20 @@ coot::do_180_degree_side_chain_flip(const coot::residue_spec_t &spec,
             //
             for (int iatc=0; iatc<n_atom_residue_copy; iatc++) {
                // std::cout << residue_atoms_copy[iat] << std::endl;
-               std::string atom_copy_altconf = residue_atoms_copy[iatc]->altLoc;
+               std::string atom_copy_altconf = residue_atoms_copy[iatc]->altLoc();
                if (atom_copy_altconf == alt_conf) {
                   // we need to find this atom in residue
-                  std::string atom_copy_name = residue_atoms_copy[iatc]->name;
+                  std::string atom_copy_name = residue_atoms_copy[iatc]->GetAtomName();
                   for (int iato=0; iato<nResidueAtoms; iato++) {
-                     std::string orig_atom_altconf = residue_atoms[iato]->altLoc;
-                     std::string orig_atom_name    = residue_atoms[iato]->name;
+                     std::string orig_atom_altconf = residue_atoms[iato]->altLoc();
+                     std::string orig_atom_name    = residue_atoms[iato]->GetAtomName();
                      if (orig_atom_name == atom_copy_name) {
                         if (atom_copy_altconf == orig_atom_altconf) {
                            //                               std::cout << "DEBUG:: copying coords from "
                            //                                         << residue_atoms_copy[iatc] << std::endl;
-                           residue_atoms[iato]->x = residue_atoms_copy[iatc]->x;
-                           residue_atoms[iato]->y = residue_atoms_copy[iatc]->y;
-                           residue_atoms[iato]->z = residue_atoms_copy[iatc]->z;
+                           residue_atoms[iato]->x() = residue_atoms_copy[iatc]->x();
+                           residue_atoms[iato]->y() = residue_atoms_copy[iatc]->y();
+                           residue_atoms[iato]->z() = residue_atoms_copy[iatc]->z();
                         }
                      }
                   }

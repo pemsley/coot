@@ -88,7 +88,7 @@ coot::util::jed_flip(int imol_no, mmdb::Residue *residue_p, mmdb::Atom *atom_p,
                      message = "Selected atom was not in the residue";
                   } else {
                      // Happy Path
-                     std::string alt_conf(atom_p->altLoc);
+                     std::string alt_conf(atom_p->altLoc());
                      atom_selection_container_t residue_asc(residue_atoms, n_residue_atoms);
                      contact_info contact = getcontacts(residue_asc, monomer_type, imol_no, geom);
                      std::vector<std::vector<int> > contact_indices =

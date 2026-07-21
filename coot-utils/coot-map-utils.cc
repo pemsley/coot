@@ -441,10 +441,10 @@ coot::util::map_score(mmdb::PPAtom atom_selection,
    for (int i=0; i<n_selected_atoms; i++) {
       mmdb::Atom *at = atom_selection[i];
       if (! at->isTer()) {
-         f1 = density_at_point(xmap, clipper::Coord_orth(atom_selection[i]->x,
-                                                         atom_selection[i]->y,
-                                                         atom_selection[i]->z));
-         f1 *= atom_selection[i]->occupancy;
+         f1 = density_at_point(xmap, clipper::Coord_orth(atom_selection[i]->x(),
+                                                         atom_selection[i]->y(),
+                                                         atom_selection[i]->z()));
+         f1 *= atom_selection[i]->occupancy();
          f += f1;
          // std::cout << "debug:: map_score() adding " << atom_spec_t(at) << " f1 " << f1 << std::endl;
       }
@@ -460,7 +460,7 @@ coot::util::map_score(std::vector<mmdb::Atom *> atoms,
    for (unsigned int i=0; i<atoms.size(); i++) {
       if (atoms[i]) {
          float f1 = density_at_point(xmap, co(atoms[i]));
-         f1 *= atoms[i]->occupancy;
+         f1 *= atoms[i]->occupancy();
          f += f1;
       }
    }
@@ -473,7 +473,7 @@ float coot::util::map_score_atom(mmdb::Atom *atom,
 
    float f = 0;
    if (atom) {
-      f = density_at_point(xmap, clipper::Coord_orth(atom->x, atom->y, atom->z));
+      f = density_at_point(xmap, clipper::Coord_orth(atom->x(), atom->y(), atom->z()));
    }
    return f;
 }
@@ -1069,10 +1069,10 @@ coot::util::spin_search(const clipper::Xmap<float> &xmap, mmdb::Residue *res, co
       std::cout << "        (found " << match_atoms.size() << " atoms.)" << std::endl;
    } else {
 
-      clipper::Coord_orth pa1(match_atoms[0]->x, match_atoms[0]->y, match_atoms[0]->z);
-      clipper::Coord_orth pa2(match_atoms[1]->x, match_atoms[1]->y, match_atoms[1]->z);
-      clipper::Coord_orth pa3(match_atoms[2]->x, match_atoms[2]->y, match_atoms[2]->z);
-      clipper::Coord_orth pa4(match_atoms[3]->x, match_atoms[3]->y, match_atoms[3]->z);
+      clipper::Coord_orth pa1(match_atoms[0]->x(), match_atoms[0]->y(), match_atoms[0]->z());
+      clipper::Coord_orth pa2(match_atoms[1]->x(), match_atoms[1]->y(), match_atoms[1]->z());
+      clipper::Coord_orth pa3(match_atoms[2]->x(), match_atoms[2]->y(), match_atoms[2]->z());
+      clipper::Coord_orth pa4(match_atoms[3]->x(), match_atoms[3]->y(), match_atoms[3]->z());
 
       float best_d = -99999999.9;
       clipper::Coord_orth best_pos;
@@ -1280,8 +1280,8 @@ coot::util::backrub_residue_triple_t::trim_residue_atoms_generic(mmdb::Residue *
       int n_residue_atoms;
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
       for (int i=0; i<n_residue_atoms; i++) {
-         std::string atom_name(residue_atoms[i]->name);
-         std::string atom_alt_conf(residue_atoms[i]->altLoc);
+         std::string atom_name(residue_atoms[i]->GetAtomName());
+         std::string atom_alt_conf(residue_atoms[i]->altLoc());
 
          bool delete_this_atom_flag = 1;
          if (use_keep_atom_vector) {
@@ -2037,15 +2037,15 @@ coot::util::calc_atom_map(mmdb::Manager *mol,
    for (int iat=0; iat<n_atoms; iat++) {
       mmdb::Atom *at = sel_atoms[iat];
       if (at->isTer()) continue;
-      clipper::Coord_orth pt(at->x, at->y, at->z);
-      std::string ele(at->element);
+      clipper::Coord_orth pt(at->x(), at->y(), at->z());
+      std::string ele(at->GetElementName());
       clipper::Atom cat;
       cat.set_element(ele);
       cat.set_coord_orth(pt);
-      float u_iso = at->tempFactor * rescale_b_u;
+      float u_iso = at->tempFactor() * rescale_b_u;
       if (u_iso < 0.1f) u_iso = 0.1f;  // B < ~8.0: EDcalc_iso produces NaN from 0/0
       cat.set_u_iso(u_iso);
-      cat.set_occupancy(at->occupancy);
+      cat.set_occupancy(at->occupancy());
       l.push_back(cat);
    }
 
@@ -2306,7 +2306,7 @@ coot::util::map_to_model_correlation_stats(mmdb::Manager *mol,
          if (debug) {
             std::cout << "debug:: selected " << n_atoms << " atoms " << std::endl;
             for (int iat=0; iat<n_atoms; iat++)
-               std::cout << "    " << iat << ": " << atom_selection[iat]->name << " "
+               std::cout << "    " << iat << ": " << atom_selection[iat]->GetAtomName() << " "
                          << atom_spec_t(atom_selection[iat]) << std::endl;
          }
 
@@ -2401,9 +2401,9 @@ coot::util::map_to_model_correlation_stats(mmdb::Manager *mol,
          }
 
          for (int iat=0; iat<n_atoms; iat++) {
-            clipper::Coord_orth co(atom_selection[iat]->x,
-               atom_selection[iat]->y,
-               atom_selection[iat]->z);
+            clipper::Coord_orth co(atom_selection[iat]->x(),
+               atom_selection[iat]->y(),
+               atom_selection[iat]->z());
 
                if (atom_mask_mode == ATOM_MASK_ALL_ATOM_B_FACTOR)
                atom_radius = refmac_atom_radius(atom_selection[iat]);
@@ -2809,9 +2809,9 @@ coot::util::map_to_model_correlation_per_residue(mmdb::Manager *mol,
       for (int iat=0; iat<n_atoms; iat++) {
          residue_spec_t res_spec(atom_selection[iat]->GetResidue());
          int spec_idx = spec_to_index[res_spec];
-         clipper::Coord_orth co(atom_selection[iat]->x,
-                                atom_selection[iat]->y,
-                                atom_selection[iat]->z);
+         clipper::Coord_orth co(atom_selection[iat]->x(),
+                                atom_selection[iat]->y(),
+                                atom_selection[iat]->z());
          clipper::Coord_frac cf = co.coord_frac(reference_map.cell());
          clipper::Coord_frac box0(
                                   cf.u() - atom_radius/reference_map.cell().descr().a(),
@@ -2981,9 +2981,9 @@ coot::util::map_to_model_correlation_stats_per_residue(mmdb::Manager *mol,
 
       for (int iat=0; iat<n_atoms; iat++) {
          residue_spec_t res_spec(atom_selection[iat]->GetResidue());
-         clipper::Coord_orth co(atom_selection[iat]->x,
-            atom_selection[iat]->y,
-            atom_selection[iat]->z);
+         clipper::Coord_orth co(atom_selection[iat]->x(),
+            atom_selection[iat]->y(),
+            atom_selection[iat]->z());
             clipper::Coord_frac cf = co.coord_frac(xmap.cell());
             clipper::Coord_frac box0(
                cf.u() - atom_radius/xmap.cell().descr().a(),
@@ -3222,7 +3222,7 @@ coot::util::map_to_model_correlation_stats_per_residue_run(mmdb::Manager *mol,
                                          mmdb::Atom *at = residue_atoms[iat];
                                          if (! at->isTer()) {
 
-                                            clipper::Coord_orth co(at->x, at->y, at->z);
+                                            clipper::Coord_orth co(at->x(), at->y(), at->z());
                                             clipper::Coord_frac cf = co.coord_frac(contributor_map.cell());
                                             clipper::Coord_frac box0(cf.u() - atom_radius/contributor_map.cell().descr().a(),
                                                                      cf.v() - atom_radius/contributor_map.cell().descr().b(),
@@ -3297,9 +3297,9 @@ coot::util::map_to_model_correlation_stats_per_residue_run(mmdb::Manager *mol,
                                   mol->GetSelIndex(SelHnd, atom_selection, n_atoms);
                                   for (int iat=0; iat<n_atoms; iat++) {
                                      mmdb::Atom *at = atom_selection[iat];
-                                     mmdb::Residue *residue_p = at->residue;
+                                     mmdb::Residue *residue_p = at->GetResidue();
                                      residue_spec_t res_spec(at->GetResidue());
-                                     clipper::Coord_orth co(at->x, at->y, at->z);
+                                     clipper::Coord_orth co(at->x(), at->y(), at->z());
                                      clipper::Coord_frac cf = co.coord_frac(contributor_map.cell());
                                      clipper::Coord_frac box0(cf.u() - atom_radius/contributor_map.cell().descr().a(),
                                                               cf.v() - atom_radius/contributor_map.cell().descr().b(),
@@ -3470,7 +3470,7 @@ coot::util::qq_plot_for_map_over_model(mmdb::Manager *mol,
    for (int iat=0; iat<n_atoms; iat++) {
       mmdb::Atom *at = sel_atoms[iat];
       clipper::Coord_orth c_o = co(at);
-      float radius = 1.5 + at->tempFactor*1.5/80.0; // should be some function of tempFactor;
+      float radius = 1.5 + at->tempFactor()*1.5/80.0; // should be some function of tempFactor;
       float radius_sq = radius * radius;
 
       clipper::Coord_frac cf = c_o.coord_frac(xmap.cell());
@@ -5460,10 +5460,10 @@ coot::util::split_residue_using_map(mmdb::Residue *residue_p,
          mmdb::Atom *at = residue_atoms[iat];
          if (! at->isTer()) {
             // let's handle the perverse case where B alt confs come before the A alt confs
-            std::string atom_name(at->name);
+            std::string atom_name(at->GetAtomName());
             std::map<std::string, std::pair<mmdb:: Atom *, mmdb:: Atom *> >::iterator it;
             it = atom_name_map.find(atom_name);
-            std::string alt_loc = at->altLoc;
+            std::string alt_loc = at->altLoc();
             if (it == atom_name_map.end()) {
                if (alt_loc == "A") atom_name_map[atom_name] = std::make_pair(at, nullptr);
                if (alt_loc == "B") atom_name_map[atom_name] = std::make_pair(nullptr, at);
@@ -5515,10 +5515,10 @@ coot::util::split_residue_using_map(mmdb::Residue *residue_p,
          mmdb::Atom *at = residue_atoms[iat];
          mmdb::Atom *at_copy = new mmdb::Atom;
          at_copy->Copy(at);
-         strncpy(at->altLoc,      "A", 2);
-         strncpy(at_copy->altLoc, "B", 2);
-         at->x      += h.x();      at->y += h.y();      at->z += h.z();
-         at_copy->x -= h.x(); at_copy->y -= h.y(); at_copy->z -= h.z();
+         strncpy(at->altLoc(),      "A", 2);
+         strncpy(at_copy->altLoc(), "B", 2);
+         at->x()      += h.x();      at->y() += h.y();      at->z() += h.z();
+         at_copy->x() -= h.x(); at_copy->y() -= h.y(); at_copy->z() -= h.z();
          atoms_to_be_added.push_back(at_copy);
       }
       for(mmdb::Atom *at_copy : atoms_to_be_added)

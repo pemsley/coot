@@ -74,7 +74,7 @@ coot::pepflip_using_difference_map::get_suggested_flips(float n_sigma) const {
       float d2 = util::density_at_point(diff_map, pt_2);
       float delta = d2-d1;
       if (delta > cut) {
-         residue_spec_t spec(t.CA_this->residue);
+         residue_spec_t spec(t.CA_this->GetResidue());
          rv.push_back(spec);
          // std::cout << "INFO:: Adding pepflip: " << spec << " z: " << delta/sd << std::endl;
       }
@@ -120,13 +120,13 @@ coot::pepflip_using_difference_map::get_peptide_atom_triplets() const {
                      if (! at->isTer()) {
                         std::string atom_name(at->GetAtomName());
                         if (atom_name == " O  ") {
-                           std::string alt_loc(at->altLoc);
+                           std::string alt_loc(at->altLoc());
                            if (alt_loc == "") {
                               O_this = at;
                            }
                         }
                         if (atom_name == " CA ") {
-                           std::string alt_loc(at->altLoc);
+                           std::string alt_loc(at->altLoc());
                            if (alt_loc == "") {
                               CA_this = at;
                            }
@@ -141,7 +141,7 @@ coot::pepflip_using_difference_map::get_peptide_atom_triplets() const {
                         if (! at->isTer()) {
                            std::string atom_name(at->GetAtomName());
                            if (atom_name == " CA ") {
-                              std::string alt_loc(at->altLoc);
+                              std::string alt_loc(at->altLoc());
                               if (alt_loc == "") {
                                  CA_next = at;
                                  break;

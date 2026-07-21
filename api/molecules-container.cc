@@ -605,7 +605,7 @@ molecules_container_t::get_active_atom(float x, float y, float z, const std::str
          s += std::string(at->GetInsCode());
          s += "/";
          s += std::string(at->GetAtomName());
-         std::string a(at->altLoc);
+         std::string a(at->altLoc());
          if (! a.empty()) {
             s += ":";
             s += std::string();
@@ -648,7 +648,7 @@ molecules_container_t::get_active_atom(float x, float y, float z, const std::str
                         for (int iat=0; iat<n_atoms; iat++) {
                            mmdb::Atom *at = residue_p->GetAtom(iat);
                            if (! at->isTer()) {
-                              coot::Cartesian atom_pos(at->x, at->y, at->z);
+                              coot::Cartesian atom_pos(at->x(), at->y(), at->z());
                               float dd = coot::Cartesian::lengthsq(screen_centre, atom_pos);
                               if (dd < best_distance_sqrd) {
                                  best_distance_sqrd = dd;
@@ -1622,7 +1622,7 @@ molecules_container_t::rotamer_analysis(int imol_model) const {
          // (GLY and ALA have <= 5 heavy atoms and so are correctly skipped here.)
          int n_heavy_atoms = 0;
          for (int iat=0; iat<n_residue_atoms; iat++) {
-            std::string ele(residue_atoms[iat]->element);
+            std::string ele(residue_atoms[iat]->GetElementName());
             if (ele != " H" && ele != " D")
                n_heavy_atoms++;
          }
@@ -2156,7 +2156,7 @@ molecules_container_t::get_atom_position(int imol, coot::atom_spec_t &atom_spec)
 
    mmdb::Atom *at = get_atom(imol, atom_spec);
    if (at) {
-      return std::pair<bool, coot::Cartesian> (true, coot::Cartesian(at->x, at->y, at->z));
+      return std::pair<bool, coot::Cartesian> (true, coot::Cartesian(at->x(), at->y(), at->z()));
    } else {
       return std::pair<bool, coot::Cartesian> (false, coot::Cartesian(0,0,0));
    }
@@ -3528,7 +3528,7 @@ molecules_container_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb
             if (false)
                std::cout << "debug:: flankers_in_reference_mol " << ires << " "
                          << coot::residue_spec_t(flankers_in_reference_mol[ires]) << " "
-                         << "had index " << flankers_in_reference_mol[ires]->index
+                         << "had index " << flankers_in_reference_mol[ires]->GetIndex()
                          << std::endl;
 
             // get rid of this function at some stage
@@ -3539,7 +3539,7 @@ molecules_container_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb
 
             if (r) {
 
-               r->PutUDData(index_from_reference_residue_handle, flankers_in_reference_mol[ires]->index);
+               r->PutUDData(index_from_reference_residue_handle, flankers_in_reference_mol[ires]->GetIndex());
 
                // copy over the atom indices. UDDAtomIndexHandle in mol_n becomes UDDOldAtomIndexHandle
                // indices in the returned molecule
@@ -3561,7 +3561,7 @@ molecules_container_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb
                   chain_p->AddResidue(r); // at the end
                else
                   chain_p->InsResidue(r, sni);
-               r->seqNum = flankers_in_reference_mol[ires]->GetSeqNum();
+               r->GetSeqNum() = flankers_in_reference_mol[ires]->GetSeqNum();
                r->SetResName(flankers_in_reference_mol[ires]->GetResName());
                n_flanker++;
 
@@ -3587,7 +3587,7 @@ molecules_container_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb
                   for (int ires=0; ires<nres; ires++) {
                      mmdb::Residue *residue_p = chain_p->GetResidue(ires);
                      std::cout << "create_mmdb..  ^^^ " << coot::residue_spec_t(residue_p) << " "
-                               << residue_p << " index " << residue_p->index
+                               << residue_p << " index " << residue_p->GetIndex()
                                << std::endl;
                   }
                }
@@ -4076,7 +4076,7 @@ molecules_container_t::generate_molecule_and_refine(int imol,  // needed for UDD
                      std::cout << "DEBUG:: in generate_molecule_and_refine() residues_mol_and_res_vec mol:   residue "
                                << coot::residue_spec_t(residue_p) << " residue "
                                << residue_p << " chain " << residue_p->chain << " index "
-                               << residue_p->index << std::endl;
+                               << residue_p->GetIndex() << std::endl;
                   }
                }
             }
@@ -4570,9 +4570,9 @@ molecules_container_t::apply_translation_to_molecule(int imol, float tx, float t
       mol->GetSelIndex(selHnd, atoms, n_atoms);
       if (n_atoms > 0) {
          for (int i=0; i<n_atoms; i++) {
-            atoms[i]->x += tx;
-            atoms[i]->y += ty;
-            atoms[i]->z += tz;
+            atoms[i]->x() += tx;
+            atoms[i]->y() += ty;
+            atoms[i]->z() += tz;
          }
          mol->FinishStructEdit();
          set_updating_maps_need_an_update(imol);
@@ -4621,7 +4621,7 @@ std::vector<coot::molecule_t::interesting_place_t>
 molecules_container_t::pepflips_using_difference_map(int imol_coords, int imol_difference_map, float n_sigma) const {
 
    auto mmdb_to_clipper = [] (mmdb::Atom *at) {
-      return clipper::Coord_orth(at->x, at->y, at->z);
+      return clipper::Coord_orth(at->x(), at->y(), at->z());
    };
 
    std::vector<coot::molecule_t::interesting_place_t> v;

@@ -73,9 +73,9 @@ coot::torsion_general::GetTree_0_based() const {
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
       std::vector< ::Cartesian > coords;
       for(int i=0; i<n_residue_atoms; i++) {
-	 ::Cartesian c(residue_atoms[i]->x,
-		       residue_atoms[i]->y,
-		       residue_atoms[i]->z);
+	 ::Cartesian c(residue_atoms[i]->x(),
+		       residue_atoms[i]->y(),
+		       residue_atoms[i]->z());
 	 coords.push_back(c);
       }
       int base_index = 0;
@@ -95,9 +95,9 @@ coot::torsion_general::GetTree() const {
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
       std::vector< ::Cartesian > coords;
       for(int i=0; i<n_residue_atoms; i++) {
-	 ::Cartesian c(residue_atoms[i]->x,
-		       residue_atoms[i]->y,
-		       residue_atoms[i]->z);
+	 ::Cartesian c(residue_atoms[i]->x(),
+		       residue_atoms[i]->y(),
+		       residue_atoms[i]->z());
 	 coords.push_back(c);
       }
       int base_index = clicked_atom_indices[0];
@@ -124,9 +124,9 @@ coot::torsion_general::change_by(double diff, Tree *tree) {
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
       std::vector< ::Cartesian > coords;
       for(int i=0; i<n_residue_atoms; i++) {
-	 ::Cartesian c(residue_atoms[i]->x,
-		       residue_atoms[i]->y,
-		       residue_atoms[i]->z);
+	 ::Cartesian c(residue_atoms[i]->x(),
+		       residue_atoms[i]->y(),
+		       residue_atoms[i]->z());
 	 coords.push_back(c);
       }
 
@@ -163,22 +163,22 @@ coot::torsion_general::change_by(double diff, Tree *tree) {
 	    for (int iat=0; iat<n_residue_atoms; iat++) {
 
 	       if (debug) {
-		  float dx = residue_atoms[iat]->x - coords_rotatated[iat].get_x();
-		  float dy = residue_atoms[iat]->x - coords_rotatated[iat].get_x();
-		  float dz = residue_atoms[iat]->x - coords_rotatated[iat].get_x();
+		  float dx = residue_atoms[iat]->x() - coords_rotatated[iat].get_x();
+		  float dy = residue_atoms[iat]->x() - coords_rotatated[iat].get_x();
+		  float dz = residue_atoms[iat]->x() - coords_rotatated[iat].get_x();
 		  float dd = dx * dx + dy * dy + dz * dz;
 		  float d = sqrt(dd);
-		  std::cout << residue_atoms[iat]->name << "debug:: change_by(): "
-			    << residue_atoms[iat]->x << " "
-			    << residue_atoms[iat]->y << " "
-			    << residue_atoms[iat]->z << " to  "
+		  std::cout << residue_atoms[iat]->GetAtomName() << "debug:: change_by(): "
+			    << residue_atoms[iat]->x() << " "
+			    << residue_atoms[iat]->y() << " "
+			    << residue_atoms[iat]->z() << " to  "
 			    << coords_rotatated[iat] << " moved by "
 			    << d << std::endl;
 	       }
 
-	       residue_atoms[iat]->x = coords_rotatated[iat].get_x();
-	       residue_atoms[iat]->y = coords_rotatated[iat].get_y();
-	       residue_atoms[iat]->z = coords_rotatated[iat].get_z();
+	       residue_atoms[iat]->x() = coords_rotatated[iat].get_x();
+	       residue_atoms[iat]->y() = coords_rotatated[iat].get_y();
+	       residue_atoms[iat]->z() = coords_rotatated[iat].get_z();
 	    }
 	    r = 0; // return good status
 	 }
@@ -188,9 +188,9 @@ coot::torsion_general::change_by(double diff, Tree *tree) {
       }
       if (debug) {
 	 for(int i=0; i<n_residue_atoms; i++) {
-	    ::Cartesian c(residue_atoms[i]->x,
-			  residue_atoms[i]->y,
-			  residue_atoms[i]->z);
+	    ::Cartesian c(residue_atoms[i]->x(),
+			  residue_atoms[i]->y(),
+			  residue_atoms[i]->z());
 	 }
       }
    } else {
@@ -262,7 +262,7 @@ coot::torsion_general::get_contact_indices() const {
    // we keep a mapping from local indexing to residue indexing.
    // 
    for (int i=0; i<n_residue_atoms; i++) {
-      std::string element(residue_atoms[i]->element);
+      std::string element(residue_atoms[i]->GetElementName());
       if (element == " H" || element == " D") {
 	 n_H_residue_atoms++;
       } else {
@@ -276,7 +276,7 @@ coot::torsion_general::get_contact_indices() const {
    int iH=0;
    int inH=0;
    for (int i=0; i<n_residue_atoms; i++) {
-      std::string element(residue_atoms[i]->element);
+      std::string element(residue_atoms[i]->GetElementName());
       if (element == " H" || element == " D") {
 	 H_residue_atoms[iH] = residue_atoms[i];
 	 H_atom_orig_indcies[iH]=i;

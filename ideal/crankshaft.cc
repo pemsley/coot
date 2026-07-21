@@ -79,7 +79,7 @@ coot::crankshaft_set::crankshaft_set(mmdb::Residue *res_0,
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
    for (int iat=0; iat<n_residue_atoms; iat++) {
       mmdb::Atom *at = residue_atoms[iat];
-      std::string at_name = at->name;
+      std::string at_name = at->GetAtomName();
       if (at_name == " C  ") { // PDBv3 fixme
 	 v[0] = at;
 	 break;
@@ -89,7 +89,7 @@ coot::crankshaft_set::crankshaft_set(mmdb::Residue *res_0,
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
    for (int iat=0; iat<n_residue_atoms; iat++) {
       mmdb::Atom *at = residue_atoms[iat];
-      std::string at_name = at->name;
+      std::string at_name = at->GetAtomName();
       if (at_name == " N  ") { // PDBv3 fixme
 	 v[1] = at;
       }
@@ -109,7 +109,7 @@ coot::crankshaft_set::crankshaft_set(mmdb::Residue *res_0,
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
    for (int iat=0; iat<n_residue_atoms; iat++) {
       mmdb::Atom *at = residue_atoms[iat];
-      std::string at_name = at->name;
+      std::string at_name = at->GetAtomName();
       if (at_name == " N  ") { // PDBv3 fixme
 	 v[4] = at;
       }
@@ -129,7 +129,7 @@ coot::crankshaft_set::crankshaft_set(mmdb::Residue *res_0,
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
    for (int iat=0; iat<n_residue_atoms; iat++) {
       mmdb::Atom *at = residue_atoms[iat];
-      std::string at_name = at->name;
+      std::string at_name = at->GetAtomName();
       if (at_name == " N  ") { // PDBv3 fixme
 	 v[7] = at;
       }
@@ -250,8 +250,8 @@ coot::nmer_crankshaft_set::residues() const {
    for (std::size_t i=0; i<size(); i++) {
       mmdb::Atom *at_1 = cs_vec[i].ca_1;
       mmdb::Atom *at_2 = cs_vec[i].ca_2;
-      mmdb::Residue *r_1 = at_1->residue;
-      mmdb::Residue *r_2 = at_2->residue;
+      mmdb::Residue *r_1 = at_1->GetResidue();
+      mmdb::Residue *r_2 = at_2->GetResidue();
       if (std::find(v.begin(), v.end(), r_1) == v.end()) v.push_back(r_1);
       if (std::find(v.begin(), v.end(), r_2) == v.end()) v.push_back(r_2);
    }
@@ -327,9 +327,9 @@ coot::crankshaft_set::move_the_atoms(float ang) {
 	 if (at) {
 	    clipper::Coord_orth at_pos = co(v[indices[i]]);
 	    clipper::Coord_orth at_pos_new = util::rotate_around_vector(dir, at_pos, p_ca_1, ang);
-	    at->x = at_pos_new.x();
-	    at->y = at_pos_new.y();
-	    at->z = at_pos_new.z();
+	    at->x() = at_pos_new.x();
+	    at->y() = at_pos_new.y();
+	    at->z() = at_pos_new.z();
 	 }
       }
    }
@@ -1186,7 +1186,7 @@ coot::crankshaft::get_atom(mmdb::Residue *res_1, const std::string &atom_name_in
    res_1->GetAtomTable(residue_atoms_1, n_residue_atoms_1);
    for (int iat=0; iat<n_residue_atoms_1; iat++) {
       mmdb::Atom *at = residue_atoms_1[iat];
-      std::string atom_name = at->name;
+      std::string atom_name = at->GetAtomName();
       if (atom_name == atom_name_in) {
 	 r = at;
 	 break;

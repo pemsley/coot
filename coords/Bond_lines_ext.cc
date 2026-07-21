@@ -94,13 +94,13 @@ Bond_lines_ext::find_skel_atom_bonds(atom_selection_container_t SelAtom) {
 	    int iat_1 = contact[i].id1;
 	    int iat_2 = contact[i].id2;
 
-	    coot::Cartesian atom_1(atom_sel[ contact[i].id1 ]->x,
-			     atom_sel[ contact[i].id1 ]->y,
-			     atom_sel[ contact[i].id1 ]->z);
+	    coot::Cartesian atom_1(atom_sel[ contact[i].id1 ]->x(),
+			     atom_sel[ contact[i].id1 ]->y(),
+			     atom_sel[ contact[i].id1 ]->z());
 
-	    coot::Cartesian atom_2(atom_sel[ contact[i].id2 ]->x,
-			     atom_sel[ contact[i].id2 ]->y,
-			     atom_sel[ contact[i].id2 ]->z);
+	    coot::Cartesian atom_2(atom_sel[ contact[i].id2 ]->x(),
+			     atom_sel[ contact[i].id2 ]->y(),
+			     atom_sel[ contact[i].id2 ]->z());
 
 	    addBond(col, atom_1, atom_2, cc, model_number, iat_1, iat_2, true, true);
 
@@ -186,9 +186,9 @@ Bond_lines_ext::find_molecule_middle(atom_selection_container_t SelAtom,
       if (max_neighbour_atom_index != -1) {
 
 	 //
-	 centre.set_them(atom_sel[max_neighbour_atom_index]->x,
-			 atom_sel[max_neighbour_atom_index]->y,
-			 atom_sel[max_neighbour_atom_index]->z);
+	 centre.set_them(atom_sel[max_neighbour_atom_index]->x(),
+			 atom_sel[max_neighbour_atom_index]->y(),
+			 atom_sel[max_neighbour_atom_index]->z());
       } else {
 
 	 //

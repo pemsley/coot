@@ -208,9 +208,9 @@ coot::backrub::rotamer_residue_centre() const {
    orig_this_residue->GetAtomTable(residue_atoms, n_residue_atoms);
    float sum_x=0, sum_y=0, sum_z=0;
    for (int iat=0; iat<n_residue_atoms; iat++) {
-      sum_x += residue_atoms[iat]->x;
-      sum_y += residue_atoms[iat]->y;
-      sum_z += residue_atoms[iat]->z;
+      sum_x += residue_atoms[iat]->x();
+      sum_y += residue_atoms[iat]->y();
+      sum_z += residue_atoms[iat]->z();
    }
    if (n_residue_atoms > 0) {
       float inv = 1.0/float(n_residue_atoms);
@@ -231,9 +231,9 @@ coot::backrub::residue_radius(const clipper::Coord_orth &rc) {
    orig_this_residue->GetAtomTable(residue_atoms, n_residue_atoms);
    float longest_length = 0.0;
    for (int iat=0; iat<n_residue_atoms; iat++) {
-      clipper::Coord_orth pt(residue_atoms[iat]->x - rc.x(),
-                             residue_atoms[iat]->y - rc.y(),
-                             residue_atoms[iat]->z - rc.z());
+      clipper::Coord_orth pt(residue_atoms[iat]->x() - rc.x(),
+                             residue_atoms[iat]->y() - rc.y(),
+                             residue_atoms[iat]->z() - rc.z());
       float this_length_sq = pt.lengthsq();
       if (this_length_sq > longest_length) {
          longest_length = this_length_sq;
@@ -303,14 +303,14 @@ coot::backrub::setup_this_and_prev_next_ca_positions() {
 
    orig_this_residue->GetAtomTable(residue_atoms, n_residue_atoms);
    for (int iat=0; iat<n_residue_atoms; iat++) {
-      std::string atom_name(residue_atoms[iat]->name);
-      std::string atom_alt_conf(residue_atoms[iat]->altLoc);
+      std::string atom_name(residue_atoms[iat]->GetAtomName());
+      std::string atom_alt_conf(residue_atoms[iat]->altLoc());
       if (atom_name == " CA " ) {
          if (atom_alt_conf == alt_conf) {
             found = 1;
-            ca_this = clipper::Coord_orth(residue_atoms[iat]->x,
-                                          residue_atoms[iat]->y,
-                                          residue_atoms[iat]->z);
+            ca_this = clipper::Coord_orth(residue_atoms[iat]->x(),
+                                          residue_atoms[iat]->y(),
+                                          residue_atoms[iat]->z());
          }
       }
    }
@@ -324,14 +324,14 @@ coot::backrub::setup_this_and_prev_next_ca_positions() {
 
    orig_prev_residue->GetAtomTable(residue_atoms, n_residue_atoms);
    for (int iat=0; iat<n_residue_atoms; iat++) {
-      std::string atom_name(residue_atoms[iat]->name);
-      std::string atom_alt_conf(residue_atoms[iat]->altLoc);
+      std::string atom_name(residue_atoms[iat]->GetAtomName());
+      std::string atom_alt_conf(residue_atoms[iat]->altLoc());
       if (atom_name == " CA " ) {
          if (atom_alt_conf == alt_conf) {
             found = 1;
-            ca_prev = clipper::Coord_orth(residue_atoms[iat]->x,
-                                          residue_atoms[iat]->y,
-                                          residue_atoms[iat]->z);
+            ca_prev = clipper::Coord_orth(residue_atoms[iat]->x(),
+                                          residue_atoms[iat]->y(),
+                                          residue_atoms[iat]->z());
          }
       }
    }
@@ -347,14 +347,14 @@ coot::backrub::setup_this_and_prev_next_ca_positions() {
    residue_atoms = 0;
    orig_next_residue->GetAtomTable(residue_atoms, n_residue_atoms);
    for (int iat=0; iat<n_residue_atoms; iat++) {
-      std::string atom_name(residue_atoms[iat]->name);
-      std::string atom_alt_conf(residue_atoms[iat]->altLoc);
+      std::string atom_name(residue_atoms[iat]->GetAtomName());
+      std::string atom_alt_conf(residue_atoms[iat]->altLoc());
       if (atom_name == " CA " ) {
          if (atom_alt_conf == alt_conf) {
             found = 1;
-            ca_next = clipper::Coord_orth(residue_atoms[iat]->x,
-                                          residue_atoms[iat]->y,
-                                          residue_atoms[iat]->z);
+            ca_next = clipper::Coord_orth(residue_atoms[iat]->x(),
+                                          residue_atoms[iat]->y(),
+                                          residue_atoms[iat]->z());
          }
       }
    }
@@ -419,12 +419,12 @@ coot::backrub::sample_individual_peptide(mmdb::Residue *r, double rotation_angle
    
    residue_front->GetAtomTable(residue_atoms, n_residue_atoms);
    for (int iat=0; iat<n_residue_atoms; iat++) {
-      std::string atom_name(residue_atoms[iat]->name);
-      std::string atom_alt_conf(residue_atoms[iat]->altLoc);
+      std::string atom_name(residue_atoms[iat]->GetAtomName());
+      std::string atom_alt_conf(residue_atoms[iat]->altLoc());
       if (atom_name == " O  " ) {
-         O_pos = clipper::Coord_orth(residue_atoms[iat]->x, 
-                                     residue_atoms[iat]->y,
-                                     residue_atoms[iat]->z);
+         O_pos = clipper::Coord_orth(residue_atoms[iat]->x(), 
+                                     residue_atoms[iat]->y(),
+                                     residue_atoms[iat]->z());
          found_O_pos = 1;
       }
    }
@@ -617,9 +617,9 @@ coot::get_clash_score(const coot::minimol::molecule &a_rotamer,
       float badness;
       for (int i=0; i<asc.n_selected_atoms; i++) {
          mmdb::Atom *at = asc.atom_selection[i];
-         clipper::Coord_orth atom_sel_atom(asc.atom_selection[i]->x,
-                                           asc.atom_selection[i]->y,
-                                           asc.atom_selection[i]->z);
+         clipper::Coord_orth atom_sel_atom(asc.atom_selection[i]->x(),
+                                           asc.atom_selection[i]->y(),
+                                           asc.atom_selection[i]->z());
          d = clipper::Coord_orth::length(atom_sel_atom, mean_residue_pos);
          if (d < (max_dev_residue_pos + dist_crit)) {
             for (unsigned int ifrag=0; ifrag<a_rotamer.fragments.size(); ifrag++) {
@@ -702,12 +702,12 @@ coot::backrub::get_clash_score(const coot::minimol::molecule &a_rotamer,
 
       for (int i=0; i<n_sphere_atoms; i++) {
          mmdb::Atom *at = atom_selection[i];
-         clipper::Coord_orth atom_sel_atom_pos(atom_selection[i]->x,
-                                               atom_selection[i]->y,
-                                               atom_selection[i]->z);
+         clipper::Coord_orth atom_sel_atom_pos(atom_selection[i]->x(),
+                                               atom_selection[i]->y(),
+                                               atom_selection[i]->z());
          int atom_sel_resno = atom_selection[i]->GetSeqNum();
          std::string atom_sel_atom_chain(atom_selection[i]->GetChainID());
-         std::string atom_sel_ele = atom_selection[i]->element;
+         std::string atom_sel_ele = atom_selection[i]->GetElementName();
          bool count_it = 1;
          if (chain_id == atom_sel_atom_chain) {
             if (atom_sel_resno==resno_1 || atom_sel_resno==resno_2 || atom_sel_resno==resno_3) {
@@ -783,12 +783,12 @@ coot::backrub_molecule(mmdb::Manager *mol, const clipper::Xmap<float> *xmap_p, c
                                               if (false)
                                                  std::cout << "--------------- replacing coords for atom "
                                                            << atom_spec_t(at) << " "
-                                                           << at_mol->x << " " << at_mol->y << " " << at_mol->z << " "
-                                                           <<     at->x << " " <<     at->y << " " <<     at->z << " "
+                                                           << at_mol->x() << " " << at_mol->y() << " " << at_mol->z() << " "
+                                                           <<     at->x() << " " <<     at->y() << " " <<     at->z() << " "
                                                            << std::endl;
-                                              at_mol->x = at->x;
-                                              at_mol->y = at->y;
-                                              at_mol->z = at->z;
+                                              at_mol->x() = at->x();
+                                              at_mol->y() = at->y();
+                                              at_mol->z() = at->z();
                                            }
                                         }
                                      }
@@ -802,7 +802,7 @@ coot::backrub_molecule(mmdb::Manager *mol, const clipper::Xmap<float> *xmap_p, c
                              for (const auto &baddie_spec : baddie_waters) {
                                 mmdb::Atom *at = util::get_atom(baddie_spec, mol);
                                 if (at) {
-                                   mmdb::Residue *residue = at->residue;
+                                   mmdb::Residue *residue = at->GetResidue();
                                    delete at;
                                    residue->TrimAtomTable();
                                 }

@@ -160,10 +160,10 @@ coot_extras::b_factor_analysis::stats(mmdb::Residue *residue_p) const {
    residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
    if (nResidueAtoms > 0) { 
       for (int i=0; i<nResidueAtoms; i++) {
-	 std::string ele = residue_atoms[i]->element;
+	 std::string ele = residue_atoms[i]->GetElementName();
 	 if ((ele != " H") && (ele != " D")) {
-	    bf = residue_atoms[i]->tempFactor;
-	    occ = residue_atoms[i]->occupancy;
+	    bf = residue_atoms[i]->tempFactor();
+	    occ = residue_atoms[i]->occupancy();
 	    // ignore atoms with silly (or shelx?) B factors and occs
 	    if (((bf > 0.0) && (occ >= 0.0) && (occ <= 1.0)) ||
 		(is_mol_from_shelx_flag && (occ < 11.001) && (occ>10.999))) {
@@ -181,7 +181,7 @@ coot_extras::b_factor_analysis::stats(mmdb::Residue *residue_p) const {
 	 }
       }
       mmdb::Atom *intel_at = coot::util::intelligent_this_residue_mmdb_atom(residue_p);
-      my_stats.atom_name = intel_at->name;
+      my_stats.atom_name = intel_at->GetAtomName();
       double div = occ_sum;
       if (div > 0) { 
 	 mean = running_sum / div;

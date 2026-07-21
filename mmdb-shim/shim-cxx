@@ -1,0 +1,9 @@
+#!/bin/sh
+# Compiler wrapper that forces the mmdb->gemmi shim's headers to win over real
+# mmdb2. Autotools puts pkg-config's `-I<mmdb2>` in AM_CPPFLAGS, which precedes
+# CPPFLAGS on the compile line — so a shim -I in CPPFLAGS can never win. But
+# $(CXX) is emitted before everything, so a -I here is searched FIRST.
+#   Used via: export CXX="<repo>/mmdb-shim/shim-cxx"
+# Override the underlying compiler with REAL_CXX if needed (default: c++).
+d="$(cd "$(dirname "$0")" && pwd)"
+exec "${REAL_CXX:-/usr/bin/c++}" -I"$d/include" -DCOOT_USE_MMDB_SHIM "$@"

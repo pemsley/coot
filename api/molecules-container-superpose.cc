@@ -539,7 +539,7 @@ molecules_container_t::get_pairs(ssm::Align *SSMAlign,
       if (t_index == -1) {
          coot::residue_validation_information_t ref;
          coot::residue_validation_information_t mov;
-         coot::residue_spec_t ref_res_spec(atom_selection1[i1]->residue);
+         coot::residue_spec_t ref_res_spec(atom_selection1[i1]->GetResidue());
          coot::residue_spec_t mov_res_spec;
          ref.residue_spec = ref_res_spec;
          mov.residue_spec = mov_res_spec;
@@ -551,8 +551,8 @@ molecules_container_t::get_pairs(ssm::Align *SSMAlign,
             if (s_index == i1) {
                coot::residue_validation_information_t ref;
                coot::residue_validation_information_t mov;
-               coot::residue_spec_t ref_res_spec(atom_selection1[i1]->residue);
-               coot::residue_spec_t mov_res_spec(atom_selection2[t_index]->residue);
+               coot::residue_spec_t ref_res_spec(atom_selection1[i1]->GetResidue());
+               coot::residue_spec_t mov_res_spec(atom_selection2[t_index]->GetResidue());
                ref.residue_spec = ref_res_spec;
                mov.residue_spec = mov_res_spec;
                clipper::Coord_orth pt_1 = coot::co(atom_selection1[i1]);

@@ -53,7 +53,7 @@ coot::torsionable_bonds(int imol, mmdb::Manager *mol, mmdb::PPAtom atom_selectio
    std::map<mmdb::Residue *, std::vector<int> > atoms_in_residue;
    // fill residues and atoms_in_residue
    for (int i=0; i<n_selected_atoms; i++) {
-      mmdb::Residue *r = atom_selection[i]->residue;
+      mmdb::Residue *r = atom_selection[i]->GetResidue();
       if (std::find(residues.begin(), residues.end(), r) == residues.end())
 	 residues.push_back(r);
       atoms_in_residue[r].push_back(i);
@@ -209,7 +209,7 @@ coot::torsionable_quads(int imol, mmdb::Manager *mol, mmdb::PPAtom atom_selectio
    std::vector<torsion_atom_quad> quads;
    std::vector<mmdb::Residue *> residues;
    for (int i=0; i<n_selected_atoms; i++) {
-      mmdb::Residue *r = atom_selection[i]->residue;
+      mmdb::Residue *r = atom_selection[i]->GetResidue();
       if (std::find(residues.begin(), residues.end(), r) == residues.end())
 	 residues.push_back(r);
    }
@@ -397,12 +397,12 @@ coot::torsionable_link_quads(int imol,
 		  // What are the neightbours of link_atom_1 (and link_atom_2)?
 		  // Try to find a non-hydrogen atom to which it is bonded.
 		  bool H_flag = false;
-		  std::string atom_name_1 = link_atom_1->name;
-		  std::string atom_name_2 = link_atom_2->name;
+		  std::string atom_name_1 = link_atom_1->GetAtomName();
+		  std::string atom_name_2 = link_atom_2->GetAtomName();
 		  std::vector<std::string> n1;
 		  std::vector<std::string> n2;
-		  n1 = res_restraints[link_atom_1->residue].neighbours(atom_name_1, H_flag);
-		  n2 = res_restraints[link_atom_2->residue].neighbours(atom_name_2, H_flag);
+		  n1 = res_restraints[link_atom_1->GetResidue()].neighbours(atom_name_1, H_flag);
+		  n2 = res_restraints[link_atom_2->GetResidue()].neighbours(atom_name_2, H_flag);
 		  if (n1.size() && n2.size()) {
 		     std::string neigbhour_1_name = n1[0];
 		     std::string neigbhour_2_name = n2[0];
@@ -418,7 +418,7 @@ coot::torsionable_link_quads(int imol,
 			// also we need psi, CB, CG, ND2, C1 (of NAG)
 			//
 			std::vector<std::string> n3;
-			n3 = res_restraints[link_atom_2->residue].neighbours(atom_name_2, H_flag);
+			n3 = res_restraints[link_atom_2->GetResidue()].neighbours(atom_name_2, H_flag);
 			if (n3.size()) {
 			   mmdb::Atom *n_at_3 = bpc[i].res_2->GetAtom(n3[0].c_str());
 			   if (n_at_3) {
@@ -487,7 +487,7 @@ coot::multi_residue_torsion_fit_map(int imol,
       mol->GetSelIndex(selhnd, atom_selection, n_selected_atoms);
       std::vector<std::pair<mmdb::Atom *, float> > atoms(n_selected_atoms); // for density fitting
       for (int iat=0; iat<n_selected_atoms; iat++) {
-	 int atomic_number = util::atomic_number(atom_selection[iat]->element, atom_numbers);
+	 int atomic_number = util::atomic_number(atom_selection[iat]->GetElementName(), atom_numbers);
 	 float z = atomic_number;
 	 if (atomic_number == -1)
 	    z = 6.0f;
@@ -654,8 +654,8 @@ coot::multi_residue_torsion_fit_map(int imol,
 			int n_atoms = residue_p->GetNumberOfAtoms();
 			for (int iat=0; iat<n_atoms; iat++) {
                            mmdb::Atom *at = residue_p->GetAtom(iat);
-			   at->tempFactor = this_score * 0.4;
-			   at->tempFactor = self_clash_score;
+			   at->tempFactor() = this_score * 0.4;
+			   at->tempFactor() = self_clash_score;
 			}
 		     }
 		  }
@@ -759,19 +759,19 @@ coot::get_self_clash_score(mmdb::Manager *mol,
 	    if (pscontact[i].id1 < pscontact[i].id2) { 
 	       mmdb::Atom *at_1 = atom_selection[pscontact[i].id1];
 	       mmdb::Atom *at_2 = atom_selection[pscontact[i].id2];
-	       if (at_1->residue != at_2->residue) {
-		  std::string e1 = at_1->element;
-		  std::string e2 = at_2->element;
+	       if (at_1->GetResidue() != at_2->GetResidue()) {
+		  std::string e1 = at_1->GetElementName();
+		  std::string e2 = at_2->GetElementName();
 
 		  if ((e1 != " H") && (e2 != " H")) {  // PDB vs 3 FIXME
 		     // ignore bumps to O5 (e.g. O4(prev)-O5(new)) on newly added residue
 
-		     std::string atom_name_2 = at_2->name;
+		     std::string atom_name_2 = at_2->GetAtomName();
 		     if (atom_name_2 != " O5 ") {
 			double d_sqd =
-			   (at_1->x-at_2->x) * (at_1->x-at_2->x) +
-			   (at_1->y-at_2->y) * (at_1->y-at_2->y) + 
-			   (at_1->z-at_2->z) * (at_1->z-at_2->z);
+			   (at_1->x()-at_2->x()) * (at_1->x()-at_2->x()) +
+			   (at_1->y()-at_2->y()) * (at_1->y()-at_2->y()) + 
+			   (at_1->z()-at_2->z()) * (at_1->z()-at_2->z());
 
 			// are they either in a bond, angle or torsion of any of quads?
 			// 

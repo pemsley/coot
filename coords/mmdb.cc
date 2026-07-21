@@ -65,7 +65,7 @@ centre_of_molecule(atom_selection_container_t SelAtom) {
       for (int i=0; i< SelAtom.n_selected_atoms; i++) {
 	 
 	 atom = SelAtom.atom_selection[i];
-	 coot::Cartesian atom_pos (atom->x, atom->y, atom->z);
+	 coot::Cartesian atom_pos (atom->x(), atom->y(), atom->z());
 	 
 	 rs += atom_pos;
       }
@@ -86,9 +86,9 @@ std::ostream& operator<<(std::ostream& s, mmdb::Atom &atom) {
    //
    s << atom.GetModelNum() << "/" << atom.GetChainID() << "/"
      << atom.GetSeqNum() << atom.GetInsCode() << "/" << atom.GetResName()
-     << "/" << atom.name << " altLoc :" << atom.altLoc << ": pos: ("
-     << atom.x << "," << atom.y << "," << atom.z
-     << ") B-factor: " << atom.tempFactor;
+     << "/" << atom.GetAtomName() << " altLoc :" << atom.altLoc() << ": pos: ("
+     << atom.x() << "," << atom.y() << "," << atom.z()
+     << ") B-factor: " << atom.tempFactor();
 
    return s;
 
@@ -103,10 +103,10 @@ std::ostream& operator<<(std::ostream& s, mmdb::PAtom atom) {
       s << atom->GetModelNum() << "/" << atom->GetChainID() << "/"
 	<< atom->GetSeqNum()   << atom->GetInsCode() << " {"
 	<< atom->GetResName() << "}/"
-	<< atom->name << " altLoc :" << atom->altLoc << ": segid :"
+	<< atom->GetAtomName() << " altLoc :" << atom->altLoc() << ": segid :"
 	<< atom->segID << ":" << " pos: ("
-	<< atom->x << "," << atom->y << "," << atom->z
-	<< ") B-factor: " << atom->tempFactor;
+	<< atom->x() << "," << atom->y() << "," << atom->z()
+	<< ") B-factor: " << atom->tempFactor();
    } else {
       s << "NULL";
    } 
@@ -233,7 +233,7 @@ coot::delete_hydrogens_from_mol(mmdb::Manager *mol) {
 	    bool deleted = 0;
 	    for (int iat=0; iat<n_atoms; iat++) {
 	       at = residue_p->GetAtom(iat);
-	       std::string ele(at->element);
+	       std::string ele(at->GetElementName());
 	       if (is_hydrogen(ele)) {
 		  // delete this atom
 		  deleted = 1;

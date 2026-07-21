@@ -120,8 +120,8 @@ void
 coot::helix_params_t::calc_B() {
 
    if (quad.atom_2 && quad.atom_3) { 
-      clipper::Coord_orth pt_2(quad.atom_2->x, quad.atom_2->y, quad.atom_2->z);
-      clipper::Coord_orth pt_3(quad.atom_3->x, quad.atom_3->y, quad.atom_3->z);
+      clipper::Coord_orth pt_2(quad.atom_2->x(), quad.atom_2->y(), quad.atom_2->z());
+      clipper::Coord_orth pt_3(quad.atom_3->x(), quad.atom_3->y(), quad.atom_3->z());
       double d = clipper::Coord_orth::length(pt_2, pt_3);
       B = clipper::Coord_orth(d, 0, 0);
       clipper::RTop_orth A_rtop(A, clipper::Coord_orth(0,0,0));

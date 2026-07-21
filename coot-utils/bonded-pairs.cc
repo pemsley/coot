@@ -180,7 +180,7 @@ coot::bonded_pair_t::delete_atom(mmdb::Residue *res, const std::string &atom_nam
    for (int iat=0; iat<n_residue_atoms; iat++) {
       mmdb::Atom *at = residue_atoms[iat];
       if (at) {
-         std::string at_name(at->name);
+         std::string at_name(at->GetAtomName());
          if (at_name == atom_name) {
             delete at;
             at = NULL;

@@ -132,8 +132,8 @@ coot::util::water_coordination_t::init_internal(mmdb::Manager *mol,
 
 coot::util::contact_atoms_info_t::contact_atom_t::contact_atom_t(mmdb::Atom *contactor, mmdb::Atom *central_atom) {
 
-   clipper::Coord_orth co_1(   contactor->x,    contactor->y,    contactor->z);
-   clipper::Coord_orth co_2(central_atom->x, central_atom->y, central_atom->z);
+   clipper::Coord_orth co_1(   contactor->x(),    contactor->y(),    contactor->z());
+   clipper::Coord_orth co_2(central_atom->x(), central_atom->y(), central_atom->z());
    dist = clipper::Coord_orth::length(co_1, co_2);
    at = contactor;
    for (int i=0; i<4; i++) 
@@ -148,8 +148,8 @@ coot::util::contact_atoms_info_t::contact_atom_t::contact_atom_t(mmdb::Atom *con
                                                                  mmdb::Atom *central_atom,
                                                                  const mmdb::mat44 &m) {
 
-   clipper::Coord_orth co_1(   contactor->x,    contactor->y,    contactor->z);
-   clipper::Coord_orth co_2(central_atom->x, central_atom->y, central_atom->z);
+   clipper::Coord_orth co_1(   contactor->x(),    contactor->y(),    contactor->z());
+   clipper::Coord_orth co_2(central_atom->x(), central_atom->y(), central_atom->z());
    dist = clipper::Coord_orth::length(co_1, co_2);
    at = contactor;
    for (int i=0; i<4; i++) 
@@ -165,13 +165,13 @@ coot::util::water_coordination_t::add_contact(mmdb::Atom *atom_central,
                                               mmdb::Atom *atom_contactor,
                                               const mmdb::mat44 &mat) {
 
-   std::string alt_conf_1 = atom_contactor->altLoc;
-   std::string alt_conf_2 = atom_central->altLoc;
+   std::string alt_conf_1 = atom_contactor->altLoc();
+   std::string alt_conf_2 = atom_central->altLoc();
 
    if ((alt_conf_1 == alt_conf_2) || (alt_conf_1 == "") || (alt_conf_2 == "")) { 
 
       // filter out H water contacts.
-      std::string ele(atom_contactor->element);
+      std::string ele(atom_contactor->GetElementName());
       if (ele != " H") { 
          coot::util::contact_atoms_info_t::contact_atom_t con_at(atom_contactor, atom_central, mat);
          //
@@ -363,7 +363,7 @@ coot::util::contact_atoms_info_t::test_for_ele(coot::util::contact_atoms_info_t:
    int n_contacts = 0;
    if (contact_atoms.size() > 2) { 
       for (unsigned int j=0; j<contact_atoms.size(); j++) {
-         std::string ele(contact_atoms[j].at->element);
+         std::string ele(contact_atoms[j].at->GetElementName());
          double Rj = contact_atoms[j].dist;
          if (Rj < R0) { // it's too close to a neighbor to be the required metal type.
             sum_v_j = 0; 
@@ -371,7 +371,7 @@ coot::util::contact_atoms_info_t::test_for_ele(coot::util::contact_atoms_info_t:
          }
          if (ele == " O") {
             double v_j = pow(Rj/R0, -N);
-            double occ = contact_atoms[j].at->occupancy;  // symmetry overlaps handled.
+            double occ = contact_atoms[j].at->occupancy();  // symmetry overlaps handled.
             sum_v_j += v_j * occ;
             // was it a protein atom contact < 3.5A?  We need at least 1 of them.
             std::string resname(contact_atoms[j].at->GetResName());
@@ -410,7 +410,7 @@ coot::util::contact_atoms_info_t::test_for_ele(coot::util::contact_atoms_info_t:
                          << ele_index << std::endl;
                sum_v_j = 0.0;
                for (unsigned int j=0; j<contact_atoms.size(); j++) {
-                  std::string ele(contact_atoms[j].at->element);
+                  std::string ele(contact_atoms[j].at->GetElementName());
                   double Rj = contact_atoms[j].dist;
                   if (ele == " O") {
                      double v_j = pow(Rj/R0, -N);

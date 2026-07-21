@@ -40,17 +40,17 @@ void FlatFanPrimitive::generateArrays()
     int index = 0;
     for (; iAtom<atoms.size(); iAtom++){
         mmdb::Atom* atom = atoms[iAtom];
-        FCXXCoord atomCoord(atom->x, atom->y, atom->z);
+        FCXXCoord atomCoord(atom->x(), atom->y(), atom->z());
         centre += atomCoord;
         size_t lastIAtom = iAtom-1;
         if (iAtom == 0) lastIAtom = atoms.size()-1;
         mmdb::Atom* lastAtom = atoms[lastIAtom];
-        FCXXCoord lastAtomCoord(lastAtom->x, lastAtom->y, lastAtom->z);
+        FCXXCoord lastAtomCoord(lastAtom->x(), lastAtom->y(), lastAtom->z());
 
         size_t nextIAtom = iAtom+1;
         if (nextIAtom == atoms.size()) nextIAtom = 0;
         mmdb::Atom* nextAtom = atoms[nextIAtom];
-        FCXXCoord nextAtomCoord(nextAtom->x, nextAtom->y, nextAtom->z);
+        FCXXCoord nextAtomCoord(nextAtom->x(), nextAtom->y(), nextAtom->z());
         
         FCXXCoord vecAB(lastAtomCoord-atomCoord);
         FCXXCoord vecAC(nextAtomCoord-atomCoord);

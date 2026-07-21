@@ -277,7 +277,7 @@ coot::merge_C_and_N_terminii(mmdb::Manager *mol,
                                    mmdb::Residue *residue_p = chain_with_N_p->GetResidue(ires);
                                    if (residue_p) {
                                       mmdb::Residue *new_residue = util::deep_copy_this_residue(residue_p);
-                                      new_residue->seqNum = rn_base + ires + gap_size;
+                                      new_residue->GetSeqNum() = rn_base + ires + gap_size;
                                       chain_with_CO_p->AddResidue(new_residue);
                                    }
                                 }
@@ -335,11 +335,11 @@ coot::merge_C_and_N_terminii(mmdb::Manager *mol,
                                              mmdb::Atom *at_ca = residue_p->GetAtom(" CA ");
                                              mmdb::Atom *at_c  = residue_p->GetAtom(" C  ");
                                              if (at_n)
-                                                n_pos = clipper::Coord_orth( at_n->x,  at_n->y,  at_n->z);
+                                                n_pos = clipper::Coord_orth( at_n->x(),  at_n->y(),  at_n->z());
                                              if (at_ca)
-                                                ca_pos = clipper::Coord_orth(at_ca->x, at_ca->y, at_ca->z);
+                                                ca_pos = clipper::Coord_orth(at_ca->x(), at_ca->y(), at_ca->z());
                                              if (at_c)
-                                                n_pos = clipper::Coord_orth( at_c->x,  at_c->y,  at_c->z);
+                                                n_pos = clipper::Coord_orth( at_c->x(),  at_c->y(),  at_c->z());
 
 
                                              if (at_n && at_ca && at_c) {
@@ -389,7 +389,7 @@ coot::merge_C_and_N_terminii(mmdb::Manager *mol,
                                          // we have a CA at least, and possibly a N and C too.
                                          mmdb::Residue *residue_p = new mmdb::Residue;
                                          chain_p->AddResidue(residue_p);
-                                         residue_p->seqNum = ires+first_res_no;
+                                         residue_p->GetSeqNum() = ires+first_res_no;
                                          mmdb::Atom *at_p = new mmdb::Atom;
                                          residue_p->AddAtom(at_p);
                                          residue_p->SetResName("UNK");    // Or ALA.

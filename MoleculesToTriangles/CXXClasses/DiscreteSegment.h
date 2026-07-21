@@ -54,17 +54,17 @@ public:
     }
     void addCalpha(mmdb::Atom* calpha){
         calphas.push_back(calpha);
-        calphaCoords.push_back(FCXXCoord (calpha->x, calpha->y, calpha->z, 1.0f));
+        calphaCoords.push_back(FCXXCoord (calpha->x(), calpha->y(), calpha->z(), 1.0f));
         anisoValues.push_back(std::make_tuple(1.0f, 1.0f, 1.0f));
     }
     void addCalpha(mmdb::Atom* calpha, float radius){
         calphas.push_back(calpha);
-        calphaCoords.push_back(FCXXCoord (calpha->x, calpha->y, calpha->z, radius));
+        calphaCoords.push_back(FCXXCoord (calpha->x(), calpha->y(), calpha->z(), radius));
         anisoValues.push_back(std::make_tuple(1.0f, 1.0f, 1.0f));
     }
     void addCalpha(mmdb::Atom* calpha, float ax, float ay, float az){
         calphas.push_back(calpha);
-        calphaCoords.push_back(FCXXCoord (calpha->x, calpha->y, calpha->z, 1.0f));
+        calphaCoords.push_back(FCXXCoord (calpha->x(), calpha->y(), calpha->z(), 1.0f));
         anisoValues.push_back(std::make_tuple(ax, ay, az));
     }
     std::tuple<float, float, float> anisoFor(float xVal) {
@@ -72,7 +72,7 @@ public:
         return std::make_tuple(aniso.x(), aniso.y(), aniso.z());
     }
     FCXXCoord operator [] (int i) {
-        return FCXXCoord (calphas[i]->x, calphas[i]->y, calphas[i]->z);
+        return FCXXCoord (calphas[i]->x(), calphas[i]->y(), calphas[i]->z());
     }
     int nCalphas() {
         return int(calphas.size());

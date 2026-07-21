@@ -71,9 +71,9 @@ coot::dipole::init(std::vector<std::pair<coot::dictionary_residue_restraints_t, 
       residue_p->GetAtomTable(SelAtoms, nSelAtoms);
 
       for (int i_res_at=0; i_res_at<nSelAtoms; i_res_at++) {
-	 sum_x += SelAtoms[i_res_at]->x;
-	 sum_y += SelAtoms[i_res_at]->y;
-	 sum_z += SelAtoms[i_res_at]->z;
+	 sum_x += SelAtoms[i_res_at]->x();
+	 sum_y += SelAtoms[i_res_at]->y();
+	 sum_z += SelAtoms[i_res_at]->z();
 	 n_points++;
       }
    }
@@ -106,9 +106,9 @@ coot::dipole::init(std::vector<std::pair<coot::dictionary_residue_restraints_t, 
    std::vector<std::pair<mmdb::Atom *, float> > charged_ats = charged_atoms(dict_res_pairs);
    std::vector<std::pair<float, clipper::Coord_orth> > charged_points(charged_ats.size());
    for (unsigned int i=0; i<charged_ats.size(); i++) {
-      clipper::Coord_orth p(charged_ats[i].first->x,
-			    charged_ats[i].first->y,
-			    charged_ats[i].first->z);
+      clipper::Coord_orth p(charged_ats[i].first->x(),
+			    charged_ats[i].first->y(),
+			    charged_ats[i].first->z());
       charged_points[i] =
 	 std::pair<float, clipper::Coord_orth>(charged_ats[i].second, p);
    }
@@ -149,7 +149,7 @@ coot::dipole::fill_charged_atoms(mmdb::Residue *residue_p,
 
    std::vector<std::pair<mmdb::Atom *, float> > v = charged_atoms(residue_p, rest);
    for (unsigned int i=0; i<v.size(); i++) {
-      v[i].first->charge = v[i].second;
+      v[i].first->charge() = v[i].second;
    }
 }
 
@@ -166,7 +166,7 @@ coot::dipole::charged_atoms(mmdb::Residue *residue_p,
    for (int i_res_at=0; i_res_at<nSelAtoms; i_res_at++) {
       bool found_match = 0;
       mmdb::Atom *at = SelAtoms[i_res_at];
-      std::string atom_name = at->name;
+      std::string atom_name = at->GetAtomName();
       for (int j=0; j<n_dict_atom; j++) {
 	 if (rest.atom_info[j].partial_charge.first) {
 	    if (atom_name == rest.atom_info[j].atom_id_4c) {

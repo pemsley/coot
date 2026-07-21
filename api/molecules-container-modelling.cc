@@ -319,7 +319,7 @@ molecules_container_t::add_compound(int imol, const std::string &tlc, int imol_d
          mmdb::Atom *at = residue_atoms[iat];
          if (! at->isTer()) {
             n_atoms++;
-            position_sum + coot::Cartesian(at->x, at->y, at->z);
+            position_sum + coot::Cartesian(at->x(), at->y(), at->z());
          }
       }
       if (n_atoms > 0) {
@@ -328,9 +328,9 @@ molecules_container_t::add_compound(int imol, const std::string &tlc, int imol_d
          for (int iat=0; iat<n_residue_atoms; iat++) {
             mmdb::Atom *at = residue_atoms[iat];
             if (! at->isTer()) {
-               at->x += position.x() - current_position.x();
-               at->y += position.y() - current_position.y();
-               at->z += position.z() - current_position.z();
+               at->x() += position.x() - current_position.x();
+               at->y() += position.y() - current_position.y();
+               at->z() += position.z() - current_position.z();
             }
          }
       }

@@ -387,8 +387,8 @@ coot::mogul::make_restraints(mmdb::Residue *residue_p,
 	    int idx_2 = items[i].idx_2 - 1;
 	    if (idx_1 >= 0 && idx_1 < n_residue_atoms) { 
 	       if (idx_2 >= 0 && idx_2 < n_residue_atoms) {
-		  std::string name_1(residue_atoms[idx_1]->name);
-		  std::string name_2(residue_atoms[idx_2]->name);
+		  std::string name_1(residue_atoms[idx_1]->GetAtomName());
+		  std::string name_2(residue_atoms[idx_2]->GetAtomName());
 		  std::string type;
 		  if (current_restraints.first) 
 		     type = get_bond_type(current_restraints.second, name_1, name_2);
@@ -408,9 +408,9 @@ coot::mogul::make_restraints(mmdb::Residue *residue_p,
 	    if (idx_1 >= 0 && idx_1 < n_residue_atoms) { 
 	       if (idx_2 >= 0 && idx_2 < n_residue_atoms) {
 		  if (idx_3 >= 0 && idx_3 < n_residue_atoms) {
-		     std::string name_1(residue_atoms[idx_1]->name);
-		     std::string name_2(residue_atoms[idx_2]->name);
-		     std::string name_3(residue_atoms[idx_3]->name);
+		     std::string name_1(residue_atoms[idx_1]->GetAtomName());
+		     std::string name_2(residue_atoms[idx_2]->GetAtomName());
+		     std::string name_3(residue_atoms[idx_3]->GetAtomName());
 		     float angle = items[i].median;
 		     float esd  = items[i].std_dev;
 		     dict_angle_restraint_t rest(name_1, name_2, name_3, angle, esd);

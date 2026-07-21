@@ -79,7 +79,7 @@ double CXXSurfaceMaker::getAtomRadius(mmdb::Atom *theAtom)
             theRadius = 1.8;
     }
     else
-        theRadius = mmdb::getVdWaalsRadius(theAtom->element);
+        theRadius = mmdb::getVdWaalsRadius(theAtom->GetElementName());
     return theRadius;
 }
 

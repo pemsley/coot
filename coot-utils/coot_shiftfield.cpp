@@ -70,23 +70,23 @@ test_import_minimol(clipper::MMDBfile* mfile, clipper::MiniMol& minimol, const i
                                                    if ( !p_atm->Ter ) {
                                                       // import the atom
                                                       clipper::MAtom atm( clipper::Atom::null() );
-                                                      atm.set_name( p_atm->GetAtomName(), p_atm->altLoc );
-                                                      atm.set_element( p_atm->element );
+                                                      atm.set_name( p_atm->GetAtomName(), p_atm->altLoc() );
+                                                      atm.set_element( p_atm->GetElementName() );
                                                       if ( p_atm->WhatIsSet & ::mmdb::ASET_Coordinates )
-                                                         atm.set_coord_orth(clipper::Coord_orth( p_atm->x, p_atm->y, p_atm->z ) );
+                                                         atm.set_coord_orth(clipper::Coord_orth( p_atm->x(), p_atm->y(), p_atm->z() ) );
                                                       if ( p_atm->WhatIsSet & ::mmdb::ASET_Occupancy )
-                                                         atm.set_occupancy( p_atm->occupancy );
+                                                         atm.set_occupancy( p_atm->occupancy() );
                                                       if ( p_atm->WhatIsSet & ::mmdb::ASET_tempFactor )
-                                                         atm.set_u_iso( clipper::Util::b2u( p_atm->tempFactor ) );
+                                                         atm.set_u_iso( clipper::Util::b2u( p_atm->tempFactor() ) );
                                                       if ( p_atm->WhatIsSet & ::mmdb::ASET_Anis_tFac )
                                                          atm.set_u_aniso_orth(
-                                                                              clipper::U_aniso_orth( p_atm->u11, p_atm->u22, p_atm->u33,
-                                                                                                     p_atm->u12, p_atm->u13, p_atm->u23 ) );
+                                                                              clipper::U_aniso_orth( p_atm->u11(), p_atm->u22(), p_atm->u33(),
+                                                                                                     p_atm->u12(), p_atm->u13(), p_atm->u23() ) );
                                                       p_atm->GetAtomID( txt );
                                                       atm.set_property("CID",clipper::Property<clipper::String>(clipper::String(txt)));
-                                                      if ( p_atm->altLoc[0] != '\0' )
+                                                      if ( p_atm->altLoc()[0] != '\0' )
                                                          atm.set_property("AltConf",
-                                                                          clipper::Property<clipper::String>(clipper::String(p_atm->altLoc)));
+                                                                          clipper::Property<clipper::String>(clipper::String(p_atm->altLoc())));
                                                       mon.insert( atm );  // store the atom
                                                    }
                         }

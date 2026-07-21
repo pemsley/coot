@@ -236,9 +236,9 @@ find_interface(mmdb::Manager *mol,
 
    for (int i=0; i<n_rec; i++) {
       for (int j=0; j<n_lig; j++) {
-         double dx = atoms_rec[i]->x - atoms_lig[j]->x;
-         double dy = atoms_rec[i]->y - atoms_lig[j]->y;
-         double dz = atoms_rec[i]->z - atoms_lig[j]->z;
+         double dx = atoms_rec[i]->x() - atoms_lig[j]->x();
+         double dy = atoms_rec[i]->y() - atoms_lig[j]->y();
+         double dz = atoms_rec[i]->z() - atoms_lig[j]->z();
          if (dx*dx + dy*dy + dz*dz < contact_dist_sq) {
             mmdb::Residue *r_rec = atoms_rec[i]->GetResidue();
             mmdb::Residue *r_lig = atoms_lig[j]->GetResidue();
@@ -277,13 +277,13 @@ static void apply_dock_transform(mmdb::Manager *mol,
    mol->GetSelIndex(sel, atoms, n_atoms);
 
    for (int i=0; i<n_atoms; i++) {
-      glm::vec3 p(static_cast<float>(atoms[i]->x - com_B.x()),
-                   static_cast<float>(atoms[i]->y - com_B.y()),
-                   static_cast<float>(atoms[i]->z - com_B.z()));
+      glm::vec3 p(static_cast<float>(atoms[i]->x() - com_B.x()),
+                   static_cast<float>(atoms[i]->y() - com_B.y()),
+                   static_cast<float>(atoms[i]->z() - com_B.z()));
       glm::vec3 rp = R * p;
-      atoms[i]->x = rp.x + result.translation.x();
-      atoms[i]->y = rp.y + result.translation.y();
-      atoms[i]->z = rp.z + result.translation.z();
+      atoms[i]->x() = rp.x + result.translation.x();
+      atoms[i]->y() = rp.y + result.translation.y();
+      atoms[i]->z() = rp.z + result.translation.z();
    }
 
    mol->DeleteSelection(sel);
@@ -399,9 +399,9 @@ static void test_dock_9v3f_chain_E(const std::string &pdb_file) {
    mol->GetSelIndex(sel_E_orig, orig_E_atoms, n_orig_E);
    double ox = 0, oy = 0, oz = 0;
    for (int i=0; i<n_orig_E; i++) {
-      ox += orig_E_atoms[i]->x;
-      oy += orig_E_atoms[i]->y;
-      oz += orig_E_atoms[i]->z;
+      ox += orig_E_atoms[i]->x();
+      oy += orig_E_atoms[i]->y();
+      oz += orig_E_atoms[i]->z();
    }
    clipper::Coord_orth original_com_E(ox/n_orig_E, oy/n_orig_E, oz/n_orig_E);
    mol->DeleteSelection(sel_E_orig);
@@ -572,9 +572,9 @@ static clipper::Coord_orth compute_com(mmdb::Manager *mol,
 
    double sx = 0, sy = 0, sz = 0;
    for (int i=0; i<n_atoms; i++) {
-      sx += atoms[i]->x;
-      sy += atoms[i]->y;
-      sz += atoms[i]->z;
+      sx += atoms[i]->x();
+      sy += atoms[i]->y();
+      sz += atoms[i]->z();
    }
    mol->DeleteSelection(sel);
 
@@ -647,7 +647,7 @@ static void test_dock_e2a_hpr(const std::string &pdb_e2a,
       mol_e2a->GetSelIndex(sel_f, atoms_f, n_f);
       for (int i=0; i<n_f; i++)
          f3g_ca_map[atoms_f[i]->GetSeqNum()] =
-            clipper::Coord_orth(atoms_f[i]->x, atoms_f[i]->y, atoms_f[i]->z);
+            clipper::Coord_orth(atoms_f[i]->x(), atoms_f[i]->y(), atoms_f[i]->z());
       mol_e2a->DeleteSelection(sel_f);
 
       // Collect matching pairs from 1GGR chain A
@@ -662,9 +662,9 @@ static void test_dock_e2a_hpr(const std::string &pdb_e2a,
          int resno = atoms_r[i]->GetSeqNum();
          auto it = f3g_ca_map.find(resno);
          if (it != f3g_ca_map.end()) {
-            cas_ref.push_back(clipper::Coord_orth(atoms_r[i]->x,
-                                                  atoms_r[i]->y,
-                                                  atoms_r[i]->z));
+            cas_ref.push_back(clipper::Coord_orth(atoms_r[i]->x(),
+                                                  atoms_r[i]->y(),
+                                                  atoms_r[i]->z()));
             cas_tgt.push_back(it->second);
          }
       }
@@ -803,13 +803,13 @@ static void test_dock_e2a_hpr(const std::string &pdb_e2a,
          int n_ref_atoms = 0;
          ref_copy->GetSelIndex(sel_all, ref_atoms, n_ref_atoms);
          for (int i=0; i<n_ref_atoms; i++) {
-            clipper::Coord_orth orig(ref_atoms[i]->x,
-                                     ref_atoms[i]->y,
-                                     ref_atoms[i]->z);
+            clipper::Coord_orth orig(ref_atoms[i]->x(),
+                                     ref_atoms[i]->y(),
+                                     ref_atoms[i]->z());
             clipper::Coord_orth transformed = rtop * orig;
-            ref_atoms[i]->x = transformed.x();
-            ref_atoms[i]->y = transformed.y();
-            ref_atoms[i]->z = transformed.z();
+            ref_atoms[i]->x() = transformed.x();
+            ref_atoms[i]->y() = transformed.y();
+            ref_atoms[i]->z() = transformed.z();
          }
          ref_copy->DeleteSelection(sel_all);
          ref_copy->WritePDBASCII("e2a-hpr-native.pdb");
@@ -848,8 +848,8 @@ static void test_dock_e2a_hpr(const std::string &pdb_e2a,
          int n_b = 0;
          mol_ref->GetSelIndex(sel_b, b_atoms, n_b);
          for (int i=0; i<n_b; i++) {
-            clipper::Coord_orth orig(b_atoms[i]->x, b_atoms[i]->y,
-                                     b_atoms[i]->z);
+            clipper::Coord_orth orig(b_atoms[i]->x(), b_atoms[i]->y(),
+                                     b_atoms[i]->z());
             clipper::Coord_orth tfm = rtop * orig;
             int mapped_resno = b_atoms[i]->GetSeqNum() - 300;
             native_hpr_ca_map[mapped_resno] = tfm;
@@ -877,9 +877,9 @@ static void test_dock_e2a_hpr(const std::string &pdb_e2a,
          for (int i=0; i<n_ca; i++) {
             ca_entry_t e;
             e.resno = ca_atoms[i]->GetSeqNum();
-            e.position = clipper::Coord_orth(ca_atoms[i]->x,
-                                              ca_atoms[i]->y,
-                                              ca_atoms[i]->z);
+            e.position = clipper::Coord_orth(ca_atoms[i]->x(),
+                                              ca_atoms[i]->y(),
+                                              ca_atoms[i]->z());
             hpr_ca_entries.push_back(e);
          }
          mol_hpr->DeleteSelection(sel_ca);

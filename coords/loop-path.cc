@@ -60,8 +60,8 @@ coot::loop_path(mmdb::Atom *start_back_2,
    // between them should be flagged with something big and red.
    // Also, they will be drawn as a straight line, not a spline.
 
-   int res_no_start = start->residue->GetSeqNum();
-   int res_no_end   =   end->residue->GetSeqNum();
+   int res_no_start = start->GetResidue()->GetSeqNum();
+   int res_no_end   =   end->GetResidue()->GetSeqNum();
    int res_no_delta = res_no_end - res_no_start;
    n_line_segments = 2 * res_no_delta; // don't listen to call parameter!
    if (n_line_segments < 8) n_line_segments = 8; // sanitize

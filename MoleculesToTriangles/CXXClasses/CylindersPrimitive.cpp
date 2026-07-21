@@ -28,8 +28,8 @@
 
 void CylindersPrimitive::addHalfAtomBond(mmdb::Atom* atom1, FCXXCoord &atom1Color, mmdb::Atom* atom2, FCXXCoord &atom2Color, float cylinderRadius)
 {
-    FCXXCoord coord1(atom1->x, atom1->y, atom1->z);
-    FCXXCoord coord2(atom2->x, atom2->y, atom2->z);
+    FCXXCoord coord1(atom1->x(), atom1->y(), atom1->z());
+    FCXXCoord coord2(atom2->x(), atom2->y(), atom2->z());
     
     addHalfAtomBondWithCoords(coord1, atom1, atom1Color, coord2,atom2, atom2Color, cylinderRadius);
 }

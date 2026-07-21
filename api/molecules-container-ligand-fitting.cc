@@ -507,9 +507,9 @@ get_eigenvalues(mmdb::Residue *residue_p) {
       for (int iat=0; iat<n_atoms; iat++) {
          mmdb::Atom *at = residue_p->GetAtom(iat);
          if (! at->isTer()) {
-            x.push_back(at->x);
-            y.push_back(at->y);
-            z.push_back(at->z);
+            x.push_back(at->x());
+            y.push_back(at->y());
+            z.push_back(at->z());
          }
       }
       if (! x.empty()) {
@@ -523,12 +523,12 @@ get_eigenvalues(mmdb::Residue *residue_p) {
          for (int iat=0; iat<n_atoms; iat++) {
             mmdb::Atom *at = residue_p->GetAtom(iat);
             if (! at->isTer()) {
-               mat(0,0) += (double(at->x) - x_mean) * (double(at->x) - x_mean);
-               mat(1,1) += (double(at->y) - y_mean) * (double(at->y) - y_mean);
-               mat(2,2) += (double(at->z) - z_mean) * (double(at->z) - z_mean);
-               mat(0,1) += (double(at->x) - x_mean) * (double(at->y) - y_mean);
-               mat(0,2) += (double(at->x) - x_mean) * (double(at->z) - z_mean);
-               mat(1,2) += (double(at->y) - y_mean) * (double(at->z) - z_mean);
+               mat(0,0) += (double(at->x()) - x_mean) * (double(at->x()) - x_mean);
+               mat(1,1) += (double(at->y()) - y_mean) * (double(at->y()) - y_mean);
+               mat(2,2) += (double(at->z()) - z_mean) * (double(at->z()) - z_mean);
+               mat(0,1) += (double(at->x()) - x_mean) * (double(at->y()) - y_mean);
+               mat(0,2) += (double(at->x()) - x_mean) * (double(at->z()) - z_mean);
+               mat(1,2) += (double(at->y()) - y_mean) * (double(at->z()) - z_mean);
             }
          }
          mat(1,0) = mat(0,1);
@@ -581,9 +581,9 @@ molecules_container_t::get_eigenvectors_and_eigenvalues(int imol, const std::str
    for (int i=0; i<n_selected; i++) {
       mmdb::Atom *at = selected_atoms[i];
       if (!at->isTer()) {
-         x.push_back(at->x);
-         y.push_back(at->y);
-         z.push_back(at->z);
+         x.push_back(at->x());
+         y.push_back(at->y());
+         z.push_back(at->z());
       }
    }
    mol->DeleteSelection(selhandle);

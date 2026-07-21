@@ -72,7 +72,7 @@ private:
 	static CXXSphereElement unitSphereAtOrigin;
 public:
 	CXXAtomBall(mmdb::Atom* theAtom_in, const double &radius_in) : theAtom (theAtom_in), theRadius(radius_in){
-		theCoord=CXXCoord<CXXCoord_ftype>(theAtom->x, theAtom->y, theAtom->z);
+		theCoord=CXXCoord<CXXCoord_ftype>(theAtom->x(), theAtom->y(), theAtom->z());
 	};
 	virtual const double &getRadius() const{
 		return theRadius;

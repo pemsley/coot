@@ -204,8 +204,8 @@ BuildCas::convert_to_atoms_internal(clipper::Spacegroup spg,
 
       if (i_atom_loop_count == 0 || diff_residue_flag == 1) { 
 	    res_p = new mmdb::Residue;
-	    res_p->seqNum = 1 + i_res_add;   // set the residue number to 1 + ... 
-	    strcpy(res_p->name, molecule_name.c_str()); 
+	    res_p->GetSeqNum() = 1 + i_res_add;   // set the residue number to 1 + ... 
+	    res_p->SetResName(molecule_name.c_str()); 
 	    chain_p->AddResidue ( res_p );
       }
    
@@ -431,9 +431,9 @@ BuildCas::point_list_by_symmetry(atom_selection_container_t AtomSel,
 			// consider pushing back contact[ii].id2, with 
 			// std::vector <mmdb::PAtom> big_ball;
 			// 
-			coot::Cartesian a(trans_selection [ contact[ii].id2 ]->x,
-				    trans_selection [ contact[ii].id2 ]->y,
-				    trans_selection [ contact[ii].id2 ]->z); 
+			coot::Cartesian a(trans_selection [ contact[ii].id2 ]->x(),
+				    trans_selection [ contact[ii].id2 ]->y(),
+				    trans_selection [ contact[ii].id2 ]->z()); 
 
 // 			coot::Cartesian_and_Grid cag(a, grids[ii]); 
 // 			big_ball_l.push_back(cag);
@@ -1231,11 +1231,11 @@ BuildCas::check_angle_torsion(atom_selection_container_t asc) const {
 
    for (int i=0; i< asc.n_selected_atoms; i++) { 
 
-      if (std::string(asc.atom_selection[i]->name) == " CA " ) { 
+      if (std::string(asc.atom_selection[i]->GetAtomName()) == " CA " ) { 
 
-	 coot::Cartesian pos(asc.atom_selection[i]->x,
-			     asc.atom_selection[i]->y,
-			     asc.atom_selection[i]->z); 
+	 coot::Cartesian pos(asc.atom_selection[i]->x(),
+			     asc.atom_selection[i]->y(),
+			     asc.atom_selection[i]->z()); 
 
 	 std::cout << "Got a CA at " << pos << std::endl; 
 
@@ -1557,8 +1557,8 @@ BuildCas::move_by_symmetry(coot::Cartesian middle_mol,
    atom->SetCoordinates(middle_mol.x(), middle_mol.y(), middle_mol.z(), 1.0, 99);
 
    // 
-   std::cout << "atom from middle_mol: " << atom->x << " " 
-	<< atom->y << " " << atom->z << std::endl;
+   std::cout << "atom from middle_mol: " << atom->x() << " " 
+	<< atom->y() << " " << atom->z() << std::endl;
 
    short int moved_it_flag = TRUE; 
 
@@ -1577,9 +1577,9 @@ BuildCas::move_by_symmetry(coot::Cartesian middle_mol,
 		  trans_atom->Copy(atom);
 		  trans_atom->Transform(my_matt);
 
-		  coot::Cartesian cart_atom(trans_atom->x, 
-				      trans_atom->y, 
-				      trans_atom->z); 
+		  coot::Cartesian cart_atom(trans_atom->x(), 
+				      trans_atom->y(), 
+				      trans_atom->z()); 
 
 		  std::cout << "testing atom at: " << cart_atom << std::endl; 
 
@@ -1598,7 +1598,7 @@ BuildCas::move_by_symmetry(coot::Cartesian middle_mol,
       }
    }
 
-   coot::Cartesian a(atom->x, atom->y, atom->z); 
+   coot::Cartesian a(atom->x(), atom->y(), atom->z()); 
    delete atom;  
    delete trans_atom;
    

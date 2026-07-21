@@ -131,7 +131,7 @@ void coot::atom_tree_t::construct_internal(const coot::dictionary_residue_restra
                                          for (int iat=0; iat<nResidueAtoms; iat++) {
                                             mmdb::Atom *atom_p = residue->GetAtom(iat);
                                             if (! atom_p->isTer()) {
-                                               std::string atom_ele(atom_p->element);
+                                               std::string atom_ele(atom_p->GetElementName());
                                                if (atom_ele == " D") {
                                                   has_deuterium_atoms = true;
                                                   break;
@@ -163,8 +163,8 @@ void coot::atom_tree_t::construct_internal(const coot::dictionary_residue_restra
       int idx1 = -1;
       int idx2 = -1;
       for (int iat=0; iat<n_residue_atoms; iat++) {
-         std::string atom_name = residue_atoms[iat]->name;
-         std::string atom_altl = residue_atoms[iat]->altLoc;
+         std::string atom_name = residue_atoms[iat]->GetAtomName();
+         std::string atom_altl = residue_atoms[iat]->altLoc();
          //          std::cout << "comparing :" << atom_name << ": with :" << rest.bond_restraint[i].atom_id_1()
          //                    << ":" << std::endl;
          if (atom_name == rest.bond_restraint[i].atom_id_1_4c())
@@ -184,8 +184,8 @@ void coot::atom_tree_t::construct_internal(const coot::dictionary_residue_restra
 
          // same again with dictionary atom name changes
          for (int iat=0; iat<n_residue_atoms; iat++) {
-            std::string atom_name = residue_atoms[iat]->name;
-            std::string atom_altl = residue_atoms[iat]->altLoc;
+            std::string atom_name = residue_atoms[iat]->GetAtomName();
+            std::string atom_altl = residue_atoms[iat]->altLoc();
             //          std::cout << "comparing :" << atom_name << ": with :" << rest.bond_restraint[i].atom_id_1()
             //                    << ":" << std::endl;
             std::string bond_restraint_atom_name_1 = rest.bond_restraint[i].atom_id_1_4c();
@@ -237,8 +237,8 @@ coot::atom_tree_t::fill_name_map(const std::string &altconf) {
    // atom-name -> index, now class variable
    // std::map<std::string, int, std::less<std::string> > name_to_index;
    for (int iat=0; iat<n_residue_atoms; iat++) {
-      std::string atom_name(residue_atoms[iat]->name);
-      std::string atom_altl = residue_atoms[iat]->altLoc;
+      std::string atom_name(residue_atoms[iat]->GetAtomName());
+      std::string atom_altl = residue_atoms[iat]->altLoc();
       if (false)
          std::cout << "debug:: in fill_name_map(): comparing altconf of this atom :" << atom_altl
                    << ": to (passed arg) :" << altconf << ": or blank" << std::endl; 
@@ -471,8 +471,8 @@ coot::atom_tree_t::get_atom_index_quad(const coot::dict_torsion_restraint_t &tr,
    int n_residue_atoms;
    res->GetAtomTable(residue_atoms, n_residue_atoms);
    for (int iat=0; iat<n_residue_atoms; iat++) {
-      std::string atom_name(   residue_atoms[iat]->name);
-      std::string atom_altconf(residue_atoms[iat]->altLoc);
+      std::string atom_name(   residue_atoms[iat]->GetAtomName());
+      std::string atom_altconf(residue_atoms[iat]->altLoc());
       if (atom_name == tr.atom_id_1_4c())
          if (atom_altconf == "" || atom_altconf == altconf)
             quad.index1 = iat;
@@ -957,8 +957,8 @@ coot::atom_tree_t::rotate_about(const std::string &atom1, const std::string &ato
             residue->GetAtomTable(residue_atoms, n_residue_atoms);
             mmdb::Atom *at2 = residue_atoms[index2.index()];
             mmdb::Atom *at3 = residue_atoms[index3.index()];
-            clipper::Coord_orth base_atom_pos(at2->x, at2->y, at2->z);
-            clipper::Coord_orth    third_atom(at3->x, at3->y, at3->z);;
+            clipper::Coord_orth base_atom_pos(at2->x(), at2->y(), at2->z());
+            clipper::Coord_orth    third_atom(at3->x(), at3->y(), at3->z());;
             clipper::Coord_orth direction = third_atom - base_atom_pos;
             if (xor_reverse) {
                direction = base_atom_pos - third_atom;
@@ -1127,8 +1127,8 @@ coot::atom_tree_t::rotate_about(int index2, int index3, double angle, bool rever
       } 
 
       if (at2 && at3) { 
-         clipper::Coord_orth base_atom_pos(at2->x, at2->y, at2->z);
-         clipper::Coord_orth    third_atom(at3->x, at3->y, at3->z);;
+         clipper::Coord_orth base_atom_pos(at2->x(), at2->y(), at2->z());
+         clipper::Coord_orth    third_atom(at3->x(), at3->y(), at3->z());;
          clipper::Coord_orth direction = third_atom - base_atom_pos;
          if (xor_reverse) {
             direction = base_atom_pos - third_atom;
@@ -1168,18 +1168,18 @@ coot::atom_tree_t::quad_to_torsion(const coot::map_index_t &index2) const {
    mmdb::PPAtom residue_atoms;
    int n_residue_atoms;
    residue->GetAtomTable(residue_atoms, n_residue_atoms);
-   co[0] = clipper::Coord_orth(residue_atoms[quad.index1]->x,
-                               residue_atoms[quad.index1]->y,
-                               residue_atoms[quad.index1]->z);
-   co[1] = clipper::Coord_orth(residue_atoms[quad.index2]->x,
-                               residue_atoms[quad.index2]->y,
-                               residue_atoms[quad.index2]->z);
-   co[2] = clipper::Coord_orth(residue_atoms[quad.index3]->x,
-                               residue_atoms[quad.index3]->y,
-                               residue_atoms[quad.index3]->z);
-   co[3] = clipper::Coord_orth(residue_atoms[quad.index4]->x,
-                               residue_atoms[quad.index4]->y,
-                               residue_atoms[quad.index4]->z);
+   co[0] = clipper::Coord_orth(residue_atoms[quad.index1]->x(),
+                               residue_atoms[quad.index1]->y(),
+                               residue_atoms[quad.index1]->z());
+   co[1] = clipper::Coord_orth(residue_atoms[quad.index2]->x(),
+                               residue_atoms[quad.index2]->y(),
+                               residue_atoms[quad.index2]->z());
+   co[2] = clipper::Coord_orth(residue_atoms[quad.index3]->x(),
+                               residue_atoms[quad.index3]->y(),
+                               residue_atoms[quad.index3]->z());
+   co[3] = clipper::Coord_orth(residue_atoms[quad.index4]->x(),
+                               residue_atoms[quad.index4]->y(),
+                               residue_atoms[quad.index4]->z());
    double ar = clipper::Coord_orth::torsion(co[0], co[1], co[2], co[3]);
    double new_torsion = clipper::Util::rad2d(ar);
    return new_torsion;
@@ -1371,15 +1371,15 @@ coot::atom_tree_t::rotate_internal(std::vector<coot::map_index_t> moving_atom_in
    for (unsigned int im=0; im<moving_atom_indices.size(); im++) {
       int idx = moving_atom_indices[im].index();
       mmdb::Atom *at = residue_atoms[idx];
-      clipper::Coord_orth po(at->x, at->y, at->z);
+      clipper::Coord_orth po(at->x(), at->y(), at->z());
       clipper::Coord_orth pt = coot::util::rotate_around_vector(dir, po, base_atom_pos, angle);
       if (debug)
-         std::cout << "  rotate_internal() moving atom number " << im << " " << at->name
-                   << " from\n    " << at->x << "," << at->y << "," << at->z << " to "
+         std::cout << "  rotate_internal() moving atom number " << im << " " << at->GetAtomName()
+                   << " from\n    " << at->x() << "," << at->y() << "," << at->z() << " to "
                    << pt.format() << std::endl;
-      at->x = pt.x();
-      at->y = pt.y();
-      at->z = pt.z();
+      at->x() = pt.x();
+      at->y() = pt.y();
+      at->z() = pt.z();
    }
 }
 

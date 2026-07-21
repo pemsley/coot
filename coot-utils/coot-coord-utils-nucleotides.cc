@@ -73,11 +73,11 @@ coot::pucker_analysis_info_t::pucker_analysis_info_t(mmdb::Residue *res_p,
       for (int i=0; i<n_residue_atoms; i++) {
          mmdb::Atom *atm = residue_atoms[i];
          if (! atm->isTer()) {
-            std::string atm_name(atm->name);
-            std::string alt_name(atm->altLoc);
+            std::string atm_name(atm->GetAtomName());
+            std::string alt_name(atm->altLoc());
             if (altconf == alt_name) {
                if (atm_name == " P  ") { // PDBv3 FIXME
-                  clipper::Coord_orth p(atm->x, atm->y, atm->z);
+                  clipper::Coord_orth p(atm->x(), atm->y(), atm->z());
                   markup_info.phosphorus_position = p;
                   markup_info.projected_point = lsq_plane.value().projected_point(p);
                }
@@ -87,8 +87,8 @@ coot::pucker_analysis_info_t::pucker_analysis_info_t(mmdb::Residue *res_p,
       // find the ribose atoms
       res_p->GetAtomTable(residue_atoms, n_residue_atoms);
       for (int i=0; i<n_residue_atoms; i++) {
-         std::string atm_name(residue_atoms[i]->name);
-         std::string alt_name(residue_atoms[i]->altLoc);
+         std::string atm_name(residue_atoms[i]->GetAtomName());
+         std::string alt_name(residue_atoms[i]->altLoc());
          if (altconf == alt_name) {
             if (atm_name == " C1*") ribose_atoms[0] = residue_atoms[i];
             if (atm_name == " C1'") ribose_atoms[0] = residue_atoms[i];
@@ -107,9 +107,9 @@ coot::pucker_analysis_info_t::pucker_analysis_info_t(mmdb::Residue *res_p,
          throw std::runtime_error(mess);
       } else {
          for (int i_oop_atom=0; i_oop_atom<5; i_oop_atom++) {
-            clipper::Coord_orth c(ribose_atoms[i_oop_atom]->x,
-                                  ribose_atoms[i_oop_atom]->y,
-                                  ribose_atoms[i_oop_atom]->z);
+            clipper::Coord_orth c(ribose_atoms[i_oop_atom]->x(),
+                                  ribose_atoms[i_oop_atom]->y(),
+                                  ribose_atoms[i_oop_atom]->z());
             ribose_atoms_coords.push_back(c);
          }
 
@@ -123,16 +123,16 @@ coot::pucker_analysis_info_t::pucker_analysis_info_t(mmdb::Residue *res_p,
             std::vector<clipper::Coord_orth> plane_atom_coords;
             for (int i=0; i<5; i++) {
                if (i != i_oop_atom) {
-                  clipper::Coord_orth c(ribose_atoms[i]->x, ribose_atoms[i]->y, ribose_atoms[i]->z);
+                  clipper::Coord_orth c(ribose_atoms[i]->x(), ribose_atoms[i]->y(), ribose_atoms[i]->z());
                   plane_atom.push_back(ribose_atoms[i]);
                   plane_atom_coords.push_back(c);
                }
             }
             // plane atom is now filled with 4 atoms from which the plane
             // should be calculated.
-            clipper::Coord_orth pt(ribose_atoms[i_oop_atom]->x,
-                                   ribose_atoms[i_oop_atom]->y,
-                                   ribose_atoms[i_oop_atom]->z);
+            clipper::Coord_orth pt(ribose_atoms[i_oop_atom]->x(),
+                                   ribose_atoms[i_oop_atom]->y(),
+                                   ribose_atoms[i_oop_atom]->z());
             // lsq_plane_deviation returns pair(out-of-plane-dist, rms_deviation_plane);
             std::pair<double, double> dev =
                coot::lsq_plane_deviation(plane_atom_coords, pt);
@@ -254,8 +254,8 @@ coot::pucker_analysis_info_t::assign_base_atom_coords(mmdb::Residue *residue_p) 
 
    // Assign N1_or_9 and C1_prime
    for (int i=0; i<n_residue_atoms; i++) {
-      std::string atom_name(residue_atoms[i]->name);
-      std::string alt_name(residue_atoms[i]->altLoc);
+      std::string atom_name(residue_atoms[i]->GetAtomName());
+      std::string alt_name(residue_atoms[i]->altLoc());
       if (alt_name == altconf) {
          if (atom_name == " N1 ")
             N1_or_9 = residue_atoms[i];
@@ -294,13 +294,13 @@ coot::pucker_analysis_info_t::assign_base_atom_coords(mmdb::Residue *residue_p) 
 
    if (base_names.size() > 0) {
       for (int i=0; i<n_residue_atoms; i++) {
-         std::string atm_name(residue_atoms[i]->name);
-         std::string alt_name(residue_atoms[i]->altLoc);
+         std::string atm_name(residue_atoms[i]->GetAtomName());
+         std::string alt_name(residue_atoms[i]->altLoc());
          for (unsigned int j=0; j<base_names.size(); j++) {
             if (base_names[j] == atm_name) {
-               base_atoms_coords.push_back(clipper::Coord_orth(residue_atoms[i]->x,
-                                                               residue_atoms[i]->y,
-                                                               residue_atoms[i]->z));
+               base_atoms_coords.push_back(clipper::Coord_orth(residue_atoms[i]->x(),
+                                                               residue_atoms[i]->y(),
+                                                               residue_atoms[i]->z()));
             }
          }
       }
@@ -377,13 +377,13 @@ coot::pucker_analysis_info_t::phosphate_distance_to_base_plane(mmdb::Residue *fo
 
    following_res->GetAtomTable(residue_atoms, n_residue_atoms);
    for (int i=0; i<n_residue_atoms; i++) {
-      std::string atm_name(residue_atoms[i]->name);
-      std::string alt_name(residue_atoms[i]->altLoc);
+      std::string atm_name(residue_atoms[i]->GetAtomName());
+      std::string alt_name(residue_atoms[i]->altLoc());
       if (atm_name == " P  ") { 
          if (altconf == alt_name) {
-            clipper::Coord_orth pt(residue_atoms[i]->x,
-                                   residue_atoms[i]->y,
-                                   residue_atoms[i]->z);
+            clipper::Coord_orth pt(residue_atoms[i]->x(),
+                                   residue_atoms[i]->y(),
+                                   residue_atoms[i]->z());
             // lsq_plane_deviation returns pair(out-of-plane-dist, rms_deviation_plane);
 
             if (base_atoms_coords.size() < 4) {
@@ -453,15 +453,15 @@ coot::pucker_analysis_info_t::phosphate_distance(mmdb::Residue *following_res) {
    bool found = 0;
    following_res->GetAtomTable(residue_atoms, n_residue_atoms);
    for (int i=0; i<n_residue_atoms; i++) {
-      std::string atm_name(residue_atoms[i]->name);
-      std::string alt_name(residue_atoms[i]->altLoc);
+      std::string atm_name(residue_atoms[i]->GetAtomName());
+      std::string alt_name(residue_atoms[i]->altLoc());
       if (atm_name == " P  ") { 
          if (altconf == alt_name) {
-            clipper::Coord_orth P_pt(residue_atoms[i]->x,
-                                     residue_atoms[i]->y,
-                                     residue_atoms[i]->z);
-            clipper::Coord_orth N_pt( N1_or_9->x,  N1_or_9->y,  N1_or_9->z);
-            clipper::Coord_orth C_pt(C1_prime->x, C1_prime->y, C1_prime->z);
+            clipper::Coord_orth P_pt(residue_atoms[i]->x(),
+                                     residue_atoms[i]->y(),
+                                     residue_atoms[i]->z());
+            clipper::Coord_orth N_pt( N1_or_9->x(),  N1_or_9->y(),  N1_or_9->z());
+            clipper::Coord_orth C_pt(C1_prime->x(), C1_prime->y(), C1_prime->z());
             clipper::Coord_orth CN = N_pt - C_pt;
             clipper::Coord_orth CP = P_pt - C_pt;
 

@@ -456,15 +456,15 @@ coot::chi_angles::change_by(int ichi, double diff, coot::protein_geometry* geom_
       mmdb::Atom *cd = 0;
       if (nResidueAtoms > 2) {
 	 for (int i=0; i<nResidueAtoms; i++) {
-	    if (std::string(residue_atoms[i]->name) == " N  ")
+	    if (std::string(residue_atoms[i]->GetAtomName()) == " N  ")
 	       n = residue_atoms[i];
-	    if (std::string(residue_atoms[i]->name) == " CA ")
+	    if (std::string(residue_atoms[i]->GetAtomName()) == " CA ")
 	       ca = residue_atoms[i];
-	    if (std::string(residue_atoms[i]->name) == " CB ")
+	    if (std::string(residue_atoms[i]->GetAtomName()) == " CB ")
 	       cb = residue_atoms[i];
-	    if (std::string(residue_atoms[i]->name) == " CG ")
+	    if (std::string(residue_atoms[i]->GetAtomName()) == " CG ")
 	       cg = residue_atoms[i];
-	    if (std::string(residue_atoms[i]->name) == " CD ")
+	    if (std::string(residue_atoms[i]->GetAtomName()) == " CD ")
 	       cd = residue_atoms[i];
 	 }
 	 
@@ -478,11 +478,11 @@ coot::chi_angles::change_by(int ichi, double diff, coot::protein_geometry* geom_
 	    ordered_residue_atoms[4] = cd;
 	    int atom_count = 5;
 	    for (int i=0; i<nResidueAtoms; i++) {
-	       if (std::string(residue_atoms[i]->name) == " N  " ||
-		   std::string(residue_atoms[i]->name) == " CA " ||
-		   std::string(residue_atoms[i]->name) == " CB " ||
-		   std::string(residue_atoms[i]->name) == " CG " ||
-		   std::string(residue_atoms[i]->name) == " CD " ) {
+	       if (std::string(residue_atoms[i]->GetAtomName()) == " N  " ||
+		   std::string(residue_atoms[i]->GetAtomName()) == " CA " ||
+		   std::string(residue_atoms[i]->GetAtomName()) == " CB " ||
+		   std::string(residue_atoms[i]->GetAtomName()) == " CG " ||
+		   std::string(residue_atoms[i]->GetAtomName()) == " CD " ) {
 	       } else {
 		  ordered_residue_atoms[atom_count] = residue_atoms[i];
 		  atom_count++;
@@ -661,14 +661,14 @@ coot::chi_angles::change_by(int imol,
    mmdb::PPAtom residue_atoms;
    int nResidueAtoms;
    residue->GetAtomTable(residue_atoms, nResidueAtoms);
-   std::string residue_name = residue->name;
+   std::string residue_name = residue->GetResName();
    // filter out CONST torsions when making atom_name_pairs
    std::vector<coot::atom_name_pair> atom_name_pairs = 
       get_torsion_bonds_atom_pairs(residue_name, imol, pg_p, include_hydrogen_torsions_flag);
 
    if (atom_name_pairs.size() == 0) {
       std::cout << " Sorry, can't find atom rotatable bonds for residue type ";
-      std::cout << residue->name << "\n";
+      std::cout << residue->GetResName() << "\n";
    } else { 
       if (nResidueAtoms == 0) {
 	 std::cout << " something broken in atom residue selection in ";
@@ -704,9 +704,9 @@ coot::chi_angles::change_by_internal(int ichi,
    // 
    std::vector< ::Cartesian > coords;
    for(int i=0; i<nResidueAtoms; i++) {
-      ::Cartesian c(residue_atoms_in[i]->x,
-		    residue_atoms_in[i]->y,
-		    residue_atoms_in[i]->z);
+      ::Cartesian c(residue_atoms_in[i]->x(),
+		    residue_atoms_in[i]->y(),
+		    residue_atoms_in[i]->z());
       coords.push_back(c);
    }
    mmdb::PPAtom residue_atoms = residue_atoms_in;
@@ -745,7 +745,7 @@ coot::chi_angles::change_by_internal(int ichi,
 					       // atom spec to find
 					       // the base atom
       for(int i=0; i<nResidueAtoms; i++) {
-	 if (tree_base_atom.atom_name == residue_atoms[i]->name) {
+	 if (tree_base_atom.atom_name == residue_atoms[i]->GetAtomName()) {
 	    base_index = i;
 	    // 	    std::cout << "DEBUG:: Using tree based on atom: "
 	    // << tree_base_atom.atom_name << " index: " << base_index << std::endl;
@@ -804,17 +804,17 @@ coot::chi_angles::change_by_internal(int ichi,
 	 for (int iat=0; iat<nResidueAtoms; iat++) {
 	    if (0) { 
 	       std::cout  << " From ("
-			  << residue_atoms[iat]->x << ", "
-			  << residue_atoms[iat]->y << ", "
-			  << residue_atoms[iat]->z << ") to ("
+			  << residue_atoms[iat]->x() << ", "
+			  << residue_atoms[iat]->y() << ", "
+			  << residue_atoms[iat]->z() << ") to ("
 			  << coords_rotatated[iat].get_x() << ", "
 			  << coords_rotatated[iat].get_y() << ", "
 			  << coords_rotatated[iat].get_z() << ")"
 			  << std::endl;
 	    }
-	    residue_atoms[iat]->x = coords_rotatated[iat].get_x();
-	    residue_atoms[iat]->y = coords_rotatated[iat].get_y();
-	    residue_atoms[iat]->z = coords_rotatated[iat].get_z();
+	    residue_atoms[iat]->x() = coords_rotatated[iat].get_x();
+	    residue_atoms[iat]->y() = coords_rotatated[iat].get_y();
+	    residue_atoms[iat]->z() = coords_rotatated[iat].get_z();
 	 }
       }
    } else {
@@ -919,14 +919,14 @@ coot::chi_angles::get_atom_index_pairs(const std::vector<coot::atom_name_pair> &
    for (unsigned int ipair=0; ipair<atom_name_pairs.size(); ipair++) {
       i_store_index = -1;
       for(int i=0; i<nresatoms; i++) {
-	 std::string atomname = atoms[i]->name;
+	 std::string atomname = atoms[i]->GetAtomName();
 	 if (atomname == atom_name_pairs[ipair].atom1) {
 	    i_store_index = i;
 	 }
       }
       if (i_store_index > -1) { // i.e. we found the first atom
 	 for(int i2=0; i2<nresatoms; i2++) {
-	    std::string atomname = atoms[i2]->name;
+	    std::string atomname = atoms[i2]->GetAtomName();
 	    if (atomname == atom_name_pairs[ipair].atom2) {
 	       index_pairs.push_back(coot::atom_index_pair(i_store_index, i2));
 	    }
@@ -955,7 +955,7 @@ coot::chi_angles::get_atom_index_quads(const std::vector<coot::atom_name_quad> &
       int index_3 = -1;
       int index_4 = -1;
       for (int iat=0; iat<nresatoms; iat++) {
-	 std::string atomname = atoms[iat]->name;
+	 std::string atomname = atoms[iat]->GetAtomName();
 	 if (atomname == atom_name_quads[iquad].atom_name(0))
 	    index_1 = iat;
 	 if (atomname == atom_name_quads[iquad].atom_name(1))

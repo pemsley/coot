@@ -236,9 +236,9 @@ coot::restraints_container_t::restraints_container_t(atom_selection_container_t 
 
    initial_position_params_vec.resize(3*n_atoms);
    for (int i=0; i<n_atoms; i++) {
-      initial_position_params_vec[3*i  ] = atom[i]->x; 
-      initial_position_params_vec[3*i+1] = atom[i]->y; 
-      initial_position_params_vec[3*i+2] = atom[i]->z;
+      initial_position_params_vec[3*i  ] = atom[i]->x(); 
+      initial_position_params_vec[3*i+1] = atom[i]->y(); 
+      initial_position_params_vec[3*i+2] = atom[i]->z();
       // std::cout << "    " << i << "  " << coot::atom_spec_t(atom[i]) << "\n";
    }
 }
@@ -257,7 +257,7 @@ coot::restraints_container_t::restraints_container_t(mmdb::PResidue *SelResidues
    int resno;
    
    for (int i=0; i<nSelResidues; i++) { 
-      resno = SelResidues[i]->seqNum;
+      resno = SelResidues[i]->GetSeqNum();
       if (resno < istart_res_l)
 	 istart_res_l = resno;
       if (resno > iend_res_l)
@@ -328,10 +328,10 @@ coot::residue_sorter(const std::pair<bool, mmdb::Residue *> &r1,
       if (chain_id_1 > chain_id_2) {
 	 return false;
       } else {
-	 if (r1.second->index < r2.second->index) {
+	 if (r1.second->GetIndex() < r2.second->GetIndex()) {
 	    return true;
 	 } else {
-	    if (r1.second->index > r2.second->index) {
+	    if (r1.second->GetIndex() > r2.second->GetIndex()) {
 	       return false;
 	    } else {
 	       if (r1.second->GetSeqNum() < r2.second->GetSeqNum()) {
@@ -398,7 +398,7 @@ coot::restraints_container_t::restraints_container_t(const std::vector<std::pair
       for (std::size_t i=0; i<residues_local.size(); i++)
 	 std::cout << "DEBUG:: restraints_container_t() constructor: passed-residue-vec residue: "
                    << residue_spec_t(residues_local[i].second)
-		   << " has index " << residues_local[i].second->index << std::endl;
+		   << " has index " << residues_local[i].second->GetIndex() << std::endl;
 
    residues_vec = residues_local;
    init_from_residue_vec(residues_local, geom, mol_in, fixed_atom_specs);
@@ -521,7 +521,7 @@ coot::restraints_container_t::init_from_mol(int istart_res_in, int iend_res_in,
       std::cout << "DEBUG:: Selecting residues in chain \"" << chain_id << "\" gives "
 		<< n_atoms << " atoms " << std::endl;
       for (int iat=0; iat<n_atoms; iat++) {
-	 std::cout << "   " << iat << " " << atom[iat]->name << " "  << atom[iat]->GetSeqNum()
+	 std::cout << "   " << iat << " " << atom[iat]->GetAtomName() << " "  << atom[iat]->GetSeqNum()
 		   << " " << atom[iat]->GetChainID() << std::endl;
       }
    }
@@ -643,10 +643,10 @@ coot::restraints_container_t::set_z_occ_weights() {
    for (int i=0; i<n_atoms; i++) {
       mmdb::Atom *at = atom[i];
       if (! at->isTer()) {
-         std::string element = at->element;
-	 double z = coot::util::atomic_number(at->element, atom_list);
+         std::string element = at->GetElementName();
+	 double z = coot::util::atomic_number(at->GetElementName(), atom_list);
 	 double weight = 1.0;
-	 double occupancy = atom[i]->occupancy;
+	 double occupancy = atom[i]->occupancy();
 	 if (occupancy > 1.0) occupancy = 1.0;
          if (do_neutron_refinement) {
             int formal_charge = 0;
@@ -658,7 +658,7 @@ coot::restraints_container_t::set_z_occ_weights() {
                // std::cout << "downweighting atom " << coot::atom_spec_t(atom[i]) << std::endl;
                weight = 0.2;
 	    }
-	    std::string at_name = atom[i]->name;
+	    std::string at_name = atom[i]->GetAtomName();
 	    if (at_name == " O  ") {
 	       weight = 0.4;
 	    }
@@ -666,7 +666,7 @@ coot::restraints_container_t::set_z_occ_weights() {
 
 	 if (z < 0.0) {
 	    std::cout << "WARNING:: init_shared_post() atom " << i << " " << atom_spec_t(atom[i])
-		      << " Unknown element \"" << atom[i]->element << "\"" << std::endl;
+		      << " Unknown element \"" << atom[i]->GetElementName() << "\"" << std::endl;
 	    z = 6.0; // as for carbon
 	 }
 	 atom_z_occ_weight[i] = weight * z * occupancy;
@@ -688,9 +688,9 @@ coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &f
 
    initial_position_params_vec.resize(3*n_atoms); 
    for (int i=0; i<n_atoms; i++) {
-      initial_position_params_vec[3*i  ] = atom[i]->x; 
-      initial_position_params_vec[3*i+1] = atom[i]->y; 
-      initial_position_params_vec[3*i+2] = atom[i]->z; 
+      initial_position_params_vec[3*i  ] = atom[i]->x(); 
+      initial_position_params_vec[3*i+1] = atom[i]->y(); 
+      initial_position_params_vec[3*i+2] = atom[i]->z(); 
    }
 
    // Set the UDD have_bond_or_angle to initally all "not".  They get
@@ -733,8 +733,8 @@ coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &f
    if (! from_residue_vector) {
       // convential way
       for (int i=0; i<n_atoms; i++) {
-	 if (atom[i]->residue->seqNum >= istart_res &&
-	     atom[i]->residue->seqNum <= iend_res) {
+	 if (atom[i]->GetResidue()->GetSeqNum() >= istart_res &&
+	     atom[i]->GetResidue()->GetSeqNum() <= iend_res) {
 	    if (! is_hydrogen(atom[i]))
 	       use_map_gradient_for_atom[i] = true;
 	 } else {
@@ -744,7 +744,7 @@ coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &f
    } else {
       // blank out the non moving atoms (i.e. flanking residues)
       for (int i=0; i<n_atoms; i++) {
-	 mmdb::Residue *res_p = atom[i]->residue;
+	 mmdb::Residue *res_p = atom[i]->GetResidue();
 	 if (is_a_moving_residue_p(res_p)) {
 	    if (! is_hydrogen(atom[i]) || do_hydrogen_atom_refinement)
 	       use_map_gradient_for_atom[i] = true;
@@ -770,7 +770,7 @@ coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &f
 
    if (verbose_geometry_reporting == VERBOSE)
       for (int i=0; i<n_atoms; i++)
-	 std::cout << atom[i]->name << " " << atom[i]->residue->seqNum << " "
+	 std::cout << atom[i]->GetAtomName() << " " << atom[i]->GetResidue()->GetSeqNum() << " "
 		   << use_map_gradient_for_atom[i] << std::endl;
 
 }
@@ -876,7 +876,7 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
 	       mmdb::Atom *at =  res_atom_selection[iat];
 	       std::cout << "DEBUG:: in init_from_residue_vec: atom "
 			 << iat << " of " << n_res_atoms << " \"" 
-			 << at->name << "\" \"" << at->altLoc << "\" " 
+			 << at->GetAtomName() << "\" \"" << at->altLoc() << "\" " 
 			 << at->GetSeqNum() << " \"" << at->GetInsCode() << "\" \"" 
 			 << at->GetChainID() << "\"" << std::endl;
 	 }
@@ -1159,7 +1159,7 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
 	 if (std::find(fixed_atom_indices.begin(),
 		       fixed_atom_indices.end(), iat) != fixed_atom_indices.end())
 	    fixed_flag = true;
-	 std::cout << "   " << std::setw(3) << iat << " " << atom[iat]->name << " "
+	 std::cout << "   " << std::setw(3) << iat << " " << atom[iat]->GetAtomName() << " "
 		   << atom[iat]->GetSeqNum() << " " << atom[iat]->GetChainID() << " "
 		   << atom[iat]->GetResName() << " fixed: " << fixed_flag << std::endl;
       }
@@ -1215,9 +1215,9 @@ coot::restraints_container_t::debug_atoms() const {
       bool is_fixed = false;
       if (fixed_atom_indices.find(iat) != fixed_atom_indices.end()) is_fixed = true;
       std::cout << std::setw(3) << iat << " " << atom_spec_t(atom[iat]) << "  "
-		<< std::right << std::setw(10) << std::fixed << std::setprecision(3) << atom[iat]->x << " "
-		<< std::right << std::setw(10) << std::fixed << std::setprecision(3) << atom[iat]->y << " "
-		<< std::right << std::setw(10) << std::fixed << std::setprecision(3) << atom[iat]->z
+		<< std::right << std::setw(10) << std::fixed << std::setprecision(3) << atom[iat]->x() << " "
+		<< std::right << std::setw(10) << std::fixed << std::setprecision(3) << atom[iat]->y() << " "
+		<< std::right << std::setw(10) << std::fixed << std::setprecision(3) << atom[iat]->z()
 		<< " fixed: " << is_fixed << std::endl;
    }
 }
@@ -1724,9 +1724,9 @@ coot::refinement_results_for_rama_t::refinement_results_for_rama_t(mmdb::Atom *a
    atom_spec_CA = atom_spec_t(at_3);
    ball_pos_x = 0; ball_pos_y = 0; ball_pos_z = 0;
    if (at_3) {
-      ball_pos_x = at_3->x + 0.5;
-      ball_pos_y = at_3->y;
-      ball_pos_z = at_3->z;
+      ball_pos_x = at_3->x() + 0.5;
+      ball_pos_y = at_3->y();
+      ball_pos_z = at_3->z();
    }
    if (at_1 && at_2 && at_3 && at_4 && at_5) {
       clipper::Coord_orth p2 = co(at_2);
@@ -1742,9 +1742,9 @@ coot::refinement_results_for_rama_t::refinement_results_for_rama_t(mmdb::Atom *a
       clipper::Coord_orth p2p24_mid_point(0.5 * (p4+p2));
       clipper::Coord_orth mid_point_to_CA(p3 - p2p24_mid_point);
       clipper::Coord_orth delta = 0.2 * mid_point_to_CA + 0.4 * v4;
-      ball_pos_x = delta.x() + at_3->x;
-      ball_pos_y = delta.y() + at_3->y;
-      ball_pos_z = delta.z() + at_3->z;
+      ball_pos_x = delta.x() + at_3->x();
+      ball_pos_y = delta.y() + at_3->y();
+      ball_pos_z = delta.z() + at_3->z();
    }
 }
 
@@ -1893,7 +1893,7 @@ coot::restraints_container_t::add_details_to_refinement_results(coot::refinement
             double chiral_volume_distortion_limit = 6.0; // c.f. limiit in dynamic-valiation.cc make_chiral_volume_buttons()
             if (dist > chiral_volume_distortion_limit) {
                mmdb:: Atom *at = atom[restraint.atom_index_centre];
-               clipper::Coord_orth pos(at->x, at->y, at->z);
+               clipper::Coord_orth pos(at->x(), at->y(), at->z());
                refinement_results_for_chiral_t cb(atom_spec_t(at), pos, dist);
                chiral_baddies.push_back(cb);
             }
@@ -1957,7 +1957,7 @@ coot::restraints_container_t::add_details_to_refinement_results(coot::refinement
                //
                if (dd > -200.0) {
                   // GLY have naturally lower probabilities densities, hence higher -logPr
-                  std::string rn(atom[restraint.atom_index_3]->residue->GetResName());
+                  std::string rn(atom[restraint.atom_index_3]->GetResidue()->GetResName());
                   if (rn == "GLY") {
                      dd -= 50.0; // utter guess
                   }
@@ -1970,7 +1970,7 @@ coot::restraints_container_t::add_details_to_refinement_results(coot::refinement
 
    // --- non-bonded contacts ---
 
-   auto atom_to_coord_orth = [] (mmdb::Atom *at) { return clipper::Coord_orth(at->x, at->y, at->z); };
+   auto atom_to_coord_orth = [] (mmdb::Atom *at) { return clipper::Coord_orth(at->x(), at->y(), at->z()); };
 
    std::map<int, float>::const_iterator it;
    unsigned int idx = 0;
@@ -2781,9 +2781,9 @@ coot::restraints_container_t::mark_OXT(const coot::protein_geometry &geom) {
 
    std::string oxt(" OXT");
    for (int i=0; i<n_atoms; i++) { 
-      if (std::string(atom[i]->name) == oxt) {
+      if (std::string(atom[i]->GetAtomName()) == oxt) {
 
-	 mmdb::Residue *residue = atom[i]->residue;
+	 mmdb::Residue *residue = atom[i]->GetResidue();
 	 mmdb::Atom *res_atom = NULL;
 	 
 	 std::string res_name = residue->GetResName();
@@ -2848,7 +2848,7 @@ coot::restraints_container_t::make_non_bonded_fixed_flags(int index1, int index2
    }
 
    if (! set_0) {
-      mmdb::Residue *res = atom[index1]->residue;
+      mmdb::Residue *res = atom[index1]->GetResidue();
       if (std::find(non_bonded_neighbour_residues.begin(),
 		    non_bonded_neighbour_residues.end(),
 		    res) != non_bonded_neighbour_residues.end())
@@ -2856,7 +2856,7 @@ coot::restraints_container_t::make_non_bonded_fixed_flags(int index1, int index2
                    // then that atom of that residue is fixed
    }
    if (! set_1) {
-      mmdb::Residue *res = atom[index2]->residue;
+      mmdb::Residue *res = atom[index2]->GetResidue();
       if (std::find(non_bonded_neighbour_residues.begin(),
 		    non_bonded_neighbour_residues.end(),
 		    res) != non_bonded_neighbour_residues.end())
@@ -2913,7 +2913,7 @@ coot::restraints_container_t::peptide_C_and_N_are_in_order_p(mmdb::Residue *r1, 
 
    bool debug = false;
    if (r1->chain == r2->chain) {
-      int serial_delta = r2->index - r1->index;
+      int serial_delta = r2->GetIndex() - r1->GetIndex();
       if (debug)
 	 std::cout << "   serial_delta " << serial_delta << std::endl;
       if ((serial_delta == -1) || (serial_delta == 1)) {
@@ -3004,7 +3004,7 @@ coot::restraints_container_t::peptide_C_and_N_are_close_p(mmdb::Residue *r1, mmd
    r2->GetAtomTable(residue_atoms_2, n_residue_atoms_2);
 
    for (int iat=0; iat<n_residue_atoms_1; iat++) {
-      std::string atom_name(residue_atoms_1[iat]->name);
+      std::string atom_name(residue_atoms_1[iat]->GetAtomName());
       if (atom_name == C_atom_name) {
 	 at_c_1 = residue_atoms_1[iat];
       } 
@@ -3014,7 +3014,7 @@ coot::restraints_container_t::peptide_C_and_N_are_close_p(mmdb::Residue *r1, mmd
    }
 
    for (int iat=0; iat<n_residue_atoms_2; iat++) {
-      std::string atom_name(residue_atoms_2[iat]->name);
+      std::string atom_name(residue_atoms_2[iat]->GetAtomName());
       if (atom_name == C_atom_name) {
 	 at_c_2 = residue_atoms_2[iat];
       } 
@@ -3024,8 +3024,8 @@ coot::restraints_container_t::peptide_C_and_N_are_close_p(mmdb::Residue *r1, mmd
    }
 
    if (at_c_1 && at_n_2) {
-      clipper::Coord_orth c1(at_c_1->x, at_c_1->y, at_c_1->z);
-      clipper::Coord_orth n2(at_n_2->x, at_n_2->y, at_n_2->z);
+      clipper::Coord_orth c1(at_c_1->x(), at_c_1->y(), at_c_1->z());
+      clipper::Coord_orth n2(at_n_2->x(), at_n_2->y(), at_n_2->z());
       float d = clipper::Coord_orth::length(c1, n2);
       // std::cout << "   C1->N2 dist " << d << std::endl;
       if (d < dist_crit)
@@ -3033,8 +3033,8 @@ coot::restraints_container_t::peptide_C_and_N_are_close_p(mmdb::Residue *r1, mmd
    } 
 
    if (at_n_1 && at_c_2) {
-      clipper::Coord_orth n1(at_n_1->x, at_n_1->y, at_n_1->z);
-      clipper::Coord_orth c2(at_c_2->x, at_c_2->y, at_c_2->z);
+      clipper::Coord_orth n1(at_n_1->x(), at_n_1->y(), at_n_1->z());
+      clipper::Coord_orth c2(at_c_2->x(), at_c_2->y(), at_c_2->z());
       float d = clipper::Coord_orth::length(n1, c2);
       // std::cout << "   N1->C2 dist " << d << std::endl;
       if (d < dist_crit)
@@ -3265,7 +3265,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
       std::cout << "   non-bonded list:" << std::endl;
       std::cout << "--------------------------------------------------\n";
       for (unsigned int i=0; i<filtered_non_bonded_atom_indices.size(); i++) { 
-	 std::cout << i << "  " << atom[i]->GetSeqNum() << " " << atom[i]->name << " : "; 
+	 std::cout << i << "  " << atom[i]->GetSeqNum() << " " << atom[i]->GetAtomName() << " : "; 
 	 for (unsigned int j=0; j<filtered_non_bonded_atom_indices[i].size(); j++) { 
 	    std::cout << filtered_non_bonded_atom_indices[i][j] << " ";
 	 } 
@@ -3278,12 +3278,12 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
       mmdb::Atom *at = atom[i];
       std::string res_type = at->GetResName();
       std::map<mmdb::Residue *, std::pair<bool, dictionary_residue_restraints_t> >::const_iterator it;
-      it = restraints_map.find(at->residue);
+      it = restraints_map.find(at->GetResidue());
       if (it == restraints_map.end()) {
 	 // have_restraints_for() is faster?
 	 std::pair<bool, dictionary_residue_restraints_t> p = geom.get_monomer_restraints(res_type, imol);
 	 // p.first is false if this is not a filled dictionary
-	 restraints_map[at->residue] = p;
+	 restraints_map[at->GetResidue()] = p;
       }
    }
 
@@ -3323,7 +3323,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 	    // it is not clear to me what it is now].  This needs to
 	    // be investigated/fixed.
 	    //
-	    if (at_2->residue == at_1->residue)
+	    if (at_2->GetResidue() == at_1->GetResidue())
 	       if (is_hydrogen(at_1))
 	          if (is_hydrogen(at_2))
 		     add_it = false;
@@ -3353,7 +3353,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 		     int res_no_pro   = res_no_1;
 		     int res_no_other = res_no_2;
 		     if (res_no_pro == (res_no_other + 1)) {
-		        std::string atom_name = at_1->name;
+		        std::string atom_name = at_1->GetAtomName();
 		        if (atom_name == " CD ") {  // PDBv3 FIXME
 			   add_it = false;
 		        }
@@ -3363,7 +3363,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 		     int res_no_pro   = res_no_2;
 		     int res_no_other = res_no_1;
 		     if (res_no_pro == (res_no_other + 1)) {
-		        std::string atom_name = at_2->name;
+		        std::string atom_name = at_2->GetAtomName();
 		        if (atom_name == " CD ") {  // PDBv3 FIXME
 			   add_it = false;
 		        }
@@ -3374,8 +3374,8 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 	       // hack to remove C1-OD1 NBC on N-linked glycosylation
 	       //
 	       if (res_name_1 == "ASN" || res_name_2 == "NAG") {
-		  std::string atom_name_1(at_1->name);
-		  std::string atom_name_2(at_2->name);
+		  std::string atom_name_1(at_1->GetAtomName());
+		  std::string atom_name_2(at_2->GetAtomName());
 		  if (atom_name_1 == " OD1")
 		     if (atom_name_2 == " C1 ")
 			add_it = false;
@@ -3385,8 +3385,8 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 	       }
 
 	       if (res_name_1 == "NAG" || res_name_2 == "ASN") {
-		  std::string atom_name_1(at_1->name);
-		  std::string atom_name_2(at_2->name);
+		  std::string atom_name_1(at_1->GetAtomName());
+		  std::string atom_name_2(at_2->GetAtomName());
 		  if (atom_name_1 == " C1 ")
 		     if (atom_name_2 == " OD1")
 			add_it = false;
@@ -3405,7 +3405,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 	       bool in_same_ring_flag    = true;
 	       bool in_same_residue_flag = true;
 	       
-	       if (at_2->residue != at_1->residue) {
+	       if (at_2->GetResidue() != at_1->GetResidue()) {
 		  in_same_ring_flag    = false;
 		  in_same_residue_flag = false;
 	       }
@@ -3417,7 +3417,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 		  // in_same_ring_flag = restraints_map[at_2->residue].second.in_same_ring(atom_name_1,
 		  //                                                                       atom_name_2);
 
-		  in_same_ring_flag = is_in_same_ring(imol, at_2->residue,
+		  in_same_ring_flag = is_in_same_ring(imol, at_2->GetResidue(),
 						      residue_ring_map_cache,
 						      atom_name_1, atom_name_2, geom);
 	       }
@@ -3562,8 +3562,8 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 	       }
 
 	       if (false) { // debug.
-	          clipper::Coord_orth pt1(atom[i]->x, atom[i]->y, atom[i]->z);
-	          clipper::Coord_orth pt2(at_2->x,    at_2->y,    at_2->z);
+	          clipper::Coord_orth pt1(atom[i]->x(), atom[i]->y(), atom[i]->z());
+	          clipper::Coord_orth pt2(at_2->x(),    at_2->y(),    at_2->z());
 	          double dd = sqrt((pt1-pt2).lengthsq());
 
 		  std::pair<bool, double> nbc_dist = geom.get_nbc_dist(type_1, type_2,
@@ -3997,7 +3997,7 @@ coot::restraints_container_t::check_for_O_C_1_5_relation(mmdb::Atom *at_1, mmdb:
    // PDBv3 FIXME.
    
    bool match = false;
-   if (at_2->residue != at_1->residue) {
+   if (at_2->GetResidue() != at_1->GetResidue()) {
 
       // std::cout << "debug check_for_O_C_1_5_relation " << atom_spec_t(at_1) << " " << atom_spec_t(at_2) << std::endl;
 
@@ -4391,17 +4391,17 @@ coot::restraints_container_t::add_N_terminal_residue_bonds_and_angles_to_hydroge
 	 if (atom_name == " H1 ") {
 	    int ai;
 	    at->GetUDData(udd_atom_index_handle, ai);
-	    h1s[at->altLoc] = ai;
+	    h1s[at->altLoc()] = ai;
 	 }
 	 if (atom_name == " H2 ") {
 	    int ai;
 	    at->GetUDData(udd_atom_index_handle, ai);
-	    h2s[at->altLoc] = ai;
+	    h2s[at->altLoc()] = ai;
 	 }
 	 if (atom_name == " H3 ") {
 	    int ai;
 	    at->GetUDData(udd_atom_index_handle, ai);
-	    h3s[at->altLoc] = ai;
+	    h3s[at->altLoc()] = ai;
 	 }
       }
    }
@@ -4514,7 +4514,7 @@ coot::restraints_container_t::get_atom_index_for_restraint_using_alt_conf(const 
       mmdb::Atom *at = res_selection[i];
       std::string n(at->GetAtomName());
       if (n == atom_name) {
-         std::string a(at->altLoc);
+         std::string a(at->altLoc());
          if (a.empty() || a == alt_conf) {
             at->GetUDData(udd_atom_index_handle, idx);
          }
@@ -4779,9 +4779,9 @@ coot::restraints_container_t::setup_gsl_vector_variables() {
 
    for (int i=0; i<n_atoms; i++) {
       int idx = 3*i;
-      gsl_vector_set(x, idx,   atom[i]->x);
-      gsl_vector_set(x, idx+1, atom[i]->y);
-      gsl_vector_set(x, idx+2, atom[i]->z);
+      gsl_vector_set(x, idx,   atom[i]->x());
+      gsl_vector_set(x, idx+1, atom[i]->y());
+      gsl_vector_set(x, idx+2, atom[i]->z());
    }
 
 }
@@ -4794,7 +4794,7 @@ coot::restraints_container_t::update_atoms(gsl_vector *s) {
    int idx;
 
    if (false) { 
-      std::cout << "update_atom(0): from " << atom[0]->x  << " " << atom[0]->y << " " << atom[0]->z
+      std::cout << "update_atom(0): from " << atom[0]->x()  << " " << atom[0]->y() << " " << atom[0]->z()
 		<< std::endl;
       double xx = gsl_vector_get(s, 0);
       double yy = gsl_vector_get(s, 1);
@@ -4807,9 +4807,9 @@ coot::restraints_container_t::update_atoms(gsl_vector *s) {
    } else {
       for (int i=0; i<n_atoms; i++) { 
          idx = 3*i;
-         atom[i]->x = gsl_vector_get(s,idx);
-         atom[i]->y = gsl_vector_get(s,idx+1);
-         atom[i]->z = gsl_vector_get(s,idx+2);
+         atom[i]->x() = gsl_vector_get(s,idx);
+         atom[i]->y() = gsl_vector_get(s,idx+1);
+         atom[i]->z() = gsl_vector_get(s,idx+2);
       }
    }
 }
@@ -4830,9 +4830,9 @@ coot::restraints_container_t::position_OXT() {
 				  oxt_reference_atom_pos[1], 
 				  oxt_reference_atom_pos[2], 
 				  1.231, angl_o, tors_o + M_PI);
-      atom[oxt_index]->x = oxt_pos.x();
-      atom[oxt_index]->y = oxt_pos.y();
-      atom[oxt_index]->z = oxt_pos.z();
+      atom[oxt_index]->x() = oxt_pos.x();
+      atom[oxt_index]->y() = oxt_pos.y();
+      atom[oxt_index]->z() = oxt_pos.z();
    }
 }
 

@@ -85,9 +85,9 @@ molecule_extents_t::molecule_extents_t(atom_selection_container_t selection,
 
       for (int i=0; i< selection.n_selected_atoms; i++) {
 
-	 atom_x = selection.atom_selection[i]->x;
-	 atom_y = selection.atom_selection[i]->y;
-	 atom_z = selection.atom_selection[i]->z;
+	 atom_x = selection.atom_selection[i]->x();
+	 atom_y = selection.atom_selection[i]->y();
+	 atom_z = selection.atom_selection[i]->z();
 
 	 // if there is only one atom, it will be all the limits,
 	 // so we don't use the else.
@@ -182,9 +182,9 @@ molecule_extents_t::molecule_extents_t(atom_selection_container_t selection,
    coot::minimol::residue res(1, "EXT");
    for (int i=0; i<6; i++) {
       coot::minimol::atom at(" CA ", " C",
-			     extents_selection[i]->x,
-			     extents_selection[i]->y,
-			     extents_selection[i]->z, "", 10.0, 1.0);
+			     extents_selection[i]->x(),
+			     extents_selection[i]->y(),
+			     extents_selection[i]->z(), "", 10.0, 1.0);
       res.addatom(at);
    }
 
@@ -491,9 +491,9 @@ molecule_extents_t::which_strict_ncs(const coot::Cartesian &centre_pt,
 
       // OK, so what now is the fractional difference between atom and trans_atom?
       //
-      diff_x = centre_pt.x() - trans_atom.x;
-      diff_y = centre_pt.y() - trans_atom.y;
-      diff_z = centre_pt.z() - trans_atom.z;
+      diff_x = centre_pt.x() - trans_atom.x();
+      diff_y = centre_pt.y() - trans_atom.y();
+      diff_z = centre_pt.z() - trans_atom.z();
 
       AtomSel.mol->Orth2Frac(diff_x, diff_y, diff_z, u, v, w); // fill u, v, w.
 
@@ -513,11 +513,11 @@ molecule_extents_t::which_strict_ncs(const coot::Cartesian &centre_pt,
 		  shift_matrix(AtomSel.mol, m[ii], x_shift, y_shift, z_shift, shifted_mat);
 		  tmp_atom.Transform(shifted_mat);
 		  b = 0.0; 
-		  dist = tmp_atom.x - centre_pt.x();
+		  dist = tmp_atom.x() - centre_pt.x();
 		  b += dist*dist;
-		  dist = tmp_atom.y - centre_pt.y();
+		  dist = tmp_atom.y() - centre_pt.y();
 		  b += dist*dist;
-		  dist = tmp_atom.z - centre_pt.z();
+		  dist = tmp_atom.z() - centre_pt.z();
 		  b += dist*dist;
 		  if (b < min_dist) {
 		     min_dist = b;
@@ -672,9 +672,9 @@ molecule_extents_t::trans_sel(mmdb::Cryst *my_cryst,
    for (int ii=0; ii<6; ii++) {
       trans_selection[ii] = new mmdb::Atom;
 
-      trans_selection[ii]->SetCoordinates(extents_selection[ii]->x,
-					  extents_selection[ii]->y,
-					  extents_selection[ii]->z,
+      trans_selection[ii]->SetCoordinates(extents_selection[ii]->x(),
+					  extents_selection[ii]->y(),
+					  extents_selection[ii]->z(),
 					  1.0, 99.9);
       trans_selection[ii]->Transform(my_matt);
    }
@@ -698,9 +698,9 @@ molecule_extents_t::trans_sel(mmdb::Manager *mol,
    for (int ii=0; ii<6; ii++) {
       trans_selection[ii] = new mmdb::Atom;
 
-      trans_selection[ii]->SetCoordinates(extents_selection[ii]->x,
-					  extents_selection[ii]->y,
-					  extents_selection[ii]->z,
+      trans_selection[ii]->SetCoordinates(extents_selection[ii]->x(),
+					  extents_selection[ii]->y(),
+					  extents_selection[ii]->z(),
 					  1.0, 99.9);
       trans_selection[ii]->Transform(my_matt);
    }
@@ -750,9 +750,9 @@ molecule_extents_t::trans_sel(mmdb::Manager *mol, mmdb::mat44 my_mat,
    for (int ii=0; ii<6; ii++) {
       trans_selection[ii] = new mmdb::Atom;
 
-      trans_selection[ii]->SetCoordinates(extents_selection[ii]->x,
-					  extents_selection[ii]->y,
-					  extents_selection[ii]->z,
+      trans_selection[ii]->SetCoordinates(extents_selection[ii]->x(),
+					  extents_selection[ii]->y(),
+					  extents_selection[ii]->z(),
 					  1.0, 99.9);
       trans_selection[ii]->Transform(amat);
    }
@@ -784,32 +784,32 @@ molecule_extents_t::trans_sel_o(mmdb::Manager *mol, const symm_trans_t &symm_tra
    atom.Copy(extents_selection[0]);
    atom.Transform(to_origin_matt);
    atom.Transform(my_matt);
-   t.front = coot::Cartesian(atom.x, atom.y, atom.z);
+   t.front = coot::Cartesian(atom.x(), atom.y(), atom.z());
    
    atom.Copy(extents_selection[1]);
    atom.Transform(to_origin_matt);
    atom.Transform(my_matt);
-   t.back =  coot::Cartesian(atom.x, atom.y, atom.z);
+   t.back =  coot::Cartesian(atom.x(), atom.y(), atom.z());
 
    atom.Copy(extents_selection[2]);
    atom.Transform(to_origin_matt);
    atom.Transform(my_matt);
-   t.left =  coot::Cartesian(atom.x, atom.y, atom.z);
+   t.left =  coot::Cartesian(atom.x(), atom.y(), atom.z());
    
    atom.Copy(extents_selection[3]);
    atom.Transform(to_origin_matt);
    atom.Transform(my_matt);
-   t.right = coot::Cartesian(atom.x, atom.y, atom.z);
+   t.right = coot::Cartesian(atom.x(), atom.y(), atom.z());
    
    atom.Copy(extents_selection[4]);
    atom.Transform(to_origin_matt);
    atom.Transform(my_matt);
-   t.bottom = coot::Cartesian(atom.x, atom.y, atom.z);
+   t.bottom = coot::Cartesian(atom.x(), atom.y(), atom.z());
 
    atom.Copy(extents_selection[5]);
    atom.Transform(to_origin_matt);
    atom.Transform(my_matt);
-   t.top =    coot::Cartesian(atom.x, atom.y, atom.z);
+   t.top =    coot::Cartesian(atom.x(), atom.y(), atom.z());
    
    return t;
 } 
@@ -823,12 +823,12 @@ molecule_extents_t::point_is_in_box(const coot::Cartesian &point, mmdb::PPAtom T
    // front back left right bottom top
    //      z         x            y
    // 
-   coot::Cartesian  front(TransSel[0]->x, TransSel[0]->y, TransSel[0]->z);
-   coot::Cartesian   back(TransSel[1]->x, TransSel[1]->y, TransSel[1]->z);
-   coot::Cartesian   left(TransSel[2]->x, TransSel[2]->y, TransSel[2]->z);
-   coot::Cartesian  right(TransSel[3]->x, TransSel[3]->y, TransSel[3]->z);
-   coot::Cartesian bottom(TransSel[4]->x, TransSel[4]->y, TransSel[4]->z);
-   coot::Cartesian    top(TransSel[5]->x, TransSel[5]->y, TransSel[5]->z);
+   coot::Cartesian  front(TransSel[0]->x(), TransSel[0]->y(), TransSel[0]->z());
+   coot::Cartesian   back(TransSel[1]->x(), TransSel[1]->y(), TransSel[1]->z());
+   coot::Cartesian   left(TransSel[2]->x(), TransSel[2]->y(), TransSel[2]->z());
+   coot::Cartesian  right(TransSel[3]->x(), TransSel[3]->y(), TransSel[3]->z());
+   coot::Cartesian bottom(TransSel[4]->x(), TransSel[4]->y(), TransSel[4]->z());
+   coot::Cartesian    top(TransSel[5]->x(), TransSel[5]->y(), TransSel[5]->z());
 
    coot::Cartesian back_to_front = front - back;
    coot::Cartesian left_to_right = right - left;
@@ -1072,7 +1072,7 @@ coot::Cartesian translate_atom(atom_selection_container_t AtomSel, int ii,
    trans_atom->Copy(AtomSel.atom_selection[ii]);
    trans_atom->Transform(my_matt);
 
-   coot::Cartesian c(trans_atom->x, trans_atom->y, trans_atom->z);
+   coot::Cartesian c(trans_atom->x(), trans_atom->y(), trans_atom->z());
    delete trans_atom;
    return c;
 
@@ -1108,7 +1108,7 @@ translate_atom_with_pre_shift(atom_selection_container_t AtomSel, int ii,
    trans_atom.Transform(pre_shift_matt);
    trans_atom.Transform(my_matt);
 
-   coot::Cartesian c(trans_atom.x, trans_atom.y, trans_atom.z);
+   coot::Cartesian c(trans_atom.x(), trans_atom.y(), trans_atom.z());
    return c;
 }
 

@@ -736,8 +736,8 @@ coot::molecule_t::get_mesh_for_ligand_validation_vs_dictionary(const std::string
                         mmdb::Atom *at_1 = residue_p->GetAtom(rest.atom_index_1);
                         mmdb::Atom *at_2 = residue_p->GetAtom(rest.atom_index_2);
                         if (at_1 && at_2) {
-                           clipper::Coord_orth p1(at_1->x, at_1->y, at_1->z);
-                           clipper::Coord_orth p2(at_2->x, at_2->y, at_2->z);
+                           clipper::Coord_orth p1(at_1->x(), at_1->y(), at_1->z());
+                           clipper::Coord_orth p2(at_2->x(), at_2->y(), at_2->z());
                            double d = sqrt((p2-p1).lengthsq());
                            double distortion = d - rest.target_value;
                            double pen_score = fabs(distortion/rest.sigma);
@@ -764,9 +764,9 @@ coot::molecule_t::get_mesh_for_ligand_validation_vs_dictionary(const std::string
                         mmdb::Atom *at_2 = residue_p->GetAtom(rest.atom_index_2);
                         mmdb::Atom *at_3 = residue_p->GetAtom(rest.atom_index_3);
                         if (at_1 && at_2 && at_3) {
-                           clipper::Coord_orth p1(at_1->x, at_1->y, at_1->z);
-                           clipper::Coord_orth p2(at_2->x, at_2->y, at_2->z);
-                           clipper::Coord_orth p3(at_3->x, at_3->y, at_3->z);
+                           clipper::Coord_orth p1(at_1->x(), at_1->y(), at_1->z());
+                           clipper::Coord_orth p2(at_2->x(), at_2->y(), at_2->z());
+                           clipper::Coord_orth p3(at_3->x(), at_3->y(), at_3->z());
                            double angle_rad = clipper::Coord_orth::angle(p1, p2, p3);
                            double angle = clipper::Util::rad2d(angle_rad);
                            double distortion = fabs(angle - rest.target_value);
@@ -794,10 +794,10 @@ coot::molecule_t::get_mesh_for_ligand_validation_vs_dictionary(const std::string
                         mmdb::Atom *at_2 = residue_p->GetAtom(rest.atom_index_2);
                         mmdb::Atom *at_3 = residue_p->GetAtom(rest.atom_index_3);
                         if (at_c && at_1 && at_2 && at_3) {
-                           clipper::Coord_orth pc(at_c->x, at_c->y, at_c->z);
-                           clipper::Coord_orth p1(at_1->x, at_1->y, at_1->z);
-                           clipper::Coord_orth p2(at_2->x, at_2->y, at_2->z);
-                           clipper::Coord_orth p3(at_3->x, at_3->y, at_3->z);
+                           clipper::Coord_orth pc(at_c->x(), at_c->y(), at_c->z());
+                           clipper::Coord_orth p1(at_1->x(), at_1->y(), at_1->z());
+                           clipper::Coord_orth p2(at_2->x(), at_2->y(), at_2->z());
+                           clipper::Coord_orth p3(at_3->x(), at_3->y(), at_3->z());
                            clipper::Coord_orth bl_1 = 0.6 * pc + 0.4 * p1;
                            clipper::Coord_orth bl_2 = 0.6 * pc + 0.4 * p2;
                            clipper::Coord_orth bl_3 = 0.6 * pc + 0.4 * p3;
@@ -825,7 +825,7 @@ coot::molecule_t::get_mesh_for_ligand_validation_vs_dictionary(const std::string
                            mmdb::Atom *at_4th = coot::chiral_4th_atom(residue_p, at_c, at_1, at_2, at_3);
                            if (at_4th) {
                               std::cout << "    " << coot::atom_spec_t(at_4th) << std::endl;
-                              clipper::Coord_orth p4(at_4th->x, at_4th->y, at_4th->z);
+                              clipper::Coord_orth p4(at_4th->x(), at_4th->y(), at_4th->z());
                               clipper::Coord_orth bl_4 = 0.6 * pc + 0.4 * p4;
                               add_chiral_lines(obj, bl_1, bl_2, bl_3, bl_4, line_radius, col, n_slices); // add to obj
                            } else {
@@ -1093,9 +1093,9 @@ coot::molecule_t::get_distances_between_atoms_of_residues(const std::string &cid
 	        for (int jj=0; jj<nResidueAtoms_2; jj++) {
 	           mmdb::Atom *at_2 = ResidueAtoms_2[jj];
 	           double dd =
-	      (at_2->x - at_1->x) * (at_2->x - at_1->x) +
-	      (at_2->y - at_1->y) * (at_2->y - at_1->y) +
-	      (at_2->z - at_1->z) * (at_2->z - at_1->z);
+	      (at_2->x() - at_1->x()) * (at_2->x() - at_1->x()) +
+	      (at_2->y() - at_1->y()) * (at_2->y() - at_1->y()) +
+	      (at_2->z() - at_1->z()) * (at_2->z() - at_1->z());
 	           double d = std::sqrt(dd);
 	           if (d < dist_max) {
 	              atom_spec_t spec_1(at_1);

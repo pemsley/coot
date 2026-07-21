@@ -257,9 +257,9 @@ coot::restraints_container_t::make_rama_plot_restraints_ng(const std::map<mmdb::
          if (f1 && f2 && f3)
             continue;
          // So there are some moving atoms if we are here
-         int index_p = residue_prev_p->index;
-         int index_t = residue_this_p->index;
-         int index_n = residue_next_p->index;
+         int index_p = residue_prev_p->GetIndex();
+         int index_t = residue_this_p->GetIndex();
+         int index_n = residue_next_p->GetIndex();
          if (false)
             std::cout << "residues "
                       << residue_spec_t(residue_prev_p) << " "
@@ -427,12 +427,12 @@ coot::restraints_container_t::make_flanking_atoms_restraints_ng(const coot::prot
       std::map<mmdb::Residue *, std::set<mmdb::Residue *> >::const_iterator it;
       for (it=fixed_neighbours_set.begin(); it!=fixed_neighbours_set.end(); it++) {
               mmdb::Residue *residue_p = it->first;
-              std::cout << "\n\n...fixed-neighbour for residue " << residue_spec_t(residue_p) << " index " << residue_p->index << std::endl;
+              std::cout << "\n\n...fixed-neighbour for residue " << residue_spec_t(residue_p) << " index " << residue_p->GetIndex() << std::endl;
               const std::set<mmdb::Residue *> &s = it->second;
               std::set<mmdb::Residue *>::const_iterator its;
               for (its=s.begin(); its!=s.end(); its++) {
                  mmdb::Residue *neighb = *its;
-                 std::cout << "      neighb: " << residue_spec_t(neighb) << " " << neighb << " index " << neighb->index << std::endl;
+                 std::cout << "      neighb: " << residue_spec_t(neighb) << " " << neighb << " index " << neighb->GetIndex() << std::endl;
               }
       }
       std::cout << "####### done make_flanking_atoms_restraints_ng() debugging fixed_neighbours_set() " << std::endl;
@@ -493,7 +493,7 @@ coot::restraints_container_t::make_flanking_atoms_restraints_ng(const coot::prot
                if (std::find(itm->second.begin(), itm->second.end(), neighb) != itm->second.end())
                   continue;
 
-            int index_delta = neighb->index - residue_p->index;
+            int index_delta = neighb->GetIndex() - residue_p->GetIndex();
 
             if (index_delta == -1 || index_delta == 1) {
                // std::cout << "        fixed neigb: " << residue_spec_t(*its) << std::endl;
@@ -731,7 +731,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
       if (at_1->isTer()) continue;
 
       const std::set<unsigned int> &n_set = vcontacts[i];
-      std::string alt_conf_1(at_1->altLoc);
+      std::string alt_conf_1(at_1->altLoc());
       // std::cout << "base atom: " << atom_spec_t(at_1) << std::endl;
 
       // std::cout << "Here with i " << i << " which has " << n_set.size() << " neighbours " << std::endl;
@@ -750,7 +750,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
             continue;
 
          mmdb::Atom *at_2 = atom[j];
-         std::string alt_conf_2(at_2->altLoc);
+         std::string alt_conf_2(at_2->altLoc());
 
          {
             bool at_1_is_fixed_flag = false;
@@ -782,8 +782,8 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
          if (res_name_2 == "PRO") second_is_pro = true; // residues are sorted and j > i
          if (res_name_2 == "HYP") second_is_pro = true;
 
-         std::string element_1 = at_1->element;
-         std::string element_2 = at_2->element;
+         std::string element_1 = at_1->GetElementName();
+         std::string element_2 = at_2->GetElementName();
          const std::string &type_1 = energy_type_for_atom[i];
          const std::string &type_2 = energy_type_for_atom[j];
 
@@ -794,11 +794,11 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
 
          double dist_min = 3.4;
 
-         bool in_same_residue_flag = (at_1->residue == at_2->residue);
+         bool in_same_residue_flag = (at_1->GetResidue() == at_2->GetResidue());
          bool in_same_ring_flag = true;
 
          // part of this test is not needed.
-         if (at_2->residue != at_1->residue) {
+         if (at_2->GetResidue() != at_1->GetResidue()) {
             in_same_ring_flag    = false;
             in_same_residue_flag = false;
          }
@@ -807,7 +807,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
          std::string atom_name_2(at_2->GetAtomName());
 
          if (in_same_ring_flag)
-            in_same_ring_flag = is_in_same_ring(imol, at_2->residue, residue_ring_map_cache,
+            in_same_ring_flag = is_in_same_ring(imol, at_2->GetResidue(), residue_ring_map_cache,
                                                 atom_name_1, atom_name_2, geom);
 
          // this doesn't check 1-4 over a moving->non-moving peptide link (see comment above function)
@@ -833,13 +833,13 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
 
             if (atom_name_1 == " C  ")
                if (atom_name_2 == " C  ")
-                  if (at_2->residue->index - at_1->residue->index == 1) {
+                  if (at_2->GetResidue()->GetIndex() - at_1->GetResidue()->GetIndex() == 1) {
                      mc_atoms_tandem = true;
                      mc_CC_atoms_tandem = true;
                   }
             if (atom_name_1 == " N  ")
                if (atom_name_2 == " N  ")
-                  if (at_2->residue->index - at_1->residue->index == -1)
+                  if (at_2->GetResidue()->GetIndex() - at_1->GetResidue()->GetIndex() == -1)
                      mc_atoms_tandem = true;
             // down-weight CA-CA in cis-peptide bonds
             if (atom_name_1 == " CA ")
@@ -1235,26 +1235,26 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
 
          double dist_min = 3.4;
 
-         bool in_same_residue_flag = (at_1->residue == at_2->residue);
+         bool in_same_residue_flag = (at_1->GetResidue() == at_2->GetResidue());
          bool in_same_ring_flag = true;
 
          // part of this test is not needed.
-         if (at_2->residue != at_1->residue) {
+         if (at_2->GetResidue() != at_1->GetResidue()) {
             in_same_ring_flag    = false;
             in_same_residue_flag = false;
          }
 
          std::string atom_name_1 = at_1->GetAtomName();
          std::string atom_name_2 = at_2->GetAtomName();
-         std::string element_1   = at_1->element;
-         std::string element_2   = at_2->element;
+         std::string element_1   = at_1->GetElementName();
+         std::string element_2   = at_2->GetElementName();
 
          if (in_same_ring_flag) {
 
             // in_same_ring_flag = restraints_map[at_2->residue].second.in_same_ring(atom_name_1,
             //                                                                       atom_name_2);
 
-            in_same_ring_flag = is_in_same_ring(imol, at_2->residue,
+            in_same_ring_flag = is_in_same_ring(imol, at_2->GetResidue(),
                                                 residue_ring_map_cache,
                                                 atom_name_1, atom_name_2, geom);
          }
@@ -1275,18 +1275,18 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
 
             if (atom_name_1 == " C  ")
                if (atom_name_2 == " C  ")
-                  if (at_2->residue->index - at_1->residue->index == 1) {
+                  if (at_2->GetResidue()->GetIndex() - at_1->GetResidue()->GetIndex() == 1) {
                      if (false)
                         std::cout << "DEBUG:: in make_non_bonded_contact_restraints_ng() C to C neighbs "
-                                  << at_1->residue->index << " " << at_2->residue->index
+                                  << at_1->GetResidue()->GetIndex() << " " << at_2->GetResidue()->GetIndex()
                                   << std::endl;
                      mc_atoms_tandem = true;
                   }
             if (atom_name_1 == " N  ")
                if (atom_name_2 == " N  ")
-                  if (at_2->residue->index - at_1->residue->index == -1) {
+                  if (at_2->GetResidue()->GetIndex() - at_1->GetResidue()->GetIndex() == -1) {
                      mc_atoms_tandem = true;
-                     std::cout << "-------- Here 2 " << at_1->residue->index << " " << at_2->residue->index
+                     std::cout << "-------- Here 2 " << at_1->GetResidue()->GetIndex() << " " << at_2->GetResidue()->GetIndex()
                                << std::endl;
                   }
          }
@@ -1560,8 +1560,8 @@ coot::restraints_container_t::find_peptide_link_type_ng(mmdb::Residue *res_1,
    std::string t1;
    std::string t2;
 
-   std::string residue_type_1 = res_1->name;
-   std::string residue_type_2 = res_2->name;
+   std::string residue_type_1 = res_1->GetResName();
+   std::string residue_type_2 = res_2->GetResName();
 
    for (unsigned int idr=0; idr<geom.size(); idr++) {
       if (dictionary_name_matches_coords_resname(geom.three_letter_code(idr), residue_type_1)) {
@@ -1673,12 +1673,12 @@ coot::restraints_container_t::try_make_peptide_link_ng(const coot::protein_geome
             mmdb::Atom *at_1 = residue_1_atoms[iat_1];
             std::string at_name_1(at_1->GetAtomName());
             if (at_name_1 == " C  ") { // PDBv3 FIXE
-               std::string alt_conf_1(at_1->altLoc);
+               std::string alt_conf_1(at_1->altLoc());
                for (int iat_2=0; iat_2<n_residue_2_atoms; iat_2++) {
                   mmdb::Atom *at_2 = residue_2_atoms[iat_2];
                   std::string at_name_2(at_2->GetAtomName());
                   if (at_name_2 == " N  ") { // PDBv3 FIXE
-                     std::string alt_conf_2(at_2->altLoc);
+                     std::string alt_conf_2(at_2->altLoc());
                      if (alt_conf_1 == alt_conf_2 || alt_conf_1.empty() || alt_conf_2.empty()) {
 
                         bool is_fixed_first_residue  = res_1_pair.first;
@@ -1741,12 +1741,12 @@ coot::restraints_container_t::try_make_phosphodiester_link_ng(const coot::protei
             mmdb::Atom *at_1 = residue_1_atoms[iat_1];
             std::string at_name_1(at_1->GetAtomName());
             if (at_name_1 == " O3'") { // PDBv3 FIXME
-               std::string alt_conf_1(at_1->altLoc);
+               std::string alt_conf_1(at_1->altLoc());
                for (int iat_2=0; iat_2<n_residue_2_atoms; iat_2++) {
                   mmdb::Atom *at_2 = residue_2_atoms[iat_2];
                   std::string at_name_2(at_2->GetAtomName());
                   if (at_name_2 == " P  ") { // PDBv3 FIXE
-                     std::string alt_conf_2(at_2->altLoc);
+                     std::string alt_conf_2(at_2->altLoc());
                      if (alt_conf_1 == alt_conf_2 || alt_conf_1.empty() || alt_conf_2.empty()) {
 
                         if (use_distance_cut_off) {
@@ -1834,9 +1834,9 @@ coot::restraints_container_t::N_and_C_are_close_ng(mmdb::Residue *res_1,
    if (at_1) {
       if (at_2) {
          float dd =
-            (at_1->x - at_2->x) * (at_1->x - at_2->x) +
-            (at_1->y - at_2->y) * (at_1->y - at_2->y) +
-            (at_1->z - at_2->z) * (at_1->z - at_2->z);
+            (at_1->x() - at_2->x()) * (at_1->x() - at_2->x()) +
+            (at_1->y() - at_2->y()) * (at_1->y() - at_2->y()) +
+            (at_1->z() - at_2->z()) * (at_1->z() - at_2->z());
          if (dd < d_crit * d_crit)
             status = true;
       }
@@ -1869,9 +1869,9 @@ coot::restraints_container_t::O3prime_and_P_are_close_ng(mmdb::Residue *res_1,
    if (at_1) {
       if (at_2) {
          float dd =
-            (at_1->x - at_2->x) * (at_1->x - at_2->x) +
-            (at_1->y - at_2->y) * (at_1->y - at_2->y) +
-            (at_1->z - at_2->z) * (at_1->z - at_2->z);
+            (at_1->x() - at_2->x()) * (at_1->x() - at_2->x()) +
+            (at_1->y() - at_2->y()) * (at_1->y() - at_2->y()) +
+            (at_1->z() - at_2->z()) * (at_1->z() - at_2->z());
          if (dd < d_crit * d_crit)
             status = true;
       }
@@ -1932,11 +1932,11 @@ coot::restraints_container_t::make_polymer_links_ng(const coot::protein_geometry
       if (res_name_2 == "HOH") continue;
 
       if (res_1->chain == res_2->chain) {
-         int serial_delta = res_2->index - res_1->index;
+         int serial_delta = res_2->GetIndex() - res_1->GetIndex();
 
          // *this* is the serial_delta we should be checking
-         int ref_index_1 = residues_vec[i1].second->index;
-         int ref_index_2 = residues_vec[i2].second->index;
+         int ref_index_1 = residues_vec[i1].second->GetIndex();
+         int ref_index_2 = residues_vec[i2].second->GetIndex();
 
          serial_delta = ref_index_2 - ref_index_1;
 
@@ -2217,17 +2217,17 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
    for (std::size_t i=0; i<vcontacts.size(); i++) {
       const std::set<unsigned int> &n_set = vcontacts[i];
       mmdb::Atom *at_1 = atom[i];
-      if (strcmp(at_1->element, " H") == 0) continue;
+      if (strcmp(at_1->GetElementName(), " H") == 0) continue;
       // if (! is_fully_linked_ng(at_1->residue, residue_link_count_map)) {
       if (true) {
          std::set<unsigned int>::const_iterator it;
          for (it=n_set.begin(); it!=n_set.end(); ++it) {
             mmdb::Atom *at_2 = atom[*it];
 
-            if (strcmp(at_2->element, " H") == 0) continue;
+            if (strcmp(at_2->GetElementName(), " H") == 0) continue;
 
-            mmdb::Residue *res_1 = at_1->residue;
-            mmdb::Residue *res_2 = at_2->residue;
+            mmdb::Residue *res_1 = at_1->GetResidue();
+            mmdb::Residue *res_2 = at_2->GetResidue();
 
             std::string res_name_1(res_1->GetResName());
             std::string res_name_2(res_2->GetResName());

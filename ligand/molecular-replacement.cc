@@ -213,9 +213,9 @@ coot::molecular_replacement_search(const clipper::Xmap<float> &xmap_obs,
              << std::endl;
 
    for (int i=0; i<n_atoms; i++) {
-      sel_atoms[i]->x += shift.x();
-      sel_atoms[i]->y += shift.y();
-      sel_atoms[i]->z += shift.z();
+      sel_atoms[i]->x() += shift.x();
+      sel_atoms[i]->y() += shift.y();
+      sel_atoms[i]->z() += shift.z();
    }
 
    clipper::Xmap<float> model_map = coot::util::calc_atom_map(mol, SelHnd, cell_model, spacegroup, gs_model);
@@ -406,16 +406,16 @@ coot::molecular_replacement_search(const clipper::Xmap<float> &xmap_obs,
             mol_rot->GetSelIndex(sel_rot, atoms_rot, na_rot);
 
             for (int i=0; i<na_rot; i++) {
-               atoms_rot[i]->x -= mol_centre.second.x();
-               atoms_rot[i]->y -= mol_centre.second.y();
-               atoms_rot[i]->z -= mol_centre.second.z();
+               atoms_rot[i]->x() -= mol_centre.second.x();
+               atoms_rot[i]->y() -= mol_centre.second.y();
+               atoms_rot[i]->z() -= mol_centre.second.z();
             }
             for (int i=0; i<na_rot; i++) {
-               glm::vec3 pos(atoms_rot[i]->x, atoms_rot[i]->y, atoms_rot[i]->z);
+               glm::vec3 pos(atoms_rot[i]->x(), atoms_rot[i]->y(), atoms_rot[i]->z());
                glm::vec3 rotated = rot_mat * pos;
-               atoms_rot[i]->x = rotated.x;
-               atoms_rot[i]->y = rotated.y;
-               atoms_rot[i]->z = rotated.z;
+               atoms_rot[i]->x() = rotated.x;
+               atoms_rot[i]->y() = rotated.y;
+               atoms_rot[i]->z() = rotated.z;
             }
 
             // Compute atom map on the local box cell/grid (optimisation 1)
@@ -473,9 +473,9 @@ coot::molecular_replacement_search(const clipper::Xmap<float> &xmap_obs,
                mol_placed->GetSelIndex(sel_placed, atoms_placed, na_placed);
 
                for (int i=0; i<na_placed; i++) {
-                  atoms_placed[i]->x += trans_pos.x();
-                  atoms_placed[i]->y += trans_pos.y();
-                  atoms_placed[i]->z += trans_pos.z();
+                  atoms_placed[i]->x() += trans_pos.x();
+                  atoms_placed[i]->y() += trans_pos.y();
+                  atoms_placed[i]->z() += trans_pos.z();
                }
                mol_placed->DeleteSelection(sel_placed);
 
@@ -576,11 +576,11 @@ coot::molecular_replacement_search(const clipper::Xmap<float> &xmap_obs,
                            for (int j=0; j<n_res_atoms; j++) {
                               if (! res_atoms[j]->isTer()) {
                                  std::string name(res_atoms[j]->GetAtomName());
-                                 std::string altloc(res_atoms[j]->altLoc);
+                                 std::string altloc(res_atoms[j]->altLoc());
                                  if (name == moved_at.name && altloc == moved_at.altLoc) {
-                                    res_atoms[j]->x = moved_at.pos.x();
-                                    res_atoms[j]->y = moved_at.pos.y();
-                                    res_atoms[j]->z = moved_at.pos.z();
+                                    res_atoms[j]->x() = moved_at.pos.x();
+                                    res_atoms[j]->y() = moved_at.pos.y();
+                                    res_atoms[j]->z() = moved_at.pos.z();
                                  }
                               }
                            }

@@ -72,9 +72,9 @@ coot::restraints_container_t::add_extra_start_pos_restraints(const extra_restrai
          r_1->GetAtomTable(residue_atoms_1, n_residue_atoms_1);
 
          for (int iat=0; iat<n_residue_atoms_1; iat++) { 
-            std::string atom_name_1(residue_atoms_1[iat]->name);
+            std::string atom_name_1(residue_atoms_1[iat]->GetAtomName());
             if (atom_name_1 == extra_restraints.start_pos_restraints[i].atom_1.atom_name) {
-               std::string alt_loc_1(residue_atoms_1[iat]->altLoc);
+               std::string alt_loc_1(residue_atoms_1[iat]->altLoc());
                if (alt_loc_1 == extra_restraints.start_pos_restraints[i].atom_1.alt_conf) {
                   at_1 = residue_atoms_1[iat];
                   break;

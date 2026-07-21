@@ -155,7 +155,7 @@ coot::molecule_t::apply_user_defined_atom_colour_selections(const std::vector<st
             if (nSelAtoms > 0) {
                for(int iat=0; iat<nSelAtoms; iat++) {
                   mmdb:: Atom *at = SelAtoms[iat];
-                  std::string element(at->element);
+                  std::string element(at->GetElementName());
                   if (element == " C" || colour_applies_to_non_carbon_atoms_also) {
                      int ierr = at->PutUDData(udd_handle, colour_index);
                      if (ierr != mmdb::UDDATA_Ok) {
@@ -201,7 +201,7 @@ coot::molecule_t::add_to_non_drawn_bonds(const std::string &atom_selection_cid) 
             if (nSelAtoms > 0) {
                for(int iat=0; iat<nSelAtoms; iat++) {
                   mmdb:: Atom *at = SelAtoms[iat];
-                  selected_residues.insert(at->residue);
+                  selected_residues.insert(at->GetResidue());
                }
             }
             atom_sel.mol->DeleteSelection(selHnd);
@@ -569,7 +569,7 @@ void make_graphical_bonds_spherical_atoms_with_vdw_radii(coot::simple_mesh_t &m,
       for (unsigned int i=0; i<gbc.consolidated_atom_centres[icol].num_points; i++) {
          const graphical_bonds_atom_info_t &at_info = gbc.consolidated_atom_centres[icol].points[i];
          mmdb::Atom *at = at_info.atom_p;
-         std::string ele(at->element);
+         std::string ele(at->GetElementName());
          std::map<std::string, float>::const_iterator it = ele_to_radius_map.find(ele);
          float atom_radius = 1.0;
          if (it != ele_to_radius_map.end()) {
@@ -581,7 +581,7 @@ void make_graphical_bonds_spherical_atoms_with_vdw_radii(coot::simple_mesh_t &m,
             ele_to_radius_map[ele] = atom_radius;
          }
 
-         glm::vec3 t(at->x, at->y, at->z);
+         glm::vec3 t(at->x(), at->y(), at->z());
          glm::vec3 sc(atom_radius, atom_radius, atom_radius);
 
          std::vector<coot::api::vnc_vertex> local_vertices(octosphere_geom.first.size());
@@ -750,7 +750,7 @@ make_graphical_bonds_hemispherical_atoms(coot::simple_mesh_t &m, // fill m
                mmdb::Atom *other_at = index_to_atom[other_atom_index];
                if (other_at) {
                   // std::cout << "   other_at " << other_at << " " << coot::atom_spec_t(other_at) << std::endl;
-                  glm::vec3 other_atom_pos(other_at->x, other_at->y, other_at->z);
+                  glm::vec3 other_atom_pos(other_at->x(), other_at->y(), other_at->z());
                   glm::mat4 mm = get_octahemi_matrix(t, other_atom_pos, bond_radius); // a rotation matrix
 
                   std::vector<coot::api::vnc_vertex> local_vertices(octasphere_geom.first.size());
@@ -1920,7 +1920,7 @@ coot::molecule_t::get_simple_molecule(int imol, mmdb::Residue *residue_p, bool d
             const graphical_bonds_atom_info_t &at_info = gbc.consolidated_atom_centres[icol].points[i];
             int fc = 0;
             bool arom = false;
-            sm.add_atom(simple::atom_t(at_info.atom_p->GetAtomName(), at_info.atom_p->element, at_info.position, fc, arom));
+            sm.add_atom(simple::atom_t(at_info.atom_p->GetAtomName(), at_info.atom_p->GetElementName(), at_info.position, fc, arom));
          }
       }
 

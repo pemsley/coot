@@ -105,8 +105,8 @@ coot::find_water_baddies_OR(atom_selection_container_t atom_sel,
                            at = residue_p->GetAtom(iat);
                            bool water_atom_is_hydrogen_atom = false;
                            // PDBv3 FIXME
-                           if (! strncmp(at->name, " H", 2)) water_atom_is_hydrogen_atom = true;
-                           if (! strncmp(at->name, " D", 2)) water_atom_is_hydrogen_atom = true;
+                           if (! strncmp(at->GetAtomName(), " H", 2)) water_atom_is_hydrogen_atom = true;
+                           if (! strncmp(at->GetAtomName(), " D", 2)) water_atom_is_hydrogen_atom = true;
 
                            if (water_atom_is_hydrogen_atom) continue;
 
@@ -119,7 +119,7 @@ coot::find_water_baddies_OR(atom_selection_container_t atom_sel,
 
                               // density check:
                               if (map_in_sigma > 0.0) { // it *should* be!
-                                 clipper::Coord_orth a(at->x, at->y, at->z);
+                                 clipper::Coord_orth a(at->x(), at->y(), at->z());
                                  den = coot::util::density_at_point(xmap_in, a);
 
                                  den /= map_in_sigma;
@@ -136,7 +136,7 @@ coot::find_water_baddies_OR(atom_selection_container_t atom_sel,
 
                               // B factor check:
                               if (! this_is_marked) {
-                                 if (at->tempFactor > b_factor_lim && use_b_factor_limit_test) {
+                                 if (at->tempFactor() > b_factor_lim && use_b_factor_limit_test) {
                                     marked_for_display.push_back(std::pair<mmdb::Atom *, float>(at, den));
                                  }
                               }
@@ -148,23 +148,23 @@ coot::find_water_baddies_OR(atom_selection_container_t atom_sel,
                                  // (ignoring things means less marked atoms)
                                  if (ignore_part_occ_contact_flag == 0) {
 
-                                    if (ignore_zero_occ_flag == false || at->occupancy > 0.01) {
+                                    if (ignore_zero_occ_flag == false || at->occupancy() > 0.01) {
 
                                        double dist_to_atoms_min = 99999;
                                        double dc_sqrd = dist_to_atoms_min * dist_to_atoms_min;
                                        double d_sqrd_min = 999999999;
-                                       clipper::Coord_orth a(at->x, at->y, at->z);
+                                       clipper::Coord_orth a(at->x(), at->y(), at->z());
                                        for (int j=0; j<atom_sel.n_selected_atoms; j++) {
                                           if (at != atom_sel.atom_selection[j]) {
                                              bool is_H = false;
                                              // PDB v3 FIXME?
-                                             if (! strncmp(atom_sel.atom_selection[j]->element, " H", 2))
+                                             if (! strncmp(atom_sel.atom_selection[j]->GetElementName(), " H", 2))
                                                 is_H = true;
 
                                              if (! is_H) {
-                                                clipper::Coord_orth p(atom_sel.atom_selection[j]->x,
-                                                                      atom_sel.atom_selection[j]->y,
-                                                                      atom_sel.atom_selection[j]->z);
+                                                clipper::Coord_orth p(atom_sel.atom_selection[j]->x(),
+                                                                      atom_sel.atom_selection[j]->y(),
+                                                                      atom_sel.atom_selection[j]->z());
                                                 double d_sqrd = (p-a).lengthsq();
                                                 if (d_sqrd < d_sqrd_min) {
                                                    d_sqrd_min = d_sqrd;
@@ -209,14 +209,14 @@ coot::find_water_baddies_OR(atom_selection_container_t atom_sel,
 
    for (unsigned int i=0; i<marked_for_display.size(); i++) {
       std::string s = "B fac: ";
-      s += coot::util::float_to_string(marked_for_display[i].first->tempFactor);
+      s += coot::util::float_to_string(marked_for_display[i].first->tempFactor());
       if (map_in_sigma > 0.0) {
          s += "   ED: ";
          s += coot::util::float_to_string(marked_for_display[i].second);
          s += " rmsd";
       }
       coot::atom_spec_t as(marked_for_display[i].first, s);
-      as.float_user_data = marked_for_display[i].first->occupancy;
+      as.float_user_data = marked_for_display[i].first->occupancy();
       v.push_back(as);
    }
    return v;

@@ -132,9 +132,9 @@ coot::molecule_t::replace_fragment(atom_selection_container_t asc) {
 
          if (idx != -1) {
             mmdb::Atom *ref_atom = atom_sel.atom_selection[idx];
-            ref_atom->x = at->x;
-            ref_atom->y = at->y;
-            ref_atom->z = at->z;
+            ref_atom->x() = at->x();
+            ref_atom->y() = at->y();
+            ref_atom->z() = at->z();
 
          } else {
 
@@ -149,8 +149,8 @@ coot::molecule_t::replace_fragment(atom_selection_container_t asc) {
                   mmdb::Chain *chain_p = new mmdb::Chain;
                   chain_p->SetChainID(at->GetChainID());
                   residue_p = new mmdb::Residue;
-                  residue_p->seqNum = at->GetSeqNum();
-                  residue_p->SetResName(at->residue->GetResName());
+                  residue_p->GetSeqNum() = at->GetSeqNum();
+                  residue_p->SetResName(at->GetResidue()->GetResName());
                   chain_p->AddResidue(residue_p);
                   model_p->AddChain(chain_p);
                   atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
@@ -161,7 +161,7 @@ coot::molecule_t::replace_fragment(atom_selection_container_t asc) {
                   // std::cout << "   ======= found the residue " << std::endl;
                } else {
                   residue_p = new mmdb::Residue;
-                  residue_p->SetResID(at->residue->GetResName(), at->residue->seqNum, at->residue->insCode);
+                  residue_p->SetResID(at->GetResidue()->GetResName(), at->GetResidue()->GetSeqNum(), at->GetResidue()->GetInsCode());
                   int res_no = at->GetSeqNum();
                   std::string ins_code(at->GetInsCode());
                   std::pair<int, mmdb::Residue *> sn =
@@ -225,9 +225,9 @@ coot::molecule_t::replace_fragment(mmdb::Manager *mol_ref, int old_atom_index_ha
       if (ierr == mmdb::UDDATA_Ok) {
          mmdb::Atom *at = atom_sel.atom_selection[idx];
          // std::cout << "replacing position of " << atom_spec_t(at) << " from " << atom_spec_t(at_frag) << std::endl;
-         at->x = at_frag->x;
-         at->y = at_frag->y;
-         at->z = at_frag->z;
+         at->x() = at_frag->x();
+         at->y() = at_frag->y();
+         at->z() = at_frag->z();
          status = 1; // at least one atom was found
       } else {
          std::cout << "GetUDData() failed for " << coot::atom_spec_t(at_frag) << " " << old_atom_index_handle << std::endl;

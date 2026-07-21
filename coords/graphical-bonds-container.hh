@@ -112,7 +112,7 @@ public:
       float scale = 1.0f;
       mmdb::Residue *r = atom_p->GetResidue();
       if (r) {
-         std::string ele(atom_p->element);
+         std::string ele(atom_p->GetElementName());
          if (ele == " H") return 0.5f;
          std::string res_name = r->GetResName();
          if (res_name == "HOH")
@@ -146,7 +146,7 @@ public:
       if (atom_index < n_atoms) {
          if (atom_index >= 0) {
             mmdb::Atom *at = atom_selection[atom_index];
-            position = coot::Cartesian(at->x, at->y, at->z);
+            position = coot::Cartesian(at->x(), at->y(), at->z());
          }
       }
    }

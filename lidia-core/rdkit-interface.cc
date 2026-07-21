@@ -99,7 +99,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
       for (int iat=0; iat<n_residue_atoms; iat++) {
          mmdb::Atom *at = residue_atoms[iat];
          if (! at->isTer()) {
-            std::string alt_conf = at->altLoc;
+            std::string alt_conf = at->altLoc();
             if (std::find(v.begin(), v.end(), alt_conf) == v.end()) {
                v.push_back(alt_conf);
             }
@@ -160,8 +160,8 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
    for (int iat_1=0; iat_1<n_residue_atoms; iat_1++) {
       mmdb::Atom *at_1 = residue_atoms[iat_1];
       if (! at_1->Ter) {
-         std::string atom_name_1(at_1->name);
-         std::string atom_alt_conf(at_1->altLoc);
+         std::string atom_name_1(at_1->GetAtomName());
+         std::string atom_alt_conf(at_1->altLoc());
          if (debug)
             std::cout << "rdkit_mol() handling atom " << iat_1 << " of " << n_residue_atoms
                       << " with mmdb::Residue atom name " << atom_name_1
@@ -174,7 +174,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
                   // atoms of the residue?
                   for (int iat_2=0; iat_2<n_residue_atoms; iat_2++) {
                      mmdb::Atom *at_2 = residue_atoms[iat_2];
-                     std::string atom_name_2 = at_2->name;
+                     std::string atom_name_2 = at_2->GetAtomName();
                      if (atom_name_2 == restraints.bond_restraint[ib].atom_id_2_4c()) {
                         found_a_bonded_atom = true;
                         break;
@@ -186,7 +186,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
                   // atoms of the residue?
                   for (int iat_2=0; iat_2<n_residue_atoms; iat_2++) {
                      mmdb::Atom *at_2 = residue_atoms[iat_2];
-                     std::string atom_name_2 = at_2->name;
+                     std::string atom_name_2 = at_2->GetAtomName();
                      if (atom_name_2 == restraints.bond_restraint[ib].atom_id_1_4c()) {
                         found_a_bonded_atom = true;
                         break;
@@ -236,7 +236,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
       for (unsigned int iat=0; iat<bonded_atoms.size(); iat++) {
 
          mmdb::Atom *at = residue_atoms[bonded_atoms[iat].first];
-         std::string atom_name(at->name);
+         std::string atom_name(at->GetAtomName());
          if (debug)
             std::cout << "   handling atom " << iat << " of " << n_residue_atoms << " bonded_atoms " 
                       << atom_name << " ";
@@ -251,7 +251,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
             RDKit::Atom *rdkit_at = new RDKit::Atom;
             try {
                std::string ele_capped =
-                  coot::util::capitalise(coot::util::remove_leading_spaces(at->element));
+                  coot::util::capitalise(coot::util::remove_leading_spaces(at->GetElementName()));
                int atomic_number = tbl->getAtomicNumber(ele_capped);
                rdkit_at->setAtomicNum(atomic_number);
                // rdkit_at->setMass(tbl->getAtomicWeight(atomic_number));
@@ -268,7 +268,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 
                // set the valence from they type energy.  Abstract?
                //
-               std::string type_energy = restraints.type_energy(at->name);
+               std::string type_energy = restraints.type_energy(at->GetAtomName());
                if (type_energy != "") {
                   if (type_energy == "NT") {
                      bool charge_it = true;
@@ -892,14 +892,14 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
             // atom with a particular atom name).
             //
             for (int iat=0; iat<n_residue_atoms; iat++) {
-               std::string atom_name(residue_atoms[iat]->name);
-               std::string atom_alt_conf(residue_atoms[iat]->altLoc);
+               std::string atom_name(residue_atoms[iat]->GetAtomName());
+               std::string atom_alt_conf(residue_atoms[iat]->altLoc());
                if (true) { // was alt-conf test
                   std::map<std::string, int>::const_iterator it = atom_index.find(atom_name);
                   if (it != atom_index.end()) {
-                     RDGeom::Point3D pos(residue_atoms[iat]->x,
-                                         residue_atoms[iat]->y,
-                                         residue_atoms[iat]->z);
+                     RDGeom::Point3D pos(residue_atoms[iat]->x(),
+                                         residue_atoms[iat]->y(),
+                                         residue_atoms[iat]->z());
                      conf->setAtomPos(it->second, pos);
                      if (debug)
                         std::cout << "in construction of rdkit mol: making a conformer atom "
@@ -979,7 +979,7 @@ coot::set_atom_chirality(RDKit::Atom *rdkit_at,
    //
    bool done_chiral = false;
 
-   std::string atom_name = at->name;
+   std::string atom_name = at->GetAtomName();
 
    for (unsigned int ichi=0; ichi<restraints.chiral_restraint.size(); ichi++) {
       const dict_chiral_restraint_t &cr = restraints.chiral_restraint[ichi];
@@ -1544,7 +1544,7 @@ coot::get_chiral_tag(mmdb::Residue *residue_p,
    mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-   std::string atom_name = atom_p->name;
+   std::string atom_name = atom_p->GetAtomName();
    bool debug = false;
 
    // To make RDKit/SMILES chiral tags, we consider the order of the 3
@@ -1567,7 +1567,7 @@ coot::get_chiral_tag(mmdb::Residue *residue_p,
          bool atom_orders_match = false;
 
          for (int iat=0; iat<n_residue_atoms; iat++) {
-            std::string atom_name_local = residue_atoms[iat]->name;
+            std::string atom_name_local = residue_atoms[iat]->GetAtomName();
             if (atom_name_local == chiral_restraint.atom_id_1_4c()) {
                ni[1] = iat;
                n_neigbours_found++;
@@ -1662,7 +1662,7 @@ coot::get_chiral_tag_v2(mmdb::Residue *residue_p,
    mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-   std::string atom_name = atom_p->name;
+   std::string atom_name = atom_p->GetAtomName();
 
    std::cout << "Called get_chiral_tag_v2() whti atom name " << atom_name << std::endl;
 
@@ -1680,7 +1680,7 @@ coot::get_chiral_tag_v2(mmdb::Residue *residue_p,
             mmdb::Atom *at = residue_atoms[iat];
             if (! at->isTer()) {
                mmdb::Atom *chiral_atom = 0;
-               std::string atom_name_local(at->name);
+               std::string atom_name_local(at->GetAtomName());
                if (atom_name_local == cr.atom_id_c_4c()) {
                   chiral_atom = at;
                }
@@ -1709,7 +1709,7 @@ coot::get_chiral_tag_v2(mmdb::Residue *residue_p,
                if (! other_atom.empty()) {
                   for (int iat=0; iat<n_residue_atoms; iat++) { 
                      mmdb::Atom *at = residue_atoms[iat];
-                     std::string atom_name_local(at->name);
+                     std::string atom_name_local(at->GetAtomName());
                      if (0) 
                         std::cout << iat << " comparing :" << atom_name_local << ": :"
                                   << other_atom << ":" << std::endl;
@@ -2146,7 +2146,7 @@ coot::make_residue(const RDKit::ROMol &rdkm, int iconf, const std::string &res_n
    // 
    if (mol.atoms.size()) {
       residue_p = new mmdb::Residue;
-      residue_p->seqNum = 1;
+      residue_p->GetSeqNum() = 1;
       residue_p->SetResName(res_name.c_str());
       mmdb::Chain *chain_p = new mmdb::Chain;
       chain_p->SetChainID("");
@@ -2405,9 +2405,9 @@ coot::add_hydrogens_with_rdkit(mmdb::Residue *residue_p,
          residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
          for (int iat=0; iat<n_residue_atoms; iat++) {
             if (! residue_atoms[iat]->isTer()) {
-               std::string ele = residue_atoms[iat]->element;
+               std::string ele = residue_atoms[iat]->GetElementName();
                if (ele == " H")
-                  existing_H_names.push_back(residue_atoms[iat]->name);
+                  existing_H_names.push_back(residue_atoms[iat]->GetAtomName());
             }
          }
 
@@ -2476,9 +2476,9 @@ coot::add_hydrogens_with_rdkit(mmdb::Residue *residue_p,
                      if (res_atom) {
                         std::cout << "setting heavy atom " << name << " to "
                                   << r_pos << std::endl;
-                        res_atom->x = r_pos.x;
-                        res_atom->y = r_pos.y;
-                        res_atom->z = r_pos.z;
+                        res_atom->x() = r_pos.x;
+                        res_atom->y() = r_pos.y;
+                        res_atom->z() = r_pos.z;
                      }
                      
                   }
@@ -2511,7 +2511,7 @@ coot::add_hydrogens_with_rdkit(mmdb::Residue *residue_p,
                            at->SetCoordinates(r_pos.x, r_pos.y, r_pos.z, 1.0, 30.0);
                            at->Het = 1;
                            if (alt_conf != "") {
-                              strncpy(at->altLoc, alt_conf.c_str(), alt_conf.length()+1);
+                              strncpy(at->altLoc(), alt_conf.c_str(), alt_conf.length()+1);
                            }
                            residue_p->AddAtom(at);
                            r = 1;
@@ -3697,7 +3697,7 @@ void coot::update_coords(RDKit::RWMol *mol_p, int iconf, mmdb::Residue *residue_
    residue_p->GetAtomTable(residue_atoms, n_atoms);
    RDKit::Conformer &conf = mol_p->getConformer(iconf);
    for (int iat=0; iat<n_atoms; iat++) {
-      std::string residue_atom_name(residue_atoms[iat]->name);
+      std::string residue_atom_name(residue_atoms[iat]->GetAtomName());
       mmdb::Atom *r_at = residue_atoms[iat];
       for (int jat=0; jat<n_atoms; jat++) {
          RDKit::Atom* at_p = (*mol_p)[jat];
@@ -3705,7 +3705,7 @@ void coot::update_coords(RDKit::RWMol *mol_p, int iconf, mmdb::Residue *residue_
             std::string rdkit_atom_name;
             at_p->getProp("name", rdkit_atom_name);
             if (rdkit_atom_name == residue_atom_name) {
-               RDGeom::Point3D r_pos(r_at->x, r_at->y, r_at->z);
+               RDGeom::Point3D r_pos(r_at->x(), r_at->y(), r_at->z());
                conf.setAtomPos(jat, r_pos);
             }
          }

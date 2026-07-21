@@ -710,7 +710,7 @@ coot::peak_search::make_sample_protein_coords(mmdb::Manager *mol, int every_n) c
          for (int iat=0; iat<n_atoms; iat++) {
             if (atom_count == every_n) {
                at = residue_p->GetAtom(iat);
-               r.push_back(clipper::Coord_orth(at->x, at->y, at->z));
+               r.push_back(clipper::Coord_orth(at->x(), at->y(), at->z()));
                atom_count = 0;
             }
             atom_count++;

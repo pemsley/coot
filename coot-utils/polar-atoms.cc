@@ -83,7 +83,7 @@ coot::buried_unsatisfied_polar_atoms(mmdb::Manager *mol) {
       std::vector<bool> is_polar(n_selected_atoms, false);
       for (int i=0; i<n_selected_atoms; i++) {
          mmdb::Atom *at = atom_selection[i];
-         std::string res_name(at->residue->GetResName());
+         std::string res_name(at->GetResidue()->GetResName());
          std::string at_name(at->GetAtomName());
          quick_protein_donor_acceptors::key k(res_name, at_name);
          hb_t hb_type = pda.get_type(k);
@@ -103,7 +103,7 @@ coot::buried_unsatisfied_polar_atoms(mmdb::Manager *mol) {
                      if (at) {
                         if (! at->isTer()) {
                            bool found_something = false;
-                           std::string res_name(at->residue->GetResName());
+                           std::string res_name(at->GetResidue()->GetResName());
                            std::string at_name(at->GetAtomName());
                            quick_protein_donor_acceptors::key key_1(res_name, at_name);
                            std::set<unsigned int>::const_iterator it;
@@ -111,7 +111,7 @@ coot::buried_unsatisfied_polar_atoms(mmdb::Manager *mol) {
                               mmdb::Atom *at_neighb = atom_selection[*it];
                               if (at_neighb) {
                                  if (! at_neighb->isTer()) {
-                                    std::string res_name_n(at->residue->GetResName());
+                                    std::string res_name_n(at->GetResidue()->GetResName());
                                     std::string at_name_n(at->GetAtomName());
                                     quick_protein_donor_acceptors::key key_2(res_name_n, at_name_n);
                                     std::pair<bool, bool> is_valid = pda.is_hydrogen_bond_by_types(key_1, key_2);

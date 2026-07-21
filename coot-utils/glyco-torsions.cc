@@ -215,7 +215,7 @@ coot::link_by_torsion_t::make_residue(mmdb::Residue *base_residue_p) const {
    if (geom_atom_torsions.size()) {
       r = new mmdb::Residue;
       r->SetResName(new_residue_type.c_str());
-      r->seqNum = new_res_no;
+      r->GetSeqNum() = new_res_no;
       for (unsigned int i=0; i<geom_atom_torsions.size(); i++) {
          const atom_by_torsion_t &gat = geom_atom_torsions[i];
          // std::cout << "in make_residue() i: " << i << " " << gat << std::endl;
@@ -262,7 +262,7 @@ coot::atom_by_torsion_t::atom_by_torsion_t(const atom_by_torsion_base_t &names,
       // I could just GetAtom() here.
       for (int iat=0; iat<n_residue_atoms_1; iat++) {
          mmdb::Atom *at = residue_atoms_1[iat];
-         std::string nb_name = coot::util::remove_whitespace(at->name);
+         std::string nb_name = coot::util::remove_whitespace(at->GetAtomName());
          if (names.prior_atom_1.first)
             if (names.prior_atom_1.second == nb_name)
                p_1 = at;
@@ -275,7 +275,7 @@ coot::atom_by_torsion_t::atom_by_torsion_t(const atom_by_torsion_base_t &names,
       }
       for (int iat=0; iat<n_residue_atoms_2; iat++) {
          mmdb::Atom *at = residue_atoms_2[iat];
-         std::string nb_name = coot::util::remove_whitespace(at->name);
+         std::string nb_name = coot::util::remove_whitespace(at->GetAtomName());
          if (! names.prior_atom_1.first)
             if (names.prior_atom_1.second == nb_name)
                p_1 = at;

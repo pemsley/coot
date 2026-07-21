@@ -1468,8 +1468,8 @@ coot::protein_geometry::atoms_match_dictionary(mmdb::Residue *residue_p,
    if (debug) {
       std::cout << "=== atoms_match_dictionary() with these residue atom names ======= " << std::endl;
       for (int i=0; i<n_residue_atoms; i++) {
-	 std::cout << i << "  :" << residue_atoms[i]->name << ": and ele "
-		   << residue_atoms[i]->element << std::endl;
+	 std::cout << i << "  :" << residue_atoms[i]->GetAtomName() << ": and ele "
+		   << residue_atoms[i]->GetElementName() << std::endl;
       } 
       std::cout << "=== atoms_match_dictionary() with these residue atom names ======= " << std::endl;
       for (unsigned int irat=0; irat<restraints.atom_info.size(); irat++) {
@@ -1481,8 +1481,8 @@ coot::protein_geometry::atoms_match_dictionary(mmdb::Residue *residue_p,
    for (int i=0; i<n_residue_atoms; i++) {
 
       if (! residue_atoms[i]->isTer()) { 
-	 std::string residue_atom_name(residue_atoms[i]->name);
-	 std::string ele(residue_atoms[i]->element);
+	 std::string residue_atom_name(residue_atoms[i]->GetAtomName());
+	 std::string ele(residue_atoms[i]->GetElementName());
 
 	 bool found = 0;
 	 // PDBv3 FIXME
@@ -1589,17 +1589,17 @@ coot::protein_geometry::atoms_match_dictionary_bond_distance_check(mmdb::Residue
       for (unsigned int ibond=0; ibond<restraints.bond_restraint.size(); ibond++) {
 	 for (int iat=0; iat<(n_residue_atoms-1); iat++) {
 	    const mmdb::Atom *at_1 = residue_atoms[iat];
-	    std::string atom_name_1(at_1->name);
+	    std::string atom_name_1(at_1->GetAtomName());
 	    if (restraints.bond_restraint[ibond].atom_id_1_4c() == atom_name_1) { 
 	       for (int jat=iat+1; jat<n_residue_atoms; jat++) {
 		  const mmdb::Atom *at_2 = residue_atoms[jat];
-		  std::string atom_name_2(at_2->name);
+		  std::string atom_name_2(at_2->GetAtomName());
 		  if (restraints.bond_restraint[ibond].atom_id_2_4c() == atom_name_2) {
-		     std::string alt_conf_1(at_1->altLoc);
-		     std::string alt_conf_2(at_2->altLoc);
+		     std::string alt_conf_1(at_1->altLoc());
+		     std::string alt_conf_2(at_2->altLoc());
 		     if (alt_conf_1 == alt_conf_2) {
-			clipper::Coord_orth pt1(at_1->x, at_1->y, at_1->z);
-			clipper::Coord_orth pt2(at_2->x, at_2->y, at_2->z);
+			clipper::Coord_orth pt1(at_1->x(), at_1->y(), at_1->z());
+			clipper::Coord_orth pt2(at_2->x(), at_2->y(), at_2->z());
 			double d = (pt1-pt2).lengthsq();
 			if (d > 10) {
 			   status = false;
@@ -2525,8 +2525,8 @@ coot::protein_geometry::get_residue(const std::string &comp_id, int imol_enc,
       for (int iat=0; iat<n_residue_atoms; iat++) {
          mmdb::Atom *at = residue_atoms[iat];
          if (! at->isTer()) {
-            std::cout << "debug:: in get_residue(): atom " << iat << " " << at-> name
-                      << " at " << at->x << " " << at->y << " " << at->z << std::endl;
+            std::cout << "debug:: in get_residue(): atom " << iat << " " << at-> GetAtomName()
+                      << " at " << at->x() << " " << at->y() << " " << at->z() << std::endl;
          }
       }
    };
@@ -2587,8 +2587,8 @@ coot::protein_geometry::mol_from_dictionary(const std::string &three_letter_code
                      for (int iat=0; iat<n_atoms; iat++) {
                         mmdb::Atom *at = residue_p->GetAtom(iat);
                         if (! at->isTer()) {
-                           std::cout << "pg::mol_from_dictionary(): atom " << iat << " " << at->name
-                                     << " at " << at->x << " "  << at->y << " " << at->z
+                           std::cout << "pg::mol_from_dictionary(): atom " << iat << " " << at->GetAtomName()
+                                     << " at " << at->x() << " "  << at->y() << " " << at->z()
                                      << std::endl;
                         }
                      }

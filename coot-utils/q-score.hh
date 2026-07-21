@@ -270,7 +270,7 @@ namespace coot {
             at->PutUDData(udd_q_score, q_score);
             if (false)
                std::cout << "results per atom " << atom_spec_t(at) << " " << q_score
-                         << " B-factor " << at->tempFactor << std::endl;
+                         << " B-factor " << at->tempFactor() << std::endl;
             if (q_score > -1000.0)
                residue_q_scores[res_spec].add(q_score);
          }

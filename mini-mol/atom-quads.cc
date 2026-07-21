@@ -150,7 +150,7 @@ coot::atom_quad::setup_chiral_quad(mmdb::Residue *residue_with_O, mmdb::Residue 
       int n_residue_atoms;
       residue_with_O->GetAtomTable(residue_atoms, n_residue_atoms);
       for (int iat=0; iat<n_residue_atoms; iat++) {
-	 std::string atom_name(residue_atoms[iat]->name);
+	 std::string atom_name(residue_atoms[iat]->GetAtomName());
 	 if (atom_name == O_name) {
 	    // the O atom name comes from the residue_with_O
 	    if (!quad.atom_1) { 
@@ -164,7 +164,7 @@ coot::atom_quad::setup_chiral_quad(mmdb::Residue *residue_with_O, mmdb::Residue 
       residue_with_chiral_centre->GetAtomTable(residue_atoms, n_residue_atoms);
       for (int iat=0; iat<n_residue_atoms; iat++) {
 	 mmdb::Atom *at = residue_atoms[iat];
-	 std::string atom_name(at->name);
+	 std::string atom_name(at->GetAtomName());
 	 if (atom_name == atom_4_name) {
 	    if (! quad.atom_4)
 	       quad.atom_4 = at; // chiral centre atom
@@ -244,18 +244,18 @@ coot::atom_index_quad::torsion(mmdb::PPAtom atom_selection, int n_selected_atoms
 	 std::string mess = "bad atom indexing in atom_index_quad::torsion()";
 	 throw std::runtime_error(mess);
       }
-      clipper::Coord_orth pt_1(atom_selection[index1]->x,
-			       atom_selection[index1]->y,
-			       atom_selection[index1]->z);
-      clipper::Coord_orth pt_2(atom_selection[index2]->x,
-			       atom_selection[index2]->y,
-			       atom_selection[index2]->z);
-      clipper::Coord_orth pt_3(atom_selection[index3]->x,
-			       atom_selection[index3]->y,
-			       atom_selection[index3]->z);
-      clipper::Coord_orth pt_4(atom_selection[index4]->x,
-			       atom_selection[index4]->y,
-			       atom_selection[index4]->z);
+      clipper::Coord_orth pt_1(atom_selection[index1]->x(),
+			       atom_selection[index1]->y(),
+			       atom_selection[index1]->z());
+      clipper::Coord_orth pt_2(atom_selection[index2]->x(),
+			       atom_selection[index2]->y(),
+			       atom_selection[index2]->z());
+      clipper::Coord_orth pt_3(atom_selection[index3]->x(),
+			       atom_selection[index3]->y(),
+			       atom_selection[index3]->z());
+      clipper::Coord_orth pt_4(atom_selection[index4]->x(),
+			       atom_selection[index4]->y(),
+			       atom_selection[index4]->z());
 
       angle = clipper::Util::rad2d(clipper::Coord_orth::torsion(pt_1, pt_2, pt_3, pt_4));
    } 
@@ -268,9 +268,9 @@ double
 coot::atom_quad::angle_2() const {  // angle 1-2-3 in degrees
 
    if (atom_1 && atom_2 && atom_3) { 
-      clipper::Coord_orth pt_1(atom_1->x, atom_1->y, atom_1->z);
-      clipper::Coord_orth pt_2(atom_2->x, atom_2->y, atom_2->z);
-      clipper::Coord_orth pt_3(atom_3->x, atom_3->y, atom_3->z);
+      clipper::Coord_orth pt_1(atom_1->x(), atom_1->y(), atom_1->z());
+      clipper::Coord_orth pt_2(atom_2->x(), atom_2->y(), atom_2->z());
+      clipper::Coord_orth pt_3(atom_3->x(), atom_3->y(), atom_3->z());
       double angle = clipper::Util::rad2d(clipper::Coord_orth::angle(pt_1, pt_2, pt_3));
       return angle;
    } else {
@@ -283,9 +283,9 @@ double
 coot::atom_quad::angle_3() const { // angle 2-3-4 in degrees
 
    if (atom_2 && atom_3 && atom_4) { 
-      clipper::Coord_orth pt_2(atom_2->x, atom_2->y, atom_2->z);
-      clipper::Coord_orth pt_3(atom_3->x, atom_3->y, atom_3->z);
-      clipper::Coord_orth pt_4(atom_4->x, atom_4->y, atom_4->z);
+      clipper::Coord_orth pt_2(atom_2->x(), atom_2->y(), atom_2->z());
+      clipper::Coord_orth pt_3(atom_3->x(), atom_3->y(), atom_3->z());
+      clipper::Coord_orth pt_4(atom_4->x(), atom_4->y(), atom_4->z());
       double angle = clipper::Util::rad2d(clipper::Coord_orth::angle(pt_2, pt_3, pt_4));
       return angle;
    } else {
@@ -297,10 +297,10 @@ coot::atom_name_quad
 coot::atom_quad::get_atom_name_quad() const {
 
    if (atom_1 && atom_2 && atom_3 && atom_4) {
-      return coot::atom_name_quad(atom_1->name,
-				  atom_2->name,
-				  atom_3->name,
-				  atom_4->name);
+      return coot::atom_name_quad(atom_1->GetAtomName(),
+				  atom_2->GetAtomName(),
+				  atom_3->GetAtomName(),
+				  atom_4->GetAtomName());
    } else {
       throw std::runtime_error("atom_quad::atom_name_quad() Null atom(s)");
    }
@@ -318,10 +318,10 @@ coot::atom_name_quad::torsion(mmdb::Residue *residue) const {
    mmdb::Atom *at_3 = residue->GetAtom(atom_name_[3].c_str());
 
    if (at_0 && at_1 && at_2 && at_3) {
-      clipper::Coord_orth pt_0(at_0->x, at_0->y, at_0->z);
-      clipper::Coord_orth pt_1(at_1->x, at_1->y, at_1->z);
-      clipper::Coord_orth pt_2(at_2->x, at_2->y, at_2->z);
-      clipper::Coord_orth pt_3(at_3->x, at_3->y, at_3->z);
+      clipper::Coord_orth pt_0(at_0->x(), at_0->y(), at_0->z());
+      clipper::Coord_orth pt_1(at_1->x(), at_1->y(), at_1->z());
+      clipper::Coord_orth pt_2(at_2->x(), at_2->y(), at_2->z());
+      clipper::Coord_orth pt_3(at_3->x(), at_3->y(), at_3->z());
       double angle = clipper::Util::rad2d(clipper::Coord_orth::torsion(pt_0, pt_1, pt_2, pt_3));
       return angle;
    } 
@@ -334,10 +334,10 @@ double
 coot::atom_quad::torsion() const {
 
    if (atom_1 && atom_2 && atom_3 && atom_4) { 
-      clipper::Coord_orth pt_1(atom_1->x, atom_1->y, atom_1->z);
-      clipper::Coord_orth pt_2(atom_2->x, atom_2->y, atom_2->z);
-      clipper::Coord_orth pt_3(atom_3->x, atom_3->y, atom_3->z);
-      clipper::Coord_orth pt_4(atom_4->x, atom_4->y, atom_4->z);
+      clipper::Coord_orth pt_1(atom_1->x(), atom_1->y(), atom_1->z());
+      clipper::Coord_orth pt_2(atom_2->x(), atom_2->y(), atom_2->z());
+      clipper::Coord_orth pt_3(atom_3->x(), atom_3->y(), atom_3->z());
+      clipper::Coord_orth pt_4(atom_4->x(), atom_4->y(), atom_4->z());
       double angle = clipper::Util::rad2d(clipper::Coord_orth::torsion(pt_1, pt_2, pt_3, pt_4));
       return angle;
    } else {
@@ -354,10 +354,10 @@ coot::atom_quad::chiral_volume() const {
       throw std::runtime_error("Null atoms in quad for chiral volume");
    } else { 
 
-      clipper::Coord_orth centre(atom_4->x, atom_4->y, atom_4->z);
-      clipper::Coord_orth   at_1(atom_1->x, atom_1->y, atom_1->z);
-      clipper::Coord_orth   at_2(atom_2->x, atom_2->y, atom_2->z);
-      clipper::Coord_orth   at_3(atom_3->x, atom_3->y, atom_3->z);
+      clipper::Coord_orth centre(atom_4->x(), atom_4->y(), atom_4->z());
+      clipper::Coord_orth   at_1(atom_1->x(), atom_1->y(), atom_1->z());
+      clipper::Coord_orth   at_2(atom_2->x(), atom_2->y(), atom_2->z());
+      clipper::Coord_orth   at_3(atom_3->x(), atom_3->y(), atom_3->z());
       
       clipper::Coord_orth a = at_1 - centre;
       clipper::Coord_orth b = at_2 - centre;

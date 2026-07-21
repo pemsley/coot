@@ -125,7 +125,7 @@ coot::nomenclature::fix_and_swap_maybe(const coot::protein_geometry *Geom_p, boo
 
 			   int imol = 0; // dummy
 			   std::vector<coot::dict_chiral_restraint_t> chiral_restraints = 
-			      Geom_p->get_monomer_chiral_volumes(std::string(residue_p->name), imol);
+			      Geom_p->get_monomer_chiral_volumes(std::string(residue_p->GetResName()), imol);
 			   coot::dict_chiral_restraint_t chiral_restraint;
 			   for (unsigned int irestr=0; irestr<chiral_restraints.size(); irestr++) { 
 			      chiral_restraint = chiral_restraints[irestr];
@@ -165,8 +165,8 @@ coot::nomenclature::fix_and_swap_maybe(const coot::protein_geometry *Geom_p, boo
 				       mmdb::Atom *og1 = 0;
 				       mmdb::Atom *cg2 = 0;
 				       for (int iat=0; iat<n_residue_atoms; iat++) {
-					  std::string alt_conf = residue_atoms[iat]->altLoc;
-					  std::string atom_name = residue_atoms[iat]->name;
+					  std::string alt_conf = residue_atoms[iat]->altLoc();
+					  std::string atom_name = residue_atoms[iat]->GetAtomName();
 					  if (atom_name == " OG1" )
 					     if (alt_conf == alt_conf_bad)
 						og1 = residue_atoms[iat];
@@ -243,8 +243,8 @@ coot::nomenclature::fix_and_swap_maybe(const coot::protein_geometry *Geom_p, boo
 				 mmdb::Atom *cg1 = 0; // cd1 and cd2 for LEU of course
 				 mmdb::Atom *cg2 = 0;
 				 for (int iat=0; iat<n_residue_atoms; iat++) {
-				    std::string alt_conf = residue_atoms[iat]->altLoc;
-				    std::string atom_name = residue_atoms[iat]->name;
+				    std::string alt_conf = residue_atoms[iat]->altLoc();
+				    std::string atom_name = residue_atoms[iat]->GetAtomName();
 				    if (atom_name == target_atom_1 )
 				       if (alt_conf == alt_conf_bad)
 					  cg1 = residue_atoms[iat];
@@ -304,9 +304,9 @@ coot::nomenclature::test_and_fix_PHE_TYR_nomenclature_errors(mmdb::Residue *resi
    std::vector<std::string> alt_conf_list;
    // first get the altconfs in the residue:
    for (int i=0; i<n_residue_atoms; i++) {
-      std::string atom_name = residue_atoms[i]->name;
+      std::string atom_name = residue_atoms[i]->GetAtomName();
       if(atom_name == " CD1") {
-	 alt_conf_list.push_back(residue_atoms[i]->altLoc);
+	 alt_conf_list.push_back(residue_atoms[i]->altLoc());
       }
    }
 
@@ -323,8 +323,8 @@ coot::nomenclature::test_and_fix_PHE_TYR_nomenclature_errors(mmdb::Residue *resi
       mmdb::Atom *CD1 = 0;
       mmdb::Atom *CD2 = 0;
       for (int i=0; i<n_residue_atoms; i++) {
-	 std::string atom_name = residue_atoms[i]->name;
-	 std::string atom_altconf = residue_atoms[i]->altLoc;
+	 std::string atom_name = residue_atoms[i]->GetAtomName();
+	 std::string atom_altconf = residue_atoms[i]->altLoc();
 	 if (atom_altconf == alt_conf_list[ialtconf]) {
 	    if (atom_name == " CA ")
 	       CA = residue_atoms[i];
@@ -340,8 +340,8 @@ coot::nomenclature::test_and_fix_PHE_TYR_nomenclature_errors(mmdb::Residue *resi
       }
       if (CA==0 || CB==0 || CG==0) { // no need for CD1, it will be set
 	 for (int i=0; i<n_residue_atoms; i++) {
-	    std::string atom_name    = residue_atoms[i]->name;
-	    std::string atom_altconf = residue_atoms[i]->altLoc;
+	    std::string atom_name    = residue_atoms[i]->GetAtomName();
+	    std::string atom_altconf = residue_atoms[i]->altLoc();
 	    if (atom_altconf == "") {
 	       if (atom_name == " CA ")
 		  CA = residue_atoms[i];
@@ -359,10 +359,10 @@ coot::nomenclature::test_and_fix_PHE_TYR_nomenclature_errors(mmdb::Residue *resi
       
       if (CA && CB && CG && CD1) {
 	 
-	 clipper::Coord_orth a1(CA->x,  CA->y,  CA->z);
-	 clipper::Coord_orth a2(CB->x,  CB->y,  CB->z);
-	 clipper::Coord_orth a3(CG->x,  CG->y,  CG->z);
-	 clipper::Coord_orth a4(CD1->x, CD1->y, CD1->z);
+	 clipper::Coord_orth a1(CA->x(),  CA->y(),  CA->z());
+	 clipper::Coord_orth a2(CB->x(),  CB->y(),  CB->z());
+	 clipper::Coord_orth a3(CG->x(),  CG->y(),  CG->z());
+	 clipper::Coord_orth a4(CD1->x(), CD1->y(), CD1->z());
 
 	 double tors = clipper::Util::rad2d(clipper::Coord_orth::torsion(a1, a2, a3, a4));
 
@@ -371,7 +371,7 @@ coot::nomenclature::test_and_fix_PHE_TYR_nomenclature_errors(mmdb::Residue *resi
 	    // ooops, there was a problem with this torsion.
 
 	    if (CD2) {
-	       clipper::Coord_orth a4_o(CD2->x, CD2->y, CD2->z);
+	       clipper::Coord_orth a4_o(CD2->x(), CD2->y(), CD2->z());
 	       double cg2_tors =
 		  clipper::Util::rad2d(clipper::Coord_orth::torsion(a1, a2, a3, a4_o));
 	       // if cg2_tors is in range, then we swap atom names
@@ -384,8 +384,8 @@ coot::nomenclature::test_and_fix_PHE_TYR_nomenclature_errors(mmdb::Residue *resi
 		  mmdb::Atom *HE1 = 0;
 		  mmdb::Atom *HE2 = 0;
 		  for (int ie=0; ie<n_residue_atoms; ie++) {
-		     std::string e_atom_name = residue_atoms[ie]->name;
-		     std::string e_atom_altconf = residue_atoms[ie]->altLoc;
+		     std::string e_atom_name = residue_atoms[ie]->GetAtomName();
+		     std::string e_atom_altconf = residue_atoms[ie]->altLoc();
 		     if (e_atom_altconf == alt_conf_list[ialtconf]) {
 			if (e_atom_name == " CE1") 
 			   CE1 = residue_atoms[ie];
@@ -410,15 +410,15 @@ coot::nomenclature::test_and_fix_PHE_TYR_nomenclature_errors(mmdb::Residue *resi
 			CE1->SetAtomName(" CE2");
 			CE2->SetAtomName(" CE1");
 #endif
-                        mmdb::realtype pos_cd1[3] = {CD1->x, CD1->y, CD1->z};
-                        mmdb::realtype pos_cd2[3] = {CD2->x, CD2->y, CD2->z};
-                        mmdb::realtype pos_ce1[3] = {CE1->x, CE1->y, CE1->z};
-                        mmdb::realtype pos_ce2[3] = {CE2->x, CE2->y, CE2->z};
+                        mmdb::realtype pos_cd1[3] = {CD1->x(), CD1->y(), CD1->z()};
+                        mmdb::realtype pos_cd2[3] = {CD2->x(), CD2->y(), CD2->z()};
+                        mmdb::realtype pos_ce1[3] = {CE1->x(), CE1->y(), CE1->z()};
+                        mmdb::realtype pos_ce2[3] = {CE2->x(), CE2->y(), CE2->z()};
 
-                        CD1->x = pos_cd2[0]; CD1->y = pos_cd2[1]; CD1->z = pos_cd2[2];
-                        CD2->x = pos_cd1[0]; CD2->y = pos_cd1[1]; CD2->z = pos_cd1[2];
-                        CE1->x = pos_ce2[0]; CE1->y = pos_ce2[1]; CE1->z = pos_ce2[2];
-                        CE2->x = pos_ce1[0]; CE2->y = pos_ce1[1]; CE2->z = pos_ce1[2];
+                        CD1->x() = pos_cd2[0]; CD1->y() = pos_cd2[1]; CD1->z() = pos_cd2[2];
+                        CD2->x() = pos_cd1[0]; CD2->y() = pos_cd1[1]; CD2->z() = pos_cd1[2];
+                        CE1->x() = pos_ce2[0]; CE1->y() = pos_ce2[1]; CE1->z() = pos_ce2[2];
+                        CE2->x() = pos_ce1[0]; CE2->y() = pos_ce1[1]; CE2->z() = pos_ce1[2];
 		     }
 		     if (false)
 			std::cout << "DEBUG:: swapped in test_and_fix_PHE_TYR_nomenclature_errors()"
@@ -477,9 +477,9 @@ coot::nomenclature::test_and_fix_ASP_GLU_nomenclature_errors(mmdb::Residue *resi
       std::vector<std::string> alt_conf_list;
       // first get the altconfs in the residue:
       for (int i=0; i<n_residue_atoms; i++) {
-	 std::string atom_name = residue_atoms[i]->name;
+	 std::string atom_name = residue_atoms[i]->GetAtomName();
 	 if(atom_name == test_atom_name) {
-	    alt_conf_list.push_back(residue_atoms[i]->altLoc);
+	    alt_conf_list.push_back(residue_atoms[i]->altLoc());
 	 }
       }
 
@@ -490,8 +490,8 @@ coot::nomenclature::test_and_fix_ASP_GLU_nomenclature_errors(mmdb::Residue *resi
 	 coot::atom_index_quad quad;
 	 
 	 for (int i=0; i<n_residue_atoms; i++) {
-	    std::string atom_name = residue_atoms[i]->name;
-	    std::string atom_altconf = residue_atoms[i]->altLoc;
+	    std::string atom_name = residue_atoms[i]->GetAtomName();
+	    std::string atom_altconf = residue_atoms[i]->altLoc();
 	    if (atom_altconf == alt_conf_list[ialtconf]) {
 
 	       if (residue_name == "ASP") {
@@ -540,8 +540,8 @@ coot::nomenclature::test_and_fix_ASP_GLU_nomenclature_errors(mmdb::Residue *resi
 	       mmdb::Atom *at_1 = 0;
 	       mmdb::Atom *at_2 = 0;
 	       for (int i=0; i<n_residue_atoms; i++) {
-		  std::string atom_name = residue_atoms[i]->name;
-		  std::string atom_altconf = residue_atoms[i]->altLoc;
+		  std::string atom_name = residue_atoms[i]->GetAtomName();
+		  std::string atom_altconf = residue_atoms[i]->altLoc();
 		  if (atom_altconf == alt_conf_list[ialtconf]) {
 		     if (atom_name == swap_name_1)
 			at_1 = residue_atoms[i];

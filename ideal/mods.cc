@@ -108,16 +108,16 @@ coot::restraints_container_t::mod_bond_add(const coot::chem_mod_bond &mod_bond,
    
    int index_1 = -1, index_2 = -1;
    for (int iat_1=0; iat_1<n_residue_atoms; iat_1++) {
-      std::string pdb_atom_name_1(residue_atoms[iat_1]->name);
+      std::string pdb_atom_name_1(residue_atoms[iat_1]->GetAtomName());
       // std::cout << "comparing :" << pdb_atom_name_1 << ": with :" << mod_bond.atom_id_1
       // << ":" << std::endl;
       if (pdb_atom_name_1 == mod_bond.atom_id_1) {
 	 for (int iat_2=0; iat_2<n_residue_atoms; iat_2++) {
-	    std::string pdb_atom_name_2(residue_atoms[iat_2]->name);
+	    std::string pdb_atom_name_2(residue_atoms[iat_2]->GetAtomName());
 	    if (pdb_atom_name_2 == mod_bond.atom_id_2) {
 	       // check that they have the same alt conf
-	       std::string alt_1(residue_atoms[iat_1]->altLoc);
-	       std::string alt_2(residue_atoms[iat_2]->altLoc);
+	       std::string alt_1(residue_atoms[iat_1]->altLoc());
+	       std::string alt_2(residue_atoms[iat_2]->altLoc());
 	       if (alt_1 == "" || alt_2 == "" || alt_1 == alt_2) {
 		  residue_atoms[iat_1]->GetUDData(udd_atom_index_handle, index_1);
 		  residue_atoms[iat_2]->GetUDData(udd_atom_index_handle, index_2);
@@ -147,10 +147,10 @@ coot::restraints_container_t::mod_bond_change(const coot::chem_mod_bond &mod_bon
       {
 	 simple_restraint &rest = restraints_vec[i]; // rest may be modified
 	 if (rest.restraint_type == coot::BOND_RESTRAINT) {
-	    if (atom[rest.atom_index_1]->residue == residue_p) {
-	       if (atom[rest.atom_index_2]->residue == residue_p) {
-		  std::string name_1 = atom[rest.atom_index_1]->name;
-		  std::string name_2 = atom[rest.atom_index_2]->name;
+	    if (atom[rest.atom_index_1]->GetResidue() == residue_p) {
+	       if (atom[rest.atom_index_2]->GetResidue() == residue_p) {
+		  std::string name_1 = atom[rest.atom_index_1]->GetAtomName();
+		  std::string name_2 = atom[rest.atom_index_2]->GetAtomName();
 		  if (name_1 == mod_bond.atom_id_1) {
 		     if (name_2 == mod_bond.atom_id_2) {
 			rest.target_value = mod_bond.new_value_dist;
@@ -182,10 +182,10 @@ coot::restraints_container_t::mod_bond_delete(const coot::chem_mod_bond &mod_bon
    
    for (it=restraints_vec.begin(); it!=restraints_vec.end(); it++) { 
       if (it->restraint_type == coot::BOND_RESTRAINT) {
-	 if (atom[it->atom_index_1]->residue == residue_p) {
-	    if (atom[it->atom_index_2]->residue == residue_p) {
-	       std::string name_1 = atom[it->atom_index_1]->name;
-	       std::string name_2 = atom[it->atom_index_2]->name;
+	 if (atom[it->atom_index_1]->GetResidue() == residue_p) {
+	    if (atom[it->atom_index_2]->GetResidue() == residue_p) {
+	       std::string name_1 = atom[it->atom_index_1]->GetAtomName();
+	       std::string name_2 = atom[it->atom_index_2]->GetAtomName();
 	       if (name_1 == mod_bond.atom_id_1) {
 		  if (name_2 == mod_bond.atom_id_2) {
 		     if (0) 
@@ -228,19 +228,19 @@ coot::restraints_container_t::mod_angle_add(const coot::chem_mod_angle &mod_angl
    
    int index_1 = -1, index_2 = -1, index_3 = -1;
    for (int iat_1=0; iat_1<n_residue_atoms; iat_1++) {
-      std::string pdb_atom_name_1(residue_atoms[iat_1]->name);
+      std::string pdb_atom_name_1(residue_atoms[iat_1]->GetAtomName());
       if (pdb_atom_name_1 == mod_angle.atom_id_1) {
 	 for (int iat_2=0; iat_2<n_residue_atoms; iat_2++) {
-	    std::string pdb_atom_name_2(residue_atoms[iat_2]->name);
+	    std::string pdb_atom_name_2(residue_atoms[iat_2]->GetAtomName());
 	    if (pdb_atom_name_2 == mod_angle.atom_id_2) {
 	       for (int iat_3=0; iat_3<n_residue_atoms; iat_3++) {
-		  std::string pdb_atom_name_3(residue_atoms[iat_3]->name);
+		  std::string pdb_atom_name_3(residue_atoms[iat_3]->GetAtomName());
 		  if (pdb_atom_name_3 == mod_angle.atom_id_3) {
 		     
 		     // check that they have the same alt conf
-		     std::string alt_1(residue_atoms[iat_1]->altLoc);
-		     std::string alt_2(residue_atoms[iat_2]->altLoc);
-		     std::string alt_3(residue_atoms[iat_3]->altLoc);
+		     std::string alt_1(residue_atoms[iat_1]->altLoc());
+		     std::string alt_2(residue_atoms[iat_2]->altLoc());
+		     std::string alt_3(residue_atoms[iat_3]->altLoc());
 		     if (((alt_1 == alt_2) && (alt_1 == alt_3)) ||
 			 ((alt_1 == ""   ) && (alt_2 == alt_3)) ||
 			 ((alt_2 == ""   ) && (alt_1 == alt_3)) ||
@@ -284,11 +284,11 @@ coot::restraints_container_t::mod_angle_change(const coot::chem_mod_angle &mod_a
       {
 	 simple_restraint &rest = restraints_vec[i];
 	 if (rest.restraint_type == coot::ANGLE_RESTRAINT) {
-	    if (atom[restraints_vec[i].atom_index_1]->residue == residue_p) {
-	       if (atom[restraints_vec[i].atom_index_2]->residue == residue_p) {
-		  std::string name_1 = atom[rest.atom_index_1]->name;
-		  std::string name_2 = atom[rest.atom_index_2]->name;
-		  std::string name_3 = atom[rest.atom_index_3]->name;
+	    if (atom[restraints_vec[i].atom_index_1]->GetResidue() == residue_p) {
+	       if (atom[restraints_vec[i].atom_index_2]->GetResidue() == residue_p) {
+		  std::string name_1 = atom[rest.atom_index_1]->GetAtomName();
+		  std::string name_2 = atom[rest.atom_index_2]->GetAtomName();
+		  std::string name_3 = atom[rest.atom_index_3]->GetAtomName();
 		  if (name_1 == mod_angle.atom_id_1) {
 		     if (name_2 == mod_angle.atom_id_2) {
 			if (name_3 == mod_angle.atom_id_3) {
@@ -325,11 +325,11 @@ coot::restraints_container_t::mod_angle_delete(const coot::chem_mod_angle &mod_a
    
    for (it=restraints_vec.begin(); it!=restraints_vec.end(); it++) { 
       if (it->restraint_type == coot::ANGLE_RESTRAINT) {
-	 if (atom[it->atom_index_1]->residue == residue_p) {
-	    if (atom[it->atom_index_2]->residue == residue_p) {
-	       std::string name_1 = atom[it->atom_index_1]->name;
-	       std::string name_2 = atom[it->atom_index_2]->name;
-	       std::string name_3 = atom[it->atom_index_3]->name;
+	 if (atom[it->atom_index_1]->GetResidue() == residue_p) {
+	    if (atom[it->atom_index_2]->GetResidue() == residue_p) {
+	       std::string name_1 = atom[it->atom_index_1]->GetAtomName();
+	       std::string name_2 = atom[it->atom_index_2]->GetAtomName();
+	       std::string name_3 = atom[it->atom_index_3]->GetAtomName();
 	       if (name_1 == mod_angle.atom_id_1) {
 		  if (name_2 == mod_angle.atom_id_2) {
 		     if (name_2 == mod_angle.atom_id_3) {
@@ -376,11 +376,11 @@ coot::restraints_container_t::mod_plane_add(const coot::chem_mod_plane &mod_plan
 
    for (unsigned int i=0; i<mod_plane.atom_id_esd.size(); i++) {
       for (int iat=0; iat<n_residue_atoms; iat++) {
-	 std::string atom_name(residue_atoms[iat]->name);
+	 std::string atom_name(residue_atoms[iat]->GetAtomName());
 	 if (atom_name == mod_plane.atom_id_esd[i].first) {
 	    int atom_index;
 	    residue_atoms[iat]->GetUDData(udd_atom_index_handle, atom_index);
-	    std::string altconf = residue_atoms[iat]->altLoc;
+	    std::string altconf = residue_atoms[iat]->altLoc();
 	    pos[altconf].push_back(atom_index);
 	 }
       }
@@ -422,7 +422,7 @@ coot::restraints_container_t::mod_plane_delete(const coot::chem_mod_plane &mod_p
 	 // do the atoms of the mod_plane match the atoms of the restraint?
 	 for (unsigned int iat=0; iat<it->plane_atom_index.size(); iat++) { 
 	    for (unsigned int iat_mod=0; iat_mod<mod_plane.atom_id_esd.size(); iat_mod++) {
-	       std::string atom_name = atom[it->plane_atom_index[iat].first]->name;
+	       std::string atom_name = atom[it->plane_atom_index[iat].first]->GetAtomName();
 	       if (atom_name == mod_plane.atom_id_esd[iat_mod].first) {
 		  if (atom[it->plane_atom_index[iat].first]->GetResidue() == residue_p) {
 		     n_found++;

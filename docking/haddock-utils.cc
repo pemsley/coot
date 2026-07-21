@@ -120,22 +120,22 @@ compute_residue_sasa(mmdb::Manager *mol,
 
       for (int ia=0; ia<n_res; ia++) {
          mmdb::Atom *atom = res_atoms[ia];
-         double atom_radius = mmdb::getVdWaalsRadius(atom->element) + probe_radius;
+         double atom_radius = mmdb::getVdWaalsRadius(atom->GetElementName()) + probe_radius;
          double point_area = 4.0 * M_PI * atom_radius * atom_radius / n_points;
 
          int accessible = 0;
          for (int ip=0; ip<n_points; ip++) {
-            double px = atom->x + atom_radius * sphere_points[ip].x();
-            double py = atom->y + atom_radius * sphere_points[ip].y();
-            double pz = atom->z + atom_radius * sphere_points[ip].z();
+            double px = atom->x() + atom_radius * sphere_points[ip].x();
+            double py = atom->y() + atom_radius * sphere_points[ip].y();
+            double pz = atom->z() + atom_radius * sphere_points[ip].z();
 
             bool buried = false;
             for (int j=0; j<n_all; j++) {
                if (all_atoms[j] == atom) continue;
-               double nr = mmdb::getVdWaalsRadius(all_atoms[j]->element) + probe_radius;
-               double dx = px - all_atoms[j]->x;
-               double dy = py - all_atoms[j]->y;
-               double dz = pz - all_atoms[j]->z;
+               double nr = mmdb::getVdWaalsRadius(all_atoms[j]->GetElementName()) + probe_radius;
+               double dx = px - all_atoms[j]->x();
+               double dy = py - all_atoms[j]->y();
+               double dz = pz - all_atoms[j]->z();
                if (dx*dx + dy*dy + dz*dz < nr*nr) {
                   buried = true;
                   break;

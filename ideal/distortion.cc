@@ -477,8 +477,8 @@ coot::geometry_distortion_info_container_t::distortion() const {
 	 mmdb::Atom *at_1 = atom[rest.atom_index_1];
 	 mmdb::Atom *at_2 = atom[rest.atom_index_2];
 	 if (at_1 && at_2) {
-	    clipper::Coord_orth p1(at_1->x, at_1->y, at_1->z);
-	    clipper::Coord_orth p2(at_2->x, at_2->y, at_2->z);
+	    clipper::Coord_orth p1(at_1->x(), at_1->y(), at_1->z());
+	    clipper::Coord_orth p2(at_2->x(), at_2->y(), at_2->z());
 	    double d = sqrt((p2-p1).lengthsq());
 	    double distortion = d - rest.target_value;
 	    double pen_score = distortion*distortion/(rest.sigma*rest.sigma);
@@ -494,9 +494,9 @@ coot::geometry_distortion_info_container_t::distortion() const {
 	 mmdb::Atom *at_2 = atom[rest.atom_index_2];
 	 mmdb::Atom *at_3 = atom[rest.atom_index_3];
 	 if (at_1 && at_2 && at_3) {
-	    clipper::Coord_orth p1(at_1->x, at_1->y, at_1->z);
-	    clipper::Coord_orth p2(at_2->x, at_2->y, at_2->z);
-	    clipper::Coord_orth p3(at_3->x, at_3->y, at_3->z);
+	    clipper::Coord_orth p1(at_1->x(), at_1->y(), at_1->z());
+	    clipper::Coord_orth p2(at_2->x(), at_2->y(), at_2->z());
+	    clipper::Coord_orth p3(at_3->x(), at_3->y(), at_3->z());
 	    double angle_rad = clipper::Coord_orth::angle(p1, p2, p3);
 	    double angle = clipper::Util::rad2d(angle_rad);
 	    double distortion = angle - rest.target_value;
@@ -511,10 +511,10 @@ coot::geometry_distortion_info_container_t::distortion() const {
 	 mmdb::Atom *at_3 = atom[rest.atom_index_3];
 	 mmdb::Atom *at_4 = atom[rest.atom_index_4];
 	 if (at_1 && at_2 && at_3 && at_4) {
-	    clipper::Coord_orth p1(at_1->x, at_1->y, at_1->z);
-	    clipper::Coord_orth p2(at_2->x, at_2->y, at_2->z);
-	    clipper::Coord_orth p3(at_3->x, at_3->y, at_3->z);
-	    clipper::Coord_orth p4(at_4->x, at_4->y, at_4->z);
+	    clipper::Coord_orth p1(at_1->x(), at_1->y(), at_1->z());
+	    clipper::Coord_orth p2(at_2->x(), at_2->y(), at_2->z());
+	    clipper::Coord_orth p3(at_3->x(), at_3->y(), at_3->z());
+	    clipper::Coord_orth p4(at_4->x(), at_4->y(), at_4->z());
 	    double torsion_rad = clipper::Coord_orth::torsion(p1, p2, p3, p4);
 	    double torsion = clipper::Util::rad2d(torsion_rad);
 	    double distortion = rest.torsion_distortion(torsion);
@@ -529,10 +529,10 @@ coot::geometry_distortion_info_container_t::distortion() const {
 	 mmdb::Atom *at_3 = atom[rest.atom_index_3];
 	 mmdb::Atom *at_4 = atom[rest.atom_index_4];
 	 if (at_1 && at_2 && at_3 && at_4) {
-	    clipper::Coord_orth p1(at_1->x, at_1->y, at_1->z);
-	    clipper::Coord_orth p2(at_2->x, at_2->y, at_2->z);
-	    clipper::Coord_orth p3(at_3->x, at_3->y, at_3->z);
-	    clipper::Coord_orth p4(at_4->x, at_4->y, at_4->z);
+	    clipper::Coord_orth p1(at_1->x(), at_1->y(), at_1->z());
+	    clipper::Coord_orth p2(at_2->x(), at_2->y(), at_2->z());
+	    clipper::Coord_orth p3(at_3->x(), at_3->y(), at_3->z());
+	    clipper::Coord_orth p4(at_4->x(), at_4->y(), at_4->z());
 	    double torsion_rad = clipper::Coord_orth::torsion(p1, p2, p3, p4);
 	    double torsion = clipper::Util::rad2d(torsion_rad);
 	    double pen_score = rest.torsion_distortion(torsion);
@@ -853,13 +853,13 @@ coot::restraints_container_t::omega_trans_distortions(const coot::protein_geomet
                      if (i_no_res_atoms > 0) {
                         for (int iresatom=0; iresatom<i_no_res_atoms; iresatom++) {
                            at = res_selection[iresatom];
-                           std::string atom_name(at->name);
+                           std::string atom_name(at->GetAtomName());
                            if (atom_name == " CA ") {
-                              ca_first = clipper::Coord_orth(at->x, at->y, at->z);
+                              ca_first = clipper::Coord_orth(at->x(), at->y(), at->z());
                               got_ca_first = 1;
                            }
                            if (atom_name == " C  ") {
-                              c_first = clipper::Coord_orth(at->x, at->y, at->z);
+                              c_first = clipper::Coord_orth(at->x(), at->y(), at->z());
                               got_c_first = 1;
                            }
                         }
@@ -868,13 +868,13 @@ coot::restraints_container_t::omega_trans_distortions(const coot::protein_geomet
                      if (i_no_res_atoms > 0) {
                         for (int iresatom=0; iresatom<i_no_res_atoms; iresatom++) {
                            at = res_selection[iresatom];
-                           std::string atom_name(at->name);
+                           std::string atom_name(at->GetAtomName());
                            if (atom_name == " CA ") {
-                              ca_next = clipper::Coord_orth(at->x, at->y, at->z);
+                              ca_next = clipper::Coord_orth(at->x(), at->y(), at->z());
                               got_ca_next = 1;
                            }
                            if (atom_name == " N  ") {
-                              n_next = clipper::Coord_orth(at->x, at->y, at->z);
+                              n_next = clipper::Coord_orth(at->x(), at->y(), at->z());
                               got_n_next = 1;
                            }
                         }
@@ -890,7 +890,7 @@ coot::restraints_container_t::omega_trans_distortions(const coot::protein_geomet
                         info += " ";
                         info += coot::util::int_to_string(second->GetSeqNum());
                         info += " ";
-                        info += second->name;
+                        info += second->GetResName();
                         info += " Omega: ";
                         info += coot::util::float_to_string(torsion);
                         double distortion = fabs(180.0 - torsion);

@@ -32,9 +32,9 @@ coot::cablam::get_closest_CA_CA_approach(const coot::torsion_atom_quad &quad) co
    //
    // get_closest_CA_CA_approach(CA_pos_p, CA_pos_t, O_pos_p);
 
-   clipper::Coord_orth CA_p(quad.atom_1->x, quad.atom_1->y, quad.atom_1->z);
-   clipper::Coord_orth CA_t(quad.atom_2->x, quad.atom_2->y, quad.atom_2->z);
-   clipper::Coord_orth  O_t(quad.atom_4->x, quad.atom_4->y, quad.atom_4->z);
+   clipper::Coord_orth CA_p(quad.atom_1->x(), quad.atom_1->y(), quad.atom_1->z());
+   clipper::Coord_orth CA_t(quad.atom_2->x(), quad.atom_2->y(), quad.atom_2->z());
+   clipper::Coord_orth  O_t(quad.atom_4->x(), quad.atom_4->y(), quad.atom_4->z());
 
    clipper::Coord_orth PT = CA_t - CA_p;
    clipper::Coord_orth PT_unit(PT.unit());
@@ -135,11 +135,11 @@ coot::cablam::cablam(mmdb::PResidue *residues, int n_sel_residues) {
 
 	    if (CA_m_2 && CA_m_1 && CA_0 && CA_p_1 && CA_p_2) { 
 
-	       std::string ac_m_2 = CA_m_2->altLoc;
-	       std::string ac_m_1 = CA_m_1->altLoc;
-	       std::string ac_0   = CA_0->altLoc;
-	       std::string ac_p_1 = CA_p_1->altLoc;
-	       std::string ac_p_2 = CA_p_2->altLoc;
+	       std::string ac_m_2 = CA_m_2->altLoc();
+	       std::string ac_m_1 = CA_m_1->altLoc();
+	       std::string ac_0   = CA_0->altLoc();
+	       std::string ac_p_1 = CA_p_1->altLoc();
+	       std::string ac_p_2 = CA_p_2->altLoc();
 
 	       if (ac_m_2 == "") { 
 		  if (ac_m_1 == "") { 

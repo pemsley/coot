@@ -62,12 +62,12 @@ coot::haddock::extract_molecule_data(mmdb::Manager *mol,
    data.atoms.resize(n_atoms);
    for (int i=0; i<n_atoms; i++) {
       mmdb::Atom *at = atoms[i];
-      data.atoms[i].position = clipper::Coord_orth(at->x, at->y, at->z);
-      data.atoms[i].vdw_radius = mmdb::getVdWaalsRadius(at->element);
+      data.atoms[i].position = clipper::Coord_orth(at->x(), at->y(), at->z());
+      data.atoms[i].vdw_radius = mmdb::getVdWaalsRadius(at->GetElementName());
       data.atoms[i].charge = charge_table.getCharge(
          std::string(at->GetResName()),
-         std::string(at->name));
-      data.atoms[i].atom_name = at->name;
+         std::string(at->GetAtomName()));
+      data.atoms[i].atom_name = at->GetAtomName();
       data.atoms[i].residue_name = at->GetResName();
 
       // Assign residue index
@@ -107,9 +107,9 @@ coot::haddock::extract_molecule_data(mmdb::Manager *mol,
       residue_atoms_t ra;
       ra.positions.resize(n_res_atoms);
       for (int j=0; j<n_res_atoms; j++) {
-         ra.positions[j] = clipper::Coord_orth(res_atoms[j]->x,
-                                               res_atoms[j]->y,
-                                               res_atoms[j]->z);
+         ra.positions[j] = clipper::Coord_orth(res_atoms[j]->x(),
+                                               res_atoms[j]->y(),
+                                               res_atoms[j]->z());
       }
       data.active_residue_atoms.push_back(ra);
       mol->DeleteSelection(res_sel);
@@ -132,9 +132,9 @@ coot::haddock::extract_molecule_data(mmdb::Manager *mol,
          residue_atoms_t ra;
          ra.positions.resize(n_res_atoms);
          for (int j=0; j<n_res_atoms; j++) {
-            ra.positions[j] = clipper::Coord_orth(res_atoms[j]->x,
-                                                  res_atoms[j]->y,
-                                                  res_atoms[j]->z);
+            ra.positions[j] = clipper::Coord_orth(res_atoms[j]->x(),
+                                                  res_atoms[j]->y(),
+                                                  res_atoms[j]->z());
          }
          data.partner_residue_atoms.push_back(ra);
          mol->DeleteSelection(res_sel);

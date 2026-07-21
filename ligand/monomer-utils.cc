@@ -112,14 +112,14 @@ coot::monomer_utils::get_atom_index_pairs(const std::vector<coot::atom_name_pair
       int ifound = 0;
       i_store_index = -1;
       for(int i=0; i<nresatoms; i++) {
-	 std::string atomname = atoms[i]->name;
+	 std::string atomname = atoms[i]->GetAtomName();
 	 if (atomname == atom_name_pairs_in[ipair].atom1) {
 	    i_store_index = i;
 	 }
       }
       if (i_store_index > -1) { // i.e. we found the first atom
 	 for(int i2=0; i2<nresatoms; i2++) {
-	    std::string atomname = atoms[i2]->name;
+	    std::string atomname = atoms[i2]->GetAtomName();
 	    if (atomname == atom_name_pairs_in[ipair].atom2) {
 	       index_pairs.push_back(coot::atom_index_pair(i_store_index, i2));
 	    }
@@ -147,16 +147,16 @@ coot::monomer_utils::get_atom_index_quads(const std::vector<coot::atom_name_quad
    for (unsigned int iquad=0; iquad<atom_name_quads_in.size(); iquad++) {
       int ifound = 0;
       for (int i1=0; i1<nresatoms; i1++) {
-	 std::string atom_name = atoms[i1]->name;
+	 std::string atom_name = atoms[i1]->GetAtomName();
 	 if (atom_name == atom_name_quads_in[iquad].atom_name(0)) {
 	    for (int i2=0; i2<nresatoms; i2++) {
-	       std::string atom_name = atoms[i2]->name;
+	       std::string atom_name = atoms[i2]->GetAtomName();
 	       if (atom_name == atom_name_quads_in[iquad].atom_name(1)) {
 		  for (int i3=0; i3<nresatoms; i3++) {
-		     std::string atom_name = atoms[i3]->name;
+		     std::string atom_name = atoms[i3]->GetAtomName();
 		     if (atom_name == atom_name_quads_in[iquad].atom_name(2)) {
 			for (int i4=0; i4<nresatoms; i4++) {
-			   std::string atom_name = atoms[i4]->name;
+			   std::string atom_name = atoms[i4]->GetAtomName();
 			   if (atom_name == atom_name_quads_in[iquad].atom_name(3)) {
 			      v.push_back(coot::atom_index_quad(i1, i2, i3, i4));
 			   }
@@ -237,5 +237,5 @@ coot::monomer_utils::get_quads(const std::vector<coot::atom_name_quad> &atom_nam
 
 clipper::Coord_orth
 coot::monomer_utils::atom_to_co(mmdb::Atom *at) const {
-   return clipper::Coord_orth(at->x, at->y, at->z);
+   return clipper::Coord_orth(at->x(), at->y(), at->z());
 }

@@ -603,7 +603,7 @@ coot::reduce::add_main_chain_H(mmdb::Residue *residue_p, mmdb::Residue *residue_
                clipper::Coord_orth at_ca_pos = co(at_ca);
                double angle = clipper::Util::d2rad(125.0);
                clipper::Coord_orth H_pos(at_ca_pos, at_c_pos, at_n_pos, bl, angle, M_PI);
-               mmdb::realtype bf = at_n->tempFactor;
+               mmdb::realtype bf = at_n->tempFactor();
                add_hydrogen_atom(" H  ", H_pos, bf, alt_confs[i], residue_p);
             }
          }
@@ -653,7 +653,7 @@ coot::reduce::add_main_chain_HA(mmdb::Residue *residue_p) {
       mmdb::Atom *at_n3 = residue_p->GetAtom(" CB ", 0, alt_confs[i].c_str());
       if (at_ca && at_n1 && at_n2 && at_n3) {
          clipper::Coord_orth pos = position_by_tetrahedron(at_ca, at_n1, at_n2, at_n3, bl);
-         mmdb::realtype bf = at_ca->tempFactor;
+         mmdb::realtype bf = at_ca->tempFactor();
          add_hydrogen_atom(" HA ", pos, bf, alt_confs[i], residue_p);
       }
    }
@@ -670,7 +670,7 @@ coot::reduce::add_hydrogen_atom(std::string atom_name, clipper::Coord_orth &pos,
    new_H->SetElementName(" H"); // PDBv3 FIXME
    new_H->SetCoordinates(pos.x(), pos.y(), pos.z(), 1.0, bf);
    if (! altconf.empty())
-      strncpy(new_H->altLoc, altconf.c_str(), 18); // 19 is mmdb limit, I think
+      strncpy(new_H->altLoc(), altconf.c_str(), 18); // 19 is mmdb limit, I think
 
    // now test if the atom is there already.
    //
@@ -682,8 +682,8 @@ coot::reduce::add_hydrogen_atom(std::string atom_name, clipper::Coord_orth &pos,
    bool already_exits = 0;
    residue_p->GetAtomTable(residue_atoms, n_atoms);
    for (int i=0; i<n_atoms; i++) {
-      std::string residue_atom_name = residue_atoms[i]->name;
-      std::string residue_atom_alt_conf  = residue_atoms[i]->altLoc;
+      std::string residue_atom_name = residue_atoms[i]->GetAtomName();
+      std::string residue_atom_alt_conf  = residue_atoms[i]->altLoc();
       if (residue_atom_name == atom_name) {
          if (residue_atom_alt_conf == altconf) {
             already_exits = true;
@@ -770,7 +770,7 @@ coot::reduce::add_methyl_Hs(const std::string &at_name_1,  // HB1 (for example)
          clipper::Coord_orth pav_2 = p12;
          clipper::Coord_orth pav_3 = p13;
          if (at_3) {
-            mmdb::realtype bf = at_3->tempFactor;
+            mmdb::realtype bf = at_3->tempFactor();
             mmdb::Atom *at_H_0 = add_hydrogen_atom(at_name_1, pav_1, bf, alt_confs[i], residue_p);
             mmdb::Atom *at_H_1 = add_hydrogen_atom(at_name_2, pav_2, bf, alt_confs[i], residue_p);
             mmdb::Atom *at_H_2 = add_hydrogen_atom(at_name_3, pav_3, bf, alt_confs[i], residue_p);
@@ -819,7 +819,7 @@ coot::reduce::add_methyl_Hs(const std::string &at_name_1,  // HB1 (for example)
          clipper::Coord_orth pav_1 = p11;
          clipper::Coord_orth pav_2 = p12;
          clipper::Coord_orth pav_3 = p13;
-         mmdb::realtype bf = at_3->tempFactor;
+         mmdb::realtype bf = at_3->tempFactor();
          mmdb::Atom *at_0 = add_hydrogen_atom(at_name_1, pav_1, bf, alt_confs[i], residue_p);
          mmdb::Atom *at_1 = add_hydrogen_atom(at_name_2, pav_2, bf, alt_confs[i], residue_p);
          mmdb::Atom *at_2 = add_hydrogen_atom(at_name_3, pav_3, bf, alt_confs[i], residue_p);
@@ -859,7 +859,7 @@ coot::reduce::add_2_sp3_hydrogens(const std::string &H_at_name_1,
          std::pair<clipper::Coord_orth, clipper::Coord_orth> Hs =
             position_pair_by_bisection(at_1, at_2, at_3, bond_length,
                                        clipper::Util::d2rad(angle_between_Hs));
-         mmdb::realtype bf = at_2->tempFactor;
+         mmdb::realtype bf = at_2->tempFactor();
          if (! choose_only_farthest_position) {
             add_hydrogen_atom(H_at_name_1, Hs.first,  bf, alt_confs[i], residue_p);
             add_hydrogen_atom(H_at_name_2, Hs.second, bf, alt_confs[i], residue_p);
@@ -937,7 +937,7 @@ coot::reduce::add_tetrahedral_hydrogen(const std::string &H_at_name,
       if (at_central && at_n_1 && at_n_2 && at_n_3) {
          clipper::Coord_orth H_pos = position_by_tetrahedron(at_central, at_n_1, at_n_2, at_n_3,
                                                              bond_length);
-         mmdb::realtype bf = at_central->tempFactor;
+         mmdb::realtype bf = at_central->tempFactor();
          add_hydrogen_atom(H_at_name, H_pos,  bf, alt_confs[i], residue_p);
       }
    }
@@ -982,7 +982,7 @@ coot::reduce::add_aromatic_hydrogen(const std::string &H_at_name,
       mmdb::Atom *at_n_2 = residue_p->GetAtom(neighb_at_name_2.c_str(), 0, alt_confs[i].c_str());
       mmdb::Atom *at_n_3 = residue_p->GetAtom(neighb_at_name_3.c_str(), 0, alt_confs[i].c_str());
       if (at_n_1 && at_n_2 && at_n_3) {
-         mmdb::realtype bf = at_n_2->tempFactor;
+         mmdb::realtype bf = at_n_2->tempFactor();
          clipper::Coord_orth H_pos = position_by_bisection(at_n_1, at_n_2, at_n_3, bl);
          add_hydrogen_atom(H_at_name, H_pos, bf, alt_confs[i], residue_p);
       } else {
@@ -1031,7 +1031,7 @@ coot::reduce::add_amino_hydrogens(const std::string &H_at_name_1,
                                                                          bl_amino,
                                                                          clipper::Util::d2rad(120),
                                                                          clipper::Util::d2rad(0));
-            mmdb::realtype bf = at_n_1->tempFactor;
+            mmdb::realtype bf = at_n_1->tempFactor();
             add_hydrogen_atom(H_at_name_1, Hp1, bf, alt_confs[i], residue_p);
             add_hydrogen_atom(H_at_name_2, Hp2, bf, alt_confs[i], residue_p);
          }
@@ -1085,7 +1085,7 @@ coot::reduce::add_guanidinium_hydrogens(mmdb::Residue *residue_p) {
       mmdb::Atom *at_n_2 = residue_p->GetAtom(" NE ", 0, alt_confs[i].c_str());
       mmdb::Atom *at_n_3 = residue_p->GetAtom(" CZ ", 0, alt_confs[i].c_str());
       if (at_n_1 && at_n_2 && at_n_3) {
-         mmdb::realtype bf = at_n_2->tempFactor;
+         mmdb::realtype bf = at_n_2->tempFactor();
          clipper::Coord_orth H_pos = position_by_bisection(at_n_1, at_n_2, at_n_3, bl);
          add_hydrogen_atom(H_at_name, H_pos, bf, alt_confs[i], residue_p);
       } else {
@@ -1107,8 +1107,8 @@ coot::reduce::add_guanidinium_hydrogens(mmdb::Residue *residue_p) {
       mmdb::Atom *at_nh1 = residue_p->GetAtom(" NH1", 0, alt_confs[i].c_str());
       mmdb::Atom *at_nh2 = residue_p->GetAtom(" NH2", 0, alt_confs[i].c_str());
       if (at_n_1 && at_n_2 && at_nh1 && at_nh2) {
-         double bf_nh1 = at_nh1->tempFactor;
-         double bf_nh2 = at_nh2->tempFactor;
+         double bf_nh1 = at_nh1->tempFactor();
+         double bf_nh2 = at_nh2->tempFactor();
          double a = clipper::Util::d2rad(120);
          double t = clipper::Util::d2rad(180);
          clipper::Coord_orth hh11 = position_by_bond_length_angle_torsion(at_n_1, at_n_2, at_nh1, bl, a, 0);
@@ -1149,7 +1149,7 @@ coot::reduce::add_trp_indole_hydrogen(const std::string &H_name,
       mmdb::Atom *at_3 = residue_p->GetAtom(at_name_3.c_str(), 0, alt_confs[i].c_str());
       if (at_1 && at_2 && at_3) {
          clipper::Coord_orth H_pos = position_by_bisection(at_1, at_2, at_3, bl);
-         double bf = at_2->tempFactor;
+         double bf = at_2->tempFactor();
          add_hydrogen_atom(H_name, H_pos, bf, alt_confs[i], residue_p);
       }
    }
@@ -1244,7 +1244,7 @@ coot::reduce::add_xH_H(const std::string &H_name,
          clipper::Coord_orth H_pos = position_by_bond_length_angle_torsion(at_3, at_2, at_1, bl,
                                                                            clipper::Util::d2rad(angle),
                                                                            clipper::Util::d2rad(tor_inital));
-         double bf = at_2->tempFactor;
+         double bf = at_2->tempFactor();
          mmdb::Atom *at = add_hydrogen_atom(H_name, H_pos, bf, alt_confs[i], residue_p);
          r.push_back(at);
          spinables.add(at_1, atom_with_attached_Hs::HYDROXYL, at); // maybe need SULFHYDRYL separate?
@@ -1280,7 +1280,7 @@ coot::reduce::add_his_ring_H(const std::string &H_name,
       mmdb::Atom *at_3 = residue_p->GetAtom(at_name_3.c_str(), 0, alt_confs[i].c_str());
       if (at_1 && at_2 && at_3) {
          clipper::Coord_orth H_pos = position_by_bisection(at_1, at_2, at_3, bl_arom);
-         double bf = at_2->tempFactor;
+         double bf = at_2->tempFactor();
          mmdb::Atom *at = add_hydrogen_atom(H_name, H_pos, bf, alt_confs[i], residue_p);
          r.push_back(at);
       }
@@ -1381,7 +1381,7 @@ coot::reduce::switch_his_protonation(mmdb::Residue *residue_p,
 
    // double bl_arom = 0.93;
    if (current_H_atom) {
-      std::string atom_name = current_H_atom->name;
+      std::string atom_name = current_H_atom->GetAtomName();
       std::string new_atom_name;
       if (atom_name == " HD1") new_atom_name = " HE2";
       if (atom_name == " HE2") new_atom_name = " HD1";
@@ -1399,7 +1399,7 @@ coot::reduce::switch_his_protonation(mmdb::Residue *residue_p,
             at_name_2 = " NE2";
             at_name_3 = " CD2";
          }
-         std::string alt_conf = current_H_atom->altLoc;
+         std::string alt_conf = current_H_atom->altLoc();
          mmdb::Atom *at_1 = residue_p->GetAtom(at_name_1.c_str(), 0, alt_conf.c_str());
          mmdb::Atom *at_2 = residue_p->GetAtom(at_name_2.c_str(), 0, alt_conf.c_str());
          mmdb::Atom *at_3 = residue_p->GetAtom(at_name_3.c_str(), 0, alt_conf.c_str());
@@ -1407,7 +1407,7 @@ coot::reduce::switch_his_protonation(mmdb::Residue *residue_p,
             std::cout << "switch_his_protonation() " << 2 << " " << new_atom_name << std::endl;
             current_H_atom->SetAtomName(new_atom_name.c_str());
             clipper::Coord_orth pos = position_by_bisection(at_1, at_2, at_3, bl_arom);
-            double bf = current_H_atom->tempFactor;
+            double bf = current_H_atom->tempFactor();
             current_H_atom->SetCoordinates(pos.x(), pos.y(), pos.z(), 1.0, bf);
          }
       }
@@ -1553,7 +1553,7 @@ coot::reduce::delete_atom_by_name(const std::string &at_name, mmdb::Residue *res
       int n_atoms = residue_p->GetNumberOfAtoms();
       for (int iat=0; iat<n_atoms; iat++) {
          mmdb::Atom *at = residue_p->GetAtom(iat);
-         std::string ele(at->element);
+         std::string ele(at->GetElementName());
          if (ele == " H" || ele == " D") {
             residue_p->DeleteAtom(iat);
             an_atom_was_deleted = true;
@@ -1582,7 +1582,7 @@ coot::reduce::delete_hydrogen_atoms() {
                int n_atoms = residue_p->GetNumberOfAtoms();
                for (int iat=0; iat<n_atoms; iat++) {
                   mmdb::Atom *at = residue_p->GetAtom(iat);
-                  std::string ele(at->element);
+                  std::string ele(at->GetElementName());
                   if (ele == " H" || ele == " D") {
                      atoms_to_be_deleted.push_back(at);
                   }
@@ -1910,7 +1910,7 @@ coot::reduce::atoms_with_spinnable_Hs::add(mmdb::Atom *at,
                                            atom_with_attached_Hs::hydrogen_t type,
                                            const std::vector<mmdb::Atom *> &attached_hydrogen_atoms) {
 
-   std::string alt_loc(at->altLoc);
+   std::string alt_loc(at->altLoc());
    atom_with_attached_Hs awaH(at, type, attached_hydrogen_atoms);
    typed_atoms[alt_loc].push_back(awaH);
 }
@@ -1920,7 +1920,7 @@ coot::reduce::atoms_with_spinnable_Hs::add(mmdb::Atom *at,
                                            atom_with_attached_Hs::hydrogen_t type,
                                            mmdb::Atom *attahed_hydrogen_atom) {
 
-   std::string alt_loc(at->altLoc);
+   std::string alt_loc(at->altLoc());
    std::vector<mmdb::Atom *> v;
    v.push_back(attahed_hydrogen_atom);
    atom_with_attached_Hs awaH(at, type, v);
@@ -1958,7 +1958,7 @@ coot::reduce::atoms_with_spinnable_Hs::cliquize() {
          clipper::Coord_orth at_pos = co(atoms[iat].at);
          for (unsigned int icl=0; icl<cliques.size(); icl++) {
             for (unsigned int j=0; j<cliques[icl].size(); j++) {
-               if (atoms[iat].at->residue != cliques[icl][j].at->residue) {
+               if (atoms[iat].at->GetResidue() != cliques[icl][j].at->GetResidue()) {
                   clipper::Coord_orth pos = co(cliques[icl][j].at);
                   clipper::Coord_orth diff(at_pos - pos);
                   double dv_sqrd = diff.lengthsq();

@@ -112,7 +112,7 @@ namespace coot {
       int n_H() const { return hydrogen_atoms_.size(); }
       int n_non_H() const { return non_hydrogen_atoms_.size(); }
       void add_atom(mmdb::Atom *atom) {
-         std::string element = atom->element;
+         std::string element = atom->GetElementName();
          if (element == " H" || element == " D") {
             hydrogen_atoms_.push_back(atom);
          } else {

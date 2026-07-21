@@ -344,7 +344,7 @@ coot::molecule_t::get_number_of_hydrogen_atoms() const {
                int n_atoms = residue_p->GetNumberOfAtoms();
                for (int iat=0; iat<n_atoms; iat++) {
                   mmdb::Atom *at = residue_p->GetAtom(iat);
-		  std::string ele(at->element);
+		  std::string ele(at->GetElementName());
 		  if (ele == " H") {
 		     if (! at->isTer()) {
 			n++;
@@ -571,16 +571,16 @@ coot::molecule_t::transform_by(mmdb::mat44 mat) {
       }
       for (int i=0; i<atom_sel.n_selected_atoms; i++) {
          mmdb::Atom *at = atom_sel.atom_selection[i];
-         co = clipper::Coord_orth(at->x, at->y, at->z);
+         co = clipper::Coord_orth(at->x(), at->y(), at->z());
          trans_pos = co.transform(rtop);
-         at->x = trans_pos.x();
-         at->y = trans_pos.y();
-         at->z = trans_pos.z();
+         at->x() = trans_pos.x();
+         at->y() = trans_pos.y();
+         at->z() = trans_pos.z();
          if (false) // debugging
             if (co.x() < 0.0 && co.x() > -10.0)
                if (co.y() < 20.0 && co.y() > 10.0)
                   if (co.z() < 30.0 && co.z() > 20.0)
-                     std::cout << i << " from " << co.format() << " to " << at->x << " " << at->y << " " << at->z << std::endl;
+                     std::cout << i << " from " << co.format() << " to " << at->x() << " " << at->y() << " " << at->z() << std::endl;
       }
       atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
       atom_sel.mol->FinishStructEdit();
@@ -794,15 +794,15 @@ coot::molecule_t::moving_atom_matches(mmdb::Atom *at, int this_mol_index_maybe) 
       if (this_mol_index_maybe >= atom_sel.n_selected_atoms) {
          return false;
       } else {
-         std::string atom_name_mov = at->name;
+         std::string atom_name_mov = at->GetAtomName();
          std::string ins_code_mov  = at->GetInsCode();
-         std::string alt_conf_mov  = at->altLoc;
+         std::string alt_conf_mov  = at->altLoc();
          std::string chain_id_mov  = at->GetChainID();
          int resno_mov = at->GetSeqNum();
 
-         std::string atom_name_ref = atom_sel.atom_selection[this_mol_index_maybe]->name;
+         std::string atom_name_ref = atom_sel.atom_selection[this_mol_index_maybe]->GetAtomName();
          std::string ins_code_ref  = atom_sel.atom_selection[this_mol_index_maybe]->GetInsCode();
-         std::string alt_conf_ref  = atom_sel.atom_selection[this_mol_index_maybe]->altLoc;
+         std::string alt_conf_ref  = atom_sel.atom_selection[this_mol_index_maybe]->altLoc();
          std::string chain_id_ref  = atom_sel.atom_selection[this_mol_index_maybe]->GetChainID();
          int resno_ref = atom_sel.atom_selection[this_mol_index_maybe]->GetSeqNum();
 
@@ -913,10 +913,10 @@ coot::molecule_t::full_atom_spec_to_atom_index(const std::string &chain,
          // the wildcard atom selection case "*HO2"
          for (int i=0; i<nSelAtoms; i++) {
             if (std::string(local_SelAtom[i]->GetChainID()) == chain) {
-               if (local_SelAtom[i]->residue->seqNum == resno) {
+               if (local_SelAtom[i]->GetResidue()->GetSeqNum() == resno) {
                   if (std::string(local_SelAtom[i]->GetInsCode()) == insertion_code) {
-                     if (std::string(local_SelAtom[i]->name) == atom_name) {
-                        if (std::string(local_SelAtom[i]->altLoc) == alt_conf) {
+                     if (std::string(local_SelAtom[i]->GetAtomName()) == atom_name) {
+                        if (std::string(local_SelAtom[i]->altLoc()) == alt_conf) {
                            idx = i;
                            break;
                         }
@@ -955,8 +955,8 @@ coot::molecule_t::movable_atom(mmdb::Atom *mol_atom, bool replace_coords_with_ze
 
    bool m = true;
 
-   if ((mol_atom->occupancy < 0.0001) &&
-       (mol_atom->occupancy > -0.0001))
+   if ((mol_atom->occupancy() < 0.0001) &&
+       (mol_atom->occupancy() > -0.0001))
       if (replace_coords_with_zero_occ_flag == 0)
          m = 0; // zero occupancy and "dont move zero occ atoms is set"
    return m;
@@ -979,18 +979,18 @@ coot::molecule_t::adjust_occupancy_other_residue_atoms(mmdb::Atom *at,
       int nResidueAtoms;
       mmdb::PPAtom ResidueAtoms = 0;
       residue->GetAtomTable(ResidueAtoms, nResidueAtoms);
-      float new_atom_occ = at->occupancy;
-      std::string new_atom_name(at->name);
-      std::string new_atom_altconf(at->altLoc);
+      float new_atom_occ = at->occupancy();
+      std::string new_atom_name(at->GetAtomName());
+      std::string new_atom_altconf(at->altLoc());
       std::vector<mmdb::Atom *> same_name_atoms;
       float sum_occ = 0;
       for (int i=0; i<nResidueAtoms; i++) {
-         std::string this_atom_name(ResidueAtoms[i]->name);
-         std::string this_atom_altloc(ResidueAtoms[i]->altLoc);
+         std::string this_atom_name(ResidueAtoms[i]->GetAtomName());
+         std::string this_atom_altloc(ResidueAtoms[i]->altLoc());
          if (this_atom_name == new_atom_name) {
             if (this_atom_altloc != new_atom_altconf) {
                same_name_atoms.push_back(ResidueAtoms[i]);
-               sum_occ += ResidueAtoms[i]->occupancy;
+               sum_occ += ResidueAtoms[i]->occupancy();
             }
          }
       }
@@ -1000,16 +1000,16 @@ coot::molecule_t::adjust_occupancy_other_residue_atoms(mmdb::Atom *at,
          if (same_name_atoms.size() > 0) {
             float other_atom_occ_sum = 0.0;
             for (unsigned int i=0; i<same_name_atoms.size(); i++)
-               other_atom_occ_sum += same_name_atoms[i]->occupancy;
+               other_atom_occ_sum += same_name_atoms[i]->occupancy();
 
             float remainder = 1.0 - new_atom_occ;
             float f = remainder/other_atom_occ_sum;
             for (unsigned int i=0; i<same_name_atoms.size(); i++) {
                if (0) // debug
                   std::cout << "debug " << same_name_atoms[i]
-                            << " mulitplying occ " << same_name_atoms[i]->occupancy
+                            << " mulitplying occ " << same_name_atoms[i]->occupancy()
                             << " by " << remainder << "/" << other_atom_occ_sum << "\n";
-               same_name_atoms[i]->occupancy *= f;
+               same_name_atoms[i]->occupancy() *= f;
             }
          }
       }
@@ -1050,12 +1050,12 @@ coot::molecule_t::replace_coords(const atom_selection_container_t &asc,
          bool is_ter_state = atom->isTer();
          std::cout << "DEBUG:: in replace_coords, intermediate atom: " << i << " " << atom << " "
                    << "chain-id: "
-                   << atom->residue->GetChainID() <<  ": "
-                   << atom->residue->seqNum << " inscode \""
+                   << atom->GetResidue()->GetChainID() <<  ": "
+                   << atom->GetResidue()->GetSeqNum() << " inscode \""
                    << atom->GetInsCode() << "\" name \""
-                   << atom->name << "\" altloc \""
-                   << atom->altLoc << "\" occupancy: "
-                   << atom->occupancy << " :"
+                   << atom->GetAtomName() << "\" altloc \""
+                   << atom->altLoc() << "\" occupancy: "
+                   << atom->occupancy() << " :"
                    << " TER state: " << is_ter_state << std::endl;
       }
    }
@@ -1099,21 +1099,21 @@ coot::molecule_t::replace_coords(const atom_selection_container_t &asc,
                      idx = tmp_index;
                   } else {
                      // std::cout << "DEBUG:: atom index mismatch" << std::endl;
-                     idx = full_atom_spec_to_atom_index(std::string(atom->residue->GetChainID()),
-                                                        atom->residue->seqNum,
+                     idx = full_atom_spec_to_atom_index(std::string(atom->GetResidue()->GetChainID()),
+                                                        atom->GetResidue()->GetSeqNum(),
                                                         std::string(atom->GetInsCode()),
-                                                        std::string(atom->name),
-                                                        std::string(atom->altLoc));
+                                                        std::string(atom->GetAtomName()),
+                                                        std::string(atom->altLoc()));
                      // std::cout << "DEBUG:: full_atom_spec_to_atom_index gives index: " << idx << std::endl;
                   }
                } else {
                   // This shouldn't happen.
                   std::cout << "Good Handle, bad index found for old atom: specing" << std::endl;
-                  idx = full_atom_spec_to_atom_index(std::string(atom->residue->GetChainID()),
-                                                     atom->residue->seqNum,
+                  idx = full_atom_spec_to_atom_index(std::string(atom->GetResidue()->GetChainID()),
+                                                     atom->GetResidue()->GetSeqNum(),
                                                      std::string(atom->GetInsCode()),
-                                                     std::string(atom->name),
-                                                     std::string(atom->altLoc));
+                                                     std::string(atom->GetAtomName()),
+                                                     std::string(atom->altLoc()));
                }
             } else {
 
@@ -1128,11 +1128,11 @@ coot::molecule_t::replace_coords(const atom_selection_container_t &asc,
                          << asc.UDDOldAtomIndexHandle << " using full atom spec to atom index..."
                          << std::endl;
 
-            idx = full_atom_spec_to_atom_index(std::string(atom->residue->GetChainID()),
-                                               atom->residue->seqNum,
+            idx = full_atom_spec_to_atom_index(std::string(atom->GetResidue()->GetChainID()),
+                                               atom->GetResidue()->GetSeqNum(),
                                                std::string(atom->GetInsCode()),
-                                               std::string(atom->name),
-                                               std::string(atom->altLoc));
+                                               std::string(atom->GetAtomName()),
+                                               std::string(atom->altLoc()));
 
             std::cout << "full_atom_spec_to_atom_index() returned " << idx << " for " << coot::atom_spec_t(atom) << std::endl;
             if (idx != -1) {
@@ -1143,11 +1143,11 @@ coot::molecule_t::replace_coords(const atom_selection_container_t &asc,
             if (idx == -1) {
                std::cout << "DEBUG:: idx: " << idx << "\n";
                std::cout << "ERROR:: failed to find atom in molecule: chain-id :"
-                         << std::string(atom->residue->GetChainID()) <<  ": res_no "
-                         << atom->residue->seqNum << " inscode :"
+                         << std::string(atom->GetResidue()->GetChainID()) <<  ": res_no "
+                         << atom->GetResidue()->GetSeqNum() << " inscode :"
                          << std::string(atom->GetInsCode()) << ": name :"
-                         << std::string(atom->name) << ": altloc :"
-                         << std::string(atom->altLoc) << ":" << std::endl;
+                         << std::string(atom->GetAtomName()) << ": altloc :"
+                         << std::string(atom->altLoc()) << ":" << std::endl;
             }
          }
 
@@ -1157,11 +1157,11 @@ coot::molecule_t::replace_coords(const atom_selection_container_t &asc,
             if (idx >= 0) {
                n_atom++;
                mmdb::Atom *mol_atom = atom_sel.atom_selection[idx];
-               float atom_occ = atom->occupancy;
+               float atom_occ = atom->occupancy();
                // if this is a shelx molecule, then we don't change
                // occupancies this way.  We do it by changing the FVAR
                if (is_from_shelx_ins_flag) {
-                  atom_occ = mol_atom->occupancy;
+                  atom_occ = mol_atom->occupancy();
 
                   // OK, one more go.  We have an occupancy of 31 or -31
                   // say.  Now, the alt conf atoms has been immediately
@@ -1180,8 +1180,8 @@ coot::molecule_t::replace_coords(const atom_selection_container_t &asc,
                   }
 
                   if (true) {
-                     coot::Cartesian old_pos(mol_atom->x, mol_atom->y, mol_atom->z);
-                     coot::Cartesian new_pos(atom->x, atom->y, atom->z);
+                     coot::Cartesian old_pos(mol_atom->x(), mol_atom->y(), mol_atom->z());
+                     coot::Cartesian new_pos(atom->x(), atom->y(), atom->z());
                      double d = (new_pos - old_pos).amplitude();
                      if (false) {
                         std::cout << "    changing coords for atom with idx " << idx << " "
@@ -1191,23 +1191,23 @@ coot::molecule_t::replace_coords(const atom_selection_container_t &asc,
                   }
 
                   if (movable_atom(mol_atom, replace_coords_with_zero_occ_flag))
-                     mol_atom->SetCoordinates(atom->x,
-                                              atom->y,
-                                              atom->z,
+                     mol_atom->SetCoordinates(atom->x(),
+                                              atom->y(),
+                                              atom->z(),
                                               atom_occ,
-                                              mol_atom->tempFactor);
+                                              mol_atom->tempFactor());
                } else {
                   if (movable_atom(mol_atom, replace_coords_with_zero_occ_flag))
-                     mol_atom->SetCoordinates(atom->x,
-                                              atom->y,
-                                              atom->z,
+                     mol_atom->SetCoordinates(atom->x(),
+                                              atom->y(),
+                                              atom->z(),
                                               atom_occ,
-                                              mol_atom->tempFactor);
+                                              mol_atom->tempFactor());
                }
 
                // similarly we adjust occupancy if this is not a shelx molecule
                if (! is_from_shelx_ins_flag) {
-                  adjust_occupancy_other_residue_atoms(mol_atom, mol_atom->residue, 0);
+                  adjust_occupancy_other_residue_atoms(mol_atom, mol_atom->GetResidue(), 0);
                }
                // std::cout << atom << " coords replace " << idx << " " << mol_atom << std::endl;
             } else {
@@ -1227,8 +1227,8 @@ coot::molecule_t::replace_coords(const atom_selection_container_t &asc,
                   bool is_movable_atom = movable_atom(mol_atom, replace_coords_with_zero_occ_flag);
                   if (is_movable_atom) {
                      if (debug) { // debug
-                        coot::Cartesian old_pos(mol_atom->x, mol_atom->y, mol_atom->z);
-                        coot::Cartesian new_pos(atom->x, atom->y, atom->z);
+                        coot::Cartesian old_pos(mol_atom->x(), mol_atom->y(), mol_atom->z());
+                        coot::Cartesian new_pos(atom->x(), atom->y(), atom->z());
                         double d = (new_pos - old_pos).amplitude();
                         if (false) { // debug
                            std::cout << "    changing coords for atom with idx " << idx << " " << coot::atom_spec_t(mol_atom)
@@ -1236,11 +1236,11 @@ coot::molecule_t::replace_coords(const atom_selection_container_t &asc,
                            std::cout << "   " << old_pos << " " << new_pos << " moved-by " << d << std::endl;
                         }
                      }
-                     mol_atom->SetCoordinates(atom->x,
-                                              atom->y,
-                                              atom->z,
-                                              mol_atom->occupancy,
-                                              mol_atom->tempFactor);
+                     mol_atom->SetCoordinates(atom->x(),
+                                              atom->y(),
+                                              atom->z(),
+                                              mol_atom->occupancy(),
+                                              mol_atom->tempFactor());
                      n_atom++;
                   }
                } else {
@@ -1296,7 +1296,7 @@ coot::molecule_t::ramachandran_validation(const ramachandrans_container_t &rc) c
          if (! at_1->isTer()) {
             std::string atom_name_1(at_1->GetAtomName());
             if (atom_name_1 == " C  ") {
-               coot::Cartesian pt_c(at_1->x, at_1->y, at_1->z);
+               coot::Cartesian pt_c(at_1->x(), at_1->y(), at_1->z());
                mmdb::Atom **residue_atoms_2 = 0;
                int n_residue_atoms_2 = 0;
                // I should iterate over all alt confs
@@ -1306,7 +1306,7 @@ coot::molecule_t::ramachandran_validation(const ramachandrans_container_t &rc) c
                   if (! at_2->isTer()) {
                      std::string atom_name_2(at_2->GetAtomName());
                      if (atom_name_2 == " N  ") {
-                        coot::Cartesian pt_n(at_1->x, at_1->y, at_1->z);
+                        coot::Cartesian pt_n(at_1->x(), at_1->y(), at_1->z());
                         double dd = coot::Cartesian::lengthsq(pt_c, pt_n);
                         double d = std::sqrt(dd);
                         if (d < 3.0) {
@@ -1331,10 +1331,10 @@ coot::molecule_t::ramachandran_validation(const ramachandrans_container_t &rc) c
       mmdb::Atom *CB = r->GetAtom(" CB ");
 
       if (CA && C && N && CB) {
-         coot::Cartesian ca_pos(CA->x, CA->y, CA->z);
-         coot::Cartesian  c_pos( C->x,  C->y,  C->z);
-         coot::Cartesian  n_pos( N->x,  N->y,  N->z);
-         coot::Cartesian cb_pos(CB->x, CB->y, CB->z);
+         coot::Cartesian ca_pos(CA->x(), CA->y(), CA->z());
+         coot::Cartesian  c_pos( C->x(),  C->y(),  C->z());
+         coot::Cartesian  n_pos( N->x(),  N->y(),  N->z());
+         coot::Cartesian cb_pos(CB->x(), CB->y(), CB->z());
          coot::Cartesian dir_1 = ca_pos - c_pos;
          coot::Cartesian dir_2 = ca_pos - n_pos;
          coot::Cartesian dir_3 = ca_pos - cb_pos;
@@ -1343,9 +1343,9 @@ coot::molecule_t::ramachandran_validation(const ramachandrans_container_t &rc) c
          status = true;
       } else {
          if (CA && C && N) {
-            coot::Cartesian ca_pos(CA->x, CA->y, CA->z);
-            coot::Cartesian  c_pos( C->x,  C->y,  C->z);
-            coot::Cartesian  n_pos( N->x,  N->y,  N->z);
+            coot::Cartesian ca_pos(CA->x(), CA->y(), CA->z());
+            coot::Cartesian  c_pos( C->x(),  C->y(),  C->z());
+            coot::Cartesian  n_pos( N->x(),  N->y(),  N->z());
             coot::Cartesian dir_1 = ca_pos - c_pos;
             coot::Cartesian dir_2 = ca_pos - n_pos;
             coot::Cartesian r = dir_1 + dir_2;
@@ -1374,7 +1374,7 @@ coot::molecule_t::ramachandran_validation(const ramachandrans_container_t &rc) c
             if (have_close_peptide_bond(rt, rn)) {
                mmdb::Atom *at = rt->GetAtom(" CA "); // 20221006-PE alt-confs another day
                if (at) {
-                  coot::Cartesian pos(at->x, at->y, at->z);
+                  coot::Cartesian pos(at->x(), at->y(), at->z());
                   std::pair<bool, coot::Cartesian> hav = get_HA_unit_vector(rt);
                   coot::Cartesian offset(0,0,rama_ball_pos_offset_scale);
                   if (hav.first) offset = hav.second * rama_ball_pos_offset_scale;
@@ -1436,10 +1436,10 @@ coot::molecule_t::get_HA_unit_vector(mmdb::Residue *r) const {
    mmdb::Atom *CB = r->GetAtom(" CB ");
 
    if (CA && C && N && CB) {
-      coot::Cartesian ca_pos(CA->x, CA->y, CA->z);
-      coot::Cartesian  c_pos( C->x,  C->y,  C->z);
-      coot::Cartesian  n_pos( N->x,  N->y,  N->z);
-      coot::Cartesian cb_pos(CB->x, CB->y, CB->z);
+      coot::Cartesian ca_pos(CA->x(), CA->y(), CA->z());
+      coot::Cartesian  c_pos( C->x(),  C->y(),  C->z());
+      coot::Cartesian  n_pos( N->x(),  N->y(),  N->z());
+      coot::Cartesian cb_pos(CB->x(), CB->y(), CB->z());
       coot::Cartesian dir_1 = ca_pos - c_pos;
       coot::Cartesian dir_2 = ca_pos - n_pos;
       coot::Cartesian dir_3 = ca_pos - cb_pos;
@@ -1448,9 +1448,9 @@ coot::molecule_t::get_HA_unit_vector(mmdb::Residue *r) const {
       status = true;
    } else {
       if (CA && C && N) {
-         coot::Cartesian ca_pos(CA->x, CA->y, CA->z);
-         coot::Cartesian  c_pos( C->x,  C->y,  C->z);
-         coot::Cartesian  n_pos( N->x,  N->y,  N->z);
+         coot::Cartesian ca_pos(CA->x(), CA->y(), CA->z());
+         coot::Cartesian  c_pos( C->x(),  C->y(),  C->z());
+         coot::Cartesian  n_pos( N->x(),  N->y(),  N->z());
          coot::Cartesian dir_1 = ca_pos - c_pos;
          coot::Cartesian dir_2 = ca_pos - n_pos;
          coot::Cartesian r = dir_1 + dir_2;
@@ -1721,9 +1721,9 @@ coot::molecule_t::backrub_rotamer(const std::string &chain_id, int res_no,
             mmdb::Atom *at = residue_atoms[i];
             std::string atom_name(at->GetAtomName());
             if (atom_name == atom.name) {
-               at->x = atom.pos.x();
-               at->y = atom.pos.y();
-               at->z = atom.pos.z();
+               at->x() = atom.pos.x();
+               at->y() = atom.pos.y();
+               at->z() = atom.pos.z();
             }
          }
       }
@@ -2004,10 +2004,10 @@ coot::molecule_t::delete_atom(coot::atom_spec_t &atom_spec) {
                      res->GetAtomTable(residue_atoms, nResidueAtoms);
                      for (int iat=0; iat<nResidueAtoms; iat++) {
 
-                        mol_atom_name = residue_atoms[iat]->name;
+                        mol_atom_name = residue_atoms[iat]->GetAtomName();
                         if (atname == mol_atom_name) {
 
-                           if (std::string(residue_atoms[iat]->altLoc) == altconf) {
+                           if (std::string(residue_atoms[iat]->altLoc()) == altconf) {
 
                               make_backup("delete_atom");
                               atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle);
@@ -2044,7 +2044,7 @@ coot::molecule_t::delete_atom(coot::atom_spec_t &atom_spec) {
       int n_matching_name = 0;
       residue_of_deleted_atom->GetAtomTable(atoms, n_atoms);
       for (int iat=0; iat<n_atoms; iat++) {
-         std::string res_atom_name = atoms[iat]->name;
+         std::string res_atom_name = atoms[iat]->GetAtomName();
          if (res_atom_name == atname) {
             at = atoms[iat];
             n_matching_name++;
@@ -2053,10 +2053,10 @@ coot::molecule_t::delete_atom(coot::atom_spec_t &atom_spec) {
       if (n_matching_name == 1) { // one atom of this name left in the residue, so
                                     // remove its altconf string
          if (at) {
-            strncpy(at->altLoc, "", 2);
+            strncpy(at->altLoc(), "", 2);
             // set the occupancy to 1.0 of the remaining atom if it was not zero.
-            if (at->occupancy > 0.009)
-               at->occupancy = 1.0;
+            if (at->occupancy() > 0.009)
+               at->occupancy() = 1.0;
          }
       }
 
@@ -2229,7 +2229,7 @@ coot::molecule_t::delete_residue_atoms_with_alt_conf(coot::residue_spec_t &resid
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
       for (int iat=0; iat<n_residue_atoms; iat++) {
          mmdb::Atom *at = residue_atoms[iat];
-         std::string al(at->altLoc);
+         std::string al(at->altLoc());
          if (al == alt_conf)
             atoms_to_be_deleted.push_back(at);
       }
@@ -2342,12 +2342,12 @@ coot::molecule_t::change_alt_locs(const std::string &cid, const std::string &cha
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
       for (int iat=0; iat<n_residue_atoms; iat++) {
          mmdb::Atom *at = residue_atoms[iat];
-         std::string alt_loc = at->altLoc;
+         std::string alt_loc = at->altLoc();
          if (alt_loc == "A") atoms_with_alt_loc_A.push_back(at);
          if (alt_loc == "B") atoms_with_alt_loc_B.push_back(at);
       }
-      for (auto atom : atoms_with_alt_loc_A) strncpy(atom->altLoc, "B", 2);
-      for (auto atom : atoms_with_alt_loc_B) strncpy(atom->altLoc, "A", 2);
+      for (auto atom : atoms_with_alt_loc_A) strncpy(atom->altLoc(), "B", 2);
+      for (auto atom : atoms_with_alt_loc_B) strncpy(atom->altLoc(), "A", 2);
       if (! atoms_with_alt_loc_A.empty()) status = 1;
       if (! atoms_with_alt_loc_B.empty()) status = 1;
       return status;
@@ -2364,13 +2364,13 @@ coot::molecule_t::change_alt_locs(const std::string &cid, const std::string &cha
          mmdb::Atom *at = residue_atoms[iat];
          if (is_main_chain_p(at)) {
          } else {
-            std::string alt_loc = at->altLoc;
+            std::string alt_loc = at->altLoc();
             if (alt_loc == "A") atoms_with_alt_loc_A.push_back(at);
             if (alt_loc == "B") atoms_with_alt_loc_B.push_back(at);
          }
       }
-      for (auto atom : atoms_with_alt_loc_A) strncpy(atom->altLoc, "B", 2);
-      for (auto atom : atoms_with_alt_loc_B) strncpy(atom->altLoc, "A", 2);
+      for (auto atom : atoms_with_alt_loc_A) strncpy(atom->altLoc(), "B", 2);
+      for (auto atom : atoms_with_alt_loc_B) strncpy(atom->altLoc(), "A", 2);
       if (! atoms_with_alt_loc_A.empty()) status = 1;
       if (! atoms_with_alt_loc_B.empty()) status = 1;
       return status;
@@ -2386,13 +2386,13 @@ coot::molecule_t::change_alt_locs(const std::string &cid, const std::string &cha
       for (int iat=0; iat<n_residue_atoms; iat++) {
          mmdb::Atom *at = residue_atoms[iat];
          if (is_main_chain_p(at)) {
-            std::string alt_loc = at->altLoc;
+            std::string alt_loc = at->altLoc();
             if (alt_loc == "A") atoms_with_alt_loc_A.push_back(at);
             if (alt_loc == "B") atoms_with_alt_loc_B.push_back(at);
          }
       }
-      for (auto atom : atoms_with_alt_loc_A) strncpy(atom->altLoc, "B", 2);
-      for (auto atom : atoms_with_alt_loc_B) strncpy(atom->altLoc, "A", 2);
+      for (auto atom : atoms_with_alt_loc_A) strncpy(atom->altLoc(), "B", 2);
+      for (auto atom : atoms_with_alt_loc_B) strncpy(atom->altLoc(), "A", 2);
       if (! atoms_with_alt_loc_A.empty()) status = 1;
       if (! atoms_with_alt_loc_B.empty()) status = 1;
       return status;
@@ -2413,15 +2413,15 @@ coot::molecule_t::change_alt_locs(const std::string &cid, const std::string &cha
             residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
             for (int iat=0; iat<n_residue_atoms; iat++) {
                mmdb::Atom *at = residue_atoms[iat];
-               std::string atom_name(at->name);
+               std::string atom_name(at->GetAtomName());
                if (atom_name == name) {
-                  std::string alt_loc = at->altLoc;
+                  std::string alt_loc = at->altLoc();
                   if (alt_loc == "A") {
-                     strncpy(at->altLoc, "B", 2);
+                     strncpy(at->altLoc(), "B", 2);
                      status = 1;
                   } else {
                      if (alt_loc == "B") {
-                        strncpy(at->altLoc, "A", 2);
+                        strncpy(at->altLoc(), "A", 2);
                         status = 1;
                      }
                   }
@@ -2775,9 +2775,9 @@ coot::molecule_t::move_molecule_to_new_centre(const coot::Cartesian &new_centre)
                         for (int iat=0; iat<n_atoms; iat++) {
                            mmdb::Atom *at = residue_p->GetAtom(iat);
                            if (! at->isTer()) {
-                              at->x += delta.x();
-                              at->y += delta.y();
-                              at->z += delta.z();
+                              at->x() += delta.x();
+                              at->y() += delta.y();
+                              at->z() += delta.z();
                            }
                         }
                      }
@@ -2796,7 +2796,7 @@ coot::Cartesian
 coot::molecule_t::get_molecule_centre() const {
 
    auto mmdb_to_cartesian = [] (mmdb::Atom *at) {
-      return Cartesian(at->x, at->y, at->z);
+      return Cartesian(at->x(), at->y(), at->z());
    };
 
    coot::Cartesian c(0,0,0);
@@ -2972,9 +2972,9 @@ coot::molecule_t::jed_flip(coot::residue_spec_t &spec,
       int n_residue_atoms;
       residue->GetAtomTable(residue_atoms, n_residue_atoms);
       for (int iat=0; iat<n_residue_atoms; iat++) {
-         std::string an(residue_atoms[iat]->name);
+         std::string an(residue_atoms[iat]->GetAtomName());
          if (an == atom_name) {
-            std::string ac(residue_atoms[iat]->altLoc);
+            std::string ac(residue_atoms[iat]->altLoc());
             if (ac == alt_conf) {
                clicked_atom = residue_atoms[iat];
                clicked_atom_idx = iat;
@@ -3159,7 +3159,7 @@ coot::molecule_t::apply_transformation_to_atom_selection(const std::string &atom
                                                          clipper::RTop_orth &rtop) {
 
    auto mmdb_to_clipper = [] (mmdb::Atom *at) {
-      return clipper::Coord_orth(at->x, at->y, at->z);
+      return clipper::Coord_orth(at->x(), at->y(), at->z());
    };
 
    int n_atoms_moved = 0;
@@ -3184,9 +3184,9 @@ coot::molecule_t::apply_transformation_to_atom_selection(const std::string &atom
                   clipper::Coord_orth p1 = pt - rotation_centre;
                   clipper::Coord_orth p2 = rtop * p1;
                   clipper::Coord_orth p3 = p2 - rotation_centre;
-                  at->x = p3.x();
-                  at->y = p3.y();
-                  at->z = p3.z();
+                  at->x() = p3.x();
+                  at->y() = p3.y();
+                  at->z() = p3.z();
                   n_atoms_moved++;
                }
             }
@@ -3236,11 +3236,11 @@ coot::molecule_t::new_positions_for_residue_atoms(mmdb::Residue *residue_p, cons
             if (! at->isTer()) {
                std::string atom_name(at->GetAtomName());
                if (atom_name == mva.atom_name) {
-                  std::string alt_conf(at->altLoc);
+                  std::string alt_conf(at->altLoc());
                   if (alt_conf == mva.alt_conf) {
-                     at->x = mva.x;
-                     at->y = mva.y;
-                     at->z = mva.z;
+                     at->x() = mva.x;
+                     at->y() = mva.y;
+                     at->z() = mva.z;
                      n_atoms_moved++;
                   }
                }
@@ -3291,9 +3291,9 @@ coot::molecule_t::get_residue_closest_to(mmdb::Manager *mol, const clipper::Coor
                for (int iat=0; iat<n_atoms; iat++) {
                   mmdb::Atom *at = residue_p->GetAtom(iat);
                   if (! at->isTer()) {
-                     double dx = at->x - co.x();
-                     double dy = at->y - co.y();
-                     double dz = at->z - co.z();
+                     double dx = at->x() - co.x();
+                     double dy = at->y() - co.y();
+                     double dz = at->z() - co.z();
                      double dd = dx * dx + dy * dy + dz * dz;
                      if (dd < d_best) {
                         d_best = dd;
@@ -3496,7 +3496,7 @@ coot::molecule_t::insert_waters_into_molecule(const coot::minimol::molecule &wat
             for (unsigned int iatom=0; iatom<water_mol[ifrag][ires].atoms.size(); iatom++) {
                new_residue_p = new mmdb::Residue;
                new_residue_p->SetResName(res_name.c_str());
-               new_residue_p->seqNum = prev_max_resno + 1 + water_count;
+               new_residue_p->GetSeqNum() = prev_max_resno + 1 + water_count;
                water_count++;
                bf = water_mol[ifrag][ires][iatom].temperature_factor;
                new_atom_p = new mmdb::Atom;
@@ -3508,8 +3508,8 @@ coot::molecule_t::insert_waters_into_molecule(const coot::minimol::molecule &wat
                             << " with b " << bf << std::endl;
                new_atom_p->SetAtomName(water_mol[ifrag][ires][iatom].name.c_str());
                new_atom_p->Het = 1; // waters are now HETATMs
-               strncpy(new_atom_p->element, water_mol[ifrag][ires][iatom].element.c_str(), 3);
-               strncpy(new_atom_p->altLoc, water_mol[ifrag][ires][iatom].altLoc.c_str(), 2);
+               new_atom_p->SetElementName(water_mol[ifrag][ires][iatom].element.c_str());
+               strncpy(new_atom_p->altLoc(), water_mol[ifrag][ires][iatom].altLoc.c_str(), 2);
 
                // residue number, atom name, occ, coords, b factor
 
@@ -3595,8 +3595,8 @@ coot::molecule_t::append_to_molecule(const coot::minimol::molecule &water_mol) {
 
                if (water_mol[ifrag][ires].atoms.size() > 0) {
                   new_residue_p = new mmdb::Residue;
-                  new_residue_p->seqNum = ires;
-                  strcpy(new_residue_p->name, water_mol[ifrag][ires].name.c_str());
+                  new_residue_p->GetSeqNum() = ires;
+                  new_residue_p->SetResName(water_mol[ifrag][ires].name.c_str());
                   new_chain_p->AddResidue(new_residue_p);
                   for (unsigned int iatom=0; iatom<water_mol[ifrag][ires].atoms.size(); iatom++) {
 
@@ -3986,9 +3986,9 @@ coot::molecule_t::add_alternative_conformation(const std::string &cid) {
    int status = 0;
 
    auto move = [] (mmdb::Atom *at, const clipper::Coord_orth &o) {
-      at->x += o.x();
-      at->y += o.y();
-      at->z += o.z();
+      at->x() += o.x();
+      at->y() += o.y();
+      at->z() += o.z();
    };
 
    auto set_offset = [] (clipper::Coord_orth &offset, mmdb::Residue *residue_p) {
@@ -4006,8 +4006,8 @@ coot::molecule_t::add_alternative_conformation(const std::string &cid) {
          if (atom_name == " C  ") c_at = at;
       }
       if (c_at && n_at) {
-         clipper::Coord_orth c_pos(c_at->x, c_at->y, c_at->z);
-         clipper::Coord_orth n_pos(n_at->x, n_at->y, n_at->z);
+         clipper::Coord_orth c_pos(c_at->x(), c_at->y(), c_at->z());
+         clipper::Coord_orth n_pos(n_at->x(), n_at->y(), n_at->z());
          clipper::Coord_orth cn_unit((c_pos-n_pos).unit());
          clipper::Coord_orth arb(1,2,3);
          clipper::Coord_orth arb_uv(arb.unit());
@@ -4035,18 +4035,18 @@ coot::molecule_t::add_alternative_conformation(const std::string &cid) {
             //             be more complex. Let's just use this for now - it will
             //             handle the vast majority of cases.
             //
-            std::string current_alt_conf(at->altLoc);
+            std::string current_alt_conf(at->altLoc());
             if (current_alt_conf.empty()) {
                mmdb::Atom *at_new = new mmdb::Atom;
                at_new->Copy(at);
                move(at_new, -offset);
-               strcpy(at_new->altLoc, "B");
-               at_new->occupancy = 0.5;
+               strcpy(at_new->altLoc(), "B");
+               at_new->occupancy() = 0.5;
                new_atoms.push_back(at_new);
 
                move(at, offset);
-               at->occupancy = 0.5;
-               strcpy(at->altLoc, "A");
+               at->occupancy() = 0.5;
+               strcpy(at->altLoc(), "A");
             }
          }
       }
@@ -4333,16 +4333,16 @@ coot::molecule_t::set_residue_to_rotamer_move_atoms(mmdb::Residue *res, mmdb::Re
 
    int n_atoms = 0;
    for (int imov=0; imov<n_mov_atoms; imov++) {
-      std::string atom_name_mov(mov_residue_atoms[imov]->name);
-      std::string alt_loc_mov(mov_residue_atoms[imov]->altLoc);
+      std::string atom_name_mov(mov_residue_atoms[imov]->GetAtomName());
+      std::string alt_loc_mov(mov_residue_atoms[imov]->altLoc());
       for (int iref=0; iref<n_ref_atoms; iref++) {
-         std::string atom_name_ref(ref_residue_atoms[iref]->name);
-         std::string alt_loc_ref(ref_residue_atoms[iref]->altLoc);
+         std::string atom_name_ref(ref_residue_atoms[iref]->GetAtomName());
+         std::string alt_loc_ref(ref_residue_atoms[iref]->altLoc());
          if (atom_name_mov == atom_name_ref) {
             if (alt_loc_mov == alt_loc_ref) {
-               ref_residue_atoms[iref]->x = mov_residue_atoms[imov]->x;
-               ref_residue_atoms[iref]->y = mov_residue_atoms[imov]->y;
-               ref_residue_atoms[iref]->z = mov_residue_atoms[imov]->z;
+               ref_residue_atoms[iref]->x() = mov_residue_atoms[imov]->x();
+               ref_residue_atoms[iref]->y() = mov_residue_atoms[imov]->y();
+               ref_residue_atoms[iref]->z() = mov_residue_atoms[imov]->z();
                n_atoms++;
                i_done = 1;
             }
@@ -4401,7 +4401,7 @@ coot::molecule_t::add_target_position_restraint_and_refine(const std::string &at
       const auto &pp = atoms_with_position_restraints[i];
       clipper::Coord_orth p = pp.second;
       mmdb::Atom *at = pp.first;
-      at->x = p.x(); at->y = p.y(); at->z = p.z();
+      at->x() = p.x(); at->y() = p.y(); at->z() = p.z();
    }
 
    if (n_cycles < 0) {
@@ -4799,8 +4799,8 @@ coot::molecule_t::multiply_residue_temperature_factors(const std::string &cid, f
          for (int i=0; i<nSelAtoms; i++) {
             mmdb:: Atom *at = SelAtoms[i];
             if (! at->isTer()) {
-               float new_B = at->tempFactor * factor;
-               at->tempFactor = new_B;
+               float new_B = at->tempFactor() * factor;
+               at->tempFactor() = new_B;
             }
          }
       }
@@ -4865,13 +4865,13 @@ coot::molecule_t::transform_by(const clipper::RTop_orth &rtop, mmdb::Residue *re
    int n_residue_atoms = 0;
    residue_moving->GetAtomTable(residue_atoms, n_residue_atoms);
    for (int iatom=0; iatom<n_residue_atoms; iatom++) {
-      clipper::Coord_orth p(residue_atoms[iatom]->x,
-                            residue_atoms[iatom]->y,
-                            residue_atoms[iatom]->z);
+      clipper::Coord_orth p(residue_atoms[iatom]->x(),
+                            residue_atoms[iatom]->y(),
+                            residue_atoms[iatom]->z());
       clipper::Coord_orth p2 = p.transform(rtop);
-      residue_atoms[iatom]->x = p2.x();
-      residue_atoms[iatom]->y = p2.y();
-      residue_atoms[iatom]->z = p2.z();
+      residue_atoms[iatom]->x() = p2.x();
+      residue_atoms[iatom]->y() = p2.y();
+      residue_atoms[iatom]->z() = p2.z();
    }
 
    atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
@@ -4899,9 +4899,9 @@ coot::molecule_t::transform_by(const clipper::RTop_orth &rtop) {
                      if (! at->isTer()) {
                         clipper::Coord_orth pos = coot::co(at);
                         clipper::Coord_orth p2 = pos.transform(rtop);
-                        at->x = p2.x();
-                        at->y = p2.y();
-                        at->z = p2.z();
+                        at->x() = p2.x();
+                        at->y() = p2.y();
+                        at->z() = p2.z();
                      }
                   }
                }
@@ -4952,7 +4952,7 @@ coot::molecule_t::get_temperature_factor_of_atom(const std::string &atom_cid) co
    float b = -1.1f;
    mmdb:: Atom *at = cid_to_atom(atom_cid);
    if (at) {
-      b = at->tempFactor;
+      b = at->tempFactor();
    }
    return b;
 
@@ -5117,9 +5117,9 @@ coot::molecule_t::get_residue_CA_position(const std::string &cid) const {
          if (! at->isTer()) {
             std::string name = at->GetAtomName();
             if (name == " CA ") {
-               v.push_back(at->x);
-               v.push_back(at->y);
-               v.push_back(at->z);
+               v.push_back(at->x());
+               v.push_back(at->y());
+               v.push_back(at->z());
                break;
             }
          }
@@ -5235,7 +5235,7 @@ coot::molecule_t::set_occupancy(const std::string &cid, float occ_new) {
    for (int i=0; i<nSelAtoms; i++) {
       mmdb:: Atom *at = SelAtoms[i];
       if (! at->isTer()) {
-         at->occupancy = occ_new;
+         at->occupancy() = occ_new;
       }
    }
    atom_sel.mol->DeleteSelection(selHnd);
@@ -5411,7 +5411,7 @@ coot::molecule_t::set_temperature_factors_using_cid(const std::string &cid, floa
       if (nSelAtoms > 0) {
          for (int i=0; i<nSelAtoms; i++) {
             mmdb::Atom *atom = SelAtoms[i];
-            atom->tempFactor = temp_fact;
+            atom->tempFactor() = temp_fact;
          }
       }
       atom_sel.mol->DeleteSelection(selHnd);

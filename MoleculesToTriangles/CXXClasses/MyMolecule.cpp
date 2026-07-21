@@ -326,13 +326,13 @@ int MyMolecule::identifySegments(std::vector<DiscreteSegment *> &segments, int s
                             mmdb::Atom* calpha = atomsOfResidue[iAtom];
                             if (std::string(calpha->segID) == *segIDIter){
                                 //std::cout << calpha->segID << "oops\n";
-                                if (!strcmp(calpha->name," CA ") &&
+                                if (!strcmp(calpha->GetAtomName()," CA ") &&
                                     calpha->isInSelection(selHnd)){
                                     //Consider only the main alternative location
-                                    if (!strcmp(calpha->altLoc,"") ||
-                                        !strcmp(calpha->altLoc,"A") ||
-                                        calpha->occupancy > 0.5){
-                                        FCXXCoord calphaPosition(calpha->x, calpha->y, calpha->z);
+                                    if (!strcmp(calpha->altLoc(),"") ||
+                                        !strcmp(calpha->altLoc(),"A") ||
+                                        calpha->occupancy() > 0.5){
+                                        FCXXCoord calphaPosition(calpha->x(), calpha->y(), calpha->z());
                                         FCXXCoord difference = calphaPosition - lastCoord;
                                         float distance = difference.get3DLength();
                                         if (distance > 4.1){
@@ -370,11 +370,11 @@ int MyMolecule::identifySegments(std::vector<DiscreteSegment *> &segments, int s
                                 residue_p->GetAtomTable(residue_atoms, nAtoms);
                                 for (int iAtom=0; iAtom < nAtoms; iAtom++){
                                     mmdb::Atom* atom_p = residue_atoms[iAtom];
-                                    std::string atom_name(atom_p->name);
+                                    std::string atom_name(atom_p->GetAtomName());
                                     // if (atom_name == " P  ") {
                                     if (atom_name == " C3'") {
                                         if (atom_p->isInSelection(selHnd)) {
-                                            FCXXCoord atom_pos(atom_p->x, atom_p->y, atom_p->z);
+                                            FCXXCoord atom_pos(atom_p->x(), atom_p->y(), atom_p->z());
                                             FCXXCoord difference = atom_pos - lastCoord;
                                             float distance = difference.get3DLength();
                                             // std::cout << "distance " << distance << std::endl; almost all less than 7.5A
@@ -475,7 +475,7 @@ int MyMolecule::identifyDishyBases(std::map<mmdb::Chain *, DishyBaseContainer_t>
                             for (int iAtom=0; iAtom < nAtoms; iAtom++){
                                 mmdb::Atom* atom_p = residue_atoms[iAtom];
                                 if (! atom_p->isTer()) {
-                                    std::string atom_alt_conf(atom_p->altLoc);
+                                    std::string atom_alt_conf(atom_p->altLoc());
                                     residue_alt_confs_set.insert(atom_alt_conf);
                                 }
                             }
@@ -503,8 +503,8 @@ int MyMolecule::identifyDishyBases(std::map<mmdb::Chain *, DishyBaseContainer_t>
                                 std::vector<mmdb::Atom *> ribose_atoms(5,0);
                                 for (int iAtom=0; iAtom < nAtoms; iAtom++){
                                     mmdb::Atom* atom_p = residue_atoms[iAtom];
-                                    std::string atom_name(atom_p->name);
-                                    std::string atom_alt_conf(atom_p->altLoc);
+                                    std::string atom_name(atom_p->GetAtomName());
+                                    std::string atom_alt_conf(atom_p->altLoc());
                                     if (atom_alt_conf.empty() ||
                                         (residue_alt_confs_set.find(atom_alt_conf) != residue_alt_confs_set.end())) {
                                         if (std::find(ref_base_names.begin(), ref_base_names.end(), atom_name) != ref_base_names.end()) {
@@ -530,19 +530,19 @@ int MyMolecule::identifyDishyBases(std::map<mmdb::Chain *, DishyBaseContainer_t>
                                 //
                                 FCXXCoord ribose_centre;
                                 for (std::size_t i=0; i<5; i++) {
-                                    FCXXCoord pos(ribose_atoms[i]->x, ribose_atoms[i]->y, ribose_atoms[i]->z);
+                                    FCXXCoord pos(ribose_atoms[i]->x(), ribose_atoms[i]->y(), ribose_atoms[i]->z());
                                     ribose_centre += pos;
                                 }
                                 ribose_centre *= 0.2;
                                 FCXXCoord base_centre;
                                 for (std::size_t i=0; i<base_atoms.size(); i++) {
-                                    FCXXCoord pos(base_atoms[i]->x, base_atoms[i]->y, base_atoms[i]->z);
+                                    FCXXCoord pos(base_atoms[i]->x(), base_atoms[i]->y(), base_atoms[i]->z());
                                     base_centre += pos;
                                 }
                                 base_centre /= float(base_atoms.size());
                                 std::vector<FCXXCoord> base_atom_positions(base_atoms.size());
                                 for (unsigned int i=0; i<base_atoms.size(); i++)
-                                    base_atom_positions[i] = FCXXCoord(base_atoms[i]->x, base_atoms[i]->y, base_atoms[i]->z);
+                                    base_atom_positions[i] = FCXXCoord(base_atoms[i]->x(), base_atoms[i]->y(), base_atoms[i]->z());
                                 DishyPlaneLSQ_t lsq(base_atom_positions);
                                 FCXXCoord base_normal = lsq.normal();
                                 DishyBase_t db(base_centre, base_normal, radius, ribose_atoms, ribose_centre);
@@ -598,8 +598,8 @@ int MyMolecule::identifyBonds()
                         mmdb::Atom* CA_i = residue->GetAtom("CA", " C", "*");
                         mmdb::Atom* CA_i_minus_1 = lastResidue->GetAtom("CA", " C", "*");
                         if (CA_i != 0 && CA_i_minus_1 != 0) {
-                            FCXXCoord Coord_CA_i( CA_i->x, CA_i->y, CA_i->z);
-                            FCXXCoord Coord_CA_i_minus_1( CA_i_minus_1->x, CA_i_minus_1->y, CA_i_minus_1->z);
+                            FCXXCoord Coord_CA_i( CA_i->x(), CA_i->y(), CA_i->z());
+                            FCXXCoord Coord_CA_i_minus_1( CA_i_minus_1->x(), CA_i_minus_1->y(), CA_i_minus_1->z());
                             FCXXCoord delta = (Coord_CA_i-Coord_CA_i_minus_1);
                             if(delta.get3DLength()<4.1){
                                 mmdb::Atom* N_i = residue->GetAtom("N", " N", "*");

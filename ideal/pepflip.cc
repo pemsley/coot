@@ -106,8 +106,8 @@ coot::pepflip_standard(mmdb::Manager *mol,
 	 first_res->GetAtomTable(first_residue_atoms, n_first_residue_atoms);
 	 second_res->GetAtomTable(second_residue_atoms, n_second_residue_atoms);
 	 for (int iat=0; iat<n_first_residue_atoms; iat++) {
-	    std::string atom_name(first_residue_atoms[iat]->name);
-	    std::string alt_conf_atom(first_residue_atoms[iat]->altLoc);
+	    std::string atom_name(first_residue_atoms[iat]->GetAtomName());
+	    std::string alt_conf_atom(first_residue_atoms[iat]->altLoc());
 	    if (alt_conf_atom == altconf || alt_conf_atom == "") {
 	       if (atom_name == " CA " ) {
 		  ca1 = first_residue_atoms[iat];
@@ -123,8 +123,8 @@ coot::pepflip_standard(mmdb::Manager *mol,
 	    }
 	 }
 	 for (int iat=0; iat<n_second_residue_atoms; iat++) {
-	    std::string atom_name(second_residue_atoms[iat]->name);
-	    std::string alt_conf_atom(second_residue_atoms[iat]->altLoc);
+	    std::string atom_name(second_residue_atoms[iat]->GetAtomName());
+	    std::string alt_conf_atom(second_residue_atoms[iat]->altLoc());
 	    if (alt_conf_atom == altconf || alt_conf_atom == "") {
 	       if (atom_name == " CA " ) {
 		  ca2 = second_residue_atoms[iat];
@@ -157,14 +157,14 @@ coot::pepflip_standard(mmdb::Manager *mol,
 		     if (dist < dist_crit) {
 			status = 1;
 			std::vector<clipper::Coord_orth> cas(2);
-			cas[0] = clipper::Coord_orth(ca1->x, ca1->y, ca1->z);
-			cas[1] = clipper::Coord_orth(ca2->x, ca2->y, ca2->z);
+			cas[0] = clipper::Coord_orth(ca1->x(), ca1->y(), ca1->z());
+			cas[1] = clipper::Coord_orth(ca2->x(), ca2->y(), ca2->z());
 			std::vector<clipper::Coord_orth> v =
 			   flip_internal(cas, flipping_atoms);
 			for (unsigned int i=0; i<v.size(); i++) {
-			   flipping_atoms[i]->x = v[i].x();
-			   flipping_atoms[i]->y = v[i].y();
-			   flipping_atoms[i]->z = v[i].z();
+			   flipping_atoms[i]->x() = v[i].x();
+			   flipping_atoms[i]->y() = v[i].y();
+			   flipping_atoms[i]->z() = v[i].z();
 			}
 		     }
 		  }
@@ -196,8 +196,8 @@ coot::pepflip_internal_to_residue(mmdb::Manager *mol,
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
       for (int iat=0; iat<n_residue_atoms; iat++) {
 	 mmdb::Atom *at = residue_atoms[iat];
-	 std::string atom_name(at->name);
-	 std::string atom_alt_conf(at->altLoc);
+	 std::string atom_name(at->GetAtomName());
+	 std::string atom_alt_conf(at->altLoc());
 	 // PDBv3 FIXME
 	 if (atom_alt_conf == altconf) { 
 	    if (atom_name == " CA ")
@@ -209,13 +209,13 @@ coot::pepflip_internal_to_residue(mmdb::Manager *mol,
 	 }
       }
       if (c_at && o_at && ca_at) {
-	 clipper::Coord_orth p1(ca_at->x, ca_at->y, ca_at->z);
-	 clipper::Coord_orth p2(c_at->x,   c_at->y,  c_at->z);
-	 clipper::Coord_orth p3(o_at->x,   o_at->y,  o_at->z);
+	 clipper::Coord_orth p1(ca_at->x(), ca_at->y(), ca_at->z());
+	 clipper::Coord_orth p2(c_at->x(),   c_at->y(),  c_at->z());
+	 clipper::Coord_orth p3(o_at->x(),   o_at->y(),  o_at->z());
 	 clipper::Coord_orth p3_new = util::rotate_around_vector(p2-p1, p3, p1, M_PI);
-	 o_at->x = p3_new.x();
-	 o_at->y = p3_new.y();
-	 o_at->z = p3_new.z();
+	 o_at->x() = p3_new.x();
+	 o_at->y() = p3_new.y();
+	 o_at->z() = p3_new.z();
 	 status = true;
       } else {
 	 std::cout << "not all internal atoms found " << std::endl;
@@ -243,7 +243,7 @@ coot::flip_internal(const std::vector<clipper::Coord_orth> &ca_in,
    cas[1] -= trans;
 
    for (unsigned int i=0;i<atoms.size(); i++) {
-      atoms_orth[i] = clipper::Coord_orth(atoms[i]->x, atoms[i]->y, atoms[i]->z);
+      atoms_orth[i] = clipper::Coord_orth(atoms[i]->x(), atoms[i]->y(), atoms[i]->z());
       atoms_orth[i] -= trans;
    }
 

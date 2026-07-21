@@ -129,14 +129,14 @@ coot::compare_to_helix(const std::vector<mmdb::Residue *> &helical_residues,
          for (int iat=0; iat<n_residue_atoms; iat++) {
              int idx = -1;
              mmdb::Atom *at = residue_atoms[iat];
-             std::string atom_name(at->name);
+             std::string atom_name(at->GetAtomName());
              if (atom_name == " N  ") idx = 0;
              if (atom_name == " CA ") idx = 1;
              if (atom_name == " C  ") idx = 2;
              if (atom_name == " O  ") idx = 3;
              if (idx != -1) {
                 int idx_match_set = i*4 + idx;
-                clipper::Coord_orth co(at->x, at->y, at->z);
+                clipper::Coord_orth co(at->x(), at->y(), at->z());
                 match_set[idx_match_set] = co;
                 n_found++;
                 // also count n_found_this (for this residue)

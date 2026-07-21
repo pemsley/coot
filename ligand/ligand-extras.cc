@@ -196,7 +196,7 @@ coot::ligand::mean_and_variance_where_the_atoms_are(mmdb::Manager *mol) const {
                for (int iat=0; iat<n_atoms; iat++) {
                   mmdb::Atom *at = residue_p->GetAtom(iat);
                   if (! at->isTer()) {
-                     std::string ele = at->element;
+                     std::string ele = at->GetElementName();
                      if (ele != " H")
                         n_molecule_atoms++;
                   }
@@ -219,11 +219,11 @@ coot::ligand::mean_and_variance_where_the_atoms_are(mmdb::Manager *mol) const {
 		  for (int iat=0; iat<n_atoms; iat++) {
 		     mmdb::Atom *at = residue_p->GetAtom(iat);
 		     if (! at->isTer()) {
-			std::string ele = at->element;
+			std::string ele = at->GetElementName();
 			if (ele != " H") {
 			   float f = coot::util::random() * rmi;
 			   if (f < crit_val) {
-			      clipper::Coord_orth c(at->x, at->y, at->z);
+			      clipper::Coord_orth c(at->x(), at->y(), at->z());
 			      test_points.push_back(c);
 			   }
 			}
@@ -244,9 +244,9 @@ coot::ligand::mean_and_variance_where_the_atoms_are(mmdb::Manager *mol) const {
 		  for (int iat=0; iat<n_atoms; iat++) {
 		     mmdb::Atom *at = residue_p->GetAtom(iat);
 		     if (! at->isTer()) {
-			std::string ele = at->element;
+			std::string ele = at->GetElementName();
 			if (ele != " H") {
-			   clipper::Coord_orth c(at->x, at->y, at->z);
+			   clipper::Coord_orth c(at->x(), at->y(), at->z());
 			   test_points.push_back(c);
 			}
 		     }
