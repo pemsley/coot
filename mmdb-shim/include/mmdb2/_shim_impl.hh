@@ -1558,14 +1558,27 @@ namespace mmdb {
       void _rebuild_all_atoms() {
          all_atoms.clear();
          for (Model *mw : models) {
+            mw->mgr = this;
             mw->all_atoms.clear();
-            for (Chain *cw : mw->chains)
+            for (Chain *cw : mw->chains) {
+               cw->mgr = this;
                for (Residue *rw : cw->residues)
-                  if (rw)
+                  if (rw) {
+                     rw->mgr = this;
                      for (Atom *aw : rw->atoms) {
+                        // Rebind ownership pointers: residues added via AddResidue/
+                        // InsResidue (e.g. add_terminal_residue) carry atoms whose mgr
+                        // still points at the deep-copy temporary (or is null). Atom
+                        // UDData routes through Atom::mgr, so without this the new atoms
+                        // fail Put/GetUDData with WrongHandle — which drops their bonds
+                        // (the atom-index UDD never lands) and any UD colouring.
+                        aw->mgr = this;
+                        aw->res = rw;
                         all_atoms.push_back(aw);
                         mw->all_atoms.push_back(aw);
                      }
+                  }
+            }
          }
       }
       int FinishStructEdit() {
