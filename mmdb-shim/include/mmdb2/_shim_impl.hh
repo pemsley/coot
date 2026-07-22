@@ -1710,7 +1710,15 @@ namespace mmdb {
    // gemmi's own formatting stays correct.
    inline void Atom::SetAtomName(const AtomName aName) { g().name = aName ? gemmi::trim_str(aName) : ""; }
    inline pstr Atom::GetElementName() {
-      std::snprintf(_elem_buf, sizeof(_elem_buf), "%s", g().element.name());
+      // MMDB returns the PDB-column-aligned element: 2 chars, right-justified,
+      // UPPERCASE (" H", " C", "NA", "FE"). gemmi's Element::name() is unpadded and
+      // mixed-case ("H"/"C"/"Na"/"Fe"), so Coot's element tests — e.g.
+      // get_number_of_hydrogen_atoms() comparing `ele == " H"` — never match. Align
+      // to MMDB: uppercase then right-pad into a 2-wide field.
+      std::string e = g().element.name();
+      for (char &c : e) c = std::toupper((unsigned char)c);
+      if (e.size() < 2) e.insert(e.begin(), 2 - e.size(), ' ');
+      std::snprintf(_elem_buf, sizeof(_elem_buf), "%s", e.c_str());
       return _elem_buf;
    }
    inline void Atom::SetElementName(const Element elName) { g().element = gemmi::Element(elName); }
@@ -1753,8 +1761,15 @@ namespace mmdb {
    inline pstr Residue::GetChainID() { return chain ? chain->GetChainID() : mmdb_empty_pstr(); }
    inline int Residue::GetModelNum() { return (chain && chain->model) ? chain->model->GetSerNum() : 0; }
    inline PAtom Residue::GetAtom(const AtomName aname, const Element elname, const AltLoc aloc) {
+      // MMDB matches the PDB-column-aligned 4-char name (real Coot calls
+      // `GetAtom(" CA ")`), but gemmi stores names trimmed ("CA"). Trim the query so
+      // both padded and unpadded lookups resolve — mirrors the selection matchers
+      // (detail::inList / SelectAtoms), which already trim both sides. Element/altLoc
+      // still disambiguate when supplied (e.g. carbon-alpha " CA " vs calcium "CA  ",
+      // which share a trimmed name).
+      const std::string want = aname ? gemmi::trim_str(aname) : std::string();
       for (Atom *a : atoms) {
-         if (a->g().name != aname) continue;
+         if (std::string(a->g().name) != want) continue;
          if (elname && *elname && a->g().element.name() != std::string(elname)) continue;
          if (aloc && *aloc && a->g().altloc != aloc[0]) continue;
          return a;
