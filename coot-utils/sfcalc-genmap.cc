@@ -34,6 +34,7 @@
 #include <clipper/core/clipper_util.h>
 
 #include "sfcalc-genmap.hh"
+#include "mmdb-to-clipper-atom-list.hh"
 
 // calculate structure factors from the given model and data
 // and update the map xmap_p
@@ -64,7 +65,7 @@ void coot::util::sfcalc_genmap(mmdb::Manager *mol,
    int hndl = mol->NewSelection();  // d
    mol->SelectAtoms(hndl, 0, 0, ::mmdb::SKEY_NEW);
    mol->GetSelIndex(hndl, atom_sel, nsel);
-   clipper::MMDBAtom_list atoms(atom_sel, nsel);
+   coot::MMDBAtom_list atoms(atom_sel, nsel);
 
    // clipper::MTZcrystal cxtl;
    clipper::HKL_info hkls;
@@ -245,7 +246,7 @@ coot::util::sfcalc_genmaps_using_bulk_solvent(mmdb::Manager *mol,
    int hndl = mol->NewSelection();  // d
    mol->SelectAtoms(hndl, 0, 0, ::mmdb::SKEY_NEW);
    mol->GetSelIndex(hndl, atom_sel, nsel);
-   clipper::MMDBAtom_list atoms(atom_sel, nsel);
+   coot::MMDBAtom_list atoms(atom_sel, nsel);
    // std::cout << "DEBUG:: in sfcalc_genmaps_using_bulk_solvent() nsel for atoms " << nsel << std::endl;
 
    auto tp_2 = std::chrono::high_resolution_clock::now();

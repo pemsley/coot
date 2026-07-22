@@ -29,6 +29,7 @@
 #include <mmdb2/mmdb_manager.h>
 #include <clipper/core/clipper_util.h>
 #include <clipper/core/spacegroup.h>
+#include "mmdb-to-clipper-atom-list.hh"
 #include "clipper/core/clipper_instance.h" // tidy up space group cache
 #include "clipper/core/resol_basisfn.h"
 #include "clipper/contrib/sfcalc_obs.h"
@@ -1089,7 +1090,7 @@ coot::smcif::sigmaa_maps_by_calc_sfs(mmdb::Atom **atom_selection, int n_selected
                                                                                 mydata.cell(),
                                                                                 hkl_sampling_local);
             // get a list of all the atoms
-            clipper::MMDBAtom_list atoms(atom_selection, n_selected_atoms);
+            coot::MMDBAtom_list atoms(atom_selection, n_selected_atoms);
             clipper::HKL_data< clipper::datatypes::F_phi<float> > fphidata(mydata.spacegroup(),
                                                                            mydata.cell(),
                                                                            hkl_sampling_local);

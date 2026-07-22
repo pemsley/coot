@@ -1590,14 +1590,16 @@ namespace mmdb {
       int RegisterUDString(UDR_TYPE t, cpstr name) { return _regUD(t, 2, name); }
       int GetUDDHandle(UDR_TYPE t, cpstr name) {
          for (int i = 0; i < (int)ud_regs.size(); ++i)
-            if (ud_regs[i].type == t && ud_regs[i].name == name) return i;
-         return -1;
+            if (ud_regs[i].type == t && ud_regs[i].name == name) return i + 1;
+         return 0;  // MMDB: 0 == "not registered" — Coot relies on `if (handle == 0) Register…`
       }
 
    private:
+      // MMDB UDData handles are 1-based (0 is reserved for "not registered", see
+      // GetUDDHandle). Return a 1-based handle; _ud_desc maps back with handle-1.
       int _regUD(UDR_TYPE t, int kind, cpstr name) {
          ud_regs.push_back({t, kind, name ? name : "", ud_counts[t][kind]++});
-         return (int)ud_regs.size() - 1;
+         return (int)ud_regs.size();
       }
 
    public:
@@ -1632,11 +1634,11 @@ namespace mmdb {
    // ---- UDData helpers ----
    inline Manager::UDReg *_ud_desc(Manager *mgr, UDR_TYPE myType, int handle, int kind,
                                    int &err) {
-      if (!mgr || handle < 0 || handle >= (int)mgr->ud_regs.size()) {
+      if (!mgr || handle < 1 || handle > (int)mgr->ud_regs.size()) {
          err = UDDATA_WrongHandle;
          return nullptr;
       }
-      Manager::UDReg &d = mgr->ud_regs[handle];
+      Manager::UDReg &d = mgr->ud_regs[handle - 1];  // handles are 1-based (see _regUD)
       if (d.type != myType || d.kind != kind) {
          err = UDDATA_WrongUDRType;
          return nullptr;
