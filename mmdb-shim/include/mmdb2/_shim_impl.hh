@@ -2201,6 +2201,10 @@ namespace mmdb {
       // Harmless for chain IDs / residue / element names (already unpadded).
       inline bool inList(cpstr list, const std::string &v) {
          if (!list || !*list || std::strcmp(list, "*") == 0) return true;
+         // MMDB negation: a leading '!' inverts the match (e.g. "!HOH" = any residue
+         // that is not water). Coot's Select() uses this for chain/residue/element/
+         // atom-name filters; without it every residue is (wrongly) excluded.
+         if (list[0] == '!') return !inList(list + 1, v);
          std::string vt = trimws(v);
          const char *p = list;
          while (*p) {
@@ -2387,10 +2391,26 @@ namespace mmdb {
          size_t c = v.find_first_of(seps);
          return c == std::string::npos ? v : v.substr(0, c);
       };
+      // Assign tokens to model/chain/residue/atom. A leading '/' (or any '/') means
+      // the model field is present at tok(0). A slash-less CID has NO model/chain
+      // prefix: MMDB reads a bare numeric token as a residue seqNum ("262" = residue
+      // 262 in every chain), and a bare non-numeric token as a chain id ("A").
+      std::string model_s, chain_s, res_s, atom_s;
+      if (s.find('/') != std::string::npos) {
+         model_s = tok(0);
+         chain_s = tok(1);
+         res_s = tok(2);
+         atom_s = tok(3);
+      } else {
+         const std::string only = tok(0);
+         if (!only.empty() && (std::isdigit((unsigned char)only[0]) || only[0] == '-'))
+            res_s = only;
+         else
+            chain_s = only;
+      }
       int iModel = 0;
-      std::string m = tok(0);
-      if (!m.empty() && m != "*" && m != "0") iModel = atoi(m.c_str());
-      std::string chains = tok(1).empty() ? "*" : tok(1);
+      if (!model_s.empty() && model_s != "*" && model_s != "0") iModel = atoi(model_s.c_str());
+      std::string chains = chain_s.empty() ? "*" : chain_s;
       int r1 = ANY_RES, r2 = ANY_RES;
       std::string ins1 = "*", ins2 = "*";
       // split "num[.ins]" into number + insertion code
@@ -2399,7 +2419,7 @@ namespace mmdb {
          num = atoi(v.substr(0, dot).c_str());
          ins = (dot == std::string::npos) ? std::string() : v.substr(dot + 1);
       };
-      std::string rr = strip(tok(2), "(");  // drop (resname)
+      std::string rr = strip(res_s, "(");  // drop (resname)
       if (!rr.empty() && rr != "*") {
          size_t dash = rr.find('-', rr[0] == '-' ? 1 : 0);
          if (dash == std::string::npos) {
@@ -2411,7 +2431,7 @@ namespace mmdb {
             parse_resid(rr.substr(dash + 1), r2, ins2);
          }
       }
-      std::string anames = strip(strip(tok(3), "["), ":");  // drop [element]/:altloc
+      std::string anames = strip(strip(atom_s, "["), ":");  // drop [element]/:altloc
       if (anames.empty()) anames = "*";
       Select(selHnd, sType, iModel, chains.c_str(), r1, ins1.c_str(), r2, ins2.c_str(), "*",
              anames.c_str(), "*", "*", sKey);
