@@ -137,8 +137,8 @@ class ContainerClass { public: virtual ~ContainerClass() {} };
 typedef ContainerClass *PContainerClass;
 
 // LINK record. Public data members mirror real MMDB (Coot reads them directly).
-// Not gemmi-backed yet — Model::GetNumberOfLinks currently returns 0 (TODO: map
-// gemmi Structure connections), so these are declared for compilation.
+// Populated from gemmi Structure::connections on load (Manager::_load_metadata);
+// Coot-created links are appended via Model::AddLink.
 class Link : public ContainerClass {
 public:
   AtomName atName1{}, atName2{};
@@ -155,7 +155,7 @@ public:
 typedef Link *PLink; typedef Link **PPLink;
 
 // Refmac LINK record (mmdb_model.h LinkR). Public members mirror real MMDB;
-// Model::GetNumberOfLinkRs returns 0 for now (TODO: map gemmi connections).
+// populated from gemmi Connections carrying a link_id (Manager::_load_metadata).
 class LinkR {
 public:
   LinkRID  linkRID{};
@@ -170,7 +170,7 @@ public:
 typedef LinkR *PLinkR; typedef LinkR **PPLinkR;
 
 // CIS-peptide record (mmdb_model.h CisPep). Public members mirror real MMDB;
-// Model::GetNumberOfCisPeps returns 0 for now (TODO: map gemmi cispeps).
+// populated from gemmi Structure::cispeps on load (Manager::_load_metadata).
 class CisPep {
 public:
   int      serNum = 0;
@@ -198,9 +198,10 @@ public:
 typedef LinkContainer *PLinkContainer;
 
 // PDB title records (mmdb_title.h). Coot subclasses Manager & Title to reach the
-// COMPND/AUTHOR line containers. Not gemmi-backed yet (title/header records are
-// dropped on round-trip) — just enough surface to compile & run. TODO: map to
-// gemmi Structure meta (raw_remarks / metadata).
+// COMPND/AUTHOR line containers. The AUTHOR container is filled from gemmi
+// meta.authors on load and the TITLE string comes from Structure::get_info
+// ("_struct.title"); COMPND/JRNL have no structured gemmi home, so those
+// containers stay empty.
 class Compound : public ContainerClass { public: char Line[256] = {0}; };
 typedef Compound *PCompound;
 class Author   : public ContainerClass { public: char Line[256] = {0}; };
@@ -227,25 +228,62 @@ public:
 // so only this compression-mode enum is provided (Coot passes it to write calls).
 namespace io { enum GZ_MODE { GZM_NONE = 0, GZM_CHECK = 1, GZM_ENFORCE = 2 }; }
 
-// Crystal/symmetry record (mmdb_cryst.h). Minimal — used by Coot as a pointer
-// type; symmetry math goes through Manager::GetTMatrix (gemmi TODO).
-class Cryst { public:
-  virtual ~Cryst() {}
-  // symmetry not carried on the bare Cryst (Manager owns gemmi cell/SG) — identity/0.
-  int  GetTMatrix(mat44 &T, int Nop, int a, int b, int c) {
-    for (int i=0;i<4;i++) for (int j=0;j<4;j++) T[i][j]=(i==j)?1.0:0.0;
-    return (Nop==0 && a==0 && b==0 && c==0) ? 0 : 1;
-  }
-  int  GetNumberOfSymOps() { return 0; }
-  pstr GetSymOp(int) { return nullptr; }
-};
-typedef Cryst *PCryst;
-
 // initialise a 4x4 matrix to identity (mmdb_mattype.h Mat4Init)
 inline void Mat4Init(mat44 &A) {
   for (int i = 0; i < 4; ++i)
     for (int j = 0; j < 4; ++j) A[i][j] = (i == j) ? 1.0 : 0.0;
 }
+
+// Orthogonal symmetry transformation for operator Nop (0-based) + integer cell
+// shifts, from a gemmi cell + space group. The op acts in fractional space; we
+// conjugate it with the cell frac<->orth transforms so TMatrix maps orthogonal
+// coordinates directly (MMDB semantics). Returns 0 on success, 1 if there is no
+// usable space group / the operator is out of range. Shared by Manager and Cryst.
+inline int gemmi_sym_tmatrix(const gemmi::UnitCell &cell, const std::string &sg_name,
+                             mat44 &TMatrix, int Nop, int a, int b, int c) {
+  Mat4Init(TMatrix);
+  const gemmi::SpaceGroup *sg = gemmi::find_spacegroup_by_name(sg_name);
+  if (!sg || !cell.is_crystal()) return 1;
+  gemmi::GroupOps gops = sg->operations();
+  if (Nop < 0 || Nop >= (int) gops.order()) return 1;
+  int i = 0; gemmi::Op op;
+  for (gemmi::Op o : gops) { if (i++ == Nop) { op = o; break; } }
+  gemmi::Transform sym{ gemmi::rot_as_mat33(op),
+                        gemmi::tran_as_vec3(op) + gemmi::Vec3(a, b, c) };
+  gemmi::Transform t = cell.orth.combine(sym).combine(cell.frac);
+  for (int r = 0; r < 3; ++r) {
+    for (int cc = 0; cc < 3; ++cc) TMatrix[r][cc] = t.mat.a[r][cc];
+    TMatrix[r][3] = t.vec.at(r);
+  }
+  return 0;
+}
+
+// Crystal/symmetry record (mmdb_cryst.h). Holds a gemmi cell + space-group name
+// and computes symmetry through the shared helper — same result as Manager for a
+// populated Cryst (Manager is the usual live symmetry path).
+class Cryst { public:
+  gemmi::UnitCell cell;
+  std::string     spaceGroup;
+  virtual ~Cryst() {}
+  int  GetTMatrix(mat44 &T, int Nop, int a, int b, int c) {
+    return gemmi_sym_tmatrix(cell, spaceGroup, T, Nop, a, b, c);
+  }
+  int  GetNumberOfSymOps() {
+    const gemmi::SpaceGroup *sg = gemmi::find_spacegroup_by_name(spaceGroup);
+    return sg ? (int) sg->operations().order() : 0;
+  }
+  pstr GetSymOp(int Nop) {
+    const gemmi::SpaceGroup *sg = gemmi::find_spacegroup_by_name(spaceGroup);
+    if (!sg) return nullptr;
+    int i = 0;
+    for (gemmi::Op op : sg->operations())
+      if (i++ == Nop) { _symop_buf = op.triplet(); return (pstr) _symop_buf.c_str(); }
+    return nullptr;
+  }
+private:
+  std::string _symop_buf;
+};
+typedef Cryst *PCryst;
 
 // mmdb::math graph-matching subsystem — full classes defined in _graph_impl.hh
 // (included at end of this file, after Atom/Residue are complete). Only the
@@ -291,9 +329,9 @@ enum PDB_CLEAN_FLAG {
   PDBCLEAN_ELEMENT_STRONG = 0x00002000
 };
 
-// SS records — minimal public-member structs. Model::GetNumberOf{Helices,Sheets}
-// return 0 for now (TODO: map gemmi Structure helices/sheets), so these aren't
-// dereferenced; fields present for compilation.
+// SS records — public-member structs. Model::GetNumberOf{Helices,Sheets} are
+// populated from gemmi Structure::{helices,sheets} on load (_load_metadata) and
+// also fillable by Coot's own SS computation via the access_model subclass.
 class Helix  { public:
   ChainID initChainID{}, endChainID{}; int initSeqNum = 0, endSeqNum = 0, serNum = 0, helixClass = 0, length = 0;
   ResName initResName{}, endResName{}; InsCode initICode{}, endICode{}; char helixID[20]{}, comment[80]{};
@@ -303,7 +341,7 @@ class Strand { public:
   ResName initResName{}, endResName{}; InsCode initICode{}, endICode{}; char sheetID[20]{};
 };
 class Sheet  { public: int nStrands = 0; Strand **strand = nullptr; char sheetID[20]{}; };
-class Sheets { public: int nSheets = 0; Sheet **sheet = nullptr; };  // container (SS TODO)
+class Sheets { public: int nSheets = 0; Sheet **sheet = nullptr; };  // filled from gemmi in _load_metadata
 typedef Helix *PHelix; typedef Strand *PStrand; typedef Sheet *PSheet; typedef Sheets *PSheets;
 // container of helices (Model.helices); Coot's access_model subclass fills it.
 class Helices { public: std::vector<Helix *> data; void AddData(PHelix h) { if (h) data.push_back(h); } int nHelices = 0; };
@@ -398,14 +436,19 @@ public:
   float &sigTemp() { return _sigtemp; }
   bool isMetal() const { return gemmi::Element(g().element).is_metal(); }
   // anisotropic B tensor — gemmi's SMat33<float> aniso. Reference-returning so the
-  // rewritten `->u11` covers both reads (bonds display) and writes (SHELX import).
-  // NOTE: writing here does not set ASET_Anis_tFac in WhatIsSet (TODO if needed).
-  float &u11() { return g().aniso.u11; }
-  float &u22() { return g().aniso.u22; }
-  float &u33() { return g().aniso.u33; }
-  float &u12() { return g().aniso.u12; }
-  float &u13() { return g().aniso.u13; }
-  float &u23() { return g().aniso.u23; }
+  // rewritten `->u11` covers both reads and writes. The mutable accessor marks the
+  // tensor present (ASET_Anis_tFac) so a write (e.g. SHELX import) sets the flag as
+  // real MMDB does. Const reads never set it; a non-const read over-approximates,
+  // which is harmless — the PDB/mmCIF writer emits ANISOU on the actual values.
+  float &u11() { WhatIsSet |= ASET_Anis_tFac; return g().aniso.u11; }
+  float &u22() { WhatIsSet |= ASET_Anis_tFac; return g().aniso.u22; }
+  float &u33() { WhatIsSet |= ASET_Anis_tFac; return g().aniso.u33; }
+  float &u12() { WhatIsSet |= ASET_Anis_tFac; return g().aniso.u12; }
+  float &u13() { WhatIsSet |= ASET_Anis_tFac; return g().aniso.u13; }
+  float &u23() { WhatIsSet |= ASET_Anis_tFac; return g().aniso.u23; }
+  float u11() const { return g().aniso.u11; }   float u22() const { return g().aniso.u22; }
+  float u33() const { return g().aniso.u33; }   float u12() const { return g().aniso.u12; }
+  float u13() const { return g().aniso.u13; }   float u23() const { return g().aniso.u23; }
   // bonds — not modelled yet (gemmi connections); report none.
   int  GetNBonds() { return 0; }
   void GetBonds(PAtomBond &atomBond, int &n) { atomBond = nullptr; n = 0; }
@@ -493,8 +536,20 @@ public:
     std::set<char> a; for (Atom *at : atoms) { char c = at->g().altloc; if (c && c != ' ') a.insert(c); }
     return a.empty() ? 1 : (int) a.size();
   }
-  bool isSugar()  { return false; }              // TODO: gemmi residue classification
-  bool isModRes() { return false; }              // TODO
+  // sugar / modified-residue classification via gemmi's tabulated residues.
+  bool isSugar()  {
+    gemmi::ResidueKind k = gemmi::find_tabulated_residue(g().name).kind;
+    return k == gemmi::ResidueKind::PYR || k == gemmi::ResidueKind::KET;
+  }
+  // MMDB isModRes reflects PDB MODRES records (a non-standard, modified form of a
+  // standard residue). gemmi has no per-residue MODRES flag on the model tree, so
+  // approximate: an amino/nucleic residue whose one-letter code is lower-case
+  // (gemmi marks non-standard monomers that way). Water/ligands are excluded.
+  bool isModRes() {
+    const gemmi::ResidueInfo ri = gemmi::find_tabulated_residue(g().name);
+    return ri.found() && !ri.is_standard() &&
+           (ri.is_amino_acid() || ri.is_nucleic_acid());
+  }
 
   Residue() = default;
   explicit Residue(Chain *c);   // construct + add to chain (out-of-line)
@@ -559,10 +614,11 @@ public:
   int  &GetIndex() { return ri; }     // ref: rewritten `->index` is assignable
   Chain   *GetChain() { return chain; }
   Model   *GetModel();                // out-of-line (Chain incomplete here)
-  // terminus tests — positional within the chain (approximates MMDB's peptide-bond
-  // check; good enough for Coot's terminal-residue handling). TODO: bond-aware.
-  bool  isNTerminus() { return chain && ri == 0; }
-  bool  isCTerminus();               // last in chain (out-of-line: needs Chain)
+  // terminus tests — peptide-bond-aware: N-terminus if no preceding residue's C is
+  // within bonding distance of this N, C-terminus if this C bonds no following N
+  // (out-of-line: need Chain + backbone atom geometry).
+  bool  isNTerminus();
+  bool  isCTerminus();
   pstr  GetResidueID(pstr S) {       // "seqnum(name):inscode"
     if (S) std::snprintf(S, 100, "%d(%s):%s", GetSeqNum(), name, insCode);
     return S;
@@ -630,7 +686,29 @@ public:
   Chain() = default;
   Chain(Model *m, const ChainID id);   // construct + add to model (out-of-line)
   void     Copy(PChain src);           // deep-copy subtree (out-of-line: needs Manager)
-  void     SortResidues(int /*sortKey*/ = 0) {}  // gemmi keeps file order; no-op
+  // Reorder residues (and their gemmi backing) ascending by (seqNum, insCode),
+  // MMDB's default. Keeps the wrapper vector and gemmi vector in lock-step and
+  // re-indexes ri. sortKey variants beyond ascending-by-number are uncommon in
+  // Coot and treated as the default.
+  void     SortResidues(int /*sortKey*/ = 0) {
+    int n = (int)residues.size();
+    if (n < 2) return;
+    std::vector<int> ord(n);
+    for (int i = 0; i < n; ++i) ord[i] = i;
+    gemmi::Chain &gc = g();
+    std::stable_sort(ord.begin(), ord.end(), [&](int a, int b) {
+      const gemmi::Residue &ra = gc.residues[a], &rb = gc.residues[b];
+      if (ra.seqid.num.value != rb.seqid.num.value) return ra.seqid.num.value < rb.seqid.num.value;
+      char ia = ra.seqid.icode ? ra.seqid.icode : ' ', ib = rb.seqid.icode ? rb.seqid.icode : ' ';
+      return ia < ib;
+    });
+    std::vector<gemmi::Residue> gnew; gnew.reserve(n);
+    std::vector<Residue *>      wnew; wnew.reserve(n);
+    for (int k = 0; k < n; ++k) { gnew.push_back(std::move(gc.residues[ord[k]])); wnew.push_back(residues[ord[k]]); }
+    gc.residues = std::move(gnew);
+    residues    = std::move(wnew);
+    for (int k = 0; k < n; ++k) residues[k]->ri = k;
+  }
   bool isAminoacidChain();   // defined out-of-line (needs Residue predicates)
   bool isNucleotideChain();
   bool isSolventChain();
@@ -705,31 +783,42 @@ public:
   PPAtom GetAllAtoms() { return all_atoms.data(); }
   int    GetNumberOfAtoms() { return (int)all_atoms.size(); }
   int    GetNumberOfAtoms(bool /*countTers*/) { return (int)all_atoms.size(); }
-  int    CalcSecStructure(bool /*flag*/) { return 0; }  // TODO: gemmi SS assignment
-  // LINK records — Coot-owned Link* objects stored here (AddLink); GetLink is
-  // 1-based like MMDB. (Reading from gemmi connections is a separate TODO.)
+  // Secondary-structure assignment: mocked. gemmi's DSSP has its SS prediction
+  // disabled upstream ("commented out ... wasn't correct anyway"), so there is no
+  // gemmi-backed SS to forward to. Return the non-OK code so callers treat SS as
+  // unavailable rather than trusting a bogus assignment. (residue SSE stays None.)
+  int    CalcSecStructure(bool /*flag*/) { return SSERC_noResidues; }
+  // LINK records — gemmi-loaded (Manager::_load_metadata) plus Coot-created ones
+  // (AddLink) stored here; GetLink is 1-based like MMDB.
   std::vector<Link *> _links;
   int    GetNumberOfLinks() { return (int)_links.size(); }
   PLink  GetLink(int i) { return (i >= 1 && i <= (int)_links.size()) ? _links[i - 1] : nullptr; }
   void   AddLink(PLink link) { if (link) _links.push_back(link); }
-  int    GetNumberOfLinkRs() { return 0; }
-  PLinkR GetLinkR(int /*i*/) { return nullptr; }
+  // Refmac LINKR records — gemmi Connections that carry a link_id (_load_metadata).
+  std::vector<LinkR *> _linkrs;
+  int    GetNumberOfLinkRs() { return (int)_linkrs.size(); }
+  PLinkR GetLinkR(int i) { return (i >= 1 && i <= (int)_linkrs.size()) ? _linkrs[i - 1] : nullptr; }
+  void   AddLinkR(PLinkR lr) { if (lr) _linkrs.push_back(lr); }
   std::vector<CisPep *> _cispeps;
   int    GetNumberOfCisPeps() { return (int)_cispeps.size(); }
   PCisPep GetCisPep(int i) { return (i >= 1 && i <= (int)_cispeps.size()) ? _cispeps[i - 1] : nullptr; }
   void   AddCisPep(PCisPep cp) { if (cp) _cispeps.push_back(cp); }
   void   RemoveCisPeps() { _cispeps.clear(); }
-  // secondary structure — TODO: map from gemmi helices/sheets.
-  int     GetNumberOfHelices() { return 0; }
-  PHelix  GetHelix(int /*i*/) { return nullptr; }
-  int     GetNumberOfSheets() { return 0; }
-  PSheet  GetSheet(int /*i*/) { return nullptr; }
-  Sheets  sheets;                          // SS records (not gemmi-backed; access_model fills)
+  // secondary structure. Records live in `helices`/`sheets` below, populated
+  // either from gemmi on load (build_from_gemmi) or by Coot's own SS computation
+  // via the access_model subclass (which reaches these public members directly).
+  // 1-based indexing to match MMDB.
+  int     GetNumberOfHelices() { return (int)helices.data.size(); }
+  PHelix  GetHelix(int i) { return (i >= 1 && i <= (int)helices.data.size()) ? helices.data[i - 1] : nullptr; }
+  int     GetNumberOfSheets() { return sheets.nSheets; }
+  PSheet  GetSheet(int i) { return (i >= 1 && i <= sheets.nSheets && sheets.sheet) ? sheets.sheet[i - 1] : nullptr; }
+  Sheets  sheets;                          // SS records (gemmi-backed on load; access_model fills)
   Helices helices;                         // "     "     "
+  std::vector<PSheet> _sheet_ptrs;         // backing array for sheets.sheet (gemmi load)
   PSheets GetSheets() { return &sheets; }
   int     GetModelID() { return mi + 1; }
   pstr    GetModelID(pstr buf) { if (buf) std::snprintf(buf, 16, "%d", mi + 1); return buf; }
-  int     CalcSecStructure(int /*flag*/, int /*selHnd*/) { return SSERC_Ok; }  // TODO gemmi SS
+  int     CalcSecStructure(int /*flag*/, int /*selHnd*/) { return SSERC_noResidues; }  // mocked; see bool overload
   void    Copy(PModel src);                       // deep-copy subtree (out-of-line)
   Manager *GetCoordHierarchy() { return mgr; }   // parent manager
   int     GetNumberOfResidues() {
@@ -740,10 +829,34 @@ public:
     _linkc.data.assign(_links.begin(), _links.end()); return &_linkc;
   }
   void    RemoveLinks() { _links.clear(); }
-  void    SortChains(int /*sortKey*/ = 0) {}   // gemmi keeps file order; no-op
+  // Reorder chains (and gemmi backing) by chain ID. sortKey selects ascending
+  // (default) or descending; other MMDB sort keys collapse to ID order.
+  void    SortChains(int sortKey = 0) {
+    int n = (int)chains.size();
+    if (n < 2) return;
+    bool desc = (sortKey == SORT_CHAIN_ChainID_Desc);
+    std::vector<int> ord(n);
+    for (int i = 0; i < n; ++i) ord[i] = i;
+    gemmi::Model &gm = g();
+    std::stable_sort(ord.begin(), ord.end(), [&](int a, int b) {
+      return desc ? (gm.chains[a].name > gm.chains[b].name)
+                  : (gm.chains[a].name < gm.chains[b].name);
+    });
+    std::vector<gemmi::Chain> gnew; gnew.reserve(n);
+    std::vector<Chain *>      wnew; wnew.reserve(n);
+    for (int k = 0; k < n; ++k) { gnew.push_back(std::move(gm.chains[ord[k]])); wnew.push_back(chains[ord[k]]); }
+    gm.chains = std::move(gnew);
+    chains    = std::move(wnew);
+    for (int k = 0; k < n; ++k) chains[k]->ci = k;
+  }
   PChain  CreateChain(const ChainID id);       // add empty chain (out-of-line: needs Manager)
-  int     GetNumberOfStrands(int /*sheetNo*/) { return 0; }
-  PStrand GetStrand(int /*sheetNo*/, int /*strandNo*/) { return nullptr; }
+  int     GetNumberOfStrands(int sheetNo) {
+    PSheet s = GetSheet(sheetNo); return s ? s->nStrands : 0;
+  }
+  PStrand GetStrand(int sheetNo, int strandNo) {
+    PSheet s = GetSheet(sheetNo);
+    return (s && strandNo >= 1 && strandNo <= s->nStrands && s->strand) ? s->strand[strandNo - 1] : nullptr;
+  }
 };
 
 // ===========================================================================
@@ -756,6 +869,18 @@ public:
   std::deque<Chain> chain_pool;
   std::deque<Model> model_pool;
   std::vector<Model *> models;
+  // stable-address pools for gemmi-derived metadata records (LINK / CISPEP /
+  // HELIX / SHEET). Filled by build_from_gemmi -> _load_metadata(); owned here so
+  // the Model containers can hold bare pointers into them.
+  std::deque<Link>            link_pool;
+  std::deque<LinkR>           linkr_pool;
+  std::deque<CisPep>          cispep_pool;
+  std::deque<Helix>           helix_pool;
+  std::deque<Sheet>           sheet_pool;
+  std::deque<Strand>          strand_pool;
+  std::deque<std::vector<PStrand>> strandarr_pool;  // backing for Sheet::strand (Strand**)
+  std::deque<Author>          author_pool;          // backing for title.author records
+  void _load_metadata();   // out-of-line: needs complete gemmi metadata types
 
   Atom    *newAtom() { atom_pool.emplace_back(); return &atom_pool.back(); }
   Residue *newRes()  { res_pool.emplace_back();  return &res_pool.back();  }
@@ -774,20 +899,31 @@ public:
   PChain GetChain(int modelNo, int chainNo) {
     PModel m = GetModel(modelNo); return m ? m->GetChain(chainNo) : nullptr;
   }
-  // Re-index/renumber after edits. The shim keeps sibling indices in sync as it
-  // mutates, so this is a no-op re-validation for now (TODO: serial renumbering).
-  word   PDBCleanup(word /*CleanKey*/) { return 0; }
+  // Re-index/renumber after edits. Sibling indices are kept in sync as the shim
+  // mutates (so PDBCLEAN_INDEX is implicit); PDBCLEAN_SERIAL renumbers atom serials
+  // 1..N in hierarchy order. Other clean flags are not needed by the shim.
+  word   PDBCleanup(word CleanKey) {
+    if (CleanKey & (PDBCLEAN_SERIAL | PDBCLEAN_INDEX)) {
+      int s = 1;
+      for (Atom *a : all_atoms) a->g().serial = s++;
+    }
+    return 0;
+  }
 
-  // PDB title records — Coot reaches `title` via an access_mol subclass.
+  // PDB title records — Coot reaches `title` via an access_mol subclass; the
+  // TITLE string comes from gemmi (_struct.title), authors are filled on load.
   Title  title;
-  pstr   GetStructureTitle(pstr T) { if (T) T[0] = '\0'; return T; }
+  pstr   GetStructureTitle(pstr T) {
+    if (T) std::strcpy(T, st.get_info("_struct.title").c_str());  // caller allocates (MMDB contract)
+    return T;
+  }
 
-  // symmetry transformation matrix. Real symmetry needs gemmi spacegroup/cell;
-  // for now return identity for the no-op (Nop==0, no cell shift) and signal
-  // "no symmetry" (nonzero) otherwise so Coot skips symmetry expansion. TODO.
+  // Orthogonal symmetry transformation for operator Nop (0-based) + cell shifts,
+  // via gemmi's space group + unit cell (shared helper). Returns 0 on success,
+  // nonzero if there is no usable space group / the operator is out of range.
   int    GetTMatrix(mat44 &TMatrix, int Nop, int cellshift_a, int cellshift_b, int cellshift_c) {
-    Mat4Init(TMatrix);
-    return (Nop == 0 && cellshift_a == 0 && cellshift_b == 0 && cellshift_c == 0) ? 0 : 1;
+    return gemmi_sym_tmatrix(st.cell, st.spacegroup_hm, TMatrix, Nop,
+                             cellshift_a, cellshift_b, cellshift_c);
   }
 
   void build_from_gemmi();
@@ -854,6 +990,7 @@ public:
     SELECTION_TYPE type = STYPE_UNDEFINED;
     std::vector<Atom *>    atoms;
     std::vector<Residue *> residues;
+    std::vector<Chain *>   chains;
   };
   std::vector<Selection> selections;  // handle is 1-based index
 
@@ -863,6 +1000,7 @@ public:
     Selection &s = selections[selHnd - 1];
     for (Atom *a : s.atoms) a->_setInSel(selHnd, false);
     for (Residue *r : s.residues) r->_setInSel(selHnd, false);
+    for (Chain *c : s.chains) c->_setInSel(selHnd, false);
     s = Selection();
   }
   void GetSelIndex(int selHnd, PPAtom &SelAtom, int &n) {
@@ -871,8 +1009,9 @@ public:
   void GetSelIndex(int selHnd, PPResidue &SelRes, int &n) {
     Selection &s = selections[selHnd - 1]; SelRes = s.residues.data(); n = (int)s.residues.size();
   }
-  // chain selections aren't modelled by the engine yet — return empty. TODO.
-  void GetSelIndex(int /*selHnd*/, PPChain &SelChain, int &n) { SelChain = nullptr; n = 0; }
+  void GetSelIndex(int selHnd, PPChain &SelChain, int &n) {
+    Selection &s = selections[selHnd - 1]; SelChain = s.chains.data(); n = (int)s.chains.size();
+  }
   // select atoms by serial-number range (iSer1..iSer2; 0,0 => all).
   void SelectAtoms(int selHnd, int iSer1, int iSer2, SELECTION_KEY key) {
     if (selHnd < 1 || selHnd > (int)selections.size()) return;
@@ -938,17 +1077,37 @@ public:
 
   // --- misc hierarchy/bond/UDData ops used by Coot ---
   void RemoveBonds() {}                       // gemmi has no persistent bond table
-  void Delete(int /*DelKey*/) {}              // partial-hierarchy delete — no-op (TODO)
+  // Partial-hierarchy delete (mmdb Manager::Delete). Coot's use is
+  // Delete(MMDBFCM_SC) to drop secondary-structure/connectivity records before
+  // writing; also honour Coord (atoms) and Cryst (cell/SG) for completeness.
+  void Delete(int DelKey) {
+    bool all = DelKey == MMDBFCM_All;
+    if (all || (DelKey & MMDBFCM_SC)) {
+      for (Model *m : models) {
+        m->_links.clear(); m->_linkrs.clear(); m->_cispeps.clear();
+        m->helices.data.clear();
+        m->sheets.nSheets = 0; m->sheets.sheet = nullptr; m->_sheet_ptrs.clear();
+      }
+      link_pool.clear(); linkr_pool.clear(); cispep_pool.clear();
+      helix_pool.clear(); sheet_pool.clear(); strand_pool.clear(); strandarr_pool.clear();
+    }
+    if (all || (DelKey & MMDBFCM_Cryst)) { st.cell = gemmi::UnitCell(); st.spacegroup_hm.clear(); }
+    if (all || (DelKey & MMDBFCM_Coord)) { st.models.clear(); build_from_gemmi(); }
+  }
   void DeleteAllModels() { st.models.clear(); build_from_gemmi(); }   // clears the hierarchy
   void DeleteModel(int modelNo) {   // 1-based; erase model + rebuild wrappers
     int i = modelNo - 1;
     if (i >= 0 && i < (int)st.models.size()) { st.models.erase(st.models.begin() + i); build_from_gemmi(); }
   }
   pstr GetInputBuffer(pstr buf, int &count) { count = 0; if (buf) buf[0] = '\0'; return buf; }
-  // place an atom into the flat table (mmdb Manager::PutAtom) — the shim builds
-  // hierarchy via Add*/gemmi, so this is a stub returning the index. TODO if a
-  // PutAtom-built molecule is needed.
-  int  PutAtom(int index, PAtom /*atom*/, int /*serNum*/ = 0) { return index; }
+  // Insert (a copy of) an atom into the hierarchy (mmdb Manager::PutAtom). MMDB
+  // keeps a flat atom array with a parallel hierarchy rebuilt by FinishStructEdit;
+  // the shim's storage IS the hierarchy, so PutAtom finds/creates the chain and
+  // residue implied by the atom's source residue and appends a copy there. Only
+  // append (index<=0 or top) is supported — the semantics Coot relies on
+  // (create_mmdbmanager_from_atom_selection_straight). Returns the atom's 1-based
+  // position (so GetAtomI(pos) returns it). Defined out-of-line (needs Add*).
+  int  PutAtom(int index, PAtom atom, int serNum = 0);
   // hierarchy-level UDData (UDR_HIERARCHY) — Manager owns its own UDStore.
   UDStore _ud;
   int PutUDData(int h, int v)      { return ud_put(this, UDR_HIERARCHY, _ud, h, v); }
@@ -977,14 +1136,18 @@ public:
   void SetFlag(int /*flags*/) {}          // no-op: read/write behaviour is fixed
   void SetFlag(cpstr /*flags*/) {}
   int  PutPDBString(cpstr /*card*/) { return Error_NoError; } // no-op
-  int  MakeBonds(bool /*calc*/) { return 0; }                // TODO: gemmi bonds
+  // No persistent bond table. Verified safe: Coot's only caller (make_bonds in
+  // coot-utils/bonded-atoms.cc) ignores the mmdb bond table and recomputes bonds
+  // itself from geometry, so a no-op here matches observed Coot behaviour.
+  int  MakeBonds(bool /*calc*/) { return 0; }
 
   // flat atom access (across the whole hierarchy)
   std::vector<Atom *> all_atoms;
   int   GetNumberOfAtoms() { return (int)all_atoms.size(); }
   int   GetNumberOfAtoms(bool /*countTers*/) { return (int)all_atoms.size(); }
   int   GetNumberOfAtoms(cpstr CID);      // count atoms matching CID (defined below)
-  PAtom GetAtomI(int i) { return (i >= 0 && i < (int)all_atoms.size()) ? all_atoms[i] : nullptr; }
+  // MMDB GetAtomI is 1-based: returns Atom[index-1].
+  PAtom GetAtomI(int i) { return (i >= 1 && i <= (int)all_atoms.size()) ? all_atoms[i - 1] : nullptr; }
   void  GetAtomTable(PPAtom &t, int &n) { t = all_atoms.data(); n = (int)all_atoms.size(); }
   void  GetModelTable(PPModel &t, int &n) { t = models.data(); n = (int)models.size(); }
   void  GetAtomStatistics(int selHnd, RAtomStat AS);   // defined below
@@ -996,10 +1159,10 @@ public:
   // CID-string selection, e.g. "/1/A/10-20/CA"
   void  Select(int selHnd, SELECTION_TYPE sType, cpstr CID, SELECTION_KEY sKey);
 
-  // ---- contacts (gemmi-free uniform-grid search) ----
-  // TMatrix is MMDB's optional symmetry transform applied to the 2nd set; the
-  // shim does no symmetry (see contacts.cc image_idx!=0 exclusion), so it's
-  // accepted and ignored. TODO: gemmi symmetry-aware contacts.
+  // ---- contacts (gemmi NeighborSearch; TMatrix path uses a uniform grid) ----
+  // TMatrix is MMDB's optional symmetry transform applied to the 2nd set: when
+  // given, contacts.cc transforms that set and searches against it (symmetry
+  // mates); when null, gemmi NeighborSearch over the untransformed model is used.
   void SeekContacts(PPAtom A1, int n1, PPAtom A2, int n2, realtype d1,
                     realtype d2, int seqDist, PContact &contact, int &ncontacts,
                     int maxlen = 0, pmat44 TMatrix = nullptr, long group = 0);
@@ -1234,6 +1397,162 @@ inline void Manager::build_from_gemmi() {
     }
     models.push_back(mw);
   }
+  _load_metadata();
+}
+
+// Map gemmi's structure-level metadata (connections / cispeps / helices /
+// sheets) onto the MMDB per-Model record containers. gemmi is the reader; the
+// shim just re-shapes. Connections/helices/sheets are not model-scoped in gemmi,
+// so they go on model 1 (MMDB's usual home); cispeps honour their model_num.
+inline void Manager::_load_metadata() {
+  link_pool.clear(); linkr_pool.clear(); cispep_pool.clear(); helix_pool.clear();
+  sheet_pool.clear(); strand_pool.clear(); strandarr_pool.clear(); author_pool.clear();
+
+  // PDB title AUTHOR records (gemmi meta.authors)
+  title.author.data.clear();
+  for (const std::string &au : st.meta.authors) {
+    author_pool.emplace_back();
+    std::snprintf(author_pool.back().Line, sizeof(author_pool.back().Line), "%s", au.c_str());
+    title.author.data.push_back(&author_pool.back());
+  }
+  if (models.empty()) return;
+
+  auto fill_ends = [](const gemmi::AtomAddress &a, ChainID &cid, ResName &rn,
+                      int &seq, InsCode &ic, AtomName *an, AltLoc *al) {
+    std::snprintf(cid, sizeof(ChainID), "%s", a.chain_name.c_str());
+    std::snprintf(rn, sizeof(ResName), "%s", a.res_id.name.c_str());
+    seq = a.res_id.seqid.num.value;
+    ic[0] = (a.res_id.seqid.icode && a.res_id.seqid.icode != ' ') ? a.res_id.seqid.icode : '\0';
+    ic[1] = '\0';
+    if (an) std::snprintf(*an, sizeof(AtomName), "%s", a.atom_name.c_str());
+    if (al) { (*al)[0] = a.altloc ? a.altloc : '\0'; (*al)[1] = '\0'; }
+  };
+
+  // --- LINK records (gemmi Connection) -> model 1 ---
+  Model *m1 = models[0];
+  for (const gemmi::Connection &cn : st.connections) {
+    link_pool.emplace_back();
+    Link &l = link_pool.back();
+    fill_ends(cn.partner1, l.chainID1, l.resName1, l.seqNum1, l.insCode1, &l.atName1, &l.aloc1);
+    fill_ends(cn.partner2, l.chainID2, l.resName2, l.seqNum2, l.insCode2, &l.atName2, &l.aloc2);
+    l.dist = cn.reported_distance;
+    m1->_links.push_back(&l);
+    // a connection carrying a Refmac link id is also a LINKR record
+    if (!cn.link_id.empty()) {
+      linkr_pool.emplace_back();
+      LinkR &lr = linkr_pool.back();
+      std::snprintf(lr.linkRID, sizeof(lr.linkRID), "%s", cn.link_id.c_str());
+      AtomName an; AltLoc al;
+      fill_ends(cn.partner1, lr.chainID1, lr.resName1, lr.seqNum1, lr.insCode1, &an, &al);
+      std::snprintf(lr.atName1, sizeof(AtomName), "%s", an); std::snprintf(lr.aloc1, sizeof(AltLoc), "%s", al);
+      fill_ends(cn.partner2, lr.chainID2, lr.resName2, lr.seqNum2, lr.insCode2, &an, &al);
+      std::snprintf(lr.atName2, sizeof(AtomName), "%s", an); std::snprintf(lr.aloc2, sizeof(AltLoc), "%s", al);
+      lr.dist = cn.reported_distance;
+      m1->_linkrs.push_back(&lr);
+    }
+  }
+
+  // --- CISPEP records (gemmi CisPep) -> model by model_num (default 1) ---
+  for (const gemmi::CisPep &cp : st.cispeps) {
+    int mnum = cp.model_num > 0 ? cp.model_num : 1;
+    Model *mw = GetModel(mnum);
+    if (!mw) mw = m1;
+    cispep_pool.emplace_back();
+    CisPep &c = cispep_pool.back();
+    InsCode ic1, ic2; int s1, s2;
+    fill_ends(cp.partner_c, c.chainID1, c.pep1, s1, ic1, nullptr, nullptr);
+    fill_ends(cp.partner_n, c.chainID2, c.pep2, s2, ic2, nullptr, nullptr);
+    c.seqNum1 = s1; std::snprintf(c.icode1, sizeof(InsCode), "%s", ic1);
+    c.seqNum2 = s2; std::snprintf(c.icode2, sizeof(InsCode), "%s", ic2);
+    c.modNum = mnum;
+    if (!std::isnan(cp.reported_angle)) c.measure = cp.reported_angle;
+    mw->_cispeps.push_back(&c);
+  }
+
+  // --- HELIX records (gemmi Helix) -> model 1 ---
+  for (const gemmi::Helix &gh : st.helices) {
+    helix_pool.emplace_back();
+    Helix &h = helix_pool.back();
+    AtomName an; AltLoc al;
+    fill_ends(gh.start, h.initChainID, h.initResName, h.initSeqNum, h.initICode, &an, &al);
+    fill_ends(gh.end,   h.endChainID,  h.endResName,  h.endSeqNum,  h.endICode,  &an, &al);
+    h.helixClass = (int) gh.pdb_helix_class;
+    h.length = gh.length;
+    h.serNum = (int) helix_pool.size();
+    m1->helices.AddData(&h);
+  }
+
+  // --- SHEET / STRAND records (gemmi Sheet) -> model 1 ---
+  if (!st.sheets.empty()) {
+    m1->sheets.nSheets = (int) st.sheets.size();
+    m1->_sheet_ptrs.assign(st.sheets.size(), nullptr);   // backs Sheets::sheet (Sheet**)
+    for (size_t is = 0; is < st.sheets.size(); ++is) {
+      const gemmi::Sheet &gs = st.sheets[is];
+      sheet_pool.emplace_back();
+      Sheet &sh = sheet_pool.back();
+      std::snprintf(sh.sheetID, sizeof(sh.sheetID), "%s", gs.name.c_str());
+      sh.nStrands = (int) gs.strands.size();
+      strandarr_pool.emplace_back();
+      std::vector<PStrand> &sarr = strandarr_pool.back();
+      sarr.reserve(gs.strands.size());
+      for (const gemmi::Sheet::Strand &gst : gs.strands) {
+        strand_pool.emplace_back();
+        Strand &str = strand_pool.back();
+        AtomName an; AltLoc al;
+        fill_ends(gst.start, str.initChainID, str.initResName, str.initSeqNum, str.initICode, &an, &al);
+        fill_ends(gst.end,   str.endChainID,  str.endResName,  str.endSeqNum,  str.endICode,  &an, &al);
+        std::snprintf(str.sheetID, sizeof(str.sheetID), "%s", gs.name.c_str());
+        str.strandNo = (int) sarr.size() + 1;
+        str.sense = gst.sense;
+        sarr.push_back(&str);
+      }
+      sh.strand = sarr.data();
+      m1->_sheet_ptrs[is] = &sh;
+    }
+    m1->sheets.sheet = m1->_sheet_ptrs.data();
+  }
+}
+
+// ---- Manager::PutAtom (hierarchy insertion) ----
+inline int Manager::PutAtom(int index, PAtom A, int serNum) {
+  if (!A) return 0;
+  Residue *src = A->res;
+  // ensure a model exists (Coot calls PutAtom on a fresh, empty Manager)
+  Model *mw = models.empty() ? nullptr : models[0];
+  if (!mw) {
+    st.models.emplace_back(1);
+    mw = newModel(); mw->mgr = this; mw->mi = 0;
+    models.push_back(mw);
+  }
+  // find or create the chain implied by the source atom's chain
+  std::string cid = (src && src->chain) ? src->chain->g().name : std::string("A");
+  Chain *cw = mw->GetChain(cid.c_str());
+  if (!cw) cw = mw->CreateChain(cid.c_str());
+  // find or create the residue implied by (seqNum, insCode)
+  int  seq = src ? src->g().seqid.num.value : 0;
+  char ic  = src ? src->g().seqid.icode : ' ';
+  char icn = ic ? ic : ' ';
+  Residue *rw = nullptr;
+  for (Residue *r : cw->residues) {
+    gemmi::Residue &gr = r->g();
+    if (gr.seqid.num.value == seq && (gr.seqid.icode ? gr.seqid.icode : ' ') == icn) { rw = r; break; }
+  }
+  if (!rw) {
+    gemmi::Residue gr;
+    gr.name = src ? src->g().name : std::string("UNK");
+    gr.seqid.num = seq;
+    gr.seqid.icode = icn;
+    rw = cw->AddResidue(*this, gr);
+    rw->_load_id();
+  }
+  // append a copy of the atom's gemmi backing + register it in the flat tables
+  Atom *aw = rw->AddAtom(*this, A->g());
+  aw->WhatIsSet = A->WhatIsSet; aw->Het = A->Het;
+  std::memcpy(aw->segID, A->segID, sizeof aw->segID);
+  aw->g().serial = serNum ? serNum : (index > 0 ? index : (int)all_atoms.size() + 1);
+  rw->_sync_atom();
+  all_atoms.push_back(aw); mw->all_atoms.push_back(aw);
+  return (int)all_atoms.size();   // 1-based position (GetAtomI(pos) returns aw)
 }
 
 // ---- selection matching ----
@@ -1262,20 +1581,30 @@ inline bool altMatch(cpstr list, char alt) {
 inline void Manager::Select(int selHnd, SELECTION_TYPE sType, int iModel,
     cpstr Chains, int ResNo1, cpstr Ins1, int ResNo2, cpstr Ins2, cpstr RNames,
     cpstr ANames, cpstr Elements, cpstr altLocs, SELECTION_KEY selKey) {
-  (void)Ins1; (void)Ins2;  // insertion-code range filtering: TODO (rare in Coot)
   Selection &sel = selections[selHnd - 1];
   if (sel.type == STYPE_UNDEFINED) sel.type = sType;
   std::vector<Atom *> oldA = sel.atoms; std::vector<Residue *> oldR = sel.residues;
+  std::vector<Chain *> oldC = sel.chains;
 
-  std::vector<Atom *> mAtoms; std::vector<Residue *> mResidues;
+  std::vector<Atom *> mAtoms; std::vector<Residue *> mResidues; std::vector<Chain *> mChains;
   for (Model *mw : models) {
     if (iModel > 0 && mw->GetSerNum() != iModel) continue;
     for (Chain *cw : mw->chains) {
       if (!detail::inList(Chains, cw->g().name)) continue;
+      bool anyResidue = false;
       for (Residue *rw : cw->residues) {
         int sn = rw->g().seqid.num.value;
-        if (ResNo1 != ANY_RES && sn < ResNo1) continue;
-        if (ResNo2 != ANY_RES && sn > ResNo2) continue;
+        char ric = rw->g().seqid.icode ? rw->g().seqid.icode : ' ';
+        // (seqNum, insCode) range: an explicit insCode only constrains the
+        // boundary residue; blank/"*" includes every insCode at that seqNum.
+        if (ResNo1 != ANY_RES) {
+          if (sn < ResNo1) continue;
+          if (sn == ResNo1 && Ins1 && Ins1[0] && std::strcmp(Ins1, "*") && ric < Ins1[0]) continue;
+        }
+        if (ResNo2 != ANY_RES) {
+          if (sn > ResNo2) continue;
+          if (sn == ResNo2 && Ins2 && Ins2[0] && std::strcmp(Ins2, "*") && ric > Ins2[0]) continue;
+        }
         if (!detail::inList(RNames, rw->g().name)) continue;
         bool anyAtom = false;
         for (Atom *aw : rw->atoms) {
@@ -1285,8 +1614,12 @@ inline void Manager::Select(int selHnd, SELECTION_TYPE sType, int iModel,
           anyAtom = true;
           if (sType == STYPE_ATOM) mAtoms.push_back(aw);
         }
+        if (anyAtom) anyResidue = true;
         if (anyAtom && sType == STYPE_RESIDUE) mResidues.push_back(rw);
       }
+      // STYPE_CHAIN: a chain matching the chain filter (and, if given, having a
+      // residue that passes the residue/atom filters) is selected whole.
+      if (sType == STYPE_CHAIN && anyResidue) mChains.push_back(cw);
     }
   }
   auto combine = [&](auto &cur, auto &matched) {
@@ -1302,10 +1635,13 @@ inline void Manager::Select(int selHnd, SELECTION_TYPE sType, int iModel,
   };
   if (sType == STYPE_ATOM) combine(sel.atoms, mAtoms);
   else if (sType == STYPE_RESIDUE) combine(sel.residues, mResidues);
+  else if (sType == STYPE_CHAIN) combine(sel.chains, mChains);
   for (Atom *a : oldA) a->_setInSel(selHnd, false);
   for (Atom *a : sel.atoms) a->_setInSel(selHnd, true);
   for (Residue *r : oldR) r->_setInSel(selHnd, false);
   for (Residue *r : sel.residues) r->_setInSel(selHnd, true);
+  for (Chain *c : oldC) c->_setInSel(selHnd, false);
+  for (Chain *c : sel.chains) c->_setInSel(selHnd, true);
 }
 
 // select-from-selection: combine selHnd2's contents into selHnd1
@@ -1346,8 +1682,9 @@ inline void Manager::SelectAtom(int selHnd, PAtom atom, SELECTION_KEY sKey, bool
   }
 }
 
-// Pragmatic CID parser: "/model/chain/seqNum1(-seqNum2)/atom" (best-effort;
-// strips (resname)/[element]/:altloc suffixes). TODO: full MMDB CID grammar.
+// Pragmatic CID parser: "/model/chain/seqNum1[.ins1]-seqNum2[.ins2]/atom"
+// (best-effort; strips (resname)/[element]/:altloc suffixes; parses insertion
+// codes after '.'). Not the full MMDB CID grammar but covers Coot's usage.
 inline void Manager::Select(int selHnd, SELECTION_TYPE sType, cpstr CID,
                             SELECTION_KEY sKey) {
   std::string s = CID ? CID : "";
@@ -1367,15 +1704,22 @@ inline void Manager::Select(int selHnd, SELECTION_TYPE sType, cpstr CID,
   if (!m.empty() && m != "*" && m != "0") iModel = atoi(m.c_str());
   std::string chains = tok(1).empty() ? "*" : tok(1);
   int r1 = ANY_RES, r2 = ANY_RES;
+  std::string ins1 = "*", ins2 = "*";
+  // split "num[.ins]" into number + insertion code
+  auto parse_resid = [](const std::string &v, int &num, std::string &ins) {
+    size_t dot = v.find('.');
+    num = atoi(v.substr(0, dot).c_str());
+    ins = (dot == std::string::npos) ? std::string() : v.substr(dot + 1);
+  };
   std::string rr = strip(tok(2), "(");            // drop (resname)
   if (!rr.empty() && rr != "*") {
     size_t dash = rr.find('-', rr[0] == '-' ? 1 : 0);
-    if (dash == std::string::npos) { r1 = r2 = atoi(rr.c_str()); }
-    else { r1 = atoi(rr.substr(0, dash).c_str()); r2 = atoi(rr.substr(dash + 1).c_str()); }
+    if (dash == std::string::npos) { parse_resid(rr, r1, ins1); r2 = r1; ins2 = ins1; }
+    else { parse_resid(rr.substr(0, dash), r1, ins1); parse_resid(rr.substr(dash + 1), r2, ins2); }
   }
   std::string anames = strip(strip(tok(3), "["), ":");   // drop [element]/:altloc
   if (anames.empty()) anames = "*";
-  Select(selHnd, sType, iModel, chains.c_str(), r1, "*", r2, "*", "*",
+  Select(selHnd, sType, iModel, chains.c_str(), r1, ins1.c_str(), r2, ins2.c_str(), "*",
          anames.c_str(), "*", "*", sKey);
 }
 
@@ -1442,8 +1786,20 @@ inline Atom::Atom(Residue *r) { if (r) r->AddAtom(this); }
 inline Residue::Residue(Chain *c) { if (c) c->AddResidue(this); }
 inline Chain::Chain(Model *m, const ChainID id) { if (m) m->AddChain(this); SetChainID(id); }
 
+// peptide-bond distance threshold for backbone C-N (a real bond is ~1.33 A).
+inline bool Residue::isNTerminus() {
+  if (!chain || ri <= 0) return true;                 // first (or detached) residue
+  const gemmi::Atom *N = g().get_n();
+  const gemmi::Atom *prevC = chain->residues[ri - 1]->g().get_c();
+  if (!N || !prevC) return true;                       // missing backbone -> terminus
+  return N->pos.dist(prevC->pos) > 1.7;                // not bonded to previous C
+}
 inline bool Residue::isCTerminus() {
-  return chain && ri == (int)chain->residues.size() - 1;
+  if (!chain || ri < 0 || ri >= (int)chain->residues.size() - 1) return true;  // last/detached
+  const gemmi::Atom *C = g().get_c();
+  const gemmi::Atom *nextN = chain->residues[ri + 1]->g().get_n();
+  if (!C || !nextN) return true;
+  return C->pos.dist(nextN->pos) > 1.7;                // not bonded to next N
 }
 inline Model *Residue::GetModel() { return chain ? chain->model : nullptr; }
 

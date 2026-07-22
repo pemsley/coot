@@ -299,7 +299,16 @@ inline int Graph::MakeGraph(PResidue R, cpstr /*altLoc*/) {
 // =========================================================================
 //  Alignment — global (Needleman-Wunsch) sequence alignment (mmdb_math_align.h).
 //  Coot uses it to align a model sequence to a target and read back the gapped
-//  strings + score (for mutation/indel detection).
+//  strings + score (for mutation/indel detection, api/coot-molecule.cc).
+//
+//  NOTE on prefer-gemmi: gemmi DOES provide sequence alignment (align.hpp /
+//  seqalign.hpp), but only over a substitution-scoring matrix. MMDB's aligner —
+//  which Coot's mutation detection was tuned against — uses simple identity
+//  scoring (match=1 / mismatch=0 / linear gap). Swapping in gemmi's scorer would
+//  change which residues are called mutations vs. indels, i.e. it would NOT
+//  reproduce the MMDB baseline this shim exists to preserve. So this stays a
+//  faithful re-creation of MMDB's *specific* simple-scoring global aligner —
+//  the exact form gemmi does not offer — rather than a gratuitous reimplementation.
 // =========================================================================
 class Alignment {
  public:

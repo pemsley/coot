@@ -7,10 +7,55 @@
 #include <gemmi/neighbor.hpp>
 
 #include <cmath>
+#include <map>
+#include <tuple>
 #include <unordered_map>
+#include <vector>
 
 namespace mmdb {
 namespace {
+
+bool seqNeglect(Atom *a, Atom *b, int seqDist);   // defined below
+
+// apply an MMDB 4x4 (rot+trans) to a position (symmetry transform of a contact set)
+gemmi::Position xform(pmat44 T, const gemmi::Position &p) {
+  const mat44 &m = *T;
+  return gemmi::Position(m[0][0]*p.x + m[0][1]*p.y + m[0][2]*p.z + m[0][3],
+                         m[1][0]*p.x + m[1][1]*p.y + m[1][2]*p.z + m[1][3],
+                         m[2][0]*p.x + m[2][1]*p.y + m[2][2]*p.z + m[2][3]);
+}
+
+// Contacts between A1 and a TMatrix-transformed second set (positions tp) via a
+// uniform grid — used when SeekContacts is given a symmetry operator. selfSkip
+// suppresses an atom pairing with its own untransformed self at ~zero distance.
+void contacts_transformed(PPAtom A1, int n1, PPAtom A2, const std::vector<gemmi::Position> &tp,
+                          realtype d1, realtype d2, int seqDist, long group,
+                          bool selfSkip, std::vector<Contact> &found) {
+  double bin = d2 > 0 ? d2 : 1.0, d1s = d1 * d1, d2s = d2 * d2;
+  auto cellof = [&](const gemmi::Position &p) {
+    return std::make_tuple((int)std::floor(p.x / bin), (int)std::floor(p.y / bin),
+                           (int)std::floor(p.z / bin));
+  };
+  std::map<std::tuple<int, int, int>, std::vector<int>> grid;
+  for (int j = 0; j < (int)tp.size(); ++j) grid[cellof(tp[j])].push_back(j);
+  for (int i = 0; i < n1; ++i) {
+    const gemmi::Position &pi = A1[i]->g().pos;
+    int cx, cy, cz; std::tie(cx, cy, cz) = cellof(pi);
+    for (int dx = -1; dx <= 1; ++dx)
+      for (int dy = -1; dy <= 1; ++dy)
+        for (int dz = -1; dz <= 1; ++dz) {
+          auto it = grid.find(std::make_tuple(cx + dx, cy + dy, cz + dz));
+          if (it == grid.end()) continue;
+          for (int j : it->second) {
+            if (selfSkip && A1[i] == A2[j]) continue;
+            double ds = pi.dist_sq(tp[j]);
+            if (ds < d1s || ds > d2s) continue;
+            if (seqNeglect(A1[i], A2[j], seqDist)) continue;
+            found.push_back({i, j, group, std::sqrt(ds)});
+          }
+        }
+  }
+}
 
 bool seqNeglect(Atom *a, Atom *b, int seqDist) {
   if (seqDist <= 0) return false;
@@ -70,8 +115,15 @@ void Manager::SelectNeighbours(int selHnd, SELECTION_TYPE sType, PPAtom atoms,
 
 void Manager::SeekContacts(PPAtom A1, int n1, PPAtom A2, int n2, realtype d1,
     realtype d2, int seqDist, PContact &contact, int &ncontacts, int /*maxlen*/,
-    pmat44 /*TMatrix*/, long group) {
+    pmat44 TMatrix, long group) {
   std::vector<Contact> found;
+  if (TMatrix && n1 > 0 && n2 > 0) {   // contacts against a symmetry-transformed A2
+    std::vector<gemmi::Position> tp(n2);
+    for (int j = 0; j < n2; ++j) tp[j] = xform(TMatrix, A2[j]->g().pos);
+    contacts_transformed(A1, n1, A2, tp, d1, d2, seqDist, group, /*selfSkip=*/false, found);
+    alloc_contacts(found, contact, ncontacts);
+    return;
+  }
   if (n1 > 0 && n2 > 0) {
     Model *mw = A1[0]->res->chain->model;   // NeighborSearch is per-model
     gemmi::NeighborSearch ns(mw->g(), st.cell, d2);
@@ -98,8 +150,15 @@ void Manager::SeekContacts(PPAtom A1, int n1, PPAtom A2, int n2, realtype d1,
 
 void Manager::SeekContacts(PPAtom A, int n, realtype d1, realtype d2,
     int seqDist, PContact &contact, int &ncontacts, int /*maxlen*/,
-    pmat44 /*TMatrix*/, long group) {
+    pmat44 TMatrix, long group) {
   std::vector<Contact> found;
+  if (TMatrix && n > 0) {   // self-contacts against the symmetry-transformed set
+    std::vector<gemmi::Position> tp(n);
+    for (int i = 0; i < n; ++i) tp[i] = xform(TMatrix, A[i]->g().pos);
+    contacts_transformed(A, n, A, tp, d1, d2, seqDist, group, /*selfSkip=*/true, found);
+    alloc_contacts(found, contact, ncontacts);
+    return;
+  }
   if (n > 0) {
     Model *mw = A[0]->res->chain->model;
     gemmi::NeighborSearch ns(mw->g(), st.cell, d2);

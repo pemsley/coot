@@ -15,15 +15,18 @@
 
 namespace mmdb {
 
-// Rebuild the wrapper tree from a freshly loaded gemmi::Structure. We do NOT run
-// gemmi's setup_entities()/subchain splitting — MMDB parity wants the raw chains
-// as they appear in the file.
+// Rebuild the wrapper tree from a freshly loaded gemmi::Structure. gemmi's PDB/
+// mmCIF readers split a single author chain into polymer/ligand/water parts that
+// share the chain name; MMDB keeps one chain per chain ID. For MMDB chain-count
+// parity we merge those parts back (Structure::merge_chain_parts), so Coot sees
+// one mmdb::Chain per chain ID, as it does with real MMDB.
 ERROR_CODE Manager::ReadPDBASCII(cpstr fname) {
   try {
     st = gemmi::read_pdb_file(fname);
   } catch (const std::exception &) {
     return Error_CantOpenFile;
   }
+  st.merge_chain_parts();
   build_from_gemmi();
   return Error_NoError;
 }
@@ -34,6 +37,7 @@ ERROR_CODE Manager::ReadCoorFile(cpstr fname) {
   } catch (const std::exception &) {
     return Error_CantOpenFile;
   }
+  st.merge_chain_parts();
   build_from_gemmi();
   return Error_NoError;
 }
