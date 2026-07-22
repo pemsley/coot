@@ -5,56 +5,56 @@
 #define COOT_USE_MMDB_SHIM 1
 #include <mmdb2/mmdb_manager.h>
 
-#include <gemmi/mmread.hpp>   // read_structure_file (auto-detect)
-#include <gemmi/pdb.hpp>      // read_pdb_file
-#include <gemmi/to_pdb.hpp>   // write_pdb
-#include <gemmi/to_mmcif.hpp> // make_mmcif_document
-#include <gemmi/to_cif.hpp>   // write_cif_to_stream
+#include <gemmi/mmread.hpp>    // read_structure_file (auto-detect)
+#include <gemmi/pdb.hpp>       // read_pdb_file
+#include <gemmi/to_pdb.hpp>    // write_pdb
+#include <gemmi/to_mmcif.hpp>  // make_mmcif_document
+#include <gemmi/to_cif.hpp>    // write_cif_to_stream
 
 #include <fstream>
 
 namespace mmdb {
 
-// Rebuild the wrapper tree from a freshly loaded gemmi::Structure. gemmi's PDB/
-// mmCIF readers split a single author chain into polymer/ligand/water parts that
-// share the chain name; MMDB keeps one chain per chain ID. For MMDB chain-count
-// parity we merge those parts back (Structure::merge_chain_parts), so Coot sees
-// one mmdb::Chain per chain ID, as it does with real MMDB.
-ERROR_CODE Manager::ReadPDBASCII(cpstr fname) {
-  try {
-    st = gemmi::read_pdb_file(fname);
-  } catch (const std::exception &) {
-    return Error_CantOpenFile;
-  }
-  st.merge_chain_parts();
-  build_from_gemmi();
-  return Error_NoError;
-}
+   // Rebuild the wrapper tree from a freshly loaded gemmi::Structure. gemmi's PDB/
+   // mmCIF readers split a single author chain into polymer/ligand/water parts that
+   // share the chain name; MMDB keeps one chain per chain ID. For MMDB chain-count
+   // parity we merge those parts back (Structure::merge_chain_parts), so Coot sees
+   // one mmdb::Chain per chain ID, as it does with real MMDB.
+   ERROR_CODE Manager::ReadPDBASCII(cpstr fname) {
+      try {
+         st = gemmi::read_pdb_file(fname);
+      } catch (const std::exception &) {
+         return Error_CantOpenFile;
+      }
+      st.merge_chain_parts();
+      build_from_gemmi();
+      return Error_NoError;
+   }
 
-ERROR_CODE Manager::ReadCoorFile(cpstr fname) {
-  try {
-    st = gemmi::read_structure_file(fname);
-  } catch (const std::exception &) {
-    return Error_CantOpenFile;
-  }
-  st.merge_chain_parts();
-  build_from_gemmi();
-  return Error_NoError;
-}
+   ERROR_CODE Manager::ReadCoorFile(cpstr fname) {
+      try {
+         st = gemmi::read_structure_file(fname);
+      } catch (const std::exception &) {
+         return Error_CantOpenFile;
+      }
+      st.merge_chain_parts();
+      build_from_gemmi();
+      return Error_NoError;
+   }
 
-ERROR_CODE Manager::WritePDBASCII(cpstr fname) {
-  std::ofstream os(fname);
-  if (!os) return Error_CantOpenFile;
-  gemmi::write_pdb(st, os);
-  return Error_NoError;
-}
+   ERROR_CODE Manager::WritePDBASCII(cpstr fname) {
+      std::ofstream os(fname);
+      if (!os) return Error_CantOpenFile;
+      gemmi::write_pdb(st, os);
+      return Error_NoError;
+   }
 
-ERROR_CODE Manager::WriteCIFASCII(cpstr fname) {
-  std::ofstream os(fname);
-  if (!os) return Error_CantOpenFile;
-  gemmi::cif::Document doc = gemmi::make_mmcif_document(st);
-  gemmi::cif::write_cif_to_stream(os, doc);
-  return Error_NoError;
-}
+   ERROR_CODE Manager::WriteCIFASCII(cpstr fname) {
+      std::ofstream os(fname);
+      if (!os) return Error_CantOpenFile;
+      gemmi::cif::Document doc = gemmi::make_mmcif_document(st);
+      gemmi::cif::write_cif_to_stream(os, doc);
+      return Error_NoError;
+   }
 
-} // namespace mmdb
+}  // namespace mmdb
