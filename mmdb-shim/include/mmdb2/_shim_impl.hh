@@ -11,6 +11,7 @@
 #pragma once
 
 #include <gemmi/model.hpp>
+#include <gemmi/util.hpp>  // trim_str — normalise MMDB-padded names to gemmi's trimmed form
 #include <gemmi/resinfo.hpp>
 #include <gemmi/symmetry.hpp>  // space-group / symmetry operators
 
@@ -527,6 +528,12 @@ namespace mmdb {
 
       Atom() = default;
       explicit Atom(Residue *r);  // construct + add to residue (out-of-line)
+      // MMDB owns atoms via `new`/`delete`: Coot writes `delete atom;` to remove an
+      // atom from the hierarchy (coot-molecule.cc et al.). So atoms are individually
+      // heap-allocated (Manager::newAtom) and tracked in Manager::_atom_allocs; this
+      // destructor detaches from the parent residue + flat lists + selections when a
+      // live atom is deleted, and is a no-op during Manager teardown (_bulk_free).
+      ~Atom();  // out-of-line (needs complete Manager/Residue)
 
       gemmi::Atom &g() const;  // resolve to live gemmi (defined after Manager)
 
@@ -773,17 +780,9 @@ namespace mmdb {
       // Adopt a detached atom (Coot's `new mmdb::Atom` idiom). Copies the atom's
       // local gemmi into this residue's gemmi (detached or bound, via g()) and
       // rebinds the wrapper. Pushes the strncpy'd altLoc buffer back into gemmi.
-      int AddAtom(PAtom atm) {
-         g().atoms.push_back(atm->_local);
-         atm->res = this;
-         atm->mgr = mgr;
-         atm->ai = (int)atoms.size();
-         if (atm->_altloc_buf[0]) g().atoms[atm->ai].altloc = atm->_altloc_buf[0];
-         atoms.push_back(atm);
-         _sync_atom();
-         return 0;
-      }
+      int AddAtom(PAtom atm);  // out-of-line: needs complete Manager (_atom_allocs)
       void DeleteAtom(int pos);
+      void _detach_atom(Atom *a);  // unlink (no free); used by ~Atom on Coot `delete atom`
       void TrimAtomTable() {}  // compact after deletions — shim keeps them in sync
 
       pstr GetResName();
@@ -1097,8 +1096,19 @@ namespace mmdb {
    class Manager {
    public:
       gemmi::Structure st;
-      // stable-address pools
-      std::deque<Atom> atom_pool;
+      // Atoms are heap-allocated individually (not pooled) so Coot's MMDB idiom
+      // `delete atom;` frees exactly one node. The manager owns every atom it hands
+      // out and frees the survivors at teardown; `~Atom` removes itself from this set
+      // when Coot deletes it early. `_bulk_free` tells `~Atom` to skip detach work
+      // while the manager is tearing everything down.
+      std::set<Atom *> _atom_allocs;
+      bool _bulk_free = false;
+      ~Manager() {
+         _bulk_free = true;
+         for (Atom *a : _atom_allocs) delete a;
+         _atom_allocs.clear();
+      }
+      // stable-address pools (Residue/Chain/Model still pooled — see _atom_allocs note)
       std::deque<Residue> res_pool;
       std::deque<Chain> chain_pool;
       std::deque<Model> model_pool;
@@ -1117,8 +1127,10 @@ namespace mmdb {
       void _load_metadata();                            // out-of-line: needs complete gemmi metadata types
 
       Atom *newAtom() {
-         atom_pool.emplace_back();
-         return &atom_pool.back();
+         Atom *a = new Atom();
+         a->mgr = this;
+         _atom_allocs.insert(a);
+         return a;
       }
       Residue *newRes() {
          res_pool.emplace_back();
@@ -1558,7 +1570,16 @@ namespace mmdb {
    inline gemmi::Model &Model::g() const { return mgr ? mgr->st.models[mi] : const_cast<Model *>(this)->_local; }
    inline gemmi::Chain &Chain::g() const { return model ? model->g().chains[ci] : const_cast<Chain *>(this)->_local; }
    inline gemmi::Residue &Residue::g() const { return chain ? chain->g().residues[ri] : const_cast<Residue *>(this)->_local; }
-   inline gemmi::Atom &Atom::g() const { return res ? res->g().atoms[ai] : const_cast<Atom *>(this)->_local; }
+   inline gemmi::Atom &Atom::g() const {
+      if (res && res->chain && res->chain->model && res->chain->model->mgr) {
+         auto &mgr = *res->chain->model->mgr;
+         int mi = res->chain->model->mi;
+         if (mi >= 0 && mi < (int)mgr.st.models.size()) {
+            return res->g().atoms[ai];
+         }
+      }
+      return const_cast<Atom *>(this)->_local;
+   }
 
    // ---- UDData helpers ----
    inline Manager::UDReg *_ud_desc(Manager *mgr, UDR_TYPE myType, int handle, int kind,
@@ -1626,10 +1647,20 @@ namespace mmdb {
 
    // ---- Atom out-of-line ----
    inline pstr Atom::GetAtomName() const {
-      std::snprintf(_name_buf, sizeof(_name_buf), "%s", g().name.c_str());
+      // MMDB returns the PDB-column-aligned 4-char atom name (e.g. " N  ", " CA ",
+      // " CG2"); gemmi stores the trimmed name ("N"/"CA"/"CG2"). Reproduce MMDB
+      // alignment via gemmi's padded_name() (left-pad by element) + right-pad to 4
+      // — the exact rule gemmi's own mmdb.hpp bridge uses. Coot's atom_spec_t names
+      // are these 4-char strings, so returning the trimmed name breaks every lookup.
+      std::string padded = g().padded_name();
+      if (padded.size() < 4) padded.resize(4, ' ');
+      std::snprintf(_name_buf, sizeof(_name_buf), "%s", padded.c_str());
       return _name_buf;
    }
-   inline void Atom::SetAtomName(const AtomName aName) { g().name = aName; }
+   // Coot passes MMDB-aligned 4-char names (" CA "); gemmi stores trimmed names
+   // ("CA") and re-pads on output (GetAtomName / PDB write) — store trimmed so
+   // gemmi's own formatting stays correct.
+   inline void Atom::SetAtomName(const AtomName aName) { g().name = aName ? gemmi::trim_str(aName) : ""; }
    inline pstr Atom::GetElementName() {
       std::snprintf(_elem_buf, sizeof(_elem_buf), "%s", g().element.name());
       return _elem_buf;
@@ -1691,6 +1722,21 @@ namespace mmdb {
       atoms.push_back(aw);
       return aw;
    }
+   // Adopt a Coot-`new`d detached atom (the `new mmdb::Atom; …; res->AddAtom(at)`
+   // idiom). Copy its local gemmi into this residue, rebind the wrapper, and — when
+   // this residue is manager-bound — transfer ownership to the manager so `~Manager`
+   // frees it (MMDB semantics); `~Atom` drops it back out on an early Coot `delete`.
+   inline int Residue::AddAtom(PAtom atm) {
+      g().atoms.push_back(atm->_local);
+      atm->res = this;
+      atm->mgr = mgr;
+      atm->ai = (int)atoms.size();
+      if (atm->_altloc_buf[0]) g().atoms[atm->ai].altloc = atm->_altloc_buf[0];
+      atoms.push_back(atm);
+      if (mgr) mgr->_atom_allocs.insert(atm);
+      _sync_atom();
+      return 0;
+   }
    inline void Residue::DeleteAtom(int pos) {
       if (pos < 0 || pos >= (int)atoms.size()) return;
       g().atoms.erase(g().atoms.begin() + pos);
@@ -1698,6 +1744,44 @@ namespace mmdb {
       atoms[pos]->ai = -1;
       atoms.erase(atoms.begin() + pos);
       for (int k = pos; k < (int)atoms.size(); ++k) atoms[k]->ai = k;
+   }
+
+   // Unlink one atom wrapper from this residue without freeing it: erase from the
+   // wrapper table AND the parallel gemmi atom vector (kept in lockstep), then
+   // reindex trailing atoms. Used by ~Atom when Coot `delete`s a live atom.
+   inline void Residue::_detach_atom(Atom *a) {
+      auto it = std::find(atoms.begin(), atoms.end(), a);
+      if (it == atoms.end()) return;
+      int pos = (int)(it - atoms.begin());
+      if (pos < (int)g().atoms.size()) g().atoms.erase(g().atoms.begin() + pos);
+      atoms.erase(atoms.begin() + pos);
+      for (int k = pos; k < (int)atoms.size(); ++k) atoms[k]->ai = k;
+   }
+
+   // Coot's `delete atom;` removes an atom from the hierarchy. Detach it from the
+   // parent residue, the manager/model flat lists, and any selections so no stale
+   // pointer survives; then drop it from the ownership set. A no-op during teardown
+   // (memory is freed wholesale by ~Manager) and for never-adopted detached atoms.
+   inline Atom::~Atom() {
+      if (!mgr || mgr->_bulk_free) return;
+      Manager *m = mgr;
+      if (res) {
+         Model *mod = (res->chain ? res->chain->model : nullptr);
+         res->_detach_atom(this);
+         if (mod) {
+            auto &ma = mod->all_atoms;
+            ma.erase(std::remove(ma.begin(), ma.end(), this), ma.end());
+         }
+      }
+      auto &aa = m->all_atoms;
+      aa.erase(std::remove(aa.begin(), aa.end(), this), aa.end());
+      for (int h = 1; h <= (int)m->selections.size(); ++h) {
+         if (isInSelection(h)) {
+            auto &sa = m->selections[h - 1].atoms;
+            sa.erase(std::remove(sa.begin(), sa.end(), this), sa.end());
+         }
+      }
+      m->_atom_allocs.erase(this);
    }
 
    // ---- Chain out-of-line ----

@@ -545,7 +545,16 @@ namespace mmdb {
          std::vector<std::string> t = collect_tags();
          if (tagNo < 0 || (size_t)tagNo >= t.size()) return nullptr;
          int rc = 0;
-         return GetString(t[tagNo].c_str(), rc);
+         pstr s = GetString(t[tagNo].c_str(), rc);
+         // The tag is enumerated (exists), but its value may be a CIF null (`?`/`.`),
+         // for which GetString returns null. MMDB's GetField never returns null for an
+         // in-range tag, and callers (e.g. gphl_chem_comp_info) wrap it straight into
+         // std::string — so hand back an empty (non-null) field instead of crashing.
+         if (!s) {
+            sret.emplace_back();
+            s = (pstr)sret.back().c_str();
+         }
+         return s;
       }
       inline pstr Struct::GetString(cpstr TName, int &RC) {
          if (!owner) {
