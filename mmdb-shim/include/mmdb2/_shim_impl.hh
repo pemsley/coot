@@ -497,6 +497,13 @@ namespace mmdb {
       return gemmi::Element(element ? element : "X").vdw_r();
    }
 
+   // Borrowed empty C-string, returned by the delegating accessors when an object
+   // is detached (no parent) — real MMDB yields safe defaults, not a crash.
+   inline pstr mmdb_empty_pstr() {
+      static char e[1] = {0};
+      return e;
+   }
+
    // UDData helpers (defined after Manager); each class forwards with its UDR type.
    int ud_put(Manager *mgr, UDR_TYPE myType, UDStore &s, int handle, int v);
    int ud_put(Manager *mgr, UDR_TYPE myType, UDStore &s, int handle, realtype v);
@@ -1325,14 +1332,17 @@ namespace mmdb {
          Selection &s = selections[selHnd - 1];
          // self-contained comma-list matcher ("*"=any, "!X"=exclude); `detail::` is
          // declared after Manager, so don't depend on it in this inline body.
-         auto inlist = [](cpstr list, const std::string &v) -> bool {
+         auto trimws = [](const std::string &s) -> std::string {
+            size_t a = s.find_first_not_of(' '), b = s.find_last_not_of(' ');
+            return a == std::string::npos ? std::string() : s.substr(a, b - a + 1);
+         };
+         auto inlist = [&trimws](cpstr list, const std::string &v) -> bool {
             if (!list || !*list || std::strcmp(list, "*") == 0) return true;
+            std::string vt = trimws(v);
             for (const char *p = list; *p;) {
                const char *c = std::strchr(p, ',');
                std::string tok(p, c ? (size_t)(c - p) : std::strlen(p));
-               size_t a = tok.find_first_not_of(' '), b = tok.find_last_not_of(' ');
-               tok = (a == std::string::npos) ? std::string() : tok.substr(a, b - a + 1);
-               if (tok == v) return true;
+               if (trimws(tok) == vt) return true;
                if (!c) break;
                p = c + 1;
             }
@@ -1406,7 +1416,7 @@ namespace mmdb {
       void DeleteAllModels() {
          st.models.clear();
          build_from_gemmi();
-      }                                // clears the hierarchy
+      }  // clears the hierarchy
       void DeleteModel(int modelNo) {  // 1-based; erase model + rebuild wrappers
          int i = modelNo - 1;
          if (i >= 0 && i < (int)st.models.size()) {
@@ -1625,10 +1635,10 @@ namespace mmdb {
       return _elem_buf;
    }
    inline void Atom::SetElementName(const Element elName) { g().element = gemmi::Element(elName); }
-   inline pstr Atom::GetChainID() { return res->GetChainID(); }
-   inline int Atom::GetSeqNum() { return res->GetSeqNum(); }
+   inline pstr Atom::GetChainID() { return res ? res->GetChainID() : mmdb_empty_pstr(); }
+   inline int Atom::GetSeqNum() { return res ? res->GetSeqNum() : 0; }
    inline Chain *Atom::GetChain() { return res ? res->GetChain() : nullptr; }
-   inline Model *Atom::GetModel() { return res ? res->chain->model : nullptr; }
+   inline Model *Atom::GetModel() { return (res && res->chain) ? res->chain->model : nullptr; }
    inline pstr Atom::GetLabelCompID() { return res ? res->GetLabelCompID() : nullptr; }
    inline pstr Atom::GetLabelAsymID() { return res ? res->GetLabelAsymID() : nullptr; }
    inline int Atom::GetLabelSeqID() { return res ? res->GetLabelSeqID() : 0; }
@@ -1638,9 +1648,9 @@ namespace mmdb {
    inline bool Atom::isSolvent() { return res ? res->isSolvent() : false; }
    inline bool Atom::isNTerminus() { return res ? res->isNTerminus() : false; }
    inline bool Atom::isCTerminus() { return res ? res->isCTerminus() : false; }
-   inline pstr Atom::GetInsCode() { return res->GetInsCode(); }
-   inline pstr Atom::GetResName() { return res->GetResName(); }
-   inline int Atom::GetModelNum() { return res->GetModelNum(); }
+   inline pstr Atom::GetInsCode() { return res ? res->GetInsCode() : mmdb_empty_pstr(); }
+   inline pstr Atom::GetResName() { return res ? res->GetResName() : mmdb_empty_pstr(); }
+   inline int Atom::GetModelNum() { return res ? res->GetModelNum() : 0; }
    inline int Atom::GetIndex() { return ai; }
    inline void Atom::SetCoordinates(realtype xx, realtype yy, realtype zz,
                                     realtype occ, realtype tF) {
@@ -1661,8 +1671,8 @@ namespace mmdb {
       _inscode_buf[1] = '\0';
       return _inscode_buf;
    }
-   inline pstr Residue::GetChainID() { return chain->GetChainID(); }
-   inline int Residue::GetModelNum() { return chain->model->GetSerNum(); }
+   inline pstr Residue::GetChainID() { return chain ? chain->GetChainID() : mmdb_empty_pstr(); }
+   inline int Residue::GetModelNum() { return (chain && chain->model) ? chain->model->GetSerNum() : 0; }
    inline PAtom Residue::GetAtom(const AtomName aname, const Element elname, const AltLoc aloc) {
       for (Atom *a : atoms) {
          if (a->g().name != aname) continue;
@@ -1977,15 +1987,22 @@ namespace mmdb {
 
    // ---- selection matching ----
    namespace detail {
+      inline std::string trimws(const std::string &s) {
+         size_t a = s.find_first_not_of(' '), b = s.find_last_not_of(' ');
+         return a == std::string::npos ? std::string() : s.substr(a, b - a + 1);
+      }
+      // Whitespace-insensitive membership test. MMDB atom names are stored space-
+      // padded ("_CA_", "_O__"), while CID/selection queries are unpadded ("CA",
+      // "O"); real MMDB matches them regardless of padding, so trim both sides.
+      // Harmless for chain IDs / residue / element names (already unpadded).
       inline bool inList(cpstr list, const std::string &v) {
          if (!list || !*list || std::strcmp(list, "*") == 0) return true;
+         std::string vt = trimws(v);
          const char *p = list;
          while (*p) {
             const char *c = std::strchr(p, ',');
             std::string tok(p, c ? (size_t)(c - p) : std::strlen(p));
-            size_t a = tok.find_first_not_of(' '), b = tok.find_last_not_of(' ');
-            tok = (a == std::string::npos) ? std::string() : tok.substr(a, b - a + 1);
-            if (tok == v) return true;
+            if (trimws(tok) == vt) return true;
             if (!c) break;
             p = c + 1;
          }
