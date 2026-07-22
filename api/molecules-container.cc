@@ -5727,6 +5727,22 @@ molecules_container_t::get_ligand_distortion(int imol, const std::string &ligand
    return std::make_pair(status, d);
 }
 
+//! get cavities - current a testing function - has no return value
+//!
+//! could be a set of simple_mesh_t later
+//!
+std::vector<coot::simple_mesh_t> molecules_container_t::get_cavities(int imol) {
+
+   int status = 0;
+   std::vector<coot::simple_mesh_t> meshes;
+   if (is_valid_model_molecule(imol)) {
+      meshes = molecules[imol].get_cavities(&geom);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return meshes;
+}
+
 
 
 //! set the map saturation

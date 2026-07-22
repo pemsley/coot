@@ -609,6 +609,10 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::get_acedrg_atom_types,
          nb::arg("compound_id"), nb::arg("imol_enc"),
          get_docstring_from_xml("get_acedrg_atom_types").c_str())
+    .def("get_cavities",
+         &molecules_container_t::get_cavities,
+         nb::arg("imol"),
+         get_docstring_from_xml("get_cavities").c_str())
     .def("get_computed_acedrg_atom_types",
          &molecules_container_t::get_computed_acedrg_atom_types,
          nb::arg("compound_id"), nb::arg("imol_enc"),

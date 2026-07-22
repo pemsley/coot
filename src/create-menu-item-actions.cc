@@ -725,8 +725,8 @@ fetch_pdbe_ligand_description_action(G_GNUC_UNUSED GSimpleAction *simple_action,
       //             and that calls get_pdbe_cif_for_comp_id()
       xdg_t xdg;
       std::string file_name = comp_id + ".cif";
-      std::filesystem::path data_home = xdg.get_data_home();
-      std::filesystem::path file_path = data_home / file_name;
+      std::filesystem::path cache_home = xdg.get_cache_home();
+      std::filesystem::path file_path = cache_home / file_name;
       // maybe check that the file exists first?
       std::string url = std::string("https://www.ebi.ac.uk/pdbe/static/files/pdbechem_v2/") + file_name;
       int status = coot_get_url(url, file_path.string());

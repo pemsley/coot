@@ -3937,6 +3937,10 @@ void draw_map_molecule(stereo_eye_t eye,
 
    float gaussian_surface_opacity;
 
+   // returns a coloured Gaussian-surface mesh per (non-trivial) cavity; the caller
+   // displays them (e.g. as generic display objects).
+   std::vector<coot::simple_mesh_t> show_cavities(const coot::protein_geometry *geom_p);
+
 
 };
 
