@@ -746,6 +746,12 @@ namespace mmdb {
 
       Residue() = default;
       explicit Residue(Chain *c);  // construct + add to chain (out-of-line)
+      // MMDB owns residues via `new`/`delete` (Coot writes `delete residue_p;`). Like
+      // ~Atom, this frees the residue's atoms, then DEFERS structural removal: it nulls
+      // this residue's slot in the parent chain (a tombstone) but leaves the gemmi
+      // placeholder residue in place so siblings' `ri` stays valid — _compact_residues
+      // drops both later. No-op during Manager teardown (_bulk_free).
+      ~Residue();  // out-of-line (needs complete Manager/Chain)
 
       // MMDB public char-array fields. Coot reads `residue->name` and writes
       // `strncpy(residue->insCode,..)`. Kept as the interface: synced gemmi->buffer on
@@ -848,10 +854,12 @@ namespace mmdb {
       PResidue GetResidue(int resNo) {
          return (resNo >= 0 && resNo < (int)residues.size()) ? residues[resNo] : nullptr;
       }
-      // find by (seqNum, insCode) — MMDB's 2-arg overload
+      // find by (seqNum, insCode) — MMDB's 2-arg overload. Skips deferred-delete
+      // tombstone (null) slots.
       PResidue GetResidue(int seqNum, const InsCode insCode) {
          char ic = (insCode && insCode[0]) ? insCode[0] : ' ';
          for (Residue *r : residues) {
+            if (!r) continue;  // tombstone
             gemmi::Residue &gr = r->g();
             char ric = gr.seqid.icode ? gr.seqid.icode : ' ';
             if (gr.seqid.num.value == seqNum && ric == ic) return r;
@@ -862,18 +870,23 @@ namespace mmdb {
          t = residues.data();
          n = (int)residues.size();
       }
-      // delete residue at index: erase gemmi + wrapper, reindex the tail
+      // MMDB DeleteResidue is DEFERRED: it frees the residue and leaves a NULL slot
+      // (nResidues unchanged) until TrimResidueTable/FinishStructEdit. `delete residue`
+      // (via ~Residue) does the same. Coot relies on this (e.g. change_chain_id iterates
+      // to the original count while deleting). We keep the gemmi placeholder residue too
+      // so surviving residues' `ri` stays aligned; _compact_residues() drops both later.
       void DeleteResidue(int resNo) {
          if (resNo < 0 || resNo >= (int)residues.size()) return;
-         g().residues.erase(g().residues.begin() + resNo);
-         residues.erase(residues.begin() + resNo);
-         for (int k = resNo; k < (int)residues.size(); ++k) residues[k]->ri = k;
+         if (residues[resNo]) delete residues[resNo];  // ~Residue nulls the slot
       }
-      void TrimResidueTable() {}                          // compact after deletions — shim stays in sync
       void DeleteResidue(int seqNum, const InsCode ic) {  // by (seqNum, insCode)
          PResidue r = GetResidue(seqNum, ic);
-         if (r) DeleteResidue(r->ri);
+         if (r) delete r;  // ~Residue nulls its slot; keeps the gemmi placeholder
       }
+      void TrimResidueTable() { _compact_residues(); }
+      // Drop tombstoned (null) residue slots and their gemmi placeholder residues in
+      // lock-step, then reindex ri. Out-of-line: needs a complete Residue.
+      void _compact_residues();
       pstr GetChainID();
       pstr GetChainID(pstr buf) {
          if (buf) std::snprintf(buf, sizeof(ChainID), "%s", g().name.c_str());
@@ -889,6 +902,7 @@ namespace mmdb {
       // re-indexes ri. sortKey variants beyond ascending-by-number are uncommon in
       // Coot and treated as the default.
       void SortResidues(int /*sortKey*/ = 0) {
+         _compact_residues();  // never sort across deferred-delete tombstones
          int n = (int)residues.size();
          if (n < 2) return;
          std::vector<int> ord(n);
@@ -929,6 +943,7 @@ namespace mmdb {
          return 0;
       }
       int InsResidue(PResidue res, int pos) {
+         _compact_residues();  // don't insert/reindex across tombstones
          if (pos < 0) pos = 0;
          if (pos > (int)residues.size()) pos = (int)residues.size();
          res->_store_id();
@@ -1102,14 +1117,16 @@ namespace mmdb {
       // when Coot deletes it early. `_bulk_free` tells `~Atom` to skip detach work
       // while the manager is tearing everything down.
       std::set<Atom *> _atom_allocs;
+      std::set<Residue *> _res_allocs;  // residues heap-allocated too (Coot `delete residue_p`)
       bool _bulk_free = false;
       ~Manager() {
          _bulk_free = true;
          for (Atom *a : _atom_allocs) delete a;
          _atom_allocs.clear();
+         for (Residue *r : _res_allocs) delete r;
+         _res_allocs.clear();
       }
-      // stable-address pools (Residue/Chain/Model still pooled — see _atom_allocs note)
-      std::deque<Residue> res_pool;
+      // stable-address pools (Chain/Model still pooled — see _atom_allocs / _res_allocs note)
       std::deque<Chain> chain_pool;
       std::deque<Model> model_pool;
       std::vector<Model *> models;
@@ -1133,8 +1150,10 @@ namespace mmdb {
          return a;
       }
       Residue *newRes() {
-         res_pool.emplace_back();
-         return &res_pool.back();
+         Residue *r = new Residue();
+         r->mgr = this;
+         _res_allocs.insert(r);
+         return r;
       }
       Chain *newChain() {
          chain_pool.emplace_back();
@@ -1163,6 +1182,13 @@ namespace mmdb {
       // mutates (so PDBCLEAN_INDEX is implicit); PDBCLEAN_SERIAL renumbers atom serials
       // 1..N in hierarchy order. Other clean flags are not needed by the shim.
       word PDBCleanup(word CleanKey) {
+         // INDEX cleanup compacts deferred residue deletions (drops tombstones) — do it
+         // before renumbering so serials/indices count only surviving atoms.
+         if (CleanKey & PDBCLEAN_INDEX) {
+            for (Model *mw : models)
+               for (Chain *cw : mw->chains) cw->_compact_residues();
+            _rebuild_all_atoms();
+         }
          if (CleanKey & (PDBCLEAN_SERIAL | PDBCLEAN_INDEX)) {
             int s = 1;
             for (Atom *a : all_atoms) a->g().serial = s++;
@@ -1525,7 +1551,29 @@ namespace mmdb {
          SeekContacts(a1, 1, A2, n2, d1, d2, seqDist, contact, ncontacts, maxlen, TMatrix, group);
       }
 
-      int FinishStructEdit() { return 0; }  // no-op: wrappers stay in sync eagerly
+      // Compact deferred residue deletions across the whole hierarchy: MMDB defers
+      // DeleteResidue (tombstone the slot, keep the count) until FinishStructEdit, so
+      // here we drop the null tombstone slots + their gemmi placeholder residues and
+      // rebuild the flat atom lists. (Atoms already stay in sync eagerly.)
+      void _rebuild_all_atoms() {
+         all_atoms.clear();
+         for (Model *mw : models) {
+            mw->all_atoms.clear();
+            for (Chain *cw : mw->chains)
+               for (Residue *rw : cw->residues)
+                  if (rw)
+                     for (Atom *aw : rw->atoms) {
+                        all_atoms.push_back(aw);
+                        mw->all_atoms.push_back(aw);
+                     }
+         }
+      }
+      int FinishStructEdit() {
+         for (Model *mw : models)
+            for (Chain *cw : mw->chains) cw->_compact_residues();
+         _rebuild_all_atoms();
+         return 0;
+      }
 
       // ---- UDData registry ----
       struct UDReg {
@@ -1784,21 +1832,75 @@ namespace mmdb {
       m->_atom_allocs.erase(this);
    }
 
+   // Coot's `delete residue_p;` (and Chain::DeleteResidue) removes a residue. Free its
+   // atoms (MMDB: deleting a residue deletes its atoms), then DEFER the structural
+   // removal: null this residue's slot in the parent chain but keep the gemmi
+   // placeholder so siblings' `ri` stays valid; _compact_residues drops both. A no-op
+   // during Manager teardown (memory is freed wholesale by ~Manager).
+   inline Residue::~Residue() {
+      if (!mgr || mgr->_bulk_free) return;
+      Manager *m = mgr;
+      // free my atoms: null each atom's res first so ~Atom doesn't mutate this->atoms
+      // mid-iteration (~Atom still cleans all_atoms/model/selections/registry).
+      std::vector<Atom *> ats = atoms;
+      atoms.clear();
+      for (Atom *a : ats) {
+         a->res = nullptr;
+         delete a;
+      }
+      // tombstone my slot in the parent chain (keep the gemmi placeholder residue)
+      if (chain) {
+         auto &rv = chain->residues;
+         for (size_t i = 0; i < rv.size(); ++i)
+            if (rv[i] == this) {
+               rv[i] = nullptr;
+               break;
+            }
+      }
+      m->_res_allocs.erase(this);
+   }
+
+   inline void Chain::_compact_residues() {
+      // Drop tombstoned (null) wrapper slots and their gemmi placeholder residues in
+      // lock-step (wrapper[i] <-> g().residues[i]); then reindex ri to the new order.
+      bool any_null = false;
+      for (Residue *r : residues)
+         if (!r) {
+            any_null = true;
+            break;
+         }
+      if (!any_null) return;
+      std::vector<Residue *> keptw;
+      std::vector<gemmi::Residue> keptg;
+      gemmi::Chain &gc = g();
+      keptw.reserve(residues.size());
+      keptg.reserve(gc.residues.size());
+      for (size_t i = 0; i < residues.size(); ++i) {
+         if (residues[i]) {
+            keptw.push_back(residues[i]);
+            if (i < gc.residues.size()) keptg.push_back(std::move(gc.residues[i]));
+         }
+      }
+      residues.swap(keptw);
+      gc.residues.swap(keptg);
+      for (int k = 0; k < (int)residues.size(); ++k) residues[k]->ri = k;
+   }
+
    // ---- Chain out-of-line ----
    inline bool Chain::isAminoacidChain() {
       for (Residue *r : residues)
-         if (r->isAminoacid()) return true;
+         if (r && r->isAminoacid()) return true;
       return false;
    }
    inline bool Chain::isNucleotideChain() {
       for (Residue *r : residues)
-         if (r->isNucleotide()) return true;
+         if (r && r->isNucleotide()) return true;
       return false;
    }
    inline bool Chain::isSolventChain() {
       if (residues.empty()) return false;
       for (Residue *r : residues)
-         if (!r->isSolvent()) return false;
+         if (r && !r->isSolvent()) return false;
       return true;
    }
    inline pstr Chain::GetChainID() {
@@ -1822,6 +1924,7 @@ namespace mmdb {
       return rw;
    }
    inline PResidue Chain::InsResidue(Manager &m, int pos, gemmi::Residue r) {
+      _compact_residues();  // don't insert/reindex across deferred-delete tombstones
       g().residues.insert(g().residues.begin() + pos, std::move(r));
       Residue *rw = m.newRes();
       rw->mgr = &m;
@@ -2389,15 +2492,19 @@ namespace mmdb {
    // peptide-bond distance threshold for backbone C-N (a real bond is ~1.33 A).
    inline bool Residue::isNTerminus() {
       if (!chain || ri <= 0) return true;  // first (or detached) residue
+      Residue *prev = chain->residues[ri - 1];
+      if (!prev) return true;  // previous slot is a deferred-delete tombstone
       const gemmi::Atom *N = g().get_n();
-      const gemmi::Atom *prevC = chain->residues[ri - 1]->g().get_c();
+      const gemmi::Atom *prevC = prev->g().get_c();
       if (!N || !prevC) return true;         // missing backbone -> terminus
       return N->pos.dist(prevC->pos) > 1.7;  // not bonded to previous C
    }
    inline bool Residue::isCTerminus() {
       if (!chain || ri < 0 || ri >= (int)chain->residues.size() - 1) return true;  // last/detached
+      Residue *next = chain->residues[ri + 1];
+      if (!next) return true;  // next slot is a deferred-delete tombstone
       const gemmi::Atom *C = g().get_c();
-      const gemmi::Atom *nextN = chain->residues[ri + 1]->g().get_n();
+      const gemmi::Atom *nextN = next->g().get_n();
       if (!C || !nextN) return true;
       return C->pos.dist(nextN->pos) > 1.7;  // not bonded to next N
    }
