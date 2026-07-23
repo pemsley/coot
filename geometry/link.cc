@@ -493,13 +493,13 @@ coot::protein_geometry::find_glycosidic_linkage_type_by_distance(mmdb::Residue *
    second->GetAtomTable(res_selection_2, i_no_res_atoms_2);
 
    for (int i1=0; i1<i_no_res_atoms_1; i1++) {
-      clipper::Coord_orth a1(res_selection_1[i1]->x,
-			     res_selection_1[i1]->y,
-			     res_selection_1[i1]->z);
+      clipper::Coord_orth a1(res_selection_1[i1]->x(),
+			     res_selection_1[i1]->y(),
+			     res_selection_1[i1]->z());
       for (int i2=0; i2<i_no_res_atoms_2; i2++) {
-	 clipper::Coord_orth a2(res_selection_2[i2]->x,
-				res_selection_2[i2]->y,
-				res_selection_2[i2]->z);
+	 clipper::Coord_orth a2(res_selection_2[i2]->x(),
+				res_selection_2[i2]->y(),
+				res_selection_2[i2]->z());
 	 d = (a1-a2).lengthsq();
 	 if (d < critical_dist*critical_dist) {
 	    close.push_back(coot::glycosidic_distance(res_selection_1[i1],
@@ -540,8 +540,8 @@ coot::protein_geometry::find_glycosidic_linkage_type_by_distance(mmdb::Residue *
 
       float smallest_link_dist = 99999.9;
       for (unsigned int i=0; i<close.size(); i++) {
-	 std::string name_1(close[i].at1->name);
-	 std::string name_2(close[i].at2->name);
+	 std::string name_1(close[i].at1->GetAtomName());
+	 std::string name_2(close[i].at2->GetAtomName());
 
 
 	 // First test the NAG-ASN link (that order - as per dictionary)

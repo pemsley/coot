@@ -134,9 +134,9 @@ CXXCoord<CXXCoord_ftype>CXXCreator::getAtomCoord(int atomNr) {
     if(SelAtom){
         mmdb::Atom* theAtom = SelAtom[atomNr];
         if(theAtom){
-            theCoord.setX(theAtom->x);
-            theCoord.setY(theAtom->y);
-            theCoord.setZ(theAtom->z);
+            theCoord.setX(theAtom->x());
+            theCoord.setY(theAtom->y());
+            theCoord.setZ(theAtom->z());
         }
     }
     return theCoord;
@@ -153,7 +153,7 @@ double CXXCreator::getAtomRadius(int atomNr) {
     if(SelAtom){
         mmdb::Atom* theAtom = SelAtom[atomNr];
         if(theAtom){
-            radius = mmdb::getVdWaalsRadius(theAtom->element);
+            radius = mmdb::getVdWaalsRadius(theAtom->GetElementName());
         }
     }
     return radius;
@@ -170,7 +170,7 @@ string CXXCreator::getAtomElement(int atomNr) {
     }
     mmdb::Atom* theAtom = SelAtom[atomNr];
     
-    theElement = theAtom->element;
+    theElement = theAtom->GetElementName();
     
     return theElement;
 }
@@ -184,7 +184,7 @@ string CXXCreator::getAtomName(int atomNr) {
         throw theException;
     }
     mmdb::Atom* theAtom = SelAtom[atomNr];
-    theName = theAtom->name;
+    theName = theAtom->GetAtomName();
     
     
     return theName;
@@ -217,7 +217,7 @@ double CXXCreator::lookUpCharge(int atomNr) {
     if(SelAtom){
         mmdb::Atom* theAtom = SelAtom[atomNr];
         if(theAtom){
-            theCharge = SelAtom[atomNr]->charge;
+            theCharge = SelAtom[atomNr]->charge();
         }
     }
     return theCharge;

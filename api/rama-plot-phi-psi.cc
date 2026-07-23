@@ -30,11 +30,11 @@ rama_plot::util::get_phi_psi(mmdb::Residue *residue_0, mmdb::Residue *residue_1,
    residue_0->GetAtomTable(res_selection, nResidueAtoms);
    if (nResidueAtoms > 0) {
       for (int j=0; j<nResidueAtoms; j++) {
-         std::string atom_name = res_selection[j]->name;
+         std::string atom_name = res_selection[j]->GetAtomName();
          if (atom_name == " C  ") {
-            c_prev = clipper::Coord_orth(res_selection[j]->x,
-                                         res_selection[j]->y,
-                                         res_selection[j]->z);
+            c_prev = clipper::Coord_orth(res_selection[j]->x(),
+                                         res_selection[j]->y(),
+                                         res_selection[j]->z());
             natom++;
          }
       }
@@ -44,23 +44,23 @@ rama_plot::util::get_phi_psi(mmdb::Residue *residue_0, mmdb::Residue *residue_1,
    residue_1->GetAtomTable(res_selection, nResidueAtoms);
    if (nResidueAtoms > 0) {
       for (int j=0; j<nResidueAtoms; j++) {
-         std::string atom_name = res_selection[j]->name;
+         std::string atom_name = res_selection[j]->GetAtomName();
          if (atom_name == " C  ") {
-            c_this = clipper::Coord_orth(res_selection[j]->x,
-                                         res_selection[j]->y,
-                                         res_selection[j]->z);
+            c_this = clipper::Coord_orth(res_selection[j]->x(),
+                                         res_selection[j]->y(),
+                                         res_selection[j]->z());
             natom++;
          }
          if (atom_name == " CA ") {
-            ca_this = clipper::Coord_orth(res_selection[j]->x,
-                                          res_selection[j]->y,
-                                          res_selection[j]->z);
+            ca_this = clipper::Coord_orth(res_selection[j]->x(),
+                                          res_selection[j]->y(),
+                                          res_selection[j]->z());
             natom++;
          }
          if (atom_name == " N  ") {
-            n_this = clipper::Coord_orth(res_selection[j]->x,
-                                         res_selection[j]->y,
-                                         res_selection[j]->z);
+            n_this = clipper::Coord_orth(res_selection[j]->x(),
+                                         res_selection[j]->y(),
+                                         res_selection[j]->z());
             natom++;
          }
       }
@@ -71,11 +71,11 @@ rama_plot::util::get_phi_psi(mmdb::Residue *residue_0, mmdb::Residue *residue_1,
       is_pre_pro = 1;
    if (nResidueAtoms > 0) {
       for (int j=0; j<nResidueAtoms; j++) {
-         std::string atom_name = res_selection[j]->name;
+         std::string atom_name = res_selection[j]->GetAtomName();
          if (atom_name == " N  ") {
-            n_next = clipper::Coord_orth(res_selection[j]->x,
-                                         res_selection[j]->y,
-                                         res_selection[j]->z);
+            n_next = clipper::Coord_orth(res_selection[j]->x(),
+                                         res_selection[j]->y(),
+                                         res_selection[j]->z());
             natom++;
          }
       }
@@ -91,13 +91,13 @@ rama_plot::util::get_phi_psi(mmdb::Residue *residue_0, mmdb::Residue *residue_1,
       label += " ";
       label += segid;
       label += " ";
-      label += residue_1->name;
+      label += residue_1->GetResName();
 
       double phi = clipper::Util::rad2d(ca_this.torsion(c_prev, n_this, ca_this, c_this));
       double psi = clipper::Util::rad2d(ca_this.torsion(n_this, ca_this, c_this, n_next));
 
       phi_psi = rama_plot::phi_psi_t(phi, psi,
-                                     residue_1->name,
+                                     residue_1->GetResName(),
                                      label.c_str(),
                                      ires,
                                      inscode,

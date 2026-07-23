@@ -122,7 +122,7 @@ coot::lsq_improve::CAs_to_model(mmdb::Manager *mol_in, int model_number) {
                   mmdb::Residue *residue_new = new mmdb::Residue(chain_new);
                   chain_new->AddResidue(residue_new);
                   residue_new->SetResName(residue_p->GetResName());
-                  residue_new->seqNum = residue_p->GetSeqNum();
+                  residue_new->GetSeqNum() = residue_p->GetSeqNum();
                   strncpy(residue_new->insCode, residue_p->GetInsCode(), 3);
                   mmdb::Atom *atom_new = new mmdb::Atom(residue_new);
                   residue_new->AddAtom(atom_new);

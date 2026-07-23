@@ -246,7 +246,7 @@ coot::db_strands::trim_to_mainchain(mmdb::Manager *mol) const {
 	 
 	 for (int iat=0; iat<n_atoms; iat++) {
 	    at = residue_p->GetAtom(iat);
-	    std::string ele = at->element;
+	    std::string ele = at->GetElementName();
 	    if (!is_main_chain_or_cb_p(at)
 		|| ele == " H" || ele == " D") {
 	       residue_p->DeleteAtom(iat);
@@ -282,17 +282,17 @@ coot::db_strands::orient_strand_on_z(int SelHnd, mmdb::Manager *mol) const {
       residue_p->GetAtomTable(atoms, n_atoms);
       for (int iat=0; iat<n_atoms; iat++) {
 	 mmdb::Atom *at = atoms[iat];
-	 std::string atom_name(at->name);
+	 std::string atom_name(at->GetAtomName());
 	 if (atom_name == " N  ") {
-	    clipper::Coord_orth pt(at->x, at->y, at->z);
+	    clipper::Coord_orth pt(at->x(), at->y(), at->z());
 	    atom_vec.push_back(pt);
 	 } 
 	 if (atom_name == " CA ") {
-	    clipper::Coord_orth pt(at->x, at->y, at->z);
+	    clipper::Coord_orth pt(at->x(), at->y(), at->z());
 	    atom_vec.push_back(pt);
 	 }
 	 if (atom_name == " C  ") {
-	    clipper::Coord_orth pt(at->x, at->y, at->z);
+	    clipper::Coord_orth pt(at->x(), at->y(), at->z());
 	    atom_vec.push_back(pt);
 	 } 
       } 
@@ -325,11 +325,11 @@ coot::db_strands::apply_rtop_to_strand(int SelHnd, mmdb::Manager *mol,
       residue_p->GetAtomTable(atoms, n_atoms);
       for (int iat=0; iat<n_atoms; iat++) {
 	 mmdb::Atom *at = atoms[iat];
-	 clipper::Coord_orth pt(at->x, at->y, at->z);
+	 clipper::Coord_orth pt(at->x(), at->y(), at->z());
 	 clipper::Coord_orth n = pt.transform(rtop);
-	 at->x = n.x();
-	 at->y = n.y();
-	 at->z = n.z();
+	 at->x() = n.x();
+	 at->y() = n.y();
+	 at->z() = n.z();
       }
    }
 }

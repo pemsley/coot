@@ -112,10 +112,10 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
                         for (int iat=0; iat<n_residue_atoms; iat++) {
                            mmdb::Atom *at = residue_atoms[iat];
                            if (! at->isTer()) {
-                              clipper::Coord_orth posc(at->x, at->y, at->z);
+                              clipper::Coord_orth posc(at->x(), at->y(), at->z());
                               double dd = (posc - pt_ref).lengthsq();
                               if (dd < dist_crit_sq) {
-                                 RDGeom::Point3D pos(at->x, at->y, at->z);
+                                 RDGeom::Point3D pos(at->x(), at->y(), at->z());
                                  coot::residue_spec_t res_spec(residue_p);
                                  water_info_t wi(imol, res_spec, pos);
                                  waters.push_back(wi);
@@ -615,9 +615,9 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
          for (int iat=0; iat<n_residue_atoms; iat++) {
             mmdb::Atom *at = residue_atoms[iat];
             if (! at->isTer()) {
-               float delta_x = at->x - fi.pos.x;
-               float delta_y = at->y - fi.pos.y;
-               float delta_z = at->z - fi.pos.z;
+               float delta_x = at->x() - fi.pos.x;
+               float delta_y = at->y() - fi.pos.y;
+               float delta_z = at->z() - fi.pos.z;
                float dd = delta_x * delta_x + delta_y * delta_y + delta_z * delta_z;
                if (dd < dist_crit * dist_crit)
                   return true;

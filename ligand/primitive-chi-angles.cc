@@ -44,7 +44,7 @@ coot::primitive_chi_angles::get_chi_angles() {
 
    bool residue_has_alt_confs = 0;
    for (int i=0; i<n_residue_atoms; i++) {
-      std::string alt_conf(residue_atoms[i]->altLoc);
+      std::string alt_conf(residue_atoms[i]->altLoc());
       if (alt_conf != "") {
          residue_has_alt_confs = 1;
          break;
@@ -275,16 +275,16 @@ coot::primitive_chi_angles::get_atom_index_quads(const std::vector<coot::atom_na
    for (unsigned int iquad=0; iquad<atom_name_quads_in.size(); iquad++) {
       int ifound = 0;
       for (int i1=0; i1<nresatoms; i1++) {
-         std::string atom_name = atoms[i1]->name;
+         std::string atom_name = atoms[i1]->GetAtomName();
          if (atom_name == atom_name_quads_in[iquad].atom_name(0)) {
             for (int i2=0; i2<nresatoms; i2++) {
-               std::string atom_name = atoms[i2]->name;
+               std::string atom_name = atoms[i2]->GetAtomName();
                if (atom_name == atom_name_quads_in[iquad].atom_name(1)) {
                   for (int i3=0; i3<nresatoms; i3++) {
-                     std::string atom_name = atoms[i3]->name;
+                     std::string atom_name = atoms[i3]->GetAtomName();
                      if (atom_name == atom_name_quads_in[iquad].atom_name(2)) {
                         for (int i4=0; i4<nresatoms; i4++) {
-                           std::string atom_name = atoms[i4]->name;
+                           std::string atom_name = atoms[i4]->GetAtomName();
                            if (atom_name == atom_name_quads_in[iquad].atom_name(3)) {
                               v.push_back(coot::atom_index_quad(i1, i2, i3, i4));
                            }
@@ -357,20 +357,20 @@ coot::primitive_chi_angles::get_quads_using_altconfs(const std::vector<coot::ato
       std::vector<coot::atom_index_quad> v;
       for (unsigned int iquad=0; iquad<atom_name_quads.size(); iquad++) {
          for (int i1=0; i1<n_residue_atoms; i1++) {
-            std::string atom_name = atoms[i1]->name;
-            std::string alt_conf_1 = atoms[i1]->altLoc;
+            std::string atom_name = atoms[i1]->GetAtomName();
+            std::string alt_conf_1 = atoms[i1]->altLoc();
             if (atom_name == atom_name_quads[iquad].atom_name(0)) {
                for (int i2=0; i2<n_residue_atoms; i2++) {
-                  std::string atom_name = atoms[i2]->name;
-                  std::string alt_conf_2 = atoms[i2]->altLoc;
+                  std::string atom_name = atoms[i2]->GetAtomName();
+                  std::string alt_conf_2 = atoms[i2]->altLoc();
                   if (atom_name == atom_name_quads[iquad].atom_name(1)) {
                      for (int i3=0; i3<n_residue_atoms; i3++) {
-                        std::string atom_name = atoms[i3]->name;
-                        std::string alt_conf_3 = atoms[i3]->altLoc;
+                        std::string atom_name = atoms[i3]->GetAtomName();
+                        std::string alt_conf_3 = atoms[i3]->altLoc();
                         if (atom_name == atom_name_quads[iquad].atom_name(2)) {
                            for (int i4=0; i4<n_residue_atoms; i4++) {
-                              std::string atom_name = atoms[i4]->name;
-                              std::string alt_conf_4 = atoms[i4]->altLoc;
+                              std::string atom_name = atoms[i4]->GetAtomName();
+                              std::string alt_conf_4 = atoms[i4]->altLoc();
                               if (atom_name == atom_name_quads[iquad].atom_name(3)) {
                                  if (alt_conf_4 == residue_alt_confs[i_alt_conf] || alt_conf_4 == "") {
                                     if (alt_conf_3 == residue_alt_confs[i_alt_conf] || alt_conf_3 == "") {
@@ -418,5 +418,5 @@ coot::primitive_chi_angles::get_quads_using_altconfs(const std::vector<coot::ato
 
 clipper::Coord_orth
 coot::primitive_chi_angles::atom_to_co(mmdb::Atom *at) const {
-   return clipper::Coord_orth(at->x, at->y, at->z);
+   return clipper::Coord_orth(at->x(), at->y(), at->z());
 }

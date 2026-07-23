@@ -296,8 +296,8 @@ int test_change_rotamer(molecules_container_t &molecules_container) {
    mmdb::Residue *res_new = molecules_container.get_residue(imol_molecule, resSpec);
    mmdb::Atom *atom_new = res_new->GetAtom(5);
 
-   std::cout << "atom_fragment pos: " << atom_fragment->x << " " << atom_fragment->y << " " << atom_fragment->z << std::endl;
-   std::cout << "atom_new pos:      " << atom_new->x      << " " << atom_new->y      << " " << atom_new->z      << std::endl;
+   std::cout << "atom_fragment pos: " << atom_fragment->x() << " " << atom_fragment->y() << " " << atom_fragment->z() << std::endl;
+   std::cout << "atom_new pos:      " << atom_new->x()      << " " << atom_new->y()      << " " << atom_new->z()      << std::endl;
 
    // This fails...
    // expect(atom_new.x).toBe(atom_fragment.x)

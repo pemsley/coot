@@ -168,7 +168,7 @@ spin_score(unsigned int idx_1, unsigned int idx_2, mmdb::Atom **atom_selection,
 
    auto index_to_pos = [atom_selection] (unsigned int idx) {
                           mmdb::Atom *at = atom_selection[idx];
-                          return clipper::Coord_orth(at->x, at->y, at->z);
+                          return clipper::Coord_orth(at->x(), at->y(), at->z());
                        };
 
    float inv_rmsd = 1.0f/map_rmsd;
@@ -463,8 +463,8 @@ spin_score(unsigned int idx_1, unsigned int idx_2, mmdb::Atom **atom_selection,
    bool using_test_model = false;
    // for testing
    if (using_test_model) {
-      std::string atom_name_1(at_1->name);
-      std::string atom_name_2(at_2->name);
+      std::string atom_name_1(at_1->GetAtomName());
+      std::string atom_name_2(at_2->GetAtomName());
       if (atom_name_1 == " CA ") {
          if (atom_name_2 == " CA ") {
             if ((at_1->GetSeqNum() + 1) == at_2->GetSeqNum())
@@ -563,7 +563,7 @@ make_spin_scored_pairs(const std::vector<std::pair<unsigned int, unsigned int> >
 
       auto index_to_pos = [atom_selection] (unsigned int idx) {
                              mmdb::Atom *at = atom_selection[idx];
-                             return clipper::Coord_orth(at->x, at->y, at->z);
+                             return clipper::Coord_orth(at->x(), at->y(), at->z());
                           };
       auto index_to_name = [atom_selection] (unsigned int idx) {
                               mmdb::Atom *at = atom_selection[idx];
@@ -737,8 +737,8 @@ find_chains_that_overlap_other_chains(mmdb::Manager *mol, float big_overlap_frac
       res_no_delta_stats_t() : sum(0), sum_sq(0), count(0) {}
       void add(mmdb::Atom *at_1, mmdb::Atom *at_2) {
          // It is usually the case that the residue numbers are the same
-         int res_no_1 = at_1->residue->GetSeqNum();
-         int res_no_2 = at_2->residue->GetSeqNum();
+         int res_no_1 = at_1->GetResidue()->GetSeqNum();
+         int res_no_2 = at_2->GetResidue()->GetSeqNum();
          int d = abs(res_no_2-res_no_1);
          // std::cout << "debug:: add() " << res_no_1 << " " << res_no_2 << " d " << d << std::endl;
          sum += d;
@@ -1325,7 +1325,7 @@ make_fragments(std::vector<std::pair<unsigned int, coot::scored_node_t> > &score
 
                                 auto index_to_pos = [atom_selection] (unsigned int idx) {
                                                        mmdb::Atom *at = atom_selection[idx];
-                                                       return clipper::Coord_orth(at->x, at->y, at->z);
+                                                       return clipper::Coord_orth(at->x(), at->y(), at->z());
                                                     };
 
                                 auto distance_check_min = [atom_selection] (int atom_index_1, int atom_index_2, double dist_min) {
@@ -1867,7 +1867,7 @@ make_fragments(std::vector<std::pair<unsigned int, coot::scored_node_t> > &score
 
                          auto index_to_pos = [atom_selection] (unsigned int idx) {
                                                 mmdb::Atom *at = atom_selection[idx];
-                                                return clipper::Coord_orth(at->x, at->y, at->z);
+                                                return clipper::Coord_orth(at->x(), at->y(), at->z());
                                              };
                          std::ofstream f("debug-trace.points");
                          if (f) {
@@ -2066,7 +2066,7 @@ make_fragments(std::vector<std::pair<unsigned int, coot::scored_node_t> > &score
 
                                 auto index_to_pos = [atom_selection] (int idx) {
                                                        mmdb::Atom *at = atom_selection[idx];
-                                                       return clipper::Coord_orth(at->x, at->y, at->z);
+                                                       return clipper::Coord_orth(at->x(), at->y(), at->z());
                                                     };
 
                                 unsigned int n_top_traces = 800;
@@ -2373,9 +2373,9 @@ globularize(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, const clipper:
                         }
                      }
                      if (updated) {
-                        at->x = pos_best.x();
-                        at->y = pos_best.y();
-                        at->z = pos_best.z();
+                        at->x() = pos_best.x();
+                        at->y() = pos_best.y();
+                        at->z() = pos_best.z();
                      }
                   }
                }
@@ -2583,9 +2583,9 @@ bring_together_consecutive_C_and_N_by_symmetry_transformation(mmdb::Manager *mol
                                                    clipper::Coord_orth p(cfs.coord_orth(cell));
                                                    if (false)
                                                       std::cout << "Moving (symm) " << coot::atom_spec_t(at_res) << " from "
-                                                                << at_res->x << " " << at_res->y << " " << at_res->z << " to "
+                                                                << at_res->x() << " " << at_res->y() << " " << at_res->z() << " to "
                                                                 << p.x() << " " << p.y() << " " << p.z() << std::endl;
-                                                   at_res->x = p.x(); at_res->y = p.y(); at_res->z = p.z(); 
+                                                   at_res->x() = p.x(); at_res->y() = p.y(); at_res->z() = p.z(); 
                                                 }
                                              }
                                           }
@@ -2720,7 +2720,7 @@ find_connected_fragments(const coot::minimol::molecule &flood_mol,
       for (int i=0; i<n_selected_atoms; i++) {
          mmdb::Atom *at = atom_selection[i];
          if (! at->isTer()) {
-            f << i << " " << at->x << " " << at->y << " " << at->z << "\n";
+            f << i << " " << at->x() << " " << at->y() << " " << at->z() << "\n";
          }
       }
       f.close();
@@ -3019,7 +3019,7 @@ apply_sequence_to_fragments(mmdb::Manager *mol_in, const clipper::Xmap<float> &x
                            n_res = chain_p->GetNumberOfResidues();
                            for (int ires=0; ires<n_res; ires++) {
                               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-                              residue_p->seqNum = seq_pos + ires + 1;
+                              residue_p->GetSeqNum() = seq_pos + ires + 1;
                               // std::cout << "new seqnum for residue with index " << ires << " " << residue_p->seqNum << std::endl;
                            }
                            mol_in->FinishStructEdit();
@@ -3566,9 +3566,9 @@ void res_tracer_proc(const clipper::Xmap<float> &xmap, float xmap_rmsd, const co
                   std::string atom_name_to(at_to->GetAtomName());
                   if (atom_name_to == atom_name_from) {
                      std::cout << "moving atom " << coot::atom_spec_t(at_to) << std::endl;
-                     at_to->x = at->x;
-                     at_to->y = at->y;
-                     at_to->z = at->z;
+                     at_to->x() = at->x();
+                     at_to->y() = at->y();
+                     at_to->z() = at->z();
                      break;
                   }
                }
@@ -4080,9 +4080,9 @@ void res_tracer_proc(const clipper::Xmap<float> &xmap, float xmap_rmsd, const co
                                               float d_spun = score_atom_positions(atom_positions, pos_CA_this, pos_CA_next, xmap);
 
                                               if (d_spun > d_current) {
-                                                 at_C_this->x = pos_C_this.x(); at_C_this->y = pos_C_this.y(); at_C_this->z = pos_C_this.z();
-                                                 at_O_this->x = pos_O_this.x(); at_O_this->y = pos_O_this.y(); at_O_this->z = pos_O_this.z();
-                                                 at_N_next->x = pos_N_next.x(); at_N_next->y = pos_N_next.y(); at_N_next->z = pos_N_next.z();
+                                                 at_C_this->x() = pos_C_this.x(); at_C_this->y() = pos_C_this.y(); at_C_this->z() = pos_C_this.z();
+                                                 at_O_this->x() = pos_O_this.x(); at_O_this->y() = pos_O_this.y(); at_O_this->z() = pos_O_this.z();
+                                                 at_N_next->x() = pos_N_next.x(); at_N_next->y() = pos_N_next.y(); at_N_next->z() = pos_N_next.z();
                                               }
                                            }
                                         }
@@ -4456,11 +4456,11 @@ void res_tracer_learn(const clipper::Xmap<float> &xmap, float weight, float xmap
       for (int i=0; i<reference_mol_n_atoms; i++) {
          mmdb::Atom *ref_mol_at = reference_mol_atoms[i];
          if (! ref_mol_at->isTer()) {
-            float dx = ref_mol_at->x - at->x;
+            float dx = ref_mol_at->x() - at->x();
             if (fabsf(dx) < dist_crit) {
-               float dy = ref_mol_at->y - at->y;
+               float dy = ref_mol_at->y() - at->y();
                if (fabsf(dy) < dist_crit) {
-                  float dz = ref_mol_at->z - at->z;
+                  float dz = ref_mol_at->z() - at->z();
                   if (fabsf(dz) < dist_crit) {
                      float dd = dx * dx + dy * dy + dz * dz;
                      float d = sqrtf(dd);

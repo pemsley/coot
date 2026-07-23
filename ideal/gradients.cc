@@ -335,7 +335,7 @@ void coot::my_df_bonds(const gsl_vector *v,
 		  idx = 3*restraints->at(i).atom_index_1;
 		  std::cout << "BOND Fixed atom[0] "
 			    << restraints->get_atom((*restraints)[i].atom_index_1)->GetSeqNum() << " " 
-			    << restraints->get_atom((*restraints)[i].atom_index_1)->name << " " 
+			    << restraints->get_atom((*restraints)[i].atom_index_1)->GetAtomName() << " " 
 			    << ", Not adding " << x_k_contrib << " "
 			    << y_k_contrib << " "
 			    << z_k_contrib << " to " << gsl_vector_get(df, idx) << " "
@@ -356,7 +356,7 @@ void coot::my_df_bonds(const gsl_vector *v,
 		  idx = 3*restraints->at(i).atom_index_2;
 		  std::cout << "BOND Fixed atom[1] "
 			    << restraints->get_atom((*restraints)[i].atom_index_2)->GetSeqNum() << " " 
-			    << restraints->get_atom((*restraints)[i].atom_index_2)->name << " " 
+			    << restraints->get_atom((*restraints)[i].atom_index_2)->GetAtomName() << " " 
 			    << ", Not adding " << x_k_contrib << " "
 			    << y_k_contrib << " "
 			    << z_k_contrib << " to "

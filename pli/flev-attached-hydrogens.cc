@@ -161,7 +161,7 @@ pli::flev_attached_hydrogens_t::cannonballs(mmdb::Residue *ligand_residue_3d,
    if (n_contacts > 0) {
       for (int i=0; i< n_contacts; i++) {
 	 mmdb::Atom *at = non_hydrogen_selection[pscontact[i].id2];
-	 std::string atom_name_bonded_to_H(at->name);
+	 std::string atom_name_bonded_to_H(at->GetAtomName());
 
 	 bool found_torsion_for_this_H = 0;
 
@@ -227,7 +227,7 @@ pli::flev_attached_hydrogens_t::distances_to_protein_using_correct_Hs(mmdb::Resi
       mmdb::Atom *lig_at = NULL;
       mmdb::Atom *H_at = NULL;
       for (int iat=0; iat<n_ligand_atoms; iat++) {
-         std::string atom_name(residue_atoms[iat]->name);
+         std::string atom_name(residue_atoms[iat]->GetAtomName());
          if (atom_name == atoms_with_riding_hydrogens[irh].first)
             lig_at = residue_atoms[iat];
          if (atom_name == atoms_with_riding_hydrogens[irh].second)
@@ -237,8 +237,8 @@ pli::flev_attached_hydrogens_t::distances_to_protein_using_correct_Hs(mmdb::Resi
       }
 
       if (lig_at && H_at) {
-         clipper::Coord_orth H_pt(H_at->x, H_at->y, H_at->z);
-         clipper::Coord_orth lig_atom_pt(lig_at->x, lig_at->y, lig_at->z);
+         clipper::Coord_orth H_pt(H_at->x(), H_at->y(), H_at->z());
+         clipper::Coord_orth lig_atom_pt(lig_at->x(), lig_at->y(), lig_at->z());
 
          std::vector<mmdb::Atom *> atoms = close_atoms(H_pt, env_residues);
          coot::bash_distance_t bash = find_bash_distance(lig_atom_pt, H_pt, atoms);
@@ -258,7 +258,7 @@ pli::flev_attached_hydrogens_t::distances_to_protein_using_correct_Hs(mmdb::Resi
       mmdb::Atom *lig_at = NULL;
       mmdb::Atom *H_at = NULL;
       for (int iat=0; iat<n_ligand_atoms; iat++) {
-         std::string atom_name(residue_atoms[iat]->name);
+         std::string atom_name(residue_atoms[iat]->GetAtomName());
          if (atom_name == atoms_with_rotating_hydrogens[irh].first)
             lig_at = residue_atoms[iat];
          if (atom_name == atoms_with_rotating_hydrogens[irh].second)
@@ -267,8 +267,8 @@ pli::flev_attached_hydrogens_t::distances_to_protein_using_correct_Hs(mmdb::Resi
             break;
       }
       if (lig_at && H_at) {
-         clipper::Coord_orth H_pt(H_at->x, H_at->y, H_at->z);
-         clipper::Coord_orth lig_atom_pt(lig_at->x, lig_at->y, lig_at->z);
+         clipper::Coord_orth H_pt(H_at->x(), H_at->y(), H_at->z());
+         clipper::Coord_orth lig_atom_pt(lig_at->x(), lig_at->y(), lig_at->z());
 
          std::vector<mmdb::Atom *> atoms = close_atoms(H_pt, env_residues);
 
@@ -424,7 +424,7 @@ pli::flev_attached_hydrogens_t::find_bash_distance(const clipper::Coord_orth &li
    //
    std::vector<double> radius(close_residue_atoms.size());
    for (unsigned int iat=0; iat<close_residue_atoms.size(); iat++) {
-      std::string ele(close_residue_atoms[iat]->element);
+      std::string ele(close_residue_atoms[iat]->GetElementName());
       radius[iat] = get_radius(ele);
    }
 
@@ -433,9 +433,9 @@ pli::flev_attached_hydrogens_t::find_bash_distance(const clipper::Coord_orth &li
    std::vector<clipper::Coord_orth> atom_positions(close_residue_atoms.size());
    // likewise set the atom positions so that we don't have to keep doing it.
    for (unsigned int i=0; i<close_residue_atoms.size(); i++)
-      atom_positions[i] = clipper::Coord_orth(close_residue_atoms[i]->x,
-                                              close_residue_atoms[i]->y,
-                                              close_residue_atoms[i]->z);
+      atom_positions[i] = clipper::Coord_orth(close_residue_atoms[i]->x(),
+                                              close_residue_atoms[i]->y(),
+                                              close_residue_atoms[i]->z());
 
    for (double slide=0; slide<=max_dist; slide+=0.04) {
       clipper::Coord_orth test_pt = ligand_atom_pos + slide * h_vector;
@@ -486,7 +486,7 @@ pli::flev_attached_hydrogens_t::close_atoms(const clipper::Coord_orth &pt,
       int n_residue_atoms;
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
       for (int iat=0; iat<n_residue_atoms; iat++) {
-         clipper::Coord_orth atom_pos(residue_atoms[iat]->x, residue_atoms[iat]->y, residue_atoms[iat]->z);
+         clipper::Coord_orth atom_pos(residue_atoms[iat]->x(), residue_atoms[iat]->y(), residue_atoms[iat]->z());
          double d_squared = (pt - atom_pos).lengthsq();
          if (d_squared < dist_crit_squared) {
             std::string rn(residue_atoms[iat]->GetResName());
@@ -524,7 +524,7 @@ pli::flev_attached_hydrogens_t::get_atom_pos_bonded_to_atom(mmdb::Atom *lig_at, 
                                                             mmdb::Residue *ligand_residue,
                                                             const coot::protein_geometry &geom) const {
    int imol = 0; // FIXME needs checking
-   std::string res_name(lig_at->residue->GetResName());
+   std::string res_name(lig_at->GetResidue()->GetResName());
    std::pair<bool, coot::dictionary_residue_restraints_t> p =
       geom.get_monomer_restraints_at_least_minimal(res_name, imol);
 
@@ -536,8 +536,8 @@ pli::flev_attached_hydrogens_t::get_atom_pos_bonded_to_atom(mmdb::Atom *lig_at, 
    } else {
       mmdb::Atom *bonded_atom = NULL;
       std::string bonded_atom_name;
-      std::string lig_at_name = lig_at->name;
-      std::string H_at_name = H_at->name;
+      std::string lig_at_name = lig_at->GetAtomName();
+      std::string H_at_name = H_at->GetAtomName();
       for (unsigned int ibond=0; ibond<p.second.bond_restraint.size(); ibond++) {
          std::string atom_name_1 = p.second.bond_restraint[ibond].atom_id_1_4c();
          std::string atom_name_2 = p.second.bond_restraint[ibond].atom_id_2_4c();
@@ -559,7 +559,7 @@ pli::flev_attached_hydrogens_t::get_atom_pos_bonded_to_atom(mmdb::Atom *lig_at, 
          int n_residue_atoms;
          ligand_residue->GetAtomTable(residue_atoms, n_residue_atoms);
          for (int iat=0; iat<n_residue_atoms ; iat++) {
-            std::string atom_name = residue_atoms[iat]->name;
+            std::string atom_name = residue_atoms[iat]->GetAtomName();
             if (atom_name == bonded_atom_name) {
                bonded_atom = residue_atoms[iat];
                break;
@@ -575,7 +575,7 @@ pli::flev_attached_hydrogens_t::get_atom_pos_bonded_to_atom(mmdb::Atom *lig_at, 
          throw std::runtime_error(m);
       } else {
          // good
-         return clipper::Coord_orth(bonded_atom->x, bonded_atom->y, bonded_atom->z);
+         return clipper::Coord_orth(bonded_atom->x(), bonded_atom->y(), bonded_atom->z());
       }
    }
 
@@ -602,7 +602,7 @@ pli::flev_attached_hydrogens_t::named_hydrogens_to_reference_ligand(mmdb::Residu
 	 int n_residue_atoms;
 	 ligand_residue_3d->GetAtomTable(residue_atoms, n_residue_atoms);
 	 for (int iat=0; iat<n_residue_atoms; iat++) { 
-	    std::string atom_name(residue_atoms[iat]->name);
+	    std::string atom_name(residue_atoms[iat]->GetAtomName());
 	    if (atom_name == named_torsions[i].base_atom_name) {
 	       atom_base = residue_atoms[iat];
 	    }
@@ -615,9 +615,9 @@ pli::flev_attached_hydrogens_t::named_hydrogens_to_reference_ligand(mmdb::Residu
 	 }
 
 	 if (atom_base && atom_2 && atom_bonded_to_H) {
-	    clipper::Coord_orth pos_atom_base(atom_base->x, atom_base->y, atom_base->z);
-	    clipper::Coord_orth pos_atom_2(atom_2->x, atom_2->y, atom_2->z);
-	    clipper::Coord_orth pos_atom_bonded_to_H(atom_bonded_to_H->x, atom_bonded_to_H->y, atom_bonded_to_H->z);
+	    clipper::Coord_orth pos_atom_base(atom_base->x(), atom_base->y(), atom_base->z());
+	    clipper::Coord_orth pos_atom_2(atom_2->x(), atom_2->y(), atom_2->z());
+	    clipper::Coord_orth pos_atom_bonded_to_H(atom_bonded_to_H->x(), atom_bonded_to_H->y(), atom_bonded_to_H->z());
 
 	    clipper::Coord_orth new_pt(pos_atom_base, pos_atom_2, pos_atom_bonded_to_H,
 				       1.0, // unit vector
@@ -665,7 +665,7 @@ pli::flev_attached_hydrogens_t::hydrogen_pos(const pli::named_torsion_t &named_t
    int n_residue_atoms;
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
    for (int i=0; i<n_residue_atoms; i++) {
-      std::string atom_name(residue_atoms[i]->name);
+      std::string atom_name(residue_atoms[i]->GetAtomName());
       if (atom_name == named_tor.base_atom_name)
 	 at_1 = residue_atoms[i];
       if (atom_name == named_tor.atom_name_2)
@@ -677,9 +677,9 @@ pli::flev_attached_hydrogens_t::hydrogen_pos(const pli::named_torsion_t &named_t
    if (! (at_1 && at_2 && at_3)) {
       throw(std::runtime_error("missing atoms in residue"));
    } else {
-      clipper::Coord_orth pt_1(at_1->x, at_1->y, at_1->z);
-      clipper::Coord_orth pt_2(at_2->x, at_2->y, at_2->z);
-      clipper::Coord_orth pt_3(at_3->x, at_3->y, at_3->z);
+      clipper::Coord_orth pt_1(at_1->x(), at_1->y(), at_1->z());
+      clipper::Coord_orth pt_2(at_2->x(), at_2->y(), at_2->z());
+      clipper::Coord_orth pt_3(at_3->x(), at_3->y(), at_3->z());
       clipper::Coord_orth p4_h(pt_1, pt_2, pt_3,
 			       named_tor.dist,
 			       clipper::Util::d2rad(named_tor.angle),
@@ -707,9 +707,9 @@ pli::flev_attached_hydrogens_t::add_named_torsion(mmdb::Atom *h_at, mmdb::Atom *
                                                   int hydrogen_type)  {
 
    bool found_torsion_for_this_H = 0;
-   std::string atom_name_bonded_to_H(at->name);
-   clipper::Coord_orth p_h(h_at->x, h_at->y, h_at->z);
-   clipper::Coord_orth p_1(at->x, at->y, at->z);
+   std::string atom_name_bonded_to_H(at->GetAtomName());
+   clipper::Coord_orth p_h(h_at->x(), h_at->y(), h_at->z());
+   clipper::Coord_orth p_1(at->x(), at->y(), at->z());
 
    // now we work back through the restraints, finding
    // an atom that bonds to at/atom_name_bonded_to_H,
@@ -761,7 +761,7 @@ pli::flev_attached_hydrogens_t::add_named_torsion(mmdb::Atom *h_at, mmdb::Atom *
 			      int n_atoms = residue_p->GetNumberOfAtoms();
 			      for (int iat=0; iat<n_atoms; iat++) {
 				 residue_at = residue_p->GetAtom(iat);
-				 std::string res_atom_name(residue_at->name);
+				 std::string res_atom_name(residue_at->GetAtomName());
 				 if (res_atom_name == At_name_2)
 				    At_2 = residue_at;
 				 if (res_atom_name == base_atom_name)
@@ -780,8 +780,8 @@ pli::flev_attached_hydrogens_t::add_named_torsion(mmdb::Atom *h_at, mmdb::Atom *
 					<< At_name_2 << std::endl;
 			} else {
 			   try { 
-			      clipper::Coord_orth p_2(At_2->x, At_2->y, At_2->z);
-			      clipper::Coord_orth p_base(base_atom->x, base_atom->y, base_atom->z);
+			      clipper::Coord_orth p_2(At_2->x(), At_2->y(), At_2->z());
+			      clipper::Coord_orth p_base(base_atom->x(), base_atom->y(), base_atom->z());
 					     
 			      double tors_r = clipper::Coord_orth::torsion(p_base, p_2, p_1, p_h);
 			      double tors = clipper::Util::rad2d(tors_r);

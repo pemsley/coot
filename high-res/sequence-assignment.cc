@@ -627,13 +627,13 @@ coot::sequence_assignment::side_chain_score_t::move_std_res_to_this_res_pos(cons
 
    std_residue->GetAtomTable(residue_atoms, nResidueAtoms);
    for (int iat=0; iat<nResidueAtoms; iat++) {
-      clipper::Coord_orth co(residue_atoms[iat]->x,
-			     residue_atoms[iat]->y,
-			     residue_atoms[iat]->z);
+      clipper::Coord_orth co(residue_atoms[iat]->x(),
+			     residue_atoms[iat]->y(),
+			     residue_atoms[iat]->z());
       clipper::Coord_orth rotted = co.transform(rtop);
-      residue_atoms[iat]->x = rotted.x();
-      residue_atoms[iat]->y = rotted.y();
-      residue_atoms[iat]->z = rotted.z();
+      residue_atoms[iat]->x() = rotted.x();
+      residue_atoms[iat]->y() = rotted.y();
+      residue_atoms[iat]->z() = rotted.z();
    }
 }
 
@@ -716,9 +716,9 @@ coot::sequence_assignment::side_chain_score_t::find_unassigned_regions(float pr_
 	    int start_resno = -1; // unset
 	    for (int ires=0; ires<nres; ires++) { 
 	       residue_p = chain_p->GetResidue(ires);
-	       int this_resno = residue_p->seqNum;
+	       int this_resno = residue_p->GetSeqNum();
 	       //
-	       std::string restype = residue_p->name;
+	       std::string restype = residue_p->GetResName();
 	       //
 	       istate = residue_p->GetUDData(udd_assigned_handle, iassigned);
 	       if (istate == mmdb::UDDATA_Ok) {
@@ -740,7 +740,7 @@ coot::sequence_assignment::side_chain_score_t::find_unassigned_regions(float pr_
 			if (previous_residue) { 
 			   v.push_back(coot::high_res_residue_range_t(chain_id,
 							     start_resno,
-							     previous_residue->seqNum));
+							     previous_residue->GetSeqNum()));
 			   in_ala_range_flag = 0;
 			}
 		     }
@@ -758,7 +758,7 @@ coot::sequence_assignment::side_chain_score_t::find_unassigned_regions(float pr_
 	       if (previous_residue)
 		  v.push_back(coot::high_res_residue_range_t(chain_id,
 						    start_resno,
-						    previous_residue->seqNum));
+						    previous_residue->GetSeqNum()));
 	 }
       }
    }
@@ -806,7 +806,7 @@ coot::sequence_assignment::side_chain_score_t::mark_unassigned_residues() {
 		  residue_p = chain_p->GetResidue(ires);
 
 		  //
-		  std::string restype = residue_p->name;
+		  std::string restype = residue_p->GetResName();
 		  if (restype == "ALA")
 		     consecutive_ala_count++;
 		  else

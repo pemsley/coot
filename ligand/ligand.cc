@@ -340,9 +340,9 @@ coot::ligand::mask_map(mmdb::Manager *mol, short int mask_waters_flag) {
 
    // std::cout << "masking....";
    for(int i=0; i<n_atoms; i++) {
-      clipper::Coord_orth co(atoms[i]->x, atoms[i]->y, atoms[i]->z);
+      clipper::Coord_orth co(atoms[i]->x(), atoms[i]->y(), atoms[i]->z());
 
-      std::string res_name (atoms[i]->residue->name);
+      std::string res_name (atoms[i]->GetResidue()->GetResName());
       if (mask_waters_flag) {
          mask_around_coord(co, atom_radius);  // mask xmap_masked
       } else {
@@ -375,9 +375,9 @@ coot::ligand::mask_map(mmdb::Manager *mol,
 
    if (invert_flag == 0) {
       for (int i=0; i<n_selected_atoms; i++) {
-         clipper::Coord_orth co(atom_selection[i]->x,
-                                atom_selection[i]->y,
-                                atom_selection[i]->z);
+         clipper::Coord_orth co(atom_selection[i]->x(),
+                                atom_selection[i]->y(),
+                                atom_selection[i]->z());
          mask_around_coord(co, map_atom_mask_radius); // mask xmap_cluster
       }
 

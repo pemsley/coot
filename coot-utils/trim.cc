@@ -60,7 +60,7 @@ coot::util::trim_molecule_by_map(mmdb::Manager *mol,
                int nres = chain->GetNumberOfResidues();
                for (int ires=0; ires<nres; ires++) {
                   mmdb::PResidue residue_p = chain->GetResidue(ires);
-                  std::string resname = residue_p->name;
+                  std::string resname = residue_p->GetResName();
                   if (((resname == "WAT" || resname == "HOH") && waters_only_flag)
                       || !waters_only_flag) {
 
@@ -68,7 +68,7 @@ coot::util::trim_molecule_by_map(mmdb::Manager *mol,
                      for (int iat=0; iat<n_atoms; iat++) {
 
                         mmdb::Atom *at = residue_p->GetAtom(iat);
-                        clipper::Coord_orth co(at->x, at->y, at->z);
+                        clipper::Coord_orth co(at->x(), at->y(), at->z());
                         if (density_at_point(xmap, co) < map_level) {
 
                            // A baddie.  What do we do with it?  Set its
@@ -80,7 +80,7 @@ coot::util::trim_molecule_by_map(mmdb::Manager *mol,
                            }
 
                            if (remove_or_zero_occ_flag == coot::util::TRIM_BY_MAP_ZERO_OCC) {
-                              at->occupancy = 0.0;
+                              at->occupancy() = 0.0;
                               n_changed++;
                            }
                         }

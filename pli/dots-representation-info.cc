@@ -185,7 +185,7 @@ pli::dots_representation_info_t::pure_points(mmdb::Manager *mol) {
 
          for (int iat=0; iat<n_atoms; iat++) {
             at = residue_p->GetAtom(iat);
-            local_points.push_back(clipper::Coord_orth(at->x, at->y, at->z));
+            local_points.push_back(clipper::Coord_orth(at->x(), at->y(), at->z()));
          }
       }
    }
@@ -218,7 +218,7 @@ pli::dots_representation_info_t::solvent_exposure(int SelHnd_in, mmdb::Manager *
       std::vector<double> radius(n_atoms);
 
       for (int iat=0; iat<n_atoms; iat++) {
-         std::string ele(atoms[iat]->element);
+         std::string ele(atoms[iat]->GetElementName());
          radius[iat] = get_radius(ele);
       }
 
@@ -230,9 +230,9 @@ pli::dots_representation_info_t::solvent_exposure(int SelHnd_in, mmdb::Manager *
 
       for (int iatom=0; iatom<n_atoms; iatom++) {
          if (! atoms[iatom]->isTer()) {
-            clipper::Coord_orth centre(atoms[iatom]->x,
-                                       atoms[iatom]->y,
-                                       atoms[iatom]->z);
+            clipper::Coord_orth centre(atoms[iatom]->x(),
+                                       atoms[iatom]->y(),
+                                       atoms[iatom]->z());
             bool even = 1;
             int n_points = 0;
             int n_sa = 0;
@@ -257,11 +257,11 @@ pli::dots_representation_info_t::solvent_exposure(int SelHnd_in, mmdb::Manager *
                         std::string other_res_name = other_at->GetResName();
                         if (other_res_name != "HOH") {
                            if (atoms[iatom] != other_at) {
-                              std::string other_ele = other_at->element;
+                              std::string other_ele = other_at->GetElementName();
                               if (other_ele != " H") {
                                  double other_atom_r = fudge * (get_radius(other_ele) + water_radius);
                                  double other_atom_r_sq = other_atom_r * other_atom_r;
-                                 clipper::Coord_orth pt_other(other_at->x, other_at->y, other_at->z);
+                                 clipper::Coord_orth pt_other(other_at->x(), other_at->y(), other_at->z());
                                  if ((pt-pt_other).lengthsq() < other_atom_r_sq) {
                                     is_solvent_accessible = 0;
                                     break;
@@ -279,7 +279,7 @@ pli::dots_representation_info_t::solvent_exposure(int SelHnd_in, mmdb::Manager *
 
             double exposure_frac = double(n_sa)/double(n_points);
             if (0)
-               std::cout << "Atom " << atoms[iatom]->name << " has exposure " << n_sa << "/" << n_points
+               std::cout << "Atom " << atoms[iatom]->GetAtomName() << " has exposure " << n_sa << "/" << n_points
                          << " = " << exposure_frac << std::endl;
             std::pair<mmdb::Atom *, float> p(atoms[iatom], exposure_frac);
             v.push_back(p);
@@ -406,7 +406,7 @@ pli::dots_representation_info_t::add_dots(int SelHnd, mmdb::Manager *mol,
    std::vector<double> radius_exclude;
    std::vector<coot::colour_t> colour(n_atoms);
    for (int iat=0; iat<n_atoms; iat++) {
-      std::string ele(atoms[iat]->element);
+      std::string ele(atoms[iat]->GetElementName());
       radius[iat] = get_radius(ele);
       if (use_single_colour)
          colour[iat] = single_colour;
@@ -423,7 +423,7 @@ pli::dots_representation_info_t::add_dots(int SelHnd, mmdb::Manager *mol,
       mol_exclude->GetSelIndex(SelHnd_exclude, atoms_exclude, n_atoms_exclude);
       radius_exclude.resize(n_atoms_exclude);
       for (int iat=0; iat<n_atoms_exclude; iat++) {
-         std::string ele(atoms_exclude[iat]->element);
+         std::string ele(atoms_exclude[iat]->GetElementName());
          radius_exclude[iat] = get_radius(ele);
       }
    }
@@ -432,9 +432,9 @@ pli::dots_representation_info_t::add_dots(int SelHnd, mmdb::Manager *mol,
       std::vector<clipper::Coord_orth> local_points;
       coot::colour_t col = colour[iatom];
       if (! atoms[iatom]->isTer()) {
-         clipper::Coord_orth centre(atoms[iatom]->x,
-                                    atoms[iatom]->y,
-                                    atoms[iatom]->z);
+         clipper::Coord_orth centre(atoms[iatom]->x(),
+                                    atoms[iatom]->y(),
+                                    atoms[iatom]->z());
          bool even = true;
          for (double theta=0; theta<M_PI; theta+=theta_step) {
             double phi_step_inner = phi_step + 0.1 * pow(theta-0.5*M_PI, 2);
@@ -463,7 +463,7 @@ pli::dots_representation_info_t::add_dots(int SelHnd, mmdb::Manager *mol,
                         if (! atoms[jatom]->isTer()) {
                            double radius_j = radius[jatom];
                            double radius_j_squared = radius_j * radius_j;
-                           clipper::Coord_orth pt_j(atoms[jatom]->x, atoms[jatom]->y, atoms[jatom]->z);
+                           clipper::Coord_orth pt_j(atoms[jatom]->x(), atoms[jatom]->y(), atoms[jatom]->z());
                            if ((pt-pt_j).lengthsq() < radius_j_squared) {
                               draw_it = false;
                               break;
@@ -482,9 +482,9 @@ pli::dots_representation_info_t::add_dots(int SelHnd, mmdb::Manager *mol,
                         double dist_j_squared = dist_j * dist_j;
                         for (int jatom=0; jatom<n_atoms_exclude; jatom++) {
                            if (! atoms_exclude[jatom]->isTer()) {
-                              clipper::Coord_orth pt_j(atoms_exclude[jatom]->x,
-                                                       atoms_exclude[jatom]->y,
-                                                       atoms_exclude[jatom]->z);
+                              clipper::Coord_orth pt_j(atoms_exclude[jatom]->x(),
+                                                       atoms_exclude[jatom]->y(),
+                                                       atoms_exclude[jatom]->z());
                               if ((pt-pt_j).lengthsq() < dist_j_squared) {
                                  draw_it = true;
                                  break;

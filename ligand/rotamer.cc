@@ -502,7 +502,7 @@ coot::rotamer::rotamer_atom_names_to_indices(const std::vector<std::vector<std::
 
    if (n_residue_atoms > 0) { 
       for (int iat=0; iat<n_residue_atoms; iat++) {
-	 atom_indices[iat] = std::string(residue_atoms[iat]->name);
+	 atom_indices[iat] = std::string(residue_atoms[iat]->GetAtomName());
       }
 
       int ithis_atom;
@@ -530,9 +530,9 @@ coot::rotamer::rotamer_atom_names_to_indices(const std::vector<std::vector<std::
 	    if (verbose)
 	       std::cout << "PROBLEM in coordinates file? failed to find all atoms in "
 			 << "ich number " << ich << " "
-			 << residue_atoms[0]->residue->name << " "
-			 << residue_atoms[0]->residue->GetSeqNum() << " "
-			 << residue_atoms[0]->residue->GetChainID() << std::endl;
+			 << residue_atoms[0]->GetResidue()->GetResName() << " "
+			 << residue_atoms[0]->GetResidue()->GetSeqNum() << " "
+			 << residue_atoms[0]->GetResidue()->GetChainID() << std::endl;
       }
    }
    return r;
@@ -554,7 +554,7 @@ coot::rotamer::chi_torsion(const std::vector<int> &chi_angle_atoms_indices,
 
    for (unsigned int ich_at=0; ich_at<chi_angle_atoms_indices.size(); ich_at++) {
       at = residue_atoms[chi_angle_atoms_indices[ich_at]];
-      a.push_back(clipper::Coord_orth(at->x, at->y, at->z));
+      a.push_back(clipper::Coord_orth(at->x(), at->y(), at->z()));
    }
 
    double ctorsion = clipper::Coord_orth::torsion(a[0], a[1], a[2], a[3]);
@@ -721,9 +721,9 @@ coot::rotamer::GetResidue_old(int i_rot) const {
 // 	 smn_Cartesian c(residue_atoms[i]->x,
 // 			 residue_atoms[i]->y,
 // 			 residue_atoms[i]->z);
-	 ::Cartesian d(ordered_atoms[i]->x,
-		       ordered_atoms[i]->y,
-		       ordered_atoms[i]->z);
+	 ::Cartesian d(ordered_atoms[i]->x(),
+		       ordered_atoms[i]->y(),
+		       ordered_atoms[i]->z());
 // 	 std::cout << residue_atoms[i]->name << " " << c
 // 		   << ordered_atoms[i]->name << " " << d << std::endl;
 //	 std::cout << ordered_atoms[i]->name << " " << d << std::endl;
@@ -736,9 +736,9 @@ coot::rotamer::GetResidue_old(int i_rot) const {
       
       std::vector< ::Cartesian > coords;
       for(int i=0; i<nResidueAtoms; i++) {
-	 ::Cartesian c(ordered_atoms[i]->x,
-		       ordered_atoms[i]->y,
-		       ordered_atoms[i]->z);
+	 ::Cartesian c(ordered_atoms[i]->x(),
+		       ordered_atoms[i]->y(),
+		       ordered_atoms[i]->z());
 	 coords.push_back(c);
       }
 
@@ -908,9 +908,9 @@ coot::rotamer::GetResidue_old(int i_rot) const {
 	    std::cout << "disaster in atom selection, trees, dunbrack\n";
 	 } else {
 	    for (int iat=0; iat<nResidueAtoms; iat++) {
-	       ordered_residue_atoms_ppcatom[iat]->x = coords_rotated[iat].get_x();
-	       ordered_residue_atoms_ppcatom[iat]->y = coords_rotated[iat].get_y();
-	       ordered_residue_atoms_ppcatom[iat]->z = coords_rotated[iat].get_z();
+	       ordered_residue_atoms_ppcatom[iat]->x() = coords_rotated[iat].get_x();
+	       ordered_residue_atoms_ppcatom[iat]->y() = coords_rotated[iat].get_y();
+	       ordered_residue_atoms_ppcatom[iat]->z() = coords_rotated[iat].get_z();
 	    }
 	 }
 	 delete [] ordered_residue_atoms_ppcatom;

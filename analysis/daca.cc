@@ -307,12 +307,12 @@ coot::daca::make_symmetry_typed_atoms(mmdb::Manager *mol,
    for (int i=0; i<n_asu_atoms; i++) {
       mmdb::Atom *at = asu_atoms[i];
       if (! at) continue;
-      if (at->x < xmin) xmin = at->x;
-      if (at->x > xmax) xmax = at->x;
-      if (at->y < ymin) ymin = at->y;
-      if (at->y > ymax) ymax = at->y;
-      if (at->z < zmin) zmin = at->z;
-      if (at->z > zmax) zmax = at->z;
+      if (at->x() < xmin) xmin = at->x();
+      if (at->x() > xmax) xmax = at->x();
+      if (at->y() < ymin) ymin = at->y();
+      if (at->y() > ymax) ymax = at->y();
+      if (at->z() < zmin) zmin = at->z();
+      if (at->z() > zmax) zmax = at->z();
    }
    // Expand bounding box by contact search distance
    xmin -= expansion_radius; xmax += expansion_radius;
@@ -365,9 +365,9 @@ coot::daca::make_symmetry_typed_atoms(mmdb::Manager *mol,
                         if (! at) continue;
 
                         // Transform the atom position
-                        float tx = mat[0][0]*at->x + mat[0][1]*at->y + mat[0][2]*at->z + mat[0][3];
-                        float ty = mat[1][0]*at->x + mat[1][1]*at->y + mat[1][2]*at->z + mat[1][3];
-                        float tz = mat[2][0]*at->x + mat[2][1]*at->y + mat[2][2]*at->z + mat[2][3];
+                        float tx = mat[0][0]*at->x() + mat[0][1]*at->y() + mat[0][2]*at->z() + mat[0][3];
+                        float ty = mat[1][0]*at->x() + mat[1][1]*at->y() + mat[1][2]*at->z() + mat[1][3];
+                        float tz = mat[2][0]*at->x() + mat[2][1]*at->y() + mat[2][2]*at->z() + mat[2][3];
 
                         // Quick bounding box test
                         if (tx < xmin || tx > xmax) continue;
@@ -377,9 +377,9 @@ coot::daca::make_symmetry_typed_atoms(mmdb::Manager *mol,
                         // This atom is close enough — create a copy with transformed coords
                         mmdb::Atom *new_at = new mmdb::Atom;
                         new_at->Copy(at);
-                        new_at->x = tx;
-                        new_at->y = ty;
-                        new_at->z = tz;
+                        new_at->x() = tx;
+                        new_at->y() = ty;
+                        new_at->z() = tz;
                         new_at->SetResidue(nullptr); // not part of the ASU
                         symm_atom_store_p->push_back(new_at);
 
@@ -597,7 +597,7 @@ coot::daca::get_daca_fragments(mmdb::Residue *reference_residue_p) const {
       int n_residue_atoms;
       reference_residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
       for (int iat=0; iat<n_residue_atoms; iat++) {
-         std::string alt_loc(residue_atoms[iat]->altLoc);
+         std::string alt_loc(residue_atoms[iat]->altLoc());
          if (! alt_loc.empty()) {
             first_alt_conf = alt_loc;
             break;
@@ -617,7 +617,7 @@ coot::daca::get_daca_fragments(mmdb::Residue *reference_residue_p) const {
             mmdb::Atom *at = residue_atoms[iat];
             std::string this_atom_name(at->GetAtomName());
             if (atom_name == this_atom_name) {
-               std::string alt_loc(at->altLoc);
+               std::string alt_loc(at->altLoc());
                if (alt_loc.empty()) {
                   atom_vec.push_back(at);
                   break;
@@ -637,7 +637,7 @@ coot::daca::get_daca_fragments(mmdb::Residue *reference_residue_p) const {
                mmdb::Atom *at = residue_atoms[iat];
                std::string this_atom_name(at->GetAtomName());
                if (atom_name == this_atom_name) {
-                  std::string alt_loc(at->altLoc);
+                  std::string alt_loc(at->altLoc());
                   if (alt_loc.empty() || alt_loc == first_alt_conf) {
                      atom_vec.push_back(at);
                      break;
@@ -963,9 +963,9 @@ coot::daca::atom_is_close_to_a_residue_atom(mmdb::Atom *at, mmdb::Residue *refer
    for (int iat=0; iat<n_residue_atoms; iat++) {
       mmdb::Atom *ref_at = residue_atoms[iat];
       float dd =
-         (at->x - ref_at->x) * (at->x - ref_at->x) +
-         (at->y - ref_at->y) * (at->y - ref_at->y) +
-         (at->z - ref_at->z) * (at->z - ref_at->z);
+         (at->x() - ref_at->x()) * (at->x() - ref_at->x()) +
+         (at->y() - ref_at->y()) * (at->y() - ref_at->y()) +
+         (at->z() - ref_at->z()) * (at->z() - ref_at->z());
       if (dd < dd_close) {
          status = true;
          break;
@@ -978,9 +978,9 @@ coot::daca::atom_is_close_to_a_residue_atom(mmdb::Atom *at, mmdb::Residue *refer
 bool
 coot::daca::atom_is_neighbour_mainchain(mmdb::Atom *at, mmdb::Residue *reference_residue_p) const {
    bool status = false;
-   if (! at->residue) return false; // symmetry atom — not a neighbour
-   int idx_res_1 = reference_residue_p->index;
-   int idx_res_2 = at->residue->index;
+   if (! at->GetResidue()) return false; // symmetry atom — not a neighbour
+   int idx_res_1 = reference_residue_p->GetIndex();
+   int idx_res_2 = at->GetResidue()->GetIndex();
    int idx_delta = abs(idx_res_2 - idx_res_1);
    if (idx_delta < 2) {
       std::string atom_name(at->GetAtomName());
@@ -1071,23 +1071,23 @@ coot::daca::calculate_daca(mmdb::Residue *reference_residue_p,
                const std::string &atom_type = typed_atoms[ita].second;
 
                // don't consider atoms in this residue, of course
-               if (at->residue == reference_residue_p)
+               if (at->GetResidue() == reference_residue_p)
                   continue;
 
                // don't consider peptide neighbour mainchain
                // (symmetry atoms have residue set to nullptr — skip this check for them)
-               if (at->residue) {
-                  int res_no_delta = at->residue->GetSeqNum() - reference_residue_seqnum;
+               if (at->GetResidue()) {
+                  int res_no_delta = at->GetResidue()->GetSeqNum() - reference_residue_seqnum;
                   if (std::abs(res_no_delta) < 2)
-                     if (at->residue->chain == reference_residue_p->chain)
+                     if (at->GetResidue()->chain == reference_residue_p->chain)
                         if (is_main_chain_p(at))
                            continue;
                }
 
                double dd =
-                  (at->x - frag_centre.x()) * (at->x - frag_centre.x()) +
-                  (at->y - frag_centre.y()) * (at->y - frag_centre.y()) +
-                  (at->z - frag_centre.z()) * (at->z - frag_centre.z());
+                  (at->x() - frag_centre.x()) * (at->x() - frag_centre.x()) +
+                  (at->y() - frag_centre.y()) * (at->y() - frag_centre.y()) +
+                  (at->z() - frag_centre.z()) * (at->z() - frag_centre.z());
                if (dd < dd_crit) {
                   // Good, found something
                   if (atom_is_close_to_a_residue_atom(at, reference_residue_p)) {
@@ -1620,16 +1620,16 @@ coot::daca::self_test(const std::string &pdb_file_name) {
 
             for (unsigned int ita=0; ita<ta.size(); ita++) {
                mmdb::Atom *at = ta[ita].first;
-               if (at->residue == residue_p) continue;
-               int res_no_delta = at->residue->GetSeqNum() - seqnum;
+               if (at->GetResidue() == residue_p) continue;
+               int res_no_delta = at->GetResidue()->GetSeqNum() - seqnum;
                if (std::abs(res_no_delta) < 2)
-                  if (at->residue->chain == residue_p->chain)
+                  if (at->GetResidue()->chain == residue_p->chain)
                      if (is_main_chain_p(at))
                         continue;
                double dd =
-                  (at->x - frag_centre.x()) * (at->x - frag_centre.x()) +
-                  (at->y - frag_centre.y()) * (at->y - frag_centre.y()) +
-                  (at->z - frag_centre.z()) * (at->z - frag_centre.z());
+                  (at->x() - frag_centre.x()) * (at->x() - frag_centre.x()) +
+                  (at->y() - frag_centre.y()) * (at->y() - frag_centre.y()) +
+                  (at->z() - frag_centre.z()) * (at->z() - frag_centre.z());
                if (dd < 64.0) { // 8.0^2
                   if (atom_is_close_to_a_residue_atom(at, residue_p)) {
                      if (! atom_is_neighbour_mainchain(at, residue_p)) {
@@ -1710,9 +1710,9 @@ coot::daca::self_test_perturbed(const std::string &pdb_file_name, float perturba
          float dx = perturbation * (2.0f * static_cast<float>(rand()) / static_cast<float>(RAND_MAX) - 1.0f);
          float dy = perturbation * (2.0f * static_cast<float>(rand()) / static_cast<float>(RAND_MAX) - 1.0f);
          float dz = perturbation * (2.0f * static_cast<float>(rand()) / static_cast<float>(RAND_MAX) - 1.0f);
-         at->x += dx;
-         at->y += dy;
-         at->z += dz;
+         at->x() += dx;
+         at->y() += dy;
+         at->z() += dz;
       }
    }
 
@@ -1750,16 +1750,16 @@ coot::daca::self_test_perturbed(const std::string &pdb_file_name, float perturba
 
             for (unsigned int ita=0; ita<ta.size(); ita++) {
                mmdb::Atom *at = ta[ita].first;
-               if (at->residue == residue_p) continue;
-               int res_no_delta = at->residue->GetSeqNum() - seqnum;
+               if (at->GetResidue() == residue_p) continue;
+               int res_no_delta = at->GetResidue()->GetSeqNum() - seqnum;
                if (std::abs(res_no_delta) < 2)
-                  if (at->residue->chain == residue_p->chain)
+                  if (at->GetResidue()->chain == residue_p->chain)
                      if (is_main_chain_p(at))
                         continue;
                double dd =
-                  (at->x - frag_centre.x()) * (at->x - frag_centre.x()) +
-                  (at->y - frag_centre.y()) * (at->y - frag_centre.y()) +
-                  (at->z - frag_centre.z()) * (at->z - frag_centre.z());
+                  (at->x() - frag_centre.x()) * (at->x() - frag_centre.x()) +
+                  (at->y() - frag_centre.y()) * (at->y() - frag_centre.y()) +
+                  (at->z() - frag_centre.z()) * (at->z() - frag_centre.z());
                if (dd < 64.0) { // 8.0^2
                   if (atom_is_close_to_a_residue_atom(at, residue_p)) {
                      if (! atom_is_neighbour_mainchain(at, residue_p)) {
@@ -2091,13 +2091,13 @@ coot::daca::solvent_exposure(mmdb::Manager *mol, bool side_chain_only) const {
             // we could do the selection wthout waters, but also filter out waters this way
             std::vector<bool> is_water(n_atoms, false);
             for (int iat=0; iat<n_atoms; iat++) {
-               std::string rn(atom_selection[iat]->residue->GetResName());
+               std::string rn(atom_selection[iat]->GetResidue()->GetResName());
                if (rn == "HOH")
                   is_water[iat] = true;
             }
             std::vector<float> radius(n_atoms);
             for (int iat=0; iat<n_atoms; iat++) {
-               std::string ele(atom_selection[iat]->element);
+               std::string ele(atom_selection[iat]->GetElementName());
                radius[iat] = get_radius(ele); // could be more clever, use atom type.
             }
 	    for (int i=0; i<n_contacts; i++) {
@@ -2153,9 +2153,9 @@ coot::daca::solvent_exposure(mmdb::Manager *mol, bool side_chain_only) const {
                                       count += 1;
                                 }
                                 if (false) {
-                                   std::string rn(at->residue->GetResName());
+                                   std::string rn(at->GetResidue()->GetResName());
                                    if (rn == "HOH") {
-                                      std::cout << "HOH " << residue_spec_t(at->residue)
+                                      std::cout << "HOH " << residue_spec_t(at->GetResidue())
                                                 << " with n-neighbs " << neighbour_atoms.size()
                                                 << " returning " << count << std::endl;
                                    }
@@ -2180,7 +2180,7 @@ coot::daca::solvent_exposure(mmdb::Manager *mol, bool side_chain_only) const {
                   n_dots_for_atom = dot_count(atom_index, neighbours, radius[atom_index],
                                               atom_selection, unit_sphere_points);
 
-               residue_count_map[at->residue] += n_dots_for_atom;
+               residue_count_map[at->GetResidue()] += n_dots_for_atom;
             }
 
             {
@@ -2256,7 +2256,7 @@ coot::daca::solvent_exposure_old_version_v2(mmdb::Manager *mol,
                mmdb::Residue *residue_p_2 = at_2->GetResidue();
                if (residue_p_2 == residue_p_1) continue;
                std::string res_name_1(residue_p_1->GetResName());
-               std::string res_name_2(at_2->residue->GetResName());
+               std::string res_name_2(at_2->GetResidue()->GetResName());
                if (res_name_1 == "HOH") continue;
                if (res_name_2 == "HOH") continue;
                if (! util::is_standard_amino_acid_name(res_name_1)) continue;
@@ -2316,7 +2316,7 @@ coot::daca::solvent_exposure_old_version(int SelHnd_in, mmdb::Manager *mol) cons
       std::vector<double> radius(n_atoms);
 
       for (int iat=0; iat<n_atoms; iat++) {
-	 std::string ele(atoms[iat]->element);
+	 std::string ele(atoms[iat]->GetElementName());
 	 radius[iat] = get_radius(ele);
       }
 
@@ -2328,9 +2328,9 @@ coot::daca::solvent_exposure_old_version(int SelHnd_in, mmdb::Manager *mol) cons
 
       for (int iatom=0; iatom<n_atoms; iatom++) {
 	 if (! atoms[iatom]->isTer()) {
-	    clipper::Coord_orth centre(atoms[iatom]->x,
-				       atoms[iatom]->y,
-				       atoms[iatom]->z);
+	    clipper::Coord_orth centre(atoms[iatom]->x(),
+				       atoms[iatom]->y(),
+				       atoms[iatom]->z());
 	    bool even = 1;
 	    int n_points = 0;
 	    int n_sa = 0;
@@ -2355,11 +2355,11 @@ coot::daca::solvent_exposure_old_version(int SelHnd_in, mmdb::Manager *mol) cons
 			std::string other_res_name = other_at->GetResName();
 			if (other_res_name != "HOH") {
 			   if (atoms[iatom] != other_at) {
-			      std::string other_ele = other_at->element;
+			      std::string other_ele = other_at->GetElementName();
 			      if (other_ele != " H") {
 				 double other_atom_r = fudge * (get_radius(other_ele) + water_radius);
 				 double other_atom_r_sq = other_atom_r * other_atom_r;
-				 clipper::Coord_orth pt_other(other_at->x, other_at->y, other_at->z);
+				 clipper::Coord_orth pt_other(other_at->x(), other_at->y(), other_at->z());
 				 if ((pt-pt_other).lengthsq() < other_atom_r_sq) {
 				    is_solvent_accessible = 0;
 				    break;
@@ -2377,7 +2377,7 @@ coot::daca::solvent_exposure_old_version(int SelHnd_in, mmdb::Manager *mol) cons
 
 	    double exposure_frac = double(n_sa)/double(n_points);
 	    if (0)
-	       std::cout << "Atom " << atoms[iatom]->name << " has exposure " << n_sa << "/" << n_points
+	       std::cout << "Atom " << atoms[iatom]->GetAtomName() << " has exposure " << n_sa << "/" << n_points
 			 << " = " << exposure_frac << std::endl;
 	    std::pair<mmdb::Atom *, float> p(atoms[iatom], exposure_frac);
 	    v.push_back(p);

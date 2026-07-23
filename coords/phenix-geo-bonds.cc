@@ -65,13 +65,13 @@ Bond_lines_container::Bond_lines_container(mmdb::Manager *mol,
 
             if (previous_atom_1) {
                atom_1 = previous_atom_1;
-               atom_1_res = atom_1->residue;
+               atom_1_res = atom_1->GetResidue();
             }
 
             coot::residue_spec_t res_2_spec(gb.atom_2);
 
             if (atom_1) {
-               mmdb::Atom *atom_2 = coot::util::get_atom(atom_2_spec, atom_1->residue);
+               mmdb::Atom *atom_2 = coot::util::get_atom(atom_2_spec, atom_1->GetResidue());
 
                if (res_2_spec == res_1_spec) {
 
@@ -148,7 +148,7 @@ Bond_lines_container::Bond_lines_container(mmdb::Manager *mol,
             if (atom_1) {
                coot::residue_spec_t res_2_spec(gb.atom_2);
                if (res_2_spec == res_1_spec) {
-                  mmdb::Atom *atom_2 = coot::util::get_atom(atom_2_spec, atom_1->residue);
+                  mmdb::Atom *atom_2 = coot::util::get_atom(atom_2_spec, atom_1->GetResidue());
                   if (atom_2) {
                      bonded_atom_pairs.push_back(bonded_atom_pair_t(atom_1, atom_2, gb.residual));
                   } else {
@@ -176,11 +176,11 @@ Bond_lines_container::Bond_lines_container(mmdb::Manager *mol,
          if (atom_1) {
 
             res_1_spec = coot::residue_spec_t(atom_1->GetResidue());
-            atom_1_res=atom_1->residue;
+            atom_1_res=atom_1->GetResidue();
 
             coot::residue_spec_t res_2_spec(gb.atom_2);
             if (res_2_spec == res_1_spec) {
-               mmdb::Atom *atom_2 = coot::util::get_atom(atom_2_spec, atom_1->residue);
+               mmdb::Atom *atom_2 = coot::util::get_atom(atom_2_spec, atom_1->GetResidue());
                if (atom_2) {
                   bonded_atom_pairs.push_back(bonded_atom_pair_t(atom_1, atom_2, gb.residual));
                } else {
@@ -238,8 +238,8 @@ Bond_lines_container::Bond_lines_container(mmdb::Manager *mol,
       a1->GetUDData(udd_atom_index_handle, atom_index_1);
       a2->GetUDData(udd_atom_index_handle, atom_index_2);
       int col = atom_colour(bap.residual);
-      addBond(col, coot::Cartesian(a1->x, a1->y, a1->z),
-                   coot::Cartesian(a2->x, a2->y, a2->z),
+      addBond(col, coot::Cartesian(a1->x(), a1->y(), a1->z()),
+                   coot::Cartesian(a2->x(), a2->y(), a2->z()),
               cc, model_number, atom_index_1, atom_index_2);
    }
 
@@ -325,7 +325,7 @@ Bond_lines_container::stars_for_unbonded_atoms(mmdb::Manager *mol, int uddHnd) {
                         if (at) { 
                            if (at->GetUDData(uddHnd, ic) == mmdb::UDDATA_Ok) {
                               if (ic == graphical_bonds_container::NO_BOND) {
-                                 coot::Cartesian atom_pos(at->x, at->y, at->z);
+                                 coot::Cartesian atom_pos(at->x(), at->y(), at->z());
                                  addBond(col, atom_pos+small_vec_x, atom_pos-small_vec_x, cc, -1, -1, -1, true, true);
                                  addBond(col, atom_pos+small_vec_y, atom_pos-small_vec_y, cc, -1, -1, -1, true, true);
                                  addBond(col, atom_pos+small_vec_z, atom_pos-small_vec_z, cc, -1, -1, -1, true, true);

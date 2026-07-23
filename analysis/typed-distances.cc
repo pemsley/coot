@@ -186,7 +186,7 @@ coot::typed_distances::atom_type_t
 coot::typed_distances::get_type(mmdb::Atom *at) const {
 
    atom_type_t t1(NONE);
-   std::string ele(at->element);
+   std::string ele(at->GetElementName());
    if (ele == " C") t1 = atom_type_t(C);
    if (ele == " O") t1 = atom_type_t(O);
    if (ele == " S") t1 = atom_type_t(O);

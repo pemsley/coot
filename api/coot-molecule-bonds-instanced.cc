@@ -242,7 +242,7 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
                if (sar > 0.65) sar = 0.65f;
 
             glm::vec3 sc(sar, sar, sar);
-            glm::vec3 t(at->x, at->y, at->z);
+            glm::vec3 t(at->x(), at->y(), at->z());
 
             bool atom_is_aniso = at->WhatIsSet & mmdb::ASET_Anis_tFac;
             // std::cout << " " << coot::atom_spec_t(at) << " atom_is_aniso " << atom_is_aniso << std::endl;
@@ -256,9 +256,9 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
 
                sc = glm::vec3(sar);
 
-               GL_matrix mat(at->u11, at->u12, at->u13,
-                             at->u12, at->u22, at->u23,
-                             at->u13, at->u23, at->u33);
+               GL_matrix mat(at->u11(), at->u12(), at->u13(),
+                             at->u12(), at->u22(), at->u23(),
+                             at->u13(), at->u23(), at->u33());
 
                std::pair<bool,GL_matrix> chol_pair = mat.eigensystem();
                if (chol_pair.first) {
@@ -269,7 +269,7 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
                                 0.0f, 0.0f, 0.0f, 1.0f);
                   if (false)
                      std::cout << "atom at " << at << " ori:: " << glm::to_string(ori)
-                               << " Us: " <<  at->u11 << " " << at->u22 << " " << at->u33 << std::endl;
+                               << " Us: " <<  at->u11() << " " << at->u22() << " " << at->u33() << std::endl;
                   coot::instancing_data_type_B_t idB(t, col, sc, ori);
                   if (render_aniso_atoms_as_ortep)
                      ig_ortep.instancing_data_B.push_back(idB);
@@ -377,7 +377,7 @@ make_instanced_graphical_bonds_hemispherical_atoms(coot::instanced_mesh_t &m, //
       for (unsigned int i=0; i<gbc.consolidated_atom_centres[icol].num_points; i++) {
          const graphical_bonds_atom_info_t &at_info = gbc.consolidated_atom_centres[icol].points[i];
          mmdb::Atom *at = at_info.atom_p;
-         glm::vec3 t(at->x, at->y, at->z);
+         glm::vec3 t(at->x(), at->y(), at->z());
          glm::mat4 ori(1.0); // 20230114-PE needs fixing.
          float scale = 1.0;
          if (at_info.is_hydrogen_atom) scale *= 0.5;
@@ -422,7 +422,7 @@ void make_graphical_bonds_spherical_atoms_with_vdw_radii_instanced(coot::instanc
       for (unsigned int i=0; i<gbc.consolidated_atom_centres[icol].num_points; i++) {
          const graphical_bonds_atom_info_t &at_info = gbc.consolidated_atom_centres[icol].points[i];
          mmdb::Atom *at = at_info.atom_p;
-         std::string ele(at->element);
+         std::string ele(at->GetElementName());
          std::map<std::string, float>::const_iterator it = ele_to_radius_map.find(ele);
          float atom_radius = 1.0;
          if (it != ele_to_radius_map.end()) {
@@ -434,7 +434,7 @@ void make_graphical_bonds_spherical_atoms_with_vdw_radii_instanced(coot::instanc
             ele_to_radius_map[ele] = atom_radius;
          }
 
-         glm::vec3 t(at->x, at->y, at->z);
+         glm::vec3 t(at->x(), at->y(), at->z());
          glm::vec3 sc(atom_radius, atom_radius, atom_radius);
          coot::instancing_data_type_A_t id(t, col, sc);
          ig.instancing_data_A.push_back(id);

@@ -293,11 +293,11 @@ pli::pi_stacking_container_t::get_ligand_cations(mmdb::Residue *res_ref,
    mmdb::PPAtom residue_atoms = NULL;
    res_ref->GetAtomTable(residue_atoms, n_residue_atoms);
    for (int iat=0; iat<n_residue_atoms; iat++) { 
-      std::string ele(residue_atoms[iat]->element);
+      std::string ele(residue_atoms[iat]->GetElementName());
       if (ele == " N") {
 	 // how many bonds does this N have?
 	 int n_bonds = 0;
-	 std::string atom_name(residue_atoms[iat]->name);
+	 std::string atom_name(residue_atoms[iat]->GetAtomName());
 	 for (unsigned int ibond=0; ibond<monomer_restraints.bond_restraint.size(); ibond++) {
 	    const coot::dict_bond_restraint_t &br = monomer_restraints.bond_restraint[ibond];
 	    if (br.atom_id_1_4c() == atom_name) { 
@@ -328,9 +328,9 @@ pli::pi_stacking_container_t::get_ligand_cations(mmdb::Residue *res_ref,
 	 }
 
 	 if (n_bonds > 3) { // i.e. 4
-	    clipper::Coord_orth pt(residue_atoms[iat]->x,
-				   residue_atoms[iat]->y,
-				   residue_atoms[iat]->z);
+	    clipper::Coord_orth pt(residue_atoms[iat]->x(),
+				   residue_atoms[iat]->y(),
+				   residue_atoms[iat]->z());
 	    std::pair<std::string, clipper::Coord_orth> p(atom_name, pt);
 	    v.push_back(p);
 	 }
@@ -488,11 +488,11 @@ pli::pi_stacking_container_t::get_ring_pi_centre_points(const std::vector<std::s
    std::vector<clipper::Coord_orth> aromatic_plane_points;
    for (unsigned int iring_at=0; iring_at<ring_atom_names.size(); iring_at++) {
       for (int iat=0; iat<n_residue_atoms; iat++) {
-	 std::string atom_name(residue_atoms[iat]->name);
+	 std::string atom_name(residue_atoms[iat]->GetAtomName());
 	 if (atom_name == ring_atom_names[iring_at]) {
-	    clipper::Coord_orth at_pt(residue_atoms[iat]->x,
-				      residue_atoms[iat]->y,
-				      residue_atoms[iat]->z);
+	    clipper::Coord_orth at_pt(residue_atoms[iat]->x(),
+				      residue_atoms[iat]->y(),
+				      residue_atoms[iat]->z());
 	    aromatic_plane_points.push_back(at_pt);
 	    break;
 	 }
@@ -731,11 +731,11 @@ pli::pi_stacking_container_t::get_cation_atom_positions(mmdb::Residue *res) cons
       int n_residue_atoms;
       res->GetAtomTable(residue_atoms, n_residue_atoms);
       for (int i=0; i<n_residue_atoms; i++) {
-	 std::string atom_name(residue_atoms[i]->name);
+	 std::string atom_name(residue_atoms[i]->GetAtomName());
 	 if (atom_name == " NZ ") {
-	    clipper::Coord_orth pt(residue_atoms[i]->x,
-				   residue_atoms[i]->y,
-				   residue_atoms[i]->z);
+	    clipper::Coord_orth pt(residue_atoms[i]->x(),
+				   residue_atoms[i]->y(),
+				   residue_atoms[i]->z());
 	    v.push_back(pt);
 	 }
       }
@@ -746,12 +746,12 @@ pli::pi_stacking_container_t::get_cation_atom_positions(mmdb::Residue *res) cons
       int n_residue_atoms;
       res->GetAtomTable(residue_atoms, n_residue_atoms);
       for (int i=0; i<n_residue_atoms; i++) {
-	 std::string atom_name(residue_atoms[i]->name);
+	 std::string atom_name(residue_atoms[i]->GetAtomName());
 	 if ((atom_name == " NH1") ||
 	     (atom_name == " NH2")) {
-	    clipper::Coord_orth pt(residue_atoms[i]->x,
-				   residue_atoms[i]->y,
-				   residue_atoms[i]->z);
+	    clipper::Coord_orth pt(residue_atoms[i]->x(),
+				   residue_atoms[i]->y(),
+				   residue_atoms[i]->z());
 	    v.push_back(pt);
 	 }
       }

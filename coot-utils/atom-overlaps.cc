@@ -272,8 +272,8 @@ coot::atom_overlaps_container_t::mark_donors_and_acceptors_central_residue(int u
       res_central->GetAtomTable(central_residue_atoms, n_central_residue_atoms);
       for (int iat=0; iat<n_central_residue_atoms; iat++) {
          mmdb::Atom *at = central_residue_atoms[iat];
-         std::string atom_name(at->name);
-         std::string ele = at->element;
+         std::string atom_name(at->GetAtomName());
+         std::string ele = at->GetElementName();
          if (ele == " H") {
             molecule_has_hydrogens = true;
             // Hydrogens have energy type "H" from Refmac and acedrg, that doesn't
@@ -372,8 +372,8 @@ coot::atom_overlaps_container_t::mark_donors_and_acceptors_for_neighbours(int ud
          neighbours[i]->GetAtomTable(residue_atoms, n_residue_atoms);
          for (int iat=0; iat<n_residue_atoms; iat++) {
             mmdb::Atom *n_at = residue_atoms[iat];
-            std::string atom_name(n_at->name);
-            std::string ele = n_at->element;
+            std::string atom_name(n_at->GetAtomName());
+            std::string ele = n_at->GetElementName();
             if (ele == " H") {
                molecule_has_hydrogens = true;
                // as above
@@ -649,14 +649,14 @@ coot::atom_overlaps_container_t::kludge_filter(mmdb::Atom *at_1, mmdb::Atom *at_
    // generate full restraints - which we don't do.
 
    bool reject = false;
-   if (at_1->residue->chain == at_2->residue->chain) {
-      std::string res_name_1(at_1->residue->GetResName());
+   if (at_1->GetResidue()->chain == at_2->GetResidue()->chain) {
+      std::string res_name_1(at_1->GetResidue()->GetResName());
       if (res_name_1 == "ASN") {
-         std::string res_name_2(at_2->residue->GetResName());
+         std::string res_name_2(at_2->GetResidue()->GetResName());
          if (res_name_2 == "NAG") {
-            std::string atom_name_1(at_1->name);
+            std::string atom_name_1(at_1->GetAtomName());
             if (atom_name_1 == " NE2") {
-               std::string atom_name_2(at_2->name);
+               std::string atom_name_2(at_2->GetAtomName());
                if (atom_name_2 == " C2 ") {
                   reject = true;
                }
@@ -664,11 +664,11 @@ coot::atom_overlaps_container_t::kludge_filter(mmdb::Atom *at_1, mmdb::Atom *at_
          }
       }
       if (res_name_1 == "NAG") {
-         std::string res_name_2(at_2->residue->GetResName());
+         std::string res_name_2(at_2->GetResidue()->GetResName());
          if (res_name_2 == "ASN") {
-            std::string atom_name_1(at_1->name);
+            std::string atom_name_1(at_1->GetAtomName());
             if (atom_name_1 == " C2 ") {
-               std::string atom_name_2(at_2->name);
+               std::string atom_name_2(at_2->GetAtomName());
                if (atom_name_2 == " NE2") {
                   reject = true;
                }
@@ -1098,7 +1098,7 @@ coot::hb_t
 coot::atom_overlaps_container_t::get_h_bond_type(mmdb::Atom *at) {
 
    hb_t type = HB_UNASSIGNED;
-   std::string atom_name = at->name;
+   std::string atom_name = at->GetAtomName();
    std::string res_name = at->GetResName();
    type = geom_p->get_h_bond_type(atom_name, res_name, protein_geometry::IMOL_ENC_ANY); // heavyweight
 
@@ -1123,12 +1123,12 @@ coot::atom_overlaps_container_t::contact_dots_for_overlaps() const {
 
       // std::cout << "considering overlap idx: " << i << std::endl;
 
-      clipper::Coord_orth pt_at_1(overlaps[i].atom_1->x,
-                                  overlaps[i].atom_1->y,
-                                  overlaps[i].atom_1->z);
-      clipper::Coord_orth pt_at_2(overlaps[i].atom_2->x,
-                                  overlaps[i].atom_2->y,
-                                  overlaps[i].atom_2->z);
+      clipper::Coord_orth pt_at_1(overlaps[i].atom_1->x(),
+                                  overlaps[i].atom_1->y(),
+                                  overlaps[i].atom_1->z());
+      clipper::Coord_orth pt_at_2(overlaps[i].atom_2->x(),
+                                  overlaps[i].atom_2->y(),
+                                  overlaps[i].atom_2->z());
       const double &r_1 = overlaps[i].r_1;
       const double &r_2 = overlaps[i].r_2;
       const int &idx =    overlaps[i].ligand_atom_index;
@@ -1152,7 +1152,7 @@ coot::atom_overlaps_container_t::contact_dots_for_overlaps() const {
             bool draw_it = ! is_inside_another_ligand_atom(idx, pt_at_surface);
 
             if (false) // debugging
-               if (std::string(overlaps[i].atom_1->name) != " HO3")
+               if (std::string(overlaps[i].atom_1->GetAtomName()) != " HO3")
                   draw_it = false;
 
             if (draw_it) {
@@ -1365,7 +1365,7 @@ coot::atom_overlaps_container_t::contact_dots_for_ligand(double dot_density_in) 
                double r_1 = get_vdw_radius_ligand_atom(cr_at);
 
                std::vector<clipper::Coord_orth> &sphere_points_for_atom = sphere_points;
-               if (std::string(cr_at->element) == " H")
+               if (std::string(cr_at->GetElementName()) == " H")
                   sphere_points_for_atom = H_sphere_points;
 
                for (unsigned int j=0; j<sphere_points_for_atom.size(); j++) {
@@ -1672,12 +1672,12 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_single_thread(do
             double r_1 = get_vdw_radius_neighb_atom(iat);
 
             std::vector<clipper::Coord_orth> &sphere_points_for_atom = sphere_points;
-            if (std::string(at->element) == " H")
+            if (std::string(at->GetElementName()) == " H")
                sphere_points_for_atom = H_sphere_points;
 
             // if (std::string(at->element) == " H")
                // dot_density *=0.66; // so that surface dots on H atoms don't appear (weirdly) more fine
-            if (std::string(at->element) == " H")
+            if (std::string(at->GetElementName()) == " H")
                sphere_points_for_atom = H_sphere_points;
 
             for (unsigned int j=0; j<sphere_points_for_atom.size(); j++) {
@@ -1760,7 +1760,7 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_single_thread(do
 
                         // draw dot if these are atoms from different residues or this is not
                         // a wide contact
-                        if (at->residue != atom_with_biggest_overlap->residue) {
+                        if (at->GetResidue() != atom_with_biggest_overlap->GetResidue()) {
                            atom_overlaps_dots_container_t::dot_t dot(overlap_delta, col, pt_at_surface);
                            ao.dots[c_type].push_back(dot);
                         }
@@ -2033,7 +2033,7 @@ coot::atom_overlaps_container_t::contacts_for_atom(int iat,
    std::vector<clipper::Coord_orth> H_sphere_points = fibonacci_sphere(n_sphere_points_for_H); // less than above
 
    std::vector<clipper::Coord_orth> sphere_points_for_atom;
-   if (std::string(at->element) == " H")
+   if (std::string(at->GetElementName()) == " H")
       sphere_points_for_atom = H_sphere_points;
    else
       sphere_points_for_atom = sphere_points;
@@ -2072,7 +2072,7 @@ coot::atom_overlaps_container_t::contacts_for_atom(int iat,
          for (unsigned int jj=0; jj<v.size(); jj++) {
             mmdb::Atom *neighb_atom = atom_selection[v[jj]];
             // no contacts for atoms in the same residue
-            if (neighb_atom->residue == at->residue) continue;
+            if (neighb_atom->GetResidue() == at->GetResidue()) continue;
             double r_2 = neighb_atom_radius[v[jj]];
             double r_2_sqrd = r_2 * r_2;
             double r_2_plus_prb_squard = r_2_sqrd + 2 * r_2 * probe_radius +
@@ -2136,7 +2136,7 @@ coot::atom_overlaps_container_t::contacts_for_atom(int iat,
 
                // draw dot if these are atoms from different residues or this is not
                // a wide contact
-               if (at->residue != atom_with_biggest_overlap->residue) {
+               if (at->GetResidue() != atom_with_biggest_overlap->GetResidue()) {
                   atom_overlaps_dots_container_t::dot_t dot(overlap_delta, col, pt_at_surface);
                   ao.dots[c_type].push_back(dot);
                } else {
@@ -2181,8 +2181,8 @@ coot::atom_overlaps_container_t::clashable_alt_confs(mmdb::Atom *at_1, mmdb::Ato
 
    bool r = true;
 
-   std::string alt_conf_1 = at_1->altLoc;
-   std::string alt_conf_2 = at_2->altLoc;
+   std::string alt_conf_1 = at_1->altLoc();
+   std::string alt_conf_2 = at_2->altLoc();
 
    if (alt_conf_1.empty()) {
       return true;
@@ -2244,7 +2244,7 @@ coot::atom_overlaps_container_t::is_inside_an_env_atom_to_which_its_bonded(int i
       // std::cout << "testing env_atom: " << atom_spec_t(env_atom) << std::endl;
       clipper::Coord_orth pt_env_atom = co(env_atom);
       double r_2 = 1.6;
-      std::string ele(env_atom->element);
+      std::string ele(env_atom->GetElementName());
       if (ele == " H")
          r_2 = 0.97;
       double r_2_sqrd = r_2 * r_2;
@@ -2521,7 +2521,7 @@ coot::atom_overlaps_container_t::setup_env_residue_atoms_radii(int i_sel_hnd_env
                std::cout << ":::::::::::::::::: in setup_env_residue_atoms_radii() the dictionary_map is of size "
                          << dictionary_map.size() << " and residue_index is " << residue_index << std::endl;
 
-            mmdb::Residue *res = at->residue;
+            mmdb::Residue *res = at->GetResidue();
             const dictionary_residue_restraints_t &rest = get_dictionary(res, residue_index);
             // is rest sane?
             // std::cout << "debug:: rest has " << rest.atom_info.size() << " atoms "<< std::endl;
@@ -2675,8 +2675,8 @@ coot::atom_overlaps_container_t::bonded_angle_or_ring_related(mmdb::Manager *mol
       //
       std::string res_name = res_1->GetResName();
       std::vector<std::pair<std::string, std::string> > bps;
-      std::string atom_name_1 = at_1->name;
-      std::string atom_name_2 = at_2->name;
+      std::string atom_name_1 = at_1->GetAtomName();
+      std::string atom_name_2 = at_2->GetAtomName();
       std::map<std::string, std::vector<std::pair<std::string, std::string> > >::const_iterator it;
       it = bonded_neighbours->find(res_name);
       if (it == bonded_neighbours->end()) {
@@ -2912,9 +2912,9 @@ coot::atom_overlaps_container_t::is_ss_bonded_or_CYS_CYS_SGs(mmdb::Atom *at_1,
    // There is no mmdb class for SSBOND! - must fix.
 
    bool status = false;
-   std::string res_name_1 = at_1->residue->GetResName();
+   std::string res_name_1 = at_1->GetResidue()->GetResName();
    if (res_name_1 == "CYS") {
-      std::string res_name_2 = at_2->residue->GetResName();
+      std::string res_name_2 = at_2->GetResidue()->GetResName();
       if (res_name_2 == "CYS") {
          std::string atom_name_1 = at_1->GetAtomName();
          if (atom_name_1 == " SG ") {
@@ -3119,8 +3119,8 @@ coot::atom_overlaps_container_t::are_bonded_residues(mmdb::Residue *res_1, mmdb:
 
          if (! r) {
             // perhaps they are next to each other by serial number but not sequence number
-            int ser_1 = res_1->index;
-            int ser_2 = res_2->index;
+            int ser_1 = res_1->GetIndex();
+            int ser_2 = res_2->GetIndex();
             if (ser_2 > ser_1) {
                if ((ser_2 - ser_1) == 1) {
                   if (! res_1->isCTerminus()) {

@@ -58,6 +58,7 @@
 #include "coords/mmdb-crystal.hh"
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot-utils/xmap-stats.hh"
+#include "coot-utils/mmdb-to-clipper-atom-list.hh"
 #include "density-contour/CIsoSurface.h"
 
 #include "molecule-class-info.h"
@@ -3130,7 +3131,7 @@ molecule_class_info_t::calculate_sfs_and_make_map(int imol_no_in,
    clipper::HKL_data< clipper::datatypes::F_phi<float> > map_fphidata(myfsigf.spacegroup(),myfsigf.cell(), myfsigf.hkl_sampling());
 
    // get a list of all the atoms
-   clipper::MMDBAtom_list atoms(SelAtom.atom_selection, SelAtom.n_selected_atoms);
+   coot::MMDBAtom_list atoms(SelAtom.atom_selection, SelAtom.n_selected_atoms);
 
    std::cout << "isotropic fft of " << SelAtom.n_selected_atoms
 	     << " atoms..." << std::endl;
@@ -3247,7 +3248,7 @@ molecule_class_info_t::calculate_sfs_and_make_map(int imol_no_in,
 	 hndl = mmdb->NewSelection();
 	 mmdb->SelectAtoms( hndl, 0, 0, mmdb::SKEY_NEW );
 	 mmdb->GetSelIndex( hndl, psel, nsel );
-	 clipper::MMDBAtom_list atoms( psel, nsel );
+	 coot::MMDBAtom_list atoms( psel, nsel );
 	 mmdb->DeleteSelection( hndl );
 
 	 // calculate structure factors

@@ -201,7 +201,7 @@ coot::molecule_t::execute_simple_nucleotide_addition(const std::string &term_typ
 	    if (rtop_pair.first) {
 	       // fix up the residue number and chain id to match the clicked atom
 	       int new_resno = res_p->GetSeqNum() + interesting_resno - match_resno;
-	       interesting_residue_p->seqNum = new_resno;
+	       interesting_residue_p->GetSeqNum() = new_resno;
 
                // we always want to remove OP3 from the residue to which a new residue
                // is added when we add to the "N-terminus"
@@ -214,7 +214,7 @@ coot::molecule_t::execute_simple_nucleotide_addition(const std::string &term_typ
                   for (int iat=0; iat<n_residue_atoms; iat++) {
                      mmdb::Atom *at = residue_atoms[iat];
                      if (at) {
-                        std::string at_name(at->name);
+                        std::string at_name(at->GetAtomName());
                         if (at_name == " OP3") {  // PDBv3 FIXME
                            delete at;
                            at = NULL;

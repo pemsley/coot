@@ -302,16 +302,16 @@ coot::beam_in_linked_residue::get_residue() const {
             current_torsion = quad.torsion();
             double diff = clipper::Util::d2rad(template_torsion - current_torsion);
             clipper::Coord_orth base;
-            base         = clipper::Coord_orth(at_C5->x, at_C5->y, at_C5->z);
-            origin_shift = clipper::Coord_orth(at_C6->x, at_C6->y, at_C6->z);
-            position =     clipper::Coord_orth(at_O6->x, at_O6->y, at_O6->z);
+            base         = clipper::Coord_orth(at_C5->x(), at_C5->y(), at_C5->z());
+            origin_shift = clipper::Coord_orth(at_C6->x(), at_C6->y(), at_C6->z());
+            position =     clipper::Coord_orth(at_O6->x(), at_O6->y(), at_O6->z());
             direction = origin_shift - base;
             clipper::Coord_orth new_pos =
                coot::util::rotate_around_vector(direction, position,
                                                 origin_shift, diff);
-            at_O6->x = new_pos.x();
-            at_O6->y = new_pos.y();
-            at_O6->z = new_pos.z();
+            at_O6->x() = new_pos.x();
+            at_O6->y() = new_pos.y();
+            at_O6->z() = new_pos.z();
          }
       }
       catch (const std::runtime_error &rte) {
@@ -325,26 +325,26 @@ coot::beam_in_linked_residue::get_residue() const {
       if (r) { 
          // now rotate r and O6 back to current_torsion
          if (at_O6) {
-            position = clipper::Coord_orth(at_O6->x, at_O6->y, at_O6->z);
+            position = clipper::Coord_orth(at_O6->x(), at_O6->y(), at_O6->z());
             double diff = clipper::Util::d2rad(template_torsion - current_torsion);
             clipper::Coord_orth new_pos =
                coot::util::rotate_around_vector(direction, position, origin_shift, -diff);
 
-            at_O6->x = new_pos.x();
-            at_O6->y = new_pos.y();
-            at_O6->z = new_pos.z();
+            at_O6->x() = new_pos.x();
+            at_O6->y() = new_pos.y();
+            at_O6->z() = new_pos.z();
 
             mmdb::PPAtom residue_atoms = 0;
             int n_residue_atoms;
             r->GetAtomTable(residue_atoms, n_residue_atoms);
             for (int i=0; i<n_residue_atoms; i++) {
                mmdb::Atom *at = residue_atoms[i];
-               clipper::Coord_orth p(at->x, at->y, at->z);
+               clipper::Coord_orth p(at->x(), at->y(), at->z());
                clipper::Coord_orth n =
                   coot::util::rotate_around_vector(direction, p, origin_shift, -diff);
-               at->x = n.x();
-               at->y = n.y();
-               at->z = n.z();
+               at->x() = n.x();
+               at->y() = n.y();
+               at->z() = n.z();
             }
          }
       } 
@@ -502,8 +502,8 @@ coot::beam_in_linked_residue::lsq_fit(mmdb::Residue *ref_res,
          std::vector<clipper::Coord_orth> co_1(n);
          std::vector<clipper::Coord_orth> co_2(n);
          for (unsigned int iat=0; iat<va_1.size(); iat++) { 
-            co_1[iat] = clipper::Coord_orth(va_1[iat]->x, va_1[iat]->y, va_1[iat]->z);
-            co_2[iat] = clipper::Coord_orth(va_2[iat]->x, va_2[iat]->y, va_2[iat]->z);
+            co_1[iat] = clipper::Coord_orth(va_1[iat]->x(), va_1[iat]->y(), va_1[iat]->z());
+            co_2[iat] = clipper::Coord_orth(va_2[iat]->x(), va_2[iat]->y(), va_2[iat]->z());
          }
          clipper::RTop_orth rtop(co_1, co_2);
          coot::util::transform_atoms(mov_res, rtop);
@@ -525,7 +525,7 @@ coot::beam_in_linked_residue::delete_atom(mmdb::Residue *res, const std::string 
    for (int iat=0; iat<n_residue_atoms; iat++) {
       mmdb::Atom *at = residue_atoms[iat];
       if (at) {
-         std::string at_name(at->name);
+         std::string at_name(at->GetAtomName());
          if (at_name == atom_name) {
             // std::cout << "..... delete_atom() deleting atom with index " << iat
             // << " and  name \"" << at_name << "\"" << std::endl;
@@ -672,7 +672,7 @@ coot::glyco_tree_t::glyco_tree_t(mmdb::Residue *residue_p, mmdb::Manager *mol,
       std::vector<mmdb::Residue *> considered;
       // std::vector<mmdb::Residue *> linked_residues;
       
-      if (is_pyranose(residue_p) || std::string(residue_p->name) == "ASN")
+      if (is_pyranose(residue_p) || std::string(residue_p->GetResName()) == "ASN")
          q.push(residue_p);
 
       while (q.size()) {
@@ -680,7 +680,7 @@ coot::glyco_tree_t::glyco_tree_t(mmdb::Residue *residue_p, mmdb::Manager *mol,
          q.pop();
          std::vector<mmdb::Residue *> residues = residues_near_residue(test_residue, mol, dist_crit);
          for (unsigned int ires=0; ires<residues.size(); ires++) {
-            if (is_pyranose(residues[ires]) || std::string(residues[ires]->name) == "ASN") {
+            if (is_pyranose(residues[ires]) || std::string(residues[ires]->GetResName()) == "ASN") {
                if (std::find(considered.begin(), considered.end(), residues[ires]) == considered.end()) { 
                   q.push(residues[ires]);
                   linked_residues.push_back(residues[ires]);
@@ -698,7 +698,7 @@ coot::glyco_tree_t::glyco_tree_t(mmdb::Residue *residue_p, mmdb::Manager *mol,
          std::cout << "INFO:: " << linked_residues.size() << " glycan/ASN residues" << std::endl;
 
       for (unsigned int ires=0; ires<linked_residues.size(); ires++) {
-         std::string residue_name(linked_residues[ires]->name);
+         std::string residue_name(linked_residues[ires]->GetResName());
          // std::cout << "   " << ires << " " << residue_name << std::endl;
          if (residue_name == "ASN") {
             if (false)
@@ -1041,7 +1041,7 @@ coot::glyco_tree_t::residues(const coot::residue_spec_t &containing_res_spec) co
    std::vector<mmdb::Residue *> v;
    for (unsigned int ires=0; ires<linked_residues.size(); ires++) {
       mmdb::Residue *this_res = linked_residues[ires];
-      std::string residue_name(this_res->name);
+      std::string residue_name(this_res->GetResName());
       if (false)
          std::cout << "residues(): considering residue " << coot::residue_spec_t(this_res) << " "
                    << residue_name << std::endl;
@@ -1066,7 +1066,7 @@ void
 coot::glyco_tree_t::internal_distances(double dist_lim, const std::string &file_name) const {
    
    for (unsigned int ires=0; ires<linked_residues.size(); ires++) { 
-      std::string residue_name(linked_residues[ires]->name);
+      std::string residue_name(linked_residues[ires]->GetResName());
       if (residue_name == "ASN") {
          tree<coot::linked_residue_t> tr = find_ASN_rooted_tree(linked_residues[ires], linked_residues);
          if (tr.size() < 2) {
@@ -1152,14 +1152,14 @@ coot::glyco_tree_t::output_internal_distances(mmdb::Residue *residue_p,
    for (int iat=0; iat<n_residue_atoms; iat++) {
       mmdb::Atom *at_i = residue_atoms[iat];
       if (! at_i->isTer()) {
-         std::string ele_i(at_i->element);
+         std::string ele_i(at_i->GetElementName());
          if (include_hydrogen_atoms || (ele_i != " H")) { // PDBv3 FIXME and below
             clipper::Coord_orth pos_atom_i = co(at_i);
             // don't do forwards and backwards distances
             for (int jat=iat; jat<n_residue_atoms; jat++) {
                if (iat != jat) {
                   mmdb::Atom *at_j = residue_atoms[jat];
-                  std::string ele_j(at_j->element);
+                  std::string ele_j(at_j->GetElementName());
                   if (include_hydrogen_atoms || (ele_j != " H")) {
                      if (! at_j->isTer()) {
                         clipper::Coord_orth pos_atom_j = co(at_j);
@@ -1182,7 +1182,7 @@ coot::glyco_tree_t::output_internal_distances(mmdb::Residue *residue_p,
       for (int iat=0; iat<n_residue_atoms; iat++) {
          mmdb::Atom *at_i = residue_atoms[iat];
          if (! at_i->isTer()) {
-            std::string ele_i(at_i->element);
+            std::string ele_i(at_i->GetElementName());
             if (include_hydrogen_atoms || (ele_i != " H")) { // PDBv3 FIXME
                clipper::Coord_orth pos_atom_i = co(at_i);
                mmdb::Atom **parent_residue_atoms = 0;
@@ -1192,7 +1192,7 @@ coot::glyco_tree_t::output_internal_distances(mmdb::Residue *residue_p,
                   mmdb::Atom *at_j = parent_residue_atoms[jat];
                   clipper::Coord_orth pos_atom_j = co(at_j);
                   if (! at_j->isTer()) {
-                     std::string ele_j(at_j->element);
+                     std::string ele_j(at_j->GetElementName());
                      if (include_hydrogen_atoms || (ele_j != " H")) { // PDBv3 FIXME
                         double d = clipper::Coord_orth::length(pos_atom_i, pos_atom_j);
                         if (! at_j->isTer()) {

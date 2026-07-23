@@ -144,7 +144,7 @@ coot::deep_copy_this_residue_old_style(mmdb::Residue *residue,
 	 mmdb::Atom *at = residue_atoms[iat];
 	 if (at) { // can have been deleted
 	    if (! at->isTer()) { 
-	       std::string this_atom_alt_loc(residue_atoms[iat]->altLoc);
+	       std::string this_atom_alt_loc(residue_atoms[iat]->altLoc());
 	       if (whole_residue_flag ||
 		   this_atom_alt_loc  == altconf || this_atom_alt_loc == "") { 
 		  atom_p = new mmdb::Atom;
@@ -210,10 +210,10 @@ coot::deep_copy_this_residue_and_make_asc(mmdb::Manager *orig_mol,
    mmdb::Chain   *chain_p = new mmdb::Chain;
    std::string chain_id1 = ((mmdb::Residue *)residue)->GetChainID();
    chain_p->SetChainID(chain_id1.c_str());
-   rres->seqNum = ((mmdb::Residue *)residue)->GetSeqNum();
+   rres->GetSeqNum() = ((mmdb::Residue *)residue)->GetSeqNum();
    /* Copy insertion code - a char[10] */
    memcpy(rres->insCode, residue->insCode, sizeof(mmdb::InsCode));
-   memcpy(rres->name, residue->name, sizeof(mmdb::ResName));
+   rres->SetResName(residue->name);
    
    mmdb::PPAtom residue_atoms;
    int nResidueAtoms;
@@ -225,7 +225,7 @@ coot::deep_copy_this_residue_and_make_asc(mmdb::Manager *orig_mol,
    
    for(int iat=0; iat<nResidueAtoms; iat++) {
       if (! residue_atoms[iat]->isTer()) { 
-	 std::string this_atom_alt_loc(residue_atoms[iat]->altLoc);
+	 std::string this_atom_alt_loc(residue_atoms[iat]->altLoc());
 	 if (whole_residue_flag ||
 	     this_atom_alt_loc  == altconf || this_atom_alt_loc == "") { 
 	    atom_p = new mmdb::Atom;
@@ -311,7 +311,7 @@ coot::get_first_atom_with_atom_name(const std::string &atomname,
    mmdb::Atom *atom = NULL;
 
    for (int i=0; i<asc.n_selected_atoms; i++) { 
-      std::string name(asc.atom_selection[i]->name);
+      std::string name(asc.atom_selection[i]->GetAtomName());
       if (name == atomname) { 
 	 atom = asc.atom_selection[i];
 	 break;

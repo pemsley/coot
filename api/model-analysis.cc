@@ -37,8 +37,8 @@ molecules_container_t::get_atom_differences(int imol1, int imol2) {
                                                             mmdb::Atom *atom2 = res2->GetAtom(atom_name);
                                                             if (atom2) {
                                                                 coot::atom_spec_t as1 = coot::atom_spec_t(atom1);
-                                                                coot::Cartesian pos1 = coot::Cartesian(atom1->x, atom1->y, atom1->z);
-                                                                coot::Cartesian pos2 = coot::Cartesian(atom2->x, atom2->y, atom2->z);
+                                                                coot::Cartesian pos1 = coot::Cartesian(atom1->x(), atom1->y(), atom1->z());
+                                                                coot::Cartesian pos2 = coot::Cartesian(atom2->x(), atom2->y(), atom2->z());
                                                                 positioned_atom_spec_t pas;
                                                                 pas.atom_spec = as1;
                                                                 pas.pos1 = pos1;

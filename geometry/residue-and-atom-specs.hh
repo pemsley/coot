@@ -66,8 +66,8 @@ namespace coot {
             res_no         = at->GetSeqNum();
             ins_code       = at->GetInsCode();
             model_number   = at->GetModelNum();
-            atom_name      = at->name;
-            alt_conf       = at->altLoc;
+            atom_name      = at->GetAtomName();
+            alt_conf       = at->altLoc();
          } else {
             chain_id = "unset";
             res_no = mmdb::MinInt4;
@@ -83,8 +83,8 @@ namespace coot {
          chain_id = at->GetChainID();
          res_no = at->GetSeqNum();
          ins_code = at->GetInsCode();
-         atom_name = at->name;
-         alt_conf = at->altLoc;
+         atom_name = at->GetAtomName();
+         alt_conf = at->altLoc();
          string_user_data = user_data_string;
          float_user_data = -1;
          int_user_data = -1;

@@ -144,7 +144,7 @@ pli::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
 // 	 }
 
 	 if (debug)
-	    std::cout << "constructing fle ligand bond " << ligand_atom->name
+	    std::cout << "constructing fle ligand bond " << ligand_atom->GetAtomName()
 		      << " " << bond_type << " " << hbonds[i].dist << " "
 		      << coot::atom_spec_t(env_residue_atom) << " "
 		      << env_residue_atom->GetResName()
@@ -172,7 +172,7 @@ pli::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
 
 	    std::string residue_name = ligand_atom->GetResName();
 	    if (residue_name == "HOH")
-	       bond.water_protein_length = find_water_protein_length(ligand_atom->residue, mol);
+	       bond.water_protein_length = find_water_protein_length(ligand_atom->GetResidue(), mol);
 
 	    v.push_back(bond);
 	 }
@@ -297,8 +297,8 @@ pli::get_covalent_bonds_by_distance(mmdb::Manager *mol,
 	    mmdb::Atom *at_2 = other_atom_selection[pscontact[i].id2];
 
 	    // move on if these are interacting atoms
-	    std::string alt_conf_1 = at_1->altLoc;
-	    std::string alt_conf_2 = at_2->altLoc;
+	    std::string alt_conf_1 = at_1->altLoc();
+	    std::string alt_conf_2 = at_2->altLoc();
 	    if (!alt_conf_1.empty() && ! alt_conf_2.empty())
 	       if (alt_conf_1 != alt_conf_2)
 		  continue;
@@ -309,12 +309,12 @@ pli::get_covalent_bonds_by_distance(mmdb::Manager *mol,
 	    std::pair<mmdb::Residue *, mmdb::Residue *> pair(at_1->GetResidue(),
 						   at_2->GetResidue());
 
-	    std::string ele_1 = at_1->element;
-	    std::string ele_2 = at_2->element;
+	    std::string ele_1 = at_1->GetElementName();
+	    std::string ele_2 = at_2->GetElementName();
 	    if (ele_1 != " H") { 
 	       if (ele_2 != " H") { 
-		  clipper::Coord_orth pt_1(at_1->x, at_1->y, at_1->z);
-		  clipper::Coord_orth pt_2(at_2->x, at_2->y, at_2->z);
+		  clipper::Coord_orth pt_1(at_1->x(), at_1->y(), at_1->z());
+		  clipper::Coord_orth pt_2(at_2->x(), at_2->y(), at_2->z());
 		  double d = (pt_1-pt_2).lengthsq();
 
 		  double dist_for_bond = max_dist;
@@ -379,8 +379,8 @@ pli::get_covalent_bonds_by_links(mmdb::Residue *residue_ligand_p,
 			if (at_1 && at_2) {
 
 			   // move on if these are interacting atoms
-			   std::string alt_conf_1 = at_1->altLoc;
-			   std::string alt_conf_2 = at_2->altLoc;
+			   std::string alt_conf_1 = at_1->altLoc();
+			   std::string alt_conf_2 = at_2->altLoc();
 			   if (!alt_conf_1.empty() && ! alt_conf_2.empty())
 			      if (alt_conf_1 != alt_conf_2)
 				 continue;
@@ -405,8 +405,8 @@ pli::get_covalent_bonds_by_links(mmdb::Residue *residue_ligand_p,
 			if (at_1 && at_2) { 
 
 			   // move on if these are interacting atoms
-			   std::string alt_conf_1 = at_1->altLoc;
-			   std::string alt_conf_2 = at_2->altLoc;
+			   std::string alt_conf_1 = at_1->altLoc();
+			   std::string alt_conf_2 = at_2->altLoc();
 			   if (!alt_conf_1.empty() && ! alt_conf_2.empty())
 			      if (alt_conf_1 != alt_conf_2)
 				 continue;
@@ -454,20 +454,20 @@ pli::get_metal_bonds(mmdb::Residue *ligand_residue, const std::vector<mmdb::Resi
 	       // move on if these are interacting atoms
 	       mmdb::Atom *at_1 = ligand_residue_atoms[ilat];
 	       mmdb::Atom *at_2 = residue_atoms[irat];
-	       std::string alt_conf_1 = at_1->altLoc;
-	       std::string alt_conf_2 = at_2->altLoc;
+	       std::string alt_conf_1 = at_1->altLoc();
+	       std::string alt_conf_2 = at_2->altLoc();
 	       if (!alt_conf_1.empty() && ! alt_conf_2.empty())
 		  if (alt_conf_1 != alt_conf_2)
 		     continue;
 
-	       std::string ele(residue_atoms[irat]->element);
+	       std::string ele(residue_atoms[irat]->GetElementName());
 	       if ((ele == " H") || (ele == " C")) { 
-		  clipper::Coord_orth pt_1(ligand_residue_atoms[ilat]->x,
-					   ligand_residue_atoms[ilat]->y,
-					   ligand_residue_atoms[ilat]->z);
-		  clipper::Coord_orth pt_2(residue_atoms[irat]->x,
-					   residue_atoms[irat]->y,
-					   residue_atoms[irat]->z);
+		  clipper::Coord_orth pt_1(ligand_residue_atoms[ilat]->x(),
+					   ligand_residue_atoms[ilat]->y(),
+					   ligand_residue_atoms[ilat]->z());
+		  clipper::Coord_orth pt_2(residue_atoms[irat]->x(),
+					   residue_atoms[irat]->y(),
+					   residue_atoms[irat]->z());
 		  double d2 = (pt_1-pt_2).clipper::Coord_orth::lengthsq();
 		  if (d2 < best_dist_sqrd) {
 		     best_dist_sqrd = d2;
@@ -627,14 +627,14 @@ pli::find_water_protein_length(mmdb::Residue *ligand_residue, mmdb::Manager *mol
 	       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
 	       for (int il=0; il<n_ligand_residue_atoms; il++) {
 		  for (int irat=0; irat<n_residue_atoms; irat++) {
-		     std::string ele(residue_atoms[irat]->element);
+		     std::string ele(residue_atoms[irat]->GetElementName());
 		     if ((ele == " O") || (ele == " N")) { 
-			clipper::Coord_orth pt_1(ligand_residue_atoms[il]->x,
-						 ligand_residue_atoms[il]->y,
-						 ligand_residue_atoms[il]->z);
-			clipper::Coord_orth pt_2(residue_atoms[irat]->x,
-						 residue_atoms[irat]->y,
-						 residue_atoms[irat]->z);
+			clipper::Coord_orth pt_1(ligand_residue_atoms[il]->x(),
+						 ligand_residue_atoms[il]->y(),
+						 ligand_residue_atoms[il]->z());
+			clipper::Coord_orth pt_2(residue_atoms[irat]->x(),
+						 residue_atoms[irat]->y(),
+						 residue_atoms[irat]->z());
 			double d2 = (pt_1-pt_2).clipper::Coord_orth::lengthsq();
 			if (d2 < dist_sqrd) {
 			   dist_sqrd = d2;

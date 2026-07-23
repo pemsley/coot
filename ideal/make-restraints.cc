@@ -378,23 +378,23 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints() {
          // nO -> (n+4)N 2.91  // and backwards directions.
 	 SelResidue[i]->GetAtomTable(res_1_atoms, n_res_1_atoms);
 	 for (int iat1=0; iat1<n_res_1_atoms; iat1++) {
-	    std::string at_1_name(res_1_atoms[iat1]->name);
+	    std::string at_1_name(res_1_atoms[iat1]->GetAtomName());
 
 	    if (at_1_name == " N  ") {
 	       mmdb::Residue *contact_res = SelResidue[i-4];
 	       if (SelResidue[i]->GetSeqNum() == (contact_res->GetSeqNum() + 4)) {
 		  contact_res->GetAtomTable(res_2_atoms, n_res_2_atoms);
 		  for (int iat2=0; iat2<n_res_2_atoms; iat2++) {
-		     std::string at_2_name(res_2_atoms[iat2]->name);
+		     std::string at_2_name(res_2_atoms[iat2]->GetAtomName());
 		     if (at_2_name == " O  ") {
 			res_1_atoms[iat1]->GetUDData(udd_atom_index_handle, index1);
 			res_2_atoms[iat2]->GetUDData(udd_atom_index_handle, index2);
 			std::vector<bool> fixed_flags = make_fixed_flags(index1, index2);
 			add(BOND_RESTRAINT, index1, index2, fixed_flags,
 			    2.91, pseudo_bond_esd, 1.2);
-			std::cout << "Helix Bond restraint (" << res_1_atoms[iat1]->name << " "
+			std::cout << "Helix Bond restraint (" << res_1_atoms[iat1]->GetAtomName() << " "
 				  << res_1_atoms[iat1]->GetSeqNum() << ") to ("
-				  << res_2_atoms[iat2]->name << " "
+				  << res_2_atoms[iat2]->GetAtomName() << " "
 				  << res_2_atoms[iat2]->GetSeqNum() << ") 2.91" << std::endl;
 		     }
 		  }
@@ -404,16 +404,16 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints() {
 	       if (SelResidue[i]->GetSeqNum() == (contact_res->GetSeqNum() + 3)) {
 		  contact_res->GetAtomTable(res_2_atoms, n_res_2_atoms);
 		  for (int iat2=0; iat2<n_res_2_atoms; iat2++) {
-		     std::string at_2_name(res_2_atoms[iat2]->name);
+		     std::string at_2_name(res_2_atoms[iat2]->GetAtomName());
 		     if (at_2_name == " O  ") {
 			std::vector<bool> fixed_flags = make_fixed_flags(index1, index2);
 			res_1_atoms[iat1]->GetUDData(udd_atom_index_handle, index1);
 			res_2_atoms[iat2]->GetUDData(udd_atom_index_handle, index2);
 			add(BOND_RESTRAINT, index1, index2, fixed_flags,
 			    3.18, pseudo_bond_esd, 1.2);
-			std::cout << "Helix Bond restraint (" << res_1_atoms[iat1]->name << " "
+			std::cout << "Helix Bond restraint (" << res_1_atoms[iat1]->GetAtomName() << " "
 				  << res_1_atoms[iat1]->GetSeqNum() << ") to ("
-				  << res_2_atoms[iat2]->name << " "
+				  << res_2_atoms[iat2]->GetAtomName() << " "
 				  << res_2_atoms[iat2]->GetSeqNum() << ") 3.18" << std::endl;
 		     }
 		  }
@@ -579,13 +579,13 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec_aut
                // std::cout << "INFO:: Alpha Helix Bond restraint ("
                //          << at_1->name << " " << at_1->GetSeqNum() << ") to ("
                //          << at_3->name << " " << at_3->GetSeqNum() << ") " << ideal_dist_i_3 << std::endl;
-               logger.log(log_t::INFO, "Alpha Helix Bond restraint (" + std::string(at_1->name) + " " + std::to_string(at_1->GetSeqNum()) +
-                          ") to (" + std::string(at_3->name) + " " + std::to_string(at_3->GetSeqNum()) + ") " + std::to_string(ideal_dist_i_3));
+               logger.log(log_t::INFO, "Alpha Helix Bond restraint (" + std::string(at_1->GetAtomName()) + " " + std::to_string(at_1->GetSeqNum()) +
+                          ") to (" + std::string(at_3->GetAtomName()) + " " + std::to_string(at_3->GetSeqNum()) + ") " + std::to_string(ideal_dist_i_3));
                // std::cout << "INFO:: Alpha Helix Bond restraint ("
                //          << at_1->name << " " << at_1->GetSeqNum() << ") to ("
                //          << at_2->name << " " << at_2->GetSeqNum() << ") " << ideal_dist_i_4 << std::endl;
-               logger.log(log_t::INFO, "Alpha Helix Bond restraint (" + std::string(at_1->name) + " " + std::to_string(at_1->GetSeqNum()) +
-                          ") to (" + std::string(at_2->name) + " " + std::to_string(at_2->GetSeqNum()) + ") " + std::to_string(ideal_dist_i_4));
+               logger.log(log_t::INFO, "Alpha Helix Bond restraint (" + std::string(at_1->GetAtomName()) + " " + std::to_string(at_1->GetSeqNum()) +
+                          ") to (" + std::string(at_2->GetAtomName()) + " " + std::to_string(at_2->GetSeqNum()) + ") " + std::to_string(ideal_dist_i_4));
             }
             n_helical_restraints += 2;
          } else {
@@ -600,8 +600,8 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec_aut
                   // std::cout << "INFO:: Alpha Helix Bond restraint ("
                   //          << at_1->name << " " << at_1->GetSeqNum() << ") to ("
                   //          << at_3->name << " " << at_3->GetSeqNum() << ") " << ideal_dist_i_3 << std::endl;
-                  logger.log(log_t::INFO, "Alpha Helix Bond restraint (" + std::string(at_1->name) + " " + std::to_string(at_1->GetSeqNum()) +
-                             ") to (" + std::string(at_3->name) + " " + std::to_string(at_3->GetSeqNum()) + ") " + std::to_string(ideal_dist_i_3));
+                  logger.log(log_t::INFO, "Alpha Helix Bond restraint (" + std::string(at_1->GetAtomName()) + " " + std::to_string(at_1->GetSeqNum()) +
+                             ") to (" + std::string(at_3->GetAtomName()) + " " + std::to_string(at_3->GetSeqNum()) + ") " + std::to_string(ideal_dist_i_3));
                }
                n_helical_restraints += 1;
 	    }
@@ -678,8 +678,8 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec() {
 			   mmdb::Atom *at_2 = residue_atoms_2[jat];
 			   std::string atom_name_2 = at_2->GetAtomName();
 			   if (atom_name_2 == " N  ") {
-			      std::string alt_conf_1 = at_1->altLoc;
-			      std::string alt_conf_2 = at_2->altLoc;
+			      std::string alt_conf_1 = at_1->altLoc();
+			      std::string alt_conf_2 = at_2->altLoc();
 			      if (alt_conf_1 == alt_conf_2) {
 
 				 int index_1 = -1;
@@ -692,13 +692,13 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec() {
 				    ideal_dist = 3.181;
 				 add(BOND_RESTRAINT, index_1, index_2, fixed_flags, ideal_dist, pseudo_bond_esd, 1.2);
 				 std::cout << "Helix Bond restraint ("
-					   << at_1->name << " " << at_1->GetSeqNum() << ") to ("
-					   << at_2->name << " " << at_2->GetSeqNum() << ") " << ideal_dist << std::endl;
+					   << at_1->GetAtomName() << " " << at_1->GetSeqNum() << ") to ("
+					   << at_2->GetAtomName() << " " << at_2->GetSeqNum() << ") " << ideal_dist << std::endl;
 			      }
 			   }
 			   if (atom_name_2 == " O  ") {
-			      std::string alt_conf_1 = at_1->altLoc;
-			      std::string alt_conf_2 = at_2->altLoc;
+			      std::string alt_conf_1 = at_1->altLoc();
+			      std::string alt_conf_2 = at_2->altLoc();
 			      if (alt_conf_1 == alt_conf_2) {
 
 				 int index_1 = -1;
@@ -712,8 +712,8 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec() {
                                  double O_O_pseudo_bond_esd = 0.07; // guess
 				 add(BOND_RESTRAINT, index_1, index_2, fixed_flags, ideal_dist, O_O_pseudo_bond_esd, 1.2);
 				 std::cout << "Helix Bond restraint ("
-					   << at_1->name << " " << at_1->GetSeqNum() << ") to ("
-					   << at_2->name << " " << at_2->GetSeqNum() << ") " << ideal_dist << std::endl;
+					   << at_1->GetAtomName() << " " << at_1->GetSeqNum() << ") to ("
+					   << at_2->GetAtomName() << " " << at_2->GetSeqNum() << ") " << ideal_dist << std::endl;
 			      }
                            }
 			}
@@ -771,7 +771,7 @@ coot::restraints_container_t::make_strand_pseudo_bond_restraints() {
 	 SelResidue[i]->GetAtomTable(res_1_atoms, n_res_1_atoms);
 	 if (res_1_atoms) { 
 	    for (int iat1=0; iat1<n_res_1_atoms; iat1++) {
-	       std::string at_1_name(res_1_atoms[iat1]->name);
+	       std::string at_1_name(res_1_atoms[iat1]->GetAtomName());
 	       // O Pseudo bonds and angles
 	       if (at_1_name == " O  ") {
 		  mmdb::Residue *contact_res = SelResidue[i-1];
@@ -779,7 +779,7 @@ coot::restraints_container_t::make_strand_pseudo_bond_restraints() {
 		     contact_res->GetAtomTable(res_2_atoms, n_res_2_atoms);
 		     if (res_2_atoms) { 
 			for (int iat2=0; iat2<n_res_2_atoms; iat2++) {
-			   std::string at_2_name(res_2_atoms[iat2]->name);
+			   std::string at_2_name(res_2_atoms[iat2]->GetAtomName());
 			   if (at_2_name == " O  ") {
 			      std::vector<bool> fixed_flags = make_fixed_flags(index1, index2);
 			      res_1_atoms[iat1]->GetUDData(udd_atom_index_handle, index1);
@@ -787,9 +787,9 @@ coot::restraints_container_t::make_strand_pseudo_bond_restraints() {
 			      add(BOND_RESTRAINT, index1, index2, fixed_flags,
 				  4.64, pseudo_bond_esd, 1.2);
 			      std::cout << "Strand Bond restraint ("
-					<< res_1_atoms[iat1]->name << " "
+					<< res_1_atoms[iat1]->GetAtomName() << " "
 					<< res_1_atoms[iat1]->GetSeqNum() << ") to ("
-					<< res_2_atoms[iat2]->name << " "
+					<< res_2_atoms[iat2]->GetAtomName() << " "
 					<< res_2_atoms[iat2]->GetSeqNum() << ") 4.64" << std::endl;
 
 			      // now the pseudo angle
@@ -798,7 +798,7 @@ coot::restraints_container_t::make_strand_pseudo_bond_restraints() {
 				 if (SelResidue[i]->GetSeqNum() == (contact_res_2->GetSeqNum() - 1)) {
 				    contact_res_2->GetAtomTable(res_3_atoms, n_res_3_atoms);
 				    for (int iat3=0; iat3<n_res_3_atoms; iat3++) {
-				       std::string at_3_name(res_3_atoms[iat3]->name);
+				       std::string at_3_name(res_3_atoms[iat3]->GetAtomName());
 				       if (at_3_name == " O  ") {
 					  std::vector<bool> fixed_flag =
 					     make_fixed_flags(index2, index1, index3);
@@ -807,12 +807,12 @@ coot::restraints_container_t::make_strand_pseudo_bond_restraints() {
 					  add(ANGLE_RESTRAINT, index2, index1, index3,
 					      fixed_flag, 98.0, 0.5, false);
 					  std::cout << "Strand Angle restraint ("
-						    << res_1_atoms[iat1]->name << " "
+						    << res_1_atoms[iat1]->GetAtomName() << " "
 						    << res_1_atoms[iat1]->GetSeqNum() << ") to ("
-						    << res_2_atoms[iat2]->name << " "
+						    << res_2_atoms[iat2]->GetAtomName() << " "
 						    << res_2_atoms[iat2]->GetSeqNum()
 						    << ") to ("
-						    << res_3_atoms[iat3]->name << " "
+						    << res_3_atoms[iat3]->GetAtomName() << " "
 						    << res_3_atoms[iat3]->GetSeqNum()
 						    << ") 98.0 " << std::endl;
 					  break;
@@ -834,14 +834,14 @@ coot::restraints_container_t::make_strand_pseudo_bond_restraints() {
 		     contact_res_2->GetAtomTable(res_2_atoms, n_res_2_atoms);
 		     if (res_2_atoms) { 
 			for (int iat2=0; iat2<n_res_2_atoms; iat2++) {
-			   std::string at_2_name(res_2_atoms[iat2]->name);
+			   std::string at_2_name(res_2_atoms[iat2]->GetAtomName());
 			   if (at_2_name == " CA ") {
 			      if (i<(nSelResidues-1)) {
 				 mmdb::Residue *contact_res_3 = SelResidue[i+1];
 				 if (SelResidue[i]->GetSeqNum() == (contact_res_3->GetSeqNum() - 1)) {
 				    contact_res_3->GetAtomTable(res_3_atoms, n_res_3_atoms);
 				    for (int iat3=0; iat3<n_res_3_atoms; iat3++) {
-				       std::string at_3_name(res_3_atoms[iat3]->name);
+				       std::string at_3_name(res_3_atoms[iat3]->GetAtomName());
 				       if (at_3_name == " CA ") {
 					  std::vector<bool> fixed_flag =
 					     make_fixed_flags(index1, index2, index3);
@@ -851,12 +851,12 @@ coot::restraints_container_t::make_strand_pseudo_bond_restraints() {
 					  add(ANGLE_RESTRAINT, index2, index1, index3,
 					      fixed_flag, 120.0, 0.5, false);
 					  std::cout << "Strand Angle restraint ("
-						    << res_1_atoms[iat1]->name << " "
+						    << res_1_atoms[iat1]->GetAtomName() << " "
 						    << res_1_atoms[iat1]->GetSeqNum() << ") to ("
-						    << res_2_atoms[iat2]->name << " "
+						    << res_2_atoms[iat2]->GetAtomName() << " "
 						    << res_2_atoms[iat2]->GetSeqNum()
 						    << ") to ("
-						    << res_3_atoms[iat3]->name << " "
+						    << res_3_atoms[iat3]->GetAtomName() << " "
 						    << res_3_atoms[iat3]->GetSeqNum()
 						    << ") 120.0 " << std::endl;
 					  break;
@@ -1065,7 +1065,7 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(int imol, mmdb:
       return local;
    }
 
-   std::string pdb_resname(residue_p->name);
+   std::string pdb_resname(residue_p->GetResName());
    if (pdb_resname == "UNK") pdb_resname = "ALA";
 
    if (false)
@@ -1181,7 +1181,7 @@ coot::restraints_container_t::add_bonds(int idr, mmdb::PPAtom res_selection,
 
    for (unsigned int ib=0; ib<dict.bond_restraint.size(); ib++) {
       for (int iat=0; iat<i_no_res_atoms; iat++) {
-	 std::string pdb_atom_name1(res_selection[iat]->name);
+	 std::string pdb_atom_name1(res_selection[iat]->GetAtomName());
 
 	 if (debug)
 	    std::cout << "comparing first (pdb) :" << pdb_atom_name1
@@ -1192,7 +1192,7 @@ coot::restraints_container_t::add_bonds(int idr, mmdb::PPAtom res_selection,
 	 if (pdb_atom_name1 == dict.bond_restraint[ib].atom_id_1_4c()) {
 	    for (int iat2=0; iat2<i_no_res_atoms; iat2++) {
 
-	       std::string pdb_atom_name2(res_selection[iat2]->name);
+	       std::string pdb_atom_name2(res_selection[iat2]->GetAtomName());
 
 	       if (debug)
 		  std::cout << "comparing second (pdb) :" << pdb_atom_name2
@@ -1203,8 +1203,8 @@ coot::restraints_container_t::add_bonds(int idr, mmdb::PPAtom res_selection,
 	       if (pdb_atom_name2 == dict.bond_restraint[ib].atom_id_2_4c()) {
 
 		  // check that the alt confs aren't different
-		  std::string alt_1(res_selection[iat ]->altLoc);
-		  std::string alt_2(res_selection[iat2]->altLoc);
+		  std::string alt_1(res_selection[iat ]->altLoc());
+		  std::string alt_2(res_selection[iat2]->altLoc());
 		  if (alt_1 == "" || alt_2 == "" || alt_1 == alt_2) {
 
 		     if (debug) {
@@ -1244,19 +1244,19 @@ coot::restraints_container_t::add_bonds(int idr, mmdb::PPAtom res_selection,
 
 			if (debug) {
 			   std::string altconf_1("\"");
-			   altconf_1 += atom[index1]->altLoc;
+			   altconf_1 += atom[index1]->altLoc();
 			   altconf_1 += "\"";
 			   std::string altconf_2("\"");
-			   altconf_2 += atom[index2]->altLoc;
+			   altconf_2 += atom[index2]->altLoc();
 			   altconf_2 += "\"";
 			   std::cout << "creating (monomer) bond restraint, idr " << idr
 				     << " with fixed flags "
 				     << fixed_flags[0] << " " << fixed_flags[1] << " "
 				     << atom[index1]->GetSeqNum() << " "
-				     << "\"" << atom[index1]->name << "\" "
+				     << "\"" << atom[index1]->GetAtomName() << "\" "
 				     << std::setw(3) << altconf_1 << " to "
 				     << atom[index2]->GetSeqNum() << " "
-				     << "\"" << atom[index2]->name << "\" "
+				     << "\"" << atom[index2]->GetAtomName() << "\" "
 				     << std::setw(3) << altconf_2 << " "
 				     << "bond restraint index " << n_bond_restr << "\n";
 			}
@@ -1276,7 +1276,7 @@ coot::restraints_container_t::add_bonds(int idr, mmdb::PPAtom res_selection,
 			   if (is_hydrogen(atom[index1])) {
 			      mmdb::Atom *H_at = atom[index1];
 			      mmdb::Atom *parent_at = atom[index2];
-			      std::string atom_name(parent_at->name);
+			      std::string atom_name(parent_at->GetAtomName());
 			      std::string te = dict.type_energy(atom_name);
 			      hb_t hbt = geom.get_h_bond_type(te);
 			      H_atom_parent_energy_type_atom_map[H_at] = hbt;
@@ -1286,7 +1286,7 @@ coot::restraints_container_t::add_bonds(int idr, mmdb::PPAtom res_selection,
 			   if (is_hydrogen(atom[index2])) {
 			      mmdb::Atom *H_at = atom[index2];
 			      mmdb::Atom *parent_at = atom[index1];
-			      std::string atom_name(parent_at->name);
+			      std::string atom_name(parent_at->GetAtomName());
 			      std::string te = dict.type_energy(atom_name);
 			      hb_t hbt = geom.get_h_bond_type(te);
 			      H_atom_parent_energy_type_atom_map[H_at] = hbt;
@@ -1298,7 +1298,7 @@ coot::restraints_container_t::add_bonds(int idr, mmdb::PPAtom res_selection,
                               // So kludge that in here
                               if (dict.residue_info.comp_id == "HIS") {
                                  mmdb::Atom *parent_at = atom[index1];
-                                 std::string parent_atom_name(parent_at->name);
+                                 std::string parent_atom_name(parent_at->GetAtomName());
                                  if (parent_atom_name == "ND1 ") // PDBv3 fixme
                                     H_atom_parent_energy_type_atom_map[H_at] = HB_BOTH;
                                  if (parent_atom_name == "NE2 ") // PDBv3 fixme
@@ -1306,7 +1306,7 @@ coot::restraints_container_t::add_bonds(int idr, mmdb::PPAtom res_selection,
                               }
                               if (dict.residue_info.comp_id == "TRP") {
                                  mmdb::Atom *parent_at = atom[index1];
-                                 std::string parent_atom_name(parent_at->name);
+                                 std::string parent_atom_name(parent_at->GetAtomName());
                                  if (parent_atom_name == "NE1 ") // PDBv3 fixme
                                     H_atom_parent_energy_type_atom_map[H_at] = HB_BOTH;
                               }
@@ -1344,7 +1344,7 @@ coot::restraints_container_t::add_angles(int idr, mmdb::PPAtom res_selection,
 
    std::vector<std::string> string_atom_names(i_no_res_atoms);
    for (int iat=0; iat<i_no_res_atoms; iat++)
-      string_atom_names[iat] = res_selection[iat]->name;
+      string_atom_names[iat] = res_selection[iat]->GetAtomName();
 
 //    std::cout << "There are " << geom[idr].angle_restraint.size()
 // 	     << " angle restraints for this residue type" << std::endl; 
@@ -1372,9 +1372,9 @@ coot::restraints_container_t::add_angles(int idr, mmdb::PPAtom res_selection,
                      const std::string &pdb_atom_name3 = string_atom_names[iat3];
 		     if (pdb_atom_name3 == geom[idr].second.angle_restraint[ib].atom_id_3_4c()) {
 
-			std::string alt_1(res_selection[iat ]->altLoc);
-			std::string alt_2(res_selection[iat2]->altLoc);
-			std::string alt_3(res_selection[iat3]->altLoc);
+			std::string alt_1(res_selection[iat ]->altLoc());
+			std::string alt_2(res_selection[iat2]->altLoc());
+			std::string alt_3(res_selection[iat3]->altLoc());
 
 			if (((alt_1 == alt_2) && (alt_1 == alt_3)) ||
 			    ((alt_1 == ""   ) && (alt_2 == alt_3)) ||
@@ -1441,22 +1441,22 @@ coot::restraints_container_t::add_torsion_internal(const coot::dict_torsion_rest
 
 	    // now find the atoms
 	    for (int iat=0; iat<i_no_res_atoms; iat++) {
-	       std::string pdb_atom_name1(res_selection[iat]->name);
+	       std::string pdb_atom_name1(res_selection[iat]->GetAtomName());
 
 	       if (pdb_atom_name1 == torsion_restraint.atom_id_1_4c()) {
 		  for (int iat2=0; iat2<i_no_res_atoms; iat2++) {
 
-		     std::string pdb_atom_name2(res_selection[iat2]->name);
+		     std::string pdb_atom_name2(res_selection[iat2]->GetAtomName());
 		     if (pdb_atom_name2 == torsion_restraint.atom_id_2_4c()) {
 
 			for (int iat3=0; iat3<i_no_res_atoms; iat3++) {
 
-			   std::string pdb_atom_name3(res_selection[iat3]->name);
+			   std::string pdb_atom_name3(res_selection[iat3]->GetAtomName());
 			   if (pdb_atom_name3 == torsion_restraint.atom_id_3_4c()) {
 
 			      for (int iat4=0; iat4<i_no_res_atoms; iat4++) {
 
-				 std::string pdb_atom_name4(res_selection[iat4]->name);
+				 std::string pdb_atom_name4(res_selection[iat4]->GetAtomName());
 				 if (pdb_atom_name4 == torsion_restraint.atom_id_4_4c()) {
 
 				    // now we need the indices of
@@ -1490,10 +1490,10 @@ coot::restraints_container_t::add_torsion_internal(const coot::dict_torsion_rest
 				    if (torsion_angle > 360)
 				       torsion_angle -= 360;
 
-                                    std::string alt_conf_1(res_selection[iat]->altLoc);
-                                    std::string alt_conf_2(res_selection[iat2]->altLoc);
-                                    std::string alt_conf_3(res_selection[iat3]->altLoc);
-                                    std::string alt_conf_4(res_selection[iat4]->altLoc);
+                                    std::string alt_conf_1(res_selection[iat]->altLoc());
+                                    std::string alt_conf_2(res_selection[iat2]->altLoc());
+                                    std::string alt_conf_3(res_selection[iat3]->altLoc());
+                                    std::string alt_conf_4(res_selection[iat4]->altLoc());
 
                                     bool alt_confs_match = false;
                                     if (alt_conf_1 == "" || alt_conf_1 == alt_conf_2)
@@ -1574,7 +1574,7 @@ coot::restraints_container_t::add_chirals(int idr, mmdb::PPAtom res_selection,
    
    std::vector<std::string> string_atom_names(i_no_res_atoms);
    for (int iat=0; iat<i_no_res_atoms; iat++)
-      string_atom_names[iat] = res_selection[iat]->name;
+      string_atom_names[iat] = res_selection[iat]->GetAtomName();
 
    for (unsigned int ic=0; ic<geom[idr].second.chiral_restraint.size(); ic++) {
       // for now, let's just reject restraints that are a "both",
@@ -1609,10 +1609,10 @@ coot::restraints_container_t::add_chirals(int idr, mmdb::PPAtom res_selection,
 //   					<< pdb_atom_name3 << " "
 //   					<< std::endl;
 
-				 std::string alt_conf_c = res_selection[iatc]->altLoc;
-				 std::string alt_conf_1 = res_selection[iat1]->altLoc;
-				 std::string alt_conf_2 = res_selection[iat2]->altLoc;
-				 std::string alt_conf_3 = res_selection[iat3]->altLoc;
+				 std::string alt_conf_c = res_selection[iatc]->altLoc();
+				 std::string alt_conf_1 = res_selection[iat1]->altLoc();
+				 std::string alt_conf_2 = res_selection[iat2]->altLoc();
+				 std::string alt_conf_3 = res_selection[iat3]->altLoc();
 
 				 if (((alt_conf_1 == alt_conf_c) || (alt_conf_1 == "")) &&
 				     ((alt_conf_2 == alt_conf_c) || (alt_conf_2 == "")) && 
@@ -1638,7 +1638,7 @@ coot::restraints_container_t::add_chirals(int idr, mmdb::PPAtom res_selection,
 
 				       if (false) // debug
 					  std::cout << "   Adding chiral restraint for "
-						    << res_selection[iatc]->name
+						    << res_selection[iatc]->GetAtomName()
 						    << " " << res_selection[iatc]->GetSeqNum() <<  " "
 						    << res_selection[iatc]->GetChainID()
 						    << " with target volume "
@@ -1663,7 +1663,7 @@ coot::restraints_container_t::add_chirals(int idr, mmdb::PPAtom res_selection,
 				       n_chiral_restr++;
 				    } else {
 				       std::cout << "WARNING:: Reject chiral restraint for "
-						 << res_selection[iatc]->name
+						 << res_selection[iatc]->GetAtomName()
 						 << " " << res_selection[iatc]->GetSeqNum() <<  " "
 						 << res_selection[iatc]->GetChainID()
 						 << " with target volume "
@@ -1779,7 +1779,7 @@ coot::restraints_container_t::add_planes_multiatom_eigen(int idr, mmdb::PPAtom r
 
    if (debug)
       std::cout << "There are " << geom[idr].second.plane_restraint.size()
-		<< " dictionary plane restraints for " << SelRes->seqNum << " type: "
+		<< " dictionary plane restraints for " << SelRes->GetSeqNum() << " type: "
 		<< geom[idr].second.residue_info.comp_id << std::endl;
 
    int n_plane_restr = 0;
@@ -1795,8 +1795,8 @@ coot::restraints_container_t::add_planes_multiatom_eigen(int idr, mmdb::PPAtom r
    for (unsigned int ip=0; ip<geom[idr].second.plane_restraint.size(); ip++) {
       std::map<std::string, std::vector <std::pair<int, double> > > idx_and_sigmas;
       for (int iat=0; iat<i_no_res_atoms; iat++) {
-	 std::string pdb_atom_name(res_selection[iat]->name);
-	 std::string alt_conf(res_selection[iat]->altLoc);
+	 std::string pdb_atom_name(res_selection[iat]->GetAtomName());
+	 std::string alt_conf(res_selection[iat]->altLoc());
 	 for (int irest_at=0; irest_at<geom[idr].second.plane_restraint[ip].n_atoms(); irest_at++) {
 	    if (pdb_atom_name == geom[idr].second.plane_restraint[ip].atom_id(irest_at)) {
 	       // is this slow?
@@ -1857,7 +1857,7 @@ coot::restraints_container_t::add_planes_as_improper_dihedrals(int idr, mmdb::PP
 
    std::vector<std::string> string_atom_names(i_no_res_atoms);
    for (int iat=0; iat<i_no_res_atoms; iat++)
-      string_atom_names[iat] = res_selection[iat]->name;
+      string_atom_names[iat] = res_selection[iat]->GetAtomName();
 
    for (unsigned int ic=0; ic<geom[idr].second.improper_dihedral_restraint.size(); ic++) {
 
@@ -1880,10 +1880,10 @@ coot::restraints_container_t::add_planes_as_improper_dihedrals(int idr, mmdb::PP
                               const std::string &pdb_atom_name4 = string_atom_names[iat4];
                               if (pdb_atom_name4 == dict_restraint.atom_id_4_4c()) {
                                  
-				 std::string alt_conf_1 = res_selection[iat1]->altLoc;
-				 std::string alt_conf_2 = res_selection[iat2]->altLoc;
-				 std::string alt_conf_3 = res_selection[iat3]->altLoc;
-				 std::string alt_conf_4 = res_selection[iat4]->altLoc;
+				 std::string alt_conf_1 = res_selection[iat1]->altLoc();
+				 std::string alt_conf_2 = res_selection[iat2]->altLoc();
+				 std::string alt_conf_3 = res_selection[iat3]->altLoc();
+				 std::string alt_conf_4 = res_selection[iat4]->altLoc();
 
                                  if (((alt_conf_1 == alt_conf_4) || (alt_conf_1 == "")) &&
                                      ((alt_conf_2 == alt_conf_4) || (alt_conf_2 == "")) &&
@@ -2029,12 +2029,12 @@ coot::restraints_container_t::add_rama(std::string link_type,
       rama_atoms[ir] = 0;
    
    for (int i=0; i<n_first_res_atoms; i++) {
-      std::string atom_name(prev_sel[i]->name);
+      std::string atom_name(prev_sel[i]->GetAtomName());
       if (atom_name == " C  ")
 	 rama_atoms[0] = prev_sel[i];
    }
    for (int i=0; i<n_second_res_atoms; i++) {
-      std::string atom_name(this_sel[i]->name);
+      std::string atom_name(this_sel[i]->GetAtomName());
       if (atom_name == " N  ")
 	 rama_atoms[1] = this_sel[i];
       if (atom_name == " CA ")
@@ -2043,7 +2043,7 @@ coot::restraints_container_t::add_rama(std::string link_type,
 	 rama_atoms[3] = this_sel[i];
    }
    for (int i=0; i<n_third_res_atoms; i++) {
-      std::string atom_name(post_sel[i]->name);
+      std::string atom_name(post_sel[i]->GetAtomName());
       if (atom_name == " N  ")
 	 rama_atoms[4] = post_sel[i];
    }
@@ -2205,7 +2205,7 @@ coot::restraints_container_t::construct_non_bonded_contact_list_conventional() {
 	
 	bool matched_oxt = false;
 	if (have_oxt_flag) {
-	   if (std::string(res_selection_local[iat]->name) == " OXT") {  // PDBv3 FIXME
+	   if (std::string(res_selection_local[iat]->GetAtomName()) == " OXT") {  // PDBv3 FIXME
 	      matched_oxt = true;
 	   } else { 
 	      matched_oxt = false;
@@ -2243,7 +2243,7 @@ coot::restraints_container_t::construct_non_bonded_contact_list_conventional() {
 
 		    // PDBv3 FIXME
 		    if (have_oxt_flag) 
-		       if (! strcmp(res_selection_local_inner[jat]->name, " OXT")) // matched
+		       if (! strcmp(res_selection_local_inner[jat]->GetAtomName(), " OXT")) // matched
 			  matched_oxt = true;
 
 		    if (! matched_oxt) { 
@@ -2273,7 +2273,7 @@ coot::restraints_container_t::construct_non_bonded_contact_list_conventional() {
      std::cout << "   conventional non-bonded list (unfiltered by distance):" << std::endl;
      std::cout << "--------------------------------------------------\n";
      for (unsigned int i=0; i<non_bonded_atom_indices.size(); i++) { 
-	std::cout << i << "  " << atom[i]->GetSeqNum() << " " << atom[i]->name << " : "; 
+	std::cout << i << "  " << atom[i]->GetSeqNum() << " " << atom[i]->GetAtomName() << " : "; 
 	for (unsigned int j=0; j<non_bonded_atom_indices[i].size(); j++) { 
 	   std::cout << non_bonded_atom_indices[i][j] << " ";
 	} 
@@ -2342,7 +2342,7 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
       // 
       bool matched_oxt = false;
       if (have_oxt_flag) {
-	 if (std::string(atom[i]->name) == " OXT") {  // PDBv3 FIXME
+	 if (std::string(atom[i]->GetAtomName()) == " OXT") {  // PDBv3 FIXME
 	    matched_oxt = true;
 	 }
       }
@@ -2352,7 +2352,7 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
 	 if (i != j) {
 
 	    if (have_oxt_flag) {
-	       if (std::string(atom[j]->name) == " OXT") {  // PDBv3 FIXME
+	       if (std::string(atom[j]->GetAtomName()) == " OXT") {  // PDBv3 FIXME
 		  matched_oxt = true;
 	       }
 	    }
@@ -2387,16 +2387,16 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
 		  // clipper::Coord_orth pt2(atom[j]->x, atom[j]->y, atom[j]->z);
 		  // double d = clipper::Coord_orth::length(pt1, pt2);
 
-		  double xd(atom[i]->x - atom[j]->x);
-		  double yd(atom[i]->y - atom[j]->y);
-		  double zd(atom[i]->z - atom[j]->z);
+		  double xd(atom[i]->x() - atom[j]->x());
+		  double yd(atom[i]->y() - atom[j]->y());
+		  double zd(atom[i]->z() - atom[j]->z());
 		  double d_sqrd = xd*xd + yd*yd + zd*zd;
 		  if (d_sqrd < dist_crit_sqrd) {
-		     mmdb::Residue *r1 = atom[i]->residue;
-		     mmdb::Residue *r2 = atom[j]->residue;
+		     mmdb::Residue *r1 = atom[i]->GetResidue();
+		     mmdb::Residue *r2 = atom[j]->GetResidue();
 
-		     std::string alt_conf_1 = atom[i]->altLoc;
-		     std::string alt_conf_2 = atom[j]->altLoc;
+		     std::string alt_conf_1 = atom[i]->altLoc();
+		     std::string alt_conf_2 = atom[j]->altLoc();
 
  		     if ((alt_conf_1 == alt_conf_2) ||
  			 (alt_conf_1.length() == 0) ||
@@ -2426,12 +2426,12 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
    // 
    for (int iat=0; iat<n_atoms; iat++) {
       if (bonded_atom_indices[iat].size()) { 
-	 mmdb::Residue *bonded_atom_residue = atom[iat]->residue;
+	 mmdb::Residue *bonded_atom_residue = atom[iat]->GetResidue();
 	 for (int jat=0; jat<n_atoms; jat++) {
 
 	    if (iat != jat) {
 
-	       mmdb::Residue *other_atom_residue = atom[jat]->residue;
+	       mmdb::Residue *other_atom_residue = atom[jat]->GetResidue();
 	       if (bonded_atom_residue != other_atom_residue) {
 
 		  if (is_a_moving_residue_p(bonded_atom_residue) &&
@@ -2439,7 +2439,7 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
 
 		     bool matched_oxt = false;
 		     if (have_oxt_flag) {
-			if (std::string(atom[jat]->name) == " OXT") {  // PDBv3 FIXME
+			if (std::string(atom[jat]->GetAtomName()) == " OXT") {  // PDBv3 FIXME
 			   matched_oxt = true;
 			} else { 
 			   matched_oxt = false;
@@ -2465,8 +2465,8 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
 			   if (bonded_atom_indices[iat].find(jat) != bonded_atom_indices[iat].end()) {
 
 			      // atom j is not bonded to atom i, is it close? (i.e. within dist_crit?)
-			      clipper::Coord_orth pt1(atom[iat]->x, atom[iat]->y, atom[iat]->z);
-			      clipper::Coord_orth pt2(atom[jat]->x, atom[jat]->y, atom[jat]->z);
+			      clipper::Coord_orth pt1(atom[iat]->x(), atom[iat]->y(), atom[iat]->z());
+			      clipper::Coord_orth pt2(atom[jat]->x(), atom[jat]->y(), atom[jat]->z());
 			      double d = clipper::Coord_orth::length(pt1, pt2);
 			      if (d < dist_crit) {
 				 if (false)
@@ -2545,14 +2545,14 @@ coot::restraints_container_t::construct_nbc_for_moving_non_moving_bonded(unsigne
    // know that res_1 and res_2 are in the correct order for the given
    // link_type link.
    // 
-   mmdb::Residue *res_1 = atom[iat]->residue;
-   mmdb::Residue *res_2 = atom[jat]->residue;
+   mmdb::Residue *res_1 = atom[iat]->GetResidue();
+   mmdb::Residue *res_2 = atom[jat]->GetResidue();
 
    dictionary_residue_link_restraints_t link = geom.link(link_type);
    // std::cout << "link: " << link.link_id << " " << link.link_bond_restraint.size() << std::endl;
    if (! link.empty()) {
-      std::string atom_name_1 = atom[iat]->name;
-      std::string atom_name_2 = atom[jat]->name;
+      std::string atom_name_1 = atom[iat]->GetAtomName();
+      std::string atom_name_2 = atom[jat]->GetAtomName();
       bool add_it = true;
       for (unsigned int i=0; i<link.link_bond_restraint.size(); i++) {
 	 if (atom_name_1 == link.link_bond_restraint[i].atom_id_1_4c() && 
@@ -2580,8 +2580,8 @@ coot::restraints_container_t::construct_nbc_for_moving_non_moving_bonded(unsigne
 	 filtered_non_bonded_atom_indices[iat].push_back(jat);
 	 
 	 if (0) { // debug.
-	    clipper::Coord_orth pt1(atom[iat]->x, atom[iat]->y, atom[iat]->z);
-	    clipper::Coord_orth pt2(atom[jat]->x, atom[jat]->y, atom[jat]->z);
+	    clipper::Coord_orth pt1(atom[iat]->x(), atom[iat]->y(), atom[iat]->z());
+	    clipper::Coord_orth pt2(atom[jat]->x(), atom[jat]->y(), atom[jat]->z());
 	    double d = sqrt((pt1-pt2).lengthsq());
 		     
 	    std::cout << "moving-non-moving: adding filtered non-bonded atom indices: " 
@@ -2621,8 +2621,8 @@ coot::restraints_container_t::filter_non_bonded_by_distance(const std::vector<st
 // 	 dist2 = clipper::Coord_orth::lengthsq(clipper::Coord_orth(atom_1->x, atom_1->y, atom_1->z), 
 // 					       clipper::Coord_orth(atom_2->x, atom_2->y, atom_2->z));
 
-	 dist2 = (clipper::Coord_orth(atom_1->x, atom_1->y, atom_1->z) -
-		  clipper::Coord_orth(atom_2->x, atom_2->y, atom_2->z)).lengthsq();
+	 dist2 = (clipper::Coord_orth(atom_1->x(), atom_1->y(), atom_1->z()) -
+		  clipper::Coord_orth(atom_2->x(), atom_2->y(), atom_2->z())).lengthsq();
 
 	 if (dist2 < dist_lim2) { 
 // 	    std::cout << "accepting non-bonded contact between " << atom_1->GetSeqNum() 

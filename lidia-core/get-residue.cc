@@ -68,5 +68,5 @@ coot::lidia_utils::get_residue(const coot::residue_spec_t &res_spec, mmdb::Manag
 
 clipper::Coord_orth
 coot::lidia_utils::co(mmdb::Atom *at) {
-   return clipper::Coord_orth(at->x, at->y, at->z);
+   return clipper::Coord_orth(at->x(), at->y(), at->z());
 }

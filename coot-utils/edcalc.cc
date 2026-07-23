@@ -77,13 +77,13 @@ coot::calc_atom_map_edcalc(mmdb::Manager *mol,
       if (at->isTer()) continue;
 
       atom_edcalc_data_t ad;
-      ad.pos = clipper::Coord_orth(at->x, at->y, at->z);
-      ad.occ = at->occupancy;
+      ad.pos = clipper::Coord_orth(at->x(), at->y(), at->z());
+      ad.occ = at->occupancy();
 
-      float u_iso = at->tempFactor * rescale_b_u;
+      float u_iso = at->tempFactor() * rescale_b_u;
       if (u_iso < 0.1f) u_iso = 0.1f; // avoid NaN from very low B-factors
 
-      std::string ele(at->element);
+      std::string ele(at->GetElementName());
       const clipper::ScatteringFactorsData &sf = clipper::ScatteringFactors::instance()[ele];
 
       for (int i = 0; i < 6; i++) {

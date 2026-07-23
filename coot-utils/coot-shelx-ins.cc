@@ -667,14 +667,14 @@ coot::ShelxIns::read_file(const std::string &filename) {
                            } else {
                               if (false) // debug
                                  std::cout << "Mol Hierarchy atom: " << iat << " "
-                                           << " " << at->name << " "
+                                           << " " << at->GetAtomName() << " "
                                            << at->GetResName() << " " << at->GetSeqNum() << " "
-                                           << at->x << " " <<  at->y << " " << at->z << std::endl;
-                              clipper::Coord_frac pf(at->x, at->y, at->z);
+                                           << at->x() << " " <<  at->y() << " " << at->z() << std::endl;
+                              clipper::Coord_frac pf(at->x(), at->y(), at->z());
                               clipper::Coord_orth po = pf.coord_orth(cell);
-                              at->x = po.x();
-                              at->y = po.y();
-                              at->z = po.z();
+                              at->x() = po.x();
+                              at->y() = po.y();
+                              at->z() = po.z();
                            }
                         }
                      }
@@ -763,9 +763,9 @@ coot::ShelxIns::make_atom(const coot::shelx_card_info_t &card, const std::string
    } else { 
    
       at->SetAtomName(make_atom_name(card.words[0].c_str(), element).c_str());
-      at->x = atof(card.words[2].c_str());
-      at->y = atof(card.words[3].c_str());
-      at->z = atof(card.words[4].c_str());
+      at->x() = atof(card.words[2].c_str());
+      at->y() = atof(card.words[3].c_str());
+      at->z() = atof(card.words[4].c_str());
       float occupancy = 1.0;
       float b_synth= 10.0;
 
@@ -778,7 +778,7 @@ coot::ShelxIns::make_atom(const coot::shelx_card_info_t &card, const std::string
                             util::string_to_float(card.words[4].c_str()),
                             occupancy, b_synth);
          at->SetElementName(element.c_str());
-         strncpy(at->altLoc, altconf.c_str(), 2);
+         strncpy(at->altLoc(), altconf.c_str(), 2);
       }
       catch (const std::runtime_error &rte) {
          // do nothing
@@ -798,7 +798,7 @@ coot::ShelxIns::make_atom(const coot::shelx_card_info_t &card, const std::string
                // isotropic temperature factor
                mmdb::realtype u_factor_from_card = atof(card.words[6].c_str());
                if (u_factor_from_card > 0.0 ) { 
-                  at->tempFactor = u_to_b * u_factor_from_card;
+                  at->tempFactor() = u_to_b * u_factor_from_card;
                   at->WhatIsSet = at->WhatIsSet | 4; // is isotropic
                   at->PutUDData(udd_non_riding_atom_flag_handle_in, 1);
                } else {
@@ -812,26 +812,26 @@ coot::ShelxIns::make_atom(const coot::shelx_card_info_t &card, const std::string
                      mmdb::Atom *prev = previous_non_riding_atom(atom_vector, udd_non_riding_atom_flag_handle_in);
                      if (prev) {
                         int status = at->PutUDData(udd_riding_atom_negative_u_value_handle_in, u_factor_from_card);
-                        at->tempFactor = prev->tempFactor * -u_factor_from_card;
+                        at->tempFactor() = prev->tempFactor() * -u_factor_from_card;
                      } else {
                         // Don't know what to do.  Does this ever happen?
-                        at->tempFactor = u_factor_from_card;
+                        at->tempFactor() = u_factor_from_card;
                      } 
                      // 
                   } else {
                      // Don't know what to do.  Does this ever happen?
-                     at->tempFactor = u_factor_from_card;
+                     at->tempFactor() = u_factor_from_card;
                   }
                }
             } else {
                if (card.words.size() > 11) {
                   // anisotropic temperature factor
-                  at->u11 = atof(card.words[ 6].c_str());
-                  at->u22 = atof(card.words[ 7].c_str());
-                  at->u33 = atof(card.words[ 8].c_str());
-                  at->u23 = atof(card.words[ 9].c_str());
-                  at->u13 = atof(card.words[10].c_str());
-                  at->u12 = atof(card.words[11].c_str());
+                  at->u11() = atof(card.words[ 6].c_str());
+                  at->u22() = atof(card.words[ 7].c_str());
+                  at->u33() = atof(card.words[ 8].c_str());
+                  at->u23() = atof(card.words[ 9].c_str());
+                  at->u13() = atof(card.words[10].c_str());
+                  at->u12() = atof(card.words[11].c_str());
 
                   double a = cell_in.a();
                   double b = cell_in.b();
@@ -840,31 +840,31 @@ coot::ShelxIns::make_atom(const coot::shelx_card_info_t &card, const std::string
                   // Now othogonalize the U values:
                   // clipper::U_aniso_frac ocaf(at->u11, at->u22, at->u33,
                   //                            at->u12, at->u13, at->u23);
-                  clipper::U_aniso_frac caf(at->u11/(a*a), at->u22/(b*b), at->u33/(c*c),
-                                            at->u12/(a*b), at->u13/(a*c), at->u23/(b*c));
+                  clipper::U_aniso_frac caf(at->u11()/(a*a), at->u22()/(b*b), at->u33()/(c*c),
+                                            at->u12()/(a*b), at->u13()/(a*c), at->u23()/(b*c));
                   clipper::U_aniso_orth cao = caf.u_aniso_orth(cell_in);
 
-                  at->u11 = cao(0,0);
-                  at->u22 = cao(1,1);
-                  at->u33 = cao(2,2);
-                  at->u12 = cao(0,1);
-                  at->u13 = cao(0,2);
-                  at->u23 = cao(1,2);
+                  at->u11() = cao(0,0);
+                  at->u22() = cao(1,1);
+                  at->u33() = cao(2,2);
+                  at->u12() = cao(0,1);
+                  at->u13() = cao(0,2);
+                  at->u23() = cao(1,2);
 
 //                   std::cout << "DEBUG::  pre-orthog:\n" << ocaf.format() << std::endl;
 //                   std::cout << "DEBUG:: post-orthog:\n" <<  cao.format() << std::endl;
 
                   at->WhatIsSet |= mmdb::ASET_Anis_tFac; // is anisotropic
-                  float u_synth = (at->u11 + at->u22 + at->u33)/3.0;
+                  float u_synth = (at->u11() + at->u22() + at->u33())/3.0;
                   at->WhatIsSet |= mmdb::ASET_tempFactor; // has synthetic B factor
-                  at->tempFactor = 8.0 * M_PI * M_PI * u_synth;
+                  at->tempFactor() = 8.0 * M_PI * M_PI * u_synth;
                   at->PutUDData(udd_non_riding_atom_flag_handle_in, 1);
                }
             }
          } else {
             // An atom with minimal description. Let's make up a
             // temperature factor:
-            at->tempFactor = 1.0;
+            at->tempFactor() = 1.0;
             at->WhatIsSet = at->WhatIsSet | 4; // is isotropic
          } 
 //          std::cout << "on setting WhatIsSet is "
@@ -957,7 +957,7 @@ coot::ShelxIns::add_shelx_residue(std::vector<mmdb::Atom *> &atom_vector,
    
    mmdb::Residue *residue = new mmdb::Residue;
    residue->SetResName(current_res_name.c_str());
-   residue->seqNum = current_res_no;
+   residue->GetSeqNum() = current_res_no;
    bool srn = util::is_standard_residue_name(current_res_name);
    for (unsigned int i=0; i<atom_vector.size(); i++) {
       if (! srn)
@@ -1454,18 +1454,18 @@ coot::ShelxIns::write_synthetic_pre_atom_lines(mmdb::Manager *mol,
       for (unsigned int ir=0; ir<hetatom_ranges.size(); ir++) {
          const hetatom_range &hr = hetatom_ranges[ir];
          f << "ISOR 0.1 "
-           << util::remove_leading_spaces(hr.range_first->element) << "_"
+           << util::remove_leading_spaces(hr.range_first->GetElementName()) << "_"
            << hr.range_first->GetSeqNum() + hr.resno_offset << " > " 
-           << util::remove_leading_spaces(hr.range_last->element) << "_" 
+           << util::remove_leading_spaces(hr.range_last->GetElementName()) << "_" 
            << hr.range_last->GetSeqNum() + hr.resno_offset << "\n";
       }
    }
    for (unsigned int ir=0; ir<hetatom_ranges.size(); ir++) {
       const hetatom_range &hr = hetatom_ranges[ir];
       f << "CONN 0 "
-        << util::remove_leading_spaces(hr.range_first->element) << "_"
+        << util::remove_leading_spaces(hr.range_first->GetElementName()) << "_"
         << hr.range_first->GetSeqNum() + hr.resno_offset << " > " 
-        << util::remove_leading_spaces(hr.range_last->element) << "_" 
+        << util::remove_leading_spaces(hr.range_last->GetElementName()) << "_" 
         << hr.range_last->GetSeqNum() + hr.resno_offset << "\n";
         // << " > LAST\n";
    }
@@ -1508,7 +1508,7 @@ coot::ShelxIns::get_atomic_contents(mmdb::Manager *mol) const {
          for (int iat=0; iat<n_atoms; iat++) {
             at = residue_p->GetAtom(iat);
             if (! at->isTer()) { 
-               std::string ele(at->element);
+               std::string ele(at->GetElementName());
                if (! ele.empty())  // now we added the isTer() test this probably
                                    //  won't catch anything.
                   m[ele]++; // initial/default value is 0.
@@ -1635,15 +1635,15 @@ coot::ShelxIns::write_ins_file_internal(mmdb::Manager *mol,
                      for (int iat=0; iat<n_atoms; iat++) {
                         try { 
                            at = residue_p->GetAtom(iat);
-                           float site_occ_factor = at->occupancy;
+                           float site_occ_factor = at->occupancy();
                            // reset occupancy to shelx standard occ
                            // (FVAR 1 is implied if not set in the .ins file)
                            if (! mol_is_from_shelx_ins)
                               site_occ_factor = 11.000;
 
-                           clipper::Coord_orth co(at->x, at->y, at->z);
+                           clipper::Coord_orth co(at->x(), at->y(), at->z());
                            clipper::Coord_frac cf = co.coord_frac(cell);
-                           int sfac_index = get_sfac_index(at->element);
+                           int sfac_index = get_sfac_index(at->GetElementName());
 
                            // AFIX comes before PART
                            if (at->GetUDData(udd_afix_handle, ic) == mmdb::UDDATA_Ok) {
@@ -1665,19 +1665,19 @@ coot::ShelxIns::write_ins_file_internal(mmdb::Manager *mol,
                            // std::cout << "on writting WhatIsSet is " << at->WhatIsSet
                            // << "\n";
                         
-                           std::string this_altloc = at->altLoc;
+                           std::string this_altloc = at->altLoc();
                            if (this_altloc != current_altloc) {
-                              int ipart = altloc_to_part_no(std::string(at->altLoc));
+                              int ipart = altloc_to_part_no(std::string(at->altLoc()));
                               f << "PART    " << ipart << "\n";
                            }
                            if (at->WhatIsSet & mmdb::ASET_Anis_tFac) {
                               // Anisotropic
 
-                              clipper::U_aniso_orth cao(at->u11, at->u22, at->u33,
-                                                        at->u12, at->u13, at->u23);
+                              clipper::U_aniso_orth cao(at->u11(), at->u22(), at->u33(),
+                                                        at->u12(), at->u13(), at->u23());
                               clipper::U_aniso_frac caf = cao.u_aniso_frac(cell);
 
-                              std::string at_name(at->name);
+                              std::string at_name(at->GetAtomName());
                               f.setf(std::ios::fixed);
                               f.precision(9);
                               f << coot::util::remove_leading_spaces(at_name)
@@ -1695,8 +1695,8 @@ coot::ShelxIns::write_ins_file_internal(mmdb::Manager *mol,
                            } else { 
                               if (at->WhatIsSet & mmdb::ASET_tempFactor) {
                                  // Isotropic B factor
-                                 std::string at_name(at->name);
-                                 float b_factor = at->tempFactor;
+                                 std::string at_name(at->GetAtomName());
+                                 float b_factor = at->tempFactor();
                                  f.setf(std::ios::fixed);
                                  f.precision(7);
 
@@ -1799,10 +1799,10 @@ coot::ShelxIns::message_for_atom(const std::string &in_string, mmdb::Atom *at) c
    s += "\""; 
    s += at->GetAtomName();
    s += "\"";
-   if (std::string(at->altLoc).length()) {
+   if (std::string(at->altLoc()).length()) {
       s += " ,";
       s += "\""; 
-      s += at->altLoc;
+      s += at->altLoc();
       s += "\"";
    }
    return s;
@@ -2620,7 +2620,7 @@ coot::unshelx(mmdb::Manager *shelx_mol) {
          for (int ires=0; ires<nres; ires++) { 
             residue_p = chain_p->GetResidue(ires);
             if (residue_p) 
-               residue_p->index = ires;
+               residue_p->GetIndex() = ires;
          }
       }
       mol->FinishStructEdit();
@@ -2680,7 +2680,7 @@ coot::reshelx(mmdb::Manager *mol) {
       for (int ires=0; ires<nres; ires++) { 
          residue_p = chain_p->GetResidue(ires);
          mmdb::Residue *copy_residue_p = coot::util::deep_copy_this_residue(residue_p);
-         copy_residue_p->seqNum = residue_p->GetSeqNum() + residue_offset;
+         copy_residue_p->GetSeqNum() = residue_p->GetSeqNum() + residue_offset;
          shelx_chain_p->AddResidue(copy_residue_p);
 
          // apply the shelx afix numbers:

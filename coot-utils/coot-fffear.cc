@@ -263,11 +263,11 @@ coot::util::fffear_search::fill_nxmap(mmdb::Manager *mol, int SelectionHandle,
    clipper::NXmap<float>::Map_reference_coord i0, iu, iv, iw;
    for ( int i = 0; i < n_atoms; i++ )
       if ( atom_selection[i] ) {
-         clipper::Coord_orth p(atom_selection[i]->x, atom_selection[i]->y, atom_selection[i]->z);
+         clipper::Coord_orth p(atom_selection[i]->x(), atom_selection[i]->y(), atom_selection[i]->z());
          p -= mid_point;
-         clipper::AtomShapeFn sf( p, std::string(atom_selection[i]->element),
-                                  atom_selection[i]->tempFactor,
-                                  atom_selection[i]->occupancy);
+         clipper::AtomShapeFn sf( p, std::string(atom_selection[i]->GetElementName()),
+                                  atom_selection[i]->tempFactor(),
+                                  atom_selection[i]->occupancy());
          g0 = nxmap.coord_map(p).coord_grid() + gd.min();
          g1 = nxmap.coord_map(p).coord_grid() + gd.max();
          i0 = clipper::NXmap<float>::Map_reference_coord( nxmap, g0 );
@@ -337,7 +337,7 @@ coot::util::fffear_search::fill_nxmap_mask(mmdb::Manager *mol, int SelectionHand
    clipper::NXmap<float>::Map_reference_coord i0, iu, iv, iw;
    for ( int i = 0; i < n_atoms; i++ )
       if ( atom_selection[i] ) {
-         clipper::Coord_orth xyz(atom_selection[i]->x, atom_selection[i]->y, atom_selection[i]->z);
+         clipper::Coord_orth xyz(atom_selection[i]->x(), atom_selection[i]->y(), atom_selection[i]->z());
          xyz -= mid_point;
          g0 = nxmap.coord_map( xyz ).coord_grid() + gd.min();
          g1 = nxmap.coord_map( xyz ).coord_grid() + gd.max();

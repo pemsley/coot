@@ -362,11 +362,11 @@ coot::cho::next_residue_number_in_chain(mmdb::Chain *w,
       if (nres > 0) {
          for (int ires=nres-1; ires>=0; ires--) {
             residue_p = w->GetResidue(ires);
-            if (residue_p->seqNum > max_res_no) {
-               max_res_no = residue_p->seqNum;
+            if (residue_p->GetSeqNum() > max_res_no) {
+               max_res_no = residue_p->GetSeqNum();
                bool is_het_residue_flag = is_het_residue(residue_p);
                if (is_het_residue_flag) {
-                  p = std::pair<short int, int>(1, residue_p->seqNum+1);
+                  p = std::pair<short int, int>(1, residue_p->GetSeqNum()+1);
                } else {
                   if (new_res_no_by_hundreds) {
                      if (max_res_no < 9999) {
@@ -388,7 +388,7 @@ coot::cho::next_residue_number_in_chain(mmdb::Chain *w,
             while (! is_clear) {
                is_clear = true;
                for (int iser=0; iser<nres; iser++) {
-                  int resno_res = w->GetResidue(iser)->seqNum;
+                  int resno_res = w->GetResidue(iser)->GetSeqNum();
                   if (resno_res >= test_resno_start) {
                      if (resno_res <= (test_resno_start+10)) {
                         is_clear = false;
@@ -446,7 +446,7 @@ coot::cho::copy_and_add_residue_to_chain(mmdb::Manager *mol,
             int new_res_resno = 9999;
             if (res_info.first)
                new_res_resno = res_info.second;
-            residue_copy->seqNum = new_res_resno; // try changing the seqNum before AddResidue().
+            residue_copy->GetSeqNum() = new_res_resno; // try changing the seqNum before AddResidue().
             this_model_chain->AddResidue(residue_copy);
             res_copied = residue_copy;
          }
@@ -492,12 +492,12 @@ coot::cho::asn_hydrogen_position_swap(std::vector<std::pair<bool, mmdb::Residue 
 	    if (at_hd21 && at_hd22) {
 	       clipper::Coord_orth co21 = coot::co(at_hd21);
 	       clipper::Coord_orth co22 = coot::co(at_hd22);
-	       at_hd21->x = co22.x();
-	       at_hd21->y = co22.y();
-	       at_hd21->z = co22.z();
-	       at_hd22->x = co21.x(); // this atom will be deleted.
-	       at_hd22->y = co21.y();
-	       at_hd22->z = co21.z();
+	       at_hd21->x() = co22.x();
+	       at_hd21->y() = co22.y();
+	       at_hd21->z() = co22.z();
+	       at_hd22->x() = co21.x(); // this atom will be deleted.
+	       at_hd22->y() = co21.y();
+	       at_hd22->z() = co21.z();
 	    }
 	 }
       }
@@ -542,14 +542,14 @@ coot::cho::make_link(mmdb::Manager *mol, const coot::atom_spec_t &spec_1,
             mmdb::Link *link = new mmdb::Link; // sym ids default to 1555 1555
 
 	    strncpy(link->atName1,  at_1->GetAtomName(), 20);
-	    strncpy(link->aloc1,    at_1->altLoc, 20);
+	    strncpy(link->aloc1,    at_1->altLoc(), 20);
 	    strncpy(link->resName1, at_1->GetResName(), 19);
 	    strncpy(link->chainID1, at_1->GetChainID(), 9);
 	    strncpy(link->insCode1, at_1->GetInsCode(), 9);
 	    link->seqNum1         = at_1->GetSeqNum();
 
 	    strncpy(link->atName2,  at_2->GetAtomName(), 20);
-	    strncpy(link->aloc2,    at_2->altLoc, 20);
+	    strncpy(link->aloc2,    at_2->altLoc(), 20);
 	    strncpy(link->resName2, at_2->GetResName(), 19);
 	    strncpy(link->chainID2, at_2->GetChainID(), 9);
 	    strncpy(link->insCode2, at_2->GetInsCode(), 9);
@@ -562,8 +562,8 @@ coot::cho::make_link(mmdb::Manager *mol, const coot::atom_spec_t &spec_1,
 	    // are defined in the dictionary?
 	    //
 	    std::vector<std::pair<bool, mmdb::Residue *> > residues(2);
-	    residues[0] = std::pair<bool, mmdb::Residue *> (0, at_1->residue);
-	    residues[1] = std::pair<bool, mmdb::Residue *> (0, at_2->residue);
+	    residues[0] = std::pair<bool, mmdb::Residue *> (0, at_1->GetResidue());
+	    residues[1] = std::pair<bool, mmdb::Residue *> (0, at_2->GetResidue());
 	    std::vector<coot::atom_spec_t> dummy_fixed_atom_specs;
 
 	    // convert to restraints_container_t interface
@@ -671,9 +671,9 @@ coot::cho::replace_coords(mmdb::Manager *fragment_mol, mmdb::Manager *mol) {
                   atom_spec_t spec(at);
                   mmdb::Atom *at_mol = util::get_atom(spec, mol);
                   if (at_mol) {
-                     at_mol->x = at->x;
-                     at_mol->y = at->y;
-                     at_mol->z = at->z;
+                     at_mol->x() = at->x();
+                     at_mol->y() = at->y();
+                     at_mol->z() = at->z();
                   }
                }
             }
@@ -729,9 +729,9 @@ coot::cho::add_linked_residue(atom_selection_container_t *asc,
                            if (icount < 10) {
                               std::cout << "atom: " << icount << " "
                                         << at->GetChainID() << " "
-                                        << at->residue->GetSeqNum() << " "
+                                        << at->GetResidue()->GetSeqNum() << " "
                                         << at->GetAtomName() << " "
-                                        << at->x << " " << at->y << " " << at->z << " "
+                                        << at->x() << " " << at->y() << " " << at->z() << " "
                                         << std::endl;
                            } else {
                               break;

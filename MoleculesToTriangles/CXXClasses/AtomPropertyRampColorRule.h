@@ -220,7 +220,7 @@ public:
 			if (value > endValue) value = endValue;
 		}
 		else if (rampType == BFactor){
-			value= atom->tempFactor;
+			value= atom->tempFactor();
 			if (value < startValue) value = startValue;
 			if (value > endValue) value = endValue;
 		} else {

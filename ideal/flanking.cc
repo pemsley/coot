@@ -129,13 +129,13 @@ coot::restraints_container_t::add_fixed_atoms_from_flanking_residues(bool have_f
       for (int iat=0; iat<n_atoms; iat++) {
 	 mmdb::Atom *at = atom[iat];
 	 if (have_flanking_residue_at_start) {
-	    if (at->residue->GetSeqNum() == iselection_start_res) {
+	    if (at->GetResidue()->GetSeqNum() == iselection_start_res) {
 	       // perhaps this should be a set - yes.
 	       fixed_atom_indices.insert(iat);
 	    }
 	 }
 	 if (have_flanking_residue_at_end) {
-	    if (at->residue->GetSeqNum() == iselection_end_res) {
+	    if (at->GetResidue()->GetSeqNum() == iselection_end_res) {
 	       fixed_atom_indices.insert(iat);
 	    }
 	 }

@@ -1235,9 +1235,9 @@ coot::restraints_container_t::add_extra_target_position_restraints(const extra_r
             int n_residue_atoms;
             residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
             for (int iat=0; iat<n_residue_atoms; iat++) {
-               std::string atom_name(residue_atoms[iat]->name);
+               std::string atom_name(residue_atoms[iat]->GetAtomName());
                if (atom_name == extra_restraints.target_position_restraints[i].atom_spec.atom_name) {
-                  std::string alt_loc(residue_atoms[iat]->altLoc);
+                  std::string alt_loc(residue_atoms[iat]->altLoc());
                   if (alt_loc == extra_restraints.target_position_restraints[i].atom_spec.alt_conf) {
                      at = residue_atoms[iat];
                      break;
@@ -1410,9 +1410,9 @@ coot::restraints_container_t::add_extra_bond_restraints(const extra_restraints_t
             r_2->GetAtomTable(residue_atoms_2, n_residue_atoms_2);
 
             for (int iat=0; iat<n_residue_atoms_1; iat++) { 
-               std::string atom_name_1(residue_atoms_1[iat]->name);
+               std::string atom_name_1(residue_atoms_1[iat]->GetAtomName());
                if (atom_name_1 == ebr.atom_1.atom_name) {
-                  std::string alt_loc_1(residue_atoms_1[iat]->altLoc);
+                  std::string alt_loc_1(residue_atoms_1[iat]->altLoc());
                   if (alt_loc_1 == ebr.atom_1.alt_conf) {
                      at_1 = residue_atoms_1[iat];
                      break;
@@ -1420,9 +1420,9 @@ coot::restraints_container_t::add_extra_bond_restraints(const extra_restraints_t
                }
             }
             for (int iat=0; iat<n_residue_atoms_2; iat++) { 
-               std::string atom_name_2(residue_atoms_2[iat]->name);
+               std::string atom_name_2(residue_atoms_2[iat]->GetAtomName());
                if (atom_name_2 == ebr.atom_2.atom_name) {
-                  std::string alt_loc_2(residue_atoms_2[iat]->altLoc);
+                  std::string alt_loc_2(residue_atoms_2[iat]->altLoc());
                   if (alt_loc_2 == ebr.atom_2.alt_conf) {
                      at_2 = residue_atoms_2[iat];
                      break;
@@ -1552,9 +1552,9 @@ coot::restraints_container_t::add_extra_geman_mcclure_restraints(const extra_res
             r_2->GetAtomTable(residue_atoms_2, n_residue_atoms_2);
 
             for (int iat=0; iat<n_residue_atoms_1; iat++) { 
-               std::string atom_name_1(residue_atoms_1[iat]->name);
+               std::string atom_name_1(residue_atoms_1[iat]->GetAtomName());
                if (atom_name_1 == ebr.atom_1.atom_name) {
-                  std::string alt_loc_1(residue_atoms_1[iat]->altLoc);
+                  std::string alt_loc_1(residue_atoms_1[iat]->altLoc());
                   if (alt_loc_1 == ebr.atom_1.alt_conf) {
                      at_1 = residue_atoms_1[iat];
                      break;
@@ -1562,9 +1562,9 @@ coot::restraints_container_t::add_extra_geman_mcclure_restraints(const extra_res
                }
             }
             for (int iat=0; iat<n_residue_atoms_2; iat++) { 
-               std::string atom_name_2(residue_atoms_2[iat]->name);
+               std::string atom_name_2(residue_atoms_2[iat]->GetAtomName());
                if (atom_name_2 == ebr.atom_2.atom_name) {
-                  std::string alt_loc_2(residue_atoms_2[iat]->altLoc);
+                  std::string alt_loc_2(residue_atoms_2[iat]->altLoc());
                   if (alt_loc_2 == ebr.atom_2.alt_conf) {
                      at_2 = residue_atoms_2[iat];
                      break;
@@ -1821,8 +1821,8 @@ coot::restraints_container_t::add_extra_parallel_plane_restraints(int imol,
                   dri_1.second.atom_name_for_tree_4c(r.plane_1_atoms.atom_names[i_rest_at]);
                for (int iat=0; iat<n_residue_atoms; iat++) {
                   mmdb::Atom *at = residue_atoms[iat];
-                  std::string atom_name(at->name);
-                  std::string alt_conf(at->altLoc);
+                  std::string atom_name(at->GetAtomName());
+                  std::string alt_conf(at->altLoc());
                   if (plane_atom_expanded_name == atom_name) {
                      if (r.plane_1_atoms.alt_conf == alt_conf) {
                         int idx = -1;
@@ -1849,8 +1849,8 @@ coot::restraints_container_t::add_extra_parallel_plane_restraints(int imol,
                   dri_2.second.atom_name_for_tree_4c(r.plane_2_atoms.atom_names[i_rest_at]);
                for (int iat=0; iat<n_residue_atoms; iat++) {
                   mmdb::Atom *at = residue_atoms[iat];
-                  std::string atom_name(at->name);
-                  std::string alt_conf(at->altLoc);
+                  std::string atom_name(at->GetAtomName());
+                  std::string alt_conf(at->altLoc());
                   // std::cout << "testing :" << plane_atom_expanded_name << ": vs :" << atom_name << ":" << std::endl;
                   if (plane_atom_expanded_name == atom_name) {
                      if (r.plane_2_atoms.alt_conf == alt_conf) {
@@ -2121,14 +2121,14 @@ coot::extra_restraints_t::position_point_map(mmdb::Manager *mol_running,
                                                 int n_atoms_1 = residue_1_p->GetNumberOfAtoms();
                                                 for (int iat=0; iat<n_atoms_1; iat++) {
                                                    at_1_p = residue_1_p->GetAtom(iat);
-                                                   std::string atom_name_1(at_1_p->name);
-                                                   std::string alt_conf_1(at_1_p->altLoc);
+                                                   std::string atom_name_1(at_1_p->GetAtomName());
+                                                   std::string alt_conf_1(at_1_p->altLoc());
 
                                                    int n_atoms_2 = residue_2_p->GetNumberOfAtoms();
                                                    for (int jat=0; jat<n_atoms_2; jat++) {
                                                       at_2_p = residue_2_p->GetAtom(jat);
-                                                      std::string atom_name_2(at_2_p->name);
-                                                      std::string alt_conf_2(at_2_p->altLoc);
+                                                      std::string atom_name_2(at_2_p->GetAtomName());
+                                                      std::string alt_conf_2(at_2_p->altLoc());
                                                       
                                                       if (atom_name_2 == atom_name_1) {
                                                          if (alt_conf_2 == alt_conf_1) {
@@ -2199,9 +2199,9 @@ coot::extra_restraints_t::write_interpolated_models(mmdb::Manager *mol_running,
                            const clipper::Coord_orth &pt_1 = it_1->second;
                            const clipper::Coord_orth &pt_2 = it_2->second;
                            clipper::Coord_orth pt(pt_1 + (pt_2 - pt_1) * frac);
-                           at->x = pt.x();
-                           at->y = pt.y();
-                           at->z = pt.z();
+                           at->x() = pt.x();
+                           at->y() = pt.y();
+                           at->z() = pt.z();
                         } else {
                            std::cout << "failed to find spec for it_2 " << spec << std::endl;
                         } 

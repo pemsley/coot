@@ -123,7 +123,7 @@ coot::restraints_container_t::bonded_residues_by_linear(int SelResHnd,
 	    // an insertion code, or simply a gap - and we don't want
 	    // to make a bond for a gap.
 	    //
-	    if (abs(SelResidue[i]->index - SelResidue[i+1]->index) <= 1) {
+	    if (abs(SelResidue[i]->GetIndex() - SelResidue[i+1]->GetIndex()) <= 1) {
 	       // link_type = find_link_type(SelResidue[i], SelResidue[i+1], geom);
                std::cout << "####################### find_link_type_compli() called from bonded_residues_by_linear()"
                          << std::endl;
@@ -247,8 +247,8 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
 	    bool was_straight_forward_trans_link = false;
 	    int resno_1 = res_f->GetSeqNum();
 	    int resno_2 = res_s->GetSeqNum();
-	    int ser_num_1 = res_f->index;
-	    int ser_num_2 = res_s->index;
+	    int ser_num_1 = res_f->GetIndex();
+	    int ser_num_2 = res_s->GetIndex();
 	    if (resno_2 == (resno_1 + 1)) {
 	       if (ser_num_2 == (ser_num_1 + 1)) {
 		  std::string rn_1 = res_f->GetResName();
@@ -314,10 +314,10 @@ coot::restraints_container_t::add_link_bond(std::string link_type,
       std::cout << "INFO:: geom.link_size() is " << geom.link_size() << std::endl;
       std::cout << "first residue:\n";
       for (int i=0; i<n_first_res_atoms; i++)
-	 std::cout << "    " << first_sel[i]->name  << " " << first_sel[i]->GetSeqNum() << "\n";
+	 std::cout << "    " << first_sel[i]->GetAtomName()  << " " << first_sel[i]->GetSeqNum() << "\n";
       std::cout << "second residue:\n";
       for (int i=0; i<n_second_res_atoms; i++)
-	 std::cout << "    " << second_sel[i]->name  << " " << second_sel[i]->GetSeqNum() << "\n";
+	 std::cout << "    " << second_sel[i]->GetAtomName()  << " " << second_sel[i]->GetSeqNum() << "\n";
    }
 
    int nbond = 0;
@@ -333,26 +333,26 @@ coot::restraints_container_t::add_link_bond(std::string link_type,
 	       std::cout << "bad things will now happen..." << std::endl; 
 	    }
 	    for (int ifat=0; ifat<n_first_res_atoms; ifat++) { 
-	       std::string pdb_atom_name_1(first_sel[ifat]->name);
+	       std::string pdb_atom_name_1(first_sel[ifat]->GetAtomName());
 
 	       if (pdb_atom_name_1 == geom.link(i).link_bond_restraint[j].atom_id_1_4c()) {
 		  for (int isat=0; isat<n_second_res_atoms; isat++) { 
-		     std::string pdb_atom_name_2(second_sel[isat]->name);
+		     std::string pdb_atom_name_2(second_sel[isat]->GetAtomName());
 
 		     if (pdb_atom_name_2 == geom.link(i).link_bond_restraint[j].atom_id_2_4c()) {
 
 			if (debug)
 			   std::cout << "DEBUG::  adding " << link_type << " bond for "
-				     << first->seqNum
-				     << " -> " << second->seqNum << " atoms "
+				     << first->GetSeqNum()
+				     << " -> " << second->GetSeqNum() << " atoms "
 				     << first_sel [ifat]->GetAtomName() << " to "
 				     << second_sel[isat]->GetAtomName()
 				     << std::endl;
 
 			// Now, do the alt confs match?
 			//
-			std::string alt_conf_1 =  first_sel[ifat]->altLoc;
-			std::string alt_conf_2 = second_sel[isat]->altLoc;
+			std::string alt_conf_1 =  first_sel[ifat]->altLoc();
+			std::string alt_conf_2 = second_sel[isat]->altLoc();
 			if ((alt_conf_1 == alt_conf_2) || (alt_conf_1 == "") || (alt_conf_2 == "")) {
 
                            // 20230110-PE are you here again? Check that udd_atom_index_handle
@@ -470,15 +470,15 @@ coot::restraints_container_t::add_link_angle(std::string link_type,
 	    }
 	    
 	    for (int ifat=0; ifat<n_atom_1; ifat++) { 
-	       std::string pdb_atom_name_1(atom_1_sel[ifat]->name);
+	       std::string pdb_atom_name_1(atom_1_sel[ifat]->GetAtomName());
 
 	       if (pdb_atom_name_1 == geom.link(i).link_angle_restraint[j].atom_id_1_4c()) {
 		  for (int isat=0; isat<n_atom_2; isat++) { 
-		     std::string pdb_atom_name_2(atom_2_sel[isat]->name);
+		     std::string pdb_atom_name_2(atom_2_sel[isat]->GetAtomName());
 
 		     if (pdb_atom_name_2 == geom.link(i).link_angle_restraint[j].atom_id_2_4c()) {
 			for (int itat=0; itat<n_atom_3; itat++) { 
-			   std::string pdb_atom_name_3(atom_3_sel[itat]->name);
+			   std::string pdb_atom_name_3(atom_3_sel[itat]->GetAtomName());
 			   
 			   if (pdb_atom_name_3 == geom.link(i).link_angle_restraint[j].atom_id_3_4c()) {
 
@@ -502,9 +502,9 @@ coot::restraints_container_t::add_link_angle(std::string link_type,
 //  							 atom_3_sel[itat]->residue->seqNum,
 //  							 atom_3_sel[itat]->residue->GetChainID());
 
-			      std::string alt_conf_1 = atom_1_sel[ifat]->altLoc;
-			      std::string alt_conf_2 = atom_2_sel[isat]->altLoc;
-			      std::string alt_conf_3 = atom_3_sel[itat]->altLoc;
+			      std::string alt_conf_1 = atom_1_sel[ifat]->altLoc();
+			      std::string alt_conf_2 = atom_2_sel[isat]->altLoc();
+			      std::string alt_conf_3 = atom_3_sel[itat]->altLoc();
 
 			      // either they are all the same (including the ususal case of all "")
 			      // or at_1 and at_2 are the same and at_3 is blank
@@ -809,45 +809,45 @@ coot::restraints_container_t::add_link_torsion_for_phi_psi(std::string link_type
 	       fixed_flag[3] = is_fixed_second;
 	    }
 	    for (int ifat=0; ifat<n_atom_1; ifat++) { 
-	       std::string pdb_atom_name_1(atom_1_sel[ifat]->name);
+	       std::string pdb_atom_name_1(atom_1_sel[ifat]->GetAtomName());
 	       
 	       if (pdb_atom_name_1 == geom.link(i).link_torsion_restraint[j].atom_id_1_4c()) {
 		  for (int isat=0; isat<n_atom_2; isat++) { 
-		     std::string pdb_atom_name_2(atom_2_sel[isat]->name);
+		     std::string pdb_atom_name_2(atom_2_sel[isat]->GetAtomName());
 		     
 		     if (pdb_atom_name_2 == geom.link(i).link_torsion_restraint[j].atom_id_2_4c()) {
 			for (int itat=0; itat<n_atom_3; itat++) { 
-			   std::string pdb_atom_name_3(atom_3_sel[itat]->name);
+			   std::string pdb_atom_name_3(atom_3_sel[itat]->GetAtomName());
 			   
 			   if (pdb_atom_name_3 == geom.link(i).link_torsion_restraint[j].atom_id_3_4c()) {
 			      for (int iffat=0; iffat<n_atom_4; iffat++) {
-				 std::string pdb_atom_name_4(atom_4_sel[iffat]->name);
+				 std::string pdb_atom_name_4(atom_4_sel[iffat]->GetAtomName());
 				 			   
 				 if (pdb_atom_name_4 == geom.link(i).link_torsion_restraint[j].atom_id_4_4c()) {
 				    
-				    int index1 = get_asc_index(atom_1_sel[ifat]->name,
-							       atom_1_sel[ifat]->altLoc,
-							       atom_1_sel[ifat]->residue->seqNum,
+				    int index1 = get_asc_index(atom_1_sel[ifat]->GetAtomName(),
+							       atom_1_sel[ifat]->altLoc(),
+							       atom_1_sel[ifat]->GetResidue()->GetSeqNum(),
 							       atom_1_sel[ifat]->GetInsCode(),
 							       atom_1_sel[ifat]->GetChainID());
 			
-				    int index2 = get_asc_index(atom_2_sel[isat]->name,
-							       atom_2_sel[isat]->altLoc,
-							       atom_2_sel[isat]->residue->seqNum,
+				    int index2 = get_asc_index(atom_2_sel[isat]->GetAtomName(),
+							       atom_2_sel[isat]->altLoc(),
+							       atom_2_sel[isat]->GetResidue()->GetSeqNum(),
 							       atom_2_sel[isat]->GetInsCode(),
 							       atom_2_sel[isat]->GetChainID());
 				    
-				    int index3 = get_asc_index(atom_3_sel[itat]->name,
-							       atom_3_sel[itat]->altLoc,
-							       atom_3_sel[itat]->residue->seqNum,
+				    int index3 = get_asc_index(atom_3_sel[itat]->GetAtomName(),
+							       atom_3_sel[itat]->altLoc(),
+							       atom_3_sel[itat]->GetResidue()->GetSeqNum(),
 							       atom_3_sel[itat]->GetInsCode(),
 							       atom_3_sel[itat]->GetChainID());
 
-				    int index4 = get_asc_index(atom_4_sel[iffat]->name,
-							       atom_4_sel[iffat]->altLoc,
-							       atom_4_sel[iffat]->residue->seqNum,
+				    int index4 = get_asc_index(atom_4_sel[iffat]->GetAtomName(),
+							       atom_4_sel[iffat]->altLoc(),
+							       atom_4_sel[iffat]->GetResidue()->GetSeqNum(),
 							       atom_4_sel[iffat]->GetInsCode(),
-							       atom_4_sel[iffat]->residue->GetChainID());
+							       atom_4_sel[iffat]->GetResidue()->GetChainID());
 
 //  				    std::cout << "torsion restraint.... " << geom.link(i).link_torsion_restraint[j].id()
 //  					      << " from atoms \n    "
@@ -1434,8 +1434,8 @@ coot::restraints_container_t::find_link_type(mmdb::Residue *first,
    // Should return TRANS, PTRANS (PRO-TRANS), CIS, PCIS, p, BETA1-2, BETA1-4 etc.
    std::string link_type(""); // unset
 
-   std::string residue_type_1 = first->name;
-   std::string residue_type_2 = second->name;
+   std::string residue_type_1 = first->GetResName();
+   std::string residue_type_2 = second->GetResName();
    if (residue_type_1 == "UNK") residue_type_1 = "ALA"; // hack for KDC.
    if (residue_type_2 == "UNK") residue_type_2 = "ALA";
 
@@ -1544,8 +1544,8 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
 
    auto get_consecutive = [] (mmdb::Residue *first_residue, mmdb::Residue *second_residue) {
       bool state = false;
-      int idx_1 =  first_residue->index;
-      int idx_2 = second_residue->index;
+      int idx_1 =  first_residue->GetIndex();
+      int idx_2 = second_residue->GetIndex();
       int d = idx_2 - idx_1;
       if (d <= 1)
          if (d >= -1)
@@ -1564,7 +1564,7 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
       for (int iat=0; iat<n_residue_atoms; iat++) {
          mmdb::Atom *at = residue_atoms[iat];
          if (! at->isTer()) {
-            std::string name(at->name);
+            std::string name(at->GetAtomName());
             if (name == " SG ") {
                found = true;
                break;
@@ -1579,7 +1579,7 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
          for (int iat=0; iat<n_residue_atoms; iat++) {
             mmdb::Atom *at = residue_atoms[iat];
             if (! at->isTer()) {
-               std::string name(at->name);
+               std::string name(at->GetAtomName());
                if (name == " SG ") {
                   found = true;
                   break; // micro-optimiziation!
@@ -1607,10 +1607,10 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
       for (int iat=0; iat<n_residue_atoms; iat++) {
          mmdb::Atom *at = residue_atoms[iat];
          if (! at->isTer()) {
-            std::string name(at->name);
+            std::string name(at->GetAtomName());
             if (name == " C  ") {
                found_1 = true;
-               pt_1 = clipper::Coord_orth(at->x, at->y, at->z);
+               pt_1 = clipper::Coord_orth(at->x(), at->y(), at->z());
             }
          }
       }
@@ -1620,10 +1620,10 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
       for (int iat=0; iat<n_residue_atoms; iat++) {
          mmdb::Atom *at = residue_atoms[iat];
          if (! at->isTer()) {
-            std::string name(at->name);
+            std::string name(at->GetAtomName());
             if (name == " O3'") {
                found_2 = true;
-               pt_2 = clipper::Coord_orth(at->x, at->y, at->z);
+               pt_2 = clipper::Coord_orth(at->x(), at->y(), at->z());
             }
          }
       }
@@ -1653,10 +1653,10 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
       for (int iat=0; iat<n_residue_atoms; iat++) {
          mmdb::Atom *at = residue_atoms[iat];
          if (! at->isTer()) {
-            std::string name(at->name);
+            std::string name(at->GetAtomName());
             if (name == " C1 ") {
                found_1 = true;
-               pt_1 = clipper::Coord_orth(at->x, at->y, at->z);
+               pt_1 = clipper::Coord_orth(at->x(), at->y(), at->z());
             }
          }
       }
@@ -1666,10 +1666,10 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
       for (int iat=0; iat<n_residue_atoms; iat++) {
          mmdb::Atom *at = residue_atoms[iat];
          if (! at->isTer()) {
-            std::string name(at->name);
+            std::string name(at->GetAtomName());
             if (name == " OG ") {
                found_2 = true;
-               pt_2 = clipper::Coord_orth(at->x, at->y, at->z);
+               pt_2 = clipper::Coord_orth(at->x(), at->y(), at->z());
             }
          }
       }
@@ -1716,10 +1716,10 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
             for (int iat=0; iat<n_residue_atoms; iat++) {
                mmdb::Atom *at = residue_atoms[iat];
                if (! at->isTer()) {
-                  std::string name(at->name);
+                  std::string name(at->GetAtomName());
                   if (name == link_atom_1_name) {
                      found_1 = true;
-                     pt_1 = clipper::Coord_orth(at->x, at->y, at->z);
+                     pt_1 = clipper::Coord_orth(at->x(), at->y(), at->z());
                   }
                }
             }
@@ -1729,10 +1729,10 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
             for (int iat=0; iat<n_residue_atoms; iat++) {
                mmdb::Atom *at = residue_atoms[iat];
                if (! at->isTer()) {
-                  std::string name(at->name);
+                  std::string name(at->GetAtomName());
                   if (name == link_atom_2_name) {
                      found_2 = true;
-                     pt_2 = clipper::Coord_orth(at->x, at->y, at->z);
+                     pt_2 = clipper::Coord_orth(at->x(), at->y(), at->z());
                   }
                }
             }
@@ -2043,8 +2043,8 @@ coot::restraints_container_t::general_link_find_close_link_inner(const std::vect
 		  mmdb::Atom *at_1 = r1->GetAtom(atom_id_1.c_str());
 		  mmdb::Atom *at_2 = r2->GetAtom(atom_id_2.c_str());
 		  if (at_1 && at_2) {
-		     clipper::Coord_orth p1(at_1->x, at_1->y, at_1->z);
-		     clipper::Coord_orth p2(at_2->x, at_2->y, at_2->z);
+		     clipper::Coord_orth p1(at_1->x(), at_1->y(), at_1->z());
+		     clipper::Coord_orth p2(at_2->x(), at_2->y(), at_2->z());
 		     double d = clipper::Coord_orth::length(p1,p2);
 		     if (debug) 
 			std::cout << "  dist check " << " link-bond-number: "
@@ -2084,14 +2084,14 @@ coot::restraints_container_t::general_link_find_close_link_inner(const std::vect
 			r1->GetAtomTable(residue_atoms, n_residue_atoms);
 			for (int i=0; i<n_residue_atoms; i++) { 
 			   std::cout << "   " << r1->GetResName() << " "
-				     << i << " :"  << residue_atoms[i]->name
+				     << i << " :"  << residue_atoms[i]->GetAtomName()
 				     << ":" << std::endl;
 			}
 			residue_atoms = 0;
 			r2->GetAtomTable(residue_atoms, n_residue_atoms);
 			for (int i=0; i<n_residue_atoms; i++) { 
 			   std::cout << "   " << r2->GetResName() << " "
-				     << i << " :"  << residue_atoms[i]->name
+				     << i << " :"  << residue_atoms[i]->GetAtomName()
 				     << ":" << std::endl;
 			}
 		     }
@@ -2152,7 +2152,7 @@ int coot::restraints_container_t::add_link_plane(std::string link_type,
    //
    std::map<std::string, std::vector<int> > atom_indices_map;
    for (int iat=0; iat<n_first_res_atoms; iat++) {
-      std::string alt_loc(first_sel[iat]->altLoc);
+      std::string alt_loc(first_sel[iat]->altLoc());
       std::map<std::string, std::vector<int> >::const_iterator it = atom_indices_map.find(alt_loc);
       if (it == atom_indices_map.end()) {
 	 std::vector<int> v;
@@ -2160,7 +2160,7 @@ int coot::restraints_container_t::add_link_plane(std::string link_type,
       }
    }
    for (int iat=0; iat<n_second_res_atoms; iat++) {
-      std::string alt_loc(second_sel[iat]->altLoc);
+      std::string alt_loc(second_sel[iat]->altLoc());
       std::map<std::string, std::vector<int> >::const_iterator it = atom_indices_map.find(alt_loc);
       if (it == atom_indices_map.end()) {
 	 std::vector<int> v;
@@ -2192,14 +2192,14 @@ int coot::restraints_container_t::add_link_plane(std::string link_type,
 		  fixed_flags[irest_at] = is_fixed_second_res;
 	       }
 	       for (int iat=0; iat<link_res_n_atoms; iat++) { 
-		  std::string pdb_atom_name(atom_sel[iat]->name);
+		  std::string pdb_atom_name(atom_sel[iat]->GetAtomName());
 		  if (geom.link(i).link_plane_restraint[ip].atom_id(irest_at) == pdb_atom_name) {
 		     if (debug)
-			std::cout << "     pushing back to :" << atom_sel[iat]->altLoc << ": vector "
+			std::cout << "     pushing back to :" << atom_sel[iat]->altLoc() << ": vector "
 				  << res->GetChainID() << " "
-				  << res->seqNum << " :"
-				  << atom_sel[iat]->name << ": :"
-				  << atom_sel[iat]->altLoc << ":" << std::endl;
+				  << res->GetSeqNum() << " :"
+				  << atom_sel[iat]->GetAtomName() << ": :"
+				  << atom_sel[iat]->altLoc() << ":" << std::endl;
 
 
 		     // Too slow for ribosomes
@@ -2209,7 +2209,7 @@ int coot::restraints_container_t::add_link_plane(std::string link_type,
 		     // res->GetInsCode(),
 		     // res->GetChainID()));
 
-		     std::string key(atom_sel[iat]->altLoc);
+		     std::string key(atom_sel[iat]->altLoc());
 		     int idx_t_2 = -1;
 		     atom_sel[iat]->GetUDData(udd_atom_index_handle, idx_t_2);
 		     atom_indices_map[key].push_back(idx_t_2);
@@ -2232,8 +2232,8 @@ int coot::restraints_container_t::add_link_plane(std::string link_type,
 		     for (unsigned int ind=0; ind<it->second.size(); ind++) {
 			std::cout << ind << " " << atom[it->second[ind]]->GetChainID() << " "
 				  << atom[it->second[ind]]->GetSeqNum() << " :"
-				  << atom[it->second[ind]]->name << ": :"
-				  << atom[it->second[ind]]->altLoc << ":\n";
+				  << atom[it->second[ind]]->GetAtomName() << ": :"
+				  << atom[it->second[ind]]->altLoc() << ":\n";
 		     }
 		     std::cout << "DEBUG:: add_link_plane() with pos indexes ";
 		     for (unsigned int ipos=0; ipos<it->second.size(); ipos++)

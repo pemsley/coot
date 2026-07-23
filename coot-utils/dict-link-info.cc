@@ -56,14 +56,14 @@ coot::dict_link_info_t::dict_link_info_t(mmdb::Residue *residue_ref,
                int n_residue_atoms_1;
                res_1->GetAtomTable(residue_atoms_1, n_residue_atoms_1);
                for (int iat1=0; iat1<n_residue_atoms_1; iat1++) {
-                  std::string atom_name_1(residue_atoms_1[iat1]->name);
+                  std::string atom_name_1(residue_atoms_1[iat1]->GetAtomName());
                   if (atom_name_1 == rr.link_bond_restraint[ibond].atom_id_1_4c()) {
                      // OK so the first atom matched
                      mmdb::PPAtom residue_atoms_2 = 0;
                      int n_residue_atoms_2;
                      res_2->GetAtomTable(residue_atoms_2, n_residue_atoms_2);
                      for (int iat2=0; iat2<n_residue_atoms_2; iat2++) {
-                        std::string atom_name_2(residue_atoms_2[iat2]->name);
+                        std::string atom_name_2(residue_atoms_2[iat2]->GetAtomName());
                         if (atom_name_2 == rr.link_bond_restraint[ibond].atom_id_2_4c()) {
                            ifound = 1;
                            spec_ref = coot::atom_spec_t(res_spec_ref.chain_id,

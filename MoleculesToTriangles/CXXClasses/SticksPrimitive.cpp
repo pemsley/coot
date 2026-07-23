@@ -50,7 +50,7 @@ void SticksPrimitive::generateArrays()
                 if (atom1Iter == vcLookup.end()){
                     FCXXCoord color1 = colorScheme->colorForAtom(atom1, handles);
                     VertexColor vc1 = {
-                        {static_cast<float>(atom1->x), static_cast<float>(atom1->y), static_cast<float>(atom1->z), 0.},
+                        {static_cast<float>(atom1->x()), static_cast<float>(atom1->y()), static_cast<float>(atom1->z()), 0.},
                         {static_cast<float>(color1[0]), static_cast<float>(color1[1]), static_cast<float>(color1[2]), static_cast<float>(color1[3])}
                     };
                     vcLookup[atom1] = vc1;
@@ -67,7 +67,7 @@ void SticksPrimitive::generateArrays()
                     if (atom2Iter == vcLookup.end()){
                         FCXXCoord color2 = colorScheme->colorForAtom(atom2, handles);
                         VertexColor vc2 = {
-                            {static_cast<float>(atom2->x), static_cast<float>(atom2->y), static_cast<float>(atom2->z), 0.},
+                            {static_cast<float>(atom2->x()), static_cast<float>(atom2->y()), static_cast<float>(atom2->z()), 0.},
                             {static_cast<float>(color2[0]), static_cast<float>(color2[1]), static_cast<float>(color2[2]), static_cast<float>(color2[3])}
                         };
                         vcLookup[atom2] = vc2;
@@ -102,7 +102,7 @@ void SticksPrimitive::generateArrays()
             for (; mapIter != mapEnd; ++mapIter){
                 mmdb::Atom *atom1 = mapIter->first;
                 unsigned long atom1Index = indexLookup[atom1];
-                FCXXCoord atom1Coord(atom1->x, atom1->y, atom1->z);
+                FCXXCoord atom1Coord(atom1->x(), atom1->y(), atom1->z());
                 FCXXCoord color1 = colorScheme->colorForAtom(atom1, handles);
                 
                 std::vector<mmdb::Atom *> &bondsOfAtom(mapIter->second);
@@ -111,7 +111,7 @@ void SticksPrimitive::generateArrays()
                 for (; vecIter != vecEnd; ++vecIter){
                     mmdb::Atom *atom2 = *vecIter;
                     unsigned long atom2Index = indexLookup[atom2];
-                    FCXXCoord atom2Coord(atom2->x, atom2->y, atom2->z);
+                    FCXXCoord atom2Coord(atom2->x(), atom2->y(), atom2->z());
                     FCXXCoord color2 = colorScheme->colorForAtom(atom2, handles);
 
                     FCXXCoord midCoord((atom1Coord + atom2Coord) * 0.5);

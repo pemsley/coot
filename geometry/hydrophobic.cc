@@ -80,6 +80,6 @@ bool
 coot::is_hydrophobic_atom(mmdb::Atom *at) {
 
    std::string atom_name(at->GetAtomName());
-   std::string res_name(at->residue->GetResName());
+   std::string res_name(at->GetResidue()->GetResName());
    return is_hydrophobic_atom(res_name, atom_name);
 }

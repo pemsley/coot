@@ -32,7 +32,7 @@
 bool
 coot::is_main_chain_p(mmdb::Atom *at) { 
 
-   std::string mol_atom_name(at->name);
+   std::string mol_atom_name(at->GetAtomName());
    if (mol_atom_name == " N  " ||
        mol_atom_name == " C  " ||
        mol_atom_name == " CA " ||
@@ -50,7 +50,7 @@ coot::is_main_chain_p(mmdb::Atom *at) {
 	 }
 	 
 	 // Perhaps N-terminal H atom?
-	 mmdb::Residue *res = at->residue;
+	 mmdb::Residue *res = at->GetResidue();
 	 if (res) {
 	    if (res->isNTerminus()) {
 	       if (mol_atom_name == " H1 ") return true;
@@ -66,7 +66,7 @@ coot::is_main_chain_p(mmdb::Atom *at) {
 bool
 coot::is_main_chain_or_cb_p(mmdb::Atom *at) { 
 
-   std::string mol_atom_name(at->name);
+   std::string mol_atom_name(at->GetAtomName());
    return is_main_chain_or_cb_p(mol_atom_name);
 }
 
@@ -109,7 +109,7 @@ coot::is_main_chain_or_cb_p(const std::string &mol_atom_name) {
 // return 0 or 1
 bool coot::is_hydrogen_p(mmdb::Atom *at) {
 
-   std::string mol_atom_ele(at->element);
+   std::string mol_atom_ele(at->GetElementName());
    if (mol_atom_ele == " H" ||
        mol_atom_ele == " D") {
       return 1;

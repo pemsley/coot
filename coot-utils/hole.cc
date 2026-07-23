@@ -72,7 +72,7 @@ coot::hole::assign_vdw_radii(const coot::protein_geometry &geom) {
             for (int iat=0; iat<n_atoms; iat++) {
                at = residue_p->GetAtom(iat);
 
-               std::string atom_name = at->name;
+               std::string atom_name = at->GetAtomName();
 
                // try cache first
                std::pair<std::string, std::string> p(atom_name, residue_name);
@@ -85,7 +85,7 @@ coot::hole::assign_vdw_radii(const coot::protein_geometry &geom) {
                if (radius > 0) {
                   at->PutUDData(radius_handle, radius);
                } else {
-                  std::string ele = at->element;
+                  std::string ele = at->GetElementName();
                   // make a reasonable default
                   mmdb::realtype radius = 1.7;
                    if (ele == " N")
@@ -317,9 +317,9 @@ coot::hole::sphere_size(const clipper::Coord_orth &pt, int selhnd) const {
    mmdb::realtype atom_vdw_radius;
 
    for (int iat=0; iat<n_selected_atoms; iat++) {
-      clipper::Coord_orth atom_pos(atom_selection[iat]->x,
-                                   atom_selection[iat]->y,
-                                   atom_selection[iat]->z);
+      clipper::Coord_orth atom_pos(atom_selection[iat]->x(),
+                                   atom_selection[iat]->y(),
+                                   atom_selection[iat]->z());
       double r_1 = clipper::Coord_orth::length(atom_pos, pt);
       atom_selection[iat]->GetUDData(radius_handle, atom_vdw_radius);
       double r = r_1 - atom_vdw_radius;

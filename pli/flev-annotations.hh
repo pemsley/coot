@@ -204,7 +204,7 @@ namespace pli {
                if (! ligand_atom_is_donor_flag)
                   std::swap(ligand_atom, residue_atom);
 
-               if (is_a_metal(residue_atom->residue)) {
+               if (is_a_metal(residue_atom->GetResidue())) {
                   r_bond_type = METAL_CONTACT_BOND;
                } else {
 

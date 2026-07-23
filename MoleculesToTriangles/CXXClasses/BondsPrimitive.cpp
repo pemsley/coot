@@ -45,7 +45,7 @@ void BondsPrimitive::evaluateGLPrimitives(std::map<std::shared_ptr<ColorRule>, i
     unsigned long midpointIndex = 0;
     int iBond = 0;
     for (; centralAtomPntr != bonds.end(); ++centralAtomPntr, iAtom++){
-        FCXXCoord atom1Coord(centralAtomPntr->first->x, centralAtomPntr->first->y, centralAtomPntr->first->z, 0.);
+        FCXXCoord atom1Coord(centralAtomPntr->first->x(), centralAtomPntr->first->y(), centralAtomPntr->first->z(), 0.);
         FCXXCoord atom1Color = colorScheme->colorForAtom(centralAtomPntr->first, handles);
         for (int i=0; i<4; i++) {
             vertexColorArray[iAtom].vertex[i] = atom1Coord[i];
@@ -54,7 +54,7 @@ void BondsPrimitive::evaluateGLPrimitives(std::map<std::shared_ptr<ColorRule>, i
         std::vector<mmdb::Atom *>::iterator bondedAtomPntr = centralAtomPntr->second.begin();
         for (; bondedAtomPntr != centralAtomPntr->second.end(); ++bondedAtomPntr, iMidpoint++){
             midpointIndex = bonds.size() + iMidpoint;
-            FCXXCoord atom2Coord((*bondedAtomPntr)->x, (*bondedAtomPntr)->y, (*bondedAtomPntr)->z, 0.);
+            FCXXCoord atom2Coord((*bondedAtomPntr)->x(), (*bondedAtomPntr)->y(), (*bondedAtomPntr)->z(), 0.);
             FCXXCoord midpoint = (atom1Coord + atom2Coord) / 2.;
             for (int i=0; i<4; i++) {
                 vertexColorArray[midpointIndex].vertex[i] = midpoint[i];

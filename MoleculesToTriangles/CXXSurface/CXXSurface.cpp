@@ -465,7 +465,7 @@ int CXXSurface::assignAtom (mmdb::Manager* allAtomsManager_in, int selHnd){
         const CXXCoord<CXXCoord_ftype>&vertex = coordRef(vectors["vertices"], i);
         int j;
         for (j = 0, minDistSq=1e30; j<nSelAtoms; j++){
-            CXXCoord<CXXCoord_ftype>atom (selAtom[j]->x, selAtom[j]->y, selAtom[j]->z);
+            CXXCoord<CXXCoord_ftype>atom (selAtom[j]->x(), selAtom[j]->y(), selAtom[j]->z());
             CXXCoord<CXXCoord_ftype>diff = atom - vertex;
             double dxsq = diff.x() * diff.x();
             if (dxsq<minDistSq){
@@ -552,7 +552,7 @@ int CXXSurface::colorByAssignedAtom(){
     for (int i=0; i< int(vertices.size()); i++){
         theAtom = (mmdb::Atom*) vertices[i].pointer(pointers["atom"]);
         if (theAtom != 0){
-            switch (theAtom->name[1]){
+            switch (theAtom->GetAtomName()[1]){
                 case 'C':
                     vertices[i].setXyz(vectors["colour"], greenColour);
                     break;

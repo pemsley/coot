@@ -1238,9 +1238,9 @@ coot::molecule_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
    // do it lots of times in jiggle_atoms.  Inefficient.
    std::vector<double> p(3, 0.0);
    for (int iat=0; iat<n_atoms; iat++) {
-      p[0] += atom_selection[iat]->x;
-      p[1] += atom_selection[iat]->y;
-      p[2] += atom_selection[iat]->z;
+      p[0] += atom_selection[iat]->x();
+      p[1] += atom_selection[iat]->y();
+      p[2] += atom_selection[iat]->z();
    }
    double fact = 1.0;
    if (n_atoms)
@@ -1526,7 +1526,7 @@ coot::molecule_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
                               for (int iat=0; iat<n_atoms; iat++) {
                                  mmdb::Atom *at = residue_p->GetAtom(iat);
                                  if (! at->isTer()) {
-                                    clipper::Coord_orth pt(at->x, at->y, at->z);
+                                    clipper::Coord_orth pt(at->x(), at->y(), at->z());
                                     float d = coot::util::density_at_point(xmap, pt);
                                     std::cout << coot::atom_spec_t(at) << " " << d << std::endl;
                                  }
@@ -1589,9 +1589,9 @@ coot::molecule_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
                   coot::util::transform_chain(chains_for_moving[ich], bias_rtop);
             } else {
                for (int iat=0; iat<n_atoms; iat++) {
-                  atom_selection[iat]->x += bias.x();
-                  atom_selection[iat]->y += bias.y();
-                  atom_selection[iat]->z += bias.z();
+                  atom_selection[iat]->x() += bias.x();
+                  atom_selection[iat]->y() += bias.y();
+                  atom_selection[iat]->z() += bias.z();
                }
             }
          } else {

@@ -66,7 +66,7 @@ clipper::Xmap<float> coot::util::make_gaussian_atom_map_for_mask(const clipper::
          for (int i=0; i<n_atoms; i++) {
             mmdb::Atom *at = atom_selection[i];
             if (! at->isTer()) {
-               clipper::Coord_orth pos(at->x, at->y, at->z);
+               clipper::Coord_orth pos(at->x(), at->y(), at->z());
                place_atom_in_grid(pos, xmap, sigma, box_radius); // change xmap
             }
          }

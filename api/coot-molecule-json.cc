@@ -13,16 +13,16 @@ std::string coot::molecule_t::get_molecule_selection_as_json(const std::string &
    auto atom_to_json = [] (mmdb::Atom *at) {
       nlohmann::json j;
       // 2025-10-10-PE add more attributes later
-      std::string se = util::remove_whitespace(std::string(at->element));
-      std::string sn = util::remove_whitespace(std::string(at->name));
-      j["x"] = at->x;
-      j["y"] = at->y;
-      j["z"] = at->z;
-      j["tempFactor"] = at->tempFactor;
-      j["occupancy"] = at->occupancy;
+      std::string se = util::remove_whitespace(std::string(at->GetElementName()));
+      std::string sn = util::remove_whitespace(std::string(at->GetAtomName()));
+      j["x"] = at->x();
+      j["y"] = at->y();
+      j["z"] = at->z();
+      j["tempFactor"] = at->tempFactor();
+      j["occupancy"] = at->occupancy();
       j["name"] = sn;
       j["element"] = se;
-      j["altLoc"] = std::string(at->altLoc);
+      j["altLoc"] = std::string(at->altLoc());
       return j;
    };
 
@@ -101,7 +101,7 @@ coot::molecule_t::get_torsions_for_residues_in_chain_as_json(const std::string &
       for (int i=0; i<n_atoms; i++) {
          mmdb::Atom *at = r->GetAtom(i);
          if (at->isTer()) continue;
-         if (std::string(at->altLoc) != "")
+         if (std::string(at->altLoc()) != "")
             return true;
       }
       return false;
@@ -112,8 +112,8 @@ coot::molecule_t::get_torsions_for_residues_in_chain_as_json(const std::string &
       for (int i=0; i<n_atoms; i++) {
          mmdb::Atom *at = r->GetAtom(i);
          if (!at->isTer()) {
-            if (std::string(at->name) == name)
-               return {true, clipper::Coord_orth(at->x, at->y, at->z)};
+            if (std::string(at->GetAtomName()) == name)
+               return {true, clipper::Coord_orth(at->x(), at->y(), at->z())};
          }
       }
       return {false, clipper::Coord_orth()};

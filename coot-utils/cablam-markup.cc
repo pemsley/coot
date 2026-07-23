@@ -49,7 +49,7 @@ coot::cablam_markup_t::cablam_markup_t(mmdb::Atom *O_prev_at,
    if (! CA_this_at) return;
    if (! CA_next_at) return;
    score = -1;
-   residue = O_this_at->residue;
+   residue = O_this_at->GetResidue();
    O_prev_pos = co(O_prev_at);
    O_this_pos = co(O_this_at);
    O_next_pos = co(O_next_at);
@@ -127,7 +127,7 @@ coot::calc_cablam(mmdb::Chain *chain_p, mmdb::Residue *residue_this_p,
    int n_atoms_next_next = residue_next_next_p->GetNumberOfAtoms();
    for (int iat=0; iat<n_atoms_prev; iat++) {
       mmdb::Atom *at = residue_prev_p->GetAtom(iat);
-      std::string alt_loc(at->altLoc);
+      std::string alt_loc(at->altLoc());
       if (alt_loc.empty()) { // no cablams for altconfed atoms
          std::string atom_name(at->GetAtomName());
          if (atom_name == " O  ") {
@@ -142,7 +142,7 @@ coot::calc_cablam(mmdb::Chain *chain_p, mmdb::Residue *residue_this_p,
    }
    for (int iat=0; iat<n_atoms_this; iat++) {
       mmdb::Atom *at = residue_this_p->GetAtom(iat);
-      std::string alt_loc(at->altLoc);
+      std::string alt_loc(at->altLoc());
       if (alt_loc.empty()) { // no cablams for altconfed atoms
          std::string atom_name(at->GetAtomName());
          if (atom_name == " O  ") {
@@ -157,7 +157,7 @@ coot::calc_cablam(mmdb::Chain *chain_p, mmdb::Residue *residue_this_p,
    }
    for (int iat=0; iat<n_atoms_next; iat++) {
       mmdb::Atom *at = residue_next_p->GetAtom(iat);
-      std::string alt_loc(at->altLoc);
+      std::string alt_loc(at->altLoc());
       if (alt_loc.empty()) { // no cablams for altconfed atoms
          std::string atom_name(at->GetAtomName());
          if (atom_name == " O  ") {
@@ -172,7 +172,7 @@ coot::calc_cablam(mmdb::Chain *chain_p, mmdb::Residue *residue_this_p,
    }
    for (int iat=0; iat<n_atoms_next_next; iat++) {
       mmdb::Atom *at = residue_next_next_p->GetAtom(iat);
-      std::string alt_loc(at->altLoc);
+      std::string alt_loc(at->altLoc());
       if (alt_loc.empty()) { // no cablams for altconfed atoms
          std::string atom_name(at->GetAtomName());
          if (atom_name == " CA ") {

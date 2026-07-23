@@ -290,12 +290,12 @@ lig_build::molfile_molecule_t::molfile_molecule_t(mmdb::Residue *residue_p,
    atoms.push_back(blank_atom); // blank atom for 0-index.
    // make the atoms
    for (int iat=0; iat<n_residue_atoms; iat++) {
-      clipper::Coord_orth pos(residue_atoms[iat]->x,
-			      residue_atoms[iat]->y,
-			      residue_atoms[iat]->z);
+      clipper::Coord_orth pos(residue_atoms[iat]->x(),
+			      residue_atoms[iat]->y(),
+			      residue_atoms[iat]->z());
       molfile_atom_t atom(pos,
-			  residue_atoms[iat]->element,
-			  residue_atoms[iat]->name);
+			  residue_atoms[iat]->GetElementName(),
+			  residue_atoms[iat]->GetAtomName());
       atoms.push_back(atom);
    } 
    
@@ -305,7 +305,7 @@ lig_build::molfile_molecule_t::molfile_molecule_t(mmdb::Residue *residue_p,
    std::map<std::string, std::vector<mmdb::Atom *> >::const_iterator it_2_atom_map;
    std::map<mmdb::Atom *, int> atom_index_map;
    for (int iat=0; iat<n_residue_atoms; iat++) { 
-      atom_map[residue_atoms[iat]->name].push_back(residue_atoms[iat]);
+      atom_map[residue_atoms[iat]->GetAtomName()].push_back(residue_atoms[iat]);
       atom_index_map[residue_atoms[iat]] = iat;
    }
 
@@ -321,10 +321,10 @@ lig_build::molfile_molecule_t::molfile_molecule_t(mmdb::Residue *residue_p,
 	    const std::vector<mmdb::Atom *> &v_1 = it_1_atom_map->second;
 	    const std::vector<mmdb::Atom *> &v_2 = it_2_atom_map->second;
 	    for (unsigned int iat_1=0; iat_1<v_1.size(); iat_1++) {
-	       std::string alt_conf_1 = v_1[iat_1]->altLoc;
+	       std::string alt_conf_1 = v_1[iat_1]->altLoc();
 	       if (alt_conf_1 == "") {
 		  for (unsigned int iat_2=0; iat_2<v_2.size(); iat_2++) { 
-		     std::string alt_conf_2 = v_2[iat_2]->altLoc;
+		     std::string alt_conf_2 = v_2[iat_2]->altLoc();
 		     if (alt_conf_2 == "") {
 
 			// OK, so we have a bond, these are indices

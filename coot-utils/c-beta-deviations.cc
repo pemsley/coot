@@ -80,7 +80,7 @@ coot::get_c_beta_deviations(mmdb::Residue *residue_p) {
    for (int iat=0; iat<n_atoms; iat++) {
       mmdb::Atom *at = residue_p->GetAtom(iat);
       std::string atom_name(at->GetAtomName());
-      std::string alt_conf(at->altLoc);
+      std::string alt_conf(at->altLoc());
       if (atom_name == " N  ") alt_conf_map[alt_conf].atom_1 = at;
       if (atom_name == " CA ") alt_conf_map[alt_conf].atom_2 = at;
       if (atom_name == " C  ") alt_conf_map[alt_conf].atom_3 = at;
@@ -95,7 +95,7 @@ coot::get_c_beta_deviations(mmdb::Residue *residue_p) {
    for(it=alt_conf_map.begin(); it!=alt_conf_map.end(); it++) {
       const atom_quad &q = it->second;
       if (q.filled_p()) {
-         clipper::Coord_orth CB_real_pos(q.atom_4->x, q.atom_4->y, q.atom_4->z); // no coot-utils.h included
+         clipper::Coord_orth CB_real_pos(q.atom_4->x(), q.atom_4->y(), q.atom_4->z()); // no coot-utils.h included
          clipper::Coord_orth CB_ideal_pos = make_CB_ideal_pos(q, res_name);
          double dsqrd = (CB_ideal_pos-CB_real_pos).lengthsq();
          double d = sqrt(dsqrd);
@@ -124,9 +124,9 @@ coot::make_CB_ideal_pos(const coot::atom_quad &q, const std::string &res_name) {
    if (res_name == std::string("PRO"))
       is_PRO = true;
 
-   clipper::Coord_orth pt_1(q.atom_1->x, q.atom_1->y, q.atom_1->z);
-   clipper::Coord_orth pt_2(q.atom_2->x, q.atom_2->y, q.atom_2->z);
-   clipper::Coord_orth pt_3(q.atom_3->x, q.atom_3->y, q.atom_3->z);
+   clipper::Coord_orth pt_1(q.atom_1->x(), q.atom_1->y(), q.atom_1->z());
+   clipper::Coord_orth pt_2(q.atom_2->x(), q.atom_2->y(), q.atom_2->z());
+   clipper::Coord_orth pt_3(q.atom_3->x(), q.atom_3->y(), q.atom_3->z());
 
    double l = 1.53;
    double a1 = clipper::Util::d2rad(111.0);

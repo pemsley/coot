@@ -667,7 +667,7 @@ coot::residue_by_phi_psi::get_connecting_residue_atoms() const {
    residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
    for (int i=0; i<nResidueAtoms; i++) {
       mmdb::Atom *at = residue_atoms[i];
-      std::string atom_name(at->name);
+      std::string atom_name(at->GetAtomName());
       if (atom_name == " N  ") N_at = at;
       if (atom_name == " C  ") C_at = at;
       if (atom_name == " CA ") CA_at = at;

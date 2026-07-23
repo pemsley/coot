@@ -77,7 +77,7 @@ coot::stack_and_pair::get_base_normal(mmdb::Residue *residue_p) const {
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
    for (int iat=0; iat<n_residue_atoms; iat++) {
       mmdb::Atom *at = residue_atoms[iat];
-      std::string atom_name(at->name);
+      std::string atom_name(at->GetAtomName());
       if (base_atom_name_set.find(atom_name) != base_atom_name_set.end()) {
          v.push_back(co(at));
       }
@@ -100,7 +100,7 @@ coot::stack_and_pair::get_base_atom_names(mmdb::Residue *residue_p) const {
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
    for (int iat=0; iat<n_residue_atoms; iat++) {
       mmdb::Atom *at = residue_atoms[iat];
-      std::string atom_name(at->name);
+      std::string atom_name(at->GetAtomName());
       if (base_atom_name_set.find(atom_name) != base_atom_name_set.end()) {
          v.push_back(atom_name);
       }
@@ -120,7 +120,7 @@ coot::stack_and_pair::get_base_centre(mmdb::Residue *residue_p) const {
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
    for (int iat=0; iat<n_residue_atoms; iat++) {
       mmdb::Atom *at = residue_atoms[iat];
-      std::string atom_name(at->name);
+      std::string atom_name(at->GetAtomName());
       if (base_atom_name_set.find(atom_name) != base_atom_name_set.end()) {
          centre_sum += co(at);
          n_centres++;
@@ -160,7 +160,7 @@ coot::stack_and_pair::calculate_residue_normals(mmdb::Atom **SelAtom, int n_sel_
    std::set<mmdb::Residue *> done_res;
    std::map<mmdb::Residue *, clipper::Coord_orth> m;
    for (int i=0; i<n_sel_atoms; i++) {
-      mmdb::Residue *r = SelAtom[i]->residue;
+      mmdb::Residue *r = SelAtom[i]->GetResidue();
       if (done_res.find(r) == done_res.end()) {
          std::pair<bool, clipper::Coord_orth> bn = get_base_normal(r);
          if (bn.first) {
@@ -186,7 +186,7 @@ coot::stack_and_pair::mark_donors_and_acceptors(mmdb::Manager *mol, int selectio
    int udd_h_bond_type_handle = mol->RegisterUDInteger(mmdb::UDR_ATOM, "hb_type");
    for (int i=0; i<n_sel_atoms; i++) {
       mmdb::Atom *at = sel_atoms[i];
-      std::string name = at->name;
+      std::string name = at->GetAtomName();
       std::string res_name = at->GetResName();
 
       std::map<std::string, int>::const_iterator it;
@@ -342,17 +342,17 @@ coot::stack_and_pair::paired_residues(mmdb::Manager *mol,
                   // in different residues and both are are O or N, and are close
                   // enough together and both are nucleic acids
 
-                  if (at_1->residue != at_2->residue) {
-                     std::string ele_1(at_1->element);
-                     std::string ele_2(at_2->element);
+                  if (at_1->GetResidue() != at_2->GetResidue()) {
+                     std::string ele_1(at_1->GetElementName());
+                     std::string ele_2(at_2->GetElementName());
 
                      // PDBv3 FIXME
                      if (ele_1 == " O" || ele_1 == " N") {
                         if (ele_2 == " O" || ele_2 == " N") {
 
-                           float dx = at_1->x - at_2->x;
-                           float dy = at_1->y - at_2->y;
-                           float dz = at_1->z - at_2->z;
+                           float dx = at_1->x() - at_2->x();
+                           float dy = at_1->y() - at_2->y();
+                           float dz = at_1->z() - at_2->z();
                            float dd = dx * dx + dy * dy + dz * dz;
                            if (dd < dist_crit_sqrt) {
                               int hb_type_1 = coot::HB_UNASSIGNED;
@@ -365,17 +365,17 @@ coot::stack_and_pair::paired_residues(mmdb::Manager *mol,
                                  if (hb_type_2 == coot::HB_DONOR || hb_type_2 == coot::HB_BOTH) {
 
                                     if (at_1->GetChain() == at_2->GetChain()) {
-                                       int residue_index_1 = at_1->residue->index;
-                                       int residue_index_2 = at_2->residue->index;
+                                       int residue_index_1 = at_1->GetResidue()->GetIndex();
+                                       int residue_index_2 = at_2->GetResidue()->GetIndex();
                                        int residue_index_delta = residue_index_2 - residue_index_1;
                                        if (abs(residue_index_delta) < 2)
                                           continue;
                                     }
 
-                                    if (util::is_nucleotide(at_1->residue)) {
-                                       if (util::is_nucleotide(at_2->residue)) {
+                                    if (util::is_nucleotide(at_1->GetResidue())) {
+                                       if (util::is_nucleotide(at_2->GetResidue())) {
 
-                                          if (similar_normals(at_1->residue, at_2->residue, normal_map)) {
+                                          if (similar_normals(at_1->GetResidue(), at_2->GetResidue(), normal_map)) {
 
                                              // also, to stop base pairing the residue above
                                              // or below, we need to check the dot product
@@ -388,8 +388,8 @@ coot::stack_and_pair::paired_residues(mmdb::Manager *mol,
                                              clipper::Coord_orth pt_2 = co(at_2);
                                              clipper::Coord_orth atom_atom_unit_vector((pt_2 - pt_1).unit());
 
-                                             double dp_1 = clipper::Coord_orth::dot(atom_atom_unit_vector, normal_map[at_1->residue]);
-                                             double dp_2 = clipper::Coord_orth::dot(atom_atom_unit_vector, normal_map[at_2->residue]);
+                                             double dp_1 = clipper::Coord_orth::dot(atom_atom_unit_vector, normal_map[at_1->GetResidue()]);
+                                             double dp_2 = clipper::Coord_orth::dot(atom_atom_unit_vector, normal_map[at_2->GetResidue()]);
 
                                              if (false) {
                                                 std::cout << " dot product 1 " << dp_1 << " " << atom_spec_t(at_1) << " " << atom_spec_t(at_2) << "\n";
@@ -400,8 +400,8 @@ coot::stack_and_pair::paired_residues(mmdb::Manager *mol,
                                                 if (std::abs(dp_2) < 0.5) {
 
                                                    // no ribose or phosphate atoms:
-                                                   std::string name_1(at_1->name);
-                                                   std::string name_2(at_2->name);
+                                                   std::string name_1(at_1->GetAtomName());
+                                                   std::string name_2(at_2->GetAtomName());
                                                    if (excluded_oxygens.find(name_1) == excluded_oxygens.end()) {
                                                       if (excluded_oxygens.find(name_2) == excluded_oxygens.end()) {
 
@@ -438,8 +438,8 @@ coot::stack_and_pair::paired_residues(mmdb::Manager *mol,
    for (std::size_t i=0; i<atom_vec.size(); i++) {
       mmdb::Atom *at_1 = atom_vec[i].first;
       mmdb::Atom *at_2 = atom_vec[i].second;
-      mmdb::Residue *res_1 = at_1->residue;
-      mmdb::Residue *res_2 = at_2->residue;
+      mmdb::Residue *res_1 = at_1->GetResidue();
+      mmdb::Residue *res_2 = at_2->GetResidue();
       bool found = false;
 
       for (std::size_t j=0; j<v.size(); j++) {

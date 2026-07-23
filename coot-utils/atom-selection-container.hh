@@ -142,7 +142,7 @@ public:
       for (int i=0; i<n_selected_atoms; i++) {
          mmdb::Atom *at = atom_selection[i];
          if (at) {
-            sum += clipper::Coord_orth(at->x, at->y, at->z);
+            sum += clipper::Coord_orth(at->x(), at->y(), at->z());
             count++;
          }
       }
@@ -158,18 +158,18 @@ public:
    //! apply shift
    void apply_shift(float x_shift, float y_shift, float z_shift) {
       for (int i=0; i<n_selected_atoms; i++) {
-         atom_selection[i]->x += x_shift;
-         atom_selection[i]->y += y_shift;
-         atom_selection[i]->z += z_shift;
+         atom_selection[i]->x() += x_shift;
+         atom_selection[i]->y() += y_shift;
+         atom_selection[i]->z() += z_shift;
       }
    }
 
    //! apply shift
    void apply_shift(const clipper::Coord_orth &shift) {
       for (int i=0; i<n_selected_atoms; i++) {
-         atom_selection[i]->x += shift.x();
-         atom_selection[i]->y += shift.y();
-         atom_selection[i]->z += shift.z();
+         atom_selection[i]->x() += shift.x();
+         atom_selection[i]->y() += shift.y();
+         atom_selection[i]->z() += shift.z();
       }
    }
 

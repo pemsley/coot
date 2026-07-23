@@ -45,7 +45,7 @@ coot::b_factor_histogram::b_factor_histogram(mmdb::Manager *mol) {
 	       int n_atoms_in_residue = residue_p->GetNumberOfAtoms();
 	       for (int iat=0; iat<n_atoms_in_residue; iat++) {
 		  mmdb::Atom *at = residue_p->GetAtom(iat);
-		  const float &b = at->tempFactor;
+		  const float &b = at->tempFactor();
 		  if (b >= 0.0) {
 		     n_atoms++;
 		     if (b > b_max) {
@@ -76,7 +76,7 @@ coot::b_factor_histogram::b_factor_histogram(mmdb::Manager *mol) {
 	       int n_atoms_in_residue = residue_p->GetNumberOfAtoms();
 	       for (int iat=0; iat<n_atoms_in_residue; iat++) {
 		  mmdb::Atom *at = residue_p->GetAtom(iat);
-		  const float &b = at->tempFactor;
+		  const float &b = at->tempFactor();
 		  if (b >= 0.0) {
 		     int bin_idx = b_to_bin(b);
 		     b_vector[bin_idx].push_back(b);
@@ -100,7 +100,7 @@ coot::b_factor_histogram::b_factor_histogram(mmdb::Manager *mol, int atom_select
    mol->GetSelIndex(atom_selection_handle, atom_selection, n_selection_atoms);
    for (int i=0; i<n_selection_atoms; i++) {
       mmdb::Atom *at = atom_selection[i];
-      const float &b = at->tempFactor;
+      const float &b = at->tempFactor();
       if (b >= 0.0) {
 	 n_atoms++;
 	 if (b > b_max) {
@@ -115,7 +115,7 @@ coot::b_factor_histogram::b_factor_histogram(mmdb::Manager *mol, int atom_select
    b_vector.resize(n_bins);
    for (int i=0; i<n_selection_atoms; i++) {
       mmdb::Atom *at = atom_selection[i];
-      const float &b = at->tempFactor;
+      const float &b = at->tempFactor();
       if (b >= 0.0) {
 	 int bin_idx = b_to_bin(b);
 	 b_vector[bin_idx].push_back(b);

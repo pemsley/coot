@@ -124,7 +124,7 @@ coot::minimol::molecule::molecule(mmdb::PPAtom atom_selection,
    for (int iat=0; iat<n_atoms; iat++) {
 
       mmdb::Atom *at = atom_selection[iat];
-      mmdb::Residue *residue_p = at->residue;
+      mmdb::Residue *residue_p = at->GetResidue();
       mmdb::Chain *chain_p = at->GetChain();
       int resno = residue_p->GetSeqNum();
       std::string res_name = residue_p->GetResName();
@@ -161,7 +161,7 @@ coot::minimol::molecule::molecule(mmdb::PPAtom atom_selection,
 	 coot::minimol::residue res(resno);
 	 res.name = res_name;
 	 coot::minimol::atom minimol_atom(at);
-	 minimol_atom.pos = clipper::Coord_orth(atoms[iat].x, atoms[iat].y, atoms[iat].z);
+	 minimol_atom.pos = clipper::Coord_orth(atoms[iat].x(), atoms[iat].y(), atoms[iat].z());
 	 res.addatom(minimol_atom);
 	 try { 
 	    fragments[ifrag_for_atom].addresidue(res,1);
@@ -171,7 +171,7 @@ coot::minimol::molecule::molecule(mmdb::PPAtom atom_selection,
 	 } 
       } else {
 	 coot::minimol::atom minimol_atom(at);
-	 minimol_atom.pos = clipper::Coord_orth(atoms[iat].x, atoms[iat].y, atoms[iat].z);
+	 minimol_atom.pos = clipper::Coord_orth(atoms[iat].x(), atoms[iat].y(), atoms[iat].z());
 	 fragments[ifrag_for_atom][resno].addatom(minimol_atom);
       } 
    }
@@ -215,7 +215,7 @@ coot::minimol::molecule::min_resno_in_chain(mmdb::Chain *chain_p) const {
       int resno;
       for (int ires=0; ires<nres; ires++) {
 	 residue_p = chain_p->GetResidue(ires);
-	 resno = residue_p->seqNum;
+	 resno = residue_p->GetSeqNum();
 	 if (resno < min_resno) {
 	    min_resno = resno;
 	    found_residues = 1;
@@ -289,20 +289,20 @@ coot::minimol::molecule::setup(mmdb::Manager *mol, bool udd_atom_index_to_user_d
 			mmdb::Atom *at;
 			for (int ires=0; ires<nres; ires++) { 
 			   residue_p = chain_p->GetResidue(ires);
-			   coot::minimol::residue r(residue_p->seqNum); 
+			   coot::minimol::residue r(residue_p->GetSeqNum()); 
 			   int n_atoms = residue_p->GetNumberOfAtoms();
-			   r.name = residue_p->name;
+			   r.name = residue_p->GetResName();
 
 			   for (int iat=0; iat<n_atoms; iat++) {
 			      at = residue_p->GetAtom(iat);
 			      if (! at->isTer()) { 
-				 clipper::Coord_orth p(at->x, at->y, at->z);
-				 coot::minimol::atom mat(std::string(at->name),
-							 std::string(at->element),
+				 clipper::Coord_orth p(at->x(), at->y(), at->z());
+				 coot::minimol::atom mat(std::string(at->GetAtomName()),
+							 std::string(at->GetElementName()),
 							 p,
-							 std::string(at->altLoc),
-							 at->occupancy,
-							 at->tempFactor);
+							 std::string(at->altLoc()),
+							 at->occupancy(),
+							 at->tempFactor());
 				 if (do_atom_index_transfer) {
 				    int atom_udd_atom_index = -1;
 				    if (at->GetUDData(udd_atom_index_handle, atom_udd_atom_index) == mmdb::UDDATA_Ok) {
@@ -585,22 +585,22 @@ coot::minimol::molecule::fragment_for_chain(const std::string &chain_id) {
 // 
 coot::minimol::residue::residue(mmdb::Residue* residue_p) {
 
-   seqnum = residue_p->seqNum;
+   seqnum = residue_p->GetSeqNum();
    ins_code = residue_p->GetInsCode();
-   name = residue_p->name;
+   name = residue_p->GetResName();
    int nResidueAtoms;
    mmdb::PPAtom residue_atoms;
    residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
    for (int i=0; i<nResidueAtoms; i++) {
       if (! residue_atoms[i]->isTer())
-	 addatom(std::string(residue_atoms[i]->name),
-		 std::string(residue_atoms[i]->element),
-		 residue_atoms[i]->x,
-		 residue_atoms[i]->y,
-		 residue_atoms[i]->z,
-		 std::string(residue_atoms[i]->altLoc),
-		 residue_atoms[i]->occupancy,
-		 residue_atoms[i]->tempFactor);
+	 addatom(std::string(residue_atoms[i]->GetAtomName()),
+		 std::string(residue_atoms[i]->GetElementName()),
+		 residue_atoms[i]->x(),
+		 residue_atoms[i]->y(),
+		 residue_atoms[i]->z(),
+		 std::string(residue_atoms[i]->altLoc()),
+		 residue_atoms[i]->occupancy(),
+		 residue_atoms[i]->tempFactor());
    }
 }
 
@@ -608,14 +608,14 @@ coot::minimol::residue::residue(mmdb::Residue* residue_p) {
 coot::minimol::residue::residue(mmdb::Residue *residue_p,
 				const std::vector<std::string> &keep_only_these_atoms) {
 
-   seqnum = residue_p->seqNum;
+   seqnum = residue_p->GetSeqNum();
    ins_code = residue_p->GetInsCode();
-   name = residue_p->name;
+   name = residue_p->GetResName();
    int nResidueAtoms;
    mmdb::PPAtom residue_atoms;
    residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
    for (int i=0; i<nResidueAtoms; i++) {
-      std::string atom_name = residue_atoms[i]->name;
+      std::string atom_name = residue_atoms[i]->GetAtomName();
       bool add_it = 0;
       for (unsigned int ikeep=0; ikeep<keep_only_these_atoms.size(); ikeep++) {
 	 if (atom_name == keep_only_these_atoms[ikeep]) {
@@ -625,13 +625,13 @@ coot::minimol::residue::residue(mmdb::Residue *residue_p,
       }
       if (add_it) { 
 	 addatom(atom_name,
-		 std::string(residue_atoms[i]->element),
-		 residue_atoms[i]->x,
-		 residue_atoms[i]->y,
-		 residue_atoms[i]->z,
-		 std::string(residue_atoms[i]->altLoc),
-		 residue_atoms[i]->occupancy,
-		 residue_atoms[i]->tempFactor);
+		 std::string(residue_atoms[i]->GetElementName()),
+		 residue_atoms[i]->x(),
+		 residue_atoms[i]->y(),
+		 residue_atoms[i]->z(),
+		 std::string(residue_atoms[i]->altLoc()),
+		 residue_atoms[i]->occupancy(),
+		 residue_atoms[i]->tempFactor());
       }
    }
 }
@@ -661,8 +661,8 @@ coot::minimol::residue::make_residue() const {
       // cif bits
       if (atoms[iat].name.length() < 20)
          strcpy(atom_p->label_atom_id, atoms[iat].name.c_str());
-      strncpy(atom_p->element, atoms[iat].element.c_str(),3);
-      strncpy(atom_p->altLoc, atoms[iat].altLoc.c_str(), 2);
+      atom_p->SetElementName(atoms[iat].element.c_str());
+      strncpy(atom_p->altLoc(), atoms[iat].altLoc.c_str(), 2);
       int i_add = residue_p->AddAtom(atom_p);
       if (i_add < 0) 
 	 std::cout << "addatom addition error" << std::endl;
@@ -683,7 +683,7 @@ coot::minimol::residue::update_positions_from(mmdb::Residue *residue_p) {
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
       for (int iat=0; iat<n_atoms; iat++) {
 	 mmdb::Atom *at = residue_atoms[iat];
-	 clipper::Coord_orth p(at->x, at->y, at->z);
+	 clipper::Coord_orth p(at->x(), at->y(), at->z());
 	 atoms[iat].pos = p;
       }
    }
@@ -1003,12 +1003,12 @@ coot::minimol::atom::atom(std::string atom_name,
 }
 
 coot::minimol::atom::atom(mmdb::Atom *at) {
-   name = at->name;
-   element = at->element;
-   pos = clipper::Coord_orth(at->x, at->y, at->z);
-   altLoc = at->altLoc;
-   occupancy = at->occupancy;
-   temperature_factor = at->tempFactor;
+   name = at->GetAtomName();
+   element = at->GetElementName();
+   pos = clipper::Coord_orth(at->x(), at->y(), at->z());
+   altLoc = at->altLoc();
+   occupancy = at->occupancy();
+   temperature_factor = at->tempFactor();
    int_user_data = -1;
 }
 
@@ -1085,8 +1085,8 @@ coot::minimol::molecule::pcmmdbmanager() const {
 					 (*this)[ifrag][ires][iatom].occupancy,
 					 (*this)[ifrag][ires][iatom].temperature_factor);
 		  atom_p->SetAtomName(this_atom.name.c_str());
-		  strncpy(atom_p->element,(*this)[ifrag][ires][iatom].element.c_str(),3);
-		  strncpy(atom_p->altLoc, (*this)[ifrag][ires][iatom].altLoc.c_str(), 2);
+		  atom_p->SetElementName((*this)[ifrag][ires][iatom].element.c_str());
+		  strncpy(atom_p->altLoc(), (*this)[ifrag][ires][iatom].altLoc.c_str(), 2);
 		  if (udd_atom_index_handle >= 0)
 		     if (this_atom.int_user_data >= 0)
 			atom_p->PutUDData(udd_atom_index_handle, this_atom.int_user_data);

@@ -84,7 +84,7 @@ molecules_container_t::molecular_placement_fit(int imol_map, int imol_model,
          if (n_atoms > 0) {
             float sum = 0.0f;
             for (int j=0; j<n_atoms; j++) {
-               clipper::Coord_orth pt(atoms[j]->x, atoms[j]->y, atoms[j]->z);
+               clipper::Coord_orth pt(atoms[j]->x(), atoms[j]->y(), atoms[j]->z());
                sum += coot::util::density_at_point(molecules[imol_map].xmap, pt);
             }
             mean_density_ca = sum / static_cast<float>(n_atoms);

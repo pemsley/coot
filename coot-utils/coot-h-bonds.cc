@@ -382,13 +382,13 @@ coot::h_bonds::get_mcdonald_and_thornton(int selHnd_1, int selHnd_2, mmdb::Manag
             mmdb::Atom *at_2 = sel_2_atoms[pscontact[i_contact].id2];
 
             // move on if these are interacting atoms
-            std::string alt_conf_1 = at_1->altLoc;
-            std::string alt_conf_2 = at_2->altLoc;
+            std::string alt_conf_1 = at_1->altLoc();
+            std::string alt_conf_2 = at_2->altLoc();
             if (!alt_conf_1.empty() && ! alt_conf_2.empty())
                if (alt_conf_1 != alt_conf_2)
                   continue;
 
-            if (at_1->residue != at_2->residue) {
+            if (at_1->GetResidue() != at_2->GetResidue()) {
 
                // are they HB_HYDROGEN and HB_ACCEPTOR?
                //
@@ -729,7 +729,7 @@ coot::h_bonds::mark_donors_and_acceptors(int selHnd_1, int selHnd_2, mmdb::Manag
    int udd_h_bond_type_handle = mol->RegisterUDInteger(mmdb::UDR_ATOM, "hb_type");
 
    for (int i=0; i<n_sel_1_atoms; i++) {
-      std::string name = sel_1_atoms[i]->name;
+      std::string name = sel_1_atoms[i]->GetAtomName();
       std::string res_name = sel_1_atoms[i]->GetResName();
 
       int h_bond_type = geom.get_h_bond_type(name, res_name, imol);
@@ -745,7 +745,7 @@ coot::h_bonds::mark_donors_and_acceptors(int selHnd_1, int selHnd_2, mmdb::Manag
 
    if (selHnd_1 != selHnd_2) {
       for (int i=0; i<n_sel_2_atoms; i++) {
-         std::string name = sel_2_atoms[i]->name;
+         std::string name = sel_2_atoms[i]->GetAtomName();
          std::string res_name = sel_2_atoms[i]->GetResName();
          int h_bond_type = geom.get_h_bond_type(name, res_name, imol);
          sel_2_atoms[i]->PutUDData(udd_h_bond_type_handle, h_bond_type);
@@ -795,12 +795,12 @@ coot::h_bonds::make_neighbour_map(int selHnd_1, int selHnd_2, mmdb::Manager *mol
    if (n_contacts) {
       if (pscontact) {
          for (int i_contact=0; i_contact<n_contacts; i_contact++) {
-            clipper::Coord_orth pt_1(sel_1_atoms[pscontact[i_contact].id1]->x,
-                                     sel_1_atoms[pscontact[i_contact].id1]->y,
-                                     sel_1_atoms[pscontact[i_contact].id1]->z);
-            clipper::Coord_orth pt_2(sel_1_atoms[pscontact[i_contact].id2]->x,
-                                     sel_1_atoms[pscontact[i_contact].id2]->y,
-                                     sel_1_atoms[pscontact[i_contact].id2]->z);
+            clipper::Coord_orth pt_1(sel_1_atoms[pscontact[i_contact].id1]->x(),
+                                     sel_1_atoms[pscontact[i_contact].id1]->y(),
+                                     sel_1_atoms[pscontact[i_contact].id1]->z());
+            clipper::Coord_orth pt_2(sel_1_atoms[pscontact[i_contact].id2]->x(),
+                                     sel_1_atoms[pscontact[i_contact].id2]->y(),
+                                     sel_1_atoms[pscontact[i_contact].id2]->z());
             float d = clipper::Coord_orth::length(pt_1, pt_2);
             coot::residue_spec_t res_1(sel_1_atoms[pscontact[i_contact].id1]->GetResidue());
             coot::residue_spec_t res_2(sel_1_atoms[pscontact[i_contact].id2]->GetResidue());
@@ -829,12 +829,12 @@ coot::h_bonds::make_neighbour_map(int selHnd_1, int selHnd_2, mmdb::Manager *mol
    if (n_contacts) {
       if (pscontact) {
          for (int i_contact=0; i_contact<n_contacts; i_contact++) {
-            clipper::Coord_orth pt_1(sel_2_atoms[pscontact[i_contact].id1]->x,
-                                     sel_2_atoms[pscontact[i_contact].id1]->y,
-                                     sel_2_atoms[pscontact[i_contact].id1]->z);
-            clipper::Coord_orth pt_2(sel_2_atoms[pscontact[i_contact].id2]->x,
-                                     sel_2_atoms[pscontact[i_contact].id2]->y,
-                                     sel_2_atoms[pscontact[i_contact].id2]->z);
+            clipper::Coord_orth pt_1(sel_2_atoms[pscontact[i_contact].id1]->x(),
+                                     sel_2_atoms[pscontact[i_contact].id1]->y(),
+                                     sel_2_atoms[pscontact[i_contact].id1]->z());
+            clipper::Coord_orth pt_2(sel_2_atoms[pscontact[i_contact].id2]->x(),
+                                     sel_2_atoms[pscontact[i_contact].id2]->y(),
+                                     sel_2_atoms[pscontact[i_contact].id2]->z());
             coot::residue_spec_t res_1(sel_2_atoms[pscontact[i_contact].id1]->GetResidue());
             coot::residue_spec_t res_2(sel_2_atoms[pscontact[i_contact].id2]->GetResidue());
 

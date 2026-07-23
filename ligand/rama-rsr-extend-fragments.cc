@@ -474,14 +474,14 @@ rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, 
                                                     double dd = (at_2_pos - at_1_pos).lengthsq();
                                                     double d = std::sqrt(dd);
                                                     std::cout << "moving atom " << coot::atom_spec_t(atom_o) << " from "
-                                                              << std::setw(9) << atom_o->x << " " << std::setw(9) << atom_o->y << " " << std::setw(9) << atom_o->z << " to "
-                                                              << std::setw(9) << atom_r->x << " " << std::setw(9) << atom_r->y << " " << std::setw(9) << atom_r->z
+                                                              << std::setw(9) << atom_o->x() << " " << std::setw(9) << atom_o->y() << " " << std::setw(9) << atom_o->z() << " to "
+                                                              << std::setw(9) << atom_r->x() << " " << std::setw(9) << atom_r->y() << " " << std::setw(9) << atom_r->z()
                                                               << "   d " << std::setw(9) << d << "\n";
                                                  }
 
-                                                 atom_o->x = atom_r->x;
-                                                 atom_o->y = atom_r->y;
-                                                 atom_o->z = atom_r->z;
+                                                 atom_o->x() = atom_r->x();
+                                                 atom_o->y() = atom_r->y();
+                                                 atom_o->z() = atom_r->z();
                                               }
                                            }
                                         }

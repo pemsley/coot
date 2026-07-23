@@ -506,7 +506,7 @@ molecules_container_t::get_q_score_validation_information(mmdb::Manager *mol, in
                            at->GetUDData(udd_q_score, q);
                            if (false)
                              std::cout << " " << coot::atom_spec_t(at) << " B "
-                                       << at->tempFactor << "  Q-Score: " << q
+                                       << at->tempFactor() << "  Q-Score: " << q
                                        << std::endl;
                          }
                        }
@@ -787,7 +787,7 @@ molecules_container_t::get_spherical_variance(int imol_map, int imol_model,
                coot::atom_spec_t atom_spec(at_m);
                mmdb::Atom *at = molecules[imol_model].get_atom(atom_spec);
                if (at) {
-                  clipper::Coord_orth pt(at->x, at->y, at->z);
+                  clipper::Coord_orth pt(at->x(), at->y(), at->z());
                   float mean_d = mean_density_other_atoms;
                   coot::ligand::spherical_density_score_t sds;
                   float sv = sds.get_spherical_variance(pt, xmap, mean_d);

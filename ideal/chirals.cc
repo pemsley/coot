@@ -60,19 +60,19 @@ coot::is_inverted_chiral_atom_p(const coot::dict_chiral_restraint_t &chiral_rest
    int i_no_res_atoms = res->GetNumberOfAtoms();
    
    for (int iat1=0; iat1<i_no_res_atoms; iat1++) {
-      std::string pdb_atom_name1(res->GetAtom(iat1)->name);
+      std::string pdb_atom_name1(res->GetAtom(iat1)->GetAtomName());
       if (pdb_atom_name1 == chiral_restraint.atom_id_1_4c()) {
 	 
 	 for (int iat2=0; iat2<i_no_res_atoms; iat2++) {
-	    std::string pdb_atom_name2(res->GetAtom(iat2)->name);
+	    std::string pdb_atom_name2(res->GetAtom(iat2)->GetAtomName());
 	    if (pdb_atom_name2 == chiral_restraint.atom_id_2_4c()) {
 	       
 	       for (int iat3=0; iat3<i_no_res_atoms; iat3++) {
-		  std::string pdb_atom_name3(res->GetAtom(iat3)->name);
+		  std::string pdb_atom_name3(res->GetAtom(iat3)->GetAtomName());
 		  if (pdb_atom_name3 == chiral_restraint.atom_id_3_4c()) {
 		     
 		     for (int iatc=0; iatc<i_no_res_atoms; iatc++) {
-			std::string pdb_atom_namec(res->GetAtom(iatc)->name);
+			std::string pdb_atom_namec(res->GetAtom(iatc)->GetAtomName());
 			if (pdb_atom_namec == chiral_restraint.atom_id_c_4c()) {
 
 			   // Now, do they have corresponding
@@ -84,10 +84,10 @@ coot::is_inverted_chiral_atom_p(const coot::dict_chiral_restraint_t &chiral_rest
 			   //                                 CA   CB   OG1,A CG2,A (2)
 			   //                 but not:        CA   CB   OG1,A CG2,B (3)
 
-			   std::string chiral_alt_conf(res->GetAtom(iatc)->altLoc);
-			   std::string altLoc1(res->GetAtom(iat1)->altLoc);
-			   std::string altLoc2(res->GetAtom(iat2)->altLoc);
-			   std::string altLoc3(res->GetAtom(iat3)->altLoc);
+			   std::string chiral_alt_conf(res->GetAtom(iatc)->altLoc());
+			   std::string altLoc1(res->GetAtom(iat1)->altLoc());
+			   std::string altLoc2(res->GetAtom(iat2)->altLoc());
+			   std::string altLoc3(res->GetAtom(iat3)->altLoc());
 			   short int matching_altlocs = 0;
 
 			   // These should catch most cases, 
@@ -116,18 +116,18 @@ coot::is_inverted_chiral_atom_p(const coot::dict_chiral_restraint_t &chiral_rest
 
 			   if (matching_altlocs) { 
 
-			      clipper::Coord_orth centre(res->GetAtom(iatc)->x,
-							 res->GetAtom(iatc)->y,
-							 res->GetAtom(iatc)->z);
-			      clipper::Coord_orth a1(res->GetAtom(iat1)->x,
-						     res->GetAtom(iat1)->y,
-						     res->GetAtom(iat1)->z);
-			      clipper::Coord_orth a2(res->GetAtom(iat2)->x,
-						     res->GetAtom(iat2)->y,
-						     res->GetAtom(iat2)->z);
-			      clipper::Coord_orth a3(res->GetAtom(iat3)->x,
-						     res->GetAtom(iat3)->y,
-						     res->GetAtom(iat3)->z);
+			      clipper::Coord_orth centre(res->GetAtom(iatc)->x(),
+							 res->GetAtom(iatc)->y(),
+							 res->GetAtom(iatc)->z());
+			      clipper::Coord_orth a1(res->GetAtom(iat1)->x(),
+						     res->GetAtom(iat1)->y(),
+						     res->GetAtom(iat1)->z());
+			      clipper::Coord_orth a2(res->GetAtom(iat2)->x(),
+						     res->GetAtom(iat2)->y(),
+						     res->GetAtom(iat2)->z());
+			      clipper::Coord_orth a3(res->GetAtom(iat3)->x(),
+						     res->GetAtom(iat3)->y(),
+						     res->GetAtom(iat3)->z());
 			   
 			      clipper::Coord_orth a = a1 - centre;
 			      clipper::Coord_orth b = a2 - centre;
@@ -137,8 +137,8 @@ coot::is_inverted_chiral_atom_p(const coot::dict_chiral_restraint_t &chiral_rest
 			      chiral_atom = atom_spec_t(res->GetChainID(),
                                                         res->GetSeqNum(),
                                                         res->GetInsCode(),
-                                                        res->GetAtom(iatc)->name,
-                                                        res->GetAtom(iatc)->altLoc);
+                                                        res->GetAtom(iatc)->GetAtomName(),
+                                                        res->GetAtom(iatc)->altLoc());
 
 			      if (cv*chiral_restraint.volume_sign < 0) {
 // 				 std::cout << "DEBUG:: " << res->name << " "
@@ -209,7 +209,7 @@ coot::inverted_chiral_volumes(int imol,
 		  residue_p = chain_p->GetResidue(ires);
 		  int n_atoms = residue_p->GetNumberOfAtoms();
 		  if (n_atoms > 3) {
-		     std::string residue_type(residue_p->name);
+		     std::string residue_type(residue_p->GetResName());
 		     if (residue_type == "UNK")
 			residue_type = "ALA";
 		     if (! geom_p->have_dictionary_for_residue_type(residue_type,
@@ -229,7 +229,7 @@ coot::inverted_chiral_volumes(int imol,
 			   unknown_types_vec.push_back(residue_type);
 		     } else { 
 			std::vector<coot::dict_chiral_restraint_t> chiral_restraints = 
-			   geom_p->get_monomer_chiral_volumes(std::string(residue_p->name), imol);
+			   geom_p->get_monomer_chiral_volumes(std::string(residue_p->GetResName()), imol);
 			coot::dict_chiral_restraint_t chiral_restraint;
 			for (unsigned int irestr=0; irestr<chiral_restraints.size(); irestr++) { 
 			   chiral_restraint = chiral_restraints[irestr];

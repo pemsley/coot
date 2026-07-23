@@ -526,7 +526,7 @@ get_atom_selection(std::string pdb_name,
                 std::cout << i << " "
                           << asc.atom_selection[i]->GetChainID() << " "
                           << asc.atom_selection[i]->GetSeqNum() << " :"
-                          << asc.atom_selection[i]->name << ":" <<std::endl;
+                          << asc.atom_selection[i]->GetAtomName() << ":" <<std::endl;
              }
           }
 
@@ -626,7 +626,7 @@ fix_element_name_lengths(mmdb::Manager *mol) {
                      int n_atoms = residue_p->GetNumberOfAtoms();
                      for (int iat=0; iat<n_atoms; iat++) {
                         at = residue_p->GetAtom(iat);
-                        std::string ele(at->element);
+                        std::string ele(at->GetElementName());
                         if (ele.length() == 1) {
                            ele = " " + ele;
                            at->SetElementName(ele.c_str());
@@ -677,7 +677,7 @@ fix_nucleic_acid_residue_names(atom_selection_container_t asc) {
                      mmdb::PResidue residue_p;
                      for (int ires=0; ires<nres; ires++) {
                         residue_p = chain_p->GetResidue(ires);
-                        std::string residue_name(residue_p->name);
+                        std::string residue_name(residue_p->GetResName());
 
                         if (residue_name == "T" ||
                             residue_name == "U" ||
@@ -711,7 +711,7 @@ int fix_nucleic_acid_residue_name(mmdb::Residue *r) {
 
    r->GetAtomTable(residue_atoms, n_residue_atoms);
    for (int i=0; i<n_residue_atoms; i++) {
-      std::string atom_name(residue_atoms[i]->name);
+      std::string atom_name(residue_atoms[i]->GetAtomName());
       if (atom_name == " O2*") {
          found_o2_star = 1;
          break;
@@ -727,7 +727,7 @@ int fix_nucleic_acid_residue_name(mmdb::Residue *r) {
 
    convert_to_old_nucleotide_atom_names(r);
 
-   std::string res_name = r->name;
+   std::string res_name = r->GetResName();
    std::string new_name_stub = res_name.substr(0,1);
    if (res_name == "DA" || res_name == "DT" ||
        res_name == "DC" || res_name == "DG")
@@ -757,9 +757,9 @@ convert_to_old_nucleotide_atom_names(mmdb::Residue *r) {
    int n_residue_atoms;
    r->GetAtomTable(residue_atoms, n_residue_atoms);
    for (int i=0; i<n_residue_atoms; i++) {
-      std::string atom_name(residue_atoms[i]->name);
+      std::string atom_name(residue_atoms[i]->GetAtomName());
       std::string name_orig = atom_name;
-      std::string ele(residue_atoms[i]->element);
+      std::string ele(residue_atoms[i]->GetElementName());
       char c3 = atom_name[2]; // 3rd char
       char c4 = atom_name[3]; // 4th char
       if (coot::is_hydrogen(ele)) {
@@ -777,21 +777,21 @@ convert_to_old_nucleotide_atom_names(mmdb::Residue *r) {
                   atom_name[3] = '*';
             }
          }
-         strncpy(residue_atoms[i]->name, atom_name.c_str(),5);
+         residue_atoms[i]->SetAtomName(atom_name.c_str());
       } else {
          // if it is not a hydrogen, simply change the prime to a star
          if (c4 == '\'') {
             atom_name[3] = '*';
-            strncpy(residue_atoms[i]->name, atom_name.c_str(),5);
+            residue_atoms[i]->SetAtomName(atom_name.c_str());
          }
 
          if (atom_name == " OP1") {
             atom_name = " O1P";
-            strncpy(residue_atoms[i]->name, atom_name.c_str(),5);
+            residue_atoms[i]->SetAtomName(atom_name.c_str());
          }
          if (atom_name == " OP2") {
             atom_name = " O2P";
-            strncpy(residue_atoms[i]->name, atom_name.c_str(),5);
+            residue_atoms[i]->SetAtomName(atom_name.c_str());
          }
       }
       // debug
@@ -806,12 +806,12 @@ fix_away_atoms(atom_selection_container_t asc) {
 
    int nat = 0;
    for (int i=0; i<asc.n_selected_atoms; i++) {
-      if ((asc.atom_selection[i]->x > 9998.0) &&
-          (asc.atom_selection[i]->y > 9998.0) &&
-          (asc.atom_selection[i]->z > 9998.0)) {
-         asc.atom_selection[i]->x =  0.0;
-         asc.atom_selection[i]->y =  0.0;
-         asc.atom_selection[i]->z =  0.0;
+      if ((asc.atom_selection[i]->x() > 9998.0) &&
+          (asc.atom_selection[i]->y() > 9998.0) &&
+          (asc.atom_selection[i]->z() > 9998.0)) {
+         asc.atom_selection[i]->x() =  0.0;
+         asc.atom_selection[i]->y() =  0.0;
+         asc.atom_selection[i]->z() =  0.0;
          nat++;
       }
    }
@@ -837,7 +837,7 @@ fix_wrapped_names(atom_selection_container_t asc) {
       // std::string ele(asc.atom_selection[i]->element);
 
       if (1) {
-         std::string atom_name(asc.atom_selection[i]->name);
+         std::string atom_name(asc.atom_selection[i]->GetAtomName());
          if (atom_name[0] == '1' ||
              atom_name[0] == '2' ||
              atom_name[0] == '3' ||
@@ -864,7 +864,7 @@ fix_wrapped_names(atom_selection_container_t asc) {
 //                         << new_atom_name << ":\n";
             if (uddHnd_old >= 0)
                asc.atom_selection[i]->PutUDData(uddHnd_old,
-                                                asc.atom_selection[i]->name);
+                                                asc.atom_selection[i]->GetAtomName());
             if (uddHnd_new >= 0)
                asc.atom_selection[i]->PutUDData(uddHnd_new,
                                                 new_atom_name.c_str());
@@ -876,7 +876,7 @@ fix_wrapped_names(atom_selection_container_t asc) {
                std::string new_atom_name = " H  ";
                if (uddHnd_old >= 0)
                   asc.atom_selection[i]->PutUDData(uddHnd_old,
-                                                   asc.atom_selection[i]->name);
+                                                   asc.atom_selection[i]->GetAtomName());
                if (uddHnd_new >= 0)
                   asc.atom_selection[i]->PutUDData(uddHnd_new,
                                                    (char *) new_atom_name.c_str());
@@ -1100,9 +1100,9 @@ coot::get_molecule_diameter(const atom_selection_container_t &asc) {
             if (idx_1 != idx_2) {
                mmdb:: Atom *at_1 = asc.atom_selection[idx_1];
                mmdb:: Atom *at_2 = asc.atom_selection[idx_2];
-               float dx = at_2->x - at_1->x;
-               float dy = at_2->y - at_1->y;
-               float dz = at_2->z - at_1->z;
+               float dx = at_2->x() - at_1->x();
+               float dy = at_2->y() - at_1->y();
+               float dz = at_2->z() - at_1->z();
                float dd = dx*dx + dy*dy + dz*dz;
                float d = std::sqrt(dd);
                s.add(d);

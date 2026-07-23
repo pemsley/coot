@@ -951,7 +951,7 @@ coot::side_chain_densities::sample_map(mmdb::Residue *residue_this_p,
       if (! at->isTer()) {
          clipper::Coord_orth pos = co(at);
          residue_atom_positions.push_back(pos);
-         std::string atom_name(at->name);
+         std::string atom_name(at->GetAtomName());
          if (atom_name == " N  " || atom_name == " C  " || atom_name == " O  " ||
              atom_name == " H  " || atom_name == " CA ") {
             double r = 2.8;
@@ -969,7 +969,7 @@ coot::side_chain_densities::sample_map(mmdb::Residue *residue_this_p,
       for (int i=0; i<n_atoms; i++) {
          mmdb::Atom *at = residue_next_p->GetAtom(i);
          if (! at->isTer()) {
-            std::string atom_name(at->name);
+            std::string atom_name(at->GetAtomName());
             if (atom_name == " N  ") {
                clipper::Coord_orth pos = co(at);
                std::pair<double, clipper::Coord_orth> p(3.0, pos);
@@ -1411,8 +1411,8 @@ coot::side_chain_densities::get_residue_axes_type_GLY(mmdb::Residue *this_residu
    int n_atoms = this_residue->GetNumberOfAtoms();
    for (int i=0; i<n_atoms; i++) {
       mmdb::Atom *at = this_residue->GetAtom(i);
-      std::string atom_name = at->name;
-      std::string alt_loc = at->altLoc;
+      std::string atom_name = at->GetAtomName();
+      std::string alt_loc = at->altLoc();
       if (! at->isTer()) {
          if (alt_loc.empty()) {
             if (atom_name == " CA ") CA_at = at;
@@ -1490,8 +1490,8 @@ coot::side_chain_densities::get_residue_axes(mmdb::Residue *residue_p) const {
    int n_atoms = residue_p->GetNumberOfAtoms();
    for (int i=0; i<n_atoms; i++) {
       mmdb::Atom *at = residue_p->GetAtom(i);
-      std::string atom_name = at->name;
-      std::string alt_loc = at->altLoc;
+      std::string atom_name = at->GetAtomName();
+      std::string alt_loc = at->altLoc();
       if (! at->isTer()) {
          if (alt_loc.empty()) {
             if (atom_name == " CA ") CA_at = at;

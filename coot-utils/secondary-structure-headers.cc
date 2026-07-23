@@ -371,8 +371,8 @@ coot::secondary_structure_header_records::get_sheet_order(mmdb::Manager *mol,
             for (int ic=0; ic<n_contacts; ic++) {
                mmdb::Atom *at_1 = N_atoms[pscontact[ic].id1];
                mmdb::Atom *at_2 = O_atoms[pscontact[ic].id2];
-               mmdb::Residue *r_1 = at_1->residue;
-               mmdb::Residue *r_2 = at_2->residue;
+               mmdb::Residue *r_1 = at_1->GetResidue();
+               mmdb::Residue *r_2 = at_2->GetResidue();
                if (r_1 != r_2) {
                   int rn_1 = r_1->GetSeqNum();
                   int rn_2 = r_2->GetSeqNum();

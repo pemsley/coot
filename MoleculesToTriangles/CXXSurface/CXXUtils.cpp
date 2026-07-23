@@ -33,11 +33,11 @@ int CXXUtils::assignCharge(mmdb::Manager* theManager, int selHnd, CXXChargeTable
 	//Assign atom charges
 	for (int iAtom = 0; iAtom < nSelAtoms; iAtom++) {
 		mmdb::Atom* theAtom = SelAtom[iAtom];
-		string atomName(theAtom->name);
-		string residueName(theAtom->residue->name);
+		string atomName(theAtom->GetAtomName());
+		string residueName(theAtom->GetResidue()->GetResName());
 		double theAtomCharge;
 		theAtomCharge = theChargeTable->getCharge(residueName, atomName);
-		theAtom->charge = theAtomCharge;
+		theAtom->charge() = theAtomCharge;
 	}
 	return 0;
 }
@@ -83,10 +83,10 @@ int CXXUtils::assignUnitedAtomRadius  (mmdb::Manager* theManager, int selHnd) {
     
     for (int iAtom = 0; iAtom < nSelAtoms; iAtom++) {
         mmdb::Atom* anAtom = SelAtom[iAtom];
-        std::string atomName(anAtom->name);
+        std::string atomName(anAtom->GetAtomName());
         std::string residueName("*  ");
-        if (anAtom->residue != NULL){
-            residueName = std::string(anAtom->residue->name);
+        if (anAtom->GetResidue() != NULL){
+            residueName = std::string(anAtom->GetResidue()->GetResName());
         }
         
         std::map<std::string,std::map<std::string, float> >::iterator residueMapIter = mappedRadii.find(residueName);
@@ -114,7 +114,7 @@ double CXXUtils::getAtomRadius(mmdb::Manager* theManager, mmdb::Atom* theAtom){
         int success = theAtom->GetUDData (iRadiusHandle, theRadius);
         if (success != mmdb::UDDATA_Ok) theRadius = 1.8;
     }
-    else theRadius = mmdb::getVdWaalsRadius(theAtom->element);
+    else theRadius = mmdb::getVdWaalsRadius(theAtom->GetElementName());
     return theRadius;
 }
 
@@ -188,7 +188,7 @@ int CXXUtils::unCharge(mmdb::Manager* theManager, int selHnd){
 	//Assign atom charges
 	for (int iAtom = 0; iAtom < nSelAtoms; iAtom++) {
 		mmdb::Atom* theAtom = SelAtom[iAtom];
-		theAtom->charge = 0.;
+		theAtom->charge() = 0.;
 	}
 	return 0;
 }

@@ -95,7 +95,7 @@ coot::ideal_rna::make_molecule() {
 	 if (is_valid_base(seq[iseq])) {
 	    // sense residue
 	    mmdb::Residue *res = coot::util::deep_copy_this_residue(ur);
-	    res->seqNum = 1 + iseq ;
+	    res->GetSeqNum() = 1 + iseq ;
 	    clipper::RTop_orth o = n_turns(iseq, seq.length(), form_flag);
 	    coot::util::transform_atoms(res, o);
 	    int success = mutate_res(res, seq[iseq], is_dna_flag);
@@ -127,7 +127,7 @@ coot::ideal_rna::make_molecule() {
 
 	       // antisense residue
 	       mmdb::Residue *res = coot::util::deep_copy_this_residue(antisense_ref);
-	       res->seqNum = seq.length() - iseq;
+	       res->GetSeqNum() = seq.length() - iseq;
 	       // antisense_chain_p->AddResidue(res);  "backwards in pdb"
 	       clipper::RTop_orth o = n_turns(iseq, seq.length(), form_flag);
 	       coot::util::transform_atoms(res, o);
@@ -177,7 +177,7 @@ coot::ideal_rna::fix_up_residue_and_atom_names(mmdb::Residue *residue_p, bool is
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
    for (int iat=0; iat<n_residue_atoms; iat++) {
       mmdb::Atom *at = residue_atoms[iat];
-      std::string atom_name = at->name;
+      std::string atom_name = at->GetAtomName();
       if (atom_name.length() > 3) {
 	 if (atom_name[3] == '*') { 
 	    atom_name[3] = '\'';
@@ -193,7 +193,7 @@ coot::ideal_rna::fix_up_residue_and_atom_names(mmdb::Residue *residue_p, bool is
    if (new_name == "DT") {
       for (int iat=0; iat<n_residue_atoms; iat++) {
 	 mmdb::Atom *at = residue_atoms[iat];
-	 std::string atom_name = at->name;
+	 std::string atom_name = at->GetAtomName();
 	 if (atom_name == " C5M") {
 	    at->SetAtomName(" C7 ");
 	 }
@@ -448,7 +448,7 @@ coot::ideal_rna::delete_o2_prime(mmdb::Residue *res) const {
    if (res) { 
       res->GetAtomTable(residue_atoms, natoms);
       for (int i=0; i<natoms; i++) {
-	 std::string atname(residue_atoms[i]->name);
+	 std::string atname(residue_atoms[i]->GetAtomName());
 	 if (atname == " O2*") {
 	    res->DeleteAtom(i);
 	    deleted=1;
@@ -486,7 +486,7 @@ coot::ideal_rna::add_o2_prime(mmdb::Residue *res) const {
       mmdb::Atom *c3p = NULL;
       res->GetAtomTable(residue_atoms, natoms);
       for (int i=0; i<natoms; i++) {
-	 std::string atname(residue_atoms[i]->name);
+	 std::string atname(residue_atoms[i]->GetAtomName());
 	 if (atname == " C1'" || atname == " C1*")
 	    c1p = residue_atoms[i];
 	 if (atname == " C2'" || atname == " C2*")
@@ -497,9 +497,9 @@ coot::ideal_rna::add_o2_prime(mmdb::Residue *res) const {
 
       if (c1p && c2p && c3p) { // add o
 	 std::vector<clipper::Coord_orth> ref_pts;
-	 ref_pts.push_back(clipper::Coord_orth(c1p->x, c1p->y, c1p->z));
-	 ref_pts.push_back(clipper::Coord_orth(c2p->x, c2p->y, c2p->z));
-	 ref_pts.push_back(clipper::Coord_orth(c3p->x, c3p->y, c3p->z));
+	 ref_pts.push_back(clipper::Coord_orth(c1p->x(), c1p->y(), c1p->z()));
+	 ref_pts.push_back(clipper::Coord_orth(c2p->x(), c2p->y(), c2p->z()));
+	 ref_pts.push_back(clipper::Coord_orth(c3p->x(), c3p->y(), c3p->z()));
 
 	 clipper::RTop_orth rtop(mov_pts, ref_pts);
 	 clipper::Coord_orth pos = o2p.transform(rtop);

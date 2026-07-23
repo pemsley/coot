@@ -246,7 +246,7 @@ coot::molecule_t::merge_molecules_just_one_residue_homogeneous(atom_selection_co
       std::vector<std::string> r = coot::util::residue_types_in_chain(this_chain_p);
 
       if (r.size() == 1) {
-         std::string adding_model_resname(molecule_to_add.atom_selection[0]->residue->GetResName());
+         std::string adding_model_resname(molecule_to_add.atom_selection[0]->GetResidue()->GetResName());
          if (r[0] == adding_model_resname) {
             // poly-ala helices (say) should not go into concatenated residues in the same chain
             if (adding_model_resname != "ALA") {
@@ -260,7 +260,7 @@ coot::molecule_t::merge_molecules_just_one_residue_homogeneous(atom_selection_co
 
    if (has_single_residue_type_chain_flag) {
       if (molecule_to_add.n_selected_atoms > 0) {
-         mmdb::Residue *add_model_residue = molecule_to_add.atom_selection[0]->residue;
+         mmdb::Residue *add_model_residue = molecule_to_add.atom_selection[0]->GetResidue();
          copy_and_add_residue_to_chain(add_residue_to_this_chain, add_model_residue);
          done_homogeneous_addition_flag = true;
          atom_sel.mol->FinishStructEdit();
@@ -301,7 +301,7 @@ coot::molecule_t::merge_molecules_just_one_residue_at_given_spec(atom_selection_
             if (r) {
                make_backup("merge_molecules_just_one_residue_at_given_spec");
                mmdb::Residue *new_residue_p = copy_and_add_residue_to_chain(this_chain_p, r);
-               new_residue_p->seqNum = target_spec.res_no;
+               new_residue_p->GetSeqNum() = target_spec.res_no;
                status = true;
             }
          } else {
@@ -369,7 +369,7 @@ coot::molecule_t::copy_and_add_residue_to_chain(mmdb::Chain *this_model_chain,
             int new_res_resno = 9999;
             if (res_info.first)
                new_res_resno = res_info.second;
-            residue_copy->seqNum = new_res_resno; // try changing the seqNum before AddResidue().
+            residue_copy->GetSeqNum() = new_res_resno; // try changing the seqNum before AddResidue().
             this_model_chain->AddResidue(residue_copy);
             res_copied = residue_copy;
          }
@@ -597,11 +597,11 @@ coot::molecule_t::next_residue_number_in_chain(mmdb::Chain *w,
       if (nres > 0) {
          for (int ires=nres-1; ires>=0; ires--) {
             residue_p = w->GetResidue(ires);
-            if (residue_p->seqNum > max_res_no) {
-               max_res_no = residue_p->seqNum;
+            if (residue_p->GetSeqNum() > max_res_no) {
+               max_res_no = residue_p->GetSeqNum();
                bool is_het_residue_flag = is_het_residue(residue_p);
                if (is_het_residue_flag) {
-                  p = std::pair<short int, int>(1, residue_p->seqNum+1);
+                  p = std::pair<short int, int>(1, residue_p->GetSeqNum()+1);
                } else {
                   if (new_res_no_by_hundreds) {
                      if (max_res_no < 9999) {
@@ -623,7 +623,7 @@ coot::molecule_t::next_residue_number_in_chain(mmdb::Chain *w,
             while (! is_clear) {
                is_clear = true;
                for (int iser=0; iser<nres; iser++) {
-                  int resno_res = w->GetResidue(iser)->seqNum;
+                  int resno_res = w->GetResidue(iser)->GetSeqNum();
                   if (resno_res >= test_resno_start) {
                      if (resno_res <= (test_resno_start+10)) {
                         is_clear = false;

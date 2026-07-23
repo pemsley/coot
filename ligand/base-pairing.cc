@@ -243,22 +243,22 @@ coot::base_pair_match_matix(mmdb::Residue *res_ref, mmdb::Residue *res_mov) {
 	 mmdb::Atom *at_ref = NULL;
 	 mmdb::Atom *at_mov = NULL;
 	 for (int iref=0; iref<n_ref_atoms; iref++) {
-	    std::string ref_atom_name = ref_atoms[iref]->name;
+	    std::string ref_atom_name = ref_atoms[iref]->GetAtomName();
 	    if (ref_atom_name == base_atom_names[i]) { 
 	       at_ref = ref_atoms[iref];
 	       break;
 	    } 
 	 } 
 	 for (int imov=0; imov<n_mov_atoms; imov++) {
-	    std::string mov_atom_name = mov_atoms[imov]->name;
+	    std::string mov_atom_name = mov_atoms[imov]->GetAtomName();
 	    if (mov_atom_name == base_atom_names[i]) { 
 	       at_mov = mov_atoms[imov];
 	       break;
 	    } 
 	 }
 	 if (at_ref && at_mov) {
-	    ref_pts.push_back(clipper::Coord_orth(at_ref->x, at_ref->y, at_ref->z));
-	    mov_pts.push_back(clipper::Coord_orth(at_mov->x, at_mov->y, at_mov->z));
+	    ref_pts.push_back(clipper::Coord_orth(at_ref->x(), at_ref->y(), at_ref->z()));
+	    mov_pts.push_back(clipper::Coord_orth(at_mov->x(), at_mov->y(), at_mov->z()));
 	 }
       }
 

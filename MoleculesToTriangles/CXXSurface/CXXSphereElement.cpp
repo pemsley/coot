@@ -61,7 +61,7 @@ theAtom(anAtom),
 deltaRadians(del)
 {
 	init();
-	theCentre = CXXCoord<CXXCoord_ftype>(anAtom->x, anAtom->y, anAtom->z);
+	theCentre = CXXCoord<CXXCoord_ftype>(anAtom->x(), anAtom->y(), anAtom->z());
 	calculate();
 }
 
@@ -293,9 +293,9 @@ void CXXSphereElement::initWith(const CXXCircleNode &aNode, double delta,
 	mmdb::Atom* atomJ=aNode.getAtomJ();
 	mmdb::Atom* atomI=aNode.getAtomI();
 	
-	CXXCoord<CXXCoord_ftype>u1(atomK->x, atomK->y, atomK->z);
-	CXXCoord<CXXCoord_ftype>u2(atomJ->x, atomJ->y, atomJ->z);
-	CXXCoord<CXXCoord_ftype>u3(atomI->x, atomI->y, atomI->z);
+	CXXCoord<CXXCoord_ftype>u1(atomK->x(), atomK->y(), atomK->z());
+	CXXCoord<CXXCoord_ftype>u2(atomJ->x(), atomJ->y(), atomJ->z());
+	CXXCoord<CXXCoord_ftype>u3(atomI->x(), atomI->y(), atomI->z());
 	
 	u1 = u1 - theCentre;
 	u1.normalise();
@@ -349,9 +349,9 @@ void CXXSphereElement::initWith(const CXXCoord<CXXCoord_ftype>&aCentre, mmdb::At
     deltaRadians=delta;
 	init();
 
-	CXXCoord<CXXCoord_ftype>u1(atomK->x, atomK->y, atomK->z);
-	CXXCoord<CXXCoord_ftype>u2(atomJ->x, atomJ->y, atomJ->z);
-	CXXCoord<CXXCoord_ftype>u3(atomI->x, atomI->y, atomI->z);
+	CXXCoord<CXXCoord_ftype>u1(atomK->x(), atomK->y(), atomK->z());
+	CXXCoord<CXXCoord_ftype>u2(atomJ->x(), atomJ->y(), atomJ->z());
+	CXXCoord<CXXCoord_ftype>u3(atomI->x(), atomI->y(), atomI->z());
 	
 	u1 = u1 - theCentre;
 	u1.normalise();

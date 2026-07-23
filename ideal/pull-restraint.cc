@@ -190,9 +190,9 @@ coot::restraints_container_t::pull_restraint_displace_neighbours(mmdb::Atom *pul
       mmdb::Atom *at = atom[iat];
       if (fixed_atom_indices.find(iat) == fixed_atom_indices.end()) { // not fixed
          float d_squared =
-            (at->x - pull_atom->x) * (at->x - pull_atom->x) +
-            (at->y - pull_atom->y) * (at->y - pull_atom->y) +
-            (at->z - pull_atom->z) * (at->z - pull_atom->z);
+            (at->x() - pull_atom->x()) * (at->x() - pull_atom->x()) +
+            (at->y() - pull_atom->y()) * (at->y() - pull_atom->y()) +
+            (at->z() - pull_atom->z()) * (at->z() - pull_atom->z());
          if (d_squared < r_squared) {
             float d = sqrt(d_squared);
             float ff = 1.0f - d/radius;
@@ -200,9 +200,9 @@ coot::restraints_container_t::pull_restraint_displace_neighbours(mmdb::Atom *pul
             float sf = sqrt(ff);
             if (use_top_hat_function)
                sf = 1.0;
-            at->x += sf * f * delta.x();
-            at->y += sf * f * delta.y();
-            at->z += sf * f * delta.z();
+            at->x() += sf * f * delta.x();
+            at->y() += sf * f * delta.y();
+            at->z() += sf * f * delta.z();
          }
       }
    }
@@ -358,7 +358,7 @@ coot::restraints_container_t::turn_off_when_close_target_position_restraint() {
       if (it->restraint_type == restraint_type_t(TARGET_POS_RESTRAINT)) {
          if (it->is_closed) {
             mmdb::Atom *at = atom[it->atom_index_1];
-               clipper::Coord_orth pos(at->x, at->y, at->z);
+               clipper::Coord_orth pos(at->x(), at->y(), at->z());
             double d = sqrt((pos - it->atom_pull_target_pos).lengthsq());
             if (d < close_dist) {
                it->close();
@@ -405,7 +405,7 @@ coot::restraints_container_t::turn_off_atom_pull_restraints_when_close_to_target
          } else {
             mmdb::Atom *at = atom[it->atom_index_1];
             if (atom_spec_t(at) != dragged_atom_spec) {
-               clipper::Coord_orth pos(at->x, at->y, at->z);
+               clipper::Coord_orth pos(at->x(), at->y(), at->z());
                double d = sqrt((pos - it->atom_pull_target_pos).lengthsq());
                if (d < close_dist) {
                   it->close();

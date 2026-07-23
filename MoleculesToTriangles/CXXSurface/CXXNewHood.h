@@ -61,7 +61,7 @@ public:
 		theAtomI= atomI;
 		theRadius = radiusOfAtom1 + probeRadius;
 		theProbeRadius = probeRadius;
-		theCentre = CXXCoord<CXXCoord_ftype>(atomI->x, atomI->y, atomI->z);
+		theCentre = CXXCoord<CXXCoord_ftype>(atomI->x(), atomI->y(), atomI->z());
 	};
     void initWith(const CXXCircleNode &aNode, double probeRadius);
 	void initWith(const CXXBall *aBall);

@@ -63,7 +63,7 @@ int MolecularRepresentation::drawSpheres()
     for (int i=0; i<nSelAtoms; i++){
         mmdb::Atom* atom1 = SelAtom[i];
         FCXXCoord atom1Color = colorScheme->colorForAtom(atom1, handles);
-        FCXXCoord atom1Coord(atom1->x,atom1->y, atom1->z);
+        FCXXCoord atom1Coord(atom1->x(),atom1->y(), atom1->z());
         float atomRadius = CXXUtils::getAtomRadius(mmdb, atom1) * radiusMultiplier;
 
         balls->addBall(atom1Coord, atom1Color, atomRadius);
@@ -147,7 +147,7 @@ int MolecularRepresentation::drawBondsAsCylinders()
         if (atom1->isInSelection(selHnd)){
             FCXXCoord atom1Color = colorScheme->colorForAtom(atom1, handles);
             
-            FCXXCoord atom1Coord(atom1->x,atom1->y, atom1->z);
+            FCXXCoord atom1Coord(atom1->x(),atom1->y(), atom1->z());
             balls->addBall(atom1Coord, atom1Color, ballRadius);
             
             //Because we might be restricted to GL_SHORT_INTs in the index array (don't ask !)
@@ -165,21 +165,21 @@ int MolecularRepresentation::drawBondsAsCylinders()
             int nBondedAtoms;
             mmdb::AtomBond* bondedAtoms;
             atom1->GetBonds(bondedAtoms, nBondedAtoms);
-            FCXXCoord coord1(atom1->x, atom1->y, atom1->z);
+            FCXXCoord coord1(atom1->x(), atom1->y(), atom1->z());
             for (int iOtherAtom = 0; iOtherAtom < nBondedAtoms; iOtherAtom++){
                 mmdb::Atom* atom2 = bondedAtoms[iOtherAtom].atom;
                 if (atom2->GetIndex()>iAtom && atom2->isInSelection(selHnd)){
                     
                     //Nasty kludge here...MMDB's MakeBonds screws up where there are multiple conformations
                     bool doContinue = false;
-                    if (!strcmp(atom1->altLoc,"") &&
-                        !strcmp(atom2->altLoc,"")) {
+                    if (!strcmp(atom1->altLoc(),"") &&
+                        !strcmp(atom2->altLoc(),"")) {
                         doContinue = true;
                     }
                     else {
-                        float dx = atom1->x - atom2->x;
-                        float dy = atom1->y - atom2->y;
-                        float dz = atom1->z - atom2->z;
+                        float dx = atom1->x() - atom2->x();
+                        float dy = atom1->y() - atom2->y();
+                        float dz = atom1->z() - atom2->z();
                         float dist = sqrtf (dx*dx + dy*dy + dz*dz);
                         if (dist < 1.9f) doContinue = true;
                     }
@@ -242,8 +242,8 @@ int MolecularRepresentation::drawHydrogenBonds()
         mmdb::Atom* atom2 = selAtoms[contact.id2];
         mmdb::Residue* residue1 = atom1->GetResidue();
         mmdb::Residue* residue2 = atom2->GetResidue();
-        std::string atom1Name = std::string(atom1->name);
-        std::string atom2Name = std::string(atom2->name);
+        std::string atom1Name = std::string(atom1->GetAtomName());
+        std::string atom2Name = std::string(atom2->GetAtomName());
 #ifdef DEBUG_MINE
         std::cout << residue1->GetSeqNum() << " [" << atom1Name << "]" << residue2->GetSeqNum() << "[" << atom2Name << "[" << std::string(" N  ") << "]\n";
 #endif
@@ -256,8 +256,8 @@ int MolecularRepresentation::drawHydrogenBonds()
                                           (atom1Name.compare(std::string(" O  "))==0 && atom2Name.compare(std::string(" N  "))==0) 
                                           )
             ){
-            FCXXCoord atom1Coord(atom1->x, atom1->y, atom1->z);
-            FCXXCoord atom2Coord(atom2->x, atom2->y, atom2->z);
+            FCXXCoord atom1Coord(atom1->x(), atom1->y(), atom1->z());
+            FCXXCoord atom2Coord(atom2->x(), atom2->y(), atom2->z());
             FCXXCoord diff = atom2Coord - atom1Coord;
             for (int iStep = 1; iStep < 7; iStep++){
                 float step = (float)iStep / 8.;
@@ -308,15 +308,15 @@ int MolecularRepresentation::drawBondsAsNewSticks()
                     atom2->isInSelection(selHnd)){
 
                     //Nasty kludge here...MMDB's MakeBonds screws up where there are multiple conformations
-                    if (!strcmp(atom1->altLoc,"") &&
-                        !strcmp(atom2->altLoc,"")) {
+                    if (!strcmp(atom1->altLoc(),"") &&
+                        !strcmp(atom2->altLoc(),"")) {
                         sticks->addPair(atom1, atom2);
                         nBonds++;
                     }
                     else {
-                        float dx = atom1->x - atom2->x;
-                        float dy = atom1->y - atom2->y;
-                        float dz = atom1->z - atom2->z;
+                        float dx = atom1->x() - atom2->x();
+                        float dy = atom1->y() - atom2->y();
+                        float dz = atom1->z() - atom2->z();
                         float dist = sqrtf (dx*dx + dy*dy + dz*dz);
                         if (dist < 1.9f) {
                             sticks->addPair(atom1, atom2);
@@ -384,7 +384,7 @@ int MolecularRepresentation::drawDishyBases()
 
             auto riboseAtomIter = dishyBaseIter->ribose_atoms.begin();
             for (; riboseAtomIter!= dishyBaseIter->ribose_atoms.end(); ++ riboseAtomIter){
-                FCXXCoord coord((*riboseAtomIter)->x, (*riboseAtomIter)->y, (*riboseAtomIter)->z);
+                FCXXCoord coord((*riboseAtomIter)->x(), (*riboseAtomIter)->y(), (*riboseAtomIter)->z());
                 FCXXCoord atomColor =  colorScheme->colorForAtom(*riboseAtomIter, handles);
                 balls->addBall(coord, atomColor, ballRadius);
                 if (balls->getBalls().size()%100 == 0){
@@ -403,9 +403,9 @@ int MolecularRepresentation::drawDishyBases()
             }
             // Draw a stick from ribose_atoms[1] to 1/3 of the way to
             // centre.
-            FCXXCoord atom1Coord(dishyBaseIter->ribose_atoms[1]->x,
-                                 dishyBaseIter->ribose_atoms[1]->y,
-                                 dishyBaseIter->ribose_atoms[1]->z);
+            FCXXCoord atom1Coord(dishyBaseIter->ribose_atoms[1]->x(),
+                                 dishyBaseIter->ribose_atoms[1]->y(),
+                                 dishyBaseIter->ribose_atoms[1]->z());
             FCXXCoord basePseudoAtomPosition = atom1Coord + (dishyBaseIter->centre - atom1Coord) / 3.;
             cylinder->addHalfAtomBondWithCoords(atom1Coord, dishyBaseIter->ribose_atoms[1], atom1Color,
                                                 basePseudoAtomPosition, dishyBaseIter->ribose_atoms[1], atom1Color,
@@ -500,7 +500,7 @@ int MolecularRepresentation::drawStickBases() {
                                    FCXXCoord atom1Color = colorScheme->colorForAtom(atom_1, handles);
                                    FCXXCoord atom2Color = colorScheme->colorForAtom(atom_2, handles);
                                    cylinder->addHalfAtomBond(atom_1, atom1Color, atom_2, atom2Color, cylinderRadius);
-                                   FCXXCoord atom1Coord(atom_2->x,atom_2->y, atom_2->z);
+                                   FCXXCoord atom1Coord(atom_2->x(),atom_2->y(), atom_2->z());
                                    balls->addBall(atom1Coord, atom1Color, ballRadius);
                               }
                            }

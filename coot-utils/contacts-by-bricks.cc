@@ -75,9 +75,9 @@ coot::contacts_by_bricks::fill_the_bricks() {
       mmdb::Atom *at = atoms[i];
       int idx_3d[3];
       // beware when copying this later - when atoms move?
-      idx_3d[0] = static_cast<int> ((at->x - lower_left[0]) * inv_brick_size);
-      idx_3d[1] = static_cast<int> ((at->y - lower_left[1]) * inv_brick_size);
-      idx_3d[2] = static_cast<int> ((at->z - lower_left[2]) * inv_brick_size);
+      idx_3d[0] = static_cast<int> ((at->x() - lower_left[0]) * inv_brick_size);
+      idx_3d[1] = static_cast<int> ((at->y() - lower_left[1]) * inv_brick_size);
+      idx_3d[2] = static_cast<int> ((at->z() - lower_left[2]) * inv_brick_size);
       unsigned int idx_1d = idx_3d_to_idx_1d(idx_3d);
       // atoms that fly over the edge don't have NBCs :-)
       unsigned int n_bricks = atoms_in_bricks.size();
@@ -135,7 +135,7 @@ coot::contacts_by_bricks::set_lower_left_and_range(mmdb::PAtom *atoms_in, int n_
    for(unsigned int i=0; i<n_atoms; i++) {
       mmdb::Atom *atom = atoms_in[i];
       float pos[3];
-      pos[0] = atom->x; pos[1] = atom->y; pos[2] = atom->z;
+      pos[0] = atom->x(); pos[1] = atom->y(); pos[2] = atom->z();
       for (int j=0; j<3; j++)
          if (pos[j] < lower_left[j])
             lower_left[j] = pos[j];
@@ -148,7 +148,7 @@ coot::contacts_by_bricks::set_lower_left_and_range(mmdb::PAtom *atoms_in, int n_
    for(unsigned int i=0; i<n_atoms; i++) {
       mmdb::Atom *atom = atoms_in[i];
       float pos[3];
-      pos[0] = atom->x; pos[1] = atom->y; pos[2] = atom->z;
+      pos[0] = atom->x(); pos[1] = atom->y(); pos[2] = atom->z();
       for (int j=0; j<3; j++) {
          if (false)
             std::cout
@@ -208,11 +208,11 @@ coot::contacts_by_bricks::find_the_contacts_in_bricks(std::vector<std::set<unsig
                if (it_neighb != it_base) {
                   mmdb::Atom *at_2 = atoms[*it_neighb];
                   if (only_between_different_residues_flag)
-                     if (at_2->residue == at_1->residue)
+                     if (at_2->GetResidue() == at_1->GetResidue())
                         continue;
-                  float d_x(at_1->x - at_2->x);
-                  float d_y(at_1->y - at_2->y);
-                  float d_z(at_1->z - at_2->z);
+                  float d_x(at_1->x() - at_2->x());
+                  float d_y(at_1->y() - at_2->y());
+                  float d_z(at_1->z() - at_2->z());
                   float dd = d_x * d_x + d_y * d_y + d_z * d_z;
                   if (dd < dist_max_sqrd) {
                      vec->at(*it_base).insert(*it_neighb);
@@ -324,11 +324,11 @@ coot::contacts_by_bricks::find_the_contacts_between_bricks_multi_thread_workpack
                               for (it_neighb=brick_neighb.begin(); it_neighb!=brick_neighb.end(); it_neighb++) {
                                  mmdb::Atom *at_2 = atoms[*it_neighb];
                                  if (only_between_different_residues_flag)
-                                    if (at_2->residue == at_1->residue)
+                                    if (at_2->GetResidue() == at_1->GetResidue())
                                        continue;
-                                 float d_x(at_1->x - at_2->x);
-                                 float d_y(at_1->y - at_2->y);
-                                 float d_z(at_1->z - at_2->z);
+                                 float d_x(at_1->x() - at_2->x());
+                                 float d_y(at_1->y() - at_2->y());
+                                 float d_z(at_1->z() - at_2->z());
                                  float dd(d_x * d_x + d_y * d_y + d_z * d_z);
                                  // std::cout << "MP " << *it_base << " " << *it_neighb << " sqrt(dd) " << sqrt(dd) << std::endl;
                                  if (dd < dist_max_sqrd) {
@@ -390,11 +390,11 @@ coot::contacts_by_bricks::find_the_contacts_between_bricks_simple(std::vector<st
                               for (it_neighb=brick_neighb.begin(); it_neighb!=brick_neighb.end(); it_neighb++) {
                                  mmdb::Atom *at_2 = atoms[*it_neighb];
                                  if (only_between_different_residues_flag)
-                                    if (at_2->residue == at_1->residue)
+                                    if (at_2->GetResidue() == at_1->GetResidue())
                                        continue;
-                                 float d_x(at_1->x - at_2->x);
-                                 float d_y(at_1->y - at_2->y);
-                                 float d_z(at_1->z - at_2->z);
+                                 float d_x(at_1->x() - at_2->x());
+                                 float d_y(at_1->y() - at_2->y());
+                                 float d_z(at_1->z() - at_2->z());
                                  float dd(d_x * d_x + d_y * d_y + d_z * d_z);
                                  if (dd < dist_max_sqrd) {
                                     vec->at(*it_base).insert(*it_neighb);

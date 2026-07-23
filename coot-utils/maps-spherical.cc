@@ -27,6 +27,7 @@
 
 #include "utils/coot-utils.hh"
 #include "coot-map-utils.hh"
+#include "mmdb-to-clipper-atom-list.hh"
 #include "emma.hh"
 #include "peak-search.hh"
 #include "xmap-stats.hh" // needed?
@@ -86,7 +87,7 @@ coot::util::emma::sfs_from_boxed_molecule(mmdb::Manager *mol_orig, float border)
       std::cout << "DEBUG:: P1-sfs: cell " << cell.format() << std::endl;
       std::cout << "DEBUG:: P1-sfs: resolution limit " << reso.limit() << std::endl;
 
-      clipper::MMDBAtom_list atoms(atom_selection, n_selected_atoms);
+      coot::MMDBAtom_list atoms(atom_selection, n_selected_atoms);
       std::cout << "DEBUG:: P1-sfs: n_selected_atoms: " << n_selected_atoms << std::endl;
 
       fc_from_model = clipper::HKL_data<clipper::data32::F_phi>(hkl_info, cell);

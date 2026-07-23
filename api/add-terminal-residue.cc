@@ -400,11 +400,11 @@ move_atom(const std::string &atom_name_in, mmdb::Residue *res_p, const clipper::
    res_p->GetAtomTable(residue_atoms, n_residue_atoms);
    for (int i=0; i<n_residue_atoms; i++) {
       mmdb::Atom *at = residue_atoms[i];
-      std::string atom_name(at->name);
+      std::string atom_name(at->GetAtomName());
       if (atom_name == atom_name_in) {
-         at->x = new_O_pos.x();
-         at->y = new_O_pos.y();
-         at->z = new_O_pos.z();
+         at->x() = new_O_pos.x();
+         at->y() = new_O_pos.y();
+         at->z() = new_O_pos.z();
          done = true;
          break;
       }
@@ -444,23 +444,23 @@ move_std_residue(mmdb::Residue *moving_residue, const mmdb::Residue *reference_r
             if (false)
                std::cout << "DEBUG:: move_std_residue: " << nResidueAtoms
                          << " atoms in residue "
-                         << moving_residue << " " << moving_residue->seqNum << " "
+                         << moving_residue << " " << moving_residue->GetSeqNum() << " "
                          << moving_residue->GetChainID() << std::endl;
 
             for (int iat=0; iat<nResidueAtoms; iat++) {
                if (residue_atoms[iat]) {
-                  clipper::Coord_orth co(residue_atoms[iat]->x,
-                                         residue_atoms[iat]->y,
-                                         residue_atoms[iat]->z);
-                  std::string alt_conf = residue_atoms[iat]->altLoc;
+                  clipper::Coord_orth co(residue_atoms[iat]->x(),
+                                         residue_atoms[iat]->y(),
+                                         residue_atoms[iat]->z());
+                  std::string alt_conf = residue_atoms[iat]->altLoc();
 
                   std::map<std::string, clipper::RTop_orth>::const_iterator it = rtops.find(alt_conf);
 
                   if (it != rtops.end()) {
                      clipper::Coord_orth rotted = co.transform(it->second); // an rtop
-                     residue_atoms[iat]->x = rotted.x();
-                     residue_atoms[iat]->y = rotted.y();
-                     residue_atoms[iat]->z = rotted.z();
+                     residue_atoms[iat]->x() = rotted.x();
+                     residue_atoms[iat]->y() = rotted.y();
+                     residue_atoms[iat]->z() = rotted.z();
                   }
                } else {
                   istat = 0;
@@ -571,7 +571,7 @@ coot::add_side_chain_to_terminal_res(atom_selection_container_t asc,
 
                         // set the b factor for the new atoms.
                         for(int i=0; i<n_std_ResidueAtoms; i++) {
-                           std_residue_atoms[i]->tempFactor = b_factor_for_new_atoms;
+                           std_residue_atoms[i]->tempFactor() = b_factor_for_new_atoms;
                         };
 
                         bool verb = false;
@@ -589,13 +589,13 @@ coot::add_side_chain_to_terminal_res(atom_selection_container_t asc,
                         }
 
                         for(int i=0; i<nResidueAtoms; i++) {
-                           std::string residue_this_atom (residue_atoms[i]->name);
+                           std::string residue_this_atom (residue_atoms[i]->GetAtomName());
                            if (residue_this_atom != " O  ")
                               residue_p->DeleteAtom(i);
                         };
 
                         for(int i=0; i<n_std_ResidueAtoms; i++) {
-                           std::string std_residue_this_atom (std_residue_atoms[i]->name);
+                           std::string std_residue_this_atom (std_residue_atoms[i]->GetAtomName());
                            if (std_residue_this_atom != " O  ") {
                               // std::cout << "Adding atom " << std_residue_atoms[i] << std::endl;
                               residue_p->AddAtom(std_residue_atoms[i]);
@@ -749,16 +749,16 @@ coot::add_terminal_residue(int imol_no, const std::string &terminus_type, mmdb::
             mmdb::Residue *res_tmp_p = residue_p;
             res_tmp_p->GetAtomTable(residue_atoms, nResidueAtoms);
             for (int i=0; i<nResidueAtoms; i++)
-               if (atom_name == residue_atoms[i]->name) {
+               if (atom_name == residue_atoms[i]->GetAtomName()) {
                   terminal_at = residue_atoms[i];
                   break;
                }
 
             if (terminal_at) {
                mol->SelectSphere(SelHndSphere, mmdb::STYPE_ATOM,
-                                 terminal_at->x,
-                                 terminal_at->y,
-                                 terminal_at->z,
+                                 terminal_at->x(),
+                                 terminal_at->y(),
+                                 terminal_at->z(),
                                  radius, mmdb::SKEY_NEW);
                mol->GetSelIndex(SelHndSphere, atom_sel, n_selected_atoms);
 
@@ -902,7 +902,7 @@ coot::add_terminal_residue(int imol_no, const std::string &terminus_type, mmdb::
 
                   if (is_from_shelx_ins) {
                      for (int i=0; i<tmp_asc.n_selected_atoms; i++) {
-                        tmp_asc.atom_selection[i]->occupancy = 11.0;
+                        tmp_asc.atom_selection[i]->occupancy() = 11.0;
                      }
                   }
 

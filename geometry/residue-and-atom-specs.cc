@@ -261,7 +261,7 @@ coot::atom_spec_t::get_atom(mmdb::Manager *mol) const {
                      mmdb::Atom *this_at = residue_p->GetAtom(iat);
                      if (! this_at->isTer()) {
                         std::string this_atom_name(this_at->GetAtomName());
-                        std::string this_alt_loc = (this_at->altLoc);
+                        std::string this_alt_loc = (this_at->altLoc());
                         if (this_atom_name == this->atom_name) {
                            if (this_alt_loc == this->alt_conf) {
                               at = this_at;
@@ -288,11 +288,11 @@ coot::atom_spec_t::get_atom(mmdb::Manager *mol) const {
 bool
 coot::atom_spec_t::matches_spec(mmdb::Atom *atom) const {
 
-   if (atom_name == std::string(atom->name)) {
+   if (atom_name == std::string(atom->GetAtomName())) {
 
-      if (alt_conf == std::string(atom->altLoc)) {
+      if (alt_conf == std::string(atom->altLoc())) {
 
-	 mmdb::Residue *residue_p = atom->residue;
+	 mmdb::Residue *residue_p = atom->GetResidue();
 	 
 	 if (residue_p) { 
 	    
@@ -336,7 +336,7 @@ coot::atom_spec_t::matches_spec(mmdb::Atom *atom) const {
       // std::cout << atom_name << "an atom name mismatch :" << atom->name << ":" << std::endl;
       return 0;
    }
-   std::cout << atom_name << " should not happen (matches_spec()) " << atom->name << ":" << std::endl;
+   std::cout << atom_name << " should not happen (matches_spec()) " << atom->GetAtomName() << ":" << std::endl;
    return 0;
 }
 

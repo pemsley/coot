@@ -60,7 +60,7 @@ coot::util::check_dictionary_for_residues(mmdb::PResidue *SelResidues, int nSelR
    int fail = 0; // not fail initially.
 
    for (int ires=0; ires<nSelResidues; ires++) {
-      std::string resname(SelResidues[ires]->name);
+      std::string resname(SelResidues[ires]->GetResName());
       status = geom_p->have_dictionary_for_residue_type(resname, imol_enc, read_number);
       // This bit is redundant now that try_dynamic_add has been added
       // to have_dictionary_for_residue_type():
@@ -104,7 +104,7 @@ coot::GetResidue(const minimol::residue &res_in) {
       // reset new_alt_loc
       for (unsigned int ic=0; ic<new_length; ic++)
          new_alt_loc[ic] = 0;
-      strncpy(at->altLoc, mat.altLoc.c_str(), new_length);
+      strncpy(at->altLoc(), mat.altLoc.c_str(), new_length);
       res->AddAtom(at);
    }
 
@@ -132,7 +132,7 @@ coot::util::get_contact_indices_from_restraints(mmdb::Residue *residue,
 
    int nResidueAtoms = residue->GetNumberOfAtoms();
    std::vector<std::vector<int> > contact_indices(nResidueAtoms);
-   std::string restype(residue->name);
+   std::string restype(residue->GetResName());
 
    int n_monomers = geom_p->size();
 
@@ -142,7 +142,7 @@ coot::util::get_contact_indices_from_restraints(mmdb::Residue *residue,
                                          for (int iat=0; iat<nResidueAtoms; iat++) {
                                             mmdb::Atom *atom_p = residue->GetAtom(iat);
                                             if (! atom_p->isTer()) {
-                                               std::string atom_ele(atom_p->element);
+                                               std::string atom_ele(atom_p->GetElementName());
                                                if (atom_ele == " D") {
                                                   has_deuterium_atoms = true;
                                                   break;
@@ -600,7 +600,7 @@ coot::match_torsions::get_torsion(mmdb::Residue *res, const coot::atom_name_quad
    if (atoms[0] && atoms[1] && atoms[2] && atoms[3]) {
       clipper::Coord_orth pts[4];
       for (unsigned int i=0; i<4; i++)
-         pts[i] = clipper::Coord_orth(atoms[i]->x, atoms[i]->y, atoms[i]->z);
+         pts[i] = clipper::Coord_orth(atoms[i]->x(), atoms[i]->y(), atoms[i]->z());
       tors = clipper::Coord_orth::torsion(pts[0], pts[1], pts[2], pts[3]); // radians
       status = 1;
    }
@@ -674,11 +674,11 @@ coot::match_torsions::apply_torsion_by_contacts(const coot::atom_name_quad &movi
             if (at) {
                if (0)
                   std::cout << "transfering coords was "
-                            << at->z << " " << at->y << " " << at->z << " to "
+                            << at->z() << " " << at->y() << " " << at->z() << " to "
                             << ligand_residue.atoms[iat] << std::endl;
-               at->x = wiggled_ligand_residue.atoms[iat].pos.x();
-               at->y = wiggled_ligand_residue.atoms[iat].pos.y();
-               at->z = wiggled_ligand_residue.atoms[iat].pos.z();
+               at->x() = wiggled_ligand_residue.atoms[iat].pos.x();
+               at->y() = wiggled_ligand_residue.atoms[iat].pos.y();
+               at->z() = wiggled_ligand_residue.atoms[iat].pos.z();
                n_transfered++;
             }
          }
@@ -728,13 +728,13 @@ coot::torsionable_bonds_monomer_internal(mmdb::Residue *residue_p,
             std::string tr_atom_name_3 = tors_restraints[itor].atom_id_3_4c();
 
             for (int iat1=0; iat1<n_selected_atoms; iat1++) {
-               mmdb::Residue *res_1 = atom_selection[iat1]->residue;
-               std::string atom_name_1 = atom_selection[iat1]->name;
+               mmdb::Residue *res_1 = atom_selection[iat1]->GetResidue();
+               std::string atom_name_1 = atom_selection[iat1]->GetAtomName();
                for (int iat2=0; iat2<n_selected_atoms; iat2++) {
                   if (iat1 != iat2) {
-                     mmdb::Residue *res_2 = atom_selection[iat2]->residue;
+                     mmdb::Residue *res_2 = atom_selection[iat2]->GetResidue();
                      if (res_1 == res_2) {
-                        std::string atom_name_2 = atom_selection[iat2]->name;
+                        std::string atom_name_2 = atom_selection[iat2]->GetAtomName();
                         if (atom_name_1 == tr_atom_name_2) {
                            if (atom_name_2 == tr_atom_name_3) {
 
@@ -792,8 +792,8 @@ coot::torsionable_bonds_monomer_internal_quads(mmdb::Residue *residue_p,
              (! is_pyranose)) {
             for (unsigned int ialt=0; ialt<residue_alt_confs.size(); ialt++) {
                for (int iat=0; iat<n_selected_atoms; iat++) {
-                  std::string atom_name = atom_selection[iat]->name;
-                  std::string alt_conf  = atom_selection[iat]->altLoc;
+                  std::string atom_name = atom_selection[iat]->GetAtomName();
+                  std::string alt_conf  = atom_selection[iat]->altLoc();
                   if (alt_conf == residue_alt_confs[ialt]) {
                      for (unsigned int jtor=1; jtor<5; jtor++) {
                         if (atom_name == tor_atom_name[jtor])
@@ -829,7 +829,7 @@ coot::linkrs_in_atom_selection(mmdb::Manager *mol, mmdb::PPAtom atom_selection, 
    // normal case
    std::vector<mmdb::Residue *> residues;
    for (int i=0; i<n_selected_atoms; i++) {
-      mmdb::Residue *r = atom_selection[i]->residue;
+      mmdb::Residue *r = atom_selection[i]->GetResidue();
       if (std::find(residues.begin(), residues.end(), r) == residues.end())
          residues.push_back(r);
    }
@@ -949,7 +949,7 @@ coot::util::CO_orientations(mmdb::Manager *mol) {
                   for (int iat=0; iat<n_atoms_prev; iat++) {
                      mmdb::Atom *at = prev_p->GetAtom(iat);
                      std::string atom_name(at->GetAtomName());
-                     std::string alt_conf(at->altLoc);
+                     std::string alt_conf(at->altLoc());
                      if (alt_conf == "") {
                         if (atom_name == " C  ") prev_C = at;
                         if (atom_name == " O  ") prev_O = at;
@@ -960,7 +960,7 @@ coot::util::CO_orientations(mmdb::Manager *mol) {
                   for (int iat=0; iat<n_atoms_this; iat++) {
                      mmdb::Atom *at = this_p->GetAtom(iat);
                      std::string atom_name(at->GetAtomName());
-                     std::string alt_conf(at->altLoc);
+                     std::string alt_conf(at->altLoc());
                      if (alt_conf == "") {
                         if (atom_name == " C  ") this_C = at;
                         if (atom_name == " O  ") this_O = at;
@@ -971,7 +971,7 @@ coot::util::CO_orientations(mmdb::Manager *mol) {
                   for (int iat=0; iat<n_atoms_next; iat++) {
                      mmdb::Atom *at = next_p->GetAtom(iat);
                      std::string atom_name(at->GetAtomName());
-                     std::string alt_conf(at->altLoc);
+                     std::string alt_conf(at->altLoc());
                      if (alt_conf == "") {
                         if (atom_name == " C  ") next_C = at;
                         if (atom_name == " O  ") next_O = at;
@@ -1261,7 +1261,7 @@ coot::util::missing_atoms(mmdb::Manager *mol,
                int n_atoms = residue_p->GetNumberOfAtoms();
                for (int iat=0; iat<n_atoms; iat++) {
                   at = residue_p->GetAtom(iat);
-                  std::string atom_name(at->name);
+                  std::string atom_name(at->GetAtomName());
                   // check against each atom in the dictionary:
                   for (unsigned int idictat=0; idictat<dict_atom_names_pairs.size(); idictat++) {
                      if (atom_name == dict_atom_names_pairs[idictat].name) {
@@ -1382,10 +1382,10 @@ coot::cis_peptide_quads_from_coords(mmdb::Manager *mol,
                            // Don't have peptide planes with mixed alt-confs.
                            std::set<std::string> alt_confs;
                            std::string ac[4];
-                           ac[0] = ca_first->altLoc;
-                           ac[1] = c_first->altLoc;
-                           ac[2] = n_next->altLoc;
-                           ac[3] = ca_next->altLoc;
+                           ac[0] = ca_first->altLoc();
+                           ac[1] = c_first->altLoc();
+                           ac[2] = n_next->altLoc();
+                           ac[3] = ca_next->altLoc();
                            for (int i=0; i<4; i++)
                               if (!ac[i].empty())
                                  alt_confs.insert(ac[i]);
@@ -1403,10 +1403,10 @@ coot::cis_peptide_quads_from_coords(mmdb::Manager *mol,
                                  }
                               }
                               if (! is_ter) {
-                                 clipper::Coord_orth caf(ca_first->x, ca_first->y, ca_first->z);
-                                 clipper::Coord_orth  cf( c_first->x,  c_first->y,  c_first->z);
-                                 clipper::Coord_orth can( ca_next->x,  ca_next->y,  ca_next->z);
-                                 clipper::Coord_orth  nn(  n_next->x,   n_next->y,   n_next->z);
+                                 clipper::Coord_orth caf(ca_first->x(), ca_first->y(), ca_first->z());
+                                 clipper::Coord_orth  cf( c_first->x(),  c_first->y(),  c_first->z());
+                                 clipper::Coord_orth can( ca_next->x(),  ca_next->y(),  ca_next->z());
+                                 clipper::Coord_orth  nn(  n_next->x(),   n_next->y(),   n_next->z());
                                  double tors = clipper::Coord_orth::torsion(caf, cf, nn, can);
                                  double torsion = clipper::Util::rad2d(tors);
 
@@ -1727,18 +1727,18 @@ coot::util::get_dictionary_conformers(const dictionary_residue_restraints_t &res
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
       for (int iat=0; iat<n_residue_atoms; iat++) {
          mmdb::Atom *at_1 = residue_atoms[iat];
-         std::string ele_1(at_1->element);
+         std::string ele_1(at_1->GetElementName());
          if (ele_1 == " H") continue;
          if (! at_1->isTer()) {
             for (int jat=0; jat<n_residue_atoms; jat++) {
                if (iat == jat) continue;
                mmdb::Atom *at_2 = residue_atoms[jat];
-               std::string ele_2(at_2->element);
+               std::string ele_2(at_2->GetElementName());
                if (ele_2 == " H") continue;
                if (! at_2->isTer()) {
-                  float dx = at_2->x - at_1->x;
-                  float dy = at_2->y - at_1->y;
-                  float dz = at_2->z - at_1->z;
+                  float dx = at_2->x() - at_1->x();
+                  float dy = at_2->y() - at_1->y();
+                  float dz = at_2->z() - at_1->z();
                   if (fabsf(dx) < dist_crit) {
                      if (fabsf(dy) < dist_crit) {
                         if (fabsf(dz) < dist_crit) {
@@ -1847,7 +1847,7 @@ coot::util::get_dictionary_conformers(const dictionary_residue_restraints_t &res
          if (! at_from->isTer()) {
 
             std::string atom_name_from = at_from->GetAtomName();
-            std::string alt_conf_from  = at_from->altLoc;
+            std::string alt_conf_from  = at_from->altLoc();
 
             mmdb::Atom **to_residue_atoms = 0;
             int n_to_residue_atoms = 0;
@@ -1857,26 +1857,26 @@ coot::util::get_dictionary_conformers(const dictionary_residue_restraints_t &res
                if (! at_to->isTer()) {
 
                   std::string atom_name_to = at_to->GetAtomName();
-                  std::string alt_conf_to  = at_to->altLoc;
+                  std::string alt_conf_to  = at_to->altLoc();
 
                   if (atom_name_from == atom_name_to) {
                      if (alt_conf_from == alt_conf_to) {
 
                         if (debug) {
-                           std::vector<mmdb::realtype> was = {at_to->x, at_to->y, at_to->z};
+                           std::vector<mmdb::realtype> was = {at_to->x(), at_to->y(), at_to->z()};
                            std::cout << "transfered " << coot::atom_spec_t(at_to) << " "
                                      << std::setw(8) << was[0] << " "
                                      << std::setw(8) << was[1] << " "
                                      << std::setw(8) << was[2] << "  now "
-                                     << std::setw(8) << at_from->x << " "
-                                     << std::setw(8) << at_from->y << " "
-                                     << std::setw(8) << at_from->z << " "
+                                     << std::setw(8) << at_from->x() << " "
+                                     << std::setw(8) << at_from->y() << " "
+                                     << std::setw(8) << at_from->z() << " "
                                      << std::endl;
                         }
 
-                        at_to->x = at_from->x;
-                        at_to->y = at_from->y;
-                        at_to->z = at_from->z;
+                        at_to->x() = at_from->x();
+                        at_to->y() = at_from->y();
+                        at_to->z() = at_from->z();
 
                         break;
                      }
@@ -1987,7 +1987,7 @@ coot::util::get_dictionary_conformers(const dictionary_residue_restraints_t &res
          mmdb::Atom *at = residue_atoms[iat];
          if (! at->isTer()) {
             std::cout << "   " << lab << "  " << iat << " " << coot::atom_spec_t(at) << " "
-                      << at->x << " " << at->y << " " << at->z << std::endl;
+                      << at->x() << " " << at->y() << " " << at->z() << std::endl;
          }
       }
    };
@@ -2135,12 +2135,12 @@ coot::util::mutate_by_overlap(mmdb::Residue *residue_p, mmdb::Manager *mol,
 
                      if (atom_name != " O   " || move_O_atom) {
 
-                        at_mutable->x = at->x;
-                        at_mutable->y = at->y;
-                        at_mutable->z = at->z;
+                        at_mutable->x() = at->x();
+                        at_mutable->y() = at->y();
+                        at_mutable->z() = at->z();
                         if (false)
                            std::cout << "moved atom " << coot::atom_spec_t(at_mutable)
-                                     << " to " << at->x << " " << at->y << " " << at->z << std::endl;
+                                     << " to " << at->x() << " " << at->y() << " " << at->z() << std::endl;
                      }
                   }
                }
@@ -2158,7 +2158,7 @@ coot::util::mutate_by_overlap(mmdb::Residue *residue_p, mmdb::Manager *mol,
                std::string at_name = at->GetAtomName();
                if (atom_name != " OXT") { // extra atom in an amino acid
                   if (! (atom_name != " OP3" && is_nucleotide)) {  // extra atom in a nucleic acid
-                     std::string ele = at->element;
+                     std::string ele = at->GetElementName();
                      if (ele == " H") continue;
                      at_copy->Copy(at);
                      res_mutable->AddAtom(at_copy);

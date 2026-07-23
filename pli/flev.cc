@@ -49,17 +49,17 @@ pli::make_flat_ligand_name_map(mmdb::Residue *flat_res) {
    flat_res->GetAtomTable(residue_atoms, n_residue_atoms);
    for (int iat=0; iat<n_residue_atoms; iat++) {
       mmdb::Atom *at_i = residue_atoms[iat];
-      std::string ele_i = at_i->element;
-      clipper::Coord_orth pt_i(at_i->x, at_i->y, at_i->z);
+      std::string ele_i = at_i->GetElementName();
+      clipper::Coord_orth pt_i(at_i->x(), at_i->y(), at_i->z());
       if (ele_i == " H") {
          for (int jat=0; jat<n_residue_atoms; jat++) {
             if (iat != jat) {
                mmdb::Atom *at_j = residue_atoms[jat];
-               std::string ele_j = at_j->element;
+               std::string ele_j = at_j->GetElementName();
                if (ele_j != " H") {
-                  clipper::Coord_orth pt_j(at_j->x, at_j->y, at_j->z);
+                  clipper::Coord_orth pt_j(at_j->x(), at_j->y(), at_j->z());
                   if ((pt_i - pt_j).lengthsq() < b2Hd2) {
-                     map[at_j->name] = at_i->name;
+                     map[at_j->GetAtomName()] = at_i->GetAtomName();
                      break;
                   }
                }

@@ -127,8 +127,8 @@ coot::mergeable_atom_selections(mmdb::Manager *mol, int selection_handle_1, int 
 void
 coot::match_container_t::add(mmdb::Atom *at_1, mmdb::Atom *at_2) {
 
-   mmdb::Residue *res_1 = at_1->residue;
-   mmdb::Residue *res_2 = at_2->residue;
+   mmdb::Residue *res_1 = at_1->GetResidue();
+   mmdb::Residue *res_2 = at_2->GetResidue();
    if (res_1) {
       if (res_2) {
          bool added = false;
@@ -172,8 +172,8 @@ coot::match_container_t::find_best_match() const {
          for (unsigned int iat=0; iat<m.atom_pairs.size(); iat++) {
             mmdb::Atom *at_1 = m.atom_pairs[iat].first;
             mmdb::Atom *at_2 = m.atom_pairs[iat].second;
-            clipper::Coord_orth pt_1(at_1->x, at_1->y, at_1->z);
-            clipper::Coord_orth pt_2(at_2->x, at_2->y, at_2->z);
+            clipper::Coord_orth pt_1(at_1->x(), at_1->y(), at_1->z());
+            clipper::Coord_orth pt_2(at_2->x(), at_2->y(), at_2->z());
             double dd = (pt_1-pt_2).lengthsq();
             sum_devi += sqrt(dd);
          }
@@ -452,7 +452,7 @@ coot::renumber_chains_start_at_least_at_1(mmdb::Manager *mol) {
                if (offset != 0) {
                   for (int ires=0; ires<nres; ires++) {
                      mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-                     residue_p->seqNum += offset;
+                     residue_p->GetSeqNum() += offset;
                   }
                }
             }
@@ -494,13 +494,13 @@ coot::match_container_for_residues_t::delete_upstream(mmdb::Manager *mol, bool f
             if (atom_pairs[ip].first == at) {
                found_matchers = true;
                std::cout << "DEBUG:: -- A -- setting matchers residue from atom " << atom_spec_t(at) << std::endl;
-               matchers_residue = at->residue;
+               matchers_residue = at->GetResidue();
                break;
             }
          } else {
             if (atom_pairs[ip].second == at) {
                found_matchers = true;
-               matchers_residue = at->residue;
+               matchers_residue = at->GetResidue();
                std::cout << "DEBUG:: -- B -- setting matchers residue from atom " << atom_spec_t(at) << std::endl;              
                break;
             }
@@ -509,9 +509,9 @@ coot::match_container_for_residues_t::delete_upstream(mmdb::Manager *mol, bool f
       if (found_matchers)
          break;
 
-      if (at->residue != matchers_residue)
-         if (std::find(delete_these_residues.begin(), delete_these_residues.end(), at->residue) == delete_these_residues.end())
-            delete_these_residues.push_back(at->residue);
+      if (at->GetResidue() != matchers_residue)
+         if (std::find(delete_these_residues.begin(), delete_these_residues.end(), at->GetResidue()) == delete_these_residues.end())
+            delete_these_residues.push_back(at->GetResidue());
    }
 
    if (delete_these_residues.size() > 0) {
@@ -558,7 +558,7 @@ coot::match_container_for_residues_t::delete_downstream(mmdb::Manager *mol, bool
          for (unsigned int ip=0; ip < atom_pairs.size(); ip++) {
             if (atom_pairs[ip].first == at) {
                found_matchers = true;
-               matchers_residue = at->residue;
+               matchers_residue = at->GetResidue();
                break;
             }
          }
@@ -566,7 +566,7 @@ coot::match_container_for_residues_t::delete_downstream(mmdb::Manager *mol, bool
          for (unsigned int ip=0; ip <atom_pairs.size(); ip++) {
             if (atom_pairs[ip].second == at) {
                found_matchers = true;
-               matchers_residue = at->residue;
+               matchers_residue = at->GetResidue();
                break;
             }
          }
@@ -574,9 +574,9 @@ coot::match_container_for_residues_t::delete_downstream(mmdb::Manager *mol, bool
 
       // if we are *past* the matching atoms (not in them)
       if (found_matchers)
-         if (at->residue != matchers_residue)
-            if (std::find(delete_these_residues.begin(), delete_these_residues.end(), at->residue) == delete_these_residues.end())
-               delete_these_residues.push_back(at->residue);
+         if (at->GetResidue() != matchers_residue)
+            if (std::find(delete_these_residues.begin(), delete_these_residues.end(), at->GetResidue()) == delete_these_residues.end())
+               delete_these_residues.push_back(at->GetResidue());
 
    }
 
@@ -711,7 +711,7 @@ coot::match_container_for_residues_t::meld(mmdb::Manager *mol, std::pair<bool, b
             if (false)
                std::cout << "debug:: in meld() changing residue number for " << coot::residue_spec_t(residue_p)
                          << " by " << res_no_delta << std::endl;
-            residue_p->seqNum += res_no_delta;
+            residue_p->GetSeqNum() += res_no_delta;
          }
 
          mmdb::Chain *to_chain_p = residue_2->GetChain();
@@ -733,7 +733,7 @@ coot::match_container_for_residues_t::meld(mmdb::Manager *mol, std::pair<bool, b
                   if (false)
                      std::cout << "debug:: in meld() changing residue number for " << coot::residue_spec_t(r)
                                << " by " << res_no_delta << std::endl;
-                  r->seqNum += res_no_delta;
+                  r->GetSeqNum() += res_no_delta;
                }
             }
          }
@@ -776,7 +776,7 @@ coot::match_container_for_residues_t::meld_residues(std::vector<mmdb::Residue *>
       if (! residue_p) continue;
       if (residue_p != residue_2) {
          residue_spec_t spec_pre(residue_p);
-         residue_p->seqNum += res_no_delta;
+         residue_p->GetSeqNum() += res_no_delta;
          residue_spec_t spec_post(residue_p);
          if (false) // debug
             std::cout << "in meld_residues() res_no_delta " << res_no_delta << " " << " residue " << spec_pre << " becomes "
