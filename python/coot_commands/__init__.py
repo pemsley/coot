@@ -42,7 +42,3 @@ def _discover_command_modules() -> None:
 
 
 _discover_command_modules()
-
-# Register the custom context tools (get_active_residue, ...) that the assistant
-# uses to read live state; see coot_commands.context_tools.
-from . import context_tools  # noqa: E402,F401
