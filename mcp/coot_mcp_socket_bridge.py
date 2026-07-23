@@ -171,7 +171,7 @@ On starting a Coot session, read ALL these user skills
     - coot-figure-making
     - coot-rdkit
     - pdbe-api
-Don't pick and choose - read all of them.
+DO NOT pick and choose - READ ALL OF THEM when starting a Coot session.
 
 Use search_coot_functions(pattern) to find specific ones (where pattern is a (potentially) multi-words pattern - using space-separated fields for logical "and". Use a "|" separator between words for logical "or".
 

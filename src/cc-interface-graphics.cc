@@ -119,3 +119,37 @@ void clear_non_drawn_bonds(int imol) {
     g.graphics_draw();
 }
 
+
+
+/* ------------------------------------------------------------------------- */
+/*                      Cavities                                             */
+/* ------------------------------------------------------------------------- */
+/*! \name Coot's Cavities */
+void show_cavities(int imol) {
+
+    graphics_info_t g;
+    if (g.is_valid_model_molecule(imol)) {
+       std::vector<coot::simple_mesh_t> cavity_meshes = g.molecules[imol].show_cavities(g.Geom_p());
+       g.attach_buffers(); // GL context current for setup_buffers()
+       // display each cavity surface as a generic display object - these are drawn
+       // semi-transparently (opacity ~0.5, with blending), so the ribbon shows through.
+       for (unsigned int i=0; i<cavity_meshes.size(); i++) {
+          const coot::simple_mesh_t &sm = cavity_meshes[i];
+          std::vector<s_generic_vertex> vertices(sm.vertices.size());
+          for (unsigned int j=0; j<sm.vertices.size(); j++)
+             vertices[j] = s_generic_vertex(sm.vertices[j].pos, sm.vertices[j].normal, sm.vertices[j].color);
+
+          std::string object_name = "Cavity Surface #" + std::to_string(imol) + " " + std::to_string(i);
+          int obj_idx = g.new_generic_object_number(object_name);
+          meshed_generic_display_object &obj = g.generic_display_objects[obj_idx];
+          obj.imol = imol;
+          obj.mesh.name = object_name;
+          obj.mesh.set_draw_mesh_state(true);
+          obj.mesh.import(vertices, sm.triangles);
+          obj.mesh.set_material_specularity(0.7, 128);
+          obj.mesh.setup_buffers();
+       }
+    }
+    g.graphics_draw();
+
+}

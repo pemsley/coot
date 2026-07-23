@@ -488,20 +488,19 @@ Edit @file{/Library/Coot/etc/gtk-2.0/gtkrc} and set
 
 Like this:
 
-@url{http://www.ysbl.york.ac.uk/%7Eemsley/coot/coot-startup.log}
+@url{https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/docs/coot-normal-startup-mac.txt}
 
-
-Things to look out for: Error reading all scm files, error reading
-Refmac dictionary files, error reading colours.def, error reading
-syminfo.lib, error finding splash-screen image, error reading cootrc
-file, error finding reference structures (e.g. from COOT_REF_STUCTS).
+Things to look out for: error reading
+Monomer dictionary files, error reading
+syminfo.lib, error finding splash-screen image,
+error finding reference structures (e.g. from COOT_REF_STUCTS).
 So, if you get error messages or warning when coot start, you can
 expect it to be other than fully functional.
 
 @node I get funny messages when starting Coot - should I worry?
 @section I get funny messages when starting Coot - should I worry?
 
-e.g. 
+e.g.
 
 @t{Gtk-WARNING **: Unable to locate loadable module in module_path:
 "libbluecurve.so"}
@@ -541,7 +540,7 @@ over them}: check that box.
 @code{Hat --> Preferences -> Windows -> To move a window, press and hold
 this key then grab the window}:
 
-Change from 
+Change from
 
 Control
 

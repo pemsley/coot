@@ -599,6 +599,13 @@ class graphics_info_t {
    static void release_moving_atoms_lock(const std::string &calling_function_name);
    static std::string moving_atoms_locking_function_name; //  static because it is set by above
 
+   // similar for saved_dragged_refinement_results (written by the refinement thread,
+   // read by the render thread in draw_hud_geometry_bars())
+   static std::atomic<bool> saved_dragged_refinement_results_lock;
+   static void get_saved_dragged_refinement_results_lock(const std::string &calling_function_name);
+   static void release_saved_dragged_refinement_results_lock(const std::string &calling_function_name);
+   static std::string saved_dragged_refinement_results_locking_function_name; // set by above
+
 
    // 201803004:
    // refinement now uses references to Xmaps.
@@ -2162,6 +2169,7 @@ public:
    static HUDTextureMesh mesh_for_hud_tooltip_background;
    static Texture texture_for_hud_tooltip_background;
    static HUDTextureMesh tmesh_for_hud_geometry_tooltip_label;
+   static HUDTextureMesh tmesh_for_hud_button_label; // reused for every button label (set up in setup_hud_buttons())
    static HUDTextureMesh tmesh_for_hud_image_testing;
    static Shader shader_for_hud_geometry_tooltip_text; // shader for the above tmesh (not like atom labels
                                                        // HUD labels are in 2D, don't need mvp, eye position
@@ -4428,6 +4436,10 @@ string   static std::string sessionid;
    static float hud_geometry_distortion_to_rotation_amount_rama(float distortion);
 
    void setup_hud_buttons();
+   //! reset all the static meshes (and gl_rama_plot) so their VAOs/buffers are
+   //! regenerated after a GL context re-realize. Called from startup_unrealize()
+   //! while the (old) context is still current.
+   static void reset_meshes_for_new_gl_context();
    static HUDMesh mesh_for_hud_buttons;
    static std::vector<HUD_button_info_t> hud_button_info;
 

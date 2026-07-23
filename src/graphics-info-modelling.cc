@@ -160,6 +160,25 @@ graphics_info_t::release_moving_atoms_lock(const std::string &calling_function_n
    moving_atoms_locking_function_name = "";
 }
 
+// similar for saved_dragged_refinement_results:
+void
+graphics_info_t::get_saved_dragged_refinement_results_lock(const std::string &calling_function_name) {
+
+   bool unlocked = false;
+   while (! saved_dragged_refinement_results_lock.compare_exchange_weak(unlocked, true)) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
+      unlocked = false;
+   }
+   saved_dragged_refinement_results_locking_function_name = calling_function_name;
+}
+
+void
+graphics_info_t::release_saved_dragged_refinement_results_lock(const std::string &calling_function_name) {
+
+   saved_dragged_refinement_results_lock = false;
+   saved_dragged_refinement_results_locking_function_name = "";
+}
+
 
 void
 graphics_info_t::stop_refinement_internal() {
@@ -539,8 +558,10 @@ graphics_info_t::clear_up_moving_atoms_wrapper() {
 std::atomic<unsigned int> graphics_info_t::moving_atoms_bonds_lock(0);
 std::atomic<bool> graphics_info_t::restraints_lock(false);
 std::atomic<bool> graphics_info_t::moving_atoms_lock(false); // not locked
+std::atomic<bool> graphics_info_t::saved_dragged_refinement_results_lock(false); // not locked
 std::string graphics_info_t::restraints_locking_function_name = "unset";
 std::string graphics_info_t::moving_atoms_locking_function_name = "unset";
+std::string graphics_info_t::saved_dragged_refinement_results_locking_function_name = "unset";
 
 int  graphics_info_t::threaded_refinement_loop_counter = 0;
 int  graphics_info_t::threaded_refinement_loop_counter_bonds_gen = -1; // initial value is "less than" so that
@@ -599,7 +620,9 @@ graphics_info_t::refinement_loop_threaded() {
       // can be used in gone_contacts_from_nbc_baddies() in update_bad_nbc_atom_pair_marker_positions()
       //
       // previous_round_nbc_baddies_atom_index_map = rr.nbc_baddies_atom_index_map;
+      get_saved_dragged_refinement_results_lock(__FUNCTION__);
       saved_dragged_refinement_results = rr;
+      release_saved_dragged_refinement_results_lock(__FUNCTION__);
 
       if (false) {
          if (rr.refinement_results_contain_overall_nbc_score) {
@@ -4885,6 +4908,7 @@ graphics_info_t::fill_rotamer_selection_buttons(GtkWidget *dialog, mmdb::Atom *a
    GtkWidget *rotamer_selection_dialog = dialog;
    // GtkWidget *rotamer_selection_button_vbox = lookup_widget(window, "rotamer_selection_button_vbox");
    GtkWidget *rotamer_selection_button_vbox = widget_from_builder("rotamer_selection_button_vbox");
+   clear_out_container(rotamer_selection_button_vbox);
    std::string alt_conf = active_atom->altLoc;
    mmdb::Residue *residue = active_atom->residue;
 

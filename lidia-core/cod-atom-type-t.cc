@@ -67,7 +67,7 @@ namespace {
 // 					      const RDKit::ROMol &rdkm) {
 
 
-cod::atom_level_2_type::atom_level_2_type(const RDKit::Atom *base_atom_p,
+cod::nb1nb2_type::nb1nb2_type(const RDKit::Atom *base_atom_p,
 					  const RDKit::ROMol &rdkm) {
 
    //
@@ -95,7 +95,7 @@ cod::atom_level_2_type::atom_level_2_type(const RDKit::Atom *base_atom_p,
       // s += ring_info.second;
       // s += "-";
 
-      atom_level_2_component_type c(at_neighb, rdkm);
+      nb1nb2_component_type c(at_neighb, rdkm);
       components.push_back(c);
 
       nbrIdx++;
@@ -108,7 +108,7 @@ cod::atom_level_2_type::atom_level_2_type(const RDKit::Atom *base_atom_p,
    }
 
 
-   std::sort(components.begin(), components.end(), level_2_component_sorter);
+   std::sort(components.begin(), components.end(), nb1nb2_component_sorter);
 
    if (false) { // debug
 
@@ -177,7 +177,7 @@ cod::atom_level_2_type::atom_level_2_type(const RDKit::Atom *base_atom_p,
 }
 
 std::string
-cod::atom_level_2_type::extra_electron_type() const {
+cod::nb1nb2_type::extra_electron_type() const {
 
    std::string s;
 
@@ -215,26 +215,26 @@ cod::atom_level_2_type::extra_electron_type() const {
 }
 
 int
-cod::atom_level_2_type::n_extra_electrons() const {
+cod::nb1nb2_type::n_extra_electrons() const {
 
    return n_extra_elect;
 }
 
 void
-cod::atom_type_t::set_neighb_degrees_string() {
+cod::atom_type_t::set_nb2_extra_els_string() {
 
    std::string s;
-   for (unsigned int i=0; i<neighb_degrees.size(); i++) {
-      s += coot::util::int_to_string(neighb_degrees[i]);
+   for (unsigned int i=0; i<nb2_extra_els.size(); i++) {
+      s += coot::util::int_to_string(nb2_extra_els[i]);
       s += ":";
    }
-   neighb_degrees_str_ = s;
+   nb2_extra_els_str_ = s;
 }
 
 
 std::ostream &
 cod::operator<<(std::ostream &s,
-		const atom_level_2_type::atom_level_2_component_type &c) {
+		const nb1nb2_type::nb1nb2_component_type &c) {
 
    s << "{" << c.element << " n-rings: " << c.number_of_rings << " ";
    if (! c.ring_info_string.empty())
@@ -256,7 +256,7 @@ cod::operator<<(std::ostream &s,
 //
 // static
 std::string
-cod::atom_type_t::level_4_type_to_level_3_type(const std::string &l4t)  {
+cod::atom_type_t::cod_type_to_main_type(const std::string &l4t)  {
 
    std::string s = l4t;
 
@@ -278,12 +278,12 @@ cod::atom_type_t::level_4_type_to_level_3_type(const std::string &l4t)  {
 //
 cod::atom_type_t::atom_type_t(const std::string &s1_hash,
 			      const std::string &colon_degrees_type,
-			      const cod::atom_level_2_type &l2,
+			      const cod::nb1nb2_type &l2,
 			      const std::string &s3, const std::string &s4) {
-   level_2 = l2;
-   level_3 = s3;
-   level_4 = s4;
-   neighb_degrees_str_ = colon_degrees_type;
+   nb1nb2 = l2;
+   main_type = s3;
+   full_type = s4;
+   nb2_extra_els_str_ = colon_degrees_type;
 
    try {
       hash_value = coot::util::string_to_int(s1_hash);
@@ -310,8 +310,8 @@ cod::hybridization_to_int(RDKit::Atom::HybridizationType h) {
 
 // static
 bool
-cod::atom_level_2_type::level_2_component_sorter(const atom_level_2_component_type &la,
-						 const atom_level_2_component_type &lb) {
+cod::nb1nb2_type::nb1nb2_component_sorter(const nb1nb2_component_type &la,
+						 const nb1nb2_component_type &lb) {
 
    // sp3 before sp2
    //
@@ -512,7 +512,7 @@ cod::make_ring_info_string(const RDKit::Atom *atom_p) {
 }
 
 
-cod::atom_level_2_type::atom_level_2_component_type::atom_level_2_component_type(const RDKit::Atom *at, const RDKit::ROMol &rdkm) {
+cod::nb1nb2_type::nb1nb2_component_type::nb1nb2_component_type(const RDKit::Atom *at, const RDKit::ROMol &rdkm) {
 
    // Version 147 atom types
    // s += coot::util::int_to_string(degree);

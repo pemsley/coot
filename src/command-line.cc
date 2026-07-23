@@ -107,6 +107,7 @@ parse_command_line(int argc, char ** argv ) {
       {"script", 1, 0, 0},
       {"buster", 1, 0, 0},
       {"command", 1, 0, 0},
+      {"command-terminal", 0, 0, 0},
       {"ccp4-project", 1, 0, 0},
       {"dictionary", 1, 0, 0},
       {"dictionary-with-mol", 1, 0, 0},
@@ -256,11 +257,12 @@ parse_command_line(int argc, char ** argv ) {
 			       << "            [--em]\n"
 			       << "            [--title some-title]\n"
 			       << "            [--command command-script]\n"
+			       << "            [--command-terminal]\n"
 			       << "            [--small-screen]\n"
 			       << "            [--splash-screen]\n"
 			       << "            [--stereo]\n"
-                        //			       << "            [--zalman-stereo]\n"
-                        //             << "            [--side-by-side]\n"
+                //	       << "            [--zalman-stereo]\n"
+                //             << "            [--side-by-side]\n"
 			       << "            [--version]\n"
 			       << "            [--show-ccp4i2-save-button]\n"
 			       << "            [--self-test]\n"
@@ -357,16 +359,20 @@ parse_command_line(int argc, char ** argv ) {
                                                             if (arg_str == "opengl-es") {
                                                                cld.use_opengl_es = true;
                                                             } else {
-                                                               if (arg_str == "show-ccp4i2-save-button") {
-                                                                  cld.show_ccp4i2_save_button = true;
+                                                               if (arg_str == "command-terminal") {
+                                                                  cld.show_command_terminal_button = true;
                                                                } else {
-                                                                  if (arg_str == "update-self") {
-                                                                     cld.update_self = 1;
-                                                                     cld.do_graphics = 0;
+                                                                  if (arg_str == "show-ccp4i2-save-button") {
+                                                                     cld.show_ccp4i2_save_button = true;
                                                                   } else {
-                                                                     std::cout << "WARNING! Malformed option - needs an argument: "
-                                                                               << long_options[option_index].name
-                                                                               << std::endl << std::endl;
+                                                                     if (arg_str == "update-self") {
+                                                                        cld.update_self = 1;
+                                                                        cld.do_graphics = 0;
+                                                                     } else {
+                                                                        std::cout << "WARNING! Malformed option - needs an argument: "
+                                                                                  << long_options[option_index].name
+                                                                                  << std::endl << std::endl;
+                                                                     }
                                                                   }
                                                                }
                                                             }

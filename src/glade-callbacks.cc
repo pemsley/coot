@@ -5913,7 +5913,8 @@ on_claude_ai_button_clicked(GtkButton *button, gpointer user_data) {
 
 extern "C" G_MODULE_EXPORT
 void
-on_command_button_clicked(GtkButton *button, gpointer user_data) {
+on_command_terminal_button_clicked(GtkButton *button, gpointer user_data) {
+
    toggle_command_terminal();
 }
 

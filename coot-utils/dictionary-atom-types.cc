@@ -111,16 +111,16 @@ int main(int argc, char **argv) {
                         std::cout << comp_id << "  "
                                   << std::setw(4) << r.atom_info[iat].atom_id << "  "
                                   << std::setw(6) << r.atom_info[iat].type_energy << "   " 
-                                  << v[iat].level_4 << "\n";
+                                  << v[iat].cod_type << "\n";
 
                      it = atom_map.find(key);
                      if (it == atom_map.end()) {
-                        std::pair<std::string, unsigned int> p(v[iat].level_4, 1);
+                        std::pair<std::string, unsigned int> p(v[iat].cod_type, 1);
                         atom_map[key].push_back(p);
                      } else { 
-                        int idx = find_string_in_vector(atom_map[key], v[iat].level_4);
+                        int idx = find_string_in_vector(atom_map[key], v[iat].cod_type);
                         if (idx == -1) { // not found
-                           std::pair<std::string, unsigned int> p(v[iat].level_4, 1);
+                           std::pair<std::string, unsigned int> p(v[iat].cod_type, 1);
                            atom_map[key].push_back(p);
                         } else {
                            atom_map[key][idx].second++;
@@ -221,7 +221,7 @@ int main(int argc, char **argv) {
                if (v.size() == r.atom_info.size()) {
                   for (unsigned int iat=0; iat<r.atom_info.size(); iat++) {
                      const std::string &te = r.atom_info[iat].type_energy;
-                     const std::string &key = v[iat].level_4;
+                     const std::string &key = v[iat].cod_type;
 
                      it = reverse_atom_map.find(key);
 

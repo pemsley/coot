@@ -2784,6 +2784,12 @@ void set_gaussian_surface_opacity(int imol, float opacity);
 
 void show_gaussian_surface_overlay();
 
+/* ------------------------------------------------------------------------- */
+/*                      Cavities                                             */
+/* ------------------------------------------------------------------------- */
+/*! \name Coot's Cavities */
+void show_cavities(int imol);
+
 
 /* ------------------------------------------------------------------------- */
 /*                      Acedrg for dictionary                                */

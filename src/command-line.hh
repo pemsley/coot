@@ -55,6 +55,7 @@ public:
    short int try_listener;
    bool do_graphics;
    short int small_screen_display;
+   bool show_command_terminal_button;
    bool disable_state_script_writing;
    bool use_splash_screen;
    bool update_self;
@@ -81,6 +82,7 @@ public:
      use_opengl_es = false;
      show_ccp4i2_save_button = false;
      open_buster_output_files = false;
+     show_command_terminal_button = false;
    }
    void handle_immediate_settings();
    void add(const std::string &file); // determine where it goes based on extension and contents

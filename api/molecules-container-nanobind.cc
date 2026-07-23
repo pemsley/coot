@@ -57,28 +57,6 @@ struct ResiduePropertyInfo {
     double property;
 };
 
-class molecules_container_js : public molecules_container_t {
-    public:
-        explicit molecules_container_js(bool verbose=true) : molecules_container_t(verbose) {
-        }
-
-        int writePDBASCII(int imol, const std::string &file_name) {
-            const char *fname_cp = file_name.c_str();
-            return get_mol(imol)->WritePDBASCII(fname_cp);
-        }
-        int writeCIFASCII(int imol, const std::string &file_name) {
-            const char *fname_cp = file_name.c_str();
-            return get_mol(imol)->WriteCIFASCII(fname_cp);
-        }
-        int writeCCP4Map(int imol, const std::string &file_name) {
-            auto xMap = (*this)[imol].xmap;
-            auto clipperMap = clipper::CCP4MAPfile();
-            clipperMap.open_write(file_name);
-            clipperMap.export_xmap(xMap);
-            return 0;
-        }
-};
-
 // Helper to cache and retrieve docstrings from XML
 std::unordered_map<std::string, std::string> docstring_cache;
 
@@ -116,15 +94,21 @@ std::string get_docstring_from_xml(const std::string& func_name) {
 }
 
 std::filesystem::path this_library_dir() {
+
    Dl_info info;
-   if (dladdr(reinterpret_cast<void *>(&this_library_dir), &info) && info.dli_fname)
+   void *ll = reinterpret_cast<void *>(&this_library_dir);
+   if (dladdr(ll, &info) && info.dli_fname) {
+      // std::cout << "DEBUG:: this_library_dir(): PATH A" << std::endl;
       return std::filesystem::canonical(info.dli_fname).parent_path();
+   }
+
+   std::cout << "DEBUG:: PATH this_library_dir(): B" << std::endl;
    return {};
 }
 
 void other_setup_code() {
 
-   std::filesystem::path lib_dir = this_library_dir();
+   // std::filesystem::path lib_dir = this_library_dir();
    // std::cout << "DEBUG:: in other_setup_code(): lib_dir is " << lib_dir.string() << std::endl;
    // coot::set_package_data_dir(lib_dir.string());
 
@@ -625,6 +609,10 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::get_acedrg_atom_types,
          nb::arg("compound_id"), nb::arg("imol_enc"),
          get_docstring_from_xml("get_acedrg_atom_types").c_str())
+    .def("get_cavities",
+         &molecules_container_t::get_cavities,
+         nb::arg("imol"),
+         get_docstring_from_xml("get_cavities").c_str())
     .def("get_computed_acedrg_atom_types",
          &molecules_container_t::get_computed_acedrg_atom_types,
          nb::arg("compound_id"), nb::arg("imol_enc"),
@@ -915,10 +903,6 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::get_residue_sidechain_average_position,
          nb::arg("imol"), nb::arg("cid"),
          get_docstring_from_xml("get_residue_sidechain_average_position").c_str())
-    .def("get_residue_using_cid",
-         &molecules_container_t::get_residue_using_cid,
-         nb::arg("imol"), nb::arg("cid"),
-         get_docstring_from_xml("get_residue_using_cid").c_str())
     .def("get_residues_near_residue",
          &molecules_container_t::get_residues_near_residue,
          nb::arg("imol"), nb::arg("residue_cid"), nb::arg("dist"),
@@ -1487,12 +1471,6 @@ NB_MODULE(coot_headless_api, m) {
       .def_ro("deletions",        &coot::chain_mutation_info_container_t::deletions)
       .def_ro("mutations",        &coot::chain_mutation_info_container_t::mutations)
       ;
-    nb::class_<molecules_container_js, molecules_container_t>(m,"molecules_container_py")
-    .def(nb::init<bool>())
-    .def("writePDBASCII",&molecules_container_js::writePDBASCII)
-    .def("writeCIFASCII",&molecules_container_js::writeCIFASCII)
-    .def("writeCCP4Map",&molecules_container_js::writeCCP4Map)
-    ;
     nb::class_<coot::simple_rotamer>(m,"simple_rotamer")
     .def("P_r1234",&coot::simple_rotamer::P_r1234)
     .def("Probability_rich",&coot::simple_rotamer::Probability_rich)
@@ -1611,13 +1589,14 @@ NB_MODULE(coot_headless_api, m) {
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
     nb::class_<cod::atom_type_t>(m,"cod_atom_type_t")
     .def(nb::init<>())
-       .def_ro("level_4", &cod::atom_type_t::level_4)
-       .def_ro("level_3", &cod::atom_type_t::level_3)
-       .def_prop_ro("level_2", [] (const cod::atom_type_t &t) { return t.level_2.string(); })
-       .def_ro("hybrid", &cod::atom_type_t::hybrid)
+       .def_ro("full_type",  &cod::atom_type_t::full_type)
+       .def_ro("main_type", &cod::atom_type_t::main_type)
+       .def_prop_ro("nb1nb2", [] (const cod::atom_type_t &t) { return t.nb1nb2.string(); })
+       .def_ro("sp",      &cod::atom_type_t::sp)
+       .def_ro("element", &cod::atom_type_t::element)
        .def_ro("hash_value", &cod::atom_type_t::hash_value)
-       .def_ro("neighb_degrees", &cod::atom_type_t::neighb_degrees)
-       .def("neighb_degrees_str", [] (cod::atom_type_t &t) { return t.neighb_degrees_str(); })
+       .def_ro("nb2_extra_els", &cod::atom_type_t::nb2_extra_els)
+       .def("nb2_extra_els_str", [] (cod::atom_type_t &t) { return t.nb2_extra_els_str(); })
     ;
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
     nb::class_<positioned_atom_spec_t>(m,"positioned_atom_spec_t")

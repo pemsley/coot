@@ -1,7 +1,16 @@
 --- Items---
 
+o think about adding extra residue to the ligand figures in ospray
+
+o read in a molecule with a new ligand e.g. 9ymp -> Fetch PDBe Ligand Description
+Ligand goes here: /home/paule/.local/share/A1AG3.cif
+Ahahaha! because I have (incorrectly?) set XDG_DATA_HOME
+
 o "Send to CCP4i2" button replaces "Generate Restraints"
   with command line option to layla.
+
+o FAQ 4.1 “How does it look when Coot starts properly?”(  http://www.ysbl.york.ac.uk/%7Eemsley/coot/coot-startup.log )
+  the page was not found.
 
 o ldaddr (?) for chapi to find its files on relocatable binaries.
   metals and inchikey db.
@@ -11,6 +20,13 @@ o fix api documentation generation
 o add servalcat_refine_xray_with_keywords
   int servalcat_refine_xray_with_keywords(int imol, int imol_map, const std::string &output_prefix,
                                           const std::string &keyword_pairs_json)
+
+o look at 5moo - colour by chain ligand WOT. The hydrogen atoms are actually deuterium atoms -
+  and they are not in the dictionary.
+* Too esoteric and difficult to fix.
+
+o double-open a rotamers dialog.
+* Done.
 
 o apply the ligand fitting fix from Moorhen.
 * Done.
@@ -30,6 +46,9 @@ o replace fragment. seems to be hanging when replacing a domain
 
 o fix this in cif parser:
   WARNING:: in init_refmac_mon_lib() unhandled category "_pdbx_chem_comp_synonyms" file: test-cifs/A1DIB.cif
+
+o make some CA models and write a script to convert that to
+  full model (without a map)
 
 o fix make_all_atom_overlaps for chapi
 

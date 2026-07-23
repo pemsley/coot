@@ -29,7 +29,7 @@
 #include "bond-table-record-t.hh"
 
 void
-cod::bond_table_record_t::write(std::ostream &s) const { 
+cod::bond_table_record_t::write(std::ostream &s) const {
 
    s << std::setw(10) << mean;
    s << " ";
@@ -38,16 +38,16 @@ cod::bond_table_record_t::write(std::ostream &s) const {
    s << std::setw(6) << count;
    s << " ";
 
-   std::string::size_type s1 = cod_type_1.level_4.length();
-   std::string::size_type s2 = cod_type_2.level_4.length();
+   std::string::size_type s1 = cod_type_1.full_type.length();
+   std::string::size_type s2 = cod_type_2.full_type.length();
 
    s << std::setw(4) << s1;
    s << " ";
    s << std::setw(4) << s2;
    s << " ";
-   s << cod_type_1.level_4;
+   s << cod_type_1.full_type;
    s << " ";
-   s << cod_type_2.level_4;
+   s << cod_type_2.full_type;
    s << "\n";
 }
 
@@ -70,7 +70,7 @@ cod::bond_table_record_t::write(std::ostream &s,
 std::ostream &
 cod::operator<<(std::ostream &s, const cod::bond_table_record_t &btr) {
 
-   s << "\"" << btr.cod_type_1.level_4 << "\" \"" << btr.cod_type_2.level_4 << "\" "
+   s << "\"" << btr.cod_type_1.full_type << "\" \"" << btr.cod_type_2.full_type << "\" "
      << btr.mean << " " << btr.std_dev << " " << btr.count << " "
      << "approx-level: " << btr.approx_level << " fn: " << btr.file_name
      << " line: " << btr.line_number;

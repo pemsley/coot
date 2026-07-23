@@ -113,7 +113,7 @@
       </section>
       <section>
         <item>
-          <attribute name="label">Start RCP Server...</attribute>
+          <attribute name="label">Start RPC Server...</attribute>
           <attribute name="action">app.start_rpc_server_action</attribute>
         </item>
       </section>
@@ -6958,16 +6958,16 @@ Do you want to continue?
               </child>
 
               <child>
-                <object class="GtkButton" id="command_button">
-                  <property name="visible">True</property>
+                <object class="GtkButton" id="command_terminal_button">
+                  <property name="visible">False</property>
                   <property name="can-focus">0</property>
-                  <signal name="clicked" handler="on_command_button_clicked" swapped="no"/>
+                  <signal name="clicked" handler="on_command_terminal_button_clicked" swapped="no"/>
                   <property name="margin-start">2</property>
                   <property name="halign">end</property>
-                  <property name="tooltip-text">Toggle natural-language command terminal</property>
+                  <property name="tooltip-text">Toggle command terminal</property>
                   <child>
                     <object class="GtkLabel">
-                      <property name="label" translatable="yes">CLI</property>
+                      <property name="label" translatable="yes">Command</property>
                     </object>
                   </child>
                 </object>
