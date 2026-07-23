@@ -8,6 +8,8 @@ name: Coot CI (coot_zerokara build script)
 
 on:
   push:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:

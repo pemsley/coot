@@ -2,6 +2,8 @@ name: libcootapi CI Ubuntu
 
 on:
   push:
+    branches:
+      - main
 
 jobs:
 
