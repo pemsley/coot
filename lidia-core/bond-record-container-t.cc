@@ -1,18 +1,18 @@
 /* lidia-core/bond-record-container-t.cc
- * 
+ *
  * Copyright 2016 by Medical Research Council
  * Author: Paul Emsley
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
@@ -38,7 +38,7 @@
 // #include "coot-utils/coot-coord-utils.hh" out of order now
 
 // can throw std::runtime_error.
-// 
+//
 // The input atom names are directly from the pdbx cif file, so the
 // don't contain spaces, so the input at_name_in should not contain
 // spaces.
@@ -50,7 +50,7 @@ cod::bond_record_container_t::get_atom_index(const std::string &at_name_in,
 
    unsigned int idx = 0;
    bool found = false;
-   
+
    unsigned int n_mol_atoms = mol.getNumAtoms();
    for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
       const RDKit::Atom *at_p = mol[iat];
@@ -73,7 +73,7 @@ cod::bond_record_container_t::get_atom_index(const std::string &at_name_in,
       std::string m(std::string("atom name \"") + at_name_in +
 		    std::string("\" not found in dictionary atom name list"));
       throw std::runtime_error(m);
-   } 
+   }
    return idx;
 }
 
@@ -267,7 +267,7 @@ cod::bond_record_container_t::read_acedrg_table_dir(const std::string &dir_name)
    for (unsigned int i=0; i<tables.size(); i++) {
       const std::string &table = tables[i];
       std::string fn = coot::util::file_name_non_directory(table);
-      if (fn != "bond_idx.table") { 
+      if (fn != "bond_idx.table") {
 	 bond_record_container_t single;
 	 bool success = single.read_acedrg_table(table);
 	 if (success)
@@ -381,7 +381,7 @@ cod::bond_record_container_t::read(const std::string &atom_type_indices_file_nam
    if (types.size())
       success = read_bonds(bonds_file_name, types);
    return success;
-} 
+}
 
 
 std::vector<std::string>
@@ -392,7 +392,7 @@ cod::bond_record_container_t::read_atom_type_indices(const std::string &atom_typ
    std::ifstream f(atom_type_indices_file_name.c_str());
    if (f) {
       std::string line;
-      try { 
+      try {
 	 while (std::getline(f, line)) {
 	    int idx = coot::util::string_to_int(line.substr(0, 6));
 	    types[idx] = line.substr(7);
@@ -419,13 +419,13 @@ cod::bond_record_container_t::read_bonds(const std::string &bonds_file_name,
    // running getline() on the file takes 0.2s,
    // 1.8 s is spend on string -> number
    // the atom types look up takes ~0.1s each (really?)
-   
+
    bool status = true;
    std::ifstream f(bonds_file_name.c_str());
    if (f) {
       // bonds.reserve(563711); // nice speedup.
       std::string line;
-      try { 
+      try {
 	 while (std::getline(f, line)) {
 
 	    if (true) {
@@ -451,7 +451,7 @@ cod::bond_record_container_t::read_bonds(const std::string &bonds_file_name,
 
 	       if (type_2 < type_1)
 		  std::swap(type_1, type_2);
-	       
+
 	       bond_table_record_t bond(type_1, type_2, bl, std_dev, count);
 
 	       std::string l3_type_1 = type_1.main_type;
@@ -467,13 +467,13 @@ cod::bond_record_container_t::read_bonds(const std::string &bonds_file_name,
 		   << " - failed to parse: " << line << " " << rte.what() << std::endl;
       }
 
-      if (false) { 
+      if (false) {
 	 int n_forward = 0;
 	 int n_backward = 0;
 	 int n_equal = 0;
 	 int n_many  = 0;
 
-	 for (unsigned int i=0; i<bonds.size(); i++) { 
+	 for (unsigned int i=0; i<bonds.size(); i++) {
 	    if (bonds[i].cod_type_2 < bonds[i].cod_type_1)
 	       n_forward++;
 	    if (bonds[i].cod_type_1 < bonds[i].cod_type_2)
@@ -489,11 +489,11 @@ cod::bond_record_container_t::read_bonds(const std::string &bonds_file_name,
 	 std::cout << "           n_equal    " << n_equal    << std::endl;
 	 std::cout << "           n_many     " << n_many     << std::endl;
       }
-      
+
       if (false)
 	 for (unsigned int i=0; i<20; i++)
 	    std::cout << "   " << bonds[i] << std::endl;
-	 
+
 
    } else {
       status = false;
@@ -506,10 +506,10 @@ void
 cod::bond_record_container_t::check() const {
 
    std::cout << "start check " << std::endl;
-   
+
    std::map<std::string, std::map<std::string, std::map<std::string, std::map<std::string, std::vector<bond_table_record_t> > > > >::const_iterator it_l2_a;
    std::map<std::string, std::map<std::string, std::map<std::string, std::vector<bond_table_record_t> > > >::const_iterator it_l2_b;
-   
+
    for (it_l2_a=bonds_map.begin(); it_l2_a!=bonds_map.end(); it_l2_a++) {
       std::string key_l2_a = it_l2_a->first;
 
@@ -543,12 +543,12 @@ cod::bond_record_container_t::get_is_hydrogen_flags(const RDKit::RWMol &rdkm) co
 }
 
 // atom types are generated from the atoms of rest (which contains hydrogens)
-// 
+//
 void
 cod::bond_record_container_t::validate(mmdb::Residue *res,
 				       const coot::dictionary_residue_restraints_t &rest) const {
 
-   if (res) { 
+   if (res) {
       std::string res_name = res->GetResName();
       std::cout << "validate: " << res_name << " " << rest.residue_info.comp_id
 		<< std::endl;
@@ -556,7 +556,7 @@ cod::bond_record_container_t::validate(mmdb::Residue *res,
       if (res_name == rest.residue_info.comp_id) {
 
 	 try {
-	    
+
 	    RDKit::RWMol rdkm = coot::rdkit_mol(rest);
 	    coot::rdkit_mol_sanitize(rdkm);
 
@@ -606,7 +606,7 @@ cod::bond_record_container_t::validate(mmdb::Residue *res,
 		  std::string at_name_1 = coot::util::remove_whitespace(bond.atom_id_1());
 		  std::string at_name_2 = coot::util::remove_whitespace(bond.atom_id_2());
 
-		  if (false) { 
+		  if (false) {
 		     std::cout << "in validate(): at_name_1 is \"" << at_name_1
 			       << "\"" << std::endl;
 		     std::cout << "               at_name_2 is \"" << at_name_2
@@ -614,9 +614,9 @@ cod::bond_record_container_t::validate(mmdb::Residue *res,
 		  }
 
 		  try {
-		     
+
 		     // use atom indices and look in v. Use non-whitespace names
-		     // 
+		     //
 		     unsigned int atom_idx_1 = get_atom_index(at_name_1, rdkm);
 		     unsigned int atom_idx_2 = get_atom_index(at_name_2, rdkm);
 
@@ -635,13 +635,13 @@ cod::bond_record_container_t::validate(mmdb::Residue *res,
 
 			if (cod_type_2.full_type < cod_type_1.full_type)
 			   std::swap(cod_type_1, cod_type_2);
-		     
+
 			bond_table_record_t cod_bond =
 			   get_cod_bond_from_table(cod_type_1, cod_type_2);
-		     
+
 			double dist =
 			   get_bond_distance_from_model(at_name_1_4c, at_name_2_4c, res);
-			
+
 			double z = 9999;
 			if (cod_bond.std_dev > 0)
 			   z = std::abs((cod_bond.mean-dist)/cod_bond.std_dev);
@@ -658,8 +658,8 @@ cod::bond_record_container_t::validate(mmdb::Residue *res,
 				  << std::setw(8) << z
 				  << std::endl;
 
-			   // << cod_type_1.main_type << "  " << cod_type_1.cod_type << " "
-			   // << cod_type_2.main_type << "  " << cod_type_2.cod_type
+			   // << cod_type_1.main_type << "  " << cod_type_1.full_type << " "
+			   // << cod_type_2.main_type << "  " << cod_type_2.full_type
 		     }
 		  }
 		  catch (const std::runtime_error &rte) {
@@ -671,7 +671,7 @@ cod::bond_record_container_t::validate(mmdb::Residue *res,
 	    } else {
 	       std::cout << "mismatch between number of atoms in molecule and "
 			 << "COD types list" << std::endl;
-	    } 
+	    }
 	 }
 	 catch(const std::runtime_error &rte) {
 	    std::cout << "error::" << rte.what() << std::endl;
@@ -680,10 +680,10 @@ cod::bond_record_container_t::validate(mmdb::Residue *res,
 	 std::cout << "Mismatch in residue name vs dictionary comp_id "
 		   << res_name << " " << rest.residue_info.comp_id
 		   << std::endl;
-      } 
+      }
    } else {
       std::cout << "Null res" << std::endl;
-   } 
+   }
 
 }
 
@@ -703,14 +703,14 @@ cod::bond_record_container_t::get_cod_bond_from_table(const cod::atom_type_t &co
 		<< cod_type_2.nb1nb2.string() << "   "
 		<< cod_type_2.main_type << std::endl;
    }
-      
+
    std::map<std::string, std::map<std::string, std::map<std::string, std::map<std::string, std::vector<bond_table_record_t> > > > >::const_iterator it_l2_a;
    std::map<std::string, std::map<std::string, std::map<std::string, std::vector<bond_table_record_t> > > >::const_iterator it_l2_b;
-   
+
    std::map<std::string, std::map<std::string, std::vector<bond_table_record_t> > >::const_iterator it_l3_a;
 
    std::map<std::string, std::vector<bond_table_record_t> >::const_iterator it_l3_b;
-   
+
    it_l2_a = bonds_map.find(cod_type_1.nb1nb2.string());
    if (it_l2_a != bonds_map.end()) {
       it_l2_b = it_l2_a->second.find(cod_type_2.nb1nb2.string());
@@ -735,7 +735,7 @@ cod::bond_record_container_t::get_cod_bond_from_table(const cod::atom_type_t &co
 	       bond_table_record_t::approximation_level_t approx_level = bond_table_record_t::EXTRA_ELECTRON;
 	       bond = make_bond_from_level_2_map(cod_type_1, cod_type_2, it_l2_b->second, approx_level);
 	       found_bond = true;
-	       
+
 	       // std::string m("missing cod_type_2 level_3 " + cod_type_1.nb1nb2.string());
 	       // throw(std::runtime_error(m));
 	    }
@@ -822,9 +822,9 @@ cod::bond_record_container_t::make_bond_from_level_3_vector(const cod::atom_type
 
 	 // local bonds: collect a set of bond records that have exact
 	 // match for cod_type_1
-	 // 
+	 //
 	 std::vector<bond_table_record_t> local_bonds;
-	 for (unsigned int i=0; i<v.size(); i++) { 
+	 for (unsigned int i=0; i<v.size(); i++) {
 	    if (cod_type_1 == v[i].cod_type_1) {
 	       // do we need a "distance" metric here before we add this?
 	       local_bonds.push_back(v[i]);
@@ -843,7 +843,7 @@ cod::bond_record_container_t::make_bond_from_level_3_vector(const cod::atom_type
 
 	 // likewise but the other testing the other atom
 	 std::vector<bond_table_record_t> local_bonds;
-	 for (unsigned int i=0; i<v.size(); i++) { 
+	 for (unsigned int i=0; i<v.size(); i++) {
 	    if (cod_type_2 == v[i].cod_type_2) {
 	       local_bonds.push_back(v[i]);
 	    }
@@ -925,7 +925,7 @@ cod::bond_record_container_t::t3_miss_diagnose(const atom_type_t &cod_type_1,
 
    std::map<std::string, std::map<std::string, std::map<std::string, std::map<std::string, std::vector<bond_table_record_t> > > > >::const_iterator it_l2_a;
    std::map<std::string, std::map<std::string, std::map<std::string, std::vector<bond_table_record_t> > > >::const_iterator it_l2_b;
-   
+
    std::map<std::string, std::map<std::string, std::vector<bond_table_record_t> > >::const_iterator it_l3_a;
 
    std::map<std::string, std::vector<bond_table_record_t> >::const_iterator it_l3_b;
@@ -934,7 +934,7 @@ cod::bond_record_container_t::t3_miss_diagnose(const atom_type_t &cod_type_1,
    bool found_bond = false;
 
    bool vector_found = false;
-   
+
    for (it_l2_a=bonds_map.begin(); it_l2_a!=bonds_map.end(); it_l2_a++) {
       for (it_l2_b=it_l2_a->second.begin(); it_l2_b!=it_l2_a->second.end(); it_l2_b++) {
 	 for (it_l3_a=it_l2_b->second.begin(); it_l3_a != it_l2_b->second.end(); it_l3_a++) {
@@ -996,7 +996,7 @@ cod::bond_record_container_t::t3_miss_diagnose(const atom_type_t &cod_type_1,
       std::cout << "::::::: Hmmmmm t3_miss_diagnose() bond not found "
 		<< std::endl;
    }
-   
+
    if (vector_found) {
       std::cout << "::::::: Hmmmmm t3_miss_diagnose() found vector "
 		<< std::endl;
@@ -1004,9 +1004,9 @@ cod::bond_record_container_t::t3_miss_diagnose(const atom_type_t &cod_type_1,
       std::cout << "::::::: Hmmmmm t3_miss_diagnose() vector not found "
 		<< std::endl;
    }
-   
+
 }
-      
+
 
 
 

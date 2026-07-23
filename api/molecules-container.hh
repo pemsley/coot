@@ -944,7 +944,7 @@ public:
    //!         success flag.)
    //!
    //! @return a list of atom names and their associated computed COD atom types
-   //! (a `cod::atom_type_t` for each atom, which holds nb1nb2/main_type/cod_type types,
+   //! (a `cod::atom_type_t` for each atom, which holds nb1nb2/main_type/full_type types,
    //! the nb2-extra-electrons and the hash value), return an empty list on failure
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
    std::vector<std::pair<std::string, cod::atom_type_t> > get_computed_acedrg_atom_types(const std::string &compound_id, int imol_enc);
