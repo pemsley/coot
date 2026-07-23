@@ -6,6 +6,8 @@
 #include <fstream>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
+#include <csignal>
 #include <unistd.h>
 
 #define GLM_ENABLE_EXPERIMENTAL
@@ -8301,18 +8303,42 @@ print_results_summary() {
 
 }
 
+template <typename Function, typename... Args>
+int run_test_maybe(const std::string& filter, Function test_func, const char* test_name, Args&&... args) {
+   std::string name_str(test_name);
+
+   // If a filter is provided and the test name doesn't contain it, skip the test
+   if (!filter.empty() && name_str.find(filter) == std::string::npos) {
+      return 0; // Skipped test contributes 0 to the fail/error count
+   }
+
+   // Run the actual test function
+   std::cout << "Running " << test_name << std::endl;
+   return run_test(test_func, test_name, std::forward<Args>(args)...);
+   std::cout << "Completed " << test_name << std::endl;
+}
 int main(int argc, char **argv) {
 
    int status = 0;
    write_test_name("---");
 
    bool last_test_only = false;
-   if (argc > 1) {
-      std::string arg(argv[1]);
-      if (arg == "last-test-only")
-         last_test_only = true;
-   }
+   std::string filter = "";
 
+   // Parse command line arguments
+   for (int i = 1; i < argc; ++i) {
+      std::string arg(argv[i]);
+
+      if (arg == "last-test-only") {
+         last_test_only = true;
+      } 
+      else if (arg == "--filter" && i + 1 < argc) {
+         filter = argv[++i]; // Get the next argument as the filter term
+      } 
+      else if (arg.rfind("--filter=", 0) == 0) { // Handles --filter=my_test syntax
+         filter = arg.substr(9);
+      }
+   }
    int all_tests_status = 1; // fail!
 
    {
@@ -8337,173 +8363,173 @@ int main(int argc, char **argv) {
 
       if (! last_test_only) {
 
-         status += run_test(test_new_position_for_atoms_in_residues, "new positions for atoms in residues", mc);
-         status += run_test(test_transformation_for_atom_selection, "transformation for atoms",             mc);
-         status += run_test(test_copy_fragment_using_residue_range, "copy-fragment using residue range",    mc);
-         status += run_test(test_density_correlation_validation, "density correlation validation",          mc);
-         status += run_test(test_pepflips_using_difference_map, "Pepflips from Difference Map",             mc);
-         status += run_test(test_difference_map_contours, "difference map density mesh", mc);
-         status += run_test(test_rota_dodecs_mesh,      "rotamer dodecahedra mesh", mc);
-         status += run_test(test_rsr_using_residue_range, "rsr using residue range", mc);
-         status += run_test(test_rsr_using_multi_atom_cid, "multi-atom-cid RSR",    mc);
-         status += run_test(test_copy_fragment_using_cid, "copy-fragment using cid", mc);
-         status += run_test(test_no_dictionary_residues,  "no-dictionary residues", mc);
-         status += run_test(test_cis_trans,             "cis_trans conversion",     mc);
-         status += run_test(test_rsr_using_atom_cid,    "rsr using atom cid",       mc);
-         status += run_test(test_auto_fit_rotamer_1,    "auto-fit rotamer",         mc);
-         status += run_test(test_auto_fit_rotamer_2,    "auto-fit rotamer t2",      mc);
-         status += run_test(test_delete_molecule,       "delete_moelcule",          mc);
-         status += run_test(test_rama_balls_mesh,       "rama balls mesh",          mc);
-         status += run_test(test_density_mesh,          "density mesh",             mc);
-         status += run_test(test_updating_maps,         "updating maps",            mc);
-         status += run_test(test_delete_residue,        "delete residue",           mc);
-         status += run_test(test_delete_chain,          "delete chain",             mc);
-         status += run_test(test_fill_partial,          "Fill partially-filled residues", mc);
-         status += run_test(test_delete_atom,           "delete atom",              mc);
-         status += run_test(test_pepflips,              "pepflips",                 mc);
-         status += run_test(test_mutate,                "mutate",                   mc);
-         status += run_test(test_rsr,                   "rsr",                      mc);
-         status += run_test(test_jed_flip,              "JED Flip",                 mc);
-         status += run_test(test_add_water,             "add waters",               mc);
-         status += run_test(test_bonds_mesh,            "bonds mesh",               mc);
-         status += run_test(test_eigen_flip,            "Eigen Flip",               mc);
-         status += run_test(test_read_a_map,            "read a map",               mc);
-         status += run_test(test_add_compound,          "add compound",             mc);
-         status += run_test(test_weird_delete,          "delete II",                mc);
-         status += run_test(test_add_alt_conf,          "add alt conf",             mc);
-         status += run_test(test_delete_literal,        "delete literal",           mc);
-         status += run_test(test_side_chain_180,        "side-chain 180",           mc);
-         status += run_test(test_peptide_omega,         "peptide omega",            mc);
+         status += run_test_maybe(filter, test_new_position_for_atoms_in_residues, "new positions for atoms in residues", mc);
+         status += run_test_maybe(filter, test_transformation_for_atom_selection, "transformation for atoms",             mc);
+         status += run_test_maybe(filter, test_copy_fragment_using_residue_range, "copy-fragment using residue range",    mc);
+         status += run_test_maybe(filter, test_density_correlation_validation, "density correlation validation",          mc);
+         status += run_test_maybe(filter, test_pepflips_using_difference_map, "Pepflips from Difference Map",             mc);
+         status += run_test_maybe(filter, test_difference_map_contours, "difference map density mesh", mc);
+         status += run_test_maybe(filter, test_rota_dodecs_mesh,      "rotamer dodecahedra mesh", mc);
+         status += run_test_maybe(filter, test_rsr_using_residue_range, "rsr using residue range", mc);
+         status += run_test_maybe(filter, test_rsr_using_multi_atom_cid, "multi-atom-cid RSR",    mc);
+         status += run_test_maybe(filter, test_copy_fragment_using_cid, "copy-fragment using cid", mc);
+         status += run_test_maybe(filter, test_no_dictionary_residues,  "no-dictionary residues", mc);
+         status += run_test_maybe(filter, test_cis_trans,             "cis_trans conversion",     mc);
+         status += run_test_maybe(filter, test_rsr_using_atom_cid,    "rsr using atom cid",       mc);
+         status += run_test_maybe(filter, test_auto_fit_rotamer_1,    "auto-fit rotamer",         mc);
+         status += run_test_maybe(filter, test_auto_fit_rotamer_2,    "auto-fit rotamer t2",      mc);
+         status += run_test_maybe(filter, test_delete_molecule,       "delete_moelcule",          mc);
+         status += run_test_maybe(filter, test_rama_balls_mesh,       "rama balls mesh",          mc);
+         status += run_test_maybe(filter, test_density_mesh,          "density mesh",             mc);
+         status += run_test_maybe(filter, test_updating_maps,         "updating maps",            mc);
+         status += run_test_maybe(filter, test_delete_residue,        "delete residue",           mc);
+         status += run_test_maybe(filter, test_delete_chain,          "delete chain",             mc);
+         status += run_test_maybe(filter, test_fill_partial,          "Fill partially-filled residues", mc);
+         status += run_test_maybe(filter, test_delete_atom,           "delete atom",              mc);
+         status += run_test_maybe(filter, test_pepflips,              "pepflips",                 mc);
+         status += run_test_maybe(filter, test_mutate,                "mutate",                   mc);
+         status += run_test_maybe(filter, test_rsr,                   "rsr",                      mc);
+         status += run_test_maybe(filter, test_jed_flip,              "JED Flip",                 mc);
+         status += run_test_maybe(filter, test_add_water,             "add waters",               mc);
+         status += run_test_maybe(filter, test_bonds_mesh,            "bonds mesh",               mc);
+         status += run_test_maybe(filter, test_eigen_flip,            "Eigen Flip",               mc);
+         status += run_test_maybe(filter, test_read_a_map,            "read a map",               mc);
+         status += run_test_maybe(filter, test_add_compound,          "add compound",             mc);
+         status += run_test_maybe(filter, test_weird_delete,          "delete II",                mc);
+         status += run_test_maybe(filter, test_add_alt_conf,          "add alt conf",             mc);
+         status += run_test_maybe(filter, test_delete_literal,        "delete literal",           mc);
+         status += run_test_maybe(filter, test_side_chain_180,        "side-chain 180",           mc);
+         status += run_test_maybe(filter, test_peptide_omega,         "peptide omega",            mc);
 
          // Molecular replacement tests (moved here to run before potentially-crashing tests)
-         status += run_test(test_patterson_from_map_using_mtz,     "patterson from mtz",       mc);
-         status += run_test(test_patterson_from_map_using_map,     "patterson from map",       mc);
-         status += run_test(test_self_rotation_function,          "self rotation function",   mc);
-         status += run_test(test_cross_rotation_function,         "cross rotation function",  mc);
-         status += run_test(test_crowther_rotation_function,    "crowther rotation fn",     mc);
-         status += run_test(test_crowther_rotation_with_model, "crowther with model",      mc);
-         status += run_test(test_phased_translation_function, "phased translation fn",   mc);
-         status += run_test(test_molecular_placement_pipeline, "MR pipeline",          mc);
-         status += run_test(test_molecular_placement_pipeline_r_chain, "MR R-chain",  mc);
+         status += run_test_maybe(filter, test_patterson_from_map_using_mtz,     "patterson from mtz",       mc);
+         status += run_test_maybe(filter, test_patterson_from_map_using_map,     "patterson from map",       mc);
+         status += run_test_maybe(filter, test_self_rotation_function,          "self rotation function",   mc);
+         status += run_test_maybe(filter, test_cross_rotation_function,         "cross rotation function",  mc);
+         status += run_test_maybe(filter, test_crowther_rotation_function,    "crowther rotation fn",     mc);
+         status += run_test_maybe(filter, test_crowther_rotation_with_model, "crowther with model",      mc);
+         status += run_test_maybe(filter, test_phased_translation_function, "phased translation fn",   mc);
+         status += run_test_maybe(filter, test_molecular_placement_pipeline, "MR pipeline",          mc);
+         status += run_test_maybe(filter, test_molecular_placement_pipeline_r_chain, "MR R-chain",  mc);
 
-         status += run_test(test_undo_and_redo,         "undo and redo",            mc);
-         status += run_test(test_undo_and_redo_2,       "undo/redo 2",              mc);
-         status += run_test(test_merge_molecules,       "merge molecules",          mc);
-         status += run_test(test_dictionary_bonds,      "dictionary bonds",         mc);
-         status += run_test(test_replace_fragment,      "replace fragment",         mc);
-         status += run_test(test_gaussian_surface,      "Gaussian surface",         mc);
-         status += run_test(test_missing_atoms_info,    "missing atom info",        mc);
-         status += run_test(test_move_molecule_here,    "move_molecule_here",       mc);
-         status += run_test(test_rotamer_validation,    "rotamer validation",       mc);
-         status += run_test(test_ligand_contact_dots,   "ligand contact dots",      mc);
-         status += run_test(test_difference_map_peaks,  "Difference Map Peaks",     mc);
-         status += run_test(test_rama_validation,       "rama validation 2",        mc); // for the plot, not the graph
-         status += run_test(test_ramachandran_analysis, "ramachandran analysis",    mc); // for the graph, not the plot
-         status += run_test(test_non_standard_residues, "non-standard residues",    mc);
-         status += run_test(test_import_cif_dictionary, "import cif dictionary",    mc);
-         status += run_test(test_add_terminal_residue,  "add terminal residue",     mc);
-         status += run_test(test_sequence_generator,    "Make a sequence string",   mc);
-         status += run_test(test_instanced_rota_markup, "Instanced rotamer mesh",   mc);
-         status += run_test(test_new_position_for_atoms,"New positions for atoms",  mc);
-         status += run_test(test_molecular_representation, "Molecular representation mesh", mc);
+         status += run_test_maybe(filter, test_undo_and_redo,         "undo and redo",            mc);
+         status += run_test_maybe(filter, test_undo_and_redo_2,       "undo/redo 2",              mc);
+         status += run_test_maybe(filter, test_merge_molecules,       "merge molecules",          mc);
+         status += run_test_maybe(filter, test_dictionary_bonds,      "dictionary bonds",         mc);
+         status += run_test_maybe(filter, test_replace_fragment,      "replace fragment",         mc);
+         status += run_test_maybe(filter, test_gaussian_surface,      "Gaussian surface",         mc);
+         status += run_test_maybe(filter, test_missing_atoms_info,    "missing atom info",        mc);
+         status += run_test_maybe(filter, test_move_molecule_here,    "move_molecule_here",       mc);
+         status += run_test_maybe(filter, test_rotamer_validation,    "rotamer validation",       mc);
+         status += run_test_maybe(filter, test_ligand_contact_dots,   "ligand contact dots",      mc);
+         status += run_test_maybe(filter, test_difference_map_peaks,  "Difference Map Peaks",     mc);
+         status += run_test_maybe(filter, test_rama_validation,       "rama validation 2",        mc); // for the plot, not the graph
+         status += run_test_maybe(filter, test_ramachandran_analysis, "ramachandran analysis",    mc); // for the graph, not the plot
+         status += run_test_maybe(filter, test_non_standard_residues, "non-standard residues",    mc);
+         status += run_test_maybe(filter, test_import_cif_dictionary, "import cif dictionary",    mc);
+         status += run_test_maybe(filter, test_add_terminal_residue,  "add terminal residue",     mc);
+         status += run_test_maybe(filter, test_sequence_generator,    "Make a sequence string",   mc);
+         status += run_test_maybe(filter, test_instanced_rota_markup, "Instanced rotamer mesh",   mc);
+         status += run_test_maybe(filter, test_new_position_for_atoms,"New positions for atoms",  mc);
+         status += run_test_maybe(filter, test_molecular_representation, "Molecular representation mesh", mc);
          // remove these for now - I know why they don't work and they are slow.
-         // status += run_test(test_rigid_body_fit,        "Rigid-body fit", mc);
-         // status += run_test(test_ligand_fitting_here,   "Ligand fitting here",      mc);
-         // status += run_test(test_jiggle_fit,            "Jiggle-fit",               mc);
-         // status += run_test(test_jiggle_fit_with_blur,  "Jiggle-fit-with-blur",     mc);
-         // status += run_test(test_ligand_fitting_in_map, "ligand fitting in map",    mc);
-         status += run_test(test_multiligands_lig_bonding, "Some multiligands bonding", mc);
-         status += run_test(test_gltf_export_via_api,   "glTF via api", mc);
-         status += run_test(test_long_name_ligand_cif_merge, "Long-name ligand cif merge", mc);
-         status += run_test(test_user_defined_bond_colours_v3, "user-defined colours v3", mc);
-         status += run_test(test_gltf_export,           "glTF export", mc);
-         status += run_test(test_5char_ligand_merge,    "5-char ligand merge", mc);
-         status += run_test(test_thread_pool,           "thread pool",    mc);
-         // status += run_test(test_thread_launching,      "thread launching",    mc); // this is not a helpful test
-         status += run_test(test_cif_gphl_chem_comp_info, "extracting gphl info",    mc);
-         // status += run_test(test_test_the_threading,    "threading speed test",    mc); // not helpful
-         // status += run_test(test_contouring_timing,     "contouring timing",    mc); // not helpful
+         // status += run_test_maybe(filter, test_rigid_body_fit,        "Rigid-body fit", mc);
+         // status += run_test_maybe(filter, test_ligand_fitting_here,   "Ligand fitting here",      mc);
+         // status += run_test_maybe(filter, test_jiggle_fit,            "Jiggle-fit",               mc);
+         // status += run_test_maybe(filter, test_jiggle_fit_with_blur,  "Jiggle-fit-with-blur",     mc);
+         // status += run_test_maybe(filter, test_ligand_fitting_in_map, "ligand fitting in map",    mc);
+         status += run_test_maybe(filter, test_multiligands_lig_bonding, "Some multiligands bonding", mc);
+         status += run_test_maybe(filter, test_gltf_export_via_api,   "glTF via api", mc);
+         status += run_test_maybe(filter, test_long_name_ligand_cif_merge, "Long-name ligand cif merge", mc);
+         status += run_test_maybe(filter, test_user_defined_bond_colours_v3, "user-defined colours v3", mc);
+         status += run_test_maybe(filter, test_gltf_export,           "glTF export", mc);
+         status += run_test_maybe(filter, test_5char_ligand_merge,    "5-char ligand merge", mc);
+         status += run_test_maybe(filter, test_thread_pool,           "thread pool",    mc);
+         // status += run_test_maybe(filter, test_thread_launching,      "thread launching",    mc); // this is not a helpful test
+         status += run_test_maybe(filter, test_cif_gphl_chem_comp_info, "extracting gphl info",    mc);
+         // status += run_test_maybe(filter, test_test_the_threading,    "threading speed test",    mc); // not helpful
+         // status += run_test_maybe(filter, test_contouring_timing,     "contouring timing",    mc); // not helpful
 
          //reinstate this test when mmdb chain selection works
-         // status += run_test(test_mmcif_atom_selection,  "mmCIF atom selection",    mc);
+         // status += run_test_maybe(filter, test_mmcif_atom_selection,  "mmCIF atom selection",    mc);
 
          //reinstate this test when gemmi is used for writing cif files
-         // status += run_test(test_mmcif_as_string,       "mmCIF as string",    mc);
-         status += run_test(test_pdb_as_string,         "PDB as string",    mc);
-         status += run_test(test_cif_writer,            "mmCIF dictionary writer",    mc);
-         status += run_test(test_residues_near_residues, "residues near residues",    mc);
-         status += run_test(test_electro_molecular_representation, "electro molecular representation mesh", mc);
-         status += run_test(test_replace_fragment,      "replace fragment",         mc);
-         status += run_test(test_ncs_chains,            "NCS chains",         mc);
-         status += run_test(test_omega_5tig_cif,        "Omega for 5tig cif",         mc);
-         // status += run_test(test_jiggle_fit_params,     "actually testing for goodness pr params", mc); // not useful
-         status += run_test(test_dark_mode_colours,     "light vs dark mode colours", mc);
-         status += run_test(test_read_extra_restraints, "read extra restraints", mc);
-         status += run_test(test_map_histogram,         "map histogram", mc);
-         status += run_test(test_auto_read_mtz,         "auto-read-mtz", mc);
-         status += run_test(test_read_a_missing_map,    "read a missing map file ", mc);
-         status += run_test(test_colour_map_by_other_map, "colour-map-by-other-map", mc);
-         status += run_test(test_something_filo,        "Self something filo", mc);
-         status += run_test(test_self_restraints,       "Self restraints mesh", mc);
-         status += run_test(test_other_user_defined_colours_other, "New colour test", mc);
-         status += run_test(test_is_em_map,             "EM map flag is correctly set?", mc);
-         status += run_test(test_user_defined_bond_colours_v2, "user-defined bond colours v2", mc);
+         // status += run_test_maybe(filter, test_mmcif_as_string,       "mmCIF as string",    mc);
+         status += run_test_maybe(filter, test_pdb_as_string,         "PDB as string",    mc);
+         status += run_test_maybe(filter, test_cif_writer,            "mmCIF dictionary writer",    mc);
+         status += run_test_maybe(filter, test_residues_near_residues, "residues near residues",    mc);
+         status += run_test_maybe(filter, test_electro_molecular_representation, "electro molecular representation mesh", mc);
+         status += run_test_maybe(filter, test_replace_fragment,      "replace fragment",         mc);
+         status += run_test_maybe(filter, test_ncs_chains,            "NCS chains",         mc);
+         status += run_test_maybe(filter, test_omega_5tig_cif,        "Omega for 5tig cif",         mc);
+         // status += run_test_maybe(filter, test_jiggle_fit_params,     "actually testing for goodness pr params", mc); // not useful
+         status += run_test_maybe(filter, test_dark_mode_colours,     "light vs dark mode colours", mc);
+         status += run_test_maybe(filter, test_read_extra_restraints, "read extra restraints", mc);
+         status += run_test_maybe(filter, test_map_histogram,         "map histogram", mc);
+         status += run_test_maybe(filter, test_auto_read_mtz,         "auto-read-mtz", mc);
+         status += run_test_maybe(filter, test_read_a_missing_map,    "read a missing map file ", mc);
+         status += run_test_maybe(filter, test_colour_map_by_other_map, "colour-map-by-other-map", mc);
+         status += run_test_maybe(filter, test_something_filo,        "Self something filo", mc);
+         status += run_test_maybe(filter, test_self_restraints,       "Self restraints mesh", mc);
+         status += run_test_maybe(filter, test_other_user_defined_colours_other, "New colour test", mc);
+         status += run_test_maybe(filter, test_is_em_map,             "EM map flag is correctly set?", mc);
+         status += run_test_maybe(filter, test_user_defined_bond_colours_v2, "user-defined bond colours v2", mc);
          // reinstate when add alt conf has been added
-         // status += run_test(test_alt_conf_and_rotamer,            "Alt Conf then rotamer", mc);
-         status += run_test(test_editing_session_tutorial_1, "an Tutorial 1 editing session",         mc);
-         status += run_test(test_broken_function, "Something was broken",         mc);
-         status += run_test(test_delete_side_chain, "delete side chain", mc);
-         status += run_test(test_colour_rules, "colour rules", mc);
-         status += run_test(test_mmrrcc, "MMRRCC", mc);
-         status += run_test(test_instanced_bonds_mesh, "insta bonds mesh", mc);
-         status += run_test(test_instanced_bonds_mesh_v2, "test instanced bond selection v2", mc);
-         status += run_test(test_utils, "utils", mc);
-         status += run_test(test_svg, "svg string", mc);
-         status += run_test(test_superpose, "SSM superpose ", mc);
-         status += run_test(test_multi_colour_rules, "multi colour rules ", mc);
-         status += run_test(test_non_drawn_atoms, "non-drawn atoms", mc);
-         status += run_test(test_symmetry, "symmetry", mc);
-         status += run_test(test_add_hydrogen_atoms, "add hydrogen atoms", mc);
-         status += run_test(test_set_rotamer, "set rotamer ", mc);
-         status += run_test(test_alt_conf_and_rotamer_v2, "alt-conf and rotamer v2 ", mc);
-         status += run_test(test_moorhen_h_bonds, "moorhen H-bonds ", mc);
-         status += run_test(test_number_of_hydrogen_atoms, "number of hydrogen atoms ", mc);
-         status += run_test(test_cell, "cell", mc);
-         status += run_test(test_map_centre, "map centre", mc);
-         status += run_test(test_dragged_atom_refinement, "dragged atom refinement", mc);
-         status += run_test(test_bespoke_carbon_colour, "bespoke carbon colours ", mc);
-         status += run_test(test_replace_model_from_file, "replace model from file", mc);
-         status += run_test(test_user_defined_bond_colours, "user-defined bond colours", mc);
-         status += run_test(test_replace_map, "replace map from mtz", mc);
-         status += run_test(test_residue_name_group, "residue name group", mc);
-         status += run_test(test_mask_atom_selection, "mask atom selection", mc);
-         status += run_test(test_write_map_is_sane, "write map is sane",    mc);
-         status += run_test(test_replace_large_fragment,      "refine and replace large fragment",         mc);
-         status += run_test(test_molecule_diameter, "molecule diameter",    mc);
-         status += run_test(test_B_factor_multiply, "B-factor multiply",    mc);
-         status += run_test(test_change_chain_id, "change chain id",    mc);
-         status += run_test(test_17257, "read emd_17257.map.gz",    mc);
+         // status += run_test_maybe(filter, test_alt_conf_and_rotamer,            "Alt Conf then rotamer", mc);
+         status += run_test_maybe(filter, test_editing_session_tutorial_1, "an Tutorial 1 editing session",         mc);
+         status += run_test_maybe(filter, test_broken_function, "Something was broken",         mc);
+         status += run_test_maybe(filter, test_delete_side_chain, "delete side chain", mc);
+         status += run_test_maybe(filter, test_colour_rules, "colour rules", mc);
+         status += run_test_maybe(filter, test_mmrrcc, "MMRRCC", mc);
+         status += run_test_maybe(filter, test_instanced_bonds_mesh, "insta bonds mesh", mc);
+         status += run_test_maybe(filter, test_instanced_bonds_mesh_v2, "test instanced bond selection v2", mc);
+         status += run_test_maybe(filter, test_utils, "utils", mc);
+         status += run_test_maybe(filter, test_svg, "svg string", mc);
+         status += run_test_maybe(filter, test_superpose, "SSM superpose ", mc);
+         status += run_test_maybe(filter, test_multi_colour_rules, "multi colour rules ", mc);
+         status += run_test_maybe(filter, test_non_drawn_atoms, "non-drawn atoms", mc);
+         status += run_test_maybe(filter, test_symmetry, "symmetry", mc);
+         status += run_test_maybe(filter, test_add_hydrogen_atoms, "add hydrogen atoms", mc);
+         status += run_test_maybe(filter, test_set_rotamer, "set rotamer ", mc);
+         status += run_test_maybe(filter, test_alt_conf_and_rotamer_v2, "alt-conf and rotamer v2 ", mc);
+         status += run_test_maybe(filter, test_moorhen_h_bonds, "moorhen H-bonds ", mc);
+         status += run_test_maybe(filter, test_number_of_hydrogen_atoms, "number of hydrogen atoms ", mc);
+         status += run_test_maybe(filter, test_cell, "cell", mc);
+         status += run_test_maybe(filter, test_map_centre, "map centre", mc);
+         status += run_test_maybe(filter, test_dragged_atom_refinement, "dragged atom refinement", mc);
+         status += run_test_maybe(filter, test_bespoke_carbon_colour, "bespoke carbon colours ", mc);
+         status += run_test_maybe(filter, test_replace_model_from_file, "replace model from file", mc);
+         status += run_test_maybe(filter, test_user_defined_bond_colours, "user-defined bond colours", mc);
+         status += run_test_maybe(filter, test_replace_map, "replace map from mtz", mc);
+         status += run_test_maybe(filter, test_residue_name_group, "residue name group", mc);
+         status += run_test_maybe(filter, test_mask_atom_selection, "mask atom selection", mc);
+         status += run_test_maybe(filter, test_write_map_is_sane, "write map is sane",    mc);
+         status += run_test_maybe(filter, test_replace_large_fragment,      "refine and replace large fragment",         mc);
+         status += run_test_maybe(filter, test_molecule_diameter, "molecule diameter",    mc);
+         status += run_test_maybe(filter, test_B_factor_multiply, "B-factor multiply",    mc);
+         status += run_test_maybe(filter, test_change_chain_id, "change chain id",    mc);
+         status += run_test_maybe(filter, test_17257, "read emd_17257.map.gz",    mc);
 
          // 2026-02-14-PE too many gemmi errors. Let's shut it down for now 
          mc.set_use_gemmi(false);
 
-         status += run_test(test_get_diff_map_peaks, "get diff map peaks",    mc);
-         status += run_test(test_shiftfield_b_factor_refinement, "Shiftfield B",    mc);
-         status += run_test(test_non_drawn_CA_bonds,       "non-drawn bonds in CA+LIGANDS", mc);
-         status += run_test(test_change_chain_id_1,        "change chain-id filo-1", mc);
-         status += run_test(test_split_model,              "Split model", mc);
-         status += run_test(test_make_ensemble,            "Make Ensemble", mc);
-         status += run_test(test_end_delete_closed_molecules, "end delete close molecules", mc);
-         status += run_test(test_moorhen_h_bonds, "moorhen H-bonds ", mc);
-         status += run_test(test_texture_as_floats, "Texture as Floats ", mc);
-         status += run_test(test_n_map_sections, "N map sections ", mc);
+         status += run_test_maybe(filter, test_get_diff_map_peaks, "get diff map peaks",    mc);
+         // status += run_test_maybe(filter, test_shiftfield_b_factor_refinement, "Shiftfield B",    mc);
+         status += run_test_maybe(filter, test_non_drawn_CA_bonds,       "non-drawn bonds in CA+LIGANDS", mc);
+         status += run_test_maybe(filter, test_change_chain_id_1,        "change chain-id filo-1", mc);
+         status += run_test_maybe(filter, test_split_model,              "Split model", mc);
+         status += run_test_maybe(filter, test_make_ensemble,            "Make Ensemble", mc);
+         status += run_test_maybe(filter, test_end_delete_closed_molecules, "end delete close molecules", mc);
+         status += run_test_maybe(filter, test_moorhen_h_bonds, "moorhen H-bonds ", mc);
+         status += run_test_maybe(filter, test_texture_as_floats, "Texture as Floats ", mc);
+         status += run_test_maybe(filter, test_n_map_sections, "N map sections ", mc);
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
-         status += run_test(test_pdbe_dictionary_depiction, "pdbe dictionary depiction", mc);
-         // status += run_test(test_rdkit_mol, "RDKit mol", mc);
+         status += run_test_maybe(filter, test_pdbe_dictionary_depiction, "pdbe dictionary depiction", mc);
+         // status += run_test_maybe(filter, test_rdkit_mol, "RDKit mol", mc);
 #endif
 
 #ifdef USE_GEMMI
-         status += run_test(test_disappearing_ligand,   "Disappearing ligand", mc);
+         status += run_test_maybe(filter, test_disappearing_ligand,   "Disappearing ligand", mc);
 #endif
          // Note to self:
          // change the autofit_rotamer test so that it tests the change of positions of the atoms of the neighboring residues.
@@ -8512,54 +8538,54 @@ int main(int argc, char **argv) {
       {
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #endif
-         // status += run_test(test_lsq_superpose, "LSQ superpose", mc);
-         // status += run_test(test_change_rotamer, "Change Rotamer (Filo)", mc);
-         // status += run_test(test_alpha_in_colour_holder, "Alpha value in colour holder", mc);
-         // status += run_test(test_gaussian_surface, "Gaussian surface", mc);
-         // status += run_test(test_Q_Score, "Q Score", mc);
-         // status += run_test(test_assign_sequence, "Assign Sequence", mc);
-         // status += run_test(test_undo_and_redo_2, "Undo and redo 2", mc);
-         // status += run_test(test_gltf_export_via_api,   "glTF via api", mc);
-         // status += run_test(test_import_ligands_with_same_name_and_animated_refinement, "Test import ligands with same name and animated refinement", mc);
-         // status += run_test(test_dictionary_conformers,   "Dictionary Conformers", mc);
-         // status += run_test(test_ligand_distortion,   "Ligand Distortion", mc);
-         // status += run_test(test_import_LIG_dictionary,   "Import LIG.cif", mc);
-         // status += run_test(test_tricky_ligand_problem,   "Tricky Ligand import/refine", mc);
-         // status += run_test(test_dictionary_acedrg_atom_types, "Acedrg atom types", mc);
-         // status += run_test(test_dictionary_acedrg_atom_types_for_ligand, "Acedrg atom types for ligand", mc);
-         // status += run_test(test_long_name_ligand_cif_merge, "test long name ligand cif merge", mc);
-         // status += run_test(test_merge_ligand_and_gemmi_parse_mmcif, "test_merge_ligand_and_gemmi_parse_mmcif", mc);
-         // status += run_test(test_delete_two_add_one_using_gemmi, "test_delete_two_add_one_using_gemmi", mc);
-         // status += run_test(test_dictionary_atom_name_match, "dictionary atom names match", mc);
-         // status += run_test(test_average_position_functions, "average position functions", mc);
+         // status += run_test_maybe(filter, test_lsq_superpose, "LSQ superpose", mc);
+         // status += run_test_maybe(filter, test_change_rotamer, "Change Rotamer (Filo)", mc);
+         // status += run_test_maybe(filter, test_alpha_in_colour_holder, "Alpha value in colour holder", mc);
+         // status += run_test_maybe(filter, test_gaussian_surface, "Gaussian surface", mc);
+         // status += run_test_maybe(filter, test_Q_Score, "Q Score", mc);
+         // status += run_test_maybe(filter, test_assign_sequence, "Assign Sequence", mc);
+         // status += run_test_maybe(filter, test_undo_and_redo_2, "Undo and redo 2", mc);
+         // status += run_test_maybe(filter, test_gltf_export_via_api,   "glTF via api", mc);
+         // status += run_test_maybe(filter, test_import_ligands_with_same_name_and_animated_refinement, "Test import ligands with same name and animated refinement", mc);
+         // status += run_test_maybe(filter, test_dictionary_conformers,   "Dictionary Conformers", mc);
+         // status += run_test_maybe(filter, test_ligand_distortion,   "Ligand Distortion", mc);
+         // status += run_test_maybe(filter, test_import_LIG_dictionary,   "Import LIG.cif", mc);
+         // status += run_test_maybe(filter, test_tricky_ligand_problem,   "Tricky Ligand import/refine", mc);
+         // status += run_test_maybe(filter, test_dictionary_acedrg_atom_types, "Acedrg atom types", mc);
+         // status += run_test_maybe(filter, test_dictionary_acedrg_atom_types_for_ligand, "Acedrg atom types for ligand", mc);
+         // status += run_test_maybe(filter, test_long_name_ligand_cif_merge, "test long name ligand cif merge", mc);
+         // status += run_test_maybe(filter, test_merge_ligand_and_gemmi_parse_mmcif, "test_merge_ligand_and_gemmi_parse_mmcif", mc);
+         // status += run_test_maybe(filter, test_delete_two_add_one_using_gemmi, "test_delete_two_add_one_using_gemmi", mc);
+         // status += run_test_maybe(filter, test_dictionary_atom_name_match, "dictionary atom names match", mc);
+         // status += run_test_maybe(filter, test_average_position_functions, "average position functions", mc);
 
-         // status += run_test(test_get_torsion, "get_torsion", mc);
-         // status += run_test(test_set_occupancy, "set occupancy", mc);
-         // status += run_test(test_missing_residues, "missing residues", mc);
-         // status += run_test(test_mutation_info, "mutation info", mc);
-         // status += run_test(test_scale_map, "scale_map", mc);
-         // status += run_test(test_add_RNA_residue, "add RNA residue", mc);
-         // status += run_test(test_HOLE, "HOLE", mc);
-         // status += run_test(test_is_nucleic_acid, "is nucleic acid?", mc);
-         // status += run_test(test_delete_all_carbohydrate, "delete all carbohydrate", mc);
-         // status += run_test(test_instanced_goodsell_style_mesh, "instanced goodsell style mesh", mc);
-         // status += run_test(test_map_vertices_histogram, "map vertices histogram", mc);
-         // status += run_test(test_non_XYZ_EM_map_status, "non-XYZ map status", mc);
+         // status += run_test_maybe(filter, test_get_torsion, "get_torsion", mc);
+         // status += run_test_maybe(filter, test_set_occupancy, "set occupancy", mc);
+         // status += run_test_maybe(filter, test_missing_residues, "missing residues", mc);
+         // status += run_test_maybe(filter, test_mutation_info, "mutation info", mc);
+         // status += run_test_maybe(filter, test_scale_map, "scale_map", mc);
+         // status += run_test_maybe(filter, test_add_RNA_residue, "add RNA residue", mc);
+         // status += run_test_maybe(filter, test_HOLE, "HOLE", mc);
+         // status += run_test_maybe(filter, test_is_nucleic_acid, "is nucleic acid?", mc);
+         // status += run_test_maybe(filter, test_delete_all_carbohydrate, "delete all carbohydrate", mc);
+         // status += run_test_maybe(filter, test_instanced_goodsell_style_mesh, "instanced goodsell style mesh", mc);
+         // status += run_test_maybe(filter, test_map_vertices_histogram, "map vertices histogram", mc);
+         // status += run_test_maybe(filter, test_non_XYZ_EM_map_status, "non-XYZ map status", mc);
 
          // put these up
-         // status += run_test(test_radius_of_gyration, "radius of gyration", mc);
-         // status += run_test(test_temperature_factor_of_atom, "temperature factor of atom", mc);
-         // status += run_test(test_water_spherical_variance, "water spherical variance", mc);
-         // status += run_test(test_dedust, "dedust", mc);  .... maybe not this one
-         // status += run_test(test_atom_overlaps, "atom overlaps", mc);
-         // status += run_test(test_pucker_info, "pucker info", mc);
-         // status += run_test(test_set_residue_to_rotamer_number, "set residue", mc);
-         // status += run_test(test_inner_bond_kekulization, "inner-bond kekulization", mc);
-         // status += run_test(test_gaussian_surface_to_map_molecule, "gaussian-surface to map", mc);
-         // status += run_test(test_density_mesh,          "density mesh",             mc);
-         // status += run_test(test_molecular_placement_pipeline_r_chain, "MR R-chain", mc);
-         // status += run_test(test_molecular_placement_pipeline, "MR pipeline", mc);
-         status += run_test(test_rdkit_mol_pickle, "RDKit Mol Pickle", mc);
+         // status += run_test_maybe(filter, test_radius_of_gyration, "radius of gyration", mc);
+         // status += run_test_maybe(filter, test_temperature_factor_of_atom, "temperature factor of atom", mc);
+         // status += run_test_maybe(filter, test_water_spherical_variance, "water spherical variance", mc);
+         // status += run_test_maybe(filter, test_dedust, "dedust", mc);  .... maybe not this one
+         // status += run_test_maybe(filter, test_atom_overlaps, "atom overlaps", mc);
+         // status += run_test_maybe(filter, test_pucker_info, "pucker info", mc);
+         // status += run_test_maybe(filter, test_set_residue_to_rotamer_number, "set residue", mc);
+         // status += run_test_maybe(filter, test_inner_bond_kekulization, "inner-bond kekulization", mc);
+         // status += run_test_maybe(filter, test_gaussian_surface_to_map_molecule, "gaussian-surface to map", mc);
+         // status += run_test_maybe(filter, test_density_mesh,          "density mesh",             mc);
+         // status += run_test_maybe(filter, test_molecular_placement_pipeline_r_chain, "MR R-chain", mc);
+         // status += run_test_maybe(filter, test_molecular_placement_pipeline, "MR pipeline", mc);
+         status += run_test_maybe(filter, test_rdkit_mol_pickle, "RDKit Mol Pickle", mc);
          if (status == n_tests) all_tests_status = 0;
 
          print_results_summary();
