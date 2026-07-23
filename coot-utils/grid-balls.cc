@@ -36,12 +36,12 @@ coot::grid_balls_t::get_extents(mmdb::Manager *mol) const {
                   for (int iat=0; iat<n_atoms; iat++) {
                      mmdb::Atom *at = residue_p->GetAtom(iat);
                      if (! at->isTer()) {
-                        if (at->x < mol_x_min) mol_x_min = at->x;
-                        if (at->y < mol_y_min) mol_y_min = at->y;
-                        if (at->z < mol_z_min) mol_z_min = at->z;
-                        if (at->x > mol_x_max) mol_x_max = at->x;
-                        if (at->y > mol_y_max) mol_y_max = at->y;
-                        if (at->z > mol_z_max) mol_z_max = at->z;
+                        if (at->x() < mol_x_min) mol_x_min = at->x();
+                        if (at->y() < mol_y_min) mol_y_min = at->y();
+                        if (at->z() < mol_z_min) mol_z_min = at->z();
+                        if (at->x() > mol_x_max) mol_x_max = at->x();
+                        if (at->y() > mol_y_max) mol_y_max = at->y();
+                        if (at->z() > mol_z_max) mol_z_max = at->z();
                      }
                   }
                }
@@ -253,10 +253,10 @@ namespace {
                          mmdb::Atom *at, const std::string &residue_name) {
       double radius = -1.1;
       if (geom_p)
-         radius = geom_p->get_vdw_radius(std::string(at->name), residue_name,
+         radius = geom_p->get_vdw_radius(std::string(at->GetAtomName()), residue_name,
                                          imol, false); // heavy-atom VdW, as in KVFinder
       if (radius <= 0.0)
-         radius = element_to_vdw_radius(at->element);
+         radius = element_to_vdw_radius(at->GetElementName());
       return static_cast<float>(radius);
    }
 }
@@ -286,7 +286,7 @@ coot::grid_balls_t::brick_the_model(mmdb::Manager *mol) {
                      float radius = atom_vdw_radius(geom_p, imol, at, residue_name);
 
                      // rasterise the VdW sphere into the grid
-                     point_3d_t atom_pos(at->x, at->y, at->z);
+                     point_3d_t atom_pos(at->x(), at->y(), at->z());
                      triple_index_t centre = mol_space_to_grid_point(atom_pos);
                      int ir = static_cast<int>(std::ceil(radius * n_grids_per_angstrom));
                      float radius_sqrd = radius * radius;
@@ -353,7 +353,7 @@ coot::grid_balls_t::make_blocked_grid(float probe_radius) const {
 
                float radius = atom_vdw_radius(geom_p, imol, at, residue_name) + probe_radius;
 
-               point_3d_t atom_pos(at->x, at->y, at->z);
+               point_3d_t atom_pos(at->x(), at->y(), at->z());
                triple_index_t centre = mol_space_to_grid_point(atom_pos);
                int ir = static_cast<int>(std::ceil(radius * n_grids_per_angstrom));
                float radius_sqrd = radius * radius;
@@ -675,7 +675,7 @@ coot::grid_balls_t::compute_lining_residues_for(std::vector<cavity_t> &cavs, flo
                mmdb::Atom *at = residue_p->GetAtom(iat);
                if (at->isTer()) continue;
 
-               point_3d_t ap(at->x, at->y, at->z);
+               point_3d_t ap(at->x(), at->y(), at->z());
                triple_index_t centre = mol_space_to_grid_point(ap);
 
                std::set<int> hit; // labels this atom is in contact with

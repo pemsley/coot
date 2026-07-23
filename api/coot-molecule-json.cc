@@ -22,7 +22,7 @@ std::string coot::molecule_t::get_molecule_selection_as_json(const std::string &
       j["occupancy"] = at->occupancy();
       j["name"] = sn;
       j["element"] = se;
-      j["altLoc"] = std::string(at->altLoc);
+      j["altLoc"] = std::string(at->altLoc());
       return j;
    };
 
