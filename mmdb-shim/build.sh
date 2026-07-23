@@ -37,6 +37,12 @@ $CXX $STD -DCOOT_USE_MMDB_SHIM -I"$HERE/include" -I"$GEMMI" \
   -L"$(brew --prefix gemmi)/lib" -lgemmi_cpp -lz -o "$HERE/test/test_io" \
   && "$HERE/test/test_io" "$PDB" | tail -1
 
+echo "=== audit test (symmetry / LINK / PutAtom / Sort / terminus / contacts via gemmi) ==="
+$CXX $STD -DCOOT_USE_MMDB_SHIM -I"$HERE/include" -I"$GEMMI" \
+  "$HERE/src/io.cc" "$HERE/src/contacts.cc" "$HERE/test/test_audit.cc" \
+  -L"$(brew --prefix gemmi)/lib" -lgemmi_cpp -lz -o "$HERE/test/test_audit" \
+  && "$HERE/test/test_audit" "$HERE/../1hr2_final.pdb" | tail -1
+
 echo "=== leaf integration test (real Coot mmdb idioms vs gemmi ground truth) ==="
 $CXX $STD -DCOOT_USE_MMDB_SHIM -I"$HERE/include" -I"$GEMMI" \
   "$HERE/src/io.cc" "$HERE/test/test_leaf.cc" \
