@@ -51,6 +51,17 @@ from coot_commands.registry import Command, all_commands
 DEFAULT_EMBED_URL = "http://localhost:11434/api/embed"
 DEFAULT_EMBED_MODEL = "embeddinggemma"
 
+# embeddinggemma is trained with task-specific prompt prefixes and scores poorly
+# without them: it embeds a *query* and a *document* asymmetrically, so the same
+# text must be prefixed differently on each side. For retrieval Google specifies
+# "task: search result | query: " for the query and "title: none | text: " for
+# each document. Applying these turns fuzzy near-misses into confident hits (e.g.
+# "Oh no! Go to A 89" then actually surfaces go_to_residue). They are specific to
+# embeddinggemma, so default_retriever() only applies them for that model; a
+# different embedder gets no prefix (or override via the env vars below).
+EMBEDDINGGEMMA_QUERY_PREFIX = "task: search result | query: "
+EMBEDDINGGEMMA_DOCUMENT_PREFIX = "title: none | text: "
+
 # Embed a batch of texts -> one vector per text.
 EmbedFn = Callable[[Sequence[str]], List[List[float]]]
 
@@ -135,23 +146,31 @@ class ToolRetriever:
     *documents* maps a name to its text; *embed_fn* embeds a batch of texts.
     Document embeddings are computed lazily on the first :meth:`select` and
     cached for the retriever's lifetime.
+
+    *query_prefix* / *document_prefix* are prepended to the query and to each
+    document before embedding, for embedders (like embeddinggemma) that expect
+    task-specific prompt prefixes; both default to empty (symmetric embedding).
     """
 
-    def __init__(self, documents: Dict[str, str], embed_fn: EmbedFn) -> None:
+    def __init__(self, documents: Dict[str, str], embed_fn: EmbedFn,
+                 query_prefix: str = "", document_prefix: str = "") -> None:
         self.documents = documents
         self.embed_fn = embed_fn
+        self.query_prefix = query_prefix
+        self.document_prefix = document_prefix
         self._names: Optional[List[str]] = None
         self._vectors: Optional[List[List[float]]] = None
 
     def _ensure_embedded(self) -> None:
         if self._names is None:
             self._names = list(self.documents)
-            self._vectors = self.embed_fn([self.documents[n] for n in self._names])
+            self._vectors = self.embed_fn(
+                [self.document_prefix + self.documents[n] for n in self._names])
 
     def select(self, query: str, k: int) -> List[str]:
         """Return the *k* document names most similar to *query*, best first."""
         self._ensure_embedded()
-        query_vec = self.embed_fn([query])[0]
+        query_vec = self.embed_fn([self.query_prefix + query])[0]
         scored = sorted(
             zip(self._names, self._vectors),
             key=lambda nv: cosine(query_vec, nv[1]),
@@ -165,11 +184,31 @@ class ToolRetriever:
 _default_retriever: Optional[ToolRetriever] = None
 
 
+def _default_prefixes() -> tuple[str, str]:
+    """The (query, document) prefixes for the configured embed model.
+
+    embeddinggemma needs its task prefixes to rank well; other models get none.
+    Either can be overridden with ``COOT_EMBED_QUERY_PREFIX`` /
+    ``COOT_EMBED_DOC_PREFIX`` (set them to empty strings to disable).
+    """
+    model = os.environ.get("COOT_EMBED_MODEL", DEFAULT_EMBED_MODEL)
+    if "embeddinggemma" in model.lower():
+        query, document = EMBEDDINGGEMMA_QUERY_PREFIX, EMBEDDINGGEMMA_DOCUMENT_PREFIX
+    else:
+        query, document = "", ""
+    query = os.environ.get("COOT_EMBED_QUERY_PREFIX", query)
+    document = os.environ.get("COOT_EMBED_DOC_PREFIX", document)
+    return query, document
+
+
 def default_retriever() -> ToolRetriever:
     """The shared retriever over all registered commands (Ollama embeddings)."""
     global _default_retriever
     if _default_retriever is None:
-        _default_retriever = ToolRetriever(command_documents(), ollama_embed)
+        query_prefix, document_prefix = _default_prefixes()
+        _default_retriever = ToolRetriever(
+            command_documents(), ollama_embed,
+            query_prefix=query_prefix, document_prefix=document_prefix)
     return _default_retriever
 
 

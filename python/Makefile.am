@@ -52,6 +52,7 @@ nobase_dist_pkgpython_PYTHON = \
    coot_commands/__init__.py                  \
    coot_commands/registry.py                  \
    coot_commands/completion.py                \
+   coot_commands/ansi.py                      \
    coot_commands/types.py                     \
    coot_commands/gui.py                       \
    coot_commands/docs.py                      \
@@ -59,6 +60,7 @@ nobase_dist_pkgpython_PYTHON = \
    coot_commands/commands/delete.py           \
    coot_commands/commands/display.py          \
    coot_commands/commands/fetch.py            \
+   coot_commands/commands/files.py            \
    coot_commands/commands/view.py             \
    coot_commands/commands/maps.py             \
    coot_commands/commands/navigation.py       \

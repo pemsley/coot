@@ -30,6 +30,7 @@ residue's molecule, and ``resolve_map`` uses the refinement map.
 from __future__ import annotations
 
 import enum
+import os
 from typing import Any, List, Optional
 
 try:
@@ -374,6 +375,52 @@ def molecule_label(value: str) -> str:
     return f"{value} ({name})" if name else value
 
 
+def path_candidates(partial: str) -> List[str]:
+    """Filesystem completions for *partial*, the way a shell would.
+
+    The returned candidates are in the same textual form as *partial* (the
+    typed directory prefix, including any ``~`` or relative part, is kept
+    verbatim) so the completion engine's prefix filter keeps them; the prefix
+    is expanded only to *read* the directory.  Directories gain a trailing
+    ``/`` so a further Tab descends into them.  Matching is case-insensitive
+    to suit the common case-insensitive macOS filesystem, and hidden entries
+    are shown only once the fragment being matched starts with a dot.
+    """
+    partial = partial or ""
+    # Bare "~" -> offer "~/" so the next Tab descends into home.
+    if partial == "~":
+        return ["~/"]
+    # Split into the typed directory prefix (kept verbatim) and the basename
+    # fragment that entries are matched against.
+    sep = partial.rfind("/")
+    dir_prefix = partial[:sep + 1]          # includes trailing "/", or "" if none
+    fragment = partial[sep + 1:]
+    listing_dir = os.path.expanduser(os.path.expandvars(dir_prefix)) or "."
+    try:
+        entries = os.listdir(listing_dir)
+    except OSError:
+        return []
+    show_hidden = fragment.startswith(".")
+    frag_low = fragment.lower()
+    out: List[str] = []
+    for name in entries:
+        if not name.lower().startswith(frag_low):
+            continue
+        if name.startswith(".") and not show_hidden:
+            continue
+        candidate = dir_prefix + name
+        if os.path.isdir(os.path.join(listing_dir, name)):
+            candidate += "/"
+        out.append(candidate)
+    return out
+
+
+def _path_label(value: str) -> str:
+    """The last path component of *value*, keeping a directory's trailing '/'."""
+    name = os.path.basename(value.rstrip("/"))
+    return f"{name}/" if value.endswith("/") else name
+
+
 class ArgType(enum.Enum):
     """The kind of value a command argument accepts.
 
@@ -382,11 +429,16 @@ class ArgType(enum.Enum):
     presses Tab at that argument's position.  Add a member here (and a
     branch in :meth:`candidates`) to teach completion about a new kind of
     argument; commands then opt in with ``arg_types={"group": ArgType.X}``.
+
+    A member whose candidates depend on what the user has typed so far (a
+    filesystem :data:`PATH`) implements :meth:`candidates_for` instead; the
+    completion engine prefers it and passes the partial word.
     """
 
     MODEL = "model"
     MAP = "map"
     COLOUR = "colour"
+    PATH = "path"
 
     def candidates(self) -> List[str]:
         """Return the current completion candidates for this type."""
@@ -396,15 +448,31 @@ class ArgType(enum.Enum):
             return loaded_maps()
         if self is ArgType.COLOUR:
             return colour_names()
+        # PATH has no fixed candidate set - it is completed against the typed
+        # word via candidates_for(); returning [] here also makes the matcher
+        # treat a typed path as a free-form value it need not verify.
         return []
+
+    def candidates_for(self, partial: str) -> List[str]:
+        """Candidates for a *partial* word - path-aware for :data:`PATH`.
+
+        Other types ignore *partial* and fall back to :meth:`candidates`; the
+        engine still prefix-filters the result, so the behaviour is unchanged.
+        """
+        if self is ArgType.PATH:
+            return path_candidates(partial)
+        return self.candidates()
 
     def label(self, value: str) -> str:
         """A display label for a candidate value, shown in Tab completion.
 
         The value inserted into the command line is unchanged; this only
         affects what the user sees in the option list.  Model and map
-        numbers gain their molecule name (e.g. "0 (tutorial-modern)").
+        numbers gain their molecule name (e.g. "0 (tutorial-modern)"); a
+        path shows just its final component.
         """
         if self is ArgType.MODEL or self is ArgType.MAP:
             return molecule_label(value)
+        if self is ArgType.PATH:
+            return _path_label(value)
         return value

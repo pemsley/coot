@@ -116,7 +116,10 @@ def _parse_number(tokens: List[str], start: int) -> Tuple[int, int]:
 
 _POINT = re.compile(r"(\d) (?:point|dot) (\d)", re.IGNORECASE)
 _NEGATIVE = re.compile(r"\b(?:minus|negative|dash) (\d)", re.IGNORECASE)
-_SPACED_SLASH = re.compile(r" ?/ ?")
+# A spaced chain/residue separator ("A / 45" -> "A/45").  Spaces are required
+# on *both* sides so this collapses a spoken/typed chain ref without eating the
+# space in an absolute path ("load /tmp/x.cif" keeps its space).
+_SPACED_SLASH = re.compile(r"(?<=\S) +/ +(?=\S)")
 
 
 def from_speech(text: str) -> str:

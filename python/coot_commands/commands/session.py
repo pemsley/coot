@@ -24,6 +24,7 @@ from __future__ import annotations
 
 from typing import Optional
 
+from coot_commands.ansi import swatch
 from coot_commands.registry import command
 from coot_commands.types import (resolve_model, molecule_name, ArgType,
                                  ACTIVE_MODEL_NOTE, loaded_models, loaded_maps)
@@ -77,8 +78,21 @@ def list_maps(**_: Optional[str]) -> str:
         except Exception:
             is_diff = False
         suffix = " (difference map)" if is_diff else ""
-        lines.append(f"  {imol}: {_name(imol)}{suffix}")
+        lines.append(f"  {imol}: {_swatch(imol)}{_name(imol)}{suffix}")
     return "\n".join(lines)
+
+
+def _swatch(imol: int) -> str:
+    """A coloured swatch (plus trailing space) for a map, or '' if unknown."""
+    try:
+        colours = coot.get_map_colour_py(imol)
+    except Exception:
+        colours = None
+    # get_map_colour_py returns [[r,g,b], [r,g,b]] (the map colour and the
+    # negative-level colour) as 0-1 floats, or False for a non-map molecule.
+    if not colours:
+        return ""
+    return swatch(colours[0]) + " "
 
 
 @command(r"load tutorial(?: (?:model(?: and data)?|data))?",

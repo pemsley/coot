@@ -35,6 +35,8 @@
 
 #include <string>
 #include <vector>
+#include <cctype>
+#include <cstdlib>
 
 #include <fstream>
 
@@ -693,13 +695,117 @@ static std::vector<std::string> command_history;
 static std::size_t command_history_pos = 0;
 static const std::size_t COMMAND_HISTORY_MAX = 100;
 
+// The 8 standard ANSI colours (SGR 30-37) and their bright variants (90-97),
+// used when the command output asks for a named colour. Values roughly match a
+// typical terminal theme.
+static void ansi_standard_colour(int idx, bool bright, GdkRGBA *c) {
+   static const guint8 base[8][3] = {
+      {0,0,0},   {204,0,0},   {78,154,6},  {196,160,0},
+      {52,101,164},{117,80,123},{6,152,154},{211,215,207}};
+   static const guint8 brt[8][3] = {
+      {85,87,83},{239,41,41},{138,226,52},{252,233,79},
+      {114,159,207},{173,127,168},{52,226,226},{238,238,236}};
+   const guint8 (*tbl)[3] = bright ? brt : base;
+   c->red   = tbl[idx][0] / 255.0;
+   c->green = tbl[idx][1] / 255.0;
+   c->blue  = tbl[idx][2] / 255.0;
+   c->alpha = 1.0;
+}
+
+// Parse one SGR parameter string (the bytes between "ESC[" and 'm') and update
+// the running text style. Understands reset (0), bold (1/22), the 8
+// standard/bright foreground colours, and 24-bit "38;2;r;g;b" truecolour -
+// enough for the command interface to colour its output (e.g. the map-colour
+// swatches in "list maps"). Unknown codes are ignored.
+static void apply_sgr(const std::string &params,
+                      bool &have_fg, GdkRGBA &fg, bool &bold) {
+   std::vector<int> codes;
+   std::string tok;
+   const std::string s = params.empty() ? std::string("0") : params;
+   for (char c : s) {
+      if (c == ';') { codes.push_back(tok.empty() ? 0 : atoi(tok.c_str())); tok.clear(); }
+      else tok += c;
+   }
+   codes.push_back(tok.empty() ? 0 : atoi(tok.c_str()));
+
+   for (size_t k = 0; k < codes.size(); k++) {
+      int code = codes[k];
+      if (code == 0)                    { have_fg = false; bold = false; }
+      else if (code == 1)               bold = true;
+      else if (code == 22)              bold = false;
+      else if (code == 39)              have_fg = false;
+      else if (code >= 30 && code <= 37){ ansi_standard_colour(code - 30, false, &fg); have_fg = true; }
+      else if (code >= 90 && code <= 97){ ansi_standard_colour(code - 90, true,  &fg); have_fg = true; }
+      else if (code == 38) {
+         if (k + 4 < codes.size() && codes[k+1] == 2) {   // 38;2;r;g;b truecolour
+            fg.red   = codes[k+2] / 255.0;
+            fg.green = codes[k+3] / 255.0;
+            fg.blue  = codes[k+4] / 255.0;
+            fg.alpha = 1.0;
+            have_fg = true;
+            k += 4;
+         } else if (k + 2 < codes.size() && codes[k+1] == 5) {
+            k += 2;   // 38;5;n 256-colour index - not supported, skip it
+         }
+      }
+   }
+}
+
 static void command_output_append(const std::string &text) {
 
    if (!command_output_view) return;
    GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(command_output_view));
+
+   // Running SGR style, carried across the runs within this append call.
+   bool have_fg = false, bold = false;
+   GdkRGBA fg = {0.0, 0.0, 0.0, 1.0};
    GtkTextIter end;
-   gtk_text_buffer_get_end_iter(buffer, &end);
-   gtk_text_buffer_insert(buffer, &end, text.c_str(), -1);
+   std::string run;
+
+   auto flush = [&]() {
+      if (run.empty()) return;
+      gtk_text_buffer_get_end_iter(buffer, &end);
+      if (have_fg && bold) {
+         GtkTextTag *tag = gtk_text_buffer_create_tag(buffer, nullptr,
+            "foreground-rgba", &fg, "weight", PANGO_WEIGHT_BOLD, nullptr);
+         gtk_text_buffer_insert_with_tags(buffer, &end, run.c_str(), -1, tag, nullptr);
+      } else if (have_fg) {
+         GtkTextTag *tag = gtk_text_buffer_create_tag(buffer, nullptr,
+            "foreground-rgba", &fg, nullptr);
+         gtk_text_buffer_insert_with_tags(buffer, &end, run.c_str(), -1, tag, nullptr);
+      } else if (bold) {
+         GtkTextTag *tag = gtk_text_buffer_create_tag(buffer, nullptr,
+            "weight", PANGO_WEIGHT_BOLD, nullptr);
+         gtk_text_buffer_insert_with_tags(buffer, &end, run.c_str(), -1, tag, nullptr);
+      } else {
+         gtk_text_buffer_insert(buffer, &end, run.c_str(), -1);
+      }
+      run.clear();
+   };
+
+   size_t i = 0, n = text.size();
+   while (i < n) {
+      if ((unsigned char) text[i] == 0x1b && i + 1 < n && text[i+1] == '[') { // CSI
+         size_t j = i + 2;
+         std::string params;
+         while (j < n && (isdigit((unsigned char) text[j]) || text[j] == ';')) {
+            params += text[j];
+            j++;
+         }
+         if (j < n && text[j] == 'm') {   // SGR - the only CSI we interpret
+            flush();
+            apply_sgr(params, have_fg, fg, bold);
+            i = j + 1;
+            continue;
+         }
+         // Some other or malformed escape: drop it (up to and incl. final byte).
+         i = (j < n) ? j + 1 : n;
+         continue;
+      }
+      run += text[i];
+      i++;
+   }
+   flush();
 
    // Scroll so the newly-inserted text is visible
    gtk_text_buffer_get_end_iter(buffer, &end);

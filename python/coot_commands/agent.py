@@ -64,8 +64,10 @@ from coot_commands.tools import command_tools, custom_tools, execute_tool
 DEFAULT_URL = "http://localhost:11434/v1/chat/completions"
 DEFAULT_MODEL = "gemma4"
 # How many commands to expose per request when retrieval is on.  A small model
-# chooses far better from ~12 tools than from all ~90; see coot_commands.retrieval.
-DEFAULT_TOP_K = 12
+# chooses far better from a handful of tools than from all ~90; see
+# coot_commands.retrieval.  16 keeps the surface small while leaving margin so a
+# common intent phrased with filler ("Oh no! go to A 89") still clears the cut.
+DEFAULT_TOP_K = 16
 
 # A message-producing transport: given the running message list and the tool
 # definitions, return the assistant's reply message (the OpenAI
