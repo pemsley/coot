@@ -161,11 +161,11 @@ def dispatch(text: str) -> Optional[str]:
     """
 
     # 20260720-PE not ready yet
-    # from coot_commands.speech import from_speech
-    # norm = normalise(from_speech(text))
-    # for cmd in _COMMANDS:
-    #     match = cmd.regex.match(norm)
-    #    if match:
-    #        return cmd.handler(**match.groupdict())
+    from coot_commands.speech import from_speech
+    norm = normalise(from_speech(text))
+    for cmd in _COMMANDS:
+        match = cmd.regex.match(norm)
+        if match:
+           return cmd.handler(**match.groupdict())
 
     return None
