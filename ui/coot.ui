@@ -282,6 +282,10 @@
           <attribute name="action">app.load_tutorial_model_and_data_action</attribute>
         </item>
         <item>
+          <attribute name="label">Ligand → 2D</attribute>
+          <attribute name="action">app.ligand_builder_residue_to_2d_action</attribute>
+        </item>
+        <item>
           <attribute name="label">Ligand Builder...</attribute>
           <attribute name="action">app.ligand_builder_action</attribute>
         </item>
@@ -350,11 +354,6 @@
         <!-- <item> -->
         <!--   <attribute name="label">Map Skeleton...</attribute> -->
         <!-- </item> -->
-
-        <item>
-          <attribute name="label">Residue → 2D</attribute>
-          <attribute name="action">app.ligand_builder_residue_to_2d_action</attribute>
-        </item>
 
         <item>
           <attribute name="label">Run Script...</attribute>
