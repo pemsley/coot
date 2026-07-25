@@ -260,7 +260,7 @@ extern "C" G_MODULE_EXPORT
 void
 layla_on_show_alerts_toggled(GtkCheckButton* check_button, gpointer user_data) {
     CootLigandEditorCanvas* canvas = GET_CANVAS();
-    g_warning("TODO: Implement 'Show Alerts'");
+    coot_ligand_editor_canvas_set_show_alerts(canvas, gtk_check_button_get_active(check_button));
 }
 
 extern "C" G_MODULE_EXPORT

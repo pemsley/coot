@@ -1512,9 +1512,10 @@ Add a new atom or replace an existent atom with the chosen element.
                 <signal name="toggled" handler="layla_on_coordgen_toggled" swapped="no" object="layla_window" />
               </object>
             </child>
-            <!-- <child>
+            <child>
               <object class="GtkCheckButton" id="layla_show_alerts_checkbutton">
                 <property name="label">Show Alerts</property>
+                <property name="tooltip-markup">Highlight atoms belonging to structural-alert (reactive/undesirable) groups. Hover the canvas to see which alerts were found.</property>
                 <property name="margin-end">10</property>
                 <layout>
                   <property name="column">0</property>
@@ -1524,7 +1525,7 @@ Add a new atom or replace an existent atom with the chosen element.
                 </layout>
                 <signal name="toggled" handler="layla_on_show_alerts_toggled" swapped="no" object="layla_window" />
               </object>
-            </child> -->
+            </child>
           </object>
         </child>
         <child>

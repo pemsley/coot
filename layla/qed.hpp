@@ -35,6 +35,7 @@
 #include <memory>
 #include <vector>
 #include <optional>
+#include <string>
 #include <rdkit/GraphMol/RWMol.h>
 
 namespace coot::layla::RDKit {
@@ -81,11 +82,21 @@ class QED {
     static const std::unique_ptr<const ::RDKit::ROMol> AliphaticRings;
     static const std::vector<std::unique_ptr<const ::RDKit::ROMol>> Acceptors;
     static const std::vector<std::unique_ptr<const ::RDKit::ROMol>> StructuralAlerts;
-    
+    /// Human-readable names for each entry in `StructuralAlerts` (same order and
+    /// length). Transferred from the old lbg `alerts-list.cc`. An empty string
+    /// means no descriptive name is known for that pattern.
+    static const std::vector<std::string> StructuralAlertNames;
+
     /// Indexed via QEDPropName enum
     static const std::vector<ADSparameter> adsParameters;
 
     public:
+
+   /// Accessors for the (private) structural-alert patterns and their names.
+   /// Both vectors are index-aligned and of equal length. Used by the canvas
+   /// "Show Alerts" feature.
+   static const std::vector<std::unique_ptr<const ::RDKit::ROMol>>& get_structural_alerts();
+   static const std::vector<std::string>& get_structural_alert_names();
 
    struct QED_and_ads_t {
       double qed_score;

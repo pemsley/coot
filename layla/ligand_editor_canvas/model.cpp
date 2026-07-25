@@ -33,6 +33,7 @@
 #include <rdkit/GraphMol/Depictor/RDDepictor.h>
 #include <rdkit/GraphMol/Chirality.h>
 #include <rdkit/GraphMol/Substruct/SubstructMatch.h>
+#include <rdkit/GraphMol/SmilesParse/SmartsWrite.h>
 #include <rdkit/Geometry/point.h>
 #include <GraphMol/Chirality.h>
 #include <rdkit/GraphMol/MolOps.h>
@@ -205,6 +206,10 @@ std::tuple<float,float,float> CanvasMolecule::hightlight_to_rgb(CanvasMolecule::
         case CanvasMolecule::HighlightType::Selection: {
             return std::make_tuple(0.0, 0.75, 1.0);
         }
+        case CanvasMolecule::HighlightType::Alert: {
+            // Amber/orange, to stand apart from the red Error highlight.
+            return std::make_tuple(1.0, 0.55, 0.0);
+        }
         default:
         case CanvasMolecule::HighlightType::Hover: {
             return std::make_tuple(0.0, 1.0, 0.5);
@@ -228,6 +233,10 @@ std::optional<CanvasMolecule::HighlightType> CanvasMolecule::determine_dominant_
         return HighlightType::Selection;
     } else if(has_highlight(HighlightType::Error)) {
         return HighlightType::Error;
+    } else if(has_highlight(HighlightType::Alert)) {
+        // Lowest priority: interaction/error highlights still show through
+        // while the user is editing an atom that also carries an alert.
+        return HighlightType::Alert;
     }
     return std::nullopt;
 }
@@ -1067,6 +1076,67 @@ void CanvasMolecule::lower_from_rdkit(bool sanitize_after, bool use_coordgen, co
     }
     // Process problematic areas
     this->process_problematic_areas(!sanitize_after);
+
+    // Structural-alert highlighting. Recomputed here so that it stays in sync
+    // with the molecule after every edit (build_internal_molecule_representation
+    // resets all highlights to 0). Only runs when the user has enabled it.
+    this->matched_alert_names.clear();
+    if (this->draw_alerts) {
+        this->apply_alert_highlights();
+    }
+}
+
+void CanvasMolecule::apply_alert_highlights() {
+    if (!this->rdkit_molecule) {
+        return;
+    }
+    const auto& alerts = coot::layla::RDKit::QED::get_structural_alerts();
+    const auto& alert_names = coot::layla::RDKit::QED::get_structural_alert_names();
+    try {
+        for (unsigned int ipat = 0; ipat < alerts.size(); ipat++) {
+            const auto& pattern = alerts[ipat];
+            if (!pattern) {
+                continue;
+            }
+            std::vector<::RDKit::MatchVectType> matches;
+            unsigned int n = ::RDKit::SubstructMatch(*this->rdkit_molecule, *pattern, matches);
+            if (n == 0) {
+                continue;
+            }
+            // Record a human-readable name for this alert (fall back to the
+            // SMARTS itself when no descriptive name was transferred).
+            std::string name;
+            if (ipat < alert_names.size() && !alert_names[ipat].empty()) {
+                name = alert_names[ipat];
+            } else {
+                name = ::RDKit::MolToSmarts(*pattern);
+            }
+            this->matched_alert_names.insert(name);
+            // Flag every matched atom (pair.second is the molecule atom index).
+            for (const auto& match : matches) {
+                for (const auto& query_to_mol : match) {
+                    int mol_idx = query_to_mol.second;
+                    if (mol_idx >= 0 && static_cast<std::size_t>(mol_idx) < this->atoms.size()) {
+                        this->add_atom_highlight(mol_idx, HighlightType::Alert);
+                    }
+                }
+            }
+        }
+    } catch (const std::exception& e) {
+        g_warning("apply_alert_highlights(): structural-alert matching failed: %s", e.what());
+    }
+}
+
+void CanvasMolecule::set_draw_alerts(bool enabled) noexcept {
+    this->draw_alerts = enabled;
+}
+
+bool CanvasMolecule::get_draw_alerts() const noexcept {
+    return this->draw_alerts;
+}
+
+const std::set<std::string>& CanvasMolecule::get_matched_alert_names() const noexcept {
+    return this->matched_alert_names;
 }
 
 void CanvasMolecule::process_problematic_areas(bool allow_invalid_molecules) {
