@@ -1,5 +1,11 @@
 --- Items---
 
+o think about adding extra residue to the ligand figures in ospray
+
+o read in a molecule with a new ligand e.g. 9ymp -> Fetch PDBe Ligand Description
+Ligand goes here: /home/paule/.local/share/A1AG3.cif
+Ahahaha! because I have (incorrectly?) set XDG_DATA_HOME
+
 o "Send to CCP4i2" button replaces "Generate Restraints"
   with command line option to layla.
 

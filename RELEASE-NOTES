@@ -24,6 +24,9 @@
  o BUG-FIX:  Now we use the user-defined colour for symmetry-related
              atoms
 
+ o BUG-FIX:  Fix crash when using Flatpak binary on contact dots for a
+             molecule without contacts [Jiang Haizhu]
+
 -----
 
   Release Notes for 1.3.1

@@ -90,11 +90,11 @@ coot::hole::assign_vdw_radii(const coot::protein_geometry &geom) {
                   mmdb::realtype radius = 1.7;
                    if (ele == " N")
                       radius = 1.55;
-                   if (ele == " 0")
+                   if (ele == " O")
                       radius = 1.52;
                    if (ele == " H")
                       radius = 1.2;
-                  at->PutUDData(radius_handle, radius); 
+                  at->PutUDData(radius_handle, radius);
                }
             }
          }

@@ -48,6 +48,8 @@
 #include "add-terminal-residue.hh"
 #include "molecules-container.hh"
 
+#include "coot-utils/grid-balls.hh"
+
 
 bool
 coot::molecule_t::is_valid_model_molecule() const {
@@ -5542,5 +5544,52 @@ coot::molecule_t::get_test_function_on_surface_mesh(const std::string &cid,
    float height_scale = 0.3f;
    simple_mesh_t mesh = make_surface_on_torus(rama_data, R, r, height_scale);
    return mesh;
+
+}
+
+std::vector<coot::simple_mesh_t> coot::molecule_t::get_cavities(const protein_geometry *geom_p) const {
+
+   std::vector<simple_mesh_t> cavity_meshes;
+
+   // geom.init_refmac_mon_lib("PC1.cif", read_number); need PC1 for testing.
+   // but do it in python
+
+   int imol = 0;
+   grid_balls_t gb(imol, atom_sel.mol, geom_p, 1.4, 4.5);
+   gb.write_cavity_points("cavity-points.table");
+   gb.write_subpocket_points("subpocket-points.table");
+
+   // A Gaussian surface for each (non-trivial) cavity: build an mmdb molecule from
+   // the cavity's grid points (create_mmdbmanager_from_points() uses chain "A"), then
+   // contour it. Skip tiny cavities that can't make a meaningful surface.
+   const std::string chain_id = "A";
+   float sigma = 2.0;
+   float contour_level = 1.0;
+   float box_radius = 3.0;
+   float grid_scale = 1.0;
+   float b_factor = 60.0;
+   unsigned int min_points_for_mesh = 20;
+
+   for (unsigned int ic=0; ic<gb.cavities.size(); ic++) {
+      const coot::grid_balls_t::cavity_t &cav = gb.cavities[ic];
+      if (cav.grid_indices.size() < min_points_for_mesh) continue;
+
+      std::vector<clipper::Coord_orth> pts;
+      pts.reserve(cav.grid_indices.size());
+      for (unsigned int i=0; i<cav.grid_indices.size(); i++) {
+         coot::grid_balls_t::point_3d_t p =
+            gb.grid_point_to_mol_space(gb.deindex(cav.grid_indices[i]));
+         pts.push_back(clipper::Coord_orth(p.x, p.y, p.z));
+      }
+
+      mmdb::Manager *cav_mol = coot::util::create_mmdbmanager_from_points(pts, b_factor);
+      cav_mol->FinishStructEdit();
+      gaussian_surface_t gauss_surf(cav_mol, chain_id, sigma, contour_level,
+                                    box_radius, grid_scale, b_factor);
+      cavity_meshes.push_back(gauss_surf.get_surface());
+      delete cav_mol;
+   }
+
+   return cavity_meshes;
 
 }

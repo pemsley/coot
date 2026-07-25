@@ -855,6 +855,8 @@ namespace coot {
 
       void clear_residue_properties();
 
+      std::vector<simple_mesh_t> get_cavities(const protein_geometry *geom_p) const;
+
       simple_mesh_t get_gaussian_surface(float sigma, float contour_level,
                                          float box_radius, float grid_scale, float fft_b_factor) const;
 

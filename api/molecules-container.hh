@@ -1395,6 +1395,12 @@ public:
                                           float sigma, float box_radius,
                                           float grid_scale, float fft_b_factor);
 
+   //! get cavities - current a testing function - has no return value
+   //!
+   //! could be a set of simple_mesh_t later
+   //!
+   std::vector<coot::simple_mesh_t> get_cavities(int imol);
+
    //! Get chemical features for the specified residue
    //!
    //! @param imol is the model molecule index
