@@ -1,14 +1,24 @@
 
-"""Write a minimal CCD-style mmCIF (acedrg input) directly from an RDKit mol,
-using gemmi. Atom names come from the mol's `name` prop."""
+"""Convert an RDKit pickle (written by Layla/Coot) into a CCD-style mmCIF for
+acedrg, preserving atom names, the compound id (the mol's ResName property) and
+the original 2D depiction. Uses gemmi; no pdbeccdutils.
+
+Usage: convert-pkl-to-mmcif.py INPUT.pkl [OUTPUT.cif]
+       (OUTPUT defaults to <ResName>.cif)"""
+import argparse
 import gemmi
 from rdkit import Chem
 from rdkit.Chem import AllChem
 from rdkit.Chem.Draw import rdMolDraw2D
 
-fn  = "thing.pkl"
-out = "thing.cif"
+ap = argparse.ArgumentParser(
+    description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+ap.add_argument("input", help="input RDKit pickle (.pkl)")
+ap.add_argument("output", nargs="?", default=None,
+                help="output mmCIF (.cif); defaults to <ResName>.cif")
+args = ap.parse_args()
 
+fn = args.input
 mol = Chem.Mol(open(fn, "rb").read())
 
 # The compound id (three-letter-code) rides along on the molecule as the
@@ -19,6 +29,9 @@ ccd_id = mol.GetProp("ResName").strip() if mol.HasProp("ResName") else ""
 if not ccd_id:
     ccd_id = "LIG"
     print("warning: mol has no ResName property; falling back to id 'LIG'")
+
+# Output path: explicit CLI arg wins, otherwise name the file after the compound.
+out = args.output if args.output else ccd_id + ".cif"
 
 # Capture Layla's own 2D sketch BEFORE we touch the mol. This might be the
 # hand-drawn layout and is the depiction we care about most, and it is written
@@ -118,17 +131,17 @@ for b in mol.GetBonds():
 # Written from Layla's hand-drawn layout (mol2d), NOT a recomputed one. Mirrors
 # pdbeccdutils' _pdbe_chem_comp_atom_depiction / _bond_depiction categories.
 # mol2d holds only the drawn heavy atoms (no explicit H), which is exactly what
-# a 2D depiction shows; every atom already carries its Coot/Layla name.
-def dname(atom):
-    return atom.GetProp("name").strip()
-
+# a 2D depiction shows. Its atom indices line up with the heavy atoms of the
+# working mol, so we reuse names[] here too: an atom the user left unnamed in
+# Layla gets the same generated name as in the tables above, instead of crashing
+# the depiction on a missing "name" property.
 conf2d = mol2d.GetConformer()
 atom_dep = blk.init_loop("_pdbe_chem_comp_atom_depiction.", [
     "comp_id", "atom_id", "element", "model_Cartn_x", "model_Cartn_y",
     "pdbx_ordinal"])
 for i, a in enumerate(mol2d.GetAtoms()):
     p = conf2d.GetAtomPosition(i)
-    atom_dep.add_row([ccd_id, dname(a), a.GetSymbol(),
+    atom_dep.add_row([ccd_id, names[i], a.GetSymbol(),
                       f"{p.x:.3f}", f"{p.y:.3f}", str(i + 1)])
 
 # Wedge/hash bond directions for the drawing, derived from the 2D layout +
@@ -155,7 +168,7 @@ for b in drawmol.GetBonds():
     if a1.GetSymbol() == "H" or a2.GetSymbol() == "H":
         continue
     dep_ordinal += 1
-    bond_dep.add_row([ccd_id, dname(a1), dname(a2),
+    bond_dep.add_row([ccd_id, names[a1.GetIdx()], names[a2.GetIdx()],
                       b.GetBondType().name, b.GetBondDir().name, str(dep_ordinal)])
 
 doc.write_file(out)
