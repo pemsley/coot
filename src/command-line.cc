@@ -68,6 +68,41 @@
 #include "command-line.hh"
 
 
+void print_help() {
+
+   std::cout << std::endl
+             << "Usage: coot [--pdb pdb-file-name]\n"
+             << "            [--coords pdb/cif/shelx-filename]\n"
+             << "            [--map ccp4-map-file-name]\n"
+             << "            [--data mtz-file-name]\n"
+             << "            [--hklin mtz-file-name]\n"
+             << "            [--auto mtz-file-name]\n"
+             << "            [--dictionary cif-dictionary-file-name]\n"
+             << "            [--dictionary-with-mol cif-dictionary-file-name]\n"
+             << "            [--script script-file-name]\n"
+             << "            [--em]\n"
+             << "            [--title some-title]\n"
+             << "            [--command command-script]\n"
+             << "            [--command-terminal]\n"
+             << "            [--small-screen]\n"
+             << "            [--splash-screen]\n"
+             << "            [--stereo]\n"
+      //       << "            [--zalman-stereo]\n"
+      //       << "            [--side-by-side]\n"
+             << "            [--version]\n"
+             << "            [--show-ccp4i2-save-button]\n"
+             << "            [--self-test]\n"
+             << "            [--no-state-script]\n"
+             << "            [--no-startup-scripts]\n"
+             << "            [--no-splash-screen]\n"
+             << "            [--opengl-es]\n"
+             << "            [--no-graphics]\n"
+             << "            [--no-guano]\n"
+             << std::endl;
+
+}
+
+
 command_line_data
 parse_command_line(int argc, char ** argv ) {
 
@@ -86,7 +121,7 @@ parse_command_line(int argc, char ** argv ) {
    *
    */
 
-   const char *optstr = "p:m:d:s:c:";
+   const char *optstr = "p:m:d:s:c:h";
 
      /*
    * getopt(3) takes our argc, and argv, it also takes
@@ -244,35 +279,7 @@ parse_command_line(int argc, char ** argv ) {
 		  // Thanks for suggesting this Ezra.
 		  //
 		  if (arg_str == "help") {
-		     std::cout << std::endl
-			       << "Usage: coot [--pdb pdb-file-name]\n"
-			       << "            [--coords pdb/cif/shelx-filename]\n"
-			       << "            [--map ccp4-map-file-name]\n"
-			       << "            [--data mtz-file-name]\n"
-			       << "            [--hklin mtz-file-name]\n"
-			       << "            [--auto mtz-file-name]\n"
-			       << "            [--dictionary cif-dictionary-file-name]\n"
-			       << "            [--dictionary-with-mol cif-dictionary-file-name]\n"
-			       << "            [--script script-file-name]\n"
-			       << "            [--em]\n"
-			       << "            [--title some-title]\n"
-			       << "            [--command command-script]\n"
-			       << "            [--command-terminal]\n"
-			       << "            [--small-screen]\n"
-			       << "            [--splash-screen]\n"
-			       << "            [--stereo]\n"
-                //	       << "            [--zalman-stereo]\n"
-                //             << "            [--side-by-side]\n"
-			       << "            [--version]\n"
-			       << "            [--show-ccp4i2-save-button]\n"
-			       << "            [--self-test]\n"
-			       << "            [--no-state-script]\n"
-			       << "            [--no-startup-scripts]\n"
-			       << "            [--no-splash-screen]\n"
-			       << "            [--opengl-es]\n"
-			       << "            [--no-graphics]\n"
-			       << "            [--no-guano]\n"
-			       << std::endl;
+                     print_help();
 		     coot_no_state_real_exit(0); // merge conflict resolved 4c1ace414
 		  } else {
 
@@ -425,6 +432,11 @@ parse_command_line(int argc, char ** argv ) {
             std::cout << "command coot_optarg is NULL " << std::endl;
          }
 	 break;
+
+      case 'h':
+         print_help();
+         coot_no_state_real_exit(0); // like --help
+         break;
 
       case '?':
 	 std::cout << "Unrecognised option: " << optopt << std::endl;
