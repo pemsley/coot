@@ -1096,6 +1096,9 @@ molecule_class_info_t::get_bond_colour_basic(int colour_index, bool against_a_da
       case GREEN_BOND:
          col = coot::colour_t (0.0, 0.7, 0.0);
          break;
+      case GREEN_BUT_SLIGHTLY_BLUE_BOND:
+         col = coot::colour_t (0.0, 0.7, 0.4);
+         break;
       case BLUE_BOND:
          col = coot::colour_t (0.2, 0.2, 0.8);
          break;
@@ -1217,6 +1220,9 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int colour_index, bool against_
             case GREEN_BOND:
                rgb[0] = 0.2; rgb[1] =  0.9; rgb[2] =  0.2;
                break;
+            case GREEN_BUT_SLIGHTLY_BLUE_BOND:
+               rgb[0] = 0.2; rgb[1] =  0.7; rgb[2] =  0.4;
+               break;
             case GREY_BOND:
                rgb[0] = 0.6; rgb[1] =  0.6; rgb[2] =  0.6;
                break;
@@ -1285,6 +1291,9 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int colour_index, bool against_
                break;
             case GREEN_BOND:
                rgb[0] = 0.05; rgb[1] =  0.6; rgb[2] =  0.05;
+               break;
+            case GREEN_BUT_SLIGHTLY_BLUE_BOND:
+               rgb[0] = 0.05; rgb[1] =  0.55; rgb[2] =  0.15;
                break;
             case GREY_BOND:
                rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  0.5;
@@ -1880,6 +1889,11 @@ molecule_class_info_t::set_symm_bond_colour_mol(int icol) {
                     combine_colour(0.8,1),
                     combine_colour(0.1,2));
          break;
+      case GREEN_BUT_SLIGHTLY_BLUE_BOND:
+         glColor3f (combine_colour(0.1,0),
+                    combine_colour(0.7,1),
+                    combine_colour(0.2,2));
+         break;
       case BLUE_BOND:
          glColor3f (combine_colour(0.2,0),
                     combine_colour(0.2,1),
@@ -1936,6 +1950,13 @@ molecule_class_info_t::set_symm_bond_colour_mol_rotate_colour_map(int icol, int 
       t_colours[0] = combine_colour(0.1, 0);
       t_colours[1] = combine_colour(0.8, 1);
       t_colours[2] = combine_colour(0.1, 2);
+      rgb_new = rotate_rgb(t_colours, rotation_size);
+      glColor3f (rgb_new[0], rgb_new[1], rgb_new[2]);
+      break;
+   case GREEN_BUT_SLIGHTLY_BLUE_BOND:
+      t_colours[0] = combine_colour(0.1, 0);
+      t_colours[1] = combine_colour(0.7, 1);
+      t_colours[2] = combine_colour(0.2, 2);
       rgb_new = rotate_rgb(t_colours, rotation_size);
       glColor3f (rgb_new[0], rgb_new[1], rgb_new[2]);
       break;

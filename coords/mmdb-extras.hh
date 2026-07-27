@@ -76,6 +76,7 @@ enum bond_colours { CARBON_BOND, YELLOW_BOND, RED_BOND, BLUE_BOND, GREEN_BOND, M
 		    DARK_BROWN_BOND, DARK_GREEN_BOND, DARK_ORANGE_BOND, DEUTERIUM_PINK,
                     DARK_VIOLET, // I
                     VIOLET, // Li, NA, K, Rb, Cs, Fr
+                    GREEN_BUT_SLIGHTLY_BLUE_BOND, // 2026-07-23-PE for F
                     BORON_PINK=1002
 };
 
