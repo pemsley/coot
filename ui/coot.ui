@@ -17069,7 +17069,9 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
   </object>
 
   <object class="GtkWindow" id="show_symmetry_window">
-    <property name="title" translatable="yes">Coot: Show Symmetry &amp; Unit Cell</property>
+    <property name="title" translatable="yes">Coot: Symmetry &amp; Unit Cell</property>
+    <!-- hide (don't destroy) on window-manager close, so it can be re-shown -->
+    <property name="hide-on-close">True</property>
     <child>
       <object class="GtkBox" id="vbox10">
         <property name="orientation">vertical</property>
@@ -17420,8 +17422,6 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
           </object>
         </child>
       </object>
-    </child>
-    <child type="titlebar">
     </child>
   </object>
 
