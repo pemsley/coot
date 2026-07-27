@@ -1,5 +1,10 @@
 --- Items---
 
+o change difference map peaks buttons and blobs to togglebuttons so they are
+  visually distinct on "click"
+
+o add some sort of help/search in the python scripting.
+
 o think about adding extra residue to the ligand figures in ospray
 
 o read in a molecule with a new ligand e.g. 9ymp -> Fetch PDBe Ligand Description
