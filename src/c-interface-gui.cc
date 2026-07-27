@@ -4433,12 +4433,16 @@ void store_fixed_atom_dialog(GtkWidget *w) {
 void fill_chi_angles_vbox(GtkWidget *vbox) {
 
    graphics_info_t g;
-   gchar *strval = (gchar *) g_object_get_data(G_OBJECT(vbox), "strval");
-   if (strval) {
-      std::string s(strval);
+
+   // the residue type was stashed on the vbox (under "res_type") when the
+   // edit-chi-angles dialog was created - see
+   // graphics_info_t::wrapped_create_edit_chi_angles_dialog().
+   gchar *res_type_str = static_cast<gchar *>(g_object_get_data(G_OBJECT(vbox), "res_type"));
+   if (res_type_str) {
+      std::string s(res_type_str);
       g.fill_chi_angles_vbox(vbox, s, graphics_info_t::EDIT_CHI);
    } else {
-      std::cout << "ERROR:: in fill_chi_angles_vbox(): null strval" << std::endl;
+      std::cout << "ERROR:: in fill_chi_angles_vbox(): null res_type from vbox - no fill" << std::endl;
    }
 }
 
@@ -4457,7 +4461,7 @@ GtkWidget *wrapped_create_add_additional_representation_gui() {
 
       graphics_info_t g;
       w = widget_from_builder("add_reps_dialog");
-      
+
       // GtkWidget *combobox = lookup_widget(w, "add_reps_molecule_combobox");
       GtkWidget *combobox = widget_from_builder("add_reps_molecule_combobox");
 

@@ -4881,6 +4881,7 @@ that you wish to delete.               </property>
 
   <object class="GtkDialog" id="edit_chi_angles_dialog">
     <property name="title" translatable="yes">Coot: Edit Chi Angles</property>
+    <property name="width-request">344</property> <!-- hand-tuned -->
     <signal name="destroy" handler="on_edit_chi_angles_dialog_destroy" swapped="no"/>
     <child>
       <object class="GtkBox" id="dialog-vbox37">
