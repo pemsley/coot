@@ -5726,11 +5726,17 @@ int n_rotamers(int imol, const char *chain_id, int resno, const char *ins_code);
 int set_residue_to_rotamer_number(int imol, const char *chain_id, int resno, const char *ins_code,
 				  const char *alt_conf, int rotamer_number);
 
-/*! \brief set the residue specified to the rotamer name specified.
+/*! \brief set the residue specified to the rotamer name specified
 
-(rotamer names are the Richardson rotamer names.)
+Note that the rotamer names are the Richardson rotamer names.
 
-return value is 0 if atoms were not moved (e.g. because rotamer-name was not know)
+   @param imol the molecule index
+   @param chain_id the chain-id
+   @parma resno the residue number
+   @param ins_code the insertion code
+   @param alt_conf the alt-conf
+   @param rotamer_name the name of the rotamer
+   @return value is 0 if atoms were not moved (e.g. because rotamer-name was not know)
 */
 int set_residue_to_rotamer_name(int imol, const char *chain_id, int resno, const char *ins_code,
 				const char *alt_conf, const char *rotamer_name);

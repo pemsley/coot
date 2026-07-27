@@ -5563,12 +5563,12 @@ std::vector<coot::simple_mesh_t> coot::molecule_t::get_cavities(const protein_ge
    // the cavity's grid points (create_mmdbmanager_from_points() uses chain "A"), then
    // contour it. Skip tiny cavities that can't make a meaningful surface.
    const std::string chain_id = "A";
-   float sigma = 2.0;
-   float contour_level = 1.0;
-   float box_radius = 3.0;
-   float grid_scale = 1.0;
-   float b_factor = 60.0;
-   unsigned int min_points_for_mesh = 20;
+   float sigma         = 1.2;
+   float contour_level = 3.2;
+   float box_radius    = 3.0;
+   float grid_scale    = 2.0;
+   float b_factor      = 2.0;
+   unsigned int min_points_for_mesh = 50;
 
    for (unsigned int ic=0; ic<gb.cavities.size(); ic++) {
       const coot::grid_balls_t::cavity_t &cav = gb.cavities[ic];

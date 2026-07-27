@@ -26,6 +26,8 @@ o add servalcat_refine_xray_with_keywords
   int servalcat_refine_xray_with_keywords(int imol, int imol_map, const std::string &output_prefix,
                                           const std::string &keyword_pairs_json)
 
+o Add clashes (optionally) to flev
+
 o look at 5moo - colour by chain ligand WOT. The hydrogen atoms are actually deuterium atoms -
   and they are not in the dictionary.
 * Too esoteric and difficult to fix.
@@ -54,6 +56,8 @@ o fix this in cif parser:
 
 o make some CA models and write a script to convert that to
   full model (without a map)
+
+o write a function that makes a helix or strand given an input sequence
 
 o fix make_all_atom_overlaps for chapi
 

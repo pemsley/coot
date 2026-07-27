@@ -240,6 +240,7 @@ molecules_container_t::ray_trace_image(const std::string &json_str) {
    std::vector<std::string> ordered_keys, map_keys, other_keys;
    for (auto &[key, mol_params] : j["molecules"].items()) {
       int imol = std::stoi(key);
+      if (imol < 0) continue;   // silently skip sentinel indices (e.g. -1 from a missing file)
       if (is_valid_model_molecule(imol))    ordered_keys.push_back(key);
       else if (is_valid_map_molecule(imol)) map_keys.push_back(key);
       else                                  other_keys.push_back(key);
