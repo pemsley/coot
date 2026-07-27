@@ -3771,7 +3771,6 @@ void glyco_lma_action(G_GNUC_UNUSED GSimpleAction *simple_action,
       std::pair<int, mmdb::Atom *> aa = g.get_active_atom();
       int imol = aa.first;
       if (is_valid_model_molecule(imol)) {
-         std::cout << "add " << tla << " with link " << link_type << std::endl;
 
          set_refine_with_torsion_restraints(1);
          mmdb::Atom *at = aa.second;

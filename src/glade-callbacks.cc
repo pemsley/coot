@@ -7428,10 +7428,8 @@ on_glyco_lma_reduce_options_button_clicked(GtkButton *button, gpointer user_data
       if (residue_p) {
          mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
          coot::glyco_tree_t gt(residue_p, mol, g.Geom_p());
-
-         std::cout << "---------------------------- glyco-tree --------------------" << std::endl;
-         gt.print();
-         std::cout << "------------------------------------------------------------" << std::endl;
+         if (false)
+            gt.print();
          coot::glyco_tree_t::residue_id_t id = gt.get_id(residue_p);
          if (! id.res_type.empty()) {
             level = id.level;
