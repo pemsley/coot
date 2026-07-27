@@ -5785,7 +5785,7 @@ void graphics_info_t::setup_draw_for_bad_nbc_atom_pair_dashed_line() {
       logger.log(log_t::WARNING, logging::function_name_t("setup_draw_for_bad_nbc_atom_pair_dashed_line"),
                  "---start---", stringify_error_code(err));
 
-   attach_buffers();
+   // attach_buffers(); 2026-07-21-PE - not needed, causes GL error in fact.
    cylinder c;
    c.init_unit(20);
    c.add_flat_end_cap();
@@ -5794,6 +5794,7 @@ void graphics_info_t::setup_draw_for_bad_nbc_atom_pair_dashed_line() {
    bad_nbc_atom_pair_dashed_line.set_name("bad_nbc_atom_pair_dashed_line Mesh");
    bad_nbc_atom_pair_dashed_line.setup_buffers();
 
+   err = glGetError();
    if (err)
       logger.log(log_t::WARNING, logging::function_name_t("setup_draw_for_bad_nbc_atom_pair_dashed_line"),
                  "---end---", stringify_error_code(err));

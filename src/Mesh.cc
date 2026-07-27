@@ -31,7 +31,7 @@
 #include <chrono>
 #include "stereo-eye.hh"
 
-#ifdef USE_BACKWARD
+ #ifdef USE_BACKWARD
 #include <utils/backward.hpp>
 #endif
 
@@ -820,17 +820,20 @@ Mesh::setup_buffers() {
                 << std::endl;
 #endif
 
+#if 0
+#if USE_BACKWARD
+      // from where was this called then?
+      std::cout << "debug:: Mesh::setup_buffers() ---- stacktrace ---- " << name << std::endl;
+      backward::StackTrace st;
+      backward::Printer p;
+      st.load_here(32);
+      p.print(st);
+      std::cout << "debug:: Mesh::setup_buffers() ---- done stacktrace ----" << std::endl;
+#endif
+#endif
+
    if (vertices.empty()) {
 
-#if 0
-      // from where was this called then?
-#if USE_BACKWARD
-               backward::StackTrace st;
-               backward::Printer p;
-               st.load_here(32);
-               p.print(st);
-#endif
-#endif
    }
 
    if (false) {
@@ -844,7 +847,7 @@ Mesh::setup_buffers() {
 
    GLenum err = glGetError();
    if (err) {
-      logger.log(log_t::GL_ERROR, logging::function_name_t("Mesh::setup_buffers"),
+      logger.log(log_t::GL_ERROR, logging::function_name_t("Mesh::setup_buffers"), "--- start --- ",
                  name, stringify_error_code(err));
       err = glGetError();
       if (err != 0)
@@ -3494,14 +3497,13 @@ Mesh::setup_extra_distance_restraint_cylinder(const Material &material_in) { // 
 
    GLenum err = glGetError();
    if (err) {
-      std::cout << "GL ERROR:: Mesh::setup_extra_distance_restraint_cylinder() \""
-                << name << "\" --- start --- "
-                << stringify_error_code(err) << std::endl;
+      std::cout << "GL ERROR:: Mesh::setup_extra_distance_restraint_cylinder() --- start ---\""
+                << name << "\" --- start --- " << stringify_error_code(err) << std::endl;
       err = glGetError();
       if (err != 0)
          std::cout << "GL ERROR:: Mesh::setup_extra_distance_restraint_cylinder() \""
-                   << name << "\" --- start --- stack-clear "
-                   << stringify_error_code(err) << std::endl;
+                   << name << "\" --- start --- stack-clear " << stringify_error_code(err)
+                   << std::endl;
    }
 
    auto vnc_vertex_to_generic_vertex = [] (const coot::api::vnc_vertex &v) {
@@ -3542,6 +3544,11 @@ Mesh::setup_extra_distance_restraint_cylinder(const Material &material_in) { // 
    for (unsigned int ii=idx_tri_base; ii<triangles.size(); ii++)
       triangles[ii].rebase(idx_base);
 
+   err = glGetError();
+   if (err) {
+      std::cout << "GL ERROR:: Mesh::setup_extra_distance_restraint_cylinder() --- pre-setup_buffers() ---\""
+                << name << "\" --- start --- " << stringify_error_code(err) << std::endl;
+   }
    setup_buffers();
 }
 
