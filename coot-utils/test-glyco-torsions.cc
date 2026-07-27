@@ -54,8 +54,8 @@ int main(int argc, char **argv) {
 
                std::string pdb_file_name = "data/cho-links/pyranose-pyranose-via-" + link_type + ".pdb";
 
-               if (link_type == "NAG-ASN")
-                  pdb_file_name = "data/cho-links/ASN-NAG-via-NAG-ASN.pdb";
+               if (link_type == "pyr-ASN")
+                  pdb_file_name = "data/cho-links/ASN-NAG-via-NAG-ASN.pdb";  // it's a file
 
                if (! coot::file_exists(pdb_file_name)) {
                   std::cout << "ERROR:: pdb file " << pdb_file_name << " does not exist"

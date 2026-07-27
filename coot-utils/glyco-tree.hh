@@ -98,6 +98,8 @@ namespace coot {
       std::vector<mmdb::Residue *> residues(const coot::residue_spec_t &containing_res_spec) const;
       void internal_distances(double dist_lim, const std::string &file_name) const;
       residue_id_t get_id(mmdb::Residue *residue_p) const;
+      // print the tree that this object stores (no argument needed)
+      void print() const;
       // for tree comparison
       tree<linked_residue_t> get_glyco_tree() const { return glyco_tree; }
       bool compare_trees(const tree<linked_residue_t> &tree_in) const;

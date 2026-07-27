@@ -9273,6 +9273,7 @@ coot::util::delete_all_carbohydrate(mmdb::Manager *mol) {
          delete r;
       }
       deleted = true;
+      mol->FinishStructEdit();
    }
    return deleted;
 }

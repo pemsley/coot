@@ -495,8 +495,12 @@
           <!-- </item> -->
         </submenu>
         <item>
-          <attribute name="label">N-linked Glycan...</attribute>
+          <attribute name="label">N-linked Glycan WTA...</attribute>
           <attribute name="action">app.glyco_wta_action</attribute>
+        </item>
+        <item>
+          <attribute name="label">N-linked Glycan LMA...</attribute>
+          <attribute name="action">app.glyco_lma_action</attribute>
         </item>
         <item>
           <attribute name="label">Phosphorylate This Residue</attribute>
@@ -1186,6 +1190,10 @@
         <attribute name="action">app.delete_item_chain</attribute>
       </item>
       <item>
+        <attribute name="label" translatable="yes">All Carbohydrate</attribute>
+        <attribute name="action">app.delete_carbohydrate_action</attribute>
+      </item>
+      <item>
         <attribute name="label" translatable="yes">Hydrogen Atoms in Molecule</attribute>
         <attribute name="action">app.delete_item_hydrogen_atoms_in_molecule</attribute>
       </item>
@@ -1587,6 +1595,96 @@ Copyright 2023, 2024, 2025, 2026 Global Phasing Ltd.</property>
     <child type="titlebar">
     </child>
   </object>
+
+  <object class="GtkDialog" id="glyco-lma-dialog">
+    <property name="title" translatable="yes">Coot: Carbohydrate Linked Monomer Addition</property>
+    <property name="default-width">300</property>
+    <signal name="response" handler="on_glyco_lma_dialog_response" swapped="no"/>
+
+    <child>
+      <object class="GtkBox" id="glyco-lma-box-outer">
+        <property name="orientation">vertical</property>
+
+        <child>
+          <object class="GtkBox">
+            <property name="orientation">vertical</property>
+
+            <child>
+              <object class="GtkBox">
+                <property name="orientation">vertical</property>
+
+                <child>
+                  <object class="GtkCheckButton" id="glyco_lma_high_mannose_checkbutton">
+                    <property name="label" translatable="yes">High Mannose</property>
+                    <property name="active">1</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="glyco_lma_hybrid_mammal_checkbutton">
+                    <property name="label" translatable="yes">Hybrid (Mammal)</property>
+                    <property name="group">glyco_lma_high_mannose_checkbutton</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="glyco_lma_complex_mammal_checkbutton">
+                    <property name="label" translatable="yes">Complex (Mammal)</property>
+                    <property name="group">glyco_lma_high_mannose_checkbutton</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="glyco_lma_complex_plant_checkbutton">
+                    <property name="label" translatable="yes">Complex (Plant)</property>
+                    <property name="group">glyco_lma_high_mannose_checkbutton</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="glyco_lma_all_options_checkbutton">
+                    <property name="label" translatable="yes">All</property>
+                    <property name="group">glyco_lma_high_mannose_checkbutton</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkButton" id="glyco_lma_reduce_options_button">
+                <property name="label">Calculate Options</property>
+                <signal name="clicked" handler="on_glyco_lma_reduce_options_button_clicked" swapped="no"/>
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkBox" id="glyco_lma_vbox_internal">
+                <property name="orientation">vertical</property>
+                <!-- link buttons get added here dynamically when the dialog is shown -->
+                <property name="spacing">2</property>
+                <property name="vexpand">1</property>
+                <property name="valign">fill</property>
+              </object>
+            </child>
+          </object>
+        </child>
+
+        <child type="action">
+          <object class="GtkButton" id="glyco_lma_dialog_close_button">
+            <property name="label">Close</property>
+            <property name="can-focus">1</property>
+            <property name="receives-default">1</property>
+            <property name="margin-start">6</property>
+            <property name="margin-end">6</property>
+            <property name="margin-top">6</property>
+            <property name="margin-bottom">6</property>
+          </object>
+        </child>
+
+      </object>
+    </child>
+
+    <action-widgets>
+      <action-widget response="-7">glyco_lma_dialog_close_button</action-widget>
+    </action-widgets>
+  </object>
+
 
   <object class="GtkDialog" id="add_OXT_dialog">
     <property name="title" translatable="yes">Coot: Add OXT to Chain</property>
@@ -2419,8 +2517,6 @@ Copyright 2023, 2024, 2025, 2026 Global Phasing Ltd.</property>
     <action-widgets>
       <action-widget response="-7">bad_chiral_volumes_dialog_close_button</action-widget>
     </action-widgets>
-    <child type="titlebar">
-    </child>
   </object>
 
   <object class="GtkDialog" id="baton_dialog">
@@ -6966,7 +7062,7 @@ Do you want to continue?
                   <property name="tooltip-text">Toggle command terminal</property>
                   <child>
                     <object class="GtkLabel">
-                      <property name="label" translatable="yes">Command</property>
+                      <property name="label" translatable="yes">Cmd</property>
                     </object>
                   </child>
                 </object>

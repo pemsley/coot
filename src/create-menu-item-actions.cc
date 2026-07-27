@@ -29,6 +29,10 @@
 
 #include "coords/Cartesian.hh"
 #include "coot-utils/coot-coord-utils.hh"
+#include "coot-utils/glyco-tree.hh"
+#include "utils/coot-utils.hh"
+#include <fstream>
+#include <filesystem>
 #include "coot-utils/ptm-database.hh"
 #include "gdk/gdk.h"
 #include "geometry/residue-and-atom-specs.hh"
@@ -3629,6 +3633,239 @@ void glyco_wta_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    }
 }
 
+coot::residue_spec_t add_linked_residue_helper(int imol, mmdb::Residue *residue_p,
+                                               const std::string &tla, const std::string &link_type,
+                                               int n_trials) {
+
+   // we can't use the c-interface version of add_linked_residue() because it doesn't return
+   // a Residue * for the added residue.
+
+   coot::residue_spec_t r;
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      if (g.Geom_p()->have_dictionary_for_residue_type_no_dynamic_add(tla, imol)) {
+      } else {
+         g.Geom_p()->try_dynamic_add(tla, g.cif_dictionary_read_number);
+      }
+      g.cif_dictionary_read_number++;
+      coot::residue_spec_t res_spec(residue_p);
+      //          g.molecules[imol].add_linked_residue(res_spec, new_residue_comp_id,
+      //                                               link_type, g.Geom_p());
+      float new_b = g.default_new_atoms_b_factor;
+      // 20140429
+      coot::residue_spec_t new_res_spec =
+         g.molecules[imol].add_linked_residue_by_atom_torsions(res_spec, tla, link_type, g.Geom_p(), new_b);
+      r = new_res_spec; // this is the return value (the added residue)
+
+      if (! new_res_spec.unset_p()) {
+         if (is_valid_map_molecule(imol_refinement_map())) {
+            const clipper::Xmap<float> &xmap = g.molecules[imol_refinement_map()].xmap;
+            std::vector<coot::residue_spec_t> residue_specs;
+            residue_specs.push_back(res_spec);
+            residue_specs.push_back(new_res_spec);
+            g.molecules[imol].multi_residue_torsion_fit(residue_specs, xmap, n_trials, g.Geom_p());
+         }
+      }
+      graphics_draw();
+   }
+   return r;
+}
+
+// Port of the Scheme add-cho-restraints-for-residue (cho-restraints-from-models.scm):
+// look up this residue's position in the glyco tree, read the matching
+// cho-models "model-level-N-<new>-<link>-<parent>.tab" file and add inter-residue
+// extra bond restraints (new-residue atom <-> parent-residue atom) to the molecule.
+// These are then used by the subsequent refinement.
+void add_cho_restraints_for_residue(int imol, const coot::residue_spec_t &new_res_spec) {
+
+   // The larger the sigma scale, the weaker the restraints (c.f. 1.0).
+   const double cho_bond_sigma_scale = 3.0;
+
+   // pad an atom name to the 4-character PDB form, e.g. "C1" -> " C1 ", "C" -> " C  "
+   auto pad_name = [] (const std::string &s) -> std::string {
+      std::string::size_type l = s.length();
+      if (l > 3) return s;
+      if (l == 3) return std::string(" ") + s;
+      if (l == 2) return std::string(" ") + s + " ";
+      return std::string(" ") + s + "  ";
+   };
+
+   if (! is_valid_model_molecule(imol)) return;
+
+   graphics_info_t g;
+   mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+   mmdb::Residue *residue_p = g.molecules[imol].get_residue(new_res_spec);
+   if (! residue_p) return;
+
+   coot::glyco_tree_t gt(residue_p, mol, g.Geom_p());
+   coot::glyco_tree_t::residue_id_t id = gt.get_id(residue_p);
+
+   // res_type is empty when the residue_id was not filled (no tree/parent found)
+   if (id.res_type.empty())          return;
+   if (id.link_type.empty())         return;
+   if (id.parent_res_spec.unset_p()) return;
+
+   std::string fn = "model-level-" + std::to_string(id.level) + "-" +
+                    id.res_type + "-" + id.link_type + "-" + id.parent_res_type + ".tab";
+   std::filesystem::path cho_models_path =
+      std::filesystem::path(coot::package_data_dir()) / "data" / "cho-models";
+   std::filesystem::path model_path = cho_models_path / fn;
+
+   if (! std::filesystem::exists(model_path)) {
+      logger.log(log_t::INFO, logging::function_name_t(__FUNCTION__),
+                 "no cho model file", model_path.string());
+      return;
+   }
+
+   // each line is: atom-name-1 atom-name-2 mean sd n d mod-sarle
+   std::vector<coot::extra_restraints_t::extra_bond_restraint_t> bond_specs;
+   std::ifstream f(model_path);
+   std::string line;
+   while (std::getline(f, line)) {
+      std::vector<std::string> parts = coot::util::split_string_on_whitespace_no_blanks(line);
+      if (parts.size() == 7) {
+         double mean = coot::util::string_to_double(parts[2]);
+         double sd   = coot::util::string_to_double(parts[3]);
+         int    n    = coot::util::string_to_int(parts[4]);
+         double d    = coot::util::string_to_double(parts[5]);
+         if (n >= 20 && d < 0.42) {
+            coot::atom_spec_t atom_spec_1(new_res_spec.chain_id, new_res_spec.res_no,
+                                          new_res_spec.ins_code, pad_name(parts[0]), "");
+            coot::atom_spec_t atom_spec_2(id.parent_res_spec.chain_id, id.parent_res_spec.res_no,
+                                          id.parent_res_spec.ins_code, pad_name(parts[1]), "");
+            double sigma = sd * cho_bond_sigma_scale;
+            bond_specs.push_back(coot::extra_restraints_t::extra_bond_restraint_t(atom_spec_1, atom_spec_2,
+                                                                                  mean, sigma));
+         }
+      }
+   }
+   f.close();
+
+   if (! bond_specs.empty())
+      g.molecules[imol].add_extra_bond_restraints(bond_specs);
+}
+
+void glyco_lma_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                      G_GNUC_UNUSED GVariant *parameter,
+                      G_GNUC_UNUSED gpointer user_data) {
+
+   auto clear_out_container = [] (GtkWidget *box) {
+
+      if (box) {
+         GtkWidget *item_widget = gtk_widget_get_first_child(box);
+         while (item_widget) {
+            GtkWidget *w = item_widget;
+            item_widget = gtk_widget_get_next_sibling(item_widget);
+            gtk_box_remove(GTK_BOX(box), w);
+         };
+      }
+   };
+
+   auto callback = +[] (GtkButton *button, gpointer data) {
+
+      const char *tla       = static_cast<const char *>(g_object_get_data(G_OBJECT(button), "tla"));
+      const char *link_type = static_cast<const char *>(g_object_get_data(G_OBJECT(button), "link_type"));
+
+      graphics_info_t g;
+      std::pair<int, mmdb::Atom *> aa = g.get_active_atom();
+      int imol = aa.first;
+      if (is_valid_model_molecule(imol)) {
+         std::cout << "add " << tla << " with link " << link_type << std::endl;
+
+         set_refine_with_torsion_restraints(1);
+         mmdb::Atom *at = aa.second;
+         mmdb::Residue *residue_p = at->GetResidue();
+         // Capture the parent (clicked) residue spec now, before the molecule is edited.
+         coot::residue_spec_t parent_spec(residue_p);
+         coot::residue_spec_t new_res_spec = add_linked_residue_helper(imol, residue_p, tla, link_type, 20);
+         if (! new_res_spec.unset_p()) {
+
+            // Extra inter-residue distance restraints from the cho model files.
+            add_cho_restraints_for_residue(imol, new_res_spec);
+
+            // Refine the parent residue and its neighbours (which now include the
+            // newly-added child) with the extra restraints applied. Halve the map
+            // weight during this refinement, as the Scheme version does, then restore.
+            float wm = get_map_weight();
+            set_matrix(wm * 0.5);
+            set_add_linked_residue_do_fit_and_refine(0);
+
+            mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+            std::vector<mmdb::Residue *> residues;
+            mmdb::Residue *parent_p = g.molecules[imol].get_residue(parent_spec);
+            if (parent_p) residues.push_back(parent_p);
+            std::vector<coot::residue_spec_t> near_specs =
+               g.molecules[imol].residues_near_residue(parent_spec, 1.9);
+            for (const auto &spec : near_specs) {
+               mmdb::Residue *r = g.molecules[imol].get_residue(spec);
+               if (r) residues.push_back(r);
+            }
+
+            if (! residues.empty()) {
+               std::string alt_conf;
+               short int save_state = g.refinement_immediate_replacement_flag;
+               g.refinement_immediate_replacement_flag = 1;
+               g.refine_residues_vec(imol, residues, alt_conf, mol);
+               g.refinement_immediate_replacement_flag = save_state;
+               c_accept_moving_atoms();
+            }
+
+            set_matrix(wm); // restore
+            graphics_draw();
+         }
+      }
+
+   };
+
+   auto add_lma_option = [callback] (GtkWidget *box, const std::string &label, const std::string &tla,
+                                     const std::string &link_type) {
+
+      GtkWidget *button = gtk_button_new_with_label(label.c_str());
+      g_object_set_data_full(G_OBJECT(button), "tla",       g_strdup(tla.c_str()),       g_free);
+      g_object_set_data_full(G_OBJECT(button), "link_type", g_strdup(link_type.c_str()), g_free);
+      g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(callback), nullptr);
+      gtk_box_append(GTK_BOX(box), button);
+   };
+
+   auto fill_glyco_lma_box = [add_lma_option] (GtkWidget *box) {
+
+      add_lma_option(box, "Add a pyr-ASN NAG",   "NAG", "pyr-ASN");
+      add_lma_option(box, "Add a BETA1-4 NAG",   "NAG", "BETA1-4");
+      add_lma_option(box, "Add a BETA1-4 BMA",   "BMA", "BETA1-4");
+      add_lma_option(box, "Add an ALPHA1-2 MAN", "MAN", "ALPHA1-2");
+      add_lma_option(box, "Add an ALPHA1-3 MAN", "MAN", "ALPHA1-3");
+      add_lma_option(box, "Add an ALPHA2-3 MAN", "MAN", "ALPHA2-3");
+      add_lma_option(box, "Add an ALPHA2-3 GAL", "GAL", "ALPHA2-3");
+      add_lma_option(box, "Add an ALPHA1-6 MAN", "MAN", "ALPHA1-6");
+      add_lma_option(box, "Add a BETA1-2 NAG",   "NAG", "BETA1-2");
+      add_lma_option(box, "Add a BETA1-4 GAL",   "GAL", "BETA1-4");
+      add_lma_option(box, "Add an ALPHA1-2 FUC", "FUC", "ALPHA1-2");
+      add_lma_option(box, "Add an ALPHA1-3 FUC", "FUC", "ALPHA1-3");
+      add_lma_option(box, "Add an ALPHA1-6 FUC", "FUC", "ALPHA1-6");
+      add_lma_option(box, "Add an BETA1-6 FUL",  "FUL", "BETA1-6");
+      add_lma_option(box, "Add an XYP-BMA XYP",  "XYP", "XYP-BMA");
+      add_lma_option(box, "Add an ALPHA2-3 SIA", "SIA", "ALPHA2-3");
+      add_lma_option(box, "Add an ALPHA2-6 SIA", "SIA", "ALPHA2-6");
+   };
+
+   GtkWidget *dialog = widget_from_builder("glyco-lma-dialog");
+   if (dialog) {
+      set_transient_for_main_window(dialog);
+      gtk_widget_set_visible(dialog, TRUE);
+      GtkWidget *box = widget_from_builder("glyco_lma_vbox_internal");
+      if (box) {
+         clear_out_container(box);
+         fill_glyco_lma_box(box);
+         // quitely (or behind the users back) set the GM alpha
+         graphics_info_t g;
+         g.set_geman_mcclure_alpha(1.0);
+      } else {
+         std::cout << "no box glyco_lma_vbox_internal" << std::endl;
+      }
+   }
+}
+
 void place_helix_here_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                              G_GNUC_UNUSED GVariant *parameter,
                              G_GNUC_UNUSED gpointer user_data) {
@@ -6274,6 +6511,7 @@ create_actions(GtkApplication *application) {
    add_action(                   "find_ligands_action",                    find_ligands_action);
    add_action(                    "find_waters_action",                     find_waters_action);
    add_action(                      "glyco_wta_action",                       glyco_wta_action);
+   add_action(                      "glyco_lma_action",                       glyco_lma_action);
    add_action(                 "dna_rna_models_action",                  dna_rna_models_action);
    add_action(               "place_helix_here_action",                place_helix_here_action);
    add_action(              "cis_trans_convert_action",               cis_trans_convert_action);
