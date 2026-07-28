@@ -1,5 +1,11 @@
 --- Items---
 
+superpose ligands? gui item seems to fail on hal
+
+delete in layla should change the cursor
+
+draw an indole and make one of the fused bond carbons a nitrogen
+
 o change difference map peaks buttons and blobs to togglebuttons so they are
   visually distinct on "click"
 
