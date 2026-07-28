@@ -416,14 +416,24 @@ std::string Renderer::text_span_to_pango_markup(const TextSpan& span, const std:
         const auto& style = span.style;
         ret += "<span line_height=\"0.75\"";
         if(style.specifies_color) {
+            // Pango's `color` span attribute is parsed by pango_color_parse(), which
+            // accepts only 3/6/12 hex digits — NOT an 8-digit #rrggbbaa. Emitting the
+            // alpha byte here makes the whole markup invalid, so pango_layout_set_markup()
+            // fails and the label is not drawn. On a skeletal 2D formula that carries
+            // element identity only in the coloured heteroatom letters, that renders the
+            // molecule as if every atom were carbon (strict Pango on Linux; macOS tolerated
+            // it). Emit 6-digit colour and put any opacity in the separate `alpha` attribute.
             std::stringstream html_color;
             html_color << "#";
             html_color << std::hex << std::setfill('0') << std::setw(2) << (int)(style.color.r * 255);
             html_color << std::hex << std::setfill('0') << std::setw(2) << (int)(style.color.g * 255);
             html_color << std::hex << std::setfill('0') << std::setw(2) << (int)(style.color.b * 255);
-            html_color << std::hex << std::setfill('0') << std::setw(2) << (int)(style.color.a * 255);
-            // std::cout<<html_color.str()<<' '<<style.color.r<<' '<<style.color.g<<' '<<style.color.b<<'\n';
             ret += "color=\"" + html_color.str() + "\" ";
+            int alpha = (int)(style.color.a * 255);
+            if(alpha < 255) {
+                // Pango alpha is 1..65535 (0 means "unset"); scale the byte up (255->65535).
+                ret += "alpha=\"" + std::to_string(alpha * 257) + "\" ";
+            }
         }
         // Subscripts/superscripts: set the size and shift the baseline
         // explicitly instead of using Pango <sub>/<sup>. Since Pango 1.50 those
