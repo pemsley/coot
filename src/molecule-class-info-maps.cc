@@ -2601,6 +2601,8 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
       map_sigma_ = sqrt(mv.variance);
       map_max_   = mv.max_density;
       map_min_   = mv.min_density;
+      if (em)
+         contour_sigma_step = 0.3; // 0.1 is the default
 
       float mg = coot::util::max_gridding(xmap); // A/grid
       data_resolution_ = mg * 2.0;
