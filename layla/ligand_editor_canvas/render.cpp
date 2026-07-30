@@ -414,7 +414,16 @@ std::string Renderer::text_span_to_pango_markup(const TextSpan& span, const std:
     bool style_block = should_specify_style();
     if(style_block) {
         const auto& style = span.style;
-        ret += "<span line_height=\"0.75\"";
+        // `line_height` is a Pango 1.50+ span attribute. On older Pango (e.g. the
+        // 1.42-1.48 shipped by AlmaLinux) it is an unknown attribute, which makes
+        // pango_layout_set_markup() reject the whole <span>. Since only heteroatom
+        // labels carry a styled span, they then vanish and the molecule renders as
+        // if every atom were carbon. Emit it only where it is understood. (Note the
+        // trailing space: attributes must be whitespace-separated.)
+        if (pango_version() >= 15000) // 1.50.0
+            ret += "<span line_height=\"0.75\" ";
+        else
+            ret += "<span ";
         if(style.specifies_color) {
             // Pango's `color` span attribute is parsed by pango_color_parse(), which
             // accepts only 3/6/12 hex digits — NOT an 8-digit #rrggbbaa. Emitting the
@@ -505,10 +514,53 @@ std::size_t Renderer::TextMeasurementCache::size() const {
 
 #endif
 
+#ifndef __EMSCRIPTEN__
+namespace {
+   // Flatten a TextSpan to its unstyled text (used as a fallback when markup fails).
+   std::string text_span_to_plain_text(const Renderer::TextSpan &span) {
+      if (span.has_subspans()) {
+         std::string s;
+         for (const auto &sub : span.as_subspans())
+            s += text_span_to_plain_text(sub);
+         return s;
+      } else if (span.is_newline()) {
+         return "\n";
+      } else {
+         return span.as_caption();
+      }
+   }
+
+   // pango_layout_set_markup() silently discards the layout's contents when the markup
+   // fails to parse (e.g. an attribute unknown to this Pango version), so nothing is
+   // drawn. Validate the markup first; if it is rejected, fall back to unstyled plain
+   // text so the label still appears rather than the atom looking like carbon.
+   void set_layout_markup_with_fallback(PangoLayout *layout, const std::string &markup,
+                                        const Renderer::TextSpan &span) {
+      PangoAttrList *attrs = nullptr;
+      char *text = nullptr;
+      GError *error = nullptr;
+      if (pango_parse_markup(markup.c_str(), -1, 0, &attrs, &text, nullptr, &error)) {
+         pango_layout_set_text(layout, text, -1);
+         pango_layout_set_attributes(layout, attrs);
+      } else {
+         if (error) {
+            g_warning("Layla: Pango markup rejected (%s); drawing plain text", error->message);
+            g_clear_error(&error);
+         }
+         std::string plain = text_span_to_plain_text(span);
+         pango_layout_set_text(layout, plain.c_str(), -1);
+         pango_layout_set_attributes(layout, nullptr);
+      }
+      if (attrs) pango_attr_list_unref(attrs);
+      if (text)  g_free(text);
+   }
+}
+#endif
+
 Renderer::TextSize Renderer::measure_text(const Renderer::TextSpan& text) {
     #ifndef __EMSCRIPTEN__
     std::string markup = this->text_span_to_pango_markup(text);
-    pango_layout_set_markup(this->pango_layout, markup.c_str(), -1);
+    set_layout_markup_with_fallback(this->pango_layout, markup, text);
     TextSize ret;
     pango_layout_get_pixel_size(this->pango_layout, &ret.width, &ret.height);
     return ret;
@@ -548,7 +600,7 @@ Renderer::TextSize Renderer::measure_text(const Renderer::TextSpan& text) {
 void Renderer::show_text(const Renderer::TextSpan& text_span) {
     #ifndef __EMSCRIPTEN__
     std::string markup = this->text_span_to_pango_markup(text_span);
-    pango_layout_set_markup(this->pango_layout, markup.c_str(), -1);
+    set_layout_markup_with_fallback(this->pango_layout, markup, text_span);
     pango_cairo_show_layout(this->cr, this->pango_layout);
     #else // Lhasa
     Text text;
