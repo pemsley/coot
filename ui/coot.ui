@@ -1198,8 +1198,12 @@
         <attribute name="action">app.delete_item_hydrogen_atoms_in_molecule</attribute>
       </item>
       <item>
-        <attribute name="label" translatable="yes">Pick Delete Atom(s)</attribute>
+        <attribute name="label" translatable="yes">Multi-Pick Delete Atoms</attribute>
         <attribute name="action">app.delete_item_pick_delete</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Multi-Pick Delete Waters</attribute>
+        <attribute name="action">app.delete_item_pick_water_delete</attribute>
       </item>
    </section>
   </menu>

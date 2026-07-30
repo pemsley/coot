@@ -6356,6 +6356,15 @@ void delete_item_pick_delete(GSimpleAction *simple_action,
    add_status_bar_text("Use Ctrl-click for multi-atom delete");
 }
 
+// this is "old-style" - delete happens on pick.
+void delete_item_pick_water_delete(GSimpleAction *simple_action,
+                                   GVariant *parameter,
+                                   gpointer user_data) {
+
+   graphics_info_t::delete_item_water = 1; // setup for atom pick
+   add_status_bar_text("Use Ctrl-click for multi-water delete");
+}
+
 void
 create_actions(GtkApplication *application) {
 
@@ -6727,6 +6736,7 @@ create_actions(GtkApplication *application) {
    add_action("delete_item_chain", delete_item_chain);
    add_action("delete_item_hydrogen_atoms_in_molecule", delete_item_hydrogen_atoms_in_molecule);
    add_action("delete_item_pick_delete", delete_item_pick_delete);
+   add_action("delete_item_pick_water_delete", delete_item_pick_water_delete);
 
    // --- Modules ---
 
