@@ -415,14 +415,15 @@ coot::molecule_t::geometric_distortions_from_mol(const atom_selection_container_
                   flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
                   flags = coot::BONDS_ANGLES_AND_PLANES;
                   flags = coot::BONDS_ANGLES_PLANES_AND_CHIRALS;
+                  flags = coot::BONDS_ANGLES_TORSIONS_PLANES_AND_CHIRALS;
 
                   if (with_nbcs)
-                     flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
+                     flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;
 
                   unsigned int n_threads = coot::get_max_number_of_threads();
                   if (n_threads > 0)
                      restraints.thread_pool(&static_thread_pool, n_threads);
-                  short int do_residue_internal_torsions = 0;
+                  bool do_residue_internal_torsions = true;
 
                   //                if (do_torsion_restraints) {
                   //                   do_residue_internal_torsions = 1;
