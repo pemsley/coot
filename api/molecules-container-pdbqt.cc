@@ -1,0 +1,56 @@
+/*
+ * api/molecules-container-pdbqt.cc
+ *
+ * Thin molecules_container_t shims over the PDBQT writers. The receptor writer
+ * lives in coot-utils/pdbqt.hh (RDKit-free) and the flexible-ligand writer in
+ * lidia-core/pdbqt-ligand.hh, so the same functionality is reusable by the GUI
+ * (src/) without depending on api/.
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option) any
+ * later version.
+ */
+
+#include <iostream>
+
+#include "molecules-container.hh"
+#include "coot-utils/pdbqt.hh"
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+#include "lidia-core/pdbqt-ligand.hh"
+#endif
+
+int
+molecules_container_t::export_molecule_as_pdbqt(int imol, const std::string &file_name) {
+
+   if (! is_valid_model_molecule(imol)) {
+      std::cout << "WARNING:: export_molecule_as_pdbqt(): invalid model molecule " << imol << std::endl;
+      return 0;
+   }
+   return coot::pdbqt::write_receptor(molecules[imol].atom_sel.mol, geom, imol, file_name);
+}
+
+int
+molecules_container_t::export_ligand_as_pdbqt(int imol, const std::string &cid,
+                                              const std::string &file_name) {
+
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+   if (! is_valid_model_molecule(imol)) {
+      std::cout << "WARNING:: export_ligand_as_pdbqt(): invalid model molecule " << imol << std::endl;
+      return 0;
+   }
+   mmdb::Residue *residue_p = get_residue_using_cid(imol, cid);
+   if (! residue_p) {
+      std::cout << "WARNING:: export_ligand_as_pdbqt(): no residue for cid " << cid << std::endl;
+      return 0;
+   }
+   std::string res_name(residue_p->GetResName());
+   std::pair<bool, coot::dictionary_residue_restraints_t> rp =
+      geom.get_monomer_restraints(res_name, imol);
+   const coot::dictionary_residue_restraints_t *rest_p = rp.first ? &rp.second : nullptr;
+   return coot::pdbqt::write_ligand(residue_p, rest_p, res_name, cid, file_name);
+#else
+   std::cout << "WARNING:: export_ligand_as_pdbqt(): needs MAKE_ENHANCED_LIGAND_TOOLS" << std::endl;
+   return 0;
+#endif
+}

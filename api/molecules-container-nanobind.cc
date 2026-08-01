@@ -1450,6 +1450,14 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::write_coordinates,
          nb::arg("imol"), nb::arg("file_name"),
          get_docstring_from_xml("write_coordinates").c_str())
+    .def("export_molecule_as_pdbqt",
+         &molecules_container_t::export_molecule_as_pdbqt,
+         nb::arg("imol"), nb::arg("file_name"),
+         get_docstring_from_xml("export_molecule_as_pdbqt").c_str())
+    .def("export_ligand_as_pdbqt",
+         &molecules_container_t::export_ligand_as_pdbqt,
+         nb::arg("imol"), nb::arg("cid"), nb::arg("file_name"),
+         get_docstring_from_xml("export_ligand_as_pdbqt").c_str())
     .def("write_map",
          &molecules_container_t::write_map,
          nb::arg("imol"), nb::arg("file_name"),

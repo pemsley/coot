@@ -705,6 +705,30 @@ public:
    //! @return the new molecule number. Return -1 on failure
    int rdkit_mol_pickle_base64_to_molecule(const std::string &encoded_picked_string, int conformer_id);
 
+   //! Write a rigid PDBQT (AutoDock/Vina) file for a whole molecule, e.g. a receptor.
+   //!
+   //! Partial charges are computed per-residue with the Gasteiger method (RDKit) where a
+   //! dictionary is available; AutoDock atom types are assigned from element, aromaticity
+   //! and hydrogen-bonding character. Non-polar hydrogens are merged into their parent
+   //! atoms. No torsion tree is written (the molecule is rigid).
+   //!
+   //! @param imol the model molecule index
+   //! @param file_name the output file name
+   //! @return the number of atoms written (0 on failure)
+   int export_molecule_as_pdbqt(int imol, const std::string &file_name);
+
+   //! Write a flexible-ligand PDBQT (AutoDock/Vina) file for the residue selected by cid.
+   //!
+   //! In addition to per-atom Gasteiger charges and AutoDock atom types, a torsion tree
+   //! (ROOT/BRANCH/ENDBRANCH/TORSDOF) is written by detecting acyclic, non-amide rotatable
+   //! single bonds. If no dictionary is available the ligand is written rigidly.
+   //!
+   //! @param imol the model molecule index
+   //! @param cid an atom/residue selection string that picks the ligand residue
+   //! @param file_name the output file name
+   //! @return the number of atoms written (0 on failure)
+   int export_ligand_as_pdbqt(int imol, const std::string &cid, const std::string &file_name);
+
 #endif
 
    // -------------------------------- coordinates utils -----------------------------------

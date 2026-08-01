@@ -234,6 +234,11 @@ add_library(cootapi SHARED
             ${coot_src}/api/molecules-container-gltf.cc
             ${coot_src}/api/molecules-container-raytrace.cc
             ${coot_src}/api/molecules-container-ligand-fitting.cc
+            ${coot_src}/api/molecules-container-pdbqt.cc
+            ${coot_src}/coot-utils/pdbqt.cc
+            ${coot_src}/coot-utils/pdbqt-charges.cc
+            ${coot_src}/lidia-core/pdbqt-common.cc
+            ${coot_src}/lidia-core/pdbqt-ligand.cc
             ${coot_src}/api/molecules-container-maps.cc
             ${coot_src}/api/molecules-container-mmrrcc.cc
             ${coot_src}/api/molecules-container-molecular-placement.cc
