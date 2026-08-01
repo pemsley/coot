@@ -1,8 +1,19 @@
 --- Items---
 
-superpose ligands? gui item seems to fail on hal
+o  superpose ligands? gui item seems to fail on hal
 
-delete in layla should change the cursor
+o make a generic conformer generator - use the old style
+  with torsion sampling and energy minimization
+
+o in the ligand builder:
+   if the molecule exists in the monomer library, import it from there.
+   if the molecule exists in the CCD, import it from there.
+e.g. kaempferol
+https://www.ebi.ac.uk/chembl/api/data/molecule/CHEMBL150.json
+
+o coot --no-crystallography or --molecular-modelling
+
+o delete in layla should change the cursor
 
 draw an indole and make one of the fused bond carbons a nitrogen
 
