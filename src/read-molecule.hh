@@ -46,6 +46,16 @@ int handle_read_draw_molecule_and_move_molecule_here(const std::string &filename
 /*! \brief read coordinates from filename */
 int read_pdb(const std::string &filename);
 
+/*! \brief read a PDBQT file (e.g. an AutoDock/Vina docking result)
+ *
+ * Multi-model files (docking poses) are read as separate models and the
+ * Vina scoring information is stored as per-model UDData.
+ *
+ * @param filename is the name of the PDBQT file
+ * @return the new molecule index. Return -1 on failure
+ */
+int read_pdbqt(const std::string &filename);
+
 /*! \brief read coordinates from filename
  * 
  * @param filename is the file name of the coordinates

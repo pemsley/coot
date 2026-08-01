@@ -94,13 +94,25 @@ void on_coords_filechooser_dialog_response_gtk4(GtkDialog *dialog,
             char *file_name = g_file_get_path(f);
             // std::cout << "          file_name " << file_name << std::endl;
             if (file_name) {
-               if (move_molecule_here_flag) {
-                  handle_read_draw_molecule_and_move_molecule_here(file_name);
+               std::string fn(file_name);
+               if (coot::util::file_name_extension(fn) == ".pdbqt") {
+                  // AutoDock/Vina PDBQT: use the dedicated reader (multi-model
+                  // poses, Vina scores as UDData, AutoDock-type -> element).
+                  bool save = graphics_info_t::recentre_on_read_pdb;
+                  graphics_info_t::recentre_on_read_pdb = recentre_on_read_pdb_flag;
+                  int imol = read_pdbqt(fn);
+                  graphics_info_t::recentre_on_read_pdb = save;
+                  if (move_molecule_here_flag && is_valid_model_molecule(imol))
+                     move_molecule_to_screen_centre_internal(imol);
                } else {
-                  if (recentre_on_read_pdb_flag)
-                     handle_read_draw_molecule_with_recentre(file_name, 1);
-                  else
-                     handle_read_draw_molecule_with_recentre(file_name, 0); // no recentre
+                  if (move_molecule_here_flag) {
+                     handle_read_draw_molecule_and_move_molecule_here(file_name);
+                  } else {
+                     if (recentre_on_read_pdb_flag)
+                        handle_read_draw_molecule_with_recentre(file_name, 1);
+                     else
+                        handle_read_draw_molecule_with_recentre(file_name, 0); // no recentre
+                  }
                }
             }
 
@@ -213,22 +225,26 @@ void open_coordinates_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    // I don't follow the options and labels, but this works strangely.
    gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(dialog), "recentering", "Recentre", options, labels);
 
-   GtkFileFilter *filter_pdb  = gtk_file_filter_new();
-   GtkFileFilter *filter_pdbx = gtk_file_filter_new();
-   GtkFileFilter *filter_cif  = gtk_file_filter_new();
-   GtkFileFilter *filter_ent  = gtk_file_filter_new();
-   gtk_file_filter_set_name(filter_pdb,  "pdb files");
-   gtk_file_filter_set_name(filter_pdbx, "pdbx files");
-   gtk_file_filter_set_name(filter_cif,  "cif files");
-   gtk_file_filter_set_name(filter_ent,  "ent files");
-   gtk_file_filter_add_pattern(filter_pdb,  "*.pdb");
-   gtk_file_filter_add_pattern(filter_pdbx, "*.pdbx");
-   gtk_file_filter_add_pattern(filter_cif,  "*.cif");
-   gtk_file_filter_add_pattern(filter_ent,  "*.ent");
+   GtkFileFilter *filter_pdb   = gtk_file_filter_new();
+   GtkFileFilter *filter_pdbx  = gtk_file_filter_new();
+   GtkFileFilter *filter_cif   = gtk_file_filter_new();
+   GtkFileFilter *filter_ent   = gtk_file_filter_new();
+   GtkFileFilter *filter_pdbqt = gtk_file_filter_new();
+   gtk_file_filter_set_name(filter_pdb,   "pdb files");
+   gtk_file_filter_set_name(filter_pdbx,  "pdbx files");
+   gtk_file_filter_set_name(filter_cif,   "cif files");
+   gtk_file_filter_set_name(filter_ent,   "ent files");
+   gtk_file_filter_set_name(filter_pdbqt, "pdbqt files");
+   gtk_file_filter_add_pattern(filter_pdb,   "*.pdb");
+   gtk_file_filter_add_pattern(filter_pdbx,  "*.pdbx");
+   gtk_file_filter_add_pattern(filter_cif,   "*.cif");
+   gtk_file_filter_add_pattern(filter_ent,   "*.ent");
+   gtk_file_filter_add_pattern(filter_pdbqt, "*.pdbqt");
    gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter_pdb);
    gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter_pdbx);
    gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter_cif);
    gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter_ent);
+   gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter_pdbqt);
 
    add_filename_filter_button(dialog, COOT_COORDS_FILE_SELECTION);
 

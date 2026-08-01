@@ -26,6 +26,7 @@
 #include "coot-utils/coot-rama.hh"
 #include "coot-utils/coot-coord-extras.hh" // the missing atoms type
 #include "coot-utils/coot-map-utils.hh"
+#include "coot-utils/pdbqt.hh"             // pdbqt::pose_score_t
 #include "utils/coot-utils.hh"
 #include "utils/setup-syminfo.hh"
 #include "ideal/simple-restraint.hh" // needed?
@@ -749,6 +750,23 @@ public:
    //!
    //! @return the new molecule index on success and -1 on failure
    int read_pdb(const std::string &file_name);
+
+   //! Read a PDBQT file (e.g. an AutoDock/Vina docking result) as a new molecule.
+   //!
+   //! Multi-model files (docking poses) are read as separate models. Vina scoring
+   //! information (affinity, RMSDs, energy terms) is stored as per-model UDData.
+   //!
+   //! @param file_name is the name of the PDBQT file
+   //!
+   //! @return the new molecule index on success and -1 on failure
+   int read_pdbqt(const std::string &file_name);
+
+   //! Get the AutoDock Vina scores for a molecule read from a PDBQT docking result.
+   //!
+   //! @param imol is the model molecule index
+   //!
+   //! @return one pose_score_t per model; empty if the molecule has no Vina scores
+   std::vector<coot::pdbqt::pose_score_t> get_vina_scores(int imol) const;
 
    //! Read a small molecule CIF file
    //!

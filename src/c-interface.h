@@ -47,6 +47,7 @@
 #define C_INTERFACE_H
 
 // Python conditionally compiled test is needed for WebAssembly build
+#include "pytypedefs.h"
 #ifdef USE_PYTHON
 #include "Python.h"
 #endif
@@ -320,6 +321,16 @@ return the number of models or -1 if there was a problem with the
 given molecule.
 */
 int n_models(int imol);
+
+
+//! split an NMR model or other such multi-model molecule
+//! into multiple (separate) molecules - all in MODEL 1.
+//!
+//! @return the list of new molecule indices.
+#ifdef USE_PYTHON
+PyObject *split_multi_model_molecule_py(int imol);
+#endif
+
 
 /*! \brief get the number of chains in molecule number imol
 

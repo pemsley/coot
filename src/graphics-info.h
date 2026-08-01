@@ -2795,6 +2795,12 @@ public:
    static GtkWidget *add_alt_conf_dialog;
    static void new_alt_conf_occ_adjustment_changed(GtkAdjustment *adj, gpointer user_data);
 
+   // NMR or pdbqt split
+
+   //! split an NMR model into multiple models - all in MODEL 1.
+   //! @return the vector of new molecule indices.
+   std::vector<int> split_multi_model_molecule(int imol);
+
    // Backbone torsion
    //
    static short int in_backbone_torsion_define;

@@ -9183,6 +9183,24 @@ coot::util::split_multi_model_molecule(mmdb::Manager *mol) {
 
    std::vector<mmdb::Manager *> v;
 
+   // Per-model UDData is registered on the source Manager and is not carried
+   // across by mmdb's Model::Copy() (nor by Manager::Copy(MMDBFCM_All)), and the
+   // mmdb UDData registry cannot be enumerated through its public API. So we
+   // explicitly preserve the model-level (UDR_MODEL) real UDData fields that Coot
+   // registers - currently the AutoDock Vina scores written by pdbqt::read() -
+   // using only public mmdb calls. Add to this list when new UDR_MODEL fields are
+   // introduced.
+   static const std::vector<std::string> model_udd_real_names = {
+      "vina_affinity", "vina_rmsd_lb", "vina_rmsd_ub",
+      "vina_inter", "vina_intra", "vina_unbound"
+   };
+   std::vector<std::pair<std::string, int> > src_udd; // (name, source handle)
+   for (unsigned int i=0; i<model_udd_real_names.size(); i++) {
+      int h = mol->GetUDDHandle(mmdb::UDR_MODEL, model_udd_real_names[i].c_str());
+      if (h > 0)
+         src_udd.push_back(std::make_pair(model_udd_real_names[i], h));
+   }
+
    for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
       mmdb::Model *model_p = mol->GetModel(imod);
       if (model_p) {
@@ -9190,6 +9208,14 @@ coot::util::split_multi_model_molecule(mmdb::Manager *mol) {
          mmdb::Manager *new_mol = new mmdb::Manager;
          new_model->Copy(model_p);
          new_mol->AddModel(new_model);
+         // carry over the registered model-level UDData for this model
+         for (unsigned int i=0; i<src_udd.size(); i++) {
+            mmdb::realtype val;
+            if (model_p->GetUDData(src_udd[i].second, val) == mmdb::UDDATA_Ok) {
+               int new_h = new_mol->RegisterUDReal(mmdb::UDR_MODEL, src_udd[i].first.c_str());
+               new_model->PutUDData(new_h, val);
+            }
+         }
          v.push_back(new_mol);
       }
    }

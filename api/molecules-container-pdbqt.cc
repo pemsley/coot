@@ -31,6 +31,29 @@ molecules_container_t::export_molecule_as_pdbqt(int imol, const std::string &fil
 }
 
 int
+molecules_container_t::read_pdbqt(const std::string &file_name) {
+
+   int imol = -1;
+   mmdb::Manager *mol = coot::pdbqt::read(file_name);
+   if (mol) {
+      imol = molecules.size();
+      atom_selection_container_t asc = make_asc(mol);
+      molecules.push_back(coot::molecule_t(asc, imol, file_name));
+   }
+   return imol;
+}
+
+std::vector<coot::pdbqt::pose_score_t>
+molecules_container_t::get_vina_scores(int imol) const {
+
+   if (! is_valid_model_molecule(imol)) {
+      std::cout << "WARNING:: get_vina_scores(): invalid model molecule " << imol << std::endl;
+      return std::vector<coot::pdbqt::pose_score_t>();
+   }
+   return coot::pdbqt::get_scores(molecules[imol].atom_sel.mol);
+}
+
+int
 molecules_container_t::export_ligand_as_pdbqt(int imol, const std::string &cid,
                                               const std::string &file_name) {
 

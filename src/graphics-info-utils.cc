@@ -369,3 +369,30 @@ std::vector<int> graphics_info_t::get_map_molecule_vector() {
          vec.push_back(i);
    return vec;
 }
+
+
+//! split an NMR model into multiple models - all in MODEL 1.
+//! @return the vector of new molecule indices.
+std::vector<int>
+graphics_info_t::split_multi_model_molecule(int imol) {
+
+   std::vector<int> v;
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Manager *mol = molecules[imol].atom_sel.mol;
+      if (mol) {
+         std::vector<mmdb::Manager *> mv = coot::util::split_multi_model_molecule(mol);
+         for (unsigned int i=0; i<mv.size(); i++) {
+            atom_selection_container_t asc = make_asc(mv[i]);
+            std::string name = "split-molecule " + std::to_string(i+1);
+            int idx = create_molecule();
+            molecules[idx].install_model(idx, asc, Geom_p(), name, 1);
+            v.push_back(idx);
+         }
+         if (! mv.empty())
+            graphics_draw();
+      }
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return v;
+}

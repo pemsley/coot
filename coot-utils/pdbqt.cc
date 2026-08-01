@@ -10,8 +10,11 @@
  */
 
 #include <fstream>
+#include <sstream>
 #include <iostream>
 #include <cstdio>
+#include <cstring>
+#include <cstdlib>
 #include <map>
 #include <set>
 #include <vector>
@@ -296,4 +299,197 @@ coot::pdbqt::write_receptor(mmdb::Manager *mol, coot::protein_geometry &geom, in
    std::cout << "INFO:: write_receptor(): wrote " << n_written
              << " atoms to " << file_name << std::endl;
    return n_written;
+}
+
+// ---------------------------------------------------------------------------
+//                     Reading a PDBQT file into an mmdb::Manager
+// ---------------------------------------------------------------------------
+
+namespace {
+
+   // Chemical element for an AutoDock atom type (columns 78-79 of a PDBQT file).
+   std::string element_for_ad_type(const std::string &t) {
+      if (t == "A")  return "C";
+      if (t == "C")  return "C";
+      if (t == "HD" || t == "HS" || t == "H") return "H";
+      if (t == "NA" || t == "NS" || t == "N")  return "N";
+      if (t == "OA" || t == "OS" || t == "O")  return "O";
+      if (t == "SA" || t == "S")  return "S";
+      if (t == "P")  return "P";
+      if (t == "F")  return "F";
+      if (t == "CL" || t == "Cl") return "Cl";
+      if (t == "BR" || t == "Br") return "Br";
+      if (t == "I")  return "I";
+      if (t == "MG" || t == "Mg") return "Mg";
+      if (t == "CA" || t == "Ca") return "Ca";
+      if (t == "MN" || t == "Mn") return "Mn";
+      if (t == "FE" || t == "Fe") return "Fe";
+      if (t == "ZN" || t == "Zn") return "Zn";
+      if (t == "CU" || t == "Cu") return "Cu";
+      if (t == "SE" || t == "Se") return "Se";
+      return t; // best effort
+   }
+
+   // Right-justify an element name into the 2-character mmdb convention (" C", "Cl").
+   std::string element_2c(const std::string &e) {
+      if (e.length() >= 2) return e.substr(0, 2);
+      return std::string(" ") + e;
+   }
+
+   double to_double(const std::string &s) {
+      try { return std::stod(s); } catch (...) { return 0.0; }
+   }
+}
+
+mmdb::Manager *
+coot::pdbqt::read(const std::string &file_name) {
+
+   std::ifstream f(file_name.c_str());
+   if (! f) {
+      std::cout << "WARNING:: pdbqt::read(): cannot open " << file_name << std::endl;
+      return nullptr;
+   }
+
+   mmdb::Manager *mol = new mmdb::Manager;
+   int h_aff     = mol->RegisterUDReal(mmdb::UDR_MODEL, "vina_affinity");
+   int h_rmsd_lb = mol->RegisterUDReal(mmdb::UDR_MODEL, "vina_rmsd_lb");
+   int h_rmsd_ub = mol->RegisterUDReal(mmdb::UDR_MODEL, "vina_rmsd_ub");
+   int h_inter   = mol->RegisterUDReal(mmdb::UDR_MODEL, "vina_inter");
+   int h_intra   = mol->RegisterUDReal(mmdb::UDR_MODEL, "vina_intra");
+   int h_unbound = mol->RegisterUDReal(mmdb::UDR_MODEL, "vina_unbound");
+
+   mmdb::Model *model_p = nullptr;   // the current model
+   int n_atoms = 0;
+
+   // create model 1 lazily if atoms appear before any MODEL record
+   auto ensure_model = [&] () {
+      if (! model_p) {
+         model_p = new mmdb::Model;
+         mol->AddModel(model_p);
+      }
+   };
+
+   std::string line;
+   while (std::getline(f, line)) {
+      std::string rec = line.substr(0, 6);
+      if (rec == "MODEL " || rec == "MODEL") {
+         model_p = new mmdb::Model;
+         mol->AddModel(model_p);
+         continue;
+      }
+      if (line.compare(0, 6, "ENDMDL") == 0) { model_p = nullptr; continue; }
+
+      if (line.compare(0, 6, "REMARK") == 0) {
+         // REMARK VINA RESULT:   -12.952      0.000      0.000
+         std::string::size_type p = line.find("VINA RESULT:");
+         if (p != std::string::npos && model_p) {
+            std::istringstream iss(line.substr(p + 12));
+            double a = 0, b = 0, c = 0;
+            iss >> a >> b >> c;
+            model_p->PutUDData(h_aff, a);
+            model_p->PutUDData(h_rmsd_lb, b);
+            model_p->PutUDData(h_rmsd_ub, c);
+         } else if (model_p) {
+            // energy terms; check the more specific "INTER + INTRA" first
+            if (line.find("INTER + INTRA:") != std::string::npos) {
+               // (sum, not stored separately)
+            } else if ((p = line.find("INTER:")) != std::string::npos) {
+               model_p->PutUDData(h_inter, to_double(line.substr(p + 6)));
+            } else if ((p = line.find("INTRA:")) != std::string::npos) {
+               model_p->PutUDData(h_intra, to_double(line.substr(p + 6)));
+            } else if ((p = line.find("UNBOUND:")) != std::string::npos) {
+               model_p->PutUDData(h_unbound, to_double(line.substr(p + 8)));
+            }
+         }
+         continue;
+      }
+
+      bool is_atom = (line.compare(0, 4, "ATOM") == 0);
+      bool is_het  = (line.compare(0, 6, "HETATM") == 0);
+      if (! is_atom && ! is_het) continue;   // ROOT/BRANCH/ENDBRANCH/TORSDOF/TER/...
+      if (line.length() < 66) continue;
+
+      ensure_model();
+
+      std::string atom_name = line.substr(12, 4);
+      std::string alt_loc   = coot::util::remove_whitespace(line.substr(16, 1));
+      std::string res_name  = coot::util::remove_whitespace(line.substr(17, 3));
+      std::string chain_id  = coot::util::remove_whitespace(line.substr(21, 1));
+      int res_seq           = atoi(line.substr(22, 4).c_str());
+      std::string ins_code  = coot::util::remove_whitespace(line.substr(26, 1));
+      double x = to_double(line.substr(30, 8));
+      double y = to_double(line.substr(38, 8));
+      double z = to_double(line.substr(46, 8));
+      double occ  = (line.length() >= 60) ? to_double(line.substr(54, 6)) : 1.0;
+      double bfac = (line.length() >= 66) ? to_double(line.substr(60, 6)) : 0.0;
+      std::string ad_type = (line.length() >= 79) ?
+                            coot::util::remove_whitespace(line.substr(77, 2)) : std::string();
+      std::string element = element_2c(element_for_ad_type(ad_type));
+      if (chain_id.empty()) chain_id = "A";
+
+      mmdb::Chain *chain_p = model_p->GetChainCreate(chain_id.c_str(), false);
+      mmdb::Residue *res_p = chain_p->GetResidueCreate(res_name.c_str(), res_seq,
+                                                       ins_code.c_str(), false);
+      mmdb::Atom *at = new mmdb::Atom;
+      at->SetCoordinates(x, y, z, occ, bfac);
+      at->SetAtomName(atom_name.c_str());
+      at->SetElementName(element.c_str());
+      strncpy(at->altLoc, alt_loc.c_str(), sizeof(at->altLoc) - 1);
+      at->Het = is_het;
+      res_p->AddAtom(at);
+      n_atoms++;
+   }
+   f.close();
+
+   if (n_atoms == 0) {
+      std::cout << "WARNING:: pdbqt::read(): no atoms read from " << file_name << std::endl;
+      delete mol;
+      return nullptr;
+   }
+
+   mol->FinishStructEdit();
+   mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL | mmdb::PDBCLEAN_INDEX);
+   std::cout << "INFO:: pdbqt::read(): read " << n_atoms << " atoms in "
+             << mol->GetNumberOfModels() << " model(s) from " << file_name << std::endl;
+   return mol;
+}
+
+std::vector<coot::pdbqt::pose_score_t>
+coot::pdbqt::get_scores(mmdb::Manager *mol) {
+
+   std::vector<pose_score_t> scores;
+   if (! mol) return scores;
+
+   int h_aff = mol->GetUDDHandle(mmdb::UDR_MODEL, "vina_affinity");
+   if (h_aff <= 0) return scores;   // molecule carries no Vina scores
+
+   int h_lb = mol->GetUDDHandle(mmdb::UDR_MODEL, "vina_rmsd_lb");
+   int h_ub = mol->GetUDDHandle(mmdb::UDR_MODEL, "vina_rmsd_ub");
+   int h_in = mol->GetUDDHandle(mmdb::UDR_MODEL, "vina_inter");
+   int h_ia = mol->GetUDDHandle(mmdb::UDR_MODEL, "vina_intra");
+   int h_ub2 = mol->GetUDDHandle(mmdb::UDR_MODEL, "vina_unbound");
+
+   auto get = [] (mmdb::Model *m, int handle) -> float {
+      mmdb::realtype v = 0.0;
+      if (handle > 0 && m->GetUDData(handle, v) == mmdb::UDDATA_Ok) return v;
+      return 0.0f;
+   };
+
+   for (int i=1; i<=mol->GetNumberOfModels(); i++) {
+      mmdb::Model *m = mol->GetModel(i);
+      if (! m) continue;
+      mmdb::realtype aff = 0.0;
+      if (m->GetUDData(h_aff, aff) != mmdb::UDDATA_Ok)
+         continue;   // this model has no Vina affinity - skip it
+      pose_score_t s;
+      s.model_no = i;
+      s.affinity = aff;
+      s.rmsd_lb  = get(m, h_lb);
+      s.rmsd_ub  = get(m, h_ub);
+      s.inter    = get(m, h_in);
+      s.intra    = get(m, h_ia);
+      s.unbound  = get(m, h_ub2);
+      scores.push_back(s);
+   }
+   return scores;
 }

@@ -1454,6 +1454,14 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::export_molecule_as_pdbqt,
          nb::arg("imol"), nb::arg("file_name"),
          get_docstring_from_xml("export_molecule_as_pdbqt").c_str())
+    .def("read_pdbqt",
+         &molecules_container_t::read_pdbqt,
+         nb::arg("file_name"),
+         get_docstring_from_xml("read_pdbqt").c_str())
+    .def("get_vina_scores",
+         &molecules_container_t::get_vina_scores,
+         nb::arg("imol"),
+         get_docstring_from_xml("get_vina_scores").c_str())
     .def("export_ligand_as_pdbqt",
          &molecules_container_t::export_ligand_as_pdbqt,
          nb::arg("imol"), nb::arg("cid"), nb::arg("file_name"),
@@ -1583,6 +1591,16 @@ NB_MODULE(coot_headless_api, m) {
     .def_rw("string_user_data",&coot::atom_spec_t::string_user_data)
     .def_rw("model_number",&coot::atom_spec_t::model_number)
     .def("format", &coot::atom_spec_t::format)
+    ;
+    nb::class_<coot::pdbqt::pose_score_t>(m,"pose_score_t")
+    .def(nb::init<>())
+       .def_ro("model_no", &coot::pdbqt::pose_score_t::model_no)
+       .def_ro("affinity", &coot::pdbqt::pose_score_t::affinity)
+       .def_ro("rmsd_lb",  &coot::pdbqt::pose_score_t::rmsd_lb)
+       .def_ro("rmsd_ub",  &coot::pdbqt::pose_score_t::rmsd_ub)
+       .def_ro("inter",    &coot::pdbqt::pose_score_t::inter)
+       .def_ro("intra",    &coot::pdbqt::pose_score_t::intra)
+       .def_ro("unbound",  &coot::pdbqt::pose_score_t::unbound)
     ;
     nb::class_<coot::plain_atom_overlap_t>(m,"plain_atom_overlap_t")
     .def(nb::init<>())

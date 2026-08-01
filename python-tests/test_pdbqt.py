@@ -199,6 +199,67 @@ def test_ligand_pdbqt():
     os.remove(out)
 
 
+def test_read_pdbqt_round_trip():
+    """Write a ligand PDBQT, read it back with read_pdbqt, and check it survives."""
+    mc = chapi.molecules_container_t(True)
+    mc.set_use_gemmi(False)
+    imol = mc.get_monomer("TYR")
+    assert imol >= 0
+
+    out = _tmp("test_pdbqt_roundtrip.pdbqt")
+    n = mc.export_ligand_as_pdbqt(imol, "/*/*/*", out)
+    assert n > 0
+
+    imol2 = mc.read_pdbqt(out)
+    assert imol2 >= 0, "read_pdbqt failed"
+    assert mc.get_number_of_atoms(imol2) == n, "atom count changed on round trip"
+    os.remove(out)
+
+
+def _atom_line(serial, name, res, chain, resno, x, y, z, ad_type):
+    return ("%-6s%5d %-4s%1s%-3s %1s%4d%1s   %8.3f%8.3f%8.3f%6.2f%6.2f    %6.3f %-2s"
+            % ("HETATM", serial, name, "", res, chain, resno, "", x, y, z, 1.0, 0.0, 0.0, ad_type))
+
+
+def test_vina_scores():
+    """A multi-model docked PDBQT carries per-pose Vina scores as UDData."""
+    poses = [(-9.1, 0.0, 0.0), (-8.2, 1.5, 2.5)]
+    lines = []
+    for i, (aff, lb, ub) in enumerate(poses, start=1):
+        lines.append("MODEL %d" % i)
+        lines.append("REMARK VINA RESULT:  %10.3f %10.3f %10.3f" % (aff, lb, ub))
+        lines.append("REMARK INTER:      %10.3f" % (aff - 0.3))
+        lines.append("ROOT")
+        lines.append(_atom_line(1, "C", "LIG", "", 1, 0.0 + i, 0.0, 0.0, "C"))
+        lines.append(_atom_line(2, "O", "LIG", "", 1, 1.2 + i, 0.0, 0.0, "OA"))
+        lines.append("ENDROOT")
+        lines.append("TORSDOF 0")
+        lines.append("ENDMDL")
+    path = _tmp("test_pdbqt_scores.pdbqt")
+    with open(path, "w") as f:
+        f.write("\n".join(lines) + "\n")
+
+    mc = chapi.molecules_container_t(True)
+    mc.set_use_gemmi(False)
+    imol = mc.read_pdbqt(path)
+    assert imol >= 0
+
+    scores = mc.get_vina_scores(imol)
+    assert len(scores) == 2, "expected two poses"
+    assert scores[0].model_no == 1
+    assert abs(scores[0].affinity - (-9.1)) < 1e-3
+    assert abs(scores[1].affinity - (-8.2)) < 1e-3
+    assert abs(scores[1].rmsd_ub - 2.5) < 1e-3
+    assert abs(scores[0].inter - (-9.4)) < 1e-3
+    best = min(s.affinity for s in scores)
+    assert abs(best - (-9.1)) < 1e-3
+    os.remove(path)
+
+    # a molecule with no Vina data returns an empty list
+    im2 = mc.get_monomer("TYR")
+    assert mc.get_vina_scores(im2) == []
+
+
 # ---------------------------------------------------------------------------
 # allow running directly: python test_pdbqt.py
 # ---------------------------------------------------------------------------
