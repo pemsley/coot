@@ -3293,6 +3293,18 @@ the first argument is a list of molecule numbers and the second is the target
    molecule into which the others should be merged  */
 PyObject *merge_molecules_py(PyObject *add_molecules, int imol);
 void set_merge_molecules_ligand_spec_py(PyObject *ligand_spec_py);
+
+/*! \brief split a multi-model ligand molecule (e.g. docking poses) and merge each
+   conformer into its own copy of a protein molecule.
+
+   imol_ligand is a multi-model ligand molecule; imol_protein is the protein.
+   For each model (pose) in imol_ligand a fresh copy of imol_protein is made and
+   the pose is merged into it, giving one protein+ligand complex molecule per pose.
+
+   @return a list with one entry per pose: [imol_complex, merge_info], where
+   merge_info is as returned by merge_molecules_py() ([status, spec-or-chain, ...])
+   and describes where the ligand ended up in the complex. */
+PyObject *split_multi_model_molecule_and_merge_py(int imol_ligand, int imol_protein);
 #endif /* PYTHON */
 #endif	/* c++ */
 
