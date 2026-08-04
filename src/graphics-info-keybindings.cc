@@ -182,6 +182,36 @@ graphics_info_t::print_key_bindings() {
    }
 }
 
+namespace {
+
+   // For the bare Left/Right arrow single-model-view stepping: choose the
+   // molecule that has more than one model whose centre is closest to the
+   // rotation centre and within dist_crit Angstroms. Returns -1 if none.
+   int single_model_view_nearby_molecule(float dist_crit) {
+      int best_imol = -1;
+      double best_d = dist_crit;
+      coot::Cartesian rc = graphics_info_t::RotationCentre();
+      for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
+         if (graphics_info_t::is_valid_model_molecule(imol)) {
+            if (graphics_info_t::molecules[imol].atom_selection_is_pickable()) {
+               if (graphics_info_t::molecules[imol].get_mol_is_displayed()) {
+                  mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+                  if (mol && mol->GetNumberOfModels() > 1) {
+                     coot::Cartesian c = graphics_info_t::molecules[imol].centre_of_molecule();
+                     double d = (c - rc).amplitude();
+                     if (d < best_d) {
+                        best_d = d;
+                        best_imol = imol;
+                     }
+                  }
+               }
+            }
+         }
+      }
+      return best_imol;
+   }
+}
+
 void
 graphics_info_t::setup_key_bindings() {
 
@@ -966,6 +996,27 @@ graphics_info_t::setup_key_bindings() {
    kb_vec.push_back(p10);
    kb_vec.push_back(p11);
    kb_vec.push_back(p12);
+
+   // bare Left/Right: step through the models of a nearby multi-model molecule
+   // (e.g. AutoDock/Vina docking poses) in single-model view.
+   auto l50 = []() {  // bare Left: previous model
+      int imol = single_model_view_nearby_molecule(12.0);
+      if (imol >= 0)
+         single_model_view_prev_model_number(imol);
+      return gboolean(TRUE);
+   };
+   auto l51 = []() {  // bare Right: next model
+      int imol = single_model_view_nearby_molecule(12.0);
+      if (imol >= 0)
+         single_model_view_next_model_number(imol);
+      return gboolean(TRUE);
+   };
+   key_bindings_t bare_arrow_left_key_binding(l50,  "Single-model view: previous model");
+   key_bindings_t bare_arrow_right_key_binding(l51, "Single-model view: next model");
+   std::pair<keyboard_key_t, key_bindings_t> p13(keyboard_key_t(GDK_KEY_Left,  false), bare_arrow_left_key_binding);
+   std::pair<keyboard_key_t, key_bindings_t> p14(keyboard_key_t(GDK_KEY_Right, false), bare_arrow_right_key_binding);
+   kb_vec.push_back(p13);
+   kb_vec.push_back(p14);
 
    std::vector<std::pair<keyboard_key_t, key_bindings_t> >::const_iterator it;
    for (it=kb_vec.begin(); it!=kb_vec.end(); ++it)

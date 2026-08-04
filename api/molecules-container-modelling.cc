@@ -704,7 +704,7 @@ molecules_container_t::match_ligand_torsions(int imol_ligand, int imol_ref, cons
                geom.get_monomer_restraints(res_name_ref_res, imol_ref);
             if (restraints_info.first) {
                std::vector <coot::dict_torsion_restraint_t> tr_ref_res =
-                  geom.get_monomer_torsions_from_geometry(res_name_ref_res, 0);
+                  geom.get_monomer_torsions_from_geometry(res_name_ref_res, imol_ref);
                int n_torsions_moved = molecules[imol_ligand].match_torsions(res_reference, tr_ref_res, geom);
 
                if (n_torsions_moved > 0) status = true;

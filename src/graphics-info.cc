@@ -505,7 +505,7 @@ graphics_info_t::add_cif_dictionary(std::string cif_dictionary_filename,
          add_status_bar_text(s);
          graphics_draw();
       }
-      std::cout << display_density_level_screen_string << std::endl;
+      logger.log(log_t::INFO, "g.add_cif_dictionary()", display_density_level_screen_string);
    } else {
       std::cout << "init_refmac_mon_lib "  << cif_dictionary_filename
                 << " had no bond restraints\n";

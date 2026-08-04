@@ -233,9 +233,7 @@ match_ligand_torsions(int imol_ligand, int imol_ref, const char *chain_id_ref, i
 	 if (is_valid_model_molecule(imol_ref)) {
 	    graphics_info_t g;
 	    mmdb::Manager *mol_ref = g.molecules[imol_ref].atom_sel.mol;
-	    mmdb::Residue *res_ref = coot::util::get_residue(chain_id_ref,
-							resno_ref, "",
-							mol_ref);
+	    mmdb::Residue *res_ref = coot::util::get_residue(chain_id_ref, resno_ref, "", mol_ref);
 	    if (res_ref) {
 
 	       std::string res_name_ref_res(res_ref->GetResName());
@@ -243,16 +241,14 @@ match_ligand_torsions(int imol_ligand, int imol_ref, const char *chain_id_ref, i
 		  g.Geom_p()->get_monomer_restraints(res_name_ref_res, imol_ref);
 	       if (restraints_info.first) {
 		  std::vector <coot::dict_torsion_restraint_t> tr =
-		     g.Geom_p()->get_monomer_torsions_from_geometry(res_name_ref_res, 0);
+		     g.Geom_p()->get_monomer_torsions_from_geometry(res_name_ref_res, imol_ref);
 
-		  if (tr.size() == 0) {
-		     std::cout << "WARNING:: No torsion restraints from PRODRG"
+		  if (tr.empty()) {
+		     std::cout << "WARNING:: No torsion restraints for reference ligand"
 			       << std::endl;
 		  } else {
 		     // normal case
-		     int n_rotated = g.molecules[imol_ligand].match_torsions(res_ref, tr, *g.Geom_p());
-		     // std::cout << "INFO:: rotated " << n_rotated << " torsions in matching torsions"
-		     //            << std::endl;
+		     int n_rotated = g.molecules[imol_ligand].match_torsions(res_ref, imol_ref, tr, *g.Geom_p());
 		     logger.log(log_t::INFO, "rotated", n_rotated, "torsions in matching torsions");
 		  }
 	       }
@@ -1178,8 +1174,16 @@ std::string get_rdkit_mol_base64_from_molecule(int imol, PyObject *residue_spec_
       // std::cout << "DEBUG:: in get_rdkit_mol_pickle_base64_from_molecule() A " << std::endl;
       graphics_info_t g;
       mmdb::Residue *r = graphics_info_t::molecules[imol].get_residue(rs);
+      if (! r) {
+         std::cout << "WARNING:: get_rdkit_mol_base64_from_molecule(): no residue for "
+                   << rs << " in molecule " << imol << std::endl;
+         return pickle_string;
+      }
       std::string residue_name = r->GetResName();
-      int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
+      // Use imol (not IMOL_ENC_ANY) so that a dictionary read for this specific
+      // molecule (read_cif_dictionary_for_molecule()) is found; matches_imol()
+      // still resolves IMOL_ENC_ANY dictionaries too.
+      int imol_enc = imol;
       std::pair<bool, coot::dictionary_residue_restraints_t> rp = g.Geom_p()->get_monomer_restraints(residue_name, imol_enc);
       // std::cout << "DEBUG:: in get_rdkit_mol_pickle_base64_from_molecule() B " << r << std::endl;
       if (r) {
@@ -2152,16 +2156,16 @@ void match_ligand_atom_names(int imol_ligand, const char *chain_id_ligand, int r
 			     int imol_reference, const char *chain_id_reference, int resno_reference, const char *ins_code_reference) {
 
    if (! is_valid_model_molecule(imol_ligand)) {
-      std::cout << "Not a valid model number " << imol_ligand << std::endl;
+      std::cout << "WARNING:: Not a valid model number " << imol_ligand << std::endl;
    } else {
       if (! is_valid_model_molecule(imol_reference)) {
-	      std::cout << "Not a valid model number " << imol_reference << std::endl;
+	      std::cout << "WARNING:: Not a valid model number " << imol_reference << std::endl;
       } else {
 	 graphics_info_t g;
 	 mmdb::Residue *res_ref =
 	    g.molecules[imol_reference].get_residue(chain_id_reference, resno_reference, ins_code_reference);
 	 if (! res_ref) {
-	    std::cout << "No reference residue " << chain_id_reference << " " << resno_reference
+	    std::cout << "WARNING:: No reference residue " << chain_id_reference << " " << resno_reference
 		      << " "  << ins_code_reference << std::endl;
 	 } else {
 	    // now lock res_ref - when multi-threaded

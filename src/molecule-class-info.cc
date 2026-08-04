@@ -4936,19 +4936,21 @@ molecule_class_info_t::single_model_view_this_model_number() const {
 
 int
 molecule_class_info_t::single_model_view_prev_model_number() {
+   // Model number 0 is the "all models shown" state, which is part of the cycle:
+   // ... -> model 1 -> all -> model n -> model n-1 -> ...
    int model_no = 0;
    if (has_model()) {
       int n = n_models();
       if (n > 1) {
          int prev = single_model_view_current_model_number - 1;
-         if (prev >= 1) {
-            // OK
+         if (prev < 0)
+            prev = n;   // stepping back from "all" shows the last model
+         if (prev == 0) {
+            model_no = 0;   // stepping back from model 1 shows all models
          } else {
-            prev = n;
-         }
-         mmdb::Model *model = atom_sel.mol->GetModel(prev);
-         if (model) {
-            model_no = prev;
+            mmdb::Model *model = atom_sel.mol->GetModel(prev);
+            if (model)
+               model_no = prev;
          }
       }
    }
@@ -4958,19 +4960,21 @@ molecule_class_info_t::single_model_view_prev_model_number() {
 
 int
 molecule_class_info_t::single_model_view_next_model_number() {
+   // Model number 0 is the "all models shown" state, which is part of the cycle:
+   // ... -> model n-1 -> model n -> all -> model 1 -> ...
    int model_no = 0;
    if (has_model()) {
       int n = n_models();
       if (n > 1) {
          int next = single_model_view_current_model_number + 1;
-         if (next <= n) {
-            // OK
+         if (next > n)
+            next = 0;   // stepping past the last model shows all models
+         if (next == 0) {
+            model_no = 0;   // all models
          } else {
-            next = 1;
-         }
-         mmdb::Model *model = atom_sel.mol->GetModel(next);
-         if (model) {
-            model_no = next;
+            mmdb::Model *model = atom_sel.mol->GetModel(next);
+            if (model)
+               model_no = next;
          }
       }
    }

@@ -919,14 +919,28 @@ int handle_cif_dictionary(const std::string &filename);
 return the number of bonds read (> 0 can be treated as success) */
 int read_cif_dictionary(const std::string &filename);
 
-/* \brief return the number of bonds read (> 0 can be treated as success).
- Apply to the given molecule.
+/* \brief this is the callback used by the cif dictionary file import dialog
 
- imol_enc can be the model molecule number or
+ Apply dictionary to the given molecule if the checkbutton was active
+
+ @param imol_enc can be the model molecule number or
  IMOL_ENC_ANY = -999999, IMOL_ENC_AUTO = -999998, IMOL_ENC_UNSET = -999997
-
+ @return the number of bonds read (> 0 can be treated as success).
  */
 int handle_cif_dictionary_for_molecule(const std::string &filename, int imol_enc, short int new_molecule_from_dictionary_cif_checkbutton_state);
+
+/* \brief import a cif dictionary
+
+ As above, but this is the scripting interface.
+
+ Apply to the given molecule.
+
+ @param imol_enc can be the model molecule number or
+ IMOL_ENC_ANY = -999999, IMOL_ENC_AUTO = -999998, IMOL_ENC_UNSET = -999997
+ @return the number of bonds read (> 0 can be treated as success).
+
+ */
+int read_cif_dictionary_for_molecule(const std::string &filename, int imol_enc);
 
 //! dictionary entries
 std::vector<std::string> dictionary_entries();

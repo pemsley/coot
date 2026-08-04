@@ -5832,6 +5832,10 @@ int read_cif_dictionary(const std::string &filename) {
 
 }
 
+int read_cif_dictionary_for_molecule(const std::string &filename, int imol_enc) {
+   return handle_cif_dictionary_for_molecule(filename, imol_enc, 1);
+}
+
 /*! \brief some programs produce PDB files with ATOMs where there
   should be HETATMs.  This is a function to assign HETATMs as per the
   PDB definition. */
