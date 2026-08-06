@@ -738,6 +738,10 @@ NB_MODULE(coot_headless_api, m) {
     .def("get_imol_enc_any",
          &molecules_container_t::get_imol_enc_any,
          get_docstring_from_xml("get_imol_enc_any").c_str())
+    .def("get_InChI_for_residue_type",
+            &molecules_container_t::get_InChI_for_residue_type,
+            nb::arg("residue_name"), nb::arg("imol_enc"),
+            get_docstring_from_xml("get_InChI_for_residue_type").c_str())
     .def("get_ligand_validation_vs_dictionary",
          &molecules_container_t::get_ligand_validation_vs_dictionary,
          nb::arg("imol"), nb::arg("ligand_cid"), nb::arg("include_non_bonded_contacts"),
@@ -817,6 +821,10 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::get_monomer_from_dictionary,
          nb::arg("comp_id"), nb::arg("imol"), nb::arg("idealised_flag"),
          get_docstring_from_xml("get_monomer_from_dictionary").c_str())
+    .def("get_monomer_name",
+         &molecules_container_t::get_monomer_name,
+         nb::arg("comp_id"), nb::arg("imol"),
+         get_docstring_from_xml("get_monomer_name").c_str())
     .def("get_number_of_atoms",
          &molecules_container_t::get_number_of_atoms,
          nb::arg("imol"),
@@ -923,6 +931,10 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::get_single_letter_codes_for_chain,
          nb::arg("imol"), nb::arg("chain_id"),
          get_docstring_from_xml("get_single_letter_codes_for_chain").c_str())
+    .def("get_SMILES_for_residue_type",
+            &molecules_container_t::get_SMILES_for_residue_type,
+            nb::arg("residue_name"), nb::arg("imol_enc"),
+            get_docstring_from_xml("get_SMILES_for_residue_type").c_str())
     .def("get_spherical_variance",
          &molecules_container_t::get_spherical_variance,
          nb::arg("imol_map"), nb::arg("imol_model"),

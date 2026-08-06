@@ -28,6 +28,7 @@
 #include <iostream>
 #include <sstream>
 #include "coot-utils/simple-mesh.hh"
+#include "mmdb2/mmdb_atom.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
@@ -2328,6 +2329,99 @@ coot::molecule_t::delete_literal_using_cid(const std::string &atom_selection_cid
             // save_info.new_modification(s);
    }
    return status;
+}
+
+int coot::molecule_t::delete_all_hetgroups() {
+
+   int n_deleted = 0;
+   std::vector<mmdb::Residue *> residues_to_be_deleted;
+   if (atom_sel.mol) {
+      for(int imod = 1; imod<=atom_sel.mol->GetNumberOfModels(); imod++) {
+         mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+         if (model_p) {
+            int n_chains = model_p->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains; ichain++) {
+               mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               int n_res = chain_p->GetNumberOfResidues();
+               for (int ires=0; ires<n_res; ires++) {
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                  if (residue_p) {
+                     int n_atoms = residue_p->GetNumberOfAtoms();
+                     bool res_is_het = false;
+                     for (int iat=0; iat<n_atoms; iat++) {
+                        mmdb::Atom *at = residue_p->GetAtom(iat);
+                        if (! at->isTer()) {
+                           if (at->Het) {
+                              res_is_het = true;
+                              break;
+                           }
+                        }
+                     }
+                     if (res_is_het) {
+                        residues_to_be_deleted.push_back(residue_p);
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+   if (! residues_to_be_deleted.empty()) {
+      std::string s = std::string("delete-all-hetgroups");
+      make_backup(s);
+      n_deleted = residues_to_be_deleted.size();
+      for (auto residue : residues_to_be_deleted) {
+         delete residue ;
+      }
+      atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+      atom_sel.mol->FinishStructEdit();
+      atom_sel = make_asc(atom_sel.mol);
+      coot::util::pdbcleanup_serial_residue_numbers(atom_sel.mol);
+   }
+   return n_deleted;
+}
+
+int coot::molecule_t::delete_all_waters() {
+
+   int n_deleted = 0;
+   std::vector<mmdb::Residue *> residues_to_be_deleted;
+
+   if (atom_sel.mol) {
+      for(int imod = 1; imod<=atom_sel.mol->GetNumberOfModels(); imod++) {
+         mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+         if (model_p) {
+            int n_chains = model_p->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains; ichain++) {
+               mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               int n_res = chain_p->GetNumberOfResidues();
+               for (int ires=0; ires<n_res; ires++) {
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                  if (residue_p) {
+                     std::string res_name = residue_p->GetResName();
+                     if (res_name == "HOH") {
+                        residues_to_be_deleted.push_back(residue_p);
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+
+   if (! residues_to_be_deleted.empty()) {
+      std::string s = std::string("delete-all-waters");
+      make_backup(s);
+
+      n_deleted = residues_to_be_deleted.size();
+      for (auto residue : residues_to_be_deleted) {
+         delete residue;
+      }
+      atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+      atom_sel.mol->FinishStructEdit();
+      atom_sel = make_asc(atom_sel.mol);
+      coot::util::pdbcleanup_serial_residue_numbers(atom_sel.mol);
+   }
+   return n_deleted;
 }
 
 #include "geometry/main-chain.hh"

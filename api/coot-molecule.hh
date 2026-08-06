@@ -1071,6 +1071,22 @@ namespace coot {
       int delete_chain_using_atom_cid(const std::string &cid);
       int delete_literal_using_cid(const std::string &cid); // cid is an atom selection, e.g. containing a residue range
 
+      //! delete all waters
+      //!
+      //! @param imol is the model molecule index
+      //!
+      //! @return the number of water molecule deleted
+      int delete_all_waters();
+
+      //! delete all hetgroups
+      //!
+      //! Hetgroups do not include waters
+      //!
+      //! @param imol is the model molecule index
+      //!
+      //! @return the number of water molecule deleted
+      int delete_all_hetgroups();
+
       int change_alt_locs(const std::string &cid, const std::string &change_mode);
 
       std::pair<int, std::string> add_terminal_residue_directly(const residue_spec_t &spec,

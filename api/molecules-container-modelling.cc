@@ -928,3 +928,41 @@ molecules_container_t::delete_all_carbohydrate(int imol) {
    }
    return status;
 }
+
+//! delete all waters
+//!
+//! @param imol is the model molecule index
+//!
+//! @return the number of water molecule deleted
+int
+molecules_container_t::delete_all_waters(int imol) {
+
+   int n_deleted = 0;
+   if (is_valid_model_molecule(imol)) {
+      n_deleted = molecules[imol].delete_all_waters();
+      set_updating_maps_need_an_update(imol);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return n_deleted;
+}
+
+//! delete all hetgroups
+//!
+//! Hetgroups do not include waters
+//!
+//! @param imol is the model molecule index
+//!
+//! @return the number of water molecule deleted
+int
+molecules_container_t::delete_all_hetgroups(int imol) {
+
+   int n_deleted = 0;
+   if (is_valid_model_molecule(imol)) {
+      n_deleted = molecules[imol].delete_all_hetgroups();
+      set_updating_maps_need_an_update(imol);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return n_deleted;
+}

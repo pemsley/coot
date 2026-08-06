@@ -919,6 +919,13 @@ public:
    //! get types
    std::vector<std::string> get_types_in_molecule(int imol) const;
 
+   //! get the name of the monomer (e.g. IUPAC name)
+   //!
+   //! @param comp_id the monomer name (three-letter-code)
+   //! @param imol_enc the molecule index (can be imol_enc_any)
+   //! @return the molecule name or blank string on failure.
+   std::string get_monomer_name(const std::string &comp_id, int imol_enc);
+
    // 20221030-PE nice to have one day:
    // int get_monomer_molecule_by_network_and_dict_gen(const std::string &text);
 
@@ -1595,12 +1602,21 @@ public:
 
    //! Get the SMILES string for the give residue type
    //!
-   //! @param residue 3 letter-code/name of the compound-id
+   //! @param residue_name "3 letter-code"/the compound-id
    //! @param imol_enc is the molecule index for the residue type/compound_id
    //!
    //! @return the SMILES string if the residue type can be found in the dictionary store
    //! or the empty string on a failure.
    std::string get_SMILES_for_residue_type(const std::string &residue_name, int imol_enc) const;
+
+   //! Get the InChI string for the given residue type
+   //!
+   //! @param residue_name "3 letter-code"/the compound-id
+   //! @param imol_enc is the molecule index for the residue type/compound_id
+   //!
+   //! @return the InChI string if the residue type can be found in the dictionary store
+   //! or the empty string on a failure.
+   std::string get_InChI_for_residue_type(const std::string &residue_name, int imol_enc) const;
 
    //! Get residues with missing atoms
    //!
@@ -2293,6 +2309,22 @@ public:
    //!
    //! @return true on successful deletion, return false on no deletion.
    bool delete_all_carbohydrate(int imol);
+
+   //! delete all waters
+   //!
+   //! @param imol is the model molecule index
+   //!
+   //! @return the number of waters deleted
+   int delete_all_waters(int imol);
+
+   //! delete all hetgroups
+   //!
+   //! Hetgroups do not include waters
+   //!
+   //! @param imol is the model molecule index
+   //!
+   //! @return the number of hetgroups deleted
+   int delete_all_hetgroups(int imol);
 
    // (I should have) change(d) that stupid (alt) loc (I should have made you leave your key)
    //

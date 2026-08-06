@@ -2231,6 +2231,9 @@ namespace coot {
       // can throw a std::runtime_error
       std::string Get_SMILES_for_comp_id(const std::string &comp_id,  int imol_enc) const;
 
+      // can throw a std::runtime_error
+      std::string Get_InChI_for_comp_id(const std::string &comp_id,  int imol_enc) const;
+
       // debug
       void debug() const;
 

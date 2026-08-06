@@ -2,6 +2,13 @@
 
 o  superpose ligands? gui item seems to fail on hal
 
+o scripting: add "delete all hetgroups"
+
+o scripting: delete all waters
+
+o scripting: glob many monomer cifs and import them
+  things slow down - fixable?
+
 o make a generic conformer generator - use the old style
   with torsion sampling and energy minimization
 

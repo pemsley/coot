@@ -1078,6 +1078,21 @@ molecules_container_t::get_monomer_and_position_at(const std::string &comp_id, i
    return imol;
 }
 
+//! get the name of the monomer (e.g. IUPAC name)
+//!
+//! @param imol_end the molecule index (can be imol_enc_any)
+//! @param imol the monomer name (three-letter-code)
+//! @return the molecule name or blank string on failure.
+std::string molecules_container_t::get_monomer_name(const std::string &comp_id, int imol_enc) {
+
+   std::string r;
+   std::pair<bool, coot::dictionary_residue_restraints_t> rr = geom.get_monomer_restraints(comp_id, imol_enc);
+   if (rr.first) {
+      r = rr.second.residue_info.name;
+   }
+   return r;
+}
+
 
 //! return the group for the give list of residue names
 std::vector<std::string>
@@ -6373,7 +6388,32 @@ molecules_container_t::get_residue_name(int imol, const std::string &chain_id, i
 std::string
 molecules_container_t::get_SMILES_for_residue_type(const std::string &residue_name, int imol_enc) const {
 
-   std::string s = geom.Get_SMILES_for_comp_id(residue_name, imol_enc);
+   std::string s;
+   try {
+       s = geom.Get_SMILES_for_comp_id(residue_name, imol_enc);
+   }
+   catch (const std::runtime_error &rte) {
+      // no SMILES in the dictionary for this residue type - return the empty string
+   }
+   return s;
+}
+
+//! Get the InChI string for the given residue type
+//!
+//! @param residue_name the compound-id
+//! @param imol_enc the molecule index for the residue type/compound_id
+//! @return the InChI string if the residue type can be found in the dictionary store
+//!         or the empty string on a failure.
+std::string
+molecules_container_t::get_InChI_for_residue_type(const std::string &residue_name, int imol_enc) const {
+
+   std::string s;
+   try {
+      s = geom.Get_InChI_for_comp_id(residue_name, imol_enc);
+   }
+   catch (const std::runtime_error &rte) {
+      // no InChI in the dictionary for this residue type - return the empty string
+   }
    return s;
 }
 

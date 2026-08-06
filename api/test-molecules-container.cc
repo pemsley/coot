@@ -7942,6 +7942,88 @@ int test_delete_all_carbohydrate(molecules_container_t &mc) {
    return status;
 }
 
+int test_delete_all_waters(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
+   if (mc.is_valid_model_molecule(imol)) {
+      int n_deleted = mc.delete_all_waters(imol);
+      mmdb::Manager *mol = mc.get_mol(imol);
+      if (mol) {
+         // check for remaining waters
+         int n_waters = 0;
+         for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+            mmdb::Model *model_p = mol->GetModel(imod);
+            if (model_p) {
+               int n_chains = model_p->GetNumberOfChains();
+               for (int ichain=0; ichain<n_chains; ichain++) {
+                  mmdb::Chain *chain_p = model_p->GetChain(ichain);
+                  int n_res = chain_p->GetNumberOfResidues();
+                  for (int ires=0; ires<n_res; ires++) {
+                     mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                     if (residue_p) {
+                        std::string rn = residue_p->GetResName();
+                        if (rn == "HOH") n_waters++;
+                     }
+                  }
+               }
+            }
+         }
+         std::cout << "test_delete_all_waters: n_deleted " << n_deleted
+                   << " n_waters remaining " << n_waters << std::endl;
+         if (n_deleted == 150 && n_waters == 0) status = 1;
+      }
+   }
+   return status;
+}
+
+int test_delete_all_hetgroups(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("pdb8ox7.ent"));
+   if (mc.is_valid_model_molecule(imol)) {
+      int n_deleted = mc.delete_all_hetgroups(imol);
+      mmdb::Manager *mol = mc.get_mol(imol);
+      if (mol) {
+         // check for remaining hetgroup residues
+         int n_het_residues = 0;
+         for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+            mmdb::Model *model_p = mol->GetModel(imod);
+            if (model_p) {
+               int n_chains = model_p->GetNumberOfChains();
+               for (int ichain=0; ichain<n_chains; ichain++) {
+                  mmdb::Chain *chain_p = model_p->GetChain(ichain);
+                  int n_res = chain_p->GetNumberOfResidues();
+                  for (int ires=0; ires<n_res; ires++) {
+                     mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                     if (residue_p) {
+                        int n_atoms = residue_p->GetNumberOfAtoms();
+                        for (int iat=0; iat<n_atoms; iat++) {
+                           mmdb::Atom *at = residue_p->GetAtom(iat);
+                           if (! at->isTer()) {
+                              if (at->Het) {
+                                 n_het_residues++;
+                                 break;
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+         std::cout << "test_delete_all_hetgroups: n_deleted " << n_deleted
+                   << " n_het_residues remaining " << n_het_residues << std::endl;
+         if (n_deleted == 9 && n_het_residues == 0) status = 1;
+      }
+   }
+   return status;
+}
+
 int test_map_vertices_histogram(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -8560,6 +8642,8 @@ int main(int argc, char **argv) {
          // status += run_test(test_molecular_placement_pipeline_r_chain, "MR R-chain", mc);
          // status += run_test(test_molecular_placement_pipeline, "MR pipeline", mc);
          status += run_test(test_rdkit_mol_pickle, "RDKit Mol Pickle", mc);
+         status += run_test(test_delete_all_waters, "Delete all waters", mc);
+         status += run_test(test_delete_all_hetgroups, "Delete all hetgroups", mc);
          if (status == n_tests) all_tests_status = 0;
 
          print_results_summary();
