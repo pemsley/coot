@@ -1,10 +1,22 @@
 --- Items---
 
+o take a look at Avogadro JSON-RPC
+  (dnotes)
+
+o ligand restraints accumulated per atom, not every
+  restraint
+
 o  superpose ligands? gui item seems to fail on hal
+* Done.
+
+o look at COD files from the last year, say. Can
+  they be read by Coot (chapi)?
 
 o scripting: add "delete all hetgroups"
+* Done.
 
 o scripting: delete all waters
+* Done.
 
 o scripting: glob many monomer cifs and import them
   things slow down - fixable?
