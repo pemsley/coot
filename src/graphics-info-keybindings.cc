@@ -10,6 +10,7 @@ void set_bond_smoothness_factor(unsigned int fac);
 
 #include "matrix-utils.hh"
 #include "rsr-functions.hh"
+#include "ligand/richardson-rotamer.hh"  // for coot::richardson_rotamer (Rotamer Name key-binding)
 #include "graphics-info.h"
 #include "vte.hh"   // for show_command_vte_terminal() (Tab -> command line)
 
@@ -753,6 +754,56 @@ graphics_info_t::setup_key_bindings() {
       return gboolean(TRUE);
    };
 
+   auto l_add_water_here = [] () {
+      add_an_atom("Water");
+      return gboolean(TRUE);
+   };
+
+   auto l_edit_chi_angles = [] () {
+      graphics_info_t g;
+      auto active_atom = g.get_active_atom();
+      int imol = active_atom.first;
+      if (is_valid_model_molecule(imol)) {
+         auto &m = g.molecules[imol];
+         mmdb::Atom *at = active_atom.second;
+         int idx = m.get_atom_index(at);
+         g.execute_edit_chi_angles(idx, imol);
+      }
+      return gboolean(TRUE);
+   };
+
+   auto l_rotamer_selection = [] () {
+      graphics_info_t g;
+      std::pair<int, mmdb::Atom *> aa = g.get_active_atom();
+      int imol = aa.first;
+      if (is_valid_model_molecule(imol)) {
+         g.do_rotamers(imol, aa.second); // (imol, atom) overload sets up the moving atoms
+      }
+      return gboolean(TRUE);
+   };
+
+   auto l_rotamer_name = [] () {
+      graphics_info_t g;
+      std::pair<int, mmdb::Atom *> aa = g.get_active_atom();
+      int imol = aa.first;
+      if (is_valid_model_molecule(imol)) {
+         mmdb::Atom *at = aa.second;
+         mmdb::Residue *residue_p = at->GetResidue();
+         if (residue_p) {
+            std::string alt_conf = at->altLoc;
+            mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+            coot::richardson_rotamer d(residue_p, alt_conf, mol, 0.0, 1);
+            coot::rotamer_probability_info_t prob = d.probability_of_this_rotamer();
+            coot::residue_spec_t res_spec(residue_p);
+            std::string s = res_spec.chain_id + std::string(" ") + std::to_string(res_spec.res_no) +
+                            std::string(" ") + residue_p->GetResName() +
+                            std::string("  Rotamer: ") + prob.rotamer_name;
+            g.add_status_bar_text(s);
+         }
+      }
+      return gboolean(TRUE);
+   };
+
    auto l46 = [] {
       show_keyboard_mutate_frame();
       return gboolean(TRUE);
@@ -797,6 +848,10 @@ graphics_info_t::setup_key_bindings() {
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_w,      key_bindings_t(l12, "Move forward")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_s,      key_bindings_t(l13, "Move backward")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_t,      key_bindings_t(l_triple_refine, "Triple Refine")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_v,      key_bindings_t(l_add_water_here, "Add Water Here")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_c,      key_bindings_t(l_edit_chi_angles, "Edit Chi Angles")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_X,      key_bindings_t(l_rotamer_selection, "Rotamer Selection")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_asciitilde, key_bindings_t(l_rotamer_name, "Rotamer Name to Status Bar")));
    // kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_o,      key_bindings_t(l14, "NCS Skip forward")));
    // kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_O,      key_bindings_t(l15, "NCS Skip backward")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_u,      key_bindings_t(l16, "Undo Move")));
