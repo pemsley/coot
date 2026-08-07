@@ -689,6 +689,70 @@ graphics_info_t::setup_key_bindings() {
       return gboolean(TRUE);
    };
 
+   auto l45_jed = [] () {
+
+      graphics_info_t g;
+      bool done = false;
+      if (moving_atoms_asc) {
+         if (moving_atoms_asc->mol) {
+            g.jed_flip_intermediate_atoms(false); // not inverted
+            done = true;
+         }
+      }
+
+      if (! done) {
+         std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+         int imol = pp.second.first;
+         if (is_valid_model_molecule(imol)) {
+            const coot::atom_spec_t &as = pp.second.second;
+            jed_flip(imol, as.chain_id.c_str(), as.res_no, as.ins_code.c_str(),
+                     as.atom_name.c_str(), as.alt_conf.c_str(), 0); // not inverted
+         }
+      }
+      return gboolean(TRUE);
+   };
+
+   auto l45_jed_reverse = [] () {
+
+      graphics_info_t g;
+      bool done = false;
+      if (moving_atoms_asc) {
+         if (moving_atoms_asc->mol) {
+            g.jed_flip_intermediate_atoms(true); // inverted
+            done = true;
+         }
+      }
+
+      if (! done) {
+         std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+         int imol = pp.second.first;
+         if (is_valid_model_molecule(imol)) {
+            const coot::atom_spec_t &as = pp.second.second;
+            jed_flip(imol, as.chain_id.c_str(), as.res_no, as.ins_code.c_str(),
+                     as.atom_name.c_str(), as.alt_conf.c_str(), 1); // inverted
+         }
+      }
+      return gboolean(TRUE);
+   };
+
+   auto l_jiggle_fit = [] () {
+      std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec_simple();
+      int imol = pp.second.first;
+      if (is_valid_model_molecule(imol)) {
+         const coot::atom_spec_t &as = pp.second.second;
+         int n_trials = 400;
+         float jiggle_scale_factor = 1.0;
+         fit_to_map_by_random_jiggle(imol, as.chain_id.c_str(), as.res_no, as.ins_code.c_str(),
+                                     n_trials, jiggle_scale_factor);
+      }
+      return gboolean(TRUE);
+   };
+
+   auto l_triple_refine = [] () {
+      rsr_refine_tandem_1();
+      return gboolean(TRUE);
+   };
+
    auto l46 = [] {
       show_keyboard_mutate_frame();
       return gboolean(TRUE);
@@ -732,6 +796,7 @@ graphics_info_t::setup_key_bindings() {
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_m,      key_bindings_t(l11, "Zoom in")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_w,      key_bindings_t(l12, "Move forward")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_s,      key_bindings_t(l13, "Move backward")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_t,      key_bindings_t(l_triple_refine, "Triple Refine")));
    // kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_o,      key_bindings_t(l14, "NCS Skip forward")));
    // kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_O,      key_bindings_t(l15, "NCS Skip backward")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_u,      key_bindings_t(l16, "Undo Move")));
@@ -752,6 +817,9 @@ graphics_info_t::setup_key_bindings() {
 
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_A,      key_bindings_t(l38, "Toggle Display of Last Model")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_E,      key_bindings_t(l40c, "Chain Refine")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_F,      key_bindings_t(l45_jed, "JED Flip")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_G,      key_bindings_t(l45_jed_reverse, "Reverse JED Flip")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_J,      key_bindings_t(l_jiggle_fit, "Jiggle Fit")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_M,      key_bindings_t(l46, "Keyboard Mutate")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_P,      key_bindings_t(l48, "Bond by Dictionary")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_R,      key_bindings_t(l40, "Sphere Refine")));

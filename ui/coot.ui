@@ -19466,6 +19466,18 @@ Move a copy?</property>
                 <property name="title" translatable="yes">Triple-Refine Auto-Accept</property>
               </object>
             </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">t</property>
+                <property name="title" translatable="yes">Triple Refine</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">&lt;Shift&gt;J</property>
+                <property name="title" translatable="yes">Jiggle Fit</property>
+              </object>
+            </child>
 
           </object>
         </child>
@@ -19502,6 +19514,18 @@ Move a copy?</property>
               <object class="GtkShortcutsShortcut">
                 <property name="accelerator">q</property>
                 <property name="title" translatable="yes">Flip Peptide</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">&lt;Shift&gt;F</property>
+                <property name="title" translatable="yes">JED Flip</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">&lt;Shift&gt;G</property>
+                <property name="title" translatable="yes">Reverse JED Flip</property>
               </object>
             </child>
             <child>
