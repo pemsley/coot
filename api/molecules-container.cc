@@ -6231,6 +6231,108 @@ molecules_container_t::get_computed_acedrg_atom_types(const std::string &compoun
 }
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
 
+#include "coot-utils/cremer-pople.hh"
+
+coot::cremer_pople_info_t
+molecules_container_t::get_cremer_pople(int imol,
+                                        const std::string &residue_cid,
+                                        const std::vector<std::string> &ordered_atom_names,
+                                        const std::string &up_reference_atom_name,
+                                        const std::string &alt_conf) {
+   coot::cremer_pople_info_t info;
+   if (! is_valid_model_molecule(imol)) return info;
+
+   mmdb::Residue *residue_p = molecules[imol].cid_to_residue(residue_cid);
+   if (! residue_p) return info;
+
+   auto strip = [] (const std::string &s) {
+      std::string r = s;
+      while (!r.empty() && r.front() == ' ') r.erase(0,1);
+      while (!r.empty() && r.back()  == ' ') r.pop_back();
+      return r;
+   };
+
+   // When alt_conf is given explicitly, match it exactly (an alt_conf that
+   // doesn't exist on this residue yields "not found", not a silent fallback).
+   //
+   // When alt_conf is empty, do NOT just take the first atom of that name in
+   // GetAtomTable() order: on a residue with genuine alternate conformers the
+   // table order need not agree from atom to atom (e.g. C1's "A" record can
+   // precede its "B" while C2's "B" precedes its "A"), so "first match" can
+   // silently mix atoms from two different physical conformers into one ring
+   // and return a plausible-looking but meaningless result. Instead: prefer
+   // a blank-altLoc atom if one exists; otherwise use a non-blank altLoc only
+   // if it is the sole distinct altLoc present for that atom name -- two or
+   // more distinct non-blank altLocs is ambiguous, so refuse (return false)
+   // rather than guess.
+   auto position_of = [&] (const std::string &name, clipper::Coord_orth &pos) -> bool {
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+
+      if (! alt_conf.empty()) {
+         for (int iat=0; iat<n_residue_atoms; iat++) {
+            mmdb::Atom *at = residue_atoms[iat];
+            if (at->isTer()) continue;
+            if (strip(at->GetAtomName()) != name) continue;
+            if (std::string(at->altLoc) != alt_conf) continue;
+            pos = clipper::Coord_orth(at->x, at->y, at->z);
+            return true;
+         }
+         return false;
+      }
+
+      mmdb::Atom *blank_match = nullptr;
+      mmdb::Atom *first_non_blank_match = nullptr;
+      std::string first_non_blank_altloc;
+      bool ambiguous = false;
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (at->isTer()) continue;
+         if (strip(at->GetAtomName()) != name) continue;
+         std::string this_altloc(at->altLoc);
+         if (this_altloc.empty()) {
+            if (! blank_match) blank_match = at;
+         } else {
+            if (! first_non_blank_match) {
+               first_non_blank_match = at;
+               first_non_blank_altloc = this_altloc;
+            } else if (this_altloc != first_non_blank_altloc) {
+               ambiguous = true;
+            }
+         }
+      }
+      mmdb::Atom *chosen = blank_match ? blank_match : (ambiguous ? nullptr : first_non_blank_match);
+      if (! chosen) return false;
+      pos = clipper::Coord_orth(chosen->x, chosen->y, chosen->z);
+      return true;
+   };
+
+   std::vector<clipper::Coord_orth> ring;
+   for (const auto &name : ordered_atom_names) {
+      clipper::Coord_orth p;
+      if (! position_of(name, p)) return info;   // missing atom -> not filled
+      ring.push_back(p);
+   }
+
+   clipper::Coord_orth up;
+   const clipper::Coord_orth *up_p = nullptr;
+   if (! up_reference_atom_name.empty())
+      if (position_of(up_reference_atom_name, up)) up_p = &up;
+
+   coot::cremer_pople_t cp(ring, up_p);
+   if (! cp.filled) return info;
+
+   info.filled    = true;
+   info.ring_size = static_cast<int>(cp.n_ring);
+   info.Q  = cp.Q;
+   info.q2 = cp.q2;
+   info.q3 = cp.q3;
+   info.phi = clipper::Util::rad2d(cp.phi);
+   info.theta = (cp.n_ring == 6) ? clipper::Util::rad2d(cp.theta) : 0.0;
+   return info;
+}
+
 //! get acedrg types for ligand bonds
 //! @return a vector of `acedrg_types_for_residue_t`
 coot::acedrg_types_for_residue_t

@@ -1,10 +1,13 @@
 --- Items---
 
-o  superpose ligands? gui item seems to fail on hal
+o superpose ligands? gui item seems to fail on hal
+* Done
 
 o scripting: add "delete all hetgroups"
+* Done.
 
 o scripting: delete all waters
+* Done
 
 o scripting: glob many monomer cifs and import them
   things slow down - fixable?

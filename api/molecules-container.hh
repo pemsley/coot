@@ -50,6 +50,22 @@
 #include "lidia-core/cod-atom-type-t.hh" // cod::atom_type_t, returned by get_computed_acedrg_atom_types()
 #endif
 
+namespace coot {
+   //! Cremer-Pople puckering parameters for one ring. Angles are DEGREES.
+   class cremer_pople_info_t {
+   public:
+      cremer_pople_info_t() : filled(false), ring_size(0), Q(0), theta(0),
+                              phi(0), q2(0), q3(0) {}
+      bool filled;
+      int ring_size;     //!< 5 or 6
+      double Q;          //!< total puckering amplitude (A)
+      double theta;      //!< degrees; meaningless (0) when ring_size == 5
+      double phi;        //!< degrees
+      double q2;
+      double q3;
+   };
+}
+
 //! the container of molecules. The class for all **libcootapi** functions.
 class molecules_container_t {
 
@@ -998,6 +1014,31 @@ public:
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
    std::vector<std::pair<std::string, cod::atom_type_t> > get_computed_acedrg_atom_types(const std::string &compound_id, int imol_enc);
 #endif
+
+   //! Cremer-Pople parameters for a ring, with the ring atoms given IN RING ORDER.
+   //! The ordering decides which chair you get: an odd rotation of the start atom
+   //! flips theta to 180-theta. up_reference_atom_name, when not empty, names an
+   //! atom (typically a ring substituent) whose side of the mean plane is "up";
+   //! empty means use the right-hand rule from the given ordering. NOTE: if
+   //! up_reference_atom_name is non-empty but does not resolve to an atom on the
+   //! residue (e.g. a typo), this silently falls back to the right-hand rule too --
+   //! indistinguishable from an intentionally empty name. There is no separate
+   //! signal for "your requested up-reference atom was not found".
+   //!
+   //! alt_conf selects which alternate conformer to read each ring/up-reference
+   //! atom from. If alt_conf is a specific (non-empty) altLoc and an atom lacks
+   //! that altLoc, the whole call returns filled == false (no fallback). If
+   //! alt_conf is empty: for each atom name, a blank-altLoc atom is preferred if
+   //! one exists; failing that, a single distinct non-blank altLoc is used
+   //! unambiguously; but if two or more distinct non-blank altLocs exist for that
+   //! atom name, get_cremer_pople() refuses to guess and returns filled == false,
+   //! rather than silently mixing atoms from different physical conformers into
+   //! one ring.
+   coot::cremer_pople_info_t get_cremer_pople(int imol,
+                                              const std::string &residue_cid,
+                                              const std::vector<std::string> &ordered_atom_names,
+                                              const std::string &up_reference_atom_name,
+                                              const std::string &alt_conf);
 
    //! Get the monomer restraints for the given compound as a JSON string
    //!

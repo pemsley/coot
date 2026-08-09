@@ -618,6 +618,13 @@ NB_MODULE(coot_headless_api, m) {
          nb::arg("compound_id"), nb::arg("imol_enc"),
          "Compute AceDRG/COD atom types from dictionary restraints via RDKit. "
          "Unlike get_acedrg_atom_types() which reads pre-stored types, this computes them.")
+    .def("get_cremer_pople",
+         &molecules_container_t::get_cremer_pople,
+         nb::arg("imol"), nb::arg("residue_cid"), nb::arg("ordered_atom_names"),
+         nb::arg("up_reference_atom_name"), nb::arg("alt_conf"),
+         "Cremer-Pople puckering parameters for a 5- or 6-ring, atoms given in "
+         "ring order. Angles in degrees. An odd rotation of the start atom flips "
+         "theta to 180-theta, so the ordering is significant.")
     .def("get_monomer_restraints_as_json",
          &molecules_container_t::get_monomer_restraints_as_json,
          nb::arg("compound_id"), nb::arg("imol_enc"),
@@ -1499,6 +1506,15 @@ NB_MODULE(coot_headless_api, m) {
       .def_ro("deletions",        &coot::chain_mutation_info_container_t::deletions)
       .def_ro("mutations",        &coot::chain_mutation_info_container_t::mutations)
       ;
+    nb::class_<coot::cremer_pople_info_t>(m,"cremer_pople_info_t")
+    .def_ro("filled",    &coot::cremer_pople_info_t::filled)
+    .def_ro("ring_size", &coot::cremer_pople_info_t::ring_size)
+    .def_ro("Q",         &coot::cremer_pople_info_t::Q)
+    .def_ro("theta",     &coot::cremer_pople_info_t::theta)
+    .def_ro("phi",       &coot::cremer_pople_info_t::phi)
+    .def_ro("q2",        &coot::cremer_pople_info_t::q2)
+    .def_ro("q3",        &coot::cremer_pople_info_t::q3)
+    ;
     nb::class_<coot::simple_rotamer>(m,"simple_rotamer")
     .def("P_r1234",&coot::simple_rotamer::P_r1234)
     .def("Probability_rich",&coot::simple_rotamer::Probability_rich)
