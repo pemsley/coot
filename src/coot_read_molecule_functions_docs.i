@@ -86,6 +86,19 @@ Parameters
 filename : str
 ";
 
+%feature("docstring") read_pdbqt "
+read a PDBQT file (e.g. an AutoDock/Vina docking result)
+
+Multi-model files (docking poses) are read as separate models and the Vina scoring information is stored as per-model UDData.
+
+  filename  is the name of the PDBQT file the new molecule index. Return -1 on failure
+
+Parameters
+----------
+filename : str
+    is the name of the PDBQT file
+";
+
 %feature("docstring") read_coordinates "
 read coordinates from filename
 

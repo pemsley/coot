@@ -5965,6 +5965,29 @@ void graphics_info_t::add_unhappy_atom_marker(int imol, const coot::atom_spec_t 
    }
 }
 
+void graphics_info_t::remove_unhappy_atom_marker(int imol, const coot::atom_spec_t &atom_spec) {
+
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Atom *at = molecules[imol].get_atom(atom_spec);
+      if (at) {
+         glm::vec3 p(at->x, at->y, at->z);
+         auto &positions = molecules[imol].unhappy_atom_marker_positions;
+         std::vector<glm::vec3>::iterator it;
+         for (it=positions.begin(); it!=positions.end(); ++it) {
+            if (glm::distance(*it, p) < 0.01f) {
+               positions.erase(it);
+               attach_buffers();
+               tmesh_for_unhappy_atom_markers.update_instancing_buffer_data(positions);
+               if (positions.empty())
+                  tmesh_for_unhappy_atom_markers.draw_this_mesh = false;
+               graphics_draw();
+               break;
+            }
+         }
+      }
+   }
+}
+
 void graphics_info_t::remove_all_unhappy_atom_markers() {
 
    for (unsigned int imol=0; imol<molecules.size(); imol++) {

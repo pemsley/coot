@@ -29,12 +29,17 @@
 */
 #include <string>
 
-/*! \brief the coot version string 
+/*! \brief the coot version string
 
    @return something like "coot-0.1.3".  New versions of coot will
    always be lexographically greater than previous versions. */
 std::string coot_version();
 
+/*! \brief the coot version string
+
+   @return build information, includding git commit and binary-type.
+
+*/
 std::string coot_version_extra_info();
 
 

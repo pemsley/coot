@@ -415,6 +415,25 @@ residue_spec_py : object
 amount : float
 ";
 
+%feature("docstring") hiranuma_inversion "
+convert AlphaFold pLDDT to crystallographic B-factors
+
+AlphaFold models store pLDDT confidence scores (0-100) in the B-factor column. This function converts them to crystallographic B-factors using the Hiranuma et al. (2021) formula:
+
+RMSD = 1.5 * exp(4 * (0.7 - pLDDT/100))
+
+B = (8 * pi^2 / 3) * RMSD^2
+
+After conversion, high-confidence regions (pLDDT ~90) get B-factors of ~8 A^2, while low-confidence regions (pLDDT ~50) get B-factors of ~440 A^2.
+
+  imol  is the molecule index of the AlphaFold model
+
+Parameters
+----------
+imol : int
+    is the molecule index of the AlphaFold model
+";
+
 %feature("docstring") merge_fragments "
 each fragment is presumed to be in its own chain.
 
@@ -497,6 +516,14 @@ Parameters
 filename : str
 imol_enc : int
 new_molecule_from_dictionary_cif_checkbutton_state : int
+";
+
+%feature("docstring") read_cif_dictionary_for_molecule "
+
+Parameters
+----------
+filename : str
+imol_enc : int
 ";
 
 %feature("docstring") dictionary_entries "
@@ -1740,6 +1767,13 @@ opacity : float
     between 0. and 1.0
 ";
 
+%feature("docstring") show_cavities "
+
+Parameters
+----------
+imol : int
+";
+
 %feature("docstring") make_acedrg_dictionary_via_CCD_dictionary "
 
 Parameters
@@ -1779,6 +1813,7 @@ imol : int
 ";
 
 %feature("docstring") make_link_py "
+make a link
 
 Parameters
 ----------
@@ -1790,10 +1825,27 @@ length : float
 ";
 
 %feature("docstring") link_info_py "
+return a list of the links in the given molecule.
+
+  imol  the molecule index an empty list for non-valid (i.e. non-model) molecules
 
 Parameters
 ----------
 imol : int
+    the molecule index
+";
+
+%feature("docstring") delete_links_containing_residue_py "
+delete links
+
+  imol  the molecule index   residue_spec_py  the residue spec as 3 member list
+
+Parameters
+----------
+imol : int
+    the molecule index
+residue_spec_py : object
+    the residue spec as 3 member list
 ";
 
 %feature("docstring") handle_drag_and_drop_string "
@@ -2634,6 +2686,13 @@ Parameters
 file_name : str
 ";
 
+%feature("docstring") read_interesting_places_json "
+
+Parameters
+----------
+json_as_string : str
+";
+
 %feature("docstring") setup_tomo_slider "
 return the section index (the middle section currently)
 
@@ -2721,6 +2780,18 @@ Parameters
 ----------
 imol : int
 screen_dict : object
+";
+
+%feature("docstring") show_ramachandran_surface_on_torus "
+Display a Ramachandran probability surface on a torus as a generic display object.
+
+R is the major radius (centre of tube to centre of torus), r is the minor radius (tube radius), height_scale controls the amplitude of the probability displacement. Returns the generic object index, or -1 on failure.
+
+Parameters
+----------
+R : float
+r : float
+height_scale : float
 ";
 
 %feature("docstring") positron_plot_internal "
@@ -3048,6 +3119,9 @@ file_name : str
 ";
 
 %feature("docstring") servalcat_fofc "
+Use servalcat for generationn of Fo-Fc maps for cryo-EM data
+
+  resolution  in A.
 
 Parameters
 ----------
@@ -3056,18 +3130,47 @@ imol_fofc_map : int
 half_map_1 : str
 half_map_2 : str
 resolution : float
+    in A.
 ";
 
 %feature("docstring") servalcat_refine "
-resolution in A.
+Use servalcat for refinement for cryo-EM data
+
+  imol_model  is the model molecule index   half_map_1  is the file name for the half-map-1   half_map_2  is the file name for the half-map-2   half_map_2  is the file name for the mask   resolution  in A.
 
 Parameters
 ----------
 imol_model : int
+    is the model molecule index
 half_map_1 : str
+    is the file name for the half-map-1
 half_map_2 : str
+    is the file name for the mask
 mask_map : str
 resolution : float
+    in A.
+";
+
+%feature("docstring") servalcat_refine_xray_with_keywords "
+Use servalcat for refinement for x-ray data.
+
+This blocks until refinement has completed! This function has been designed with scripting in mind - not interactivity!
+
+This presumes that the mtz for the data has already been associated with the map.
+
+This presumes that CCP4 has been setup correctly before invoking Coot.
+
+  imol  is the model molecule index   imol  is the map molecule index   output_prefix  is the prefix for the output   keyword_pairs_json  a JSON string of keyword pairs to control the refinement the model index of the refined molecule - or -1 on failure
+
+Parameters
+----------
+imol : int
+    is the map molecule index
+imol_map : int
+output_prefix : str
+    is the prefix for the output
+keyword_pairs_json : str
+    a JSON string of keyword pairs to control the refinement
 ";
 
 %feature("docstring") run_acedrg_link_generation "
@@ -3942,6 +4045,52 @@ Parameters
 ----------
 imol : int
 mesh_index : int
+";
+
+%feature("docstring") set_default_map_material_ambient "
+set the default map material ambient
+
+Parameters
+----------
+r : float
+g : float
+b : float
+alpha : float
+";
+
+%feature("docstring") set_default_map_material_diffuse "
+set the default map material diffuse
+
+Parameters
+----------
+r : float
+g : float
+b : float
+alpha : float
+";
+
+%feature("docstring") set_map_material_ambient "
+set the default map material ambient
+
+Parameters
+----------
+imol : int
+r : float
+g : float
+b : float
+alpha : float
+";
+
+%feature("docstring") set_map_material_diffuse "
+set the default map material diffuse
+
+Parameters
+----------
+imol : int
+r : float
+g : float
+b : float
+alpha : float
 ";
 
 %feature("docstring") set_map_material_specular "

@@ -28,6 +28,9 @@
 
 #include <string>
 
+//! \brief show the coot point frame
+//!
+//! briefly
 void show_coot_points_frame();
 
 /*! \brief Set the view
