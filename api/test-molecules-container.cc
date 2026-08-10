@@ -17,17 +17,28 @@
 #include <gemmi/metadata.hpp>
 #include <gemmi/polyheur.hpp>
 #endif
-#include "MoleculesToTriangles/CXXClasses/MyMolecule.h"
+
 #include <clipper/clipper-contrib.h>
 #include <clipper/ccp4/ccp4_mtz_io.h>
 #include <clipper/ccp4/ccp4_map_io.h>
 #include <clipper/core/map_interp.h>
-#include "molecules-container.hh"
+
+// Prevents preprocessor substitution of `VERSION` in `MolPickler.h`
+#undef VERSION
+#include <GraphMol/MolPickler.h>
+#include <GraphMol/ForceFieldHelpers/MMFF/MMFF.h>
+
+#include "coot-utils/json.hpp"
+using json = nlohmann::json;
+
+#include "utils/base64-encode-decode.hh"
+#include "MoleculesToTriangles/CXXClasses/MyMolecule.h"
 #include "coot-utils/acedrg-types-for-residue.hh"
 #include "coot-utils/coot-map-utils.hh"
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot-utils/patterson.hh"
 #include "coot-utils/crowther.hh"
+#include "molecules-container.hh"
 #include "filo-tests.hh"
 #include "lucrezia-tests.hh"
 
@@ -7139,10 +7150,6 @@ int test_rdkit_mol(molecules_container_t &mc) {
 }
 #endif
 
-#include <GraphMol/MolPickler.h>
-#include "utils/base64-encode-decode.hh"
-#include <GraphMol/ForceFieldHelpers/MMFF/MMFF.h>
-
 int test_rdkit_mol_pickle(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -8184,9 +8191,6 @@ int test_atom_overlaps(molecules_container_t &mc) {
 
    return status;
 }
-
-#include "coot-utils/json.hpp"
-using json = nlohmann::json;
 
 int test_pucker_info(molecules_container_t &mc) {
 

@@ -86,7 +86,7 @@ void write_types(RDKit::RWMol &rdkm) {
          //
          if (false)
             std::cout << " " << std::right << std::setw(3) << iat << "    "
-                      << atom_ele << "    " << name << "     " << v[iat].cod_type
+                      << atom_ele << "    " << name << "     " << v[iat].full_type
                       << "\n";
 
          // Now I want to check the tier-2 types too
@@ -94,7 +94,7 @@ void write_types(RDKit::RWMol &rdkm) {
          std::cout << " " << std::right << std::setw(3) << iat << "    "
                    << atom_ele << "    " << name << "     "
                    << v[iat].nb1nb2.string() << "  "
-                   << v[iat].cod_type << "  "
+                   << v[iat].full_type << "  "
                    << "\n";
       }
       catch (const KeyErrorException &err) { }
@@ -204,7 +204,7 @@ void molecule_from_SMILES(const std::string &smiles_string) {
 
          std::cout << "PE-TYPES:: -------- got " << v.size() << " atoms " << std::endl;
          for (unsigned int i=0; i<v.size(); i++)
-            std::cout << "   " << i << " " << v[i].cod_type << "" << std::endl;
+            std::cout << "   " << i << " " << v[i].full_type << "" << std::endl;
       }
    }
    catch (const std::runtime_error &rte) {
@@ -224,8 +224,8 @@ write_bonds_by_type(RDKit::RWMol *rdkm, const std::vector<cod::atom_type_t> &v) 
             const RDKit::Bond *bond_p = rdkm->getBondWithIdx(ib);
             int idx_1 = bond_p->getBeginAtomIdx();
             int idx_2 = bond_p->getEndAtomIdx();
-            std::string t1 = v[idx_1].cod_type;
-            std::string t2 = v[idx_2].cod_type;
+            std::string t1 = v[idx_1].full_type;
+            std::string t2 = v[idx_2].full_type;
             if (t1 > t2) {
                // std::swap(t1, t2);
             }
@@ -248,7 +248,7 @@ void molecule_from_mdl_mol(const std::string &file_name) {
          std::cout << "PE-TYPES:: -------- " << v.size() << " atoms " << " from "
                    << file_name << std::endl;
          for (unsigned int i=0; i<v.size(); i++)
-            std::cout << "   " << i << " " << v[i].cod_type << "" << std::endl;
+            std::cout << "   " << i << " " << v[i].full_type << "" << std::endl;
          write_bonds_by_type(rdkm, v);
       } else {
          std::cout << "WARNING:: file " << file_name << " null molecule" << std::endl;
