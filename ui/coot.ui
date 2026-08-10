@@ -16104,9 +16104,24 @@ Sorry.
             </child>
           </object>
         </child>
+        <child>
+          <object class="GtkLabel" id="rotate_translate_obj_drag_hint_label">
+            <property name="label" translatable="yes">Drag on the atoms with the mouse to move them,
+use Ctrl-Shift-drag to rotate them</property>
+            <property name="justify">center</property>
+            <property name="margin-start">4</property>
+            <property name="margin-end">4</property>
+            <property name="margin-top">2</property>
+            <property name="margin-bottom">2</property>
+            <attributes>
+              <attribute name="style" value="italic"/>
+            </attributes>
+          </object>
+        </child>
         <child type="action">
           <object class="GtkBox" id="hbox40">
             <property name="spacing">6</property>
+            <property name="halign">end</property>
             <property name="margin-start">4</property>
             <property name="margin-end">4</property>
             <property name="margin-top">4</property>

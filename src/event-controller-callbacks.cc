@@ -237,17 +237,45 @@ graphics_info_t::on_glarea_drag_update_primary(GtkGestureDrag *gesture,
             handled = true;
          } else {
             // moving atoms, but no refinement running: if we are in
-            // rotate/translate mode, drag the fragment along with the mouse
+            // rotate/translate mode, drag the fragment along with the mouse -
+            // or, with ctrl-shift, rotate it (trackball-like) about its centre
             GtkWidget *rt_dialog = get_widget_from_builder("rotate_translate_obj_dialog");
             if (rt_dialog) {
                if (gtk_widget_get_visible(rt_dialog)) {
-                  translate_moving_atoms_by_screen_delta(delta_delta_x, delta_delta_y);
+                  if (control_is_pressed && shift_is_pressed) {
+                     rotate_moving_atoms_by_trackball(get_mouse_previous_position_x(),
+                                                      get_mouse_previous_position_y(),
+                                                      x, y);
+                  } else {
+                     translate_moving_atoms_by_screen_delta(delta_delta_x, delta_delta_y);
+                  }
                   handled = true;
                }
             }
          }
       } else {
-         if (control_is_pressed) {
+
+         // ctrl-shift-drag in rotate/translate mode rotates the fragment about
+         // its centre - the drag does not need to start on the fragment atoms
+         if (control_is_pressed && shift_is_pressed) {
+            if (moving_atoms_asc && last_restraints_size() == 0) {
+               if (moving_atoms_asc->n_selected_atoms > 0) {
+                  GtkWidget *rt_dialog = get_widget_from_builder("rotate_translate_obj_dialog");
+                  if (rt_dialog) {
+                     if (gtk_widget_get_visible(rt_dialog)) {
+                        rotate_moving_atoms_by_trackball(get_mouse_previous_position_x(),
+                                                         get_mouse_previous_position_y(),
+                                                         x, y);
+                        handled = true;
+                     }
+                  }
+               }
+            }
+         }
+
+         if (handled) {
+            // rotate/translate fragment rotation (above) - done
+         } else if (control_is_pressed) {
             do_drag_pan_gtk3(gl_area, drag_delta_x, drag_delta_y); // 20220613-PE no redraw here currently
             // Update mouse_x/mouse_y so that if ctrl is released mid-drag,
             // the next view rotation starts from the current position
@@ -899,7 +927,7 @@ graphics_info_t::do_drag_pan_gtk4(GtkWidget *widget, double drag_delta_x, double
                 << mouse_current_x - get_mouse_previous_position_x() << " "
                 << mouse_current_y - get_mouse_previous_position_y() << std::endl;
    }
-   if (true) {
+   if (false) {
       std::cout << "in do_drag_pan_gtk4() mouse-current: "
                 << mouse_current_x << " " << mouse_current_y << " "
                 << "mouse-prev: " << get_mouse_previous_position_x() << " " << get_mouse_previous_position_y()

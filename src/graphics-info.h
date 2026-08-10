@@ -1657,6 +1657,10 @@ public:
    static void regenerate_moving_atoms_bonds_mesh();
    // for click-and-drag translation of the fragment in rotate/translate mode
    static void translate_moving_atoms_by_screen_delta(double delta_x, double delta_y);
+   // for ctrl-shift-drag in rotate/translate mode: trackball-like rotation of
+   // the fragment about its centre. Mouse positions in (pixel) window coordinates.
+   static void rotate_moving_atoms_by_trackball(double prev_x, double prev_y,
+                                                double curr_x, double curr_y);
    static float *previous_rot_trans_adjustment;
 
    // rottrans_buttons class calls back this function on button pressed mouse motion
