@@ -1,5 +1,13 @@
 --- Items---
 
+o conformer generator in chapi
+  Geneate many (10 * N) without energy minimization, then
+  pick the top N, judged by non-bonded contacts
+
+o transfer gemmi SQL commits to coot/pyrogen
+
+o Angle filtering fixes for acedrg atom types validation
+
 o take a look at Avogadro JSON-RPC
   (dnotes)
 
