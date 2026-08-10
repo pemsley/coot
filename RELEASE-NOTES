@@ -4,28 +4,115 @@
  o FEATURE: Add AI button: for people who want to use an LLM to
             communicate with Coot
 
+ o FEATURE: Rotate/Translate Zone: the fragment can now be moved by
+            click-dragging on the atoms and rotated about its centre
+            using ctrl-shift-drag
+
+ o FEATURE: Command terminal with command completion and a
+            natural-language command interface [Jordan Dialpuri]
+
+ o FEATURE: Read and write PDBQT files (AutoDock/Vina docking)
+
+ o FEATURE: Multi-pick delete waters
+
+ o FEATURE: Cavity detection (KVFinder-style) with subpocket
+            segmentation
+
+ o FEATURE: Carbohydrate: N-linked glycan building ("N-linked
+            Glycan LMA") reworked in C++; fixes for glyco link bugs
+
+ o FEATURE: Layla: "Search for Similar" - find monomers in the
+            monomer library using acedrg atom types
+
+ o FEATURE: Layla: "Show Alerts" structural-alert highlighting
+
+ o FEATURE: Layla: CCP4i2 mode, multi-format save dialog and
+            SMILES I/O [Jakub Smulski]
+
+ o FEATURE: Hydrogen-bond information now included in the atom
+            overlap dots analysis
+
+ o FEATURE: Chapi Scripting API additions: get_cremer_pople(),
+            get_monomer_name(), get_InChI(), get_hetgroups(),
+            delete_all_waters(), delete_all_hetgroups(),
+            get_monomer_restraints_as_json(),
+            read_interesting_places_json(),
+            servalcat_refine_xray_with_keywords(),
+            get_sequence_view(),
+            split_multi_model_molecule_and_merge()
+
+ o FEATURE: Chapi: Cremer-Pople puckering sphere visualization for
+            carbohydrate ring analysis [Jordan Dialpuri]
+
+ o FEATURE: Chapi: Altona-Sundaralingam ribose pucker calculation
+            [Jordan Dialpuri]
+
  o CHANGE:  First startup dialog now saves preferences immediately
             rather than on exit
 
  o CHANGE:  Ligand-fitting code made more robust
 
- o BUG-FIX: Better margins for SSM dialog
+ o CHANGE:  Fluorine atoms are now drawn slightly blue
 
- o BUG-FIX: Fix user-defined atom colours leaking into other
-            colouring modes
+ o CHANGE:  EM maps now use a coarser contour-level step
+            (0.3 sigma)
+
+ o CHANGE:  Rework the code that gives ions big radii
+
+ o CHANGE:  Non-drawn bonds now also apply to the B-factor and
+            occupancy representations
+
+ o CHANGE:  NCS ghost generation is skipped for molecules with
+            more than 100 chains
+
+ o CHANGE:  ALA and GLY no longer get rotamer validation
+            information
+
+ o CHANGE:  -h command line option now works like --help
+
+ o CHANGE:  Python docstrings are now generated for many more of
+            the scripting API functions
+
+ o CHANGE:  Icons updated to their symbolic counterparts for
+            recent Adwaita [Jakub Smulski]
+
+ o BUG-FIX: Fix NVIDIA driver crash on GL context re-realize (HUD
+            instanced draw)
+
+ o BUG-FIX: Fix abort in instanced-mesh setup when there are zero
+            instances
+
+ o BUG-FIX: Fix map memory not being released on closing a map
+            molecule
+
+ o BUG-FIX: Fix memory leak in the CA-CA distance spots
+
+ o BUG-FIX: Fix missing heteroatom labels in Layla (all atoms were
+            shown as carbon; also on older Pango)
+
+ o BUG-FIX: Layla: fix generator dialog progress bar stuck after
+            the job exits
+
+ o BUG-FIX: Fix the placement of the SVG widget in the FLE View
+            dialog
+
+ o BUG-FIX: Fix the placement of buttons and overall spacing of
+            the Superpose Ligands dialog
+
+ o BUG-FIX: Fixes for match_torsions()
 
  o BUG-FIX: Fix the vertical scrolling of the sequence view
 
  o BUG-FIX: Ligand-fitting: Conformer option now insensitive without
             conformer generation
 
- o BUG-FIX:  Copy Fragment molecule selector now has a default
+ o BUG-FIX: Copy Fragment molecule selector now has a default
 
- o BUG-FIX:  Now we use the user-defined colour for symmetry-related
-             atoms
+ o BUG-FIX: Now we use the user-defined colour for symmetry-related
+            atoms
 
- o BUG-FIX:  Fix crash when using Flatpak binary on contact dots for a
-             molecule without contacts [Jiang Haizhu]
+ o BUG-FIX: Fix crash when using Flatpak binary on contact dots for a
+            molecule without contacts [Jiang Haizhu]
 
 -----
 
