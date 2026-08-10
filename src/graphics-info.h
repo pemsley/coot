@@ -1654,6 +1654,9 @@ public:
    void unsetup_rotate_translate_buttons(GtkWidget *window); /* delete the user data */
    void do_rot_trans_adjustments(GtkWidget *dialog);
    static void rot_trans_adjustment_changed(GtkAdjustment *adj, gpointer user_data);
+   static void regenerate_moving_atoms_bonds_mesh();
+   // for click-and-drag translation of the fragment in rotate/translate mode
+   static void translate_moving_atoms_by_screen_delta(double delta_x, double delta_y);
    static float *previous_rot_trans_adjustment;
 
    // rottrans_buttons class calls back this function on button pressed mouse motion

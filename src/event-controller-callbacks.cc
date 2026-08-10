@@ -236,6 +236,15 @@ graphics_info_t::on_glarea_drag_update_primary(GtkGestureDrag *gesture,
             }
             handled = true;
          } else {
+            // moving atoms, but no refinement running: if we are in
+            // rotate/translate mode, drag the fragment along with the mouse
+            GtkWidget *rt_dialog = get_widget_from_builder("rotate_translate_obj_dialog");
+            if (rt_dialog) {
+               if (gtk_widget_get_visible(rt_dialog)) {
+                  translate_moving_atoms_by_screen_delta(delta_delta_x, delta_delta_y);
+                  handled = true;
+               }
+            }
          }
       } else {
          if (control_is_pressed) {

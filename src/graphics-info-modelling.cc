@@ -4287,6 +4287,13 @@ graphics_info_t::rot_trans_adjustment_changed(GtkAdjustment *adj, gpointer user_
       }
    }
 
+   regenerate_moving_atoms_bonds_mesh();
+}
+
+// static
+void
+graphics_info_t::regenerate_moving_atoms_bonds_mesh() {
+
    int originating_molecule_bonds_box_type = molecules[imol_moving_atoms].Bonds_box_type();
 
    if (originating_molecule_bonds_box_type == coot::CA_BONDS ||
@@ -4324,6 +4331,30 @@ graphics_info_t::rot_trans_adjustment_changed(GtkAdjustment *adj, gpointer user_
    }
 
    graphics_draw();
+}
+
+// drag the rotate/translate fragment following the mouse: delta_x, delta_y
+// are pixel deltas since the last drag update.
+// static
+void
+graphics_info_t::translate_moving_atoms_by_screen_delta(double delta_x, double delta_y) {
+
+   if (! moving_atoms_asc) return;
+   if (! moving_atoms_asc->mol) return;
+
+   // as move_translation_gizmo() does it:
+   glm::mat4 model_rotation_matrix = get_model_rotation();
+   double sf = 0.00075 * zoom;
+   glm::vec4 screen_vec(sf * delta_x, -sf * delta_y, 0.0, 1.0);
+   glm::vec4 mol_space_vec = glm::transpose(model_rotation_matrix) * screen_vec;
+
+   for (int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
+      moving_atoms_asc->atom_selection[i]->x += mol_space_vec.x;
+      moving_atoms_asc->atom_selection[i]->y += mol_space_vec.y;
+      moving_atoms_asc->atom_selection[i]->z += mol_space_vec.z;
+   }
+
+   regenerate_moving_atoms_bonds_mesh();
 }
 
 
