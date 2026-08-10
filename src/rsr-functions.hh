@@ -181,6 +181,21 @@ void rsr_refine_tandem_5();
 void rsr_refine_tandem_3();
 
 /**
+ * @brief Perform real-space refinement (RSR) on a block of up to 3 residues centred on the active residue.
+ *
+ * @details
+ * Similar to rsr_refine_tandem_3 but collects up to one preceding and one
+ * following residue around the active residue, converts them to
+ * coot::residue_spec_t and invokes refine_residues_with_alt_conf() using the
+ * active atom's altLoc.
+ *
+ * @note No parameters. Uses the application-wide active atom selection.
+ *
+ * @return void
+ */
+void rsr_refine_tandem_1();
+
+/**
  * @brief Perform real-space refinement (RSR) on residues within a larger spherical neighbourhood (radius 6.6 Å).
  *
  * @details

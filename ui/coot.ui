@@ -19481,6 +19481,18 @@ Move a copy?</property>
                 <property name="title" translatable="yes">Triple-Refine Auto-Accept</property>
               </object>
             </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">t</property>
+                <property name="title" translatable="yes">Triple Refine</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">&lt;Shift&gt;J</property>
+                <property name="title" translatable="yes">Jiggle Fit</property>
+              </object>
+            </child>
 
           </object>
         </child>
@@ -19521,8 +19533,44 @@ Move a copy?</property>
             </child>
             <child>
               <object class="GtkShortcutsShortcut">
+                <property name="accelerator">&lt;Shift&gt;F</property>
+                <property name="title" translatable="yes">JED Flip</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">&lt;Shift&gt;G</property>
+                <property name="title" translatable="yes">Reverse JED Flip</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
                 <property name="accelerator">&lt;Ctrl&gt;W</property>
                 <property name="title" translatable="yes">Add Water</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">v</property>
+                <property name="title" translatable="yes">Add Water Here</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">c</property>
+                <property name="title" translatable="yes">Edit Chi Angles</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">&lt;Shift&gt;X</property>
+                <property name="title" translatable="yes">Rotamer Selection</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">asciitilde</property>
+                <property name="title" translatable="yes">Rotamer Name to Status Bar</property>
               </object>
             </child>
           </object>

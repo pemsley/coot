@@ -1,13 +1,30 @@
 --- Items---
 
-o superpose ligands? gui item seems to fail on hal
-* Done
+o conformer generator in chapi
+  Geneate many (10 * N) without energy minimization, then
+  pick the top N, judged by non-bonded contacts
+
+o transfer gemmi SQL commits to coot/pyrogen
+
+o Angle filtering fixes for acedrg atom types validation
+
+o take a look at Avogadro JSON-RPC
+  (dnotes)
+
+o ligand restraints accumulated per atom, not every
+  restraint
+
+o  superpose ligands? gui item seems to fail on hal
+* Done.
+
+o look at COD files from the last year, say. Can
+  they be read by Coot (chapi)?
 
 o scripting: add "delete all hetgroups"
 * Done.
 
 o scripting: delete all waters
-* Done
+* Done.
 
 o scripting: glob many monomer cifs and import them
   things slow down - fixable?
