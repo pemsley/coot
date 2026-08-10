@@ -63,6 +63,7 @@ coot-molecule.cc	     coot-colour.cc	     add-terminal-residue.cc  rama-plot-phi
 colour-functions.cc          coot-molecule-maps.cc                            coot-molecule-merge-molecules.cc \
 coot-molecule-bonds.cc	     coot-molecule-validation.cc                      molecules-container-modelling.cc \
 molecules-container.cc       make-a-dodec.cc	                              molecules-container-ligand-fitting.cc \
+molecules-container-refine.cc                                                 molecules-container-analysis.cc \
 phi-psi-prob.cc              coot-molecule-moltris.cc                         coot-molecule-replace-fragment.cc \
 coot-molecule-backup.cc      coot-molecule-bonds-instanced.cc                 molecules-container-mmrrcc.cc \
 molecules-container-gltf.cc  mmcif-tests.cc                                   ncs-ghosts.cc \

@@ -229,6 +229,8 @@ add_library(cootapi SHARED
             ${coot_src}/api/ghost-molecule-display.cc
             ${coot_src}/api/model-analysis.cc
             ${coot_src}/api/molecules-container.cc
+            ${coot_src}/api/molecules-container-refine.cc
+            ${coot_src}/api/molecules-container-analysis.cc
             ${coot_src}/api/molecules-container-blender.cc
             ${coot_src}/api/molecules-container-bucca-ml-growing.cc
             ${coot_src}/api/molecules-container-gltf.cc
