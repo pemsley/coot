@@ -690,6 +690,11 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::get_dictionary_conformers,
          nb::arg("comp_id"), nb::arg("imol_enc"), nb::arg("remove_internal_clash_conformers"),
          get_docstring_from_xml("get_dictionary_conformers").c_str())
+    .def("get_dictionary_conformers_by_random_sampling",
+         &molecules_container_t::get_dictionary_conformers_by_random_sampling,
+         nb::arg("comp_id"), nb::arg("imol_enc"), nb::arg("n_conformers"),
+         nb::arg("esd_scale_factor"), nb::arg("remove_internal_clash_conformers"),
+         get_docstring_from_xml("get_dictionary_conformers_by_random_sampling").c_str())
     .def("get_distances_between_atoms_of_residues",
          &molecules_container_t::get_distances_between_atoms_of_residues,
          nb::arg("imol"), nb::arg("cid_res_1"), nb::arg("cid_res_2"), nb::arg("dist_max"),

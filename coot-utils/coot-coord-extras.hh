@@ -76,6 +76,17 @@ namespace coot {
       get_dictionary_conformers(const dictionary_residue_restraints_t &restraints,
                                 bool remove_internal_clash_conformers);
 
+      // As get_dictionary_conformers(), but instead of systematic enumeration of the
+      // periodicity minima, each rotatable torsion is given a randomly-chosen
+      // periodicity minimum and a Gaussian perturbation of width esd * esd_scale_factor.
+      // Returns up to n_conformers conformers (a single conformer if there are no
+      // rotatable torsions).
+      std::vector<mmdb::Residue *>
+      get_dictionary_conformers_by_random_sampling(const dictionary_residue_restraints_t &restraints,
+                                                   unsigned int n_conformers,
+                                                   float esd_scale_factor,
+                                                   bool remove_internal_clash_conformers);
+
       // 20240817-PE old scripting function is moved into libcootapi core
       int mutate_by_overlap(mmdb::Residue *residue_p, mmdb::Manager *mol,
                             const dictionary_residue_restraints_t &restraints_current_type,

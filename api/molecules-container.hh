@@ -3928,6 +3928,30 @@ public:
    //! @return a vector/list of indices of the new molecules
    std::vector<int> get_dictionary_conformers(const std::string &comp_id, int imol_enc, bool remove_internal_clash_conformers);
 
+   //! Get conformers with torsion angles randomly sampled from a Gaussian distribution
+   //!
+   //! Unlike get_dictionary_conformers(), which systematically enumerates the periodicity minima
+   //! of the rotatable torsions, this function makes each conformer by giving every rotatable
+   //! torsion a randomly-chosen periodicity minimum plus a Gaussian perturbation of width
+   //! esd * esd_scale_factor (the esd being that of the torsion in the dictionary).
+   //! Torsions that are marked as "const" are excluded, as are pyranose ring torsions,
+   //! peptide torsions and torsions that rotate hydrogen atoms.
+   //!
+   //! @param comp_id is the 3-letter code for the residue/ligand, e.g. "TYR" for tyrosine
+   //! @param imol_enc is the molecule index for the residue type/compound_id
+   //! @param n_conformers is the number of conformers to generate
+   //! @param esd_scale_factor scales the Gaussian width, 1.0 means use the dictionary esd as-is
+   //! @param remove_internal_clash_conformers is the flag for removing internal clash
+   //! conformers (clashing conformers are resampled, so, usually, n_conformers conformers
+   //! are returned)
+   //!
+   //! @return a vector/list of indices of the new molecules (a single molecule if there
+   //! are no rotatable torsions)
+   std::vector<int> get_dictionary_conformers_by_random_sampling(const std::string &comp_id, int imol_enc,
+                                                                 unsigned int n_conformers,
+                                                                 float esd_scale_factor,
+                                                                 bool remove_internal_clash_conformers);
+
    //! @param imol is the map molecule index
    //! @param section_id e.g. 2
    //! @param axis e.g. 0 for X-axis, 1 for Y-axis, 2 for Z-axis

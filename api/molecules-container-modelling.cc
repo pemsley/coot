@@ -806,6 +806,35 @@ molecules_container_t::get_dictionary_conformers(const std::string &comp_id, int
    return mol_indices;
 }
 
+//! Get conformers with torsion angles randomly sampled from a Gaussian distribution
+//! @return a vector of indices of the new molecules
+std::vector<int>
+molecules_container_t::get_dictionary_conformers_by_random_sampling(const std::string &comp_id, int imol_enc,
+                                                                    unsigned int n_conformers,
+                                                                    float esd_scale_factor,
+                                                                    bool remove_internal_clash_conformers) {
+
+   std::vector<int> mol_indices;
+   std::pair<bool, coot::dictionary_residue_restraints_t> r = geom.get_monomer_restraints(comp_id, imol_enc);
+   if (r.first) {
+      std::vector<mmdb::Residue *> confs =
+         coot::util::get_dictionary_conformers_by_random_sampling(r.second, n_conformers, esd_scale_factor,
+                                                                  remove_internal_clash_conformers);
+      for (unsigned int i=0; i<confs.size(); i++) {
+         mmdb::Residue *res = confs[i];
+         mmdb::Manager *mol = coot::util::create_mmdbmanager_from_residue(res);
+         std::string name = comp_id + "-rand-conf-" + std::to_string(i);
+         atom_selection_container_t asc = make_asc(mol);
+         int imol_no = molecules.size();
+         molecules.push_back(coot::molecule_t(asc, imol_no, name));
+         mol_indices.push_back(imol_no);
+      }
+      for (unsigned int i=0; i<confs.size(); i++)
+         delete confs[i];
+   }
+   return mol_indices;
+}
+
 //! replace a residue
 //!
 //! Change the type of a residue (for example, "TYR" to "PTY").

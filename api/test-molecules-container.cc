@@ -7361,6 +7361,45 @@ int test_dictionary_conformers(molecules_container_t &mc) {
    return status;
 }
 
+int test_dictionary_conformers_by_random_sampling(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   auto get_oh_atom = [&mc] (int imol) {
+      mmdb::Atom *at = mc.get_atom(imol, coot::atom_spec_t("", 1, "", " OH ", ""));
+      if (! at) at = mc.get_atom(imol, coot::atom_spec_t("A", 1, "", " OH ", ""));
+      return at;
+   };
+
+   unsigned int n_conformers = 10;
+   std::vector<int> new_mols =
+      mc.get_dictionary_conformers_by_random_sampling("TYR", coot::protein_geometry::IMOL_ENC_ANY,
+                                                      n_conformers, 1.0, true);
+
+   if (new_mols.size() == n_conformers) {
+      // the conformers should (essentially always) differ - check the OH atom position
+      unsigned int n_moved = 0;
+      mmdb::Atom *at_0 = get_oh_atom(new_mols[0]);
+      if (at_0) {
+         for (unsigned int i=1; i<new_mols.size(); i++) {
+            mmdb::Atom *at_i = get_oh_atom(new_mols[i]);
+            if (at_i) {
+               double dx = at_i->x - at_0->x;
+               double dy = at_i->y - at_0->y;
+               double dz = at_i->z - at_0->z;
+               double dd = dx * dx + dy * dy + dz * dz;
+               if (dd > 0.01)
+                  n_moved++;
+            }
+         }
+      }
+      if (n_moved > 5) status = 1;
+   }
+
+   return status;
+}
+
 int test_ligand_distortion(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -8608,6 +8647,7 @@ int main(int argc, char **argv) {
          // status += run_test(test_gltf_export_via_api,   "glTF via api", mc);
          // status += run_test(test_import_ligands_with_same_name_and_animated_refinement, "Test import ligands with same name and animated refinement", mc);
          // status += run_test(test_dictionary_conformers,   "Dictionary Conformers", mc);
+         // status += run_test(test_dictionary_conformers_by_random_sampling, "Dictionary Conformers by Random Sampling", mc);
          // status += run_test(test_ligand_distortion,   "Ligand Distortion", mc);
          // status += run_test(test_import_LIG_dictionary,   "Import LIG.cif", mc);
          // status += run_test(test_tricky_ligand_problem,   "Tricky Ligand import/refine", mc);
