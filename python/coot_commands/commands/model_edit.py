@@ -14,11 +14,16 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # Lesser General Public License for more details.
 
-"""Commands that edit a single residue: delete, mutate, rotamer fitting.
+"""Commands that build and edit the model: add, delete, mutate, rotamer fitting.
 
-All of these act on one residue named by a spec like ``A/72`` (or ``A 72``);
+Most of these act on one residue named by a spec like ``A/72`` (or ``A 72``);
 with no model number they use the active model.  The rotamer commands
 (``autofit``) need a refinement map, mirroring :mod:`coot_commands.commands.refine`.
+
+The two commands at the end instead add something new at the screen centre
+rather than editing an existing residue - they take no residue spec.  For
+fitting a ligand into density (a search rather than a placement) see
+:mod:`coot_commands.commands.ligand`.
 """
 
 from __future__ import annotations
@@ -193,3 +198,37 @@ def pepflip_residue(chain: Optional[str] = None, resno: Optional[str] = None,
     if coot is not None:
         coot.pepflip(imol, chain_id, res, ins, "")
     return f"Flipped the peptide at {chain_id}/{res} of model {imol}"
+
+
+# Building commands: unlike everything above, these add something new at the
+# screen centre instead of editing a residue named by a spec.  "add ligand"
+# lands here rather than in ligand.py, which does the density *search*.
+@command(r"add water(?:s)?(?: here| at (?:the )?(?:centre|center|pointer))?$",
+         examples=["add water here", "add water"],
+         category=CATEGORY,
+         notes="Places a water atom at the screen centre (the pointer "
+               "position), like the 'Place Atom At Pointer' tool.")
+def add_water(**_: Optional[str]) -> str:
+    """Add a water at the screen centre."""
+    if coot is not None:
+        coot.place_typed_atom_at_pointer("Water")
+    return "Added a water at the centre"
+
+
+@command(r"add (?:solvent|ligand|monomer) (?P<code>\w+)"
+         r"(?: here| at (?:the )?(?:centre|center))?$",
+         examples=["add solvent SO4 here", "add ligand GOL"],
+         category=CATEGORY,
+         notes="Fetches the named monomer from the dictionary and moves it to "
+               "the screen centre. Use \"add water\" for a single water atom, "
+               "and \"fit ligand\" to search for it in the density instead.")
+def add_monomer(code: str) -> str:
+    """Add a monomer (by 3-letter code) at the screen centre."""
+    comp_id = code.upper()
+    if coot is None:
+        return f"Added {comp_id} at the centre"
+    imol = coot.get_monomer(comp_id)
+    if not isinstance(imol, int) or imol < 0:
+        return f"Could not find monomer {comp_id} in the dictionary"
+    coot.move_molecule_to_screen_centre_internal(imol)
+    return f"Added {comp_id} as model {imol} at the centre"
