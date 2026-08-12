@@ -4014,8 +4014,8 @@ INFO::
    o are the shaders up to date?
    o Transfer the dist tar to hal and build it there
    o git commit -a
-   o git tag Release-0.x.y
-   o git push origin Release-0.x.y  # publish the tag
+   o git tag Release-1.x.y
+   o git push origin Release-1.x.y  # publish the tag
    o git push # push the actual release commit
    o Update latest version info on coot web page:
      cd Projects/coot/web/index.html
