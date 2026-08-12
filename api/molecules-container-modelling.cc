@@ -1,6 +1,7 @@
 
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot-utils/atom-selection-container.hh"
+#include "ideal/regularize-minimol.hh"
 #include "molecules-container.hh"
 
 #include "utils/logging.hh"
@@ -817,20 +818,73 @@ molecules_container_t::get_dictionary_conformers_by_random_sampling(const std::s
    std::vector<int> mol_indices;
    std::pair<bool, coot::dictionary_residue_restraints_t> r = geom.get_monomer_restraints(comp_id, imol_enc);
    if (r.first) {
-      std::vector<mmdb::Residue *> confs =
-         coot::util::get_dictionary_conformers_by_random_sampling(r.second, n_conformers, esd_scale_factor,
-                                                                  remove_internal_clash_conformers);
-      for (unsigned int i=0; i<confs.size(); i++) {
-         mmdb::Residue *res = confs[i];
-         mmdb::Manager *mol = coot::util::create_mmdbmanager_from_residue(res);
+      const coot::dictionary_residue_restraints_t &restraints = r.second;
+
+      // The raw conformers have their torsions set to idealized dictionary values, which
+      // typically leaves conjugated linkages flat and strained (and hence "clashing").
+      // So regularize each conformer, and only then apply the clash test.
+      //
+      auto regularize_conformer = [this] (mmdb::Residue *residue_p) {
+         mmdb::Manager *mol = nullptr; // return this, caller owns
+         try {
+            coot::minimol::residue mini_res(residue_p);
+            coot::minimol::fragment frag("A");
+            frag.addresidue(mini_res, false);
+            coot::minimol::molecule mm(frag);
+            int n_steps_max = 1000;
+            coot::minimol::molecule reg = coot::regularize_minimol_molecule(mm, geom, n_steps_max);
+            mol = reg.pcmmdbmanager();
+         }
+         catch (const std::runtime_error &rte) {
+            std::cout << "WARNING:: get_dictionary_conformers_by_random_sampling(): "
+                      << rte.what() << std::endl;
+         }
+         return mol;
+      };
+
+      // a raw conformer with interpenetrating atoms is beyond rescue by regularization
+      // (the minimizer gets trapped) - resample rather than regularize those.
+      float interpenetration_dist_crit = 1.7; // A
+
+      std::vector<mmdb::Manager *> accepted;
+      unsigned int n_attempts_max = 10 * n_conformers;
+      unsigned int n_attempts = 0;
+      while (accepted.size() < n_conformers && n_attempts < n_attempts_max) {
+         unsigned int n_needed = n_conformers - accepted.size();
+         std::vector<mmdb::Residue *> confs =
+            coot::util::get_dictionary_conformers_by_random_sampling(restraints, n_needed,
+                                                                     esd_scale_factor, false);
+         n_attempts += n_needed;
+         for (unsigned int i=0; i<confs.size(); i++) {
+            if (coot::util::residue_has_internal_clash(confs[i], restraints, interpenetration_dist_crit))
+               continue;
+            mmdb::Manager *mol = regularize_conformer(confs[i]);
+            if (mol) {
+               bool reject_this = false;
+               if (remove_internal_clash_conformers) {
+                  mmdb::Residue *reg_res = coot::util::get_first_residue(mol);
+                  if (reg_res)
+                     reject_this = coot::util::residue_has_internal_clash(reg_res, restraints);
+               }
+               if (reject_this)
+                  delete mol;
+               else
+                  accepted.push_back(mol);
+            }
+         }
+         bool no_more_variety = (confs.size() < n_needed); // no rotatable torsions
+         for (unsigned int i=0; i<confs.size(); i++)
+            delete confs[i];
+         if (no_more_variety) break;
+      }
+
+      for (unsigned int i=0; i<accepted.size(); i++) {
          std::string name = comp_id + "-rand-conf-" + std::to_string(i);
-         atom_selection_container_t asc = make_asc(mol);
+         atom_selection_container_t asc = make_asc(accepted[i]);
          int imol_no = molecules.size();
          molecules.push_back(coot::molecule_t(asc, imol_no, name));
          mol_indices.push_back(imol_no);
       }
-      for (unsigned int i=0; i<confs.size(); i++)
-         delete confs[i];
    }
    return mol_indices;
 }

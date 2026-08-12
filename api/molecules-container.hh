@@ -3934,8 +3934,10 @@ public:
    //! of the rotatable torsions, this function makes each conformer by giving every rotatable
    //! torsion a randomly-chosen periodicity minimum plus a Gaussian perturbation of width
    //! esd * esd_scale_factor (the esd being that of the torsion in the dictionary).
-   //! Torsions that are marked as "const" are excluded, as are pyranose ring torsions,
+   //! Torsions that are marked as "const" are excluded, as are ring torsions,
    //! peptide torsions and torsions that rotate hydrogen atoms.
+   //! Each conformer is regularized (the torsion-rotated geometry is relaxed) before
+   //! the internal-clash test is applied.
    //!
    //! @param comp_id is the 3-letter code for the residue/ligand, e.g. "TYR" for tyrosine
    //! @param imol_enc is the molecule index for the residue type/compound_id
