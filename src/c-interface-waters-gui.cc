@@ -150,6 +150,57 @@ void execute_find_blobs_from_widget(GtkWidget *dialog) {
    }
 }
 
+static
+void on_big_blob_button_toggled(GtkToggleButton *toggle_button, gpointer user_data) {
+
+   if (gtk_toggle_button_get_active(toggle_button)) {
+      clipper::Coord_orth *p = static_cast<clipper::Coord_orth *>(user_data);
+      set_rotation_centre(p->x(), p->y(), p->z());
+      graphics_info_t g;
+      g.graphics_grab_focus();
+   }
+}
+
+static
+void fill_big_blob_results_vbox(const coot::ligand &lig) {
+
+   int n_big_blobs = lig.big_blobs().size();
+
+   // GtkWidget *dialog = create_ligand_big_blob_dialog();
+   GtkWidget *dialog = widget_from_builder("ligand_big_blob_dialog");
+   GtkWidget *main_window = graphics_info_t::get_main_window();
+   gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(main_window));
+   // GtkWidget *vbox = lookup_widget(dialog, "ligand_big_blob_vbox");
+   GtkWidget *vbox = widget_from_builder("ligand_big_blob_vbox");
+   if (vbox) {
+      graphics_info_t::clear_out_container(vbox);
+      std::string label;
+      GtkWidget *group = nullptr;
+      for (int i=0; i< n_big_blobs; i++) {
+         label = "Blob ";
+         label += graphics_info_t::int_to_string(i + 1);
+         GtkWidget *toggle_button = gtk_toggle_button_new_with_label(label.c_str());
+         if (group)
+            gtk_toggle_button_set_group(GTK_TOGGLE_BUTTON(toggle_button), GTK_TOGGLE_BUTTON(group));
+         else
+            group = toggle_button;
+
+         clipper::Coord_orth *c = new clipper::Coord_orth;
+         *c = lig.big_blobs()[i].first;
+         g_signal_connect (G_OBJECT(toggle_button), "toggled",
+                           G_CALLBACK(on_big_blob_button_toggled),
+                           c);
+         gtk_widget_set_margin_start (toggle_button, 6);
+         gtk_widget_set_margin_end   (toggle_button, 6);
+         gtk_widget_set_margin_top   (toggle_button, 2);
+         gtk_widget_set_margin_bottom(toggle_button, 2);
+         gtk_box_append(GTK_BOX(vbox), toggle_button);
+      }
+   }
+   gtk_widget_set_visible(dialog, TRUE);
+
+}
+
 
 void execute_find_blobs(int imol_model, int imol_for_map,
                         float sigma_cut_off, short int interactive_flag) {
@@ -174,42 +225,12 @@ void execute_find_blobs(int imol_model, int imol_for_map,
 
          lig.water_fit(sigma_cut_off, n_cycles);
 
-         // water fit makes big blobs
-         // *g.ligand_big_blobs = lig.big_blobs(); old style indirect method
-         // to move to point
-         int n_big_blobs = lig.big_blobs().size();
-
          if (interactive_flag) {
+            int n_big_blobs = lig.big_blobs().size();
             if ( n_big_blobs > 0 ) {
 
-               // GtkWidget *dialog = create_ligand_big_blob_dialog();
-               GtkWidget *dialog = widget_from_builder("ligand_big_blob_dialog");
-               GtkWidget *main_window = graphics_info_t::get_main_window();
-               gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(main_window));
-               // GtkWidget *vbox = lookup_widget(dialog, "ligand_big_blob_vbox");
-               GtkWidget *vbox = widget_from_builder("ligand_big_blob_vbox");
-               if (vbox) {
-                  graphics_info_t::clear_out_container(vbox);
-                  std::string label;
-                  for(int i=0; i< n_big_blobs; i++) {
-                     label = "Blob ";
-                     label += graphics_info_t::int_to_string(i + 1);
-                     GtkWidget *button = gtk_button_new_with_label(label.c_str());
-                     //         gtk_widget_ref(button);
-                     clipper::Coord_orth *c = new clipper::Coord_orth;
-                     *c = lig.big_blobs()[i].first;
-                     g_signal_connect (G_OBJECT(button), "clicked",
-                                       G_CALLBACK(on_big_blob_button_clicked),
-                                       c);
-                     gtk_widget_set_margin_start (button, 6);
-                     gtk_widget_set_margin_end   (button, 6);
-                     gtk_widget_set_margin_top   (button, 2);
-                     gtk_widget_set_margin_bottom(button, 2);
-                     gtk_widget_set_visible(button, TRUE);
-                     gtk_box_append(GTK_BOX(vbox), button);
-                  }
-               }
-               gtk_widget_set_visible(dialog, TRUE);
+               fill_big_blob_results_vbox(lig);
+
             } else {
                std::cout << "Coot found no blobs" << std::endl;
                // GtkWidget *dialog = create_ligand_no_blobs_dialog();
@@ -420,35 +441,7 @@ void find_waters(int imol_for_map,
          if (graphics_info_t::use_graphics_interface_flag) {
             if (show_blobs_dialog) {
                if (lig.big_blobs().size() > 0) {
-
-                  // GtkWidget *dialog = create_ligand_big_blob_dialog();
-                  GtkWidget *dialog = widget_from_builder("ligand_big_blob_dialog");
-                  GtkWidget *main_window = graphics_info_t::get_main_window();
-                  gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(main_window));
-                  // GtkWidget *vbox = lookup_widget(dialog, "ligand_big_blob_vbox");
-                  GtkWidget *vbox = widget_from_builder("ligand_big_blob_vbox");
-                  gtk_widget_set_size_request(vbox, -1, 300);
-                  if (vbox) {
-                     std::string label;
-                     for(unsigned int i=0; i< lig.big_blobs().size(); i++) {
-                        label = "Blob ";
-                        label += graphics_info_t::int_to_string(i + 1);
-                        GtkWidget *button = gtk_button_new_with_label(label.c_str());
-                        //         gtk_widget_ref(button);
-                        clipper::Coord_orth *c = new clipper::Coord_orth;
-                        *c = lig.big_blobs()[i].first;
-                        g_signal_connect(G_OBJECT(button), "clicked",
-                                         G_CALLBACK(on_big_blob_button_clicked),
-                                         c);
-                        gtk_widget_set_margin_start (button, 6);
-                        gtk_widget_set_margin_end   (button, 6);
-                        gtk_widget_set_margin_top   (button, 4);
-                        gtk_widget_set_margin_bottom(button, 4);
-                        gtk_widget_set_visible(button, TRUE);
-                        gtk_box_append(GTK_BOX(vbox), button);
-                     }
-                  }
-                  gtk_widget_set_visible(dialog, TRUE);
+                  fill_big_blob_results_vbox(lig);
                }
             }
          }
@@ -519,12 +512,3 @@ void free_ligand_search_user_data(GtkWidget *button) {
 //    gtk_widget_set_visible(dialog, TRUE);
 // }
 
-void
-on_big_blob_button_clicked(GtkButton *button,
-                           gpointer user_data) {
-
-   clipper::Coord_orth *p = (clipper::Coord_orth *) user_data;
-   set_rotation_centre(p->x(), p->y(), p->z());
-   graphics_info_t g;
-   g.graphics_grab_focus();
-}
