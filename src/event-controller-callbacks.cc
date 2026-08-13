@@ -291,7 +291,7 @@ graphics_info_t::on_glarea_drag_update_primary(GtkGestureDrag *gesture,
                do_view_zoom(drag_delta_x, drag_delta_y);
             } else {
                if (use_primary_mouse_for_view_rotation_flag) {
-                  if (edit_chi_current_chi >= 1) {
+                  if (edit_chi_current_chi >= 1 && moving_atoms_asc) {
                      rotate_chi(delta_delta_x, delta_delta_y); // does its own graphics_draw()
                   } else {
                      // view rotation is the last thing to test for/do
@@ -301,7 +301,7 @@ graphics_info_t::on_glarea_drag_update_primary(GtkGestureDrag *gesture,
                   }
                } else {
                   // is this logic correct?
-                  if (edit_chi_current_chi >= 1) {
+                  if (edit_chi_current_chi >= 1 && moving_atoms_asc) {
                      // rotate_chi() needs moving atoms
                      rotate_chi(delta_delta_x, delta_delta_y); // does its own graphics_draw()
                   }

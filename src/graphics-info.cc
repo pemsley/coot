@@ -2124,6 +2124,8 @@ graphics_info_t::clear_up_moving_atoms() {
 
    moving_atoms_asc_type = coot::NEW_COORDS_UNSET; // unset
    in_moving_atoms_drag_atom_mode_flag = 0; // no more dragging atoms
+   edit_chi_current_chi = 0;
+   in_edit_chi_mode_flag = 0;
    have_fixed_points_sheared_drag_flag = 0;
    // and take out any drag refine idle function:
 
