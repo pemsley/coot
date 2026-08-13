@@ -81,6 +81,22 @@ def _spec_candidates(spec: object) -> List[str]:
         return []
 
 
+def _spec_candidates_for(spec: object, partial: str) -> List[str]:
+    """Candidates for *spec* aware of the *partial* word being completed.
+
+    A spec may expose ``candidates_for(partial)`` to complete against what the
+    user has typed so far (e.g. a filesystem path listing the typed
+    directory); otherwise we fall back to the static :func:`_spec_candidates`.
+    """
+    getter = getattr(spec, "candidates_for", None)
+    if callable(getter):
+        try:
+            return [str(v) for v in getter(partial)]
+        except Exception:
+            return []
+    return _spec_candidates(spec)
+
+
 def _spec_label(spec: object, value: str) -> str:
     """Display label for an argument *value*, or the value itself.
 
@@ -215,7 +231,7 @@ def _gather(fixed: Sequence[str], partial: str) -> dict:
                 continue
             if is_arg[pos]:
                 spec = cmd.arg_types.get(arg_name[pos])
-                for value in _spec_candidates(spec):
+                for value in _spec_candidates_for(spec, partial):
                     if value.lower().startswith(partial_low):
                         found[value] = (_spec_label(spec, value), True)
             else:
@@ -295,6 +311,10 @@ def complete(text: str) -> Tuple[str, List[str]]:
         chosen = fixed + [value]
         if not found[value][1]:  # a keyword, so a tail may follow
             chosen = _extend_forced(chosen)
+        # A directory path ends in "/": leave the cursor on it (no trailing
+        # space) so a further Tab descends into it, shell-style.
+        if value.endswith("/"):
+            return " ".join(chosen), []
         return " ".join(chosen) + " ", []
 
     # Ambiguous: extend the word by the shared prefix and list the options.

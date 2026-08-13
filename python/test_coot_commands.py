@@ -27,9 +27,13 @@ by pytest (the ``test_*`` functions) if it is ever available.
 """
 
 import contextlib
+import os
+import shutil
+import tempfile
 
 import coot_commands  # noqa: F401  - triggers command discovery/registration
 from coot_commands import types
+from coot_commands.commands import files as files_mod
 from coot_commands.commands import ligand as ligand_mod
 from coot_commands.commands import model_edit as model_edit_mod
 from coot_commands.commands import models as models_mod
@@ -341,6 +345,47 @@ def test_colour_value_completion():
 def test_projection_literal_completion():
     assert complete("ort") == ("orthographic ", [])
     assert complete("per") == ("perspective ", [])
+
+
+@contextlib.contextmanager
+def _sample_tree():
+    """A throwaway directory: model.pdb, data.mtz, sub/ and a hidden file."""
+    path = tempfile.mkdtemp()
+    try:
+        os.mkdir(os.path.join(path, "sub"))
+        for name in ("model.pdb", "data.mtz", ".hidden"):
+            open(os.path.join(path, name), "w").close()
+        yield path
+    finally:
+        shutil.rmtree(path, ignore_errors=True)
+
+
+def test_path_completion_lists_directory():
+    with _sample_tree() as d:
+        # A directory gains a trailing "/" so a further Tab descends into it;
+        # dot-files stay hidden until the fragment itself starts with a dot.
+        assert sorted(types.path_candidates(d + "/")) == [
+            f"{d}/data.mtz", f"{d}/model.pdb", f"{d}/sub/"]
+        assert types.path_candidates(d + "/.") == [f"{d}/.hidden"]
+        assert types.path_candidates(d + "/mo") == [f"{d}/model.pdb"]
+
+
+def test_path_completion_through_the_load_command():
+    with _sample_tree() as d:
+        # A file completes to a trailing space (the argument is finished)...
+        assert complete(f"load {d}/mod") == (f"load {d}/model.pdb ", [])
+        # ...a directory does not, so Tab can descend into it, shell-style.
+        assert complete(f"load {d}/su") == (f"load {d}/sub/", [])
+
+
+def test_path_completion_survives_an_unreadable_directory():
+    assert types.path_candidates("/no/such/directory/x") == []
+    assert types.ArgType.PATH.candidates() == []
+
+
+def test_load_reports_a_missing_file():
+    with _use_coot(_FakeCootFull(), files_mod):
+        assert "no such file" in cli.run_command("load /no/such/file.pdb")
 
 
 def test_no_completion_for_unknown_input():

@@ -77,7 +77,7 @@ def _fit_ligand(comp_id: str, imol_protein: int, imol_map: int,
             f"in molecule(s) {', '.join(str(s) for s in solutions)}")
 
 
-@command(r"(?:fit|find|add) ligand (?P<comp>[A-Za-z0-9]{1,5})"
+@command(r"(?:fit|find) ligand (?P<comp>[A-Za-z0-9]{1,5})"
          r"(?: (?:into |to |in )?model (?P<model>\S+))?"
          r"(?: (?:into |to |in |against |using )?map (?P<map>\S+))?"
          r"(?P<here> here)?",
@@ -89,7 +89,8 @@ def _fit_ligand(comp_id: str, imol_protein: int, imol_map: int,
                "as Ligand > Find Ligands. Uses the active model and the "
                "refinement map by default. Add 'here' to search only at the "
                "current view centre - handy after 'go to blob N'. Returns the "
-               "molecule numbers of the fitted solutions.")
+               "molecule numbers of the fitted solutions. To place a monomer "
+               "at the screen centre without searching, use 'add ligand'.")
 def fit_ligand(comp: str, model: Optional[str] = None,
                map: Optional[str] = None, here: Optional[str] = None) -> str:
     """Fit a ligand into density by its three-letter code."""
