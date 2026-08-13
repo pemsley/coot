@@ -566,7 +566,9 @@ coot::atom_overlaps_container_t::make_overlaps() {
 
                if (d < (r_1 + r_2 + probe_radius)) {
                   double o = get_overlap_volume(d, r_2, r_1);
-                  bool h_bond_flag = false;
+                  // as in make_all_atom_overlaps(): a donor/acceptor pair of heavy atoms
+                  // is a hydrogen bond as well as an H...acceptor contact is
+                  bool h_bond_flag = hbi.is_h_bond_donor_and_acceptor;
                   if (hbi.is_h_bond_H_and_acceptor) {
                      h_bond_flag = true;
                      if (hbi.H_is_first_atom_flag) {
@@ -787,6 +789,9 @@ coot::atom_overlaps_container_t::make_all_atom_overlaps() {
                                  // symmetric in its two atoms.)
                                  h_bond_info_t hbi(at_1, at_2, udd_h_bond_type_handle);
                                  if (hbi.is_h_bond_H_and_acceptor)
+                                    ao.is_h_bond = true;
+                                 // a donor/acceptor pair of heavy atoms is a hydrogen bond too
+                                 if (hbi.is_h_bond_donor_and_acceptor)
                                     ao.is_h_bond = true;
                                  overlaps.push_back(ao);
                               }
