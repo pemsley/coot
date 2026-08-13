@@ -60,6 +60,7 @@ nobase_dist_pkgpython_PYTHON = \
    coot_commands/commands/delete.py           \
    coot_commands/commands/display.py          \
    coot_commands/commands/fetch.py            \
+   coot_commands/commands/files.py            \
    coot_commands/commands/view.py             \
    coot_commands/commands/maps.py             \
    coot_commands/commands/navigation.py       \
@@ -67,7 +68,6 @@ nobase_dist_pkgpython_PYTHON = \
    coot_commands/commands/representation.py   \
    coot_commands/commands/labels.py           \
    coot_commands/commands/model_edit.py       \
-   coot_commands/commands/build.py            \
    coot_commands/commands/ligand.py           \
    coot_commands/commands/validation.py       \
    coot_commands/commands/session.py          \

@@ -1,33 +1,55 @@
 # Coot command reference
 
-The commands below are typed into the **Command** tab of the Python/AI terminal. Text is matched case-insensitively and extra whitespace is ignored. Where a command takes a model or map number, omitting it acts on the *active* molecule.
+The commands below are typed into the **Command** tab of the Python/AI
+terminal. They exist so that the things you do most often while building a
+model are a short phrase rather than a hunt through the menus or a remembered
+API call: `refine chain A`, `fetch 4hhb`, `colour map 1 blue`, `go to A/89`.
+
+The guiding idea is that you should be able to type roughly what you mean.
+Each command is a pattern rather than a fixed string, so the obvious synonyms
+and phrasings reach the same place - `show`/`display`, `hide`/`undisplay`,
+`centre on`/`go to` - and both British and American spellings of "colour" are
+accepted. Matching ignores case and collapses runs of whitespace, and dictated
+input is normalised first, so "model zero" spoken into the field works exactly
+like "model 0" typed.
+
+Arguments follow the same principle. Where a command takes a model or map
+number, omitting it acts on the *active* molecule, which is usually the one
+you mean; where it takes a residue you can name it (`A/89`) or leave it out
+and act on the residue at the centre of the screen. Tab completion fills in
+what it can and offers the live candidates - the molecules actually loaded,
+the colours actually available, the files actually on disk.
+
+Every command is a small Python function that carries its own help text,
+examples, category and notes alongside it (see
+`python/coot_commands/registry.py`). That metadata is the single source of
+truth: the in-app `help` command and this reference are both generated from
+it, so neither can drift from what the code really accepts. Adding a command
+means writing the function and filling in the decorator; the documentation
+follows for free.
 
 > This file is generated from the command definitions (`python/coot_commands/`). Do not edit by hand - run `python3 -m coot_commands.docs` to regenerate.
 
-## Building
+## Contents
 
-### `add solvent SO4 here`
-
-Add a monomer (by 3-letter code) at the screen centre.
-
-Examples:
-
-- `add solvent SO4 here`
-- `add ligand GOL`
-
-Fetches the named monomer from the dictionary and moves it to the screen centre. Use "add water" for a single water atom.
-
-### `add water here`
-
-Add a water at the screen centre.
-
-Examples:
-
-- `add water here`
-- `add water`
-
-Places a water atom at the screen centre (the pointer position), like the 'Place Atom At Pointer' tool.
-
+- [Delete](#delete) - 5 commands
+- [Display](#display) - 7 commands
+- [Fetch](#fetch) - 4 commands
+- [Files](#files) - 2 commands
+- [Help](#help) - 1 command
+- [Labels](#labels) - 1 command
+- [Ligand](#ligand) - 1 command
+- [Maps](#maps) - 4 commands
+- [Model editing](#model-editing) - 10 commands
+- [Models](#models) - 2 commands
+- [Navigation](#navigation) - 4 commands
+- [Refinement](#refinement) - 6 commands
+- [Representation](#representation) - 8 commands
+- [Session](#session) - 5 commands
+- [Settings](#settings) - 16 commands
+- [State](#state) - 1 command
+- [Validation](#validation) - 13 commands
+- [View](#view) - 6 commands
 
 ## Delete
 
@@ -204,6 +226,33 @@ Examples:
 Fetches the re-refined model and maps from PDB-REDO.
 
 
+## Files
+
+### `load dictionary /path/to/LIG.cif`
+
+Load a restraints (monomer) dictionary from a path.
+
+Examples:
+
+- `load dictionary /path/to/LIG.cif`
+- `load dictionary ~/dict/*.cif`
+
+Reads one or more restraints (monomer) dictionaries, the same as File > Import CIF dictionary. A wildcard loads every match.
+
+### `load /path/to/model.cif`
+
+Load coordinate, map or MTZ file(s) from a path or wildcard.
+
+Examples:
+
+- `load /path/to/model.cif`
+- `load ~/structures/4hhb.pdb`
+- `load /path/to/*.pdb`
+- `load /path/to/data.mtz`
+
+Loads a file from disk by path, choosing the reader from the extension: coordinates (.pdb, .ent, .cif, .mmcif, .pdbx), a map (.map, .ccp4, .mrc) or reflection data (.mtz). A trailing .gz is handled, and a wildcard (e.g. '*.pdb') loads every matching file. For a restraints dictionary use 'load dictionary'; to fetch from an online database by accession code use 'fetch'.
+
+
 ## Help
 
 ### `help`
@@ -235,7 +284,7 @@ Examples:
 - `fit ligand ATP here`
 - `find ligand NAG into model 0 map 1`
 
-Fits a ligand (by three-letter code) into density, the same as Ligand > Find Ligands. Uses the active model and the refinement map by default. Add 'here' to search only at the current view centre - handy after 'go to blob N'. Returns the molecule numbers of the fitted solutions.
+Fits a ligand (by three-letter code) into density, the same as Ligand > Find Ligands. Uses the active model and the refinement map by default. Add 'here' to search only at the current view centre - handy after 'go to blob N'. Returns the molecule numbers of the fitted solutions. To place a monomer at the screen centre without searching, use 'add ligand'.
 
 
 ## Maps
@@ -299,6 +348,17 @@ Examples:
 
 Adds an alternate conformer to the named residue. With no residue named, acts on the active residue (the one at the centre of the screen).
 
+### `add solvent SO4 here`
+
+Add a monomer (by 3-letter code) at the screen centre.
+
+Examples:
+
+- `add solvent SO4 here`
+- `add ligand GOL`
+
+Fetches the named monomer from the dictionary and moves it to the screen centre. 
+
 ### `add OXT to A/89`
 
 Add a terminal OXT atom to a residue.
@@ -322,6 +382,17 @@ Examples:
 - `add terminal residue to A 89 as ALA`
 
 Builds a new residue onto the end of a chain, attached to the named terminal residue and fitted against the refinement map. The type defaults to 'auto' (guessed from any sequence); add 'as ALA' to force one. With no residue named, acts on the active residue; with no model number, the active model.
+
+### `add water here`
+
+Add a water at the screen centre.
+
+Examples:
+
+- `add water here`
+- `add water`
+
+Places a water atom at the screen centre (the pointer position), like the 'Place Atom At Pointer' tool.
 
 ### `autofit A/72`
 
