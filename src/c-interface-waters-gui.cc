@@ -1,20 +1,20 @@
 /* src/c-interface-waters-gui.cc
- * 
+ *
  * Copyright 2004, 2005 by The University of York
  * Author: Paul Emsley
  * Copyright 2008, 2010 by The University of Oxford
  * Copyright 2014 by Medical Research Council
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License and
  * the GNU Lesser General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 51 Franklin Street,
@@ -57,7 +57,7 @@
 // something in Python.h (2.4 - chihiro) is redefining FF1 (in
 // ssm_superpose.h) to be 0x00004000 (Grrr).
 //
-// 20100813: Python.h needs to come before to stop"_POSIX_C_SOURCE" redefined problems 
+// 20100813: Python.h needs to come before to stop"_POSIX_C_SOURCE" redefined problems
 //
 // #ifdef USE_PYTHON
 // #include "Python.h"
@@ -71,7 +71,7 @@
 #include "widget-from-builder.hh"
 
 
-GtkWidget *wrapped_create_unmodelled_blobs_dialog() { 
+GtkWidget *wrapped_create_unmodelled_blobs_dialog() {
 
    graphics_info_t g;
    GtkWidget *dialog         = widget_from_builder("unmodelled_blobs_dialog");
@@ -120,17 +120,17 @@ GtkWidget *wrapped_create_unmodelled_blobs_dialog() {
    return dialog;
 }
 
-void execute_find_blobs_from_widget(GtkWidget *dialog) { 
+void execute_find_blobs_from_widget(GtkWidget *dialog) {
 
-   float sigma_cut_off = -1; 
+   float sigma_cut_off = -1;
 
    // GtkWidget *entry = lookup_widget(dialog, "find_blobs_peak_level_entry");
    GtkWidget *entry = widget_from_builder("find_blobs_peak_level_entry");
    const gchar *txt = gtk_editable_get_text(GTK_EDITABLE(entry));
-   if (txt) { 
+   if (txt) {
       float f = coot::util::string_to_float(txt);
-      if (f > 0.0 && f < 1000.0) { 
-	 sigma_cut_off = f;
+      if (f > 0.0 && f < 1000.0) {
+         sigma_cut_off = f;
       }
    }
 
@@ -145,79 +145,79 @@ void execute_find_blobs_from_widget(GtkWidget *dialog) {
       bool interactive_flag = true;
       execute_find_blobs(imol_model, imol_for_map, sigma_cut_off, interactive_flag);
 
-   } else { 
+   } else {
       std::cout << "WARNING:: nonsense sigma level " << sigma_cut_off << " not doing search\n";
    }
 }
 
 
 void execute_find_blobs(int imol_model, int imol_for_map,
-			float sigma_cut_off, short int interactive_flag) { 
+                        float sigma_cut_off, short int interactive_flag) {
 
-   if (is_valid_model_molecule(imol_model)) { 
-      if (is_valid_map_molecule(imol_for_map)) { 
+   if (is_valid_model_molecule(imol_model)) {
+      if (is_valid_map_molecule(imol_for_map)) {
 
-	 coot::ligand lig;
-	 graphics_info_t g;
-	 int n_cycles = 1;
+         coot::ligand lig;
+         graphics_info_t g;
+         int n_cycles = 1;
 
-	 short int mask_waters_flag; // treat waters like other atoms?
-	 mask_waters_flag = g.find_ligand_mask_waters_flag;
-	 // short int do_flood_flag = 0;    // don't flood fill the map with waters for now.
+         short int mask_waters_flag; // treat waters like other atoms?
+         mask_waters_flag = g.find_ligand_mask_waters_flag;
+         // short int do_flood_flag = 0;    // don't flood fill the map with waters for now.
 
-	 lig.import_map_from(g.molecules[imol_for_map].xmap, 
-			     g.molecules[imol_for_map].map_sigma());
-	 // lig.set_masked_map_value(-2.0); // sigma level of masked map gets distorted
-	 lig.set_map_atom_mask_radius(1.9); // Angstrom
-	 lig.mask_map(g.molecules[imol_model].atom_sel.mol, mask_waters_flag);
-	 std::cout << "using sigma cut off " << sigma_cut_off << std::endl;
+         lig.import_map_from(g.molecules[imol_for_map].xmap,
+                             g.molecules[imol_for_map].map_sigma());
+         // lig.set_masked_map_value(-2.0); // sigma level of masked map gets distorted
+         lig.set_map_atom_mask_radius(1.9); // Angstrom
+         lig.mask_map(g.molecules[imol_model].atom_sel.mol, mask_waters_flag);
+         std::cout << "using sigma cut off " << sigma_cut_off << std::endl;
 
-	 lig.water_fit(sigma_cut_off, n_cycles);
+         lig.water_fit(sigma_cut_off, n_cycles);
 
-	 // water fit makes big blobs
-	 // *g.ligand_big_blobs = lig.big_blobs(); old style indirect method
-	 // to move to point
-	 int n_big_blobs = lig.big_blobs().size();
+         // water fit makes big blobs
+         // *g.ligand_big_blobs = lig.big_blobs(); old style indirect method
+         // to move to point
+         int n_big_blobs = lig.big_blobs().size();
 
-	 if (interactive_flag) { 
-	    if ( n_big_blobs > 0 ) {
+         if (interactive_flag) {
+            if ( n_big_blobs > 0 ) {
 
-	       // GtkWidget *dialog = create_ligand_big_blob_dialog();
-	       GtkWidget *dialog = widget_from_builder("ligand_big_blob_dialog");
-	       GtkWidget *main_window = graphics_info_t::get_main_window();
-	       gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(main_window));
-	       // GtkWidget *vbox = lookup_widget(dialog, "ligand_big_blob_vbox");
-	       GtkWidget *vbox = widget_from_builder("ligand_big_blob_vbox");
-	       if (vbox) {
+               // GtkWidget *dialog = create_ligand_big_blob_dialog();
+               GtkWidget *dialog = widget_from_builder("ligand_big_blob_dialog");
+               GtkWidget *main_window = graphics_info_t::get_main_window();
+               gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(main_window));
+               // GtkWidget *vbox = lookup_widget(dialog, "ligand_big_blob_vbox");
+               GtkWidget *vbox = widget_from_builder("ligand_big_blob_vbox");
+               if (vbox) {
                   graphics_info_t::clear_out_container(vbox);
-		  std::string label;
-		  for(int i=0; i< n_big_blobs; i++) {
-		     label = "Blob ";
-		     label += graphics_info_t::int_to_string(i + 1);
-		     GtkWidget *button = gtk_button_new_with_label(label.c_str());
-		     //	 gtk_widget_ref(button);
-		     clipper::Coord_orth *c = new clipper::Coord_orth;
-		     *c = lig.big_blobs()[i].first;
-		     g_signal_connect (G_OBJECT(button), "clicked", 
-				       G_CALLBACK(on_big_blob_button_clicked),
-				       c);
+                  std::string label;
+                  for(int i=0; i< n_big_blobs; i++) {
+                     label = "Blob ";
+                     label += graphics_info_t::int_to_string(i + 1);
+                     GtkWidget *button = gtk_button_new_with_label(label.c_str());
+                     //         gtk_widget_ref(button);
+                     clipper::Coord_orth *c = new clipper::Coord_orth;
+                     *c = lig.big_blobs()[i].first;
+                     g_signal_connect (G_OBJECT(button), "clicked",
+                                       G_CALLBACK(on_big_blob_button_clicked),
+                                       c);
                      gtk_widget_set_margin_start (button, 6);
                      gtk_widget_set_margin_end   (button, 6);
                      gtk_widget_set_margin_top   (button, 2);
                      gtk_widget_set_margin_bottom(button, 2);
-		     gtk_widget_set_visible(button, TRUE);
-		     gtk_box_append(GTK_BOX(vbox), button);
-		  }
-	       }
-	       gtk_widget_set_visible(dialog, TRUE);
-	    } else { 
-	       std::cout << "Coot found no blobs" << std::endl;
-	       // GtkWidget *dialog = create_ligand_no_blobs_dialog();
-	       GtkWidget *dialog = widget_from_builder("ligand_no_blobs_dialog");
+                     gtk_widget_set_visible(button, TRUE);
+                     gtk_box_append(GTK_BOX(vbox), button);
+                  }
+               }
+               gtk_widget_set_visible(dialog, TRUE);
+            } else {
+               std::cout << "Coot found no blobs" << std::endl;
+               // GtkWidget *dialog = create_ligand_no_blobs_dialog();
+               GtkWidget *dialog = widget_from_builder("ligand_no_blobs_dialog");
                g.set_transient_for_main_window(dialog);
-	       gtk_widget_set_visible(dialog, TRUE);
-	    } 
-	 }
+               gtk_widget_set_visible(dialog, TRUE);
+            }
+         }
       }
    }
 }
@@ -243,10 +243,10 @@ show_create_find_waters_dialog() {
 
 // We need to look up the vboxes and add items, like we did in code in
 // gtk-manual.c
-// 
+//
 void fill_find_waters_dialog(GtkWidget *find_ligand_dialog) {
 
-   int ifound; 
+   int ifound;
    short int diff_maps_only_flag = 0;
    // ifound = fill_ligands_dialog_map_bits_by_dialog_name(find_ligand_dialog, "find_waters_map", diff_maps_only_flag);
 
@@ -366,114 +366,114 @@ execute_find_waters() {
 // fire up a waters dialog.
 //
 void find_waters(int imol_for_map,
-		 int imol_for_protein,
-		 short int new_waters_mol_flag,
-		 float sigma_cut_off,
-		 short int show_blobs_dialog) {
+                 int imol_for_protein,
+                 short int new_waters_mol_flag,
+                 float sigma_cut_off,
+                 short int show_blobs_dialog) {
 
    if (!is_valid_model_molecule(imol_for_protein)) {
       std::cout << "WARNING:: in find_waters " << imol_for_protein
-		          << " is not a valid model" << std::endl;
+                          << " is not a valid model" << std::endl;
    } else {
       if (!is_valid_map_molecule(imol_for_map)) {
-	      std::cout << "WARNING:: in find_waters " << imol_for_map
-		             << " is not a valid map" << std::endl;
+              std::cout << "WARNING:: in find_waters " << imol_for_map
+                             << " is not a valid map" << std::endl;
       } else {
-	      coot::ligand lig;
-	 graphics_info_t g;
-	 int n_cycles = g.ligand_water_n_cycles; // 3 by default
+              coot::ligand lig;
+         graphics_info_t g;
+         int n_cycles = g.ligand_water_n_cycles; // 3 by default
 
-	 // n_cycles = 1; // for debugging.
+         // n_cycles = 1; // for debugging.
 
-	 short int mask_waters_flag; // treat waters like other atoms?
-	 // mask_waters_flag = g.find_ligand_mask_waters_flag;
-	 mask_waters_flag = 1; // when looking for waters we should not
-	 // ignore the waters that already exist.
-	 // short int do_flood_flag = 0;    // don't flood fill the map with waters for now.
+         short int mask_waters_flag; // treat waters like other atoms?
+         // mask_waters_flag = g.find_ligand_mask_waters_flag;
+         mask_waters_flag = 1; // when looking for waters we should not
+         // ignore the waters that already exist.
+         // short int do_flood_flag = 0;    // don't flood fill the map with waters for now.
 
-	 lig.import_map_from(g.molecules[imol_for_map].xmap, 
-			     g.molecules[imol_for_map].map_sigma());
-	 // lig.set_masked_map_value(-2.0); // sigma level of masked map gets distorted
-	 lig.set_map_atom_mask_radius(1.9); // Angstroms
-	 lig.set_water_to_protein_distance_limits(g.ligand_water_to_protein_distance_lim_max,
-						  g.ligand_water_to_protein_distance_lim_min);
-	 lig.set_variance_limit(g.ligand_water_variance_limit);
-	 lig.mask_map(g.molecules[imol_for_protein].atom_sel.mol, mask_waters_flag);
-	 // lig.output_map("masked-for-waters.map");
-	 std::cout << "using sigma cut off " << sigma_cut_off << std::endl;
-	 if (g.ligand_water_write_peaksearched_atoms == 1) {
-	    std::cout << "DEBUG set_write_peaksearched_waters " << std::endl;
-	    lig.set_write_raw_waters();
-	 }
-	 // surely there is no need for this, in the general case?
-	 // lig.make_pseudo_atoms(); // put anisotropic atoms at the ligand sites
+         lig.import_map_from(g.molecules[imol_for_map].xmap,
+                             g.molecules[imol_for_map].map_sigma());
+         // lig.set_masked_map_value(-2.0); // sigma level of masked map gets distorted
+         lig.set_map_atom_mask_radius(1.9); // Angstroms
+         lig.set_water_to_protein_distance_limits(g.ligand_water_to_protein_distance_lim_max,
+                                                  g.ligand_water_to_protein_distance_lim_min);
+         lig.set_variance_limit(g.ligand_water_variance_limit);
+         lig.mask_map(g.molecules[imol_for_protein].atom_sel.mol, mask_waters_flag);
+         // lig.output_map("masked-for-waters.map");
+         std::cout << "using sigma cut off " << sigma_cut_off << std::endl;
+         if (g.ligand_water_write_peaksearched_atoms == 1) {
+            std::cout << "DEBUG set_write_peaksearched_waters " << std::endl;
+            lig.set_write_raw_waters();
+         }
+         // surely there is no need for this, in the general case?
+         // lig.make_pseudo_atoms(); // put anisotropic atoms at the ligand sites
 
-	 std::cout << "Calling lig.water_fit()" << std::endl;
-	 lig.water_fit(sigma_cut_off, n_cycles);
-	 std::cout << "Done - back from lig.water_fit()" << std::endl;
+         std::cout << "Calling lig.water_fit()" << std::endl;
+         lig.water_fit(sigma_cut_off, n_cycles);
+         std::cout << "Done - back from lig.water_fit()" << std::endl;
 
-	 // water fit makes big blobs
-	 // *(g.ligand_big_blobs) = lig.big_blobs(); old style
+         // water fit makes big blobs
+         // *(g.ligand_big_blobs) = lig.big_blobs(); old style
 
-	 // It's just too painful to make this a c-interface.h function:
+         // It's just too painful to make this a c-interface.h function:
 
-	 if (graphics_info_t::use_graphics_interface_flag) { 
-	    if (show_blobs_dialog) {
-	       if (lig.big_blobs().size() > 0) {
+         if (graphics_info_t::use_graphics_interface_flag) {
+            if (show_blobs_dialog) {
+               if (lig.big_blobs().size() > 0) {
 
-		  // GtkWidget *dialog = create_ligand_big_blob_dialog();
-		  GtkWidget *dialog = widget_from_builder("ligand_big_blob_dialog");
-		  GtkWidget *main_window = graphics_info_t::get_main_window();
-		  gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(main_window));
-		  // GtkWidget *vbox = lookup_widget(dialog, "ligand_big_blob_vbox");
-		  GtkWidget *vbox = widget_from_builder("ligand_big_blob_vbox");
+                  // GtkWidget *dialog = create_ligand_big_blob_dialog();
+                  GtkWidget *dialog = widget_from_builder("ligand_big_blob_dialog");
+                  GtkWidget *main_window = graphics_info_t::get_main_window();
+                  gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(main_window));
+                  // GtkWidget *vbox = lookup_widget(dialog, "ligand_big_blob_vbox");
+                  GtkWidget *vbox = widget_from_builder("ligand_big_blob_vbox");
                   gtk_widget_set_size_request(vbox, -1, 300);
-		  if (vbox) { 
-		     std::string label;
-		     for(unsigned int i=0; i< lig.big_blobs().size(); i++) { 
-			label = "Blob ";
-			label += graphics_info_t::int_to_string(i + 1);
-			GtkWidget *button = gtk_button_new_with_label(label.c_str());
-			//	 gtk_widget_ref(button);
-			clipper::Coord_orth *c = new clipper::Coord_orth;
-			*c = lig.big_blobs()[i].first;
-			g_signal_connect(G_OBJECT(button), "clicked", 
-					 G_CALLBACK(on_big_blob_button_clicked),
-					 c);
+                  if (vbox) {
+                     std::string label;
+                     for(unsigned int i=0; i< lig.big_blobs().size(); i++) {
+                        label = "Blob ";
+                        label += graphics_info_t::int_to_string(i + 1);
+                        GtkWidget *button = gtk_button_new_with_label(label.c_str());
+                        //         gtk_widget_ref(button);
+                        clipper::Coord_orth *c = new clipper::Coord_orth;
+                        *c = lig.big_blobs()[i].first;
+                        g_signal_connect(G_OBJECT(button), "clicked",
+                                         G_CALLBACK(on_big_blob_button_clicked),
+                                         c);
                         gtk_widget_set_margin_start (button, 6);
                         gtk_widget_set_margin_end   (button, 6);
                         gtk_widget_set_margin_top   (button, 4);
                         gtk_widget_set_margin_bottom(button, 4);
-			gtk_widget_set_visible(button, TRUE);
-			gtk_box_append(GTK_BOX(vbox), button);
-		     }
-		  }
-		  gtk_widget_set_visible(dialog, TRUE);
-	       }
-	    }
-	 }
+                        gtk_widget_set_visible(button, TRUE);
+                        gtk_box_append(GTK_BOX(vbox), button);
+                     }
+                  }
+                  gtk_widget_set_visible(dialog, TRUE);
+               }
+            }
+         }
 
-	 coot::minimol::molecule water_mol = lig.water_mol();
-	 std::cout << "DEBUG::  new_waters_mol_flag: " << new_waters_mol_flag << std::endl;
-	 if (new_waters_mol_flag) { 
-	    if (! water_mol.is_empty()) {
-	       atom_selection_container_t asc = make_asc(water_mol.pcmmdbmanager());
-	       // We need to make the atoms in asc HETATMs
-	       for (int iat=0; iat<asc.n_selected_atoms; iat++)
-		  asc.atom_selection[iat]->Het = 1;
-	       int g_mol_for_waters = graphics_info_t::create_molecule();
-	       g.molecules[g_mol_for_waters].install_model(g_mol_for_waters, asc, g.Geom_p(), "waters", 1);
-	       if (g.go_to_atom_window){
-		  g.update_go_to_atom_window_on_new_mol();
-		  g.update_go_to_atom_window_on_changed_mol(g_mol_for_waters);
-	       }
-	    }
-	 } else {
-	    // waters added to masking molecule
-	    g.molecules[imol_for_protein].insert_waters_into_molecule(water_mol, "HOH");
-	    g.update_go_to_atom_window_on_changed_mol(imol_for_protein);
+         coot::minimol::molecule water_mol = lig.water_mol();
+         std::cout << "DEBUG::  new_waters_mol_flag: " << new_waters_mol_flag << std::endl;
+         if (new_waters_mol_flag) {
+            if (! water_mol.is_empty()) {
+               atom_selection_container_t asc = make_asc(water_mol.pcmmdbmanager());
+               // We need to make the atoms in asc HETATMs
+               for (int iat=0; iat<asc.n_selected_atoms; iat++)
+                  asc.atom_selection[iat]->Het = 1;
+               int g_mol_for_waters = graphics_info_t::create_molecule();
+               g.molecules[g_mol_for_waters].install_model(g_mol_for_waters, asc, g.Geom_p(), "waters", 1);
+               if (g.go_to_atom_window){
+                  g.update_go_to_atom_window_on_new_mol();
+                  g.update_go_to_atom_window_on_changed_mol(g_mol_for_waters);
+               }
+            }
+         } else {
+            // waters added to masking molecule
+            g.molecules[imol_for_protein].insert_waters_into_molecule(water_mol, "HOH");
+            g.update_go_to_atom_window_on_changed_mol(imol_for_protein);
             g.update_validation(imol_for_protein);
-	 }
+         }
       }
    }
 }
@@ -493,26 +493,26 @@ void  free_blob_dialog_memory(GtkWidget *w) {
 // freed.
 void free_ligand_search_user_data(GtkWidget *button) {
 
-} 
+}
 
 
-// void wrapped_create_big_blobs_dialog(const std::vector<Cartesian> &blobs) { 
+// void wrapped_create_big_blobs_dialog(const std::vector<Cartesian> &blobs) {
 
 //    GtkWidget *dialog = create_ligand_big_blob_dialog();
 //    GtkWidget *vbox = lookup_widget(dialog, "ligand_big_blob_vbox");
-//    if (vbox) { 
+//    if (vbox) {
 //       std::string label;
-//       for(int i=0; i< blobs.size(); i++) { 
-// 	 label = "Blob ";
-// 	 label += int_to_string(i);
-// 	 GtkWidget *button = gtk_button_new_with_label(label.c_str());
-// 	 //	 gtk_widget_ref(button);
-// 	 gtk_signal_connect (GTK_OBJECT(button), "clicked", 
-// 			     GTK_SIGNAL_FUNC(on_big_blob_button_clicked),
-// 			     GPOINTER_TO_INT(i));
-// 	 gtk_widget_set_visible(button, TRUE);
-// 	 gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 0);
-// 	 gtk_container_set_border_width(GTK_CONTAINER(button), 2);
+//       for(int i=0; i< blobs.size(); i++) {
+//          label = "Blob ";
+//          label += int_to_string(i);
+//          GtkWidget *button = gtk_button_new_with_label(label.c_str());
+//          //         gtk_widget_ref(button);
+//          gtk_signal_connect (GTK_OBJECT(button), "clicked",
+//                              GTK_SIGNAL_FUNC(on_big_blob_button_clicked),
+//                              GPOINTER_TO_INT(i));
+//          gtk_widget_set_visible(button, TRUE);
+//          gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 0);
+//          gtk_container_set_border_width(GTK_CONTAINER(button), 2);
 //       }
 //    }
 
@@ -521,11 +521,10 @@ void free_ligand_search_user_data(GtkWidget *button) {
 
 void
 on_big_blob_button_clicked(GtkButton *button,
-			   gpointer user_data) {
+                           gpointer user_data) {
 
    clipper::Coord_orth *p = (clipper::Coord_orth *) user_data;
    set_rotation_centre(p->x(), p->y(), p->z());
    graphics_info_t g;
    g.graphics_grab_focus();
-} 
-
+}
