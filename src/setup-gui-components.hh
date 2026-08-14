@@ -30,3 +30,7 @@
 void setup_gui_components();
 
 void add_typed_menu_to_mutate_menubutton(const std::string &action_type, const std::string &residue_type);
+
+/// @brief Show/hide the icons and labels of the vertical toolbar buttons to match
+///        graphics_info_t::vertical_toolbar_style.
+void apply_vertical_toolbar_style();

@@ -606,6 +606,36 @@ void preferences_internal_change_value_int(int preference_type, int ivalue) {
   g.preferences_internal_change_value(preference_type, ivalue);
 }
 
+#include "setup-gui-components.hh" // for apply_vertical_toolbar_style()
+
+void set_vertical_toolbar_style(int style) {
+
+   if (style < 0) style = 0;
+   if (style > 2) style = 2;
+   graphics_info_t::vertical_toolbar_style = style;
+   apply_vertical_toolbar_style(); // does nothing if the toolbar has not been made yet -
+                                   // setup_gui_components() applies the style in that case.
+
+   // keep the radio items of the toolbar's right-click menu in step with the style
+   GtkApplication *application = graphics_info_t::application;
+   if (application) {
+      GAction *action = g_action_map_lookup_action(G_ACTION_MAP(application),
+                                                   "vertical_toolbar_style_action");
+      if (action) {
+         const char *state = "icons-and-labels";
+         if (style == 1) state = "labels";
+         if (style == 2) state = "icons";
+         g_simple_action_set_state(G_SIMPLE_ACTION(action), g_variant_new_string(state));
+      }
+   }
+   preferences_internal_change_value_int(PREFERENCES_VERTICAL_TOOLBAR_STYLE, style);
+}
+
+int vertical_toolbar_style_state() {
+
+   return graphics_info_t::vertical_toolbar_style;
+}
+
 void preferences_internal_change_value_int2(int preference_type, int ivalue1, int ivalue2) {
   graphics_info_t g;
   g.preferences_internal_change_value(preference_type, ivalue1, ivalue2);

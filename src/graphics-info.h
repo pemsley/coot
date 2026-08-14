@@ -763,6 +763,10 @@ public:
    // flag for the main toolbar style
    static short int main_toolbar_style_state;
 
+   // how the buttons of the vertical toolbar (main_window_vbox_inner) are drawn:
+   // 0: icons and labels, 1: labels only, 2: icons only
+   static int vertical_toolbar_style;
+
    static short int do_lighting_flag;
    static bool do_flat_shading_for_solid_density_surface;
 
