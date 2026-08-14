@@ -55,10 +55,10 @@ connect-to-ccp4.svg   gtk-font.png		   secondary-structure.svg        \
 connect-to-oca.svg    gtk-open-16.png		   sequence-view.png              \
 connect-to-usf.svg    gtk-open-24.png		   sequence-view.svg              \
 connect-to-world.svg  gtk-open.png		   side-chain-180.png             \
-	    kevin.jpg			   side-chain-180.svg             \
-	    kevin-orig.jpg		   smiles.png                     \
-	    kleywegt.svg		   smiles.svg                     \
-	    map.svg			   spin-view.png                  \
+kevin.jpg	      side-chain-180.svg           range-pair.svg                 \
+kevin-orig.jpg	      smiles.png                     \
+kleywegt.svg	      smiles.svg                     \
+map.svg		      spin-view.png                  \
 coot-favicon.png      merge-molecules.svg	   spin-view.svg                  \
 coot-icon.png	      mutate-auto-fit.svg	   stereo-view.svg                \
 coot-save.png	      mutate.svg		   stop.svg                       \
