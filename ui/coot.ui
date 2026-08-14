@@ -1118,6 +1118,27 @@
     </section>
   </menu>
 
+  <!-- the right-click (context) menu for the vertical toolbar (main_window_vbox_inner) -->
+  <menu id="vertical-toolbar-style-menu">
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">Icons and Labels</attribute>
+        <attribute name="action">app.vertical_toolbar_style_action</attribute>
+        <attribute name="target">icons-and-labels</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Labels Only</attribute>
+        <attribute name="action">app.vertical_toolbar_style_action</attribute>
+        <attribute name="target">labels</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Icons Only</attribute>
+        <attribute name="action">app.vertical_toolbar_style_action</attribute>
+        <attribute name="target">icons</attribute>
+      </item>
+    </section>
+  </menu>
+
   <menu id="rotate-translate-menu">
     <section>
       <item>
@@ -11071,7 +11092,7 @@ Do you want to continue?
                     <property name="spacing">5</property>
                     <child>
                       <object class="GtkImage">
-
+                        <property name="icon-name">coot-configuration</property>
                       </object>
                     </child>
                     <child>
@@ -11094,7 +11115,7 @@ Do you want to continue?
                     <property name="spacing">5</property>
                     <child>
                       <object class="GtkImage">
-
+                        <property name="icon-name">map</property>
                       </object>
                     </child>
                     <child>
@@ -11118,7 +11139,7 @@ Do you want to continue?
                     <property name="halign">start</property>
                     <child>
                       <object class="GtkImage">
-
+                        <property name="icon-name">range-pair</property>
                       </object>
                     </child>
                     <child>
@@ -11141,7 +11162,7 @@ Do you want to continue?
                     <property name="halign">start</property>
                     <child>
                       <object class="GtkImage">
-
+                        <property name="icon-name">refine-1</property>
                       </object>
                     </child>
                     <child>
@@ -11428,7 +11449,7 @@ Do you want to continue?
                     <property name="spacing">5</property>
                     <child>
                       <object class="GtkImage">
-                        <property name="icon-name">edit-delete-symbolic</property>
+                        <property name="icon-name">coot-delete</property>
                       </object>
                     </child>
                     <child>
@@ -11449,7 +11470,7 @@ Do you want to continue?
                     <property name="spacing">5</property>
                     <child>
                       <object class="GtkImage">
-                        <property name="icon-name">edit-undo-symbolic</property>
+                        <property name="icon-name">coot-undo</property>
                       </object>
                     </child>
                     <child>
@@ -11471,7 +11492,7 @@ Do you want to continue?
                     <property name="spacing">5</property>
                     <child>
                       <object class="GtkImage">
-                        <property name="icon-name">edit-redo-symbolic</property>
+                        <property name="icon-name">coot-redo</property>
                       </object>
                     </child>
                     <child>

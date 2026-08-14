@@ -181,6 +181,9 @@ short int graphics_info_t::main_toolbar_show_hide_state = 1;
 // the main toolbar style
 short int graphics_info_t::main_toolbar_style_state = 2;
 
+// the vertical toolbar style: 0: icons and labels, 1: labels only, 2: icons only
+int graphics_info_t::vertical_toolbar_style = 0;
+
 // refmac option menu
 int graphics_info_t::refmac_molecule = -1;
 

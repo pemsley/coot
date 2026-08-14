@@ -4253,6 +4253,23 @@ fullscreen_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    graphics_info_t::graphics_grab_focus();
 }
 
+// this action is a radio-item action - it comes from the right-click menu of the
+// vertical toolbar. The parameter is the target of the menu item.
+void
+vertical_toolbar_style_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                              GVariant *parameter,
+                              G_GNUC_UNUSED gpointer user_data) {
+
+   if (! parameter) return;
+   std::string s(g_variant_get_string(parameter, NULL));
+   int style = 0; // icons and labels
+   if (s == "labels") style = 1;
+   if (s == "icons")  style = 2;
+   set_vertical_toolbar_style(style); // sets the state of this action also
+   save_preferences();                // persist the choice immediately
+   graphics_info_t::graphics_grab_focus();
+}
+
 void
 gaussian_surface_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                         G_GNUC_UNUSED GVariant *parameter,
@@ -6409,6 +6426,21 @@ create_actions(GtkApplication *application) {
       // g_object_unref(my_action);
    };
 
+   // an action with a string state - the menu items that use it (with a "target"
+   // attribute) are drawn as radio items.
+   auto add_stateful_string_action = [application] (const std::string &action_name,
+                                                    const std::string &initial_state,
+                                                    void (*action_function) (GSimpleAction *simple_action,
+                                                                             GVariant *parameter,
+                                                                             gpointer user_data)) {
+
+      GSimpleAction *simple_action = g_simple_action_new_stateful(action_name.c_str(),
+                                                                  G_VARIANT_TYPE_STRING,
+                                                                  g_variant_new_string(initial_state.c_str()));
+      g_action_map_add_action(G_ACTION_MAP(application), G_ACTION(simple_action));
+      g_signal_connect(simple_action, "activate", G_CALLBACK(action_function), NULL);
+   };
+
 
    // File
 
@@ -6584,6 +6616,11 @@ create_actions(GtkApplication *application) {
    add_action(           "bond_colours_action",            bond_colours_action);
    add_action(             "fullscreen_action",              fullscreen_action);
    add_action(               "map_caps_action",                map_caps_action);
+
+   // the right-click menu of the vertical toolbar
+   add_stateful_string_action("vertical_toolbar_style_action", "icons-and-labels",
+                              vertical_toolbar_style_action);
+
    add_action(             "go_to_atom_action",              go_to_atom_action);
    add_action(         "label_CA_atoms_action",          label_CA_atoms_action);
    add_action(         "map_parameters_action",          map_parameters_action);
