@@ -130,8 +130,8 @@
      inkscape:grid-bbox="true"
      showgrid="false"
      inkscape:current-layer="layer1"
-     inkscape:cy="35.932226"
-     inkscape:cx="31.98223"
+     inkscape:cy="39.882223"
+     inkscape:cx="27.395137"
      inkscape:zoom="7.8481082"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0.0"
@@ -185,7 +185,7 @@
          id="g4"
          style="fill:url(#radialGradient9);fill-opacity:1;stroke:#2b852d;stroke-width:2;stroke-dasharray:none;stroke-opacity:1">
         <path
-           style="baseline-shift:baseline;display:inline;overflow:visible;opacity:1;fill:url(#radialGradient8);fill-opacity:1;stroke:#2b852d;stroke-width:2;stroke-linecap:round;stroke-dasharray:none;stroke-opacity:1;enable-background:accumulate;stop-color:#000000;stop-opacity:1"
+           style="baseline-shift:baseline;display:inline;overflow:visible;opacity:1;fill:url(#radialGradient8);fill-opacity:1;stroke:#2b852d;stroke-width:2.3;stroke-linecap:round;stroke-dasharray:none;stroke-opacity:1;enable-background:accumulate;stop-color:#000000;stop-opacity:1"
            d="m 12.212891,-25.273437 -10.2187504,9.90039 9.9003904,10.2187501 a 1.5,1.5 0 0 0 2.121094,0.033203 1.5,1.5 0 0 0 0.0332,-2.1210938 l -7.8124999,-8.0625003 8.0644529,-7.812499 a 1.5,1.5 0 0 0 0.0332,-2.121094 1.5,1.5 0 0 0 -2.121093,-0.03516 z"
            id="path4" />
       </g>
