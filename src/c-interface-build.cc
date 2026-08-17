@@ -4075,6 +4075,72 @@ merge_molecules_by_vector(const std::vector<int> &add_molecules, int imol) {
 }
 
 
+#ifdef USE_PYTHON
+// Split a multi-model ligand molecule (docking poses) and merge each conformer
+// into its own fresh copy of a protein molecule, giving one protein+ligand
+// complex per pose. Returns [[imol_complex, [status, spec/chain, ...]], ...].
+PyObject *split_multi_model_molecule_and_merge_py(int imol_ligand, int imol_protein) {
+
+   PyObject *r = PyList_New(0);
+
+   if (! is_valid_model_molecule(imol_ligand)) {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): invalid ligand molecule "
+                << imol_ligand << std::endl;
+      return r;
+   }
+   if (! is_valid_model_molecule(imol_protein)) {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): invalid protein molecule "
+                << imol_protein << std::endl;
+      return r;
+   }
+
+   graphics_info_t g;
+   mmdb::Manager *lig_mol = graphics_info_t::molecules[imol_ligand].atom_sel.mol;
+   std::vector<mmdb::Manager *> poses = coot::util::split_multi_model_molecule(lig_mol);
+
+   for (unsigned int i=0; i<poses.size(); i++) {
+
+      // a fresh copy of the protein is the complex-to-be
+      int imol_complex = g.copy_model_molecule(imol_protein);
+      if (! is_valid_model_molecule(imol_complex)) {
+         delete poses[i];
+         continue;
+      }
+
+      atom_selection_container_t lig_asc = make_asc(poses[i]);
+      std::vector<atom_selection_container_t> add_mols(1, lig_asc);
+      std::pair<int, std::vector<merge_molecule_results_info_t> > mres =
+         graphics_info_t::molecules[imol_complex].merge_molecules(add_mols);
+      graphics_info_t::molecules[imol_complex].set_name(
+         "complex from " + graphics_info_t::molecules[imol_protein].name_ +
+         " pose " + coot::util::int_to_string(i+1));
+      delete poses[i]; // merge_molecules() copied the atoms in
+
+      // merge_info: [status, spec-or-chain, ...] as for merge_molecules_py()
+      PyObject *merge_info = PyList_New(mres.second.size() + 1);
+      PyList_SetItem(merge_info, 0, PyLong_FromLong(mres.first));
+      for (unsigned int j=0; j<mres.second.size(); j++) {
+         if (mres.second[j].is_chain)
+            PyList_SetItem(merge_info, j+1, myPyString_FromString(mres.second[j].chain_id.c_str()));
+         else
+            PyList_SetItem(merge_info, j+1, residue_spec_to_py(mres.second[j].spec));
+      }
+
+      PyObject *entry = PyList_New(2);
+      PyList_SetItem(entry, 0, PyLong_FromLong(imol_complex));
+      PyList_SetItem(entry, 1, merge_info);
+      PyList_Append(r, entry);
+      Py_DECREF(entry); // PyList_Append() adds its own reference
+   }
+
+   if (graphics_info_t::use_graphics_interface_flag)
+      graphics_draw();
+
+   return r;
+}
+#endif // USE_PYTHON
+
+
 #ifdef USE_GUILE
 void set_merge_molecules_ligand_spec_scm(SCM ligand_spec_scm) {
 
@@ -5764,6 +5830,10 @@ int read_cif_dictionary(const std::string &filename) {
 
    return handle_cif_dictionary(filename);
 
+}
+
+int read_cif_dictionary_for_molecule(const std::string &filename, int imol_enc) {
+   return handle_cif_dictionary_for_molecule(filename, imol_enc, 1);
 }
 
 /*! \brief some programs produce PDB files with ATOMs where there

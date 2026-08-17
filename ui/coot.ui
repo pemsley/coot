@@ -282,6 +282,10 @@
           <attribute name="action">app.load_tutorial_model_and_data_action</attribute>
         </item>
         <item>
+          <attribute name="label">Ligand → 2D</attribute>
+          <attribute name="action">app.ligand_builder_residue_to_2d_action</attribute>
+        </item>
+        <item>
           <attribute name="label">Ligand Builder...</attribute>
           <attribute name="action">app.ligand_builder_action</attribute>
         </item>
@@ -350,11 +354,6 @@
         <!-- <item> -->
         <!--   <attribute name="label">Map Skeleton...</attribute> -->
         <!-- </item> -->
-
-        <item>
-          <attribute name="label">Residue → 2D</attribute>
-          <attribute name="action">app.ligand_builder_residue_to_2d_action</attribute>
-        </item>
 
         <item>
           <attribute name="label">Run Script...</attribute>
@@ -496,8 +495,12 @@
           <!-- </item> -->
         </submenu>
         <item>
-          <attribute name="label">N-linked Glycan...</attribute>
+          <attribute name="label">N-linked Glycan WTA...</attribute>
           <attribute name="action">app.glyco_wta_action</attribute>
+        </item>
+        <item>
+          <attribute name="label">N-linked Glycan LMA...</attribute>
+          <attribute name="action">app.glyco_lma_action</attribute>
         </item>
         <item>
           <attribute name="label">Phosphorylate This Residue</attribute>
@@ -1115,6 +1118,27 @@
     </section>
   </menu>
 
+  <!-- the right-click (context) menu for the vertical toolbar (main_window_vbox_inner) -->
+  <menu id="vertical-toolbar-style-menu">
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">Icons and Labels</attribute>
+        <attribute name="action">app.vertical_toolbar_style_action</attribute>
+        <attribute name="target">icons-and-labels</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Labels Only</attribute>
+        <attribute name="action">app.vertical_toolbar_style_action</attribute>
+        <attribute name="target">labels</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Icons Only</attribute>
+        <attribute name="action">app.vertical_toolbar_style_action</attribute>
+        <attribute name="target">icons</attribute>
+      </item>
+    </section>
+  </menu>
+
   <menu id="rotate-translate-menu">
     <section>
       <item>
@@ -1187,12 +1211,20 @@
         <attribute name="action">app.delete_item_chain</attribute>
       </item>
       <item>
+        <attribute name="label" translatable="yes">All Carbohydrate</attribute>
+        <attribute name="action">app.delete_carbohydrate_action</attribute>
+      </item>
+      <item>
         <attribute name="label" translatable="yes">Hydrogen Atoms in Molecule</attribute>
         <attribute name="action">app.delete_item_hydrogen_atoms_in_molecule</attribute>
       </item>
       <item>
-        <attribute name="label" translatable="yes">Pick Delete Atom(s)</attribute>
+        <attribute name="label" translatable="yes">Multi-Pick Delete Atoms</attribute>
         <attribute name="action">app.delete_item_pick_delete</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Multi-Pick Delete Waters</attribute>
+        <attribute name="action">app.delete_item_pick_water_delete</attribute>
       </item>
    </section>
   </menu>
@@ -1534,7 +1566,7 @@ Copyright 2023, 2024, 2025, 2026 Global Phasing Ltd.</property>
     <property name="license-type">lgpl-3-0</property>
     <property name="logo-icon-name">coot</property>
     <property name="program-name">Coot</property>
-    <property name="version">1.3.1</property>
+    <property name="version">1.3.3</property>
     <property name="website">https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot</property>
     <property name="website-label">The Coot Website</property>
     <signal name="close-request" handler="on_about_dialog_close_request"/>
@@ -1588,6 +1620,96 @@ Copyright 2023, 2024, 2025, 2026 Global Phasing Ltd.</property>
     <child type="titlebar">
     </child>
   </object>
+
+  <object class="GtkDialog" id="glyco-lma-dialog">
+    <property name="title" translatable="yes">Coot: Carbohydrate Linked Monomer Addition</property>
+    <property name="default-width">300</property>
+    <signal name="response" handler="on_glyco_lma_dialog_response" swapped="no"/>
+
+    <child>
+      <object class="GtkBox" id="glyco-lma-box-outer">
+        <property name="orientation">vertical</property>
+
+        <child>
+          <object class="GtkBox">
+            <property name="orientation">vertical</property>
+
+            <child>
+              <object class="GtkBox">
+                <property name="orientation">vertical</property>
+
+                <child>
+                  <object class="GtkCheckButton" id="glyco_lma_high_mannose_checkbutton">
+                    <property name="label" translatable="yes">High Mannose</property>
+                    <property name="active">1</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="glyco_lma_hybrid_mammal_checkbutton">
+                    <property name="label" translatable="yes">Hybrid (Mammal)</property>
+                    <property name="group">glyco_lma_high_mannose_checkbutton</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="glyco_lma_complex_mammal_checkbutton">
+                    <property name="label" translatable="yes">Complex (Mammal)</property>
+                    <property name="group">glyco_lma_high_mannose_checkbutton</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="glyco_lma_complex_plant_checkbutton">
+                    <property name="label" translatable="yes">Complex (Plant)</property>
+                    <property name="group">glyco_lma_high_mannose_checkbutton</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="glyco_lma_all_options_checkbutton">
+                    <property name="label" translatable="yes">All</property>
+                    <property name="group">glyco_lma_high_mannose_checkbutton</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkButton" id="glyco_lma_reduce_options_button">
+                <property name="label">Calculate Options</property>
+                <signal name="clicked" handler="on_glyco_lma_reduce_options_button_clicked" swapped="no"/>
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkBox" id="glyco_lma_vbox_internal">
+                <property name="orientation">vertical</property>
+                <!-- link buttons get added here dynamically when the dialog is shown -->
+                <property name="spacing">2</property>
+                <property name="vexpand">1</property>
+                <property name="valign">fill</property>
+              </object>
+            </child>
+          </object>
+        </child>
+
+        <child type="action">
+          <object class="GtkButton" id="glyco_lma_dialog_close_button">
+            <property name="label">Close</property>
+            <property name="can-focus">1</property>
+            <property name="receives-default">1</property>
+            <property name="margin-start">6</property>
+            <property name="margin-end">6</property>
+            <property name="margin-top">6</property>
+            <property name="margin-bottom">6</property>
+          </object>
+        </child>
+
+      </object>
+    </child>
+
+    <action-widgets>
+      <action-widget response="-7">glyco_lma_dialog_close_button</action-widget>
+    </action-widgets>
+  </object>
+
 
   <object class="GtkDialog" id="add_OXT_dialog">
     <property name="title" translatable="yes">Coot: Add OXT to Chain</property>
@@ -2420,8 +2542,6 @@ Copyright 2023, 2024, 2025, 2026 Global Phasing Ltd.</property>
     <action-widgets>
       <action-widget response="-7">bad_chiral_volumes_dialog_close_button</action-widget>
     </action-widgets>
-    <child type="titlebar">
-    </child>
   </object>
 
   <object class="GtkDialog" id="baton_dialog">
@@ -4786,6 +4906,7 @@ that you wish to delete.               </property>
 
   <object class="GtkDialog" id="edit_chi_angles_dialog">
     <property name="title" translatable="yes">Coot: Edit Chi Angles</property>
+    <property name="width-request">344</property> <!-- hand-tuned -->
     <signal name="destroy" handler="on_edit_chi_angles_dialog_destroy" swapped="no"/>
     <child>
       <object class="GtkBox" id="dialog-vbox37">
@@ -6967,7 +7088,7 @@ Do you want to continue?
                   <property name="tooltip-text">Toggle command terminal</property>
                   <child>
                     <object class="GtkLabel">
-                      <property name="label" translatable="yes">Command</property>
+                      <property name="label" translatable="yes">Cmd</property>
                     </object>
                   </child>
                 </object>
@@ -10971,7 +11092,7 @@ Do you want to continue?
                     <property name="spacing">5</property>
                     <child>
                       <object class="GtkImage">
-
+                        <property name="icon-name">coot-configuration</property>
                       </object>
                     </child>
                     <child>
@@ -10994,7 +11115,7 @@ Do you want to continue?
                     <property name="spacing">5</property>
                     <child>
                       <object class="GtkImage">
-
+                        <property name="icon-name">map</property>
                       </object>
                     </child>
                     <child>
@@ -11018,7 +11139,7 @@ Do you want to continue?
                     <property name="halign">start</property>
                     <child>
                       <object class="GtkImage">
-
+                        <property name="icon-name">range-pair</property>
                       </object>
                     </child>
                     <child>
@@ -11041,7 +11162,7 @@ Do you want to continue?
                     <property name="halign">start</property>
                     <child>
                       <object class="GtkImage">
-
+                        <property name="icon-name">refine-1</property>
                       </object>
                     </child>
                     <child>
@@ -11328,7 +11449,7 @@ Do you want to continue?
                     <property name="spacing">5</property>
                     <child>
                       <object class="GtkImage">
-                        <property name="icon-name">edit-delete-symbolic</property>
+                        <property name="icon-name">coot-delete</property>
                       </object>
                     </child>
                     <child>
@@ -11349,7 +11470,7 @@ Do you want to continue?
                     <property name="spacing">5</property>
                     <child>
                       <object class="GtkImage">
-                        <property name="icon-name">edit-undo-symbolic</property>
+                        <property name="icon-name">coot-undo</property>
                       </object>
                     </child>
                     <child>
@@ -11371,7 +11492,7 @@ Do you want to continue?
                     <property name="spacing">5</property>
                     <child>
                       <object class="GtkImage">
-                        <property name="icon-name">edit-redo-symbolic</property>
+                        <property name="icon-name">coot-redo</property>
                       </object>
                     </child>
                     <child>
@@ -16004,9 +16125,24 @@ Sorry.
             </child>
           </object>
         </child>
+        <child>
+          <object class="GtkLabel" id="rotate_translate_obj_drag_hint_label">
+            <property name="label" translatable="yes">Drag on the atoms with the mouse to move them,
+use Ctrl-Shift-drag to rotate them</property>
+            <property name="justify">center</property>
+            <property name="margin-start">4</property>
+            <property name="margin-end">4</property>
+            <property name="margin-top">2</property>
+            <property name="margin-bottom">2</property>
+            <attributes>
+              <attribute name="style" value="italic"/>
+            </attributes>
+          </object>
+        </child>
         <child type="action">
           <object class="GtkBox" id="hbox40">
             <property name="spacing">6</property>
+            <property name="halign">end</property>
             <property name="margin-start">4</property>
             <property name="margin-end">4</property>
             <property name="margin-top">4</property>
@@ -16973,7 +17109,9 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
   </object>
 
   <object class="GtkWindow" id="show_symmetry_window">
-    <property name="title" translatable="yes">Coot: Show Symmetry &amp; Unit Cell</property>
+    <property name="title" translatable="yes">Coot: Symmetry &amp; Unit Cell</property>
+    <!-- hide (don't destroy) on window-manager close, so it can be re-shown -->
+    <property name="hide-on-close">True</property>
     <child>
       <object class="GtkBox" id="vbox10">
         <property name="orientation">vertical</property>
@@ -17324,8 +17462,6 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
           </object>
         </child>
       </object>
-    </child>
-    <child type="titlebar">
     </child>
   </object>
 
@@ -19366,6 +19502,18 @@ Move a copy?</property>
                 <property name="title" translatable="yes">Triple-Refine Auto-Accept</property>
               </object>
             </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">t</property>
+                <property name="title" translatable="yes">Triple Refine</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">&lt;Shift&gt;J</property>
+                <property name="title" translatable="yes">Jiggle Fit</property>
+              </object>
+            </child>
 
           </object>
         </child>
@@ -19406,8 +19554,44 @@ Move a copy?</property>
             </child>
             <child>
               <object class="GtkShortcutsShortcut">
+                <property name="accelerator">&lt;Shift&gt;F</property>
+                <property name="title" translatable="yes">JED Flip</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">&lt;Shift&gt;G</property>
+                <property name="title" translatable="yes">Reverse JED Flip</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
                 <property name="accelerator">&lt;Ctrl&gt;W</property>
                 <property name="title" translatable="yes">Add Water</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">v</property>
+                <property name="title" translatable="yes">Add Water Here</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">c</property>
+                <property name="title" translatable="yes">Edit Chi Angles</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">&lt;Shift&gt;X</property>
+                <property name="title" translatable="yes">Rotamer Selection</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">asciitilde</property>
+                <property name="title" translatable="yes">Rotamer Name to Status Bar</property>
               </object>
             </child>
           </object>

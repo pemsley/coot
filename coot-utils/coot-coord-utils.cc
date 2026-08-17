@@ -225,7 +225,7 @@ coot::util::shift(mmdb::Manager *mol, clipper::Coord_orth pt) {
 void
 coot::sort_chains(mmdb::Manager *mol) {
 
-   if (mol) { 
+   if (mol) {
       for (int imod=1; imod<=mol->GetNumberOfModels(); imod++) {
          mmdb::Model *model_p = mol->GetModel(imod);
          if (! model_p) continue;
@@ -235,7 +235,7 @@ coot::sort_chains(mmdb::Manager *mol) {
       mol->FinishStructEdit();
    }
 }
-      
+
 
 bool
 coot::sort_chains_util(const std::pair<mmdb::Chain *, std::string> &a,
@@ -2024,6 +2024,8 @@ coot::graph_match(mmdb::Residue *res_moving,
                   bool apply_rtop_flag,
                   bool match_hydrogens_also) {
 
+   std::cout << "DEBUG:: graph_match() called with match_hydrogens_also " << match_hydrogens_also << std::endl;
+
   clipper::Mat33<double> m_dum(1,0,0,0,1,0,0,0,1);
   clipper::Coord_orth pt_dum(0,0,0);
   clipper::RTop_orth rtop(m_dum, pt_dum);
@@ -2034,20 +2036,20 @@ coot::graph_match(mmdb::Residue *res_moving,
    mmdb::math::Graph graph2;
 
    // These are deleted at the end
-   // 
+   //
    mmdb::Residue *cleaned_res_moving    = NULL;
    mmdb::Residue *cleaned_res_reference = NULL;
 
-   if (! match_hydrogens_also) { 
+   if (! match_hydrogens_also) {
       cleaned_res_moving    = coot::util::copy_and_delete_hydrogens(res_moving);
       cleaned_res_reference = coot::util::copy_and_delete_hydrogens(res_reference);
    } else {
       cleaned_res_moving    = coot::util::deep_copy_this_residue(res_moving);
       cleaned_res_reference = coot::util::deep_copy_this_residue(res_reference);
-   } 
+   }
 
-   // debug 
-   if (0) {
+   // debug
+   if (true) {
       int n_residue_atoms_1;
       mmdb::PPAtom residue_atoms_1;
       cleaned_res_moving->GetAtomTable(residue_atoms_1, n_residue_atoms_1);
@@ -2071,10 +2073,10 @@ coot::graph_match(mmdb::Residue *res_moving,
       // Anyway...
       // 20161008 Now make it true - we are using SRS now.
       // This does need a test
-      // 
+      //
       // graph1.MakeSymmetryRelief ( false );
       // graph2.MakeSymmetryRelief ( false );
- 
+
       graph1.MakeSymmetryRelief(true);
       graph2.MakeSymmetryRelief(true);
    }
@@ -2086,7 +2088,7 @@ coot::graph_match(mmdb::Residue *res_moving,
 
    if (build_status1 != 0) {
       std::cout << "ERROR:: build_status1: " << build_status1 << std::endl;
-   } else { 
+   } else {
       if (build_status2 != 0) {
          std::cout << "ERROR:: build_status2: " << build_status2 << std::endl;
       } else {
@@ -2095,26 +2097,24 @@ coot::graph_match(mmdb::Residue *res_moving,
          int n_atoms_mov = cleaned_res_moving->GetNumberOfAtoms();
 
          int minMatch = 4;
-         int n_ref_frac = int(0.75*float(n_atoms_ref));
-         int n_mov_frac = int(0.75*float(n_atoms_mov));
+         float frac = 0.75;
+         frac = 0.4;
+         int n_ref_frac = int(frac*float(n_atoms_ref));
+         int n_mov_frac = int(frac*float(n_atoms_mov));
 
          int min_n = (n_ref_frac < n_mov_frac) ? n_ref_frac : n_mov_frac;
          if (min_n > minMatch)
             minMatch = min_n;
-         
+
          mmdb::math::GraphMatch match;
 
-         // std::cout << "INFO:: match.MatchGraphs must match at least "
-         //           << minMatch << " atoms."
-         //           << std::endl;
          logger.log(log_t::INFO, "match.MatchGraphs must match at least", minMatch, "atoms.");
          bool vertext_type = true;
          match.MatchGraphs(&graph1, &graph2, minMatch, vertext_type);
          int n_match = match.GetNofMatches();
-         // std::cout << "INFO:: match NumberofMatches (potentially similar graphs) "
-         //           << n_match << std::endl;
          logger.log(log_t::INFO, "match NumberofMatches (potentially similar graphs)", n_match);
-         // match.PrintMatches();
+         if (false)
+            match.PrintMatches();
 
          int best_match = -1;
          clipper::Mat33<double> m_dum(1,0,0,0,1,0,0,0,1);
@@ -2126,9 +2126,10 @@ coot::graph_match(mmdb::Residue *res_moving,
             mmdb::realtype p1, p2;
             mmdb::ivector FV1, FV2;
             match.GetMatch(imatch, FV1, FV2, n, p1, p2); // n p1 p2 set
-//             For understanding only.  
-//             std::cout << "Match number: " << imatch << "  " << p1*100 << "% "
-//                       << p2*100 << "% "<< std::endl;
+//             For understanding only:
+//          if (true)
+               std::cout << "Match number: " << imatch << "  " << p1*100 << "% "
+                         << p2*100 << "% "<< std::endl;
             std::vector<clipper::Coord_orth> coords_1_local;
             std::vector<clipper::Coord_orth> coords_2_local;
             for (int ipair=1; ipair<=n; ipair++) {
@@ -2138,8 +2139,8 @@ coot::graph_match(mmdb::Residue *res_moving,
                   std::cout << "Can't get vertices for match "
                             << ipair << std::endl;
                } else  {
-//                   printf(" %4i.  [%4s] <-> [%4s]\n",
-//                          ipair, V1->GetName(), V2->GetName());
+                  //                   printf(" %4i.  [%4s] <-> [%4s]\n",
+                  //                          ipair, V1->GetName(), V2->GetName());
                   mmdb::Atom *at1 = cleaned_res_moving->atom[V1->GetUserID()];
                   mmdb::Atom *at2 = cleaned_res_reference->atom[V2->GetUserID()];
                   coords_1_local.push_back(clipper::Coord_orth(at1->x, at1->y, at1->z));
@@ -2150,7 +2151,7 @@ coot::graph_match(mmdb::Residue *res_moving,
                   matching_atoms.push_back(atom_pair);
                }
             }
-            
+
             double dist_sum = 0.0;
             clipper::RTop_orth rtop_local(clipper::Mat33<double>(0,0,0,0,0,0,0,0,0),
                                           clipper::Coord_orth(0,0,0)); // unset
@@ -2165,17 +2166,25 @@ coot::graph_match(mmdb::Residue *res_moving,
                for (unsigned int i=0; i<coords_1_local.size(); i++) {
                   dist_sum += clipper::Coord_orth::length(coords_2_local[i], coords_1_local[i]);
                }
-            } 
-            if (dist_sum < best_match_sum) {
-               
+            }
+            // Prefer the match that covers the most atoms (the fullest atom
+            // correspondence); use the (unnormalised) distance sum only to break
+            // ties between equally-sized matches. Selecting by distance sum alone
+            // is biased towards *smaller* matches (fewer terms in the sum) and so
+            // could return a partial correspondence even for identical molecules.
+            int n_this = static_cast<int>(coords_1_local.size());
+            bool better = (n_this > best_n_match) ||
+                          (n_this == best_n_match && dist_sum < best_match_sum);
+            if (better) {
+
                // Debugging
-               // std::cout << "DEBUG:: better dist_sum: " << dist_sum << std::endl;
-               
+               // std::cout << "DEBUG:: better match: n " << n_this << " dist_sum " << dist_sum << std::endl;
+
                best_rtop = rtop_local;
                best_match_sum = dist_sum;
                best_match = imatch;
                best_matching_atoms = matching_atoms;
-               best_n_match = coords_1_local.size();
+               best_n_match = n_this;
             }
          } // imatch loop
 
@@ -2193,6 +2202,7 @@ coot::graph_match(mmdb::Residue *res_moving,
    gmi.dist_score = best_match_sum;
    gmi.matching_atom_names = best_matching_atoms;
    gmi.n_match = best_n_match;
+   std::cout << "DEBUG:: return gmi with success " << gmi.success << std::endl;
    return gmi;
 }
 
@@ -2205,7 +2215,7 @@ coot::graph_match(mmdb::Residue *res_moving,
 void
 coot::graph_match_info_t::match_names(mmdb::Residue *res_with_moving_names) {
 
-   bool debug = false;
+   bool debug = true;
    if (!success) {
       std::cout << "Can't do name remapping, graph match failed" << std::endl;
    } else { 
@@ -2229,18 +2239,19 @@ coot::graph_match_info_t::match_names(mmdb::Residue *res_with_moving_names) {
          if (std::find(residue_atom_names.begin(), residue_atom_names.end(), atom_name)
              == residue_atom_names.end())
             residue_atom_names.push_back(atom_name);
-         bool found_match = 0;
+         bool found_match = false;
          for (unsigned int j_pair=0; j_pair<matching_atom_names.size(); j_pair++) {
             // first is working atom spec
             if (matching_atom_names[j_pair].first.first == atom_name) {
-               found_match = 1;
+               found_match = true;
                break;
             }
          }
 
-         // std::cout << ".... atom name: " << atom_name << ": found_match "
-         // << found_match << std::endl;
-         
+         if (true)
+            std::cout << ".... atom name: " << atom_name << ": found_match "
+                      << found_match << std::endl;
+
          if (! found_match) {
             // this atom name was not in the list of working atoms that were matched.
 
@@ -2259,7 +2270,7 @@ coot::graph_match_info_t::match_names(mmdb::Residue *res_with_moving_names) {
                orig_moving_atom_names_non_mapped_non_same.push_back(atom_name);
             else
                orig_moving_atom_names_non_mapped_same.push_back(atom_name);
-            
+
          }
       }
 
@@ -2291,8 +2302,7 @@ coot::graph_match_info_t::match_names(mmdb::Residue *res_with_moving_names) {
 
          bool replace_name = 0;
          std::string new_atom_name = "";
-      
-      
+
          if (std::find(orig_moving_atom_names_non_mapped_non_same.begin(),
                        orig_moving_atom_names_non_mapped_non_same.end(),
                        this_atom_name) !=
@@ -2321,7 +2331,7 @@ coot::graph_match_info_t::match_names(mmdb::Residue *res_with_moving_names) {
 
                // no change to replace_name.
 
-            } else { 
+            } else {
 
                // std::cout << ":" << this_atom_name << ": mapped" << std::endl;
                replace_name = 1;
@@ -2335,7 +2345,7 @@ coot::graph_match_info_t::match_names(mmdb::Residue *res_with_moving_names) {
                         break;
                      } else {
                         new_atom_name = matching_atom_names[j_pair].second.first;
-                     } 
+                     }
                   }
                }
             }
@@ -2347,11 +2357,11 @@ coot::graph_match_info_t::match_names(mmdb::Residue *res_with_moving_names) {
                       << " new name :" << new_atom_name << ":" << std::endl;
          if (replace_name) {
             residue_atoms[iat]->SetAtomName(new_atom_name.c_str());
-         } 
-      
+         }
+
       }
    }
-} 
+}
 
 
 
@@ -4549,7 +4559,8 @@ mmdb::Manager *
 coot::util::create_mmdbmanager_from_inverted_atom_selection(mmdb::Manager *orig_mol,
                                                             int SelectionHandle) {
 
-   std::cout << "----------------- create_mmdbmanager_from_inverted_atom_selection() " << std::endl;
+   if (false)
+      std::cout << "----------------- create_mmdbmanager_from_inverted_atom_selection() " << std::endl;
 
    // The idea here is that we want to have a selection that is
    // logical NOT of the SelectionHandle selection.
@@ -9182,6 +9193,24 @@ coot::util::split_multi_model_molecule(mmdb::Manager *mol) {
 
    std::vector<mmdb::Manager *> v;
 
+   // Per-model UDData is registered on the source Manager and is not carried
+   // across by mmdb's Model::Copy() (nor by Manager::Copy(MMDBFCM_All)), and the
+   // mmdb UDData registry cannot be enumerated through its public API. So we
+   // explicitly preserve the model-level (UDR_MODEL) real UDData fields that Coot
+   // registers - currently the AutoDock Vina scores written by pdbqt::read() -
+   // using only public mmdb calls. Add to this list when new UDR_MODEL fields are
+   // introduced.
+   static const std::vector<std::string> model_udd_real_names = {
+      "vina_affinity", "vina_rmsd_lb", "vina_rmsd_ub",
+      "vina_inter", "vina_intra", "vina_unbound"
+   };
+   std::vector<std::pair<std::string, int> > src_udd; // (name, source handle)
+   for (unsigned int i=0; i<model_udd_real_names.size(); i++) {
+      int h = mol->GetUDDHandle(mmdb::UDR_MODEL, model_udd_real_names[i].c_str());
+      if (h > 0)
+         src_udd.push_back(std::make_pair(model_udd_real_names[i], h));
+   }
+
    for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
       mmdb::Model *model_p = mol->GetModel(imod);
       if (model_p) {
@@ -9189,6 +9218,14 @@ coot::util::split_multi_model_molecule(mmdb::Manager *mol) {
          mmdb::Manager *new_mol = new mmdb::Manager;
          new_model->Copy(model_p);
          new_mol->AddModel(new_model);
+         // carry over the registered model-level UDData for this model
+         for (unsigned int i=0; i<src_udd.size(); i++) {
+            mmdb::realtype val;
+            if (model_p->GetUDData(src_udd[i].second, val) == mmdb::UDDATA_Ok) {
+               int new_h = new_mol->RegisterUDReal(mmdb::UDR_MODEL, src_udd[i].first.c_str());
+               new_model->PutUDData(new_h, val);
+            }
+         }
          v.push_back(new_mol);
       }
    }
@@ -9273,6 +9310,7 @@ coot::util::delete_all_carbohydrate(mmdb::Manager *mol) {
          delete r;
       }
       deleted = true;
+      mol->FinishStructEdit();
    }
    return deleted;
 }

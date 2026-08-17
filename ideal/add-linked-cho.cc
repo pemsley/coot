@@ -783,7 +783,7 @@ coot::cho::add_linked_residue(atom_selection_container_t *asc,
       std::vector<atom_pair_restraints_t> extra_restraints;
 
       //  new-type + link + parent-type
-      std::string fn = "model-level-" + std::to_string(level) + "-" + new_type + "-" + link_type + "-" + new_type + ".tab";
+      std::string fn = "model-level-" + std::to_string(level) + "-" + new_type + "-" + link_type + "-" + parent_type + ".tab";
       std::filesystem::path cho_models_path = get_glyco_dir_path();
       std::filesystem::path model_path = cho_models_path / fn;
       // std::cout << "model file name: " << model_path.string() << std::endl;
@@ -824,12 +824,24 @@ coot::cho::add_linked_residue(atom_selection_container_t *asc,
 
       // let's add them outside the loop
       if (!extra_restraints.empty()) {
+
+         // pad an atom name to the 4-character PDB form, e.g. "C1" -> " C1 ", "C" -> " C  "
+         auto pad_name = [] (const std::string &s) -> std::string {
+            std::string::size_type l = s.length();
+            if (l > 3) return s;
+            if (l == 3) return std::string(" ") + s;
+            if (l == 2) return std::string(" ") + s + " ";
+            return std::string(" ") + s + "  ";
+         };
+
          extra_restraints_t er;
          for (const auto &r : extra_restraints) {
-            coot::atom_spec_t atom_spec_1(r.parent_residue_spec.chain_id, r.parent_residue_spec.res_no,
-                                          r.parent_residue_spec.ins_code, r.atom_name_1, "");
-            coot::atom_spec_t atom_spec_2(r.new_residue_spec.chain_id, r.new_residue_spec.res_no,
-                                          r.new_residue_spec.ins_code, r.atom_name_2, "");
+            // atom_name_1 (column 0 of the .tab) is the new residue's atom;
+            // atom_name_2 (column 1) is the parent residue's atom.
+            coot::atom_spec_t atom_spec_1(r.new_residue_spec.chain_id, r.new_residue_spec.res_no,
+                                          r.new_residue_spec.ins_code, pad_name(r.atom_name_1), "");
+            coot::atom_spec_t atom_spec_2(r.parent_residue_spec.chain_id, r.parent_residue_spec.res_no,
+                                          r.parent_residue_spec.ins_code, pad_name(r.atom_name_2), "");
             extra_restraints_t::extra_bond_restraint_t bond(atom_spec_1, atom_spec_2, r.target_dist, r.sigma);
             er.bond_restraints.push_back(bond);
          }

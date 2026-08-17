@@ -19,6 +19,8 @@
  * 02110-1301, USA
  */
 
+#ifdef USE_GEMMI
+
 #include <cmath>
 #include <algorithm>
 #include <stdexcept>
@@ -646,3 +648,5 @@ coot::util::count_cis_peptides(const gemmi::Structure &st) {
    }
    return n_cis;
 }
+
+#endif // USE_GEMMI

@@ -1,5 +1,54 @@
 --- Items---
 
+o conformer generator in chapi
+  Geneate many (10 * N) without energy minimization, then
+  pick the top N, judged by non-bonded contacts
+
+o transfer gemmi SQL commits to coot/pyrogen
+
+o Angle filtering fixes for acedrg atom types validation
+
+o take a look at Avogadro JSON-RPC
+  (dnotes)
+
+o ligand restraints accumulated per atom, not every
+  restraint
+
+o  superpose ligands? gui item seems to fail on hal
+* Done.
+
+o look at COD files from the last year, say. Can
+  they be read by Coot (chapi)?
+
+o scripting: add "delete all hetgroups"
+* Done.
+
+o scripting: delete all waters
+* Done.
+
+o scripting: glob many monomer cifs and import them
+  things slow down - fixable?
+
+o make a generic conformer generator - use the old style
+  with torsion sampling and energy minimization
+
+o in the ligand builder:
+   if the molecule exists in the monomer library, import it from there.
+   if the molecule exists in the CCD, import it from there.
+e.g. kaempferol
+https://www.ebi.ac.uk/chembl/api/data/molecule/CHEMBL150.json
+
+o coot --no-crystallography or --molecular-modelling
+
+o delete in layla should change the cursor
+
+draw an indole and make one of the fused bond carbons a nitrogen
+
+o change difference map peaks buttons and blobs to togglebuttons so they are
+  visually distinct on "click"
+
+o add some sort of help/search in the python scripting.
+
 o think about adding extra residue to the ligand figures in ospray
 
 o read in a molecule with a new ligand e.g. 9ymp -> Fetch PDBe Ligand Description
@@ -20,6 +69,8 @@ o fix api documentation generation
 o add servalcat_refine_xray_with_keywords
   int servalcat_refine_xray_with_keywords(int imol, int imol_map, const std::string &output_prefix,
                                           const std::string &keyword_pairs_json)
+
+o Add clashes (optionally) to flev
 
 o look at 5moo - colour by chain ligand WOT. The hydrogen atoms are actually deuterium atoms -
   and they are not in the dictionary.
@@ -49,6 +100,8 @@ o fix this in cif parser:
 
 o make some CA models and write a script to convert that to
   full model (without a map)
+
+o write a function that makes a helix or strand given an input sequence
 
 o fix make_all_atom_overlaps for chapi
 

@@ -3983,12 +3983,15 @@ INFO::
      Make sure the release is called Release, not pre-release
    o change the version in coot.appdata.xml - add release notes
    o change the version in configure.ac
-   o change the version (image file name) in src/new-startup.cc
+   o change the version (image file name) in src/startup.cc
    o change the PACKAGE_VERSION in CMakeLists.txt
-   o update data/Components-inchikey.ich
+   o update data/Components-inchikey.ich - get new components.cif from
+     https://www.wwpdb.org/data/ccd
+     https://files.wwpdb.org/pub/pdb/data/monomers/components.cif.gz
+     $ setup python-for-chapi-arch
+     $ python3 make-components-inchikey.py components.cif > new-Components-inchikey.ich
    o Correct the version in the about_dialog in the ui/coot.ui file
    o Artists acknowledged in glade/aboutdialog?
-   o update Components-inchikey.ich
    o Use []
         Change the splash screen?
         Change the release name in the About dialog (aboutdialog) (not needed for bug fix)
@@ -4011,8 +4014,8 @@ INFO::
    o are the shaders up to date?
    o Transfer the dist tar to hal and build it there
    o git commit -a
-   o git tag Release-0.x.y
-   o git push origin Release-0.x.y  # publish the tag
+   o git tag Release-1.x.y
+   o git push origin Release-1.x.y  # publish the tag
    o git push # push the actual release commit
    o Update latest version info on coot web page:
      cd Projects/coot/web/index.html
@@ -12112,4 +12115,24 @@ Thu 19 Mar 2026 18:47:00 PDT
 Sat 20 Jun 2026 12:54:33 BST
 
   ligand G2F is at 61.7, 45.6 35.5 in 5a3h
+
+----
+Fri 31 Jul 2026 20:07:57 BST
+
+   have a look at meeko  meeko.PDBQTMolecule
+
+---
+Mon 10 Aug 17:30:14 BST 2026
+
+  fix this one day:
+
+utils.cpp: In function 'void coot::layla::remove_non_polar_hydrogens(RDKit::RWMol&)':
+utils.cpp:69:30: warning: 'void RDKit::MolOps::removeHs(RDKit::RWMol&, bool, bool, bool)' is deprecated: Please use the version with RemoveHsParameters [-Wdeprecated-declarations]
+   69 |       RDKit::MolOps::removeHs(mol, implicit_only, update_explicit_count, sanitize);
+      |       ~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from utils.cpp:23:
+/home/paule/autobuild/Linux-penelope-arch/include/rdkit/GraphMol/MolOps.h:307:28: note: declared here
+  307 | RDKIT_GRAPHMOL_EXPORT void removeHs(RWMol &mol, bool implicitOnly,
+      |                            ^~~~~~~~
+state.cpp: In member function 'void coot::layla::LaylaState::load_from_smiles()':
 

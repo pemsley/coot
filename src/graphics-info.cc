@@ -505,7 +505,7 @@ graphics_info_t::add_cif_dictionary(std::string cif_dictionary_filename,
          add_status_bar_text(s);
          graphics_draw();
       }
-      std::cout << display_density_level_screen_string << std::endl;
+      logger.log(log_t::INFO, "g.add_cif_dictionary()", display_density_level_screen_string);
    } else {
       std::cout << "init_refmac_mon_lib "  << cif_dictionary_filename
                 << " had no bond restraints\n";
@@ -2124,6 +2124,8 @@ graphics_info_t::clear_up_moving_atoms() {
 
    moving_atoms_asc_type = coot::NEW_COORDS_UNSET; // unset
    in_moving_atoms_drag_atom_mode_flag = 0; // no more dragging atoms
+   edit_chi_current_chi = 0;
+   in_edit_chi_mode_flag = 0;
    have_fixed_points_sheared_drag_flag = 0;
    // and take out any drag refine idle function:
 

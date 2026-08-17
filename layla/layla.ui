@@ -187,31 +187,7 @@
         </child>
         <child>
           <object class="GtkActionBar" id="layla_per_molecule_tools_toolbar">
-            <child>
-              <object class="GtkButton" id="layla_search_similar_button">
-                <signal name="clicked" handler="layla_on_search_similar_button_clicked" swapped="no" object="layla_window" />
-                <property name="tooltip-markup">&lt;b&gt;Search for Similar&lt;/b&gt;
-Find monomers in the library with similar acedrg/COD atom types to the current sketch.</property>
-                <child>
-                  <object class="GtkBox">
-                    <property name="orientation">vertical</property>
-                    <child>
-                      <object class="GtkImage">
-                        <property name="icon-name">edit-find-symbolic</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkLabel">
-                        <attributes>
-                          <attribute name="size" value="7200"/>
-                        </attributes>
-                        <property name="label">Search Similar</property>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-              </object>
-            </child>
+
             <child>
               <object class="GtkToggleButton" id="layla_move_button">
                 <child>
@@ -382,6 +358,33 @@ If there's a single molecule on the screen, it will get flipped when the tool is
                 </child>
               </object>
             </child>
+
+            <child>
+              <object class="GtkButton" id="layla_search_similar_button">
+                <signal name="clicked" handler="layla_on_search_similar_button_clicked" swapped="no" object="layla_window" />
+                <property name="tooltip-markup">&lt;b&gt;Search for Similar&lt;/b&gt;
+Find monomers in the library with similar acedrg/COD atom types to the current sketch.</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <child>
+                      <object class="GtkImage">
+                        <property name="icon-name">edit-find-symbolic</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <attributes>
+                          <attribute name="size" value="7200"/>
+                        </attributes>
+                        <property name="label">Search Similar</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+
             <child>
               <object class="GtkSeparator"></object>
             </child>
@@ -1509,9 +1512,10 @@ Add a new atom or replace an existent atom with the chosen element.
                 <signal name="toggled" handler="layla_on_coordgen_toggled" swapped="no" object="layla_window" />
               </object>
             </child>
-            <!-- <child>
+            <child>
               <object class="GtkCheckButton" id="layla_show_alerts_checkbutton">
                 <property name="label">Show Alerts</property>
+                <property name="tooltip-markup">Highlight atoms belonging to structural-alert (reactive/undesirable) groups. Hover the canvas to see which alerts were found.</property>
                 <property name="margin-end">10</property>
                 <layout>
                   <property name="column">0</property>
@@ -1521,7 +1525,7 @@ Add a new atom or replace an existent atom with the chosen element.
                 </layout>
                 <signal name="toggled" handler="layla_on_show_alerts_toggled" swapped="no" object="layla_window" />
               </object>
-            </child> -->
+            </child>
           </object>
         </child>
         <child>

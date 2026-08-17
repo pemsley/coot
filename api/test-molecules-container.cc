@@ -17,17 +17,28 @@
 #include <gemmi/metadata.hpp>
 #include <gemmi/polyheur.hpp>
 #endif
-#include "MoleculesToTriangles/CXXClasses/MyMolecule.h"
+
 #include <clipper/clipper-contrib.h>
 #include <clipper/ccp4/ccp4_mtz_io.h>
 #include <clipper/ccp4/ccp4_map_io.h>
 #include <clipper/core/map_interp.h>
-#include "molecules-container.hh"
+
+// Prevents preprocessor substitution of `VERSION` in `MolPickler.h`
+#undef VERSION
+#include <GraphMol/MolPickler.h>
+#include <GraphMol/ForceFieldHelpers/MMFF/MMFF.h>
+
+#include "coot-utils/json.hpp"
+using json = nlohmann::json;
+
+#include "utils/base64-encode-decode.hh"
+#include "MoleculesToTriangles/CXXClasses/MyMolecule.h"
 #include "coot-utils/acedrg-types-for-residue.hh"
 #include "coot-utils/coot-map-utils.hh"
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot-utils/patterson.hh"
 #include "coot-utils/crowther.hh"
+#include "molecules-container.hh"
 #include "filo-tests.hh"
 #include "lucrezia-tests.hh"
 
@@ -7139,10 +7150,6 @@ int test_rdkit_mol(molecules_container_t &mc) {
 }
 #endif
 
-#include <GraphMol/MolPickler.h>
-#include "utils/base64-encode-decode.hh"
-#include <GraphMol/ForceFieldHelpers/MMFF/MMFF.h>
-
 int test_rdkit_mol_pickle(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -7350,6 +7357,45 @@ int test_dictionary_conformers(molecules_container_t &mc) {
    std::vector<int> new_mols = mc.get_dictionary_conformers("TYR", coot::protein_geometry::IMOL_ENC_ANY, true);
 
    if (new_mols.size() == 108) status = 1;
+
+   return status;
+}
+
+int test_dictionary_conformers_by_random_sampling(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   auto get_oh_atom = [&mc] (int imol) {
+      mmdb::Atom *at = mc.get_atom(imol, coot::atom_spec_t("", 1, "", " OH ", ""));
+      if (! at) at = mc.get_atom(imol, coot::atom_spec_t("A", 1, "", " OH ", ""));
+      return at;
+   };
+
+   unsigned int n_conformers = 10;
+   std::vector<int> new_mols =
+      mc.get_dictionary_conformers_by_random_sampling("TYR", coot::protein_geometry::IMOL_ENC_ANY,
+                                                      n_conformers, 1.0, true);
+
+   if (new_mols.size() == n_conformers) {
+      // the conformers should (essentially always) differ - check the OH atom position
+      unsigned int n_moved = 0;
+      mmdb::Atom *at_0 = get_oh_atom(new_mols[0]);
+      if (at_0) {
+         for (unsigned int i=1; i<new_mols.size(); i++) {
+            mmdb::Atom *at_i = get_oh_atom(new_mols[i]);
+            if (at_i) {
+               double dx = at_i->x - at_0->x;
+               double dy = at_i->y - at_0->y;
+               double dz = at_i->z - at_0->z;
+               double dd = dx * dx + dy * dy + dz * dz;
+               if (dd > 0.01)
+                  n_moved++;
+            }
+         }
+      }
+      if (n_moved > 5) status = 1;
+   }
 
    return status;
 }
@@ -7942,6 +7988,88 @@ int test_delete_all_carbohydrate(molecules_container_t &mc) {
    return status;
 }
 
+int test_delete_all_waters(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
+   if (mc.is_valid_model_molecule(imol)) {
+      int n_deleted = mc.delete_all_waters(imol);
+      mmdb::Manager *mol = mc.get_mol(imol);
+      if (mol) {
+         // check for remaining waters
+         int n_waters = 0;
+         for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+            mmdb::Model *model_p = mol->GetModel(imod);
+            if (model_p) {
+               int n_chains = model_p->GetNumberOfChains();
+               for (int ichain=0; ichain<n_chains; ichain++) {
+                  mmdb::Chain *chain_p = model_p->GetChain(ichain);
+                  int n_res = chain_p->GetNumberOfResidues();
+                  for (int ires=0; ires<n_res; ires++) {
+                     mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                     if (residue_p) {
+                        std::string rn = residue_p->GetResName();
+                        if (rn == "HOH") n_waters++;
+                     }
+                  }
+               }
+            }
+         }
+         std::cout << "test_delete_all_waters: n_deleted " << n_deleted
+                   << " n_waters remaining " << n_waters << std::endl;
+         if (n_deleted == 150 && n_waters == 0) status = 1;
+      }
+   }
+   return status;
+}
+
+int test_delete_all_hetgroups(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("pdb8ox7.ent"));
+   if (mc.is_valid_model_molecule(imol)) {
+      int n_deleted = mc.delete_all_hetgroups(imol);
+      mmdb::Manager *mol = mc.get_mol(imol);
+      if (mol) {
+         // check for remaining hetgroup residues
+         int n_het_residues = 0;
+         for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+            mmdb::Model *model_p = mol->GetModel(imod);
+            if (model_p) {
+               int n_chains = model_p->GetNumberOfChains();
+               for (int ichain=0; ichain<n_chains; ichain++) {
+                  mmdb::Chain *chain_p = model_p->GetChain(ichain);
+                  int n_res = chain_p->GetNumberOfResidues();
+                  for (int ires=0; ires<n_res; ires++) {
+                     mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                     if (residue_p) {
+                        int n_atoms = residue_p->GetNumberOfAtoms();
+                        for (int iat=0; iat<n_atoms; iat++) {
+                           mmdb::Atom *at = residue_p->GetAtom(iat);
+                           if (! at->isTer()) {
+                              if (at->Het) {
+                                 n_het_residues++;
+                                 break;
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+         std::cout << "test_delete_all_hetgroups: n_deleted " << n_deleted
+                   << " n_het_residues remaining " << n_het_residues << std::endl;
+         if (n_deleted == 9 && n_het_residues == 0) status = 1;
+      }
+   }
+   return status;
+}
+
 int test_map_vertices_histogram(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -8102,9 +8230,6 @@ int test_atom_overlaps(molecules_container_t &mc) {
 
    return status;
 }
-
-#include "coot-utils/json.hpp"
-using json = nlohmann::json;
 
 int test_pucker_info(molecules_container_t &mc) {
 
@@ -8522,6 +8647,7 @@ int main(int argc, char **argv) {
          // status += run_test(test_gltf_export_via_api,   "glTF via api", mc);
          // status += run_test(test_import_ligands_with_same_name_and_animated_refinement, "Test import ligands with same name and animated refinement", mc);
          // status += run_test(test_dictionary_conformers,   "Dictionary Conformers", mc);
+         // status += run_test(test_dictionary_conformers_by_random_sampling, "Dictionary Conformers by Random Sampling", mc);
          // status += run_test(test_ligand_distortion,   "Ligand Distortion", mc);
          // status += run_test(test_import_LIG_dictionary,   "Import LIG.cif", mc);
          // status += run_test(test_tricky_ligand_problem,   "Tricky Ligand import/refine", mc);
@@ -8560,6 +8686,8 @@ int main(int argc, char **argv) {
          // status += run_test(test_molecular_placement_pipeline_r_chain, "MR R-chain", mc);
          // status += run_test(test_molecular_placement_pipeline, "MR pipeline", mc);
          status += run_test(test_rdkit_mol_pickle, "RDKit Mol Pickle", mc);
+         status += run_test(test_delete_all_waters, "Delete all waters", mc);
+         status += run_test(test_delete_all_hetgroups, "Delete all hetgroups", mc);
          if (status == n_tests) all_tests_status = 0;
 
          print_results_summary();

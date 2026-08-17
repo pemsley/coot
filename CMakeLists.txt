@@ -84,7 +84,7 @@ endif()
 
 set(coot_src ${CMAKE_CURRENT_SOURCE_DIR})
 
-add_definitions(-DANALYSE_REFINEMENT_TIMING -DPACKAGE_VERSION="1.3.1"
+add_definitions(-DANALYSE_REFINEMENT_TIMING -DPACKAGE_VERSION="1.3.3"
   -DHAVE_CXX_THREAD -DHAVE_SSMLIB -DHAVE_BOOST -DUSE_LIBPNG=1 -DCLIPPER_HAS_TOP8000 -DUSE_GEMMI
   -DHAVE_BOOST_THREAD -DHAVE_GSL -DLIBCOOTAPI_BUILD
   -DPKGDATADIR="${CMAKE_INSTALL_PREFIX}/share/coot" -DXDATADIR="${CMAKE_INSTALL_PREFIX}/share")
@@ -229,11 +229,18 @@ add_library(cootapi SHARED
             ${coot_src}/api/ghost-molecule-display.cc
             ${coot_src}/api/model-analysis.cc
             ${coot_src}/api/molecules-container.cc
+            ${coot_src}/api/molecules-container-refine.cc
+            ${coot_src}/api/molecules-container-analysis.cc
             ${coot_src}/api/molecules-container-blender.cc
             ${coot_src}/api/molecules-container-bucca-ml-growing.cc
             ${coot_src}/api/molecules-container-gltf.cc
             ${coot_src}/api/molecules-container-raytrace.cc
             ${coot_src}/api/molecules-container-ligand-fitting.cc
+            ${coot_src}/api/molecules-container-pdbqt.cc
+            ${coot_src}/coot-utils/pdbqt.cc
+            ${coot_src}/coot-utils/pdbqt-charges.cc
+            ${coot_src}/lidia-core/pdbqt-common.cc
+            ${coot_src}/lidia-core/pdbqt-ligand.cc
             ${coot_src}/api/molecules-container-maps.cc
             ${coot_src}/api/molecules-container-mmrrcc.cc
             ${coot_src}/api/molecules-container-molecular-placement.cc
@@ -270,6 +277,8 @@ add_library(cootapi SHARED
             ${coot_src}/ideal/pepflip.cc
             ${coot_src}/ideal/parallel-planes.cc
             ${coot_src}/ideal/simple-restraint.cc
+            ${coot_src}/ideal/simple-restraint-nbc.cc
+            ${coot_src}/ideal/simple-restraint-density.cc
             ${coot_src}/ideal/ng.cc
             ${coot_src}/ideal/torsion-bonds.cc
             ${coot_src}/ideal/chi-squareds.cc
@@ -370,6 +379,7 @@ add_library(cootapi SHARED
             ${coot_src}/coot-utils/c-beta-deviations.cc
             ${coot_src}/coot-utils/atom-tools.cc
             ${coot_src}/coot-utils/coot-rama.cc
+            ${coot_src}/coot-utils/cremer-pople.cc
             ${coot_src}/coot-utils/secondary-structure-headers.cc
             ${coot_src}/coot-utils/helix-like.cc
             ${coot_src}/coot-utils/polar-atoms.cc

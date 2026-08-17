@@ -878,10 +878,11 @@ void emplacement_by_phaser(const std::string &half_map_1_file_name, const std::s
       rename(em_placement_output_file_name.c_str(), new_file_name.c_str());
    }
    if (std::filesystem::exists(em_placement_output_file_name)) {
-      std::cout << "WARNING:: " << em_placement_output_file_name << " exists and can't be moved"<< std::endl;
+      // std::cout << "WARNING:: " << em_placement_output_file_name << " exists and can't be moved"<< std::endl;
+      logger.log(log_t::WARNING, em_placement_output_file_name, "exists and can't be moved");
    } else {
       if (is_valid_model_molecule(imol_model)) {
-         em_placement_data_t *data_p = new em_placement_data_t(em_placement_output_file_name, 0);
+         em_placement_data_t *data_p = new em_placement_data_t{em_placement_output_file_name, 0};
          std::string model_file_name = "input-model-for-emplacement.pdb";
          write_pdb_file(imol_model, model_file_name.c_str());
          std::thread thread(run_subprocess, half_map_1_file_name, half_map_2_file_name, model_file_name, search_centre);

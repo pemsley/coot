@@ -2421,7 +2421,9 @@ public:        //                      public
    // match those of the passed (reference residue (from a different
    // molecule, typically).
    //
-   int match_torsions(mmdb::Residue *res_ref,
+   // 2026-08-02-PE we need imol_res_ref to look up the dictionary
+   // for the reference ligand
+   int match_torsions(mmdb::Residue *res_ref, int imol_res_ref,
 		      const std::vector <coot::dict_torsion_restraint_t> &tr_ligand,
 		      const coot::protein_geometry &geom);
 

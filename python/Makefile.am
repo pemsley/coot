@@ -56,6 +56,7 @@ nobase_dist_pkgpython_PYTHON = \
    coot_commands/types.py                     \
    coot_commands/gui.py                       \
    coot_commands/docs.py                      \
+   coot_commands/speech.py                    \
    coot_commands/commands/__init__.py         \
    coot_commands/commands/delete.py           \
    coot_commands/commands/display.py          \
@@ -68,7 +69,6 @@ nobase_dist_pkgpython_PYTHON = \
    coot_commands/commands/representation.py   \
    coot_commands/commands/labels.py           \
    coot_commands/commands/model_edit.py       \
-   coot_commands/commands/build.py            \
    coot_commands/commands/ligand.py           \
    coot_commands/commands/validation.py       \
    coot_commands/commands/session.py          \

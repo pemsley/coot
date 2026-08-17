@@ -618,6 +618,13 @@ NB_MODULE(coot_headless_api, m) {
          nb::arg("compound_id"), nb::arg("imol_enc"),
          "Compute AceDRG/COD atom types from dictionary restraints via RDKit. "
          "Unlike get_acedrg_atom_types() which reads pre-stored types, this computes them.")
+    .def("get_cremer_pople",
+         &molecules_container_t::get_cremer_pople,
+         nb::arg("imol"), nb::arg("residue_cid"), nb::arg("ordered_atom_names"),
+         nb::arg("up_reference_atom_name"), nb::arg("alt_conf"),
+         "Cremer-Pople puckering parameters for a 5- or 6-ring, atoms given in "
+         "ring order. Angles in degrees. An odd rotation of the start atom flips "
+         "theta to 180-theta, so the ordering is significant.")
     .def("get_monomer_restraints_as_json",
          &molecules_container_t::get_monomer_restraints_as_json,
          nb::arg("compound_id"), nb::arg("imol_enc"),
@@ -683,6 +690,11 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::get_dictionary_conformers,
          nb::arg("comp_id"), nb::arg("imol_enc"), nb::arg("remove_internal_clash_conformers"),
          get_docstring_from_xml("get_dictionary_conformers").c_str())
+    .def("get_dictionary_conformers_by_random_sampling",
+         &molecules_container_t::get_dictionary_conformers_by_random_sampling,
+         nb::arg("comp_id"), nb::arg("imol_enc"), nb::arg("n_conformers"),
+         nb::arg("esd_scale_factor"), nb::arg("remove_internal_clash_conformers"),
+         get_docstring_from_xml("get_dictionary_conformers_by_random_sampling").c_str())
     .def("get_distances_between_atoms_of_residues",
          &molecules_container_t::get_distances_between_atoms_of_residues,
          nb::arg("imol"), nb::arg("cid_res_1"), nb::arg("cid_res_2"), nb::arg("dist_max"),
@@ -738,6 +750,10 @@ NB_MODULE(coot_headless_api, m) {
     .def("get_imol_enc_any",
          &molecules_container_t::get_imol_enc_any,
          get_docstring_from_xml("get_imol_enc_any").c_str())
+    .def("get_InChI_for_residue_type",
+            &molecules_container_t::get_InChI_for_residue_type,
+            nb::arg("residue_name"), nb::arg("imol_enc"),
+            get_docstring_from_xml("get_InChI_for_residue_type").c_str())
     .def("get_ligand_validation_vs_dictionary",
          &molecules_container_t::get_ligand_validation_vs_dictionary,
          nb::arg("imol"), nb::arg("ligand_cid"), nb::arg("include_non_bonded_contacts"),
@@ -817,6 +833,10 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::get_monomer_from_dictionary,
          nb::arg("comp_id"), nb::arg("imol"), nb::arg("idealised_flag"),
          get_docstring_from_xml("get_monomer_from_dictionary").c_str())
+    .def("get_monomer_name",
+         &molecules_container_t::get_monomer_name,
+         nb::arg("comp_id"), nb::arg("imol"),
+         get_docstring_from_xml("get_monomer_name").c_str())
     .def("get_number_of_atoms",
          &molecules_container_t::get_number_of_atoms,
          nb::arg("imol"),
@@ -923,6 +943,10 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::get_single_letter_codes_for_chain,
          nb::arg("imol"), nb::arg("chain_id"),
          get_docstring_from_xml("get_single_letter_codes_for_chain").c_str())
+    .def("get_SMILES_for_residue_type",
+            &molecules_container_t::get_SMILES_for_residue_type,
+            nb::arg("residue_name"), nb::arg("imol_enc"),
+            get_docstring_from_xml("get_SMILES_for_residue_type").c_str())
     .def("get_spherical_variance",
          &molecules_container_t::get_spherical_variance,
          nb::arg("imol_map"), nb::arg("imol_model"),
@@ -1450,6 +1474,22 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::write_coordinates,
          nb::arg("imol"), nb::arg("file_name"),
          get_docstring_from_xml("write_coordinates").c_str())
+    .def("export_molecule_as_pdbqt",
+         &molecules_container_t::export_molecule_as_pdbqt,
+         nb::arg("imol"), nb::arg("file_name"),
+         get_docstring_from_xml("export_molecule_as_pdbqt").c_str())
+    .def("read_pdbqt",
+         &molecules_container_t::read_pdbqt,
+         nb::arg("file_name"),
+         get_docstring_from_xml("read_pdbqt").c_str())
+    .def("get_vina_scores",
+         &molecules_container_t::get_vina_scores,
+         nb::arg("imol"),
+         get_docstring_from_xml("get_vina_scores").c_str())
+    .def("export_ligand_as_pdbqt",
+         &molecules_container_t::export_ligand_as_pdbqt,
+         nb::arg("imol"), nb::arg("cid"), nb::arg("file_name"),
+         get_docstring_from_xml("export_ligand_as_pdbqt").c_str())
     .def("write_map",
          &molecules_container_t::write_map,
          nb::arg("imol"), nb::arg("file_name"),
@@ -1471,6 +1511,15 @@ NB_MODULE(coot_headless_api, m) {
       .def_ro("deletions",        &coot::chain_mutation_info_container_t::deletions)
       .def_ro("mutations",        &coot::chain_mutation_info_container_t::mutations)
       ;
+    nb::class_<coot::cremer_pople_info_t>(m,"cremer_pople_info_t")
+    .def_ro("filled",    &coot::cremer_pople_info_t::filled)
+    .def_ro("ring_size", &coot::cremer_pople_info_t::ring_size)
+    .def_ro("Q",         &coot::cremer_pople_info_t::Q)
+    .def_ro("theta",     &coot::cremer_pople_info_t::theta)
+    .def_ro("phi",       &coot::cremer_pople_info_t::phi)
+    .def_ro("q2",        &coot::cremer_pople_info_t::q2)
+    .def_ro("q3",        &coot::cremer_pople_info_t::q3)
+    ;
     nb::class_<coot::simple_rotamer>(m,"simple_rotamer")
     .def("P_r1234",&coot::simple_rotamer::P_r1234)
     .def("Probability_rich",&coot::simple_rotamer::Probability_rich)
@@ -1575,6 +1624,16 @@ NB_MODULE(coot_headless_api, m) {
     .def_rw("string_user_data",&coot::atom_spec_t::string_user_data)
     .def_rw("model_number",&coot::atom_spec_t::model_number)
     .def("format", &coot::atom_spec_t::format)
+    ;
+    nb::class_<coot::pdbqt::pose_score_t>(m,"pose_score_t")
+    .def(nb::init<>())
+       .def_ro("model_no", &coot::pdbqt::pose_score_t::model_no)
+       .def_ro("affinity", &coot::pdbqt::pose_score_t::affinity)
+       .def_ro("rmsd_lb",  &coot::pdbqt::pose_score_t::rmsd_lb)
+       .def_ro("rmsd_ub",  &coot::pdbqt::pose_score_t::rmsd_ub)
+       .def_ro("inter",    &coot::pdbqt::pose_score_t::inter)
+       .def_ro("intra",    &coot::pdbqt::pose_score_t::intra)
+       .def_ro("unbound",  &coot::pdbqt::pose_score_t::unbound)
     ;
     nb::class_<coot::plain_atom_overlap_t>(m,"plain_atom_overlap_t")
     .def(nb::init<>())

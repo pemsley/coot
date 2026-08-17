@@ -4287,6 +4287,13 @@ graphics_info_t::rot_trans_adjustment_changed(GtkAdjustment *adj, gpointer user_
       }
    }
 
+   regenerate_moving_atoms_bonds_mesh();
+}
+
+// static
+void
+graphics_info_t::regenerate_moving_atoms_bonds_mesh() {
+
    int originating_molecule_bonds_box_type = molecules[imol_moving_atoms].Bonds_box_type();
 
    if (originating_molecule_bonds_box_type == coot::CA_BONDS ||
@@ -4324,6 +4331,72 @@ graphics_info_t::rot_trans_adjustment_changed(GtkAdjustment *adj, gpointer user_
    }
 
    graphics_draw();
+}
+
+// drag the rotate/translate fragment following the mouse: delta_x, delta_y
+// are pixel deltas since the last drag update.
+// static
+void
+graphics_info_t::translate_moving_atoms_by_screen_delta(double delta_x, double delta_y) {
+
+   if (! moving_atoms_asc) return;
+   if (! moving_atoms_asc->mol) return;
+
+   // as move_translation_gizmo() does it:
+   glm::mat4 model_rotation_matrix = get_model_rotation();
+   double sf = 0.00075 * zoom;
+   glm::vec4 screen_vec(sf * delta_x, -sf * delta_y, 0.0, 1.0);
+   glm::vec4 mol_space_vec = glm::transpose(model_rotation_matrix) * screen_vec;
+
+   for (int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
+      moving_atoms_asc->atom_selection[i]->x += mol_space_vec.x;
+      moving_atoms_asc->atom_selection[i]->y += mol_space_vec.y;
+      moving_atoms_asc->atom_selection[i]->z += mol_space_vec.z;
+   }
+
+   regenerate_moving_atoms_bonds_mesh();
+}
+
+// trackball-like rotation of the moving atoms fragment about its centre
+// (for ctrl-shift-drag in rotate/translate mode). Mouse positions are in
+// (pixel) window coordinates.
+// static
+void
+graphics_info_t::rotate_moving_atoms_by_trackball(double prev_x, double prev_y,
+                                                  double curr_x, double curr_y) {
+
+   if (! moving_atoms_asc) return;
+   if (! moving_atoms_asc->mol) return;
+   if (moving_atoms_asc->n_selected_atoms <= 0) return;
+
+   GtkAllocation allocation = get_glarea_allocation();
+   float w = static_cast<float>(allocation.width);
+   float h = static_cast<float>(allocation.height);
+
+   // as update_view_quaternion() does it, but rotate the fragment, not the view
+   glm::quat tb_quat = trackball_to_quaternion((2.0 * prev_x - w)/w, (h - 2.0 * prev_y)/h,
+                                               (2.0 * curr_x - w)/w, (h - 2.0 * curr_y)/h,
+                                               trackball_size);
+   tb_quat = glm::conjugate(tb_quat);
+   glm::mat3 screen_space_rotation = glm::mat3_cast(tb_quat);
+   glm::mat3 model_rotation = glm::mat3(get_model_rotation());
+   glm::mat3 mol_space_rotation =
+      glm::transpose(model_rotation) * screen_space_rotation * model_rotation;
+
+   graphics_info_t g;
+   clipper::Coord_orth mac = g.moving_atoms_centre();
+   glm::vec3 centre(mac.x(), mac.y(), mac.z());
+
+   for (int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
+      mmdb::Atom *at = moving_atoms_asc->atom_selection[i];
+      glm::vec3 pos(at->x, at->y, at->z);
+      glm::vec3 new_pos = mol_space_rotation * (pos - centre) + centre;
+      at->x = new_pos.x;
+      at->y = new_pos.y;
+      at->z = new_pos.z;
+   }
+
+   regenerate_moving_atoms_bonds_mesh();
 }
 
 

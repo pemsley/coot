@@ -18,7 +18,7 @@
 cootdatadir = $(pkgdatadir)/data/cho-models
 
 dist_cootdata_DATA = \
-       model-level-1-NAG-NAG-ASN-ASN.tab	model-level-4-BMA-BETA1-6-BMA.tab	model-level-5-MAN-ALPHA1-3-BMA.tab \
+       model-level-1-NAG-pyr-ASN-ASN.tab	model-level-4-BMA-BETA1-6-BMA.tab	model-level-5-MAN-ALPHA1-3-BMA.tab \
        model-level-2-FUC-BETA1-3-NAG.tab	model-level-4-BMA-BETA1-6-MAN.tab	model-level-5-MAN-ALPHA1-3-MAN.tab \
        model-level-2-FUC-BETA1-6-NAG.tab	model-level-4-MAN-ALPHA1-3-BMA.tab	model-level-5-MAN-ALPHA1-6-BMA.tab \
        model-level-2-FUL-ALPHA1-3-NAG.tab	model-level-4-MAN-ALPHA1-4-BMA.tab	model-level-5-MAN-ALPHA1-6-MAN.tab \

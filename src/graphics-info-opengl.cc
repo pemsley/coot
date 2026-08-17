@@ -86,7 +86,6 @@ std::vector<std::reference_wrapper<Shader> > get_shader_refs() {
       rs.push_back(graphics_info_t::shader_for_tmeshes_with_shadows);
       rs.push_back(graphics_info_t::shader_for_texture_meshes_shadow_map);
       rs.push_back(graphics_info_t::shader_for_rotation_centre_cross_hairs_for_ssao);
-      rs.push_back(graphics_info_t::shader_for_tmeshes_for_ssao);
       rs.push_back(graphics_info_t::shader_for_shadow_map_image_texture_mesh);
       rs.push_back(graphics_info_t::shaderGeometryPass);
       rs.push_back(graphics_info_t::shader_for_happy_face_residue_markers_for_ssao);
@@ -136,7 +135,6 @@ graphics_info_t::init_shaders() {
    for (it=shaders.begin(); it!=shaders.end(); ++it)
       it->get().set_default_directory(d);
 
-   //  shader_for_tmeshes.init("texture-meshes.shader", Shader::Entity_t::MAP);  // Hmm! where is this used? (duplicate)
    shader_for_outline_of_active_residue.init("outline-of-active-residue.shader", Shader::Entity_t::MODEL);
    shader_for_maps.init("map.shader", Shader::Entity_t::MAP);
    shader_for_map_caps.init("draw-map-cap.shader", Shader::Entity_t::MAP);
@@ -167,6 +165,7 @@ graphics_info_t::init_shaders() {
    shader_for_background_image.init("background-image.shader", Shader::Entity_t::NONE);
    shader_for_meshes.init("meshes.shader", Shader::Entity_t::MAP); // 20220208-PE temporary while crow code is merged.
    shader_for_texture_meshes.init("texture-meshes.shader", Shader::Entity_t::NONE);
+   shader_for_tmeshes.init("texture-meshes.shader", Shader::Entity_t::MAP);  // 2026-07-21 - actually is needed.
 
    if (graphics_is_gl_es) {
    } else {

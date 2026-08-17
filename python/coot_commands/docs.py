@@ -46,22 +46,73 @@ def commands_by_category() -> "OrderedDict[str, list[Command]]":
     return grouped
 
 
+def slug(category: str) -> str:
+    """The GitHub-style anchor for a ``## category`` heading.
+
+    Headings become anchors by lower-casing, dropping anything that is not
+    alphanumeric, a space or a hyphen, and turning spaces into hyphens - so
+    "Model editing" links as "#model-editing".
+    """
+    kept = [c for c in category.lower() if c.isalnum() or c in " -"]
+    return "".join(kept).strip().replace(" ", "-")
+
+
+# The prose that opens the reference.  It explains what the command
+# interface is for and the handful of conventions that hold across every
+# command, so each entry below needs only to describe itself.
+_INTRO = """\
+The commands below are typed into the **Command** tab of the Python/AI
+terminal. They exist so that the things you do most often while building a
+model are a short phrase rather than a hunt through the menus or a remembered
+API call: `refine chain A`, `fetch 4hhb`, `colour map 1 blue`, `go to A/89`.
+
+The guiding idea is that you should be able to type roughly what you mean.
+Each command is a pattern rather than a fixed string, so the obvious synonyms
+and phrasings reach the same place - `show`/`display`, `hide`/`undisplay`,
+`centre on`/`go to` - and both British and American spellings of "colour" are
+accepted. Matching ignores case and collapses runs of whitespace, and dictated
+input is normalised first, so "model zero" spoken into the field works exactly
+like "model 0" typed.
+
+Arguments follow the same principle. Where a command takes a model or map
+number, omitting it acts on the *active* molecule, which is usually the one
+you mean; where it takes a residue you can name it (`A/89`) or leave it out
+and act on the residue at the centre of the screen. Tab completion fills in
+what it can and offers the live candidates - the molecules actually loaded,
+the colours actually available, the files actually on disk.
+
+Every command is a small Python function that carries its own help text,
+examples, category and notes alongside it (see
+`python/coot_commands/registry.py`). That metadata is the single source of
+truth: the in-app `help` command and this reference are both generated from
+it, so neither can drift from what the code really accepts. Adding a command
+means writing the function and filling in the decorator; the documentation
+follows for free."""
+
+
 def to_markdown() -> str:
     """Render the full command reference as a Markdown string."""
+    grouped = commands_by_category()
     lines = [
         "# Coot command reference",
         "",
-        "The commands below are typed into the **Command** tab of the "
-        "Python/AI terminal. Text is matched case-insensitively and extra "
-        "whitespace is ignored. Where a command takes a model or map number, "
-        "omitting it acts on the *active* molecule.",
+        _INTRO,
         "",
         "> This file is generated from the command definitions "
         "(`python/coot_commands/`). Do not edit by hand - run "
         "`python3 -m coot_commands.docs` to regenerate.",
         "",
+        "## Contents",
+        "",
     ]
-    for category, commands in commands_by_category().items():
+    for category, commands in grouped.items():
+        count = len(commands)
+        plural = "" if count == 1 else "s"
+        lines.append(f"- [{category}](#{slug(category)}) - "
+                     f"{count} command{plural}")
+    lines.append("")
+
+    for category, commands in grouped.items():
         lines.append(f"## {category}")
         lines.append("")
         for cmd in commands:

@@ -694,8 +694,6 @@ void fill_find_waters_dialog(GtkWidget *find_ligand_dialog);
 /* interface fluff */
 void execute_find_waters();
 
-void on_big_blob_button_clicked(GtkButton *button, gpointer user_data);
-
 void execute_find_blobs_from_widget(GtkWidget *dialog);
 
 GtkWidget *wrapped_create_unmodelled_blobs_dialog();

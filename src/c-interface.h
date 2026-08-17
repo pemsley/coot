@@ -47,6 +47,7 @@
 #define C_INTERFACE_H
 
 // Python conditionally compiled test is needed for WebAssembly build
+#include "pytypedefs.h"
 #ifdef USE_PYTHON
 #include "Python.h"
 #endif
@@ -320,6 +321,16 @@ return the number of models or -1 if there was a problem with the
 given molecule.
 */
 int n_models(int imol);
+
+
+//! split an NMR model or other such multi-model molecule
+//! into multiple (separate) molecules - all in MODEL 1.
+//!
+//! @return the list of new molecule indices.
+#ifdef USE_PYTHON
+PyObject *split_multi_model_molecule_py(int imol);
+#endif
+
 
 /*! \brief get the number of chains in molecule number imol
 
@@ -3282,6 +3293,18 @@ the first argument is a list of molecule numbers and the second is the target
    molecule into which the others should be merged  */
 PyObject *merge_molecules_py(PyObject *add_molecules, int imol);
 void set_merge_molecules_ligand_spec_py(PyObject *ligand_spec_py);
+
+/*! \brief split a multi-model ligand molecule (e.g. docking poses) and merge each
+   conformer into its own copy of a protein molecule.
+
+   imol_ligand is a multi-model ligand molecule; imol_protein is the protein.
+   For each model (pose) in imol_ligand a fresh copy of imol_protein is made and
+   the pose is merged into it, giving one protein+ligand complex molecule per pose.
+
+   @return a list with one entry per pose: [imol_complex, merge_info], where
+   merge_info is as returned by merge_molecules_py() ([status, spec-or-chain, ...])
+   and describes where the ligand ended up in the complex. */
+PyObject *split_multi_model_molecule_and_merge_py(int imol_ligand, int imol_protein);
 #endif /* PYTHON */
 #endif	/* c++ */
 
@@ -5726,11 +5749,17 @@ int n_rotamers(int imol, const char *chain_id, int resno, const char *ins_code);
 int set_residue_to_rotamer_number(int imol, const char *chain_id, int resno, const char *ins_code,
 				  const char *alt_conf, int rotamer_number);
 
-/*! \brief set the residue specified to the rotamer name specified.
+/*! \brief set the residue specified to the rotamer name specified
 
-(rotamer names are the Richardson rotamer names.)
+Note that the rotamer names are the Richardson rotamer names.
 
-return value is 0 if atoms were not moved (e.g. because rotamer-name was not know)
+   @param imol the molecule index
+   @param chain_id the chain-id
+   @parma resno the residue number
+   @param ins_code the insertion code
+   @param alt_conf the alt-conf
+   @param rotamer_name the name of the rotamer
+   @return value is 0 if atoms were not moved (e.g. because rotamer-name was not know)
 */
 int set_residue_to_rotamer_name(int imol, const char *chain_id, int resno, const char *ins_code,
 				const char *alt_conf, const char *rotamer_name);

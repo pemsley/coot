@@ -293,6 +293,16 @@ Parameters
 imol : int
 ";
 
+%feature("docstring") split_multi_model_molecule_py "
+split an NMR model or other such multi-model molecule into multiple (separate) molecules - all in MODEL 1.
+
+the list of new molecule indices.
+
+Parameters
+----------
+imol : int
+";
+
 %feature("docstring") n_chains "
 get the number of chains in molecule number imol
 
@@ -1634,6 +1644,10 @@ Parameters
 ----------
 imol : int
 hex_colour : str
+";
+
+%feature("docstring") brighten_maps "
+Make the maps 25% brighter.
 ";
 
 %feature("docstring") set_contour_level_absolute "
@@ -5746,11 +5760,11 @@ get auto-clear atom pull restraint state
 ";
 
 %feature("docstring") increase_proportional_editing_radius "
-iscrease the proportional editing radius
+increase the proportional editing radius
 ";
 
 %feature("docstring") decrease_proportional_editing_radius "
-descrease the proportional editing radius
+decrease the proportional editing radius
 ";
 
 %feature("docstring") fit_residue_range_to_map_by_simplex "
@@ -8410,20 +8424,25 @@ rotamer_number : int
 ";
 
 %feature("docstring") set_residue_to_rotamer_name "
-set the residue specified to the rotamer name specified.
+set the residue specified to the rotamer name specified
 
-(rotamer names are the Richardson rotamer names.)
+Note that the rotamer names are the Richardson rotamer names.
 
-return value is 0 if atoms were not moved (e.g. because rotamer-name was not know)
+  imol  the molecule index   chain_id  the chain-id @parma resno the residue number   ins_code  the insertion code   alt_conf  the alt-conf   rotamer_name  the name of the rotamer value is 0 if atoms were not moved (e.g. because rotamer-name was not know)
 
 Parameters
 ----------
 imol : int
+    the molecule index
 chain_id : str
+    the chain-id @parma resno the residue number
 resno : int
 ins_code : str
+    the insertion code
 alt_conf : str
+    the alt-conf
 rotamer_name : str
+    the name of the rotamer
 ";
 
 %feature("docstring") get_rotamer_name_scm "
@@ -8449,21 +8468,37 @@ ins_code : str
 %feature("docstring") fill_partial_residues "
 fill all the residues of molecule number imol that have missing atoms.
 
+Note that not all the atoms can be filled by this method. It is for filling side-chain atom. The main chain atoms cannot be filled by this method.
+
 To be used to remove the effects of chainsaw.
+
+  imol  the molecule index
 
 Parameters
 ----------
 imol : int
+    the molecule index
 ";
 
 %feature("docstring") fill_partial_residue "
+fill the missing side-chain atoms of the specified residue
+
+Note that not all the atoms can be filled by this method. It is for filling side-chain atom. The main chain atoms cannot be filled by this method.
+
+If a mainchain, CA, C or N is missing, the best course is, if a map is available for fitting, to delete the residue and add a residue back, then mutate it back from ALA to whatever it used to be (if needed) and then auto-fit rotamer.
+
+  imol  the molecule index   chain_id  the chain-id   resno  the residue number   inscode  the residue's inscode (typically \"\")
 
 Parameters
 ----------
 imol : int
+    the molecule index
 chain_id : str
+    the chain-id
 resno : int
+    the residue number
 inscode : str
+    the residue's inscode (typically \"\")
 ";
 
 %feature("docstring") simple_fill_partial_residues "
@@ -10787,7 +10822,9 @@ interface_number : int
 ";
 
 %feature("docstring") fit_to_map_by_random_jiggle "
-jiggle fit to the current refinment map. return < -100 if not possible, else return the new best fit for this residue.
+jiggle fit to the current refinment map
+
+< -100 if not possible, else return the new best fit for this residue.
 
 Parameters
 ----------
@@ -10810,7 +10847,9 @@ jiggle_scale_factor : float
 ";
 
 %feature("docstring") fit_molecule_to_map_by_random_jiggle_and_blur "
-jiggle fit the molecule to the current refinment map. return < -100 if not possible, else return the new best fit for this molecule - create a map that is blurred by the given factor for fitting
+jiggle fit the molecule to the current refinment map
+
+< -100 if not possible, else return the new best fit for this molecule - create a map that is blurred by the given factor for fitting
 
 Parameters
 ----------
@@ -10834,7 +10873,9 @@ jiggle_scale_factor : float
 %feature("docstring") fit_chain_to_map_by_random_jiggle_and_blur "
 jiggle fit the chain to the current refinment map
 
-Use a map that is blurred by the give factor for fitting. < -100 if not possible, else return the new best fit for this chain.
+Use a map that is blurred by the give factor for fitting.
+
+< -100 if not possible, else return the new best fit for this chain.
 
 Parameters
 ----------
@@ -10843,6 +10884,23 @@ chain_id : str
 n_trials : int
 jiggle_scale_factor : float
 map_blur_factor : float
+";
+
+%feature("docstring") molecular_replacement_fit_about_screen_centre "
+Patterson overlap plus phased translationn function MR-like local fitting.
+
+Use the imol_refinement map
+
+  imol  the molecule index   n_top_rotations  use only the top n_top_rotations rotation solutions   n_top_translations  use only the top n_top_translation translation solutions
+
+Parameters
+----------
+imol : int
+    the molecule index
+n_top_rotations : int
+    use only the top n_top_rotations rotation solutions
+n_top_translations : int
+    use only the top n_top_translation translation solutions
 ";
 
 %feature("docstring") matching_compound_names_from_sbase_scm "
@@ -11336,6 +11394,19 @@ imol : int
 Parameters
 ----------
 ligand_spec_py : object
+";
+
+%feature("docstring") split_multi_model_molecule_and_merge_py "
+split a multi-model ligand molecule (e.g. docking poses) and merge each conformer into its own copy of a protein molecule.
+
+imol_ligand is a multi-model ligand molecule; imol_protein is the protein. For each model (pose) in imol_ligand a fresh copy of imol_protein is made and the pose is merged into it, giving one protein+ligand complex molecule per pose.
+
+a list with one entry per pose: [imol_complex, merge_info], where merge_info is as returned by merge_molecules_py() ([status, spec-or-chain, ...]) and describes where the ligand ended up in the complex.
+
+Parameters
+----------
+imol_ligand : int
+imol_protein : int
 ";
 
 %feature("docstring") change_peptide_carbonyl_by "

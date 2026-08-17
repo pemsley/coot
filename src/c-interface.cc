@@ -118,6 +118,7 @@
 #include "utils/coot-utils.hh"
 #include "coot-utils/coot-map-utils.hh"
 #include "coot-utils/read-amber-trajectory.hh"
+#include "coot-utils/pdbqt.hh"
 #include "coot-database.hh"
 #include "coot-fileselections.h"
 
@@ -980,6 +981,35 @@ int read_pdb(const std::string &filename) {
 /*! \brief read coordinates from filename */
 int read_coordinates(const std::string &filename) {
    return handle_read_draw_molecule(filename);
+}
+
+/*! \brief read a PDBQT file (e.g. an AutoDock/Vina docking result) */
+int read_pdbqt(const std::string &filename) {
+
+   graphics_info_t g;
+   std::string cmd = "read-pdbqt";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(single_quote(filename));
+   add_to_history_typed(cmd, args);
+
+   int imol = -1;
+   mmdb::Manager *mol = coot::pdbqt::read(filename); // shared reader in coot-utils
+   if (mol) {
+      imol = g.create_molecule();
+      g.molecules[imol].install_model(imol, mol, g.Geom_p(), filename, 1);
+      if (g.recentre_on_read_pdb || imol == 0)
+         g.setRotationCentre(g.molecules[imol].centre_of_molecule());
+      g.update_go_to_atom_window_on_new_mol();
+      graphics_draw();
+      std::string s = "Read PDBQT file " + filename + " as molecule " +
+                      coot::util::int_to_string(imol);
+      g.add_status_bar_text(s);
+   } else {
+      std::string s = "Failed to read PDBQT file " + filename;
+      g.add_status_bar_text(s);
+      logger.log(log_t::WARNING, "Failed to read PDBQT file", filename);
+   }
+   return imol;
 }
 
 int read_coordinates_as_string(const std::string &file_contents, const std::string &molecule_name) {

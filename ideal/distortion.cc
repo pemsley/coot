@@ -661,6 +661,8 @@ coot::restraints_container_t::geometric_distortions_pod(bool include_distortion_
          if (rest.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
             distortion = coot::distortion_score_non_bonded_contact(rest, lennard_jones_epsilon, x);
             atom_index = rest.atom_index_1;
+            atom_specs.push_back(atom_spec_t(atom[rest.atom_index_1]));
+            atom_specs.push_back(atom_spec_t(atom[rest.atom_index_2]));
             // debugging - yes they (more or less!) match dist_crit in construct_non_bonded_contact_list_by_res_vec
             // clipper::Coord_orth pt_1=co(atom[rest.atom_index_1]);
             // clipper::Coord_orth pt_2=co(atom[rest.atom_index_2]);
@@ -680,6 +682,10 @@ coot::restraints_container_t::geometric_distortions_pod(bool include_distortion_
          if (rest.restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) {
             distortion = coot::distortion_score_chiral_volume(rest, x);
             atom_index = rest.atom_index_centre;
+            atom_specs.push_back(atom_spec_t(atom[rest.atom_index_centre]));
+            atom_specs.push_back(atom_spec_t(atom[rest.atom_index_1]));
+            atom_specs.push_back(atom_spec_t(atom[rest.atom_index_2]));
+            atom_specs.push_back(atom_spec_t(atom[rest.atom_index_3]));
          }
       }
 

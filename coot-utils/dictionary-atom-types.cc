@@ -111,16 +111,16 @@ int main(int argc, char **argv) {
                         std::cout << comp_id << "  "
                                   << std::setw(4) << r.atom_info[iat].atom_id << "  "
                                   << std::setw(6) << r.atom_info[iat].type_energy << "   " 
-                                  << v[iat].cod_type << "\n";
+                                  << v[iat].full_type << "\n";
 
                      it = atom_map.find(key);
                      if (it == atom_map.end()) {
-                        std::pair<std::string, unsigned int> p(v[iat].cod_type, 1);
+                        std::pair<std::string, unsigned int> p(v[iat].full_type, 1);
                         atom_map[key].push_back(p);
                      } else { 
-                        int idx = find_string_in_vector(atom_map[key], v[iat].cod_type);
+                        int idx = find_string_in_vector(atom_map[key], v[iat].full_type);
                         if (idx == -1) { // not found
-                           std::pair<std::string, unsigned int> p(v[iat].cod_type, 1);
+                           std::pair<std::string, unsigned int> p(v[iat].full_type, 1);
                            atom_map[key].push_back(p);
                         } else {
                            atom_map[key][idx].second++;
@@ -221,7 +221,7 @@ int main(int argc, char **argv) {
                if (v.size() == r.atom_info.size()) {
                   for (unsigned int iat=0; iat<r.atom_info.size(); iat++) {
                      const std::string &te = r.atom_info[iat].type_energy;
-                     const std::string &key = v[iat].cod_type;
+                     const std::string &key = v[iat].full_type;
 
                      it = reverse_atom_map.find(key);
 
@@ -252,19 +252,19 @@ int main(int argc, char **argv) {
    }
 
    bool output_reverse_atom_map = true;
-   if (output_reverse_atom_map) { 
+   if (output_reverse_atom_map) {
       std::map<std::string, std::vector<std::pair<std::string, unsigned int> > >::iterator itv;
       for (itv=reverse_atom_map.begin(); itv!=reverse_atom_map.end(); itv++) {
          std::sort(itv->second.begin(), itv->second.end(), string_int_pair_sorter);
          std::cout << "cod type " << std::left << std::setw(20) << itv->first
                    << "       energy-lib-types: ";
-         for (unsigned int i=0; i<itv->second.size(); i++) { 
+         for (unsigned int i=0; i<itv->second.size(); i++) {
             std::cout << "   " << itv->second[i].first  << " " << itv->second[i].second;
          }
          std::cout << "\n";
       }
    }
-   
+
    return r;
 }
 

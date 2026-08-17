@@ -10,6 +10,7 @@ void set_bond_smoothness_factor(unsigned int fac);
 
 #include "matrix-utils.hh"
 #include "rsr-functions.hh"
+#include "ligand/richardson-rotamer.hh"  // for coot::richardson_rotamer (Rotamer Name key-binding)
 #include "graphics-info.h"
 #include "vte.hh"   // for show_command_vte_terminal() (Tab -> command line)
 
@@ -179,6 +180,36 @@ graphics_info_t::print_key_bindings() {
                 << "  ->  " << std::setw(20) << std::left << kb.second.description
                 << " " << key_bindings_t::type_to_string(kb.second.type)
                 << std::endl;
+   }
+}
+
+namespace {
+
+   // For the bare Left/Right arrow single-model-view stepping: choose the
+   // molecule that has more than one model whose centre is closest to the
+   // rotation centre and within dist_crit Angstroms. Returns -1 if none.
+   int single_model_view_nearby_molecule(float dist_crit) {
+      int best_imol = -1;
+      double best_d = dist_crit;
+      coot::Cartesian rc = graphics_info_t::RotationCentre();
+      for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
+         if (graphics_info_t::is_valid_model_molecule(imol)) {
+            if (graphics_info_t::molecules[imol].atom_selection_is_pickable()) {
+               if (graphics_info_t::molecules[imol].get_mol_is_displayed()) {
+                  mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+                  if (mol && mol->GetNumberOfModels() > 1) {
+                     coot::Cartesian c = graphics_info_t::molecules[imol].centre_of_molecule();
+                     double d = (c - rc).amplitude();
+                     if (d < best_d) {
+                        best_d = d;
+                        best_imol = imol;
+                     }
+                  }
+               }
+            }
+         }
+      }
+      return best_imol;
    }
 }
 
@@ -659,6 +690,120 @@ graphics_info_t::setup_key_bindings() {
       return gboolean(TRUE);
    };
 
+   auto l45_jed = [] () {
+
+      graphics_info_t g;
+      bool done = false;
+      if (moving_atoms_asc) {
+         if (moving_atoms_asc->mol) {
+            g.jed_flip_intermediate_atoms(false); // not inverted
+            done = true;
+         }
+      }
+
+      if (! done) {
+         std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+         int imol = pp.second.first;
+         if (is_valid_model_molecule(imol)) {
+            const coot::atom_spec_t &as = pp.second.second;
+            jed_flip(imol, as.chain_id.c_str(), as.res_no, as.ins_code.c_str(),
+                     as.atom_name.c_str(), as.alt_conf.c_str(), 0); // not inverted
+         }
+      }
+      return gboolean(TRUE);
+   };
+
+   auto l45_jed_reverse = [] () {
+
+      graphics_info_t g;
+      bool done = false;
+      if (moving_atoms_asc) {
+         if (moving_atoms_asc->mol) {
+            g.jed_flip_intermediate_atoms(true); // inverted
+            done = true;
+         }
+      }
+
+      if (! done) {
+         std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+         int imol = pp.second.first;
+         if (is_valid_model_molecule(imol)) {
+            const coot::atom_spec_t &as = pp.second.second;
+            jed_flip(imol, as.chain_id.c_str(), as.res_no, as.ins_code.c_str(),
+                     as.atom_name.c_str(), as.alt_conf.c_str(), 1); // inverted
+         }
+      }
+      return gboolean(TRUE);
+   };
+
+   auto l_jiggle_fit = [] () {
+      std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec_simple();
+      int imol = pp.second.first;
+      if (is_valid_model_molecule(imol)) {
+         const coot::atom_spec_t &as = pp.second.second;
+         int n_trials = 400;
+         float jiggle_scale_factor = 1.0;
+         fit_to_map_by_random_jiggle(imol, as.chain_id.c_str(), as.res_no, as.ins_code.c_str(),
+                                     n_trials, jiggle_scale_factor);
+      }
+      return gboolean(TRUE);
+   };
+
+   auto l_triple_refine = [] () {
+      rsr_refine_tandem_1();
+      return gboolean(TRUE);
+   };
+
+   auto l_add_water_here = [] () {
+      add_an_atom("Water");
+      return gboolean(TRUE);
+   };
+
+   auto l_edit_chi_angles = [] () {
+      graphics_info_t g;
+      auto active_atom = g.get_active_atom();
+      int imol = active_atom.first;
+      if (is_valid_model_molecule(imol)) {
+         auto &m = g.molecules[imol];
+         mmdb::Atom *at = active_atom.second;
+         int idx = m.get_atom_index(at);
+         g.execute_edit_chi_angles(idx, imol);
+      }
+      return gboolean(TRUE);
+   };
+
+   auto l_rotamer_selection = [] () {
+      graphics_info_t g;
+      std::pair<int, mmdb::Atom *> aa = g.get_active_atom();
+      int imol = aa.first;
+      if (is_valid_model_molecule(imol)) {
+         g.do_rotamers(imol, aa.second); // (imol, atom) overload sets up the moving atoms
+      }
+      return gboolean(TRUE);
+   };
+
+   auto l_rotamer_name = [] () {
+      graphics_info_t g;
+      std::pair<int, mmdb::Atom *> aa = g.get_active_atom();
+      int imol = aa.first;
+      if (is_valid_model_molecule(imol)) {
+         mmdb::Atom *at = aa.second;
+         mmdb::Residue *residue_p = at->GetResidue();
+         if (residue_p) {
+            std::string alt_conf = at->altLoc;
+            mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+            coot::richardson_rotamer d(residue_p, alt_conf, mol, 0.0, 1);
+            coot::rotamer_probability_info_t prob = d.probability_of_this_rotamer();
+            coot::residue_spec_t res_spec(residue_p);
+            std::string s = res_spec.chain_id + std::string(" ") + std::to_string(res_spec.res_no) +
+                            std::string(" ") + residue_p->GetResName() +
+                            std::string("  Rotamer: ") + prob.rotamer_name;
+            g.add_status_bar_text(s);
+         }
+      }
+      return gboolean(TRUE);
+   };
+
    auto l46 = [] {
       show_keyboard_mutate_frame();
       return gboolean(TRUE);
@@ -702,6 +847,11 @@ graphics_info_t::setup_key_bindings() {
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_m,      key_bindings_t(l11, "Zoom in")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_w,      key_bindings_t(l12, "Move forward")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_s,      key_bindings_t(l13, "Move backward")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_t,      key_bindings_t(l_triple_refine, "Triple Refine")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_v,      key_bindings_t(l_add_water_here, "Add Water Here")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_c,      key_bindings_t(l_edit_chi_angles, "Edit Chi Angles")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_X,      key_bindings_t(l_rotamer_selection, "Rotamer Selection")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_asciitilde, key_bindings_t(l_rotamer_name, "Rotamer Name to Status Bar")));
    // kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_o,      key_bindings_t(l14, "NCS Skip forward")));
    // kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_O,      key_bindings_t(l15, "NCS Skip backward")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_u,      key_bindings_t(l16, "Undo Move")));
@@ -722,6 +872,9 @@ graphics_info_t::setup_key_bindings() {
 
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_A,      key_bindings_t(l38, "Toggle Display of Last Model")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_E,      key_bindings_t(l40c, "Chain Refine")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_F,      key_bindings_t(l45_jed, "JED Flip")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_G,      key_bindings_t(l45_jed_reverse, "Reverse JED Flip")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_J,      key_bindings_t(l_jiggle_fit, "Jiggle Fit")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_M,      key_bindings_t(l46, "Keyboard Mutate")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_P,      key_bindings_t(l48, "Bond by Dictionary")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_R,      key_bindings_t(l40, "Sphere Refine")));
@@ -966,6 +1119,27 @@ graphics_info_t::setup_key_bindings() {
    kb_vec.push_back(p10);
    kb_vec.push_back(p11);
    kb_vec.push_back(p12);
+
+   // bare Left/Right: step through the models of a nearby multi-model molecule
+   // (e.g. AutoDock/Vina docking poses) in single-model view.
+   auto l50 = []() {  // bare Left: previous model
+      int imol = single_model_view_nearby_molecule(12.0);
+      if (imol >= 0)
+         single_model_view_prev_model_number(imol);
+      return gboolean(TRUE);
+   };
+   auto l51 = []() {  // bare Right: next model
+      int imol = single_model_view_nearby_molecule(12.0);
+      if (imol >= 0)
+         single_model_view_next_model_number(imol);
+      return gboolean(TRUE);
+   };
+   key_bindings_t bare_arrow_left_key_binding(l50,  "Single-model view: previous model");
+   key_bindings_t bare_arrow_right_key_binding(l51, "Single-model view: next model");
+   std::pair<keyboard_key_t, key_bindings_t> p13(keyboard_key_t(GDK_KEY_Left,  false), bare_arrow_left_key_binding);
+   std::pair<keyboard_key_t, key_bindings_t> p14(keyboard_key_t(GDK_KEY_Right, false), bare_arrow_right_key_binding);
+   kb_vec.push_back(p13);
+   kb_vec.push_back(p14);
 
    std::vector<std::pair<keyboard_key_t, key_bindings_t> >::const_iterator it;
    for (it=kb_vec.begin(); it!=kb_vec.end(); ++it)

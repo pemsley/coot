@@ -763,6 +763,10 @@ public:
    // flag for the main toolbar style
    static short int main_toolbar_style_state;
 
+   // how the buttons of the vertical toolbar (main_window_vbox_inner) are drawn:
+   // 0: icons and labels, 1: labels only, 2: icons only
+   static int vertical_toolbar_style;
+
    static short int do_lighting_flag;
    static bool do_flat_shading_for_solid_density_surface;
 
@@ -1654,6 +1658,13 @@ public:
    void unsetup_rotate_translate_buttons(GtkWidget *window); /* delete the user data */
    void do_rot_trans_adjustments(GtkWidget *dialog);
    static void rot_trans_adjustment_changed(GtkAdjustment *adj, gpointer user_data);
+   static void regenerate_moving_atoms_bonds_mesh();
+   // for click-and-drag translation of the fragment in rotate/translate mode
+   static void translate_moving_atoms_by_screen_delta(double delta_x, double delta_y);
+   // for ctrl-shift-drag in rotate/translate mode: trackball-like rotation of
+   // the fragment about its centre. Mouse positions in (pixel) window coordinates.
+   static void rotate_moving_atoms_by_trackball(double prev_x, double prev_y,
+                                                double curr_x, double curr_y);
    static float *previous_rot_trans_adjustment;
 
    // rottrans_buttons class calls back this function on button pressed mouse motion
@@ -2795,6 +2806,12 @@ public:
    static GtkWidget *add_alt_conf_dialog;
    static void new_alt_conf_occ_adjustment_changed(GtkAdjustment *adj, gpointer user_data);
 
+   // NMR or pdbqt split
+
+   //! split an NMR model into multiple models - all in MODEL 1.
+   //! @return the vector of new molecule indices.
+   std::vector<int> split_multi_model_molecule(int imol);
+
    // Backbone torsion
    //
    static short int in_backbone_torsion_define;
@@ -2982,6 +2999,7 @@ public:
    static Texture texture_for_unhappy_atom_markers;
    static TextureMesh tmesh_for_unhappy_atom_markers;
    static void add_unhappy_atom_marker(int imol, const coot::atom_spec_t &atom_spec);
+   static void remove_unhappy_atom_marker(int imol, const coot::atom_spec_t &atom_spec);
    static void remove_all_unhappy_atom_markers();
 
    static std::vector<meshed_particle_container_t> meshed_particles_for_gone_diegos;

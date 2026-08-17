@@ -25,6 +25,8 @@
 #include <stdlib.h>
 #include <cstddef>
 #include <stdexcept>
+#include "geometry/protein-geometry.hh"
+#include "geometry/residue-and-atom-specs.hh"
 
 #if !defined WINDOWS_MINGW && !defined _MSC_VER
 #  include <glob.h>
@@ -9520,13 +9522,12 @@ molecule_class_info_t::set_torsion(const std::string &chain_id,
 // molecule, typically).
 //
 int
-molecule_class_info_t::match_torsions(mmdb::Residue *res_reference,
+molecule_class_info_t::match_torsions(mmdb::Residue *res_reference, int imol_res_reference,
                                       const std::vector <coot::dict_torsion_restraint_t> &tr_ref_res,
                                       const coot::protein_geometry &geom) {
 
-
-   int n_torsions_moved = 0;
    make_backup(__FUNCTION__);
+   int n_torsions_moved = 0;
 
    mmdb::Residue *res_ligand = coot::util::get_first_residue(atom_sel.mol); // this could/should be replaced
                                                                        // by something that allows
@@ -9539,15 +9540,36 @@ molecule_class_info_t::match_torsions(mmdb::Residue *res_reference,
       std::pair<bool, coot::dictionary_residue_restraints_t> ligand_restraints_info =
          geom.get_monomer_restraints(res_name_ligand, imol_no);
       if (ligand_restraints_info.first) {
+         const auto &this_residue_restraints = ligand_restraints_info.second;
+
+         if (true) {
+            coot::protein_geometry *geom_p = graphics_info_t::Geom_p();
+            std::pair<bool, std::vector<std::string> > r = geom_p->atoms_match_dictionary(imol_no, res_ligand, false, false);
+            std::cout << "DEBUG:: in match_torsions() atom_matchs this-res dictionary: " << r.first << std::endl;
+            for (const std::string &s : r.second) {
+               std::cout << "   this: " << coot::residue_spec_t(res_ligand) << s << std::endl;
+            }
+         }
+
+         std::string res_name_reference = res_reference->GetResName();
          std::vector <coot::dict_torsion_restraint_t> tr_ligand =
-            geom.get_monomer_torsions_from_geometry(res_name_ligand, imol_no, 0);
+            geom.get_monomer_torsions_from_geometry(res_name_reference, imol_res_reference, 0);
          if (tr_ligand.size()) {
+
+            if (true) {
+               coot::protein_geometry *geom_p = graphics_info_t::Geom_p();
+               std::pair<bool, std::vector<std::string> > r = geom_p->atoms_match_dictionary(imol_res_reference, res_reference, false, false);
+               std::cout << "DEBUG:: in match_torsions() atom_matchs reference-res dictionary: " << r.first << std::endl;
+               for (const std::string &ss : r.second) {
+                  std::cout << "    ref: " << coot::residue_spec_t(res_reference) << ss << std::endl;
+               }
+            }
 
             // find the matching torsion between res_ligand and res_reference and then
             // set the torsions of res_ligand to match those of res_reference.
             //
             // moving the res_ligand
-            coot::match_torsions mt(res_ligand, res_reference, ligand_restraints_info.second);
+            coot::match_torsions mt(res_ligand, res_reference, this_residue_restraints);
             n_torsions_moved = mt.match(tr_ligand, tr_ref_res);
             atom_sel.mol->FinishStructEdit();
             make_bonds_type_checked(__FUNCTION__); // calls update_ghosts()
@@ -9561,6 +9583,7 @@ molecule_class_info_t::match_torsions(mmdb::Residue *res_reference,
    } else {
       std::cout << "WARNING:: null ligand residue (trying to get first) " << std::endl;
    }
+   std::cout << "DEBUG:: match_torsions() returns n_torsions_moved " << n_torsions_moved << std::endl;
    return n_torsions_moved;
 }
 

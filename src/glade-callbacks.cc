@@ -51,6 +51,9 @@
 #include "cfc-widgets-c-interface.h"
 
 #include "graphics-info.h"
+#include "coot-utils/glyco-tree.hh"
+#include <set>
+#include <utility>
 #include "validation-graphs/validation-graphs.hh"
 
 #include "widget-from-builder.hh"
@@ -7278,6 +7281,204 @@ on_emplacement_half_map_2_file_button_clicked(GtkButton       *button,
    };
    g_signal_connect(dialog, "response", G_CALLBACK(on_map_filechooser_dialog_response), NULL);
    gtk_widget_set_visible(dialog, TRUE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_glyco_lma_dialog_response(GtkDialog       *dialog,
+                             gint             response_id,
+                             gpointer         user_data) {
+
+   // The dialog's only action widget is the Close button (and window-close
+   // emits a response too), so hide on Close/OK/Cancel/delete alike.
+   if (response_id == GTK_RESPONSE_CLOSE ||
+       response_id == GTK_RESPONSE_OK    ||
+       response_id == GTK_RESPONSE_CANCEL ||
+       response_id == GTK_RESPONSE_DELETE_EVENT) {
+      gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
+   }
+}
+
+namespace {
+
+   enum class glyco_tree_type_t { OLIGOMANNOSE, HYBRID_MAMMAL, COMPLEX_MAMMAL, COMPLEX_PLANT, ALL };
+
+   // Port of the Scheme get-sensitive-button-list (gui-add-linked-cho.scm): given the
+   // glyco-tree position of the residue at the centre of the screen (level, residue
+   // type and the link by which it is attached to its parent) and the chosen tree type,
+   // return the set of (tla, link_type) additions that are chemically sensible next.
+   // An empty set means "nothing to add here". Matching is done on (tla, link_type),
+   // not button labels, so it is immune to label wording (e.g. the pyr-ASN rename).
+   std::set<std::pair<std::string, std::string> >
+   glyco_lma_allowed_options(glyco_tree_type_t tree_type,
+                             unsigned int level,
+                             const std::string &res_type,
+                             const std::string &link_type) {
+
+      typedef std::pair<std::string, std::string> opt_t; // (tla, link_type)
+      std::set<opt_t> s;
+      auto add = [&s] (const std::string &tla, const std::string &link) { s.insert(opt_t(tla, link)); };
+
+      // The ASN->NAG link is "pyr-ASN" in the current dictionary (was "NAG-ASN").
+      switch (tree_type) {
+
+      case glyco_tree_type_t::OLIGOMANNOSE:
+         if (level == 0 && res_type == "ASN") add("NAG", "pyr-ASN");
+         if (level == 1 && res_type == "NAG") add("NAG", "BETA1-4");
+         if (level == 2 && res_type == "NAG") add("BMA", "BETA1-4");
+         if (level == 3 && res_type == "BMA") { add("MAN", "ALPHA1-3"); add("MAN", "ALPHA1-6"); }
+         if (level == 4 && res_type == "MAN") {
+            if (link_type == "ALPHA1-3") add("MAN", "ALPHA1-2");
+            if (link_type == "ALPHA1-6") { add("MAN", "ALPHA1-3"); add("MAN", "ALPHA1-6"); }
+         }
+         if (level == 5 && res_type == "MAN") {
+            if (link_type == "ALPHA1-2") add("MAN", "ALPHA1-2");
+            if (link_type == "ALPHA1-6") add("MAN", "ALPHA1-2");
+            if (link_type == "ALPHA1-3") add("MAN", "ALPHA1-2");
+         }
+         if (level == 6 && res_type == "MAN") { if (link_type == "ALPHA1-2") add("GLC", "ALPHA1-3"); }
+         if (level == 7 && res_type == "GLC") { if (link_type == "ALPHA1-2") add("GLC", "ALPHA1-3"); }
+         if (level == 8 && res_type == "GLC") { if (link_type == "ALPHA1-2") add("GLC", "ALPHA1-2"); }
+         break;
+
+      case glyco_tree_type_t::HYBRID_MAMMAL:
+         if (level == 0 && res_type == "ASN") add("NAG", "pyr-ASN");
+         if (level == 1 && res_type == "NAG") { add("NAG", "BETA1-4"); add("FUC", "ALPHA1-3"); }
+         if (level == 2 && res_type == "NAG") add("BMA", "BETA1-4");
+         if (level == 2 && res_type == "FUC") add("GAL", "BETA1-4");
+         if (level == 3 && res_type == "BMA") { add("MAN", "ALPHA1-3"); add("MAN", "ALPHA1-6"); }
+         if (level == 3 && res_type == "GAL") add("FUC", "ALPHA1-2");
+         if (level == 4 && res_type == "MAN") { add("MAN", "ALPHA1-3"); add("MAN", "ALPHA1-6"); }
+         if (level == 5 && res_type == "NAG") add("GAL", "BETA1-4");
+         if (level == 5 && res_type == "GAL") { add("SIA", "ALPHA2-3"); add("SIA", "ALPHA2-6"); }
+         break;
+
+      case glyco_tree_type_t::COMPLEX_MAMMAL:
+         if (level == 0 && res_type == "ASN") add("NAG", "pyr-ASN");
+         if (level == 1 && res_type == "NAG") { add("NAG", "BETA1-4"); add("FUC", "ALPHA1-6"); }
+         if (level == 2 && res_type == "NAG") add("BMA", "BETA1-4");
+         if (level == 3 && res_type == "BMA") { add("MAN", "ALPHA1-3"); add("MAN", "ALPHA1-6"); add("NAG", "BETA1-4"); }
+         if (level == 4 && res_type == "MAN") { add("MAN", "ALPHA1-3"); add("MAN", "ALPHA1-6"); add("NAG", "BETA1-2"); }
+         if (level == 5 && res_type == "NAG") add("GAL", "BETA1-4");
+         if (level == 6 && res_type == "GAL") { add("SIA", "ALPHA2-3"); add("SIA", "ALPHA2-6"); }
+         break;
+
+      case glyco_tree_type_t::COMPLEX_PLANT:
+         if (level == 0 && res_type == "ASN") add("NAG", "pyr-ASN");
+         if (level == 1 && res_type == "NAG") { add("NAG", "BETA1-4"); add("FUC", "ALPHA1-3"); add("FUC", "ALPHA1-6"); }
+         if (level == 2 && res_type == "NAG") add("BMA", "BETA1-4");
+         if (level == 3 && res_type == "BMA") { add("MAN", "ALPHA1-3"); add("MAN", "ALPHA1-6"); add("XYP", "XYP-BMA"); add("NAG", "BETA1-4"); }
+         if (level == 4 && res_type == "MAN") { add("MAN", "ALPHA1-3"); add("MAN", "ALPHA1-6"); add("NAG", "BETA1-2"); }
+         if (level == 5 && res_type == "NAG") add("GAL", "BETA1-4");
+         if (level == 6 && res_type == "GAL") { add("SIA", "ALPHA2-3"); add("SIA", "ALPHA2-6"); }
+         break;
+
+      case glyco_tree_type_t::ALL:
+         break; // caller makes every button sensitive
+      }
+
+      std::cout << "tree-type: " << int(glyco_tree_type_t::OLIGOMANNOSE) << " level " << level
+                << " res-type: " << res_type << " link-type" << link_type
+                << " returns set size " << s.size() << std::endl;
+      return s;
+   }
+}
+
+// The tree-type radio buttons only record the user's choice (no signal handlers);
+// the active one is read when the "Reduce Options" button is pressed.
+extern "C" G_MODULE_EXPORT
+void
+on_glyco_lma_reduce_options_button_clicked(GtkButton *button, gpointer user_data) {
+
+   auto is_active = [] (const char *id) -> bool {
+      GtkWidget *w = widget_from_builder(id);
+      return w ? gtk_check_button_get_active(GTK_CHECK_BUTTON(w)) : false;
+   };
+
+   // Which tree type is selected? (last-active wins if the radio group isn't exclusive)
+   glyco_tree_type_t tree_type = glyco_tree_type_t::ALL;
+   if (is_active("glyco_lma_high_mannose_checkbutton"))   tree_type = glyco_tree_type_t::OLIGOMANNOSE;
+   if (is_active("glyco_lma_hybrid_mammal_checkbutton"))  tree_type = glyco_tree_type_t::HYBRID_MAMMAL;
+   if (is_active("glyco_lma_complex_mammal_checkbutton")) tree_type = glyco_tree_type_t::COMPLEX_MAMMAL;
+   if (is_active("glyco_lma_complex_plant_checkbutton"))  tree_type = glyco_tree_type_t::COMPLEX_PLANT;
+   if (is_active("glyco_lma_all_options_checkbutton"))    tree_type = glyco_tree_type_t::ALL;
+
+   GtkWidget *box = widget_from_builder("glyco_lma_vbox_internal");
+   if (! box) return;
+
+   // "All options": every button shown, no glyco-tree lookup needed.
+   if (tree_type == glyco_tree_type_t::ALL) {
+      for (GtkWidget *b = gtk_widget_get_first_child(box); b; b = gtk_widget_get_next_sibling(b))
+         gtk_widget_set_visible(b, TRUE);
+      return;
+   }
+
+   // Find the glyco-tree id of the residue at the centre of the screen.
+   graphics_info_t g;
+   std::pair<int, mmdb::Atom *> aa = g.get_active_atom();
+   int imol = aa.first;
+   bool have_id = false;
+   unsigned int level = 0;
+   std::string res_type;
+   std::string link_type;
+   // (residue-type, link-type) additions that the centre residue already has as children
+   std::set<std::pair<std::string, std::string> > already_present;
+   if (is_valid_model_molecule(imol) && aa.second) {
+      mmdb::Residue *residue_p = aa.second->GetResidue();
+      if (residue_p) {
+         mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+         coot::glyco_tree_t gt(residue_p, mol, g.Geom_p());
+         if (false)
+            gt.print();
+         coot::glyco_tree_t::residue_id_t id = gt.get_id(residue_p);
+         if (! id.res_type.empty()) {
+            level = id.level;
+            res_type = id.res_type;
+            link_type = id.link_type;
+            have_id = true;
+         } else {
+            // glyco_tree_t::get_id() returns nothing for a bare ASN; synthesize a level-0 id
+            std::string rn = residue_p->GetResName();
+            if (rn == "ASN") { level = 0; res_type = "ASN"; link_type = ""; have_id = true; }
+         }
+
+         // Collect the additions already made here: walk the tree and record the
+         // (residue-type, link-type) of every residue whose parent is the centre
+         // residue. These are then excluded from the offered options below.
+         coot::residue_spec_t centre_spec(residue_p);
+         std::vector<mmdb::Residue *> tree_residues = gt.residues(centre_spec);
+         for (mmdb::Residue *tr : tree_residues) {
+            if (! tr) continue;
+            if (tr == residue_p) continue;
+            coot::glyco_tree_t::residue_id_t child_id = gt.get_id(tr);
+            if (child_id.res_type.empty()) continue;
+            const coot::residue_spec_t &ps = child_id.parent_res_spec;
+            if (ps.chain_id == centre_spec.chain_id &&
+                ps.res_no   == centre_spec.res_no &&
+                ps.ins_code == centre_spec.ins_code) {
+               already_present.insert(std::make_pair(child_id.res_type, child_id.link_type));
+            }
+         }
+      }
+   }
+
+   std::set<std::pair<std::string, std::string> > allowed;
+   if (have_id)
+      allowed = glyco_lma_allowed_options(tree_type, level, res_type, link_type);
+
+   // don't offer an addition that this residue already has
+   for (const auto &present : already_present)
+      allowed.erase(present);
+
+   // Hide the buttons whose (tla, link_type) is not in the allowed set.
+   for (GtkWidget *b = gtk_widget_get_first_child(box); b; b = gtk_widget_get_next_sibling(b)) {
+      const char *tla  = static_cast<const char *>(g_object_get_data(G_OBJECT(b), "tla"));
+      const char *link = static_cast<const char *>(g_object_get_data(G_OBJECT(b), "link_type"));
+      bool ok = false;
+      if (tla && link)
+         ok = allowed.find(std::make_pair(std::string(tla), std::string(link))) != allowed.end();
+      gtk_widget_set_visible(b, ok);
+   }
 }
 
 extern "C" G_MODULE_EXPORT

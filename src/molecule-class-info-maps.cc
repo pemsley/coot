@@ -2601,6 +2601,8 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
       map_sigma_ = sqrt(mv.variance);
       map_max_   = mv.max_density;
       map_min_   = mv.min_density;
+      if (em)
+         contour_sigma_step = 0.3; // 0.1 is the default
 
       float mg = coot::util::max_gridding(xmap); // A/grid
       data_resolution_ = mg * 2.0;
@@ -2764,13 +2766,14 @@ molecule_class_info_t::install_new_map(const clipper::Xmap<float> &map_in, std::
       float mean = mv.mean;
       float var = mv.variance;
 
-      std::cout << "debug:: in install_new_map() contour_level is " << contour_level << " from " << mean << " " << sqrt(var) << std::endl;
       contour_level  = nearest_step(mean + 1.5*sqrt(var), 0.05);
       update_map_in_display_control_widget();
 
       // fill class variables
       map_mean_ = mv.mean;
       map_sigma_ = sqrt(mv.variance);
+      if (is_em_map_flag_in)
+         contour_sigma_step = 0.3; // 0.1 is the default
 
       update_map(true);
    }
@@ -2796,16 +2799,14 @@ molecule_class_info_t::install_new_map_with_contour_level(const clipper::Xmap<fl
       bool write_output_flag = false;
       mean_and_variance<float> mv = map_density_distribution(xmap, 40, write_output_flag, ipz);
 
-      float mean = mv.mean;
-      float var = mv.variance;
-
-      std::cout << "debug:: in install_new_map_with_contour_level() contour_level is " << contour_level << std::endl;
       contour_level  = contour_level_in;
       update_map_in_display_control_widget();
 
       // fill class variables
       map_mean_ = mv.mean;
       map_sigma_ = sqrt(mv.variance);
+      if (is_em_map_flag_in)
+         contour_sigma_step = 0.3; // 0.1 is the default
 
       update_map(true);
    }

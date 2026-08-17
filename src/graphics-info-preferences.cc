@@ -136,6 +136,11 @@ graphics_info_t::save_preference_file(const std::string &filename, short int il)
                                           g.preferences_internal[i].ivalue1, il));
          break;
 
+      case PREFERENCES_VERTICAL_TOOLBAR_STYLE:
+         commands.push_back(state_command("coot", "set-vertical-toolbar-style",
+                                          g.preferences_internal[i].ivalue1, il));
+         break;
+
       case PREFERENCES_BONDS_THICKNESS:
          commands.push_back(state_command("coot", "set-default-bond-thickness",
                                           g.preferences_internal[i].ivalue1, il));
@@ -404,6 +409,12 @@ graphics_info_t::make_preferences_internal() {
   // main toolbar style
   on = main_toolbar_style_state;
   p.preference_type = PREFERENCES_MAIN_TOOLBAR_STYLE;
+  p.ivalue1 = on;
+  ret.push_back(p);
+
+  // vertical toolbar style: icons and labels, labels only or icons only
+  on = vertical_toolbar_style;
+  p.preference_type = PREFERENCES_VERTICAL_TOOLBAR_STYLE;
   p.ivalue1 = on;
   ret.push_back(p);
 
