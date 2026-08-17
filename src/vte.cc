@@ -35,6 +35,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 #include <cctype>
 #include <cstdlib>
 
@@ -299,8 +300,16 @@ static void spawn_vte_helper() {
       nullptr           // user_data
    );
 
-   // Close our copy of the child's socket end
-   close(child_socket_fd);
+   // Do NOT close child_socket_fd here. vte_terminal_spawn_with_fds_async()
+   // takes ownership of every fd in the array ("you must not use or close them
+   // after this call"); it closes the parent's copy itself once the async spawn
+   // completes. Closing it here too is a double close: the fd number is freed
+   // immediately, the next socket() in this process (typically the JSON-RPC
+   // listener, if the RPC server is started after this tab is opened) is handed
+   // the same number, and VTE's later close then silently destroys the
+   // listener - it stays bound in bookkeeping, the idle func keeps printing
+   // "listening N...", but accept() fails with EBADF and clients get
+   // ECONNREFUSED.
 }
 
 void setup_python_vte_terminal() {
@@ -751,14 +760,34 @@ static void apply_sgr(const std::string &params,
    }
 }
 
-static void command_output_append(const std::string &text) {
-
-   if (!command_output_view) return;
-   GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(command_output_view));
-
-   // Running SGR style, carried across the runs within this append call.
-   bool have_fg = false, bold = false;
+// The running SGR style of one output view. Kept per view (rather than per
+// append call) so a colour that spans several appends - the Assistant and
+// Figure tabs stream their output a chunk at a time - is not reset midway.
+struct output_view_style_t {
+   bool have_fg = false;
+   bool bold = false;
    GdkRGBA fg = {0.0, 0.0, 0.0, 1.0};
+};
+
+// Append text to one of the tab output views (all plain GtkTextViews, not
+// VTE terminals, so nothing interprets escapes for us), rendering the ANSI SGR
+// subset that python/coot_commands/ansi.py emits and dropping every other
+// escape. Without this the codes are inserted literally and the reader sees
+// runs of junk like "[38;2;204;0;0m" around each coloured word.
+//
+// Caveat: an escape sequence split across two calls cannot be joined, so a
+// caller must not break a chunk in the middle of one.
+static void text_view_append_ansi(GtkWidget *view, const std::string &text) {
+
+   if (!view) return;
+   GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view));
+
+   static std::map<GtkWidget *, output_view_style_t> styles;
+   output_view_style_t &style = styles[view];
+   bool &have_fg = style.have_fg;
+   bool &bold = style.bold;
+   GdkRGBA &fg = style.fg;
+
    GtkTextIter end;
    std::string run;
 
@@ -810,8 +839,12 @@ static void command_output_append(const std::string &text) {
    // Scroll so the newly-inserted text is visible
    gtk_text_buffer_get_end_iter(buffer, &end);
    GtkTextMark *mark = gtk_text_buffer_create_mark(buffer, nullptr, &end, FALSE);
-   gtk_text_view_scroll_mark_onscreen(GTK_TEXT_VIEW(command_output_view), mark);
+   gtk_text_view_scroll_mark_onscreen(GTK_TEXT_VIEW(view), mark);
    gtk_text_buffer_delete_mark(buffer, mark);
+}
+
+static void command_output_append(const std::string &text) {
+   text_view_append_ansi(command_output_view, text);
 }
 
 static void run_natural_language_command(const std::string &input) {
@@ -1000,7 +1033,18 @@ static GtkWidget *assistant_entry_widget = nullptr;
 static GtkWidget *assistant_context_label = nullptr;
 static GtkWidget *assistant_status_label = nullptr;
 static GtkWidget *assistant_spinner = nullptr;
+static GtkWidget *assistant_model_dropdown = nullptr;
 static GSubprocess *assistant_process = nullptr;
+
+// The model the user picked from the dropdown, passed to the agent process as
+// COOT_AGENT_MODEL. Empty means "we have not chosen": the agent then falls back
+// to COOT_AGENT_MODEL from Coot's own environment, or agent.py's DEFAULT_MODEL.
+static std::string assistant_selected_model;
+
+// Set while the dropdown is being filled. Both gtk_drop_down_set_model() and
+// the preselect below emit "notify::selected", and without this the refresh
+// button would look like a user model change and needlessly restart the agent.
+static bool assistant_model_dropdown_populating = false;
 static GDataInputStream *assistant_stdout = nullptr;
 
 // Show/hide the "thinking" spinner while the model works on a request.
@@ -1033,17 +1077,7 @@ static void vte_output_append_styled(GtkWidget *view, const std::string &text) {
 }
 
 static void assistant_output_append(const std::string &text) {
-
-   if (!assistant_output_view) return;
-   GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(assistant_output_view));
-   GtkTextIter end;
-   gtk_text_buffer_get_end_iter(buffer, &end);
-   gtk_text_buffer_insert(buffer, &end, text.c_str(), -1);
-
-   gtk_text_buffer_get_end_iter(buffer, &end);
-   GtkTextMark *mark = gtk_text_buffer_create_mark(buffer, nullptr, &end, FALSE);
-   gtk_text_view_scroll_mark_onscreen(GTK_TEXT_VIEW(assistant_output_view), mark);
-   gtk_text_buffer_delete_mark(buffer, mark);
+   text_view_append_ansi(assistant_output_view, text);
 }
 
 // Render one streamed JSON event line into the transcript.
@@ -1188,6 +1222,125 @@ static int assistant_rpc_port() {
    return port == 0 ? 9090 : port;
 }
 
+// Ask the local Ollama server what models it has, via
+// coot_commands.agent.list_models(). Returns an empty vector if Ollama is not
+// running (list_models() swallows the connection error and returns []), which
+// the caller shows as a single "no models found" entry.
+//
+// This runs on the GUI thread, so it blocks - list_models() keeps a 2 s timeout
+// and the server is on localhost, so in practice it returns in milliseconds and
+// fails instantly (ECONNREFUSED) when Ollama is down.
+static std::vector<std::string> assistant_available_models() {
+
+   std::vector<std::string> models;
+   std::string code =
+      "__import__('coot_commands.agent', fromlist=['list_models']).list_models()";
+   execute_python_results_container_t rc = execute_python_code_with_result_internal(code);
+   if (rc.result && PyList_Check(rc.result)) {
+      Py_ssize_t n = PyList_Size(rc.result);
+      for (Py_ssize_t k = 0; k < n; k++) {
+         PyObject *item = PyList_GetItem(rc.result, k);   // borrowed
+         if (item && PyUnicode_Check(item)) {
+            const char *s = PyUnicode_AsUTF8(item);
+            if (s) models.push_back(s);
+         }
+      }
+   }
+   return models;
+}
+
+// Fill (or refill) the dropdown, preselecting whatever model is currently in
+// force. Ollama reports tagged names ("gemma4:latest") while a configured model
+// may be untagged ("gemma4"), so the match ignores a ":latest" suffix.
+static void assistant_populate_model_dropdown() {
+
+   if (!assistant_model_dropdown) return;
+
+   assistant_model_dropdown_populating = true;
+   struct scope_reset {
+      ~scope_reset() { assistant_model_dropdown_populating = false; }
+   } reset_on_return;
+
+   std::vector<std::string> models = assistant_available_models();
+   bool have_models = !models.empty();
+   if (!have_models)
+      models.push_back("(no models - is ollama running?)");
+
+   std::vector<const char *> strs;
+   strs.reserve(models.size() + 1);
+   for (const auto &m : models) strs.push_back(m.c_str());
+   strs.push_back(nullptr);
+
+   GtkStringList *list = gtk_string_list_new(strs.data());
+   gtk_drop_down_set_model(GTK_DROP_DOWN(assistant_model_dropdown), G_LIST_MODEL(list));
+   g_object_unref(list);
+   gtk_widget_set_sensitive(assistant_model_dropdown, have_models);
+   if (!have_models) return;
+
+   // Preselect the model in force: the user's earlier pick, else the
+   // environment's, else the first entry.
+   std::string want = assistant_selected_model;
+   if (want.empty()) {
+      const char *env = g_getenv("COOT_AGENT_MODEL");
+      if (env) want = env;
+   }
+   auto bare = [] (std::string s) {
+      const std::string tag = ":latest";
+      if (s.size() > tag.size() && s.compare(s.size() - tag.size(), tag.size(), tag) == 0)
+         s.erase(s.size() - tag.size());
+      return s;
+   };
+   guint selected = 0;
+   if (!want.empty()) {
+      for (std::size_t k = 0; k < models.size(); k++) {
+         if (models[k] == want || bare(models[k]) == bare(want)) {
+            selected = (guint) k;
+            break;
+         }
+      }
+   }
+   gtk_drop_down_set_selected(GTK_DROP_DOWN(assistant_model_dropdown), selected);
+   assistant_selected_model = models[selected];
+}
+
+// The running agent process was spawned with the old COOT_AGENT_MODEL in its
+// environment, so a model change only takes effect once it is restarted. Kill it
+// here; the next request spawns a fresh one with the new model. Conversation
+// memory lives in that process, so say so rather than losing it silently.
+static void on_assistant_model_changed(GtkDropDown *dropdown,
+                                       G_GNUC_UNUSED GParamSpec *pspec,
+                                       G_GNUC_UNUSED gpointer user_data) {
+
+   if (assistant_model_dropdown_populating) return;
+
+   GtkStringList *list = GTK_STRING_LIST(gtk_drop_down_get_model(dropdown));
+   if (!list) return;
+   guint idx = gtk_drop_down_get_selected(dropdown);
+   if (idx == GTK_INVALID_LIST_POSITION) return;
+   const char *name = gtk_string_list_get_string(list, idx);
+   if (!name) return;
+   if (assistant_selected_model == name) return;   // no-op reselect
+
+   assistant_selected_model = name;
+
+   if (assistant_process) {
+      g_subprocess_force_exit(assistant_process);
+      g_object_unref(assistant_process);
+      assistant_process = nullptr;
+      assistant_stdout = nullptr;
+      assistant_set_thinking(false);
+      assistant_output_append(std::string("\n[model set to ") + name +
+                              " - agent restarted, conversation cleared]\n");
+   } else {
+      assistant_output_append(std::string("\n[model set to ") + name + "]\n");
+   }
+}
+
+static void on_assistant_refresh_models_clicked(G_GNUC_UNUSED GtkButton *button,
+                                                G_GNUC_UNUSED gpointer user_data) {
+   assistant_populate_model_dropdown();
+}
+
 static void spawn_assistant_process() {
 
    if (assistant_process) return;
@@ -1198,6 +1351,11 @@ static void spawn_assistant_process() {
       (GSubprocessFlags)(G_SUBPROCESS_FLAGS_STDIN_PIPE | G_SUBPROCESS_FLAGS_STDOUT_PIPE));
    g_subprocess_launcher_setenv(launcher, "COOT_RPC_PORT",
                                 std::to_string(port).c_str(), TRUE);
+   // Only override the model when the user has picked one, so an unset dropdown
+   // leaves whatever COOT_AGENT_MODEL is in Coot's environment untouched.
+   if (!assistant_selected_model.empty())
+      g_subprocess_launcher_setenv(launcher, "COOT_AGENT_MODEL",
+                                   assistant_selected_model.c_str(), TRUE);
    std::string ppath = assistant_pythonpath();
    if (!ppath.empty()) {
       const char *existing = g_getenv("PYTHONPATH");
@@ -1335,10 +1493,29 @@ static GtkWidget *create_assistant_tab_widget() {
    assistant_spinner = gtk_spinner_new();
    gtk_widget_set_visible(assistant_spinner, FALSE);
 
+   // Which local model answers. Filled from ollama's catalogue; the refresh
+   // button re-reads it for when ollama is started (or a model pulled) after
+   // this tab was built.
+   assistant_model_dropdown = gtk_drop_down_new(nullptr, nullptr);
+   gtk_widget_set_tooltip_text(assistant_model_dropdown,
+                               "The local (ollama) model the assistant uses");
+   GtkWidget *refresh_button = gtk_button_new_from_icon_name("view-refresh-symbolic");
+   gtk_widget_set_tooltip_text(refresh_button, "Re-read the list of ollama models");
+   g_signal_connect(refresh_button, "clicked",
+                    G_CALLBACK(on_assistant_refresh_models_clicked), nullptr);
+
    gtk_box_append(GTK_BOX(row), assistant_entry_widget);
    gtk_box_append(GTK_BOX(row), assistant_spinner);
+   gtk_box_append(GTK_BOX(row), assistant_model_dropdown);
+   gtk_box_append(GTK_BOX(row), refresh_button);
    gtk_box_append(GTK_BOX(row), new_chat_button);
    gtk_box_append(GTK_BOX(row), stop_button);
+
+   // Populate before connecting the handler, so filling the list does not read
+   // as a user model change (which would restart the agent).
+   assistant_populate_model_dropdown();
+   g_signal_connect(assistant_model_dropdown, "notify::selected",
+                    G_CALLBACK(on_assistant_model_changed), nullptr);
 
    // A readiness line (model + RPC status) and a context-usage line, both dim.
    assistant_status_label = gtk_label_new("");
@@ -1366,6 +1543,8 @@ static GtkWidget *create_assistant_tab_widget() {
    // that you start yourself. Auto-starting the listener proved unreliable.
    return box;
 }
+
+#ifdef HAVE_COOT_FIGURE_AGENT
 
 // ---------------------------------------------------------------------------
 //   "Figure" tab - a vision-in-the-loop agent that tunes the render
@@ -1395,15 +1574,7 @@ static void figure_set_thinking(bool thinking) {
 }
 
 static void figure_output_append(const std::string &text) {
-   if (!figure_output_view) return;
-   GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(figure_output_view));
-   GtkTextIter end;
-   gtk_text_buffer_get_end_iter(buffer, &end);
-   gtk_text_buffer_insert(buffer, &end, text.c_str(), -1);
-   gtk_text_buffer_get_end_iter(buffer, &end);
-   GtkTextMark *mark = gtk_text_buffer_create_mark(buffer, nullptr, &end, FALSE);
-   gtk_text_view_scroll_mark_onscreen(GTK_TEXT_VIEW(figure_output_view), mark);
-   gtk_text_buffer_delete_mark(buffer, mark);
+   text_view_append_ansi(figure_output_view, text);
 }
 
 // Render one streamed JSON event line into the transcript / picture.
@@ -1674,6 +1845,8 @@ static GtkWidget *create_figure_tab_widget() {
    return box;
 }
 
+#endif // HAVE_COOT_FIGURE_AGENT
+
 void setup_claude_vte_terminal() {
 
    // Set up lazily and only once. Doing this at startup reparented the Python VTE
@@ -1739,10 +1912,12 @@ void setup_claude_vte_terminal() {
    GtkWidget *assistant_label = gtk_label_new("Assistant (alpha)");
    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), assistant_widget, assistant_label);
 
+#ifdef HAVE_COOT_FIGURE_AGENT
    // Add the vision-in-the-loop Figure tab (alpha)
    GtkWidget *figure_widget = create_figure_tab_widget();
    GtkWidget *figure_label = gtk_label_new("Figure (alpha)");
    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), figure_widget, figure_label);
+#endif
 
    // Put the notebook into the paned
    gtk_paned_set_end_child(GTK_PANED(vte_paned_widget), notebook);

@@ -90,7 +90,7 @@ def split_thinking(message: Dict[str, Any]) -> Tuple[str, str]:
     return thinking.strip(), content.strip()
 
 DEFAULT_URL = "http://localhost:11434/v1/chat/completions"
-DEFAULT_MODEL = "qwen3.6:27b"
+DEFAULT_MODEL = "qwen-3.8-27b-3bit"
 # How many commands to expose per request when retrieval is on.  A small model
 # chooses far better from a handful of tools than from all ~90; see
 # coot_commands.retrieval.  16 keeps the surface small while leaving margin so a
@@ -160,6 +160,43 @@ def _normalise_chat_url(url: str) -> str:
     return url + "/v1/chat/completions"
 
 
+def _models_url(url: str) -> str:
+    """Turn a chat endpoint (or a bare base) into Ollama's model-list URL.
+
+    Ollama serves its catalogue from ``/api/tags`` on the server root, which
+    sits alongside - not under - the OpenAI-compatible ``/v1`` prefix.
+    """
+    base = _normalise_chat_url(url)
+    base = base[: -len("/v1/chat/completions")]
+    return base + "/api/tags"
+
+
+def list_models(url: Optional[str] = None, timeout: float = 2.0) -> List[str]:
+    """The models the local Ollama server currently has, name-sorted.
+
+    Returns ``[]`` when the server is unreachable or answers with something
+    unexpected, so a caller can fall back without special-casing errors. Used
+    by the Assistant tab to fill its model dropdown; keep the timeout short
+    because Coot's GUI thread blocks on this call.
+    """
+    url = url or os.environ.get("COOT_AGENT_URL", DEFAULT_URL)
+    try:
+        with urllib.request.urlopen(_models_url(url), timeout=timeout) as resp:
+            payload = json.loads(resp.read().decode("utf-8"))
+    except (urllib.error.URLError, OSError, ValueError):
+        return []
+    models = payload.get("models") if isinstance(payload, dict) else None
+    if not isinstance(models, list):
+        return []
+    names = [m.get("name") for m in models
+             if isinstance(m, dict) and isinstance(m.get("name"), str)]
+    # Drop embedding-only models: they are pulled for coot_commands.retrieval,
+    # not for chat, and picking one would only produce a confusing failure.
+    # /api/tags gives us no capability flag, so this is a name heuristic.
+    names = [n for n in names if "embed" not in n.lower()]
+    return sorted(set(names))
+
+
 def _ollama_chat(model: str, url: str, timeout: float,
                  messages: List[Dict[str, Any]],
                  tools: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -173,6 +210,9 @@ def _ollama_chat(model: str, url: str, timeout: float,
         "stream": False,
         # Low temperature: we want deterministic tool selection, not prose.
         "temperature": 0.0,
+        # Ollama's OpenAI-compatible endpoint maps this to the native
+        # "think" level for models that support variable thinking effort.
+        "reasoning_effort": "medium",
     }
     data = json.dumps(payload).encode("utf-8")
     req = urllib.request.Request(

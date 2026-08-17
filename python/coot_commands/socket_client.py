@@ -25,8 +25,18 @@ request on Coot's GTK idle function, the executed code runs on the main
 thread - exactly where the Coot API is safe to call.
 
 The frame format is a 4-byte big-endian length prefix followed by the JSON
-payload, in both directions.  :meth:`CootSocketClient.exec_python` sends one
-request and reads one response (a single client, used sequentially).
+payload, in both directions.
+
+Coot's listener (``coot_socket_listener_idle_func`` in ``src/json-rpc.cc``)
+tracks a single global client connection and only ``accept()``s a new one
+once the previous one has disconnected. Other consumers of the same socket -
+notably the "AI" tab's ``mcp/coot_mcp_socket_bridge.py``, which opens a fresh
+connection per tool call and closes it straight after - rely on that slot
+being free between requests. So :meth:`CootSocketClient.exec_python` opens a
+new connection for *each* call and closes it once the response has been
+read, rather than holding one open for the client's lifetime: a long-lived
+connection would permanently occupy Coot's one connection slot and starve
+every other client (the AI tab included) for as long as this process runs.
 
 :func:`make_socket_executor` adapts the client into the ``execute`` callback
 that :func:`coot_commands.agent.run_agent` expects: it runs a command by
@@ -55,7 +65,12 @@ class CootSocketError(RuntimeError):
 
 
 class CootSocketClient:
-    """A client for Coot's length-prefixed JSON-RPC socket."""
+    """A client for Coot's length-prefixed JSON-RPC socket.
+
+    Each :meth:`exec_python` call opens its own connection and closes it
+    before returning - see the module docstring for why a long-lived,
+    reused connection is not safe here.
+    """
 
     def __init__(self, host: str = DEFAULT_HOST, port: Optional[int] = None,
                  timeout: float = 30.0) -> None:
@@ -63,24 +78,21 @@ class CootSocketClient:
         self.port = port if port is not None else int(
             os.environ.get("COOT_RPC_PORT", DEFAULT_PORT))
         self.timeout = timeout
-        self._sock: Optional[socket.socket] = None
         self._next_id = 1
 
-    def connect(self, retries: int = 15, delay: float = 0.2) -> None:
-        """Connect to Coot, retrying briefly so a startup race can't fail us.
+    def _connect(self, retries: int = 15, delay: float = 0.2) -> socket.socket:
+        """Open a new connection to Coot, retrying briefly so a startup race
+        can't fail us.
 
         Coot brings the listener up and spawns this process at nearly the same
         moment, so the first connect can land a hair too early. We retry for
         ~*retries* x *delay* seconds before giving up with the last error.
         """
-        if self._sock is not None:
-            return
         last_error: Optional[OSError] = None
         for attempt in range(max(1, retries)):
             try:
-                self._sock = socket.create_connection(
+                return socket.create_connection(
                     (self.host, self.port), timeout=self.timeout)
-                return
             except OSError as e:
                 last_error = e
                 if attempt < retries - 1:
@@ -89,40 +101,48 @@ class CootSocketClient:
             f"cannot connect to Coot at {self.host}:{self.port} after "
             f"{retries} attempts: {last_error}") from None
 
+    def connect(self, retries: int = 15, delay: float = 0.2) -> None:
+        """Probe that Coot is reachable, without holding a connection open.
+
+        Raises :class:`CootSocketError` if Coot cannot be reached. Kept as a
+        readiness check for callers (e.g. the GUI's startup status probe);
+        it does not affect :meth:`exec_python`, which always connects fresh.
+        """
+        self._connect(retries=retries, delay=delay).close()
+
     def close(self) -> None:
-        if self._sock is not None:
-            try:
-                self._sock.close()
-            finally:
-                self._sock = None
+        """No-op: kept for backwards compatibility - there is no connection
+        held between calls to close."""
 
-    def _send_frame(self, payload: bytes) -> None:
-        assert self._sock is not None
-        self._sock.sendall(struct.pack(">I", len(payload)) + payload)
+    @staticmethod
+    def _send_frame(sock: socket.socket, payload: bytes) -> None:
+        sock.sendall(struct.pack(">I", len(payload)) + payload)
 
-    def _recv_exactly(self, n: int) -> bytes:
-        assert self._sock is not None
+    @staticmethod
+    def _recv_exactly(sock: socket.socket, n: int) -> bytes:
         chunks = []
         remaining = n
         while remaining > 0:
-            chunk = self._sock.recv(remaining)
+            chunk = sock.recv(remaining)
             if not chunk:
                 raise CootSocketError("Coot closed the connection")
             chunks.append(chunk)
             remaining -= len(chunk)
         return b"".join(chunks)
 
-    def _recv_frame(self) -> bytes:
-        (length,) = struct.unpack(">I", self._recv_exactly(4))
-        return self._recv_exactly(length)
+    def _recv_frame(self, sock: socket.socket) -> bytes:
+        (length,) = struct.unpack(">I", self._recv_exactly(sock, 4))
+        return self._recv_exactly(sock, length)
 
     def exec_python(self, code: str) -> str:
         """Evaluate *code* (a single expression) in Coot; return its value string.
 
-        Raises :class:`CootSocketError` on a transport failure or if the server
-        reports an error.
+        Opens a fresh connection for this call and closes it before returning,
+        so it never occupies Coot's single connection slot for longer than one
+        request/response. Raises :class:`CootSocketError` on a transport
+        failure (including a timeout waiting for the response) or if the
+        server reports an error.
         """
-        self.connect()
         request_id = self._next_id
         self._next_id += 1
         request = {
@@ -131,8 +151,17 @@ class CootSocketClient:
             "method": "python.exec",
             "params": {"code": code},
         }
-        self._send_frame(json.dumps(request).encode("utf-8"))
-        response = json.loads(self._recv_frame().decode("utf-8"))
+        sock = self._connect()
+        try:
+            self._send_frame(sock, json.dumps(request).encode("utf-8"))
+            response = json.loads(self._recv_frame(sock).decode("utf-8"))
+        except socket.timeout as e:
+            raise CootSocketError(
+                f"timed out waiting for Coot's response after {self.timeout}s") from e
+        except OSError as e:
+            raise CootSocketError(f"lost connection to Coot: {e}") from e
+        finally:
+            sock.close()
         if "error" in response:
             message = response["error"].get("message", "unknown error")
             raise CootSocketError(f"Coot error: {message}")
