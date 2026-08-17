@@ -55,14 +55,42 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import urllib.error
 import urllib.request
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from coot_commands.tools import command_tools, custom_tools, execute_tool
 
+# Thinking models expose their reasoning in one of two ways: a dedicated field
+# on the message (``reasoning`` / ``reasoning_content`` / ``thinking``, used by
+# Ollama, DeepSeek-R1, ...) or an inline ``<think>...</think>`` block in the
+# content (Qwen and friends). split_thinking() normalises both so callers can
+# show the reasoning separately from the visible answer.
+_THINK_RE = re.compile(r"<think>(.*?)</think>", re.DOTALL | re.IGNORECASE)
+
+
+def split_thinking(message: Dict[str, Any]) -> Tuple[str, str]:
+    """Return ``(thinking, visible_content)`` for a chat reply message.
+
+    Pulls any reasoning field and any ``<think>`` block out of the content, so
+    the reasoning can be surfaced on its own and the visible answer is clean.
+    """
+    thinking = (message.get("reasoning") or message.get("reasoning_content")
+                or message.get("thinking") or "")
+    content = message.get("content") or ""
+    if isinstance(content, list):  # a multimodal content array: keep text parts
+        content = " ".join(p.get("text", "") for p in content
+                           if isinstance(p, dict) and p.get("type") == "text")
+    blocks = _THINK_RE.findall(content)
+    if blocks:
+        inline = "\n".join(b.strip() for b in blocks)
+        thinking = f"{thinking}\n{inline}".strip() if thinking else inline
+        content = _THINK_RE.sub("", content)
+    return thinking.strip(), content.strip()
+
 DEFAULT_URL = "http://localhost:11434/v1/chat/completions"
-DEFAULT_MODEL = "gemma4"
+DEFAULT_MODEL = "qwen3.6:27b"
 # How many commands to expose per request when retrieval is on.  A small model
 # chooses far better from a handful of tools than from all ~90; see
 # coot_commands.retrieval.  16 keeps the surface small while leaving margin so a
@@ -298,11 +326,13 @@ def run_agent(user_text: str, *,
     for _step in range(max_steps):
         message = chat(messages, tools)
         messages.append(message)
+        thinking, content = split_thinking(message)
+        if thinking:
+            emit({"type": "thinking", "text": thinking})
         tool_calls = message.get("tool_calls")
         if not tool_calls:
-            text = (message.get("content") or "").strip()
-            emit({"type": "final", "text": text})
-            return text
+            emit({"type": "final", "text": content})
+            return content
         messages.extend(_run_tool_calls(tool_calls, execute, emit))
 
     emit({"type": "stopped", "steps": max_steps})

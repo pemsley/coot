@@ -1011,6 +1011,27 @@ static void assistant_set_thinking(bool thinking) {
    else          gtk_spinner_stop(GTK_SPINNER(assistant_spinner));
 }
 
+// Append text in a dimmed, italic style - used to show the model's "thinking"
+// (reasoning) distinct from its answer. Creates the tag lazily on the buffer.
+static void vte_output_append_styled(GtkWidget *view, const std::string &text) {
+
+   if (!view) return;
+   GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view));
+   GtkTextTagTable *tags = gtk_text_buffer_get_tag_table(buffer);
+   if (!gtk_text_tag_table_lookup(tags, "think"))
+      gtk_text_buffer_create_tag(buffer, "think",
+                                 "foreground", "#888888",
+                                 "style", PANGO_STYLE_ITALIC, NULL);
+   GtkTextIter end;
+   gtk_text_buffer_get_end_iter(buffer, &end);
+   gtk_text_buffer_insert_with_tags_by_name(buffer, &end, text.c_str(), -1,
+                                            "think", NULL);
+   gtk_text_buffer_get_end_iter(buffer, &end);
+   GtkTextMark *mark = gtk_text_buffer_create_mark(buffer, nullptr, &end, FALSE);
+   gtk_text_view_scroll_mark_onscreen(GTK_TEXT_VIEW(view), mark);
+   gtk_text_buffer_delete_mark(buffer, mark);
+}
+
 static void assistant_output_append(const std::string &text) {
 
    if (!assistant_output_view) return;
@@ -1050,6 +1071,9 @@ static void assistant_handle_event(const std::string &line) {
          }
       }
       assistant_output_append("  \xE2\x86\x92 " + tool + "(" + args_str + "): " + result + "\n");
+   } else if (type == "thinking") {
+      vte_output_append_styled(assistant_output_view,
+                               "\xF0\x9F\x92\xAD " + ev.value("text", "") + "\n");
    } else if (type == "final") {
       assistant_output_append("\n" + ev.value("text", "") + "\n");
    } else if (type == "error") {
@@ -1343,6 +1367,313 @@ static GtkWidget *create_assistant_tab_widget() {
    return box;
 }
 
+// ---------------------------------------------------------------------------
+//   "Figure" tab - a vision-in-the-loop agent that tunes the render
+// ---------------------------------------------------------------------------
+//
+// Like the Assistant, but it judges by what the scene LOOKS like: it renders
+// the current view, shows the image to a multimodal model, which critiques the
+// figure and calls appearance tools (lighting, ambient occlusion, shadows,
+// depth of field, background, materials, ...) to improve it, then renders
+// again. It drives python3 -m coot_commands.figure_serve over stdin/stdout,
+// executing each change back in THIS Coot over the JSON-RPC socket. A picture
+// widget shows the latest render each iteration so you watch the figure evolve.
+
+static GtkWidget *figure_output_view = nullptr;
+static GtkWidget *figure_entry_widget = nullptr;
+static GtkWidget *figure_picture = nullptr;
+static GtkWidget *figure_status_label = nullptr;
+static GtkWidget *figure_spinner = nullptr;
+static GSubprocess *figure_process = nullptr;
+static GDataInputStream *figure_stdout = nullptr;
+
+static void figure_set_thinking(bool thinking) {
+   if (!figure_spinner) return;
+   gtk_widget_set_visible(figure_spinner, thinking);
+   if (thinking) gtk_spinner_start(GTK_SPINNER(figure_spinner));
+   else          gtk_spinner_stop(GTK_SPINNER(figure_spinner));
+}
+
+static void figure_output_append(const std::string &text) {
+   if (!figure_output_view) return;
+   GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(figure_output_view));
+   GtkTextIter end;
+   gtk_text_buffer_get_end_iter(buffer, &end);
+   gtk_text_buffer_insert(buffer, &end, text.c_str(), -1);
+   gtk_text_buffer_get_end_iter(buffer, &end);
+   GtkTextMark *mark = gtk_text_buffer_create_mark(buffer, nullptr, &end, FALSE);
+   gtk_text_view_scroll_mark_onscreen(GTK_TEXT_VIEW(figure_output_view), mark);
+   gtk_text_buffer_delete_mark(buffer, mark);
+}
+
+// Render one streamed JSON event line into the transcript / picture.
+static void figure_handle_event(const std::string &line) {
+
+   json ev;
+   try {
+      ev = json::parse(line);
+   } catch (...) {
+      return; // ignore any non-JSON noise on stdout
+   }
+   std::string type = ev.value("type", "");
+
+   if (type == "render") {
+      int it = ev.value("iteration", 0);
+      std::string image = ev.value("image", "");
+      figure_output_append("\n[iteration " + std::to_string(it) + "]\n");
+      // Show the freshly written PNG. Each iteration has a distinct filename,
+      // so there is no stale-cache problem re-setting the same path.
+      if (figure_picture && !image.empty())
+         gtk_picture_set_filename(GTK_PICTURE(figure_picture), image.c_str());
+   } else if (type == "thinking") {
+      vte_output_append_styled(figure_output_view,
+                               "\xF0\x9F\x92\xAD " + ev.value("text", "") + "\n");
+   } else if (type == "critique") {
+      figure_output_append(ev.value("text", "") + "\n");
+   } else if (type == "step") {
+      std::string tool = ev.value("tool", "");
+      std::string result = ev.value("result", "");
+      std::string args_str;
+      if (ev.contains("args") && ev["args"].is_object()) {
+         bool first = true;
+         for (auto it = ev["args"].begin(); it != ev["args"].end(); ++it) {
+            if (!first) args_str += ", ";
+            first = false;
+            const json &v = it.value();
+            args_str += it.key() + "=" + (v.is_string() ? v.get<std::string>() : v.dump());
+         }
+      }
+      figure_output_append("  \xE2\x86\x92 " + tool + "(" + args_str + "): " + result + "\n");
+   } else if (type == "final") {
+      figure_output_append("\n\xE2\x9C\x93 " + ev.value("text", "") + "\n");
+   } else if (type == "error") {
+      figure_output_append("Error: " + ev.value("message", "") + "\n");
+   } else if (type == "status") {
+      bool rpc = ev.value("rpc", false);
+      if (figure_status_label) {
+         std::string backend = ev.value("backend", "?");
+         std::string model = ev.value("model", "?");
+         std::string s = "Vision: " + backend + "/" + model +
+                         "   \xC2\xB7   RPC: " + (rpc ? "ready" : "NOT connected");
+         gtk_label_set_text(GTK_LABEL(figure_status_label), s.c_str());
+      }
+      if (!rpc && ev.contains("rpc_detail"))
+         figure_output_append("RPC not connected: " + ev.value("rpc_detail", "") + "\n");
+   } else if (type == "done") {
+      figure_set_thinking(false);
+      if (figure_entry_widget) {
+         gtk_widget_set_sensitive(figure_entry_widget, TRUE);
+         gtk_widget_grab_focus(figure_entry_widget);
+      }
+   }
+   // "ready", "tools" and "config" events are informational.
+}
+
+static void figure_read_line_cb(GObject *source, GAsyncResult *res, gpointer user_data);
+
+static void figure_queue_read() {
+   if (figure_stdout)
+      g_data_input_stream_read_line_async(figure_stdout, G_PRIORITY_DEFAULT,
+                                          nullptr, figure_read_line_cb, nullptr);
+}
+
+static void figure_read_line_cb(GObject *source, GAsyncResult *res, gpointer user_data) {
+
+   GDataInputStream *stream = G_DATA_INPUT_STREAM(source);
+   gsize length = 0;
+   GError *error = nullptr;
+   char *line = g_data_input_stream_read_line_finish(stream, res, &length, &error);
+
+   if (error) {
+      g_warning("Figure: stdout read error: %s", error->message);
+      g_error_free(error);
+      return;
+   }
+   if (!line) {
+      // EOF: the figure process exited. Reset so the next request respawns it.
+      if (figure_process) {
+         figure_output_append("\n[figure process ended]\n");
+         g_object_unref(figure_process);
+         figure_process = nullptr;
+      }
+      figure_stdout = nullptr;
+      figure_set_thinking(false);
+      if (figure_entry_widget)
+         gtk_widget_set_sensitive(figure_entry_widget, TRUE);
+      return;
+   }
+
+   figure_handle_event(std::string(line, length));
+   g_free(line);
+   figure_queue_read();
+}
+
+static void spawn_figure_process() {
+
+   if (figure_process) return;
+
+   int port = assistant_rpc_port(); // shared with the Assistant tab
+
+   GSubprocessLauncher *launcher = g_subprocess_launcher_new(
+      (GSubprocessFlags)(G_SUBPROCESS_FLAGS_STDIN_PIPE | G_SUBPROCESS_FLAGS_STDOUT_PIPE));
+   g_subprocess_launcher_setenv(launcher, "COOT_RPC_PORT",
+                                std::to_string(port).c_str(), TRUE);
+   std::string ppath = assistant_pythonpath();
+   if (!ppath.empty()) {
+      const char *existing = g_getenv("PYTHONPATH");
+      std::string combined = existing ? (ppath + ":" + existing) : ppath;
+      g_subprocess_launcher_setenv(launcher, "PYTHONPATH", combined.c_str(), TRUE);
+   }
+
+   GError *error = nullptr;
+   figure_process = g_subprocess_launcher_spawn(
+      launcher, &error,
+      "python3", "-u", "-m", "coot_commands.figure_serve", nullptr);
+   g_object_unref(launcher);
+
+   if (!figure_process) {
+      figure_output_append(std::string("Failed to start figure agent: ") +
+                           (error ? error->message : "unknown error") + "\n");
+      if (error) g_error_free(error);
+      return;
+   }
+
+   GInputStream *out_pipe = g_subprocess_get_stdout_pipe(figure_process);
+   figure_stdout = g_data_input_stream_new(out_pipe);
+   figure_queue_read();
+}
+
+static bool figure_write_line(const json &obj) {
+
+   if (!figure_process) return false;
+   GOutputStream *in_pipe = g_subprocess_get_stdin_pipe(figure_process);
+   if (!in_pipe) return false;
+   std::string line = obj.dump() + "\n";
+   GError *error = nullptr;
+   g_output_stream_write_all(in_pipe, line.c_str(), line.size(),
+                             nullptr, nullptr, &error);
+   if (error) {
+      figure_output_append(std::string("Write error: ") + error->message + "\n");
+      g_error_free(error);
+      return false;
+   }
+   g_output_stream_flush(in_pipe, nullptr, nullptr);
+   return true;
+}
+
+static void on_figure_entry_activate(GtkEntry *entry, gpointer user_data) {
+
+   const char *text = gtk_editable_get_text(GTK_EDITABLE(entry));
+   if (!text) return;
+   std::string input(text);
+   if (input.find_first_not_of(" \t") == std::string::npos) return;
+
+   figure_output_append("> " + input + "\n");
+   gtk_widget_set_sensitive(GTK_WIDGET(entry), FALSE);
+   spawn_figure_process();
+   json req;
+   req["goal"] = input;
+   figure_write_line(req);
+   figure_set_thinking(true);
+   gtk_editable_set_text(GTK_EDITABLE(entry), "");
+}
+
+static void on_figure_new_clicked(GtkButton *button, gpointer user_data) {
+
+   // Clear the transcript for immediate feedback, and tell a running agent to
+   // drop its conversation so the next goal starts a fresh figure (with no
+   // memory of earlier changes). If none is running, the next goal spawns a
+   // fresh one anyway.
+   if (figure_output_view) {
+      GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(figure_output_view));
+      gtk_text_buffer_set_text(buffer, "", -1);
+   }
+   json reset;
+   reset["reset"] = true;
+   figure_write_line(reset);
+   if (figure_entry_widget)
+      gtk_widget_grab_focus(figure_entry_widget);
+}
+
+static void on_figure_stop_clicked(GtkButton *button, gpointer user_data) {
+
+   if (figure_process) {
+      g_subprocess_force_exit(figure_process);
+      g_object_unref(figure_process);
+      figure_process = nullptr;
+      figure_stdout = nullptr;
+      figure_output_append("\n[stopped]\n");
+   }
+   figure_set_thinking(false);
+   if (figure_entry_widget)
+      gtk_widget_set_sensitive(figure_entry_widget, TRUE);
+}
+
+static GtkWidget *create_figure_tab_widget() {
+
+   GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
+
+   figure_status_label = gtk_label_new("");
+   gtk_widget_set_halign(figure_status_label, GTK_ALIGN_START);
+   gtk_widget_add_css_class(figure_status_label, "dim-label");
+
+   // The picture takes the lion's share of the tab - it is the point. It fills
+   // the available space via vexpand and is allowed to shrink (can-shrink is on
+   // by default), so it imposes NO minimum height: setting one here would raise
+   // the notebook's minimum and stop the VTE paned from being dragged smaller.
+   figure_picture = gtk_picture_new();
+   gtk_widget_set_vexpand(figure_picture, TRUE);
+   gtk_widget_set_hexpand(figure_picture, TRUE);
+
+   // A short transcript below for the critique and the tool calls. A small
+   // natural height only (60px) so the tab keeps a low minimum and the paned
+   // stays draggable; it scrolls when it overflows.
+   GtkWidget *scrolled = gtk_scrolled_window_new();
+   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled),
+                                  GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+   gtk_widget_set_size_request(scrolled, -1, 60);
+   figure_output_view = gtk_text_view_new();
+   gtk_text_view_set_editable(GTK_TEXT_VIEW(figure_output_view), FALSE);
+   gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(figure_output_view), FALSE);
+   gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(figure_output_view), GTK_WRAP_WORD_CHAR);
+   gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled), figure_output_view);
+
+   GtkWidget *row = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
+   figure_entry_widget = gtk_entry_new();
+   gtk_widget_set_hexpand(figure_entry_widget, TRUE);
+   gtk_entry_set_placeholder_text(GTK_ENTRY(figure_entry_widget),
+      "Describe the figure, e.g. \"a clean, dramatic figure of the active model\"");
+   g_signal_connect(figure_entry_widget, "activate",
+                    G_CALLBACK(on_figure_entry_activate), nullptr);
+
+   GtkWidget *new_button = gtk_button_new_with_label("New figure");
+   g_signal_connect(new_button, "clicked", G_CALLBACK(on_figure_new_clicked), nullptr);
+
+   GtkWidget *stop_button = gtk_button_new_with_label("Stop");
+   g_signal_connect(stop_button, "clicked", G_CALLBACK(on_figure_stop_clicked), nullptr);
+
+   figure_spinner = gtk_spinner_new();
+   gtk_widget_set_visible(figure_spinner, FALSE);
+
+   gtk_box_append(GTK_BOX(row), figure_entry_widget);
+   gtk_box_append(GTK_BOX(row), figure_spinner);
+   gtk_box_append(GTK_BOX(row), new_button);
+   gtk_box_append(GTK_BOX(row), stop_button);
+
+   gtk_box_append(GTK_BOX(box), figure_status_label);
+   gtk_box_append(GTK_BOX(box), figure_picture);
+   gtk_box_append(GTK_BOX(box), scrolled);
+   gtk_box_append(GTK_BOX(box), row);
+
+   figure_output_append(
+      "Coot Figure agent [alpha] (multimodal model).\n"
+      "Start the JSON-RPC listener from Coot's remote-control menu, load a model,\n"
+      "then describe the figure you want and watch it tune the render.\n");
+   gtk_label_set_text(GTK_LABEL(figure_status_label),
+                      "Start the RPC listener from the menu, then describe a figure.");
+   return box;
+}
+
 void setup_claude_vte_terminal() {
 
    // Set up lazily and only once. Doing this at startup reparented the Python VTE
@@ -1407,6 +1738,11 @@ void setup_claude_vte_terminal() {
    GtkWidget *assistant_widget = create_assistant_tab_widget();
    GtkWidget *assistant_label = gtk_label_new("Assistant (alpha)");
    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), assistant_widget, assistant_label);
+
+   // Add the vision-in-the-loop Figure tab (alpha)
+   GtkWidget *figure_widget = create_figure_tab_widget();
+   GtkWidget *figure_label = gtk_label_new("Figure (alpha)");
+   gtk_notebook_append_page(GTK_NOTEBOOK(notebook), figure_widget, figure_label);
 
    // Put the notebook into the paned
    gtk_paned_set_end_child(GTK_PANED(vte_paned_widget), notebook);
