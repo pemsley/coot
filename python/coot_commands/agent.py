@@ -58,7 +58,7 @@ import os
 import re
 import urllib.error
 import urllib.request
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple
 
 from coot_commands.tools import command_tools, custom_tools, execute_tool
 
@@ -90,12 +90,28 @@ def split_thinking(message: Dict[str, Any]) -> Tuple[str, str]:
     return thinking.strip(), content.strip()
 
 DEFAULT_URL = "http://localhost:11434/v1/chat/completions"
-DEFAULT_MODEL = "qwen-3.8-27b-3bit"
+DEFAULT_MODEL = "qwen3.8-27b-3bit-16k"
 # How many commands to expose per request when retrieval is on.  A small model
 # chooses far better from a handful of tools than from all ~90; see
 # coot_commands.retrieval.  16 keeps the surface small while leaving margin so a
 # common intent phrased with filler ("Oh no! go to A 89") still clears the cut.
 DEFAULT_TOP_K = 16
+# How many procedures (coot_commands.playbooks) to inject per request.  These
+# are what tell the model what to *do* about a situation - fit a rotamer, then
+# measure, then try a backrub - as opposed to what each command does.  Two is
+# deliberate: one is usually the right procedure and the second covers a
+# near-miss, while more would crowd out the conversation on a small model.
+DEFAULT_PLAYBOOK_K = 2
+
+# Commands exposed on every request, whatever retrieval picked.  Measuring a
+# residue is relevant to any request that changes one - and a procedure that
+# says "score it before and after" is worthless if score_residue was not among
+# the retrieved tools.  refine_sphere earns its place for the same reason from
+# the other end: settling the surroundings is the last step of almost every
+# repair, and without it the model gets as far as "this now needs a local
+# refinement" and has to stop.  Keep this list very short; it is a tax on
+# every call.
+PINNED_COMMANDS = ("score_residue", "refine_sphere")
 
 # A message-producing transport: given the running message list and the tool
 # definitions, return the assistant's reply message (the OpenAI
@@ -134,6 +150,15 @@ SYSTEM_PROMPT = (
     "(positive) peaks suggest missing atoms, red (negative) peaks suggest atoms "
     "that should not be there. Validation flags these problems so you can fix "
     "them.\n"
+    "\n"
+    "Deciding what to do. A request often names a problem rather than a "
+    "command ('this rotamer is wrong', 'what should I do next'). When a "
+    "procedure for the situation is provided, follow its steps rather than "
+    "improvising. Measure before you act and again afterwards - score_residue "
+    "reports a residue's rotamer probability and density fit - so you can tell "
+    "whether a fix helped instead of assuming it did. Never report a fix as "
+    "successful without a number showing it worked, and when something does "
+    "not improve, say so and stop rather than trying the same move again.\n"
     "\n"
     "The conversation may span several requests: remember what you did earlier "
     "(for example, a residue you just refined) and use it as context. Only call "
@@ -237,10 +262,12 @@ ExecuteFn = Callable[[str, Dict[str, Any]], str]
 
 # Receives structured progress events so a consumer (the GUI transcript, a test)
 # can observe the run without parsing printed text.  Event shapes:
-#   {"type": "tools",  "names": [...]}
-#   {"type": "step",   "tool": name, "args": {...}, "result": "..."}
-#   {"type": "final",  "text": "..."}
-#   {"type": "stopped","steps": n}
+#   {"type": "tools",     "names": [...]}
+#   {"type": "playbooks", "names": [...]}
+#   {"type": "step",      "tool": name, "args": {...}, "result": "..."}
+#   {"type": "thinking",  "text": "..."}
+#   {"type": "final",     "text": "..."}
+#   {"type": "stopped",   "steps": n}
 EventFn = Callable[[Dict[str, Any]], None]
 
 
@@ -267,9 +294,14 @@ def _run_tool_calls(tool_calls: List[Dict[str, Any]],
     return replies
 
 
-def _retrieved_tools(user_text: str, top_k: int,
-                     emit: EventFn) -> List[Dict[str, Any]]:
+def _retrieved_tools(user_text: str, top_k: int, emit: EventFn,
+                     pinned: Iterable[str] = ()) -> List[Dict[str, Any]]:
     """Tools for the commands most relevant to *user_text*, top_k of them.
+
+    *pinned* names are added to the retrieved set whatever the ranking said -
+    :data:`PINNED_COMMANDS` plus the commands the selected playbooks refer to.
+    Unknown names are dropped by :func:`command_tools`, so a playbook that
+    names a command that no longer exists degrades quietly rather than failing.
 
     Falls back to the full command set if retrieval fails (e.g. the embedding
     model is not pulled or the server is down) so a request never breaks just
@@ -278,11 +310,82 @@ def _retrieved_tools(user_text: str, top_k: int,
     from coot_commands import retrieval
     try:
         names = retrieval.select_tools(user_text, top_k)
-        emit({"type": "tools", "names": names})
-        return command_tools(names)
     except Exception as e:  # noqa: BLE001 - retrieval is best-effort
         emit({"type": "tools", "names": [], "error": str(e)})
         return command_tools()
+    for name in pinned:
+        if name not in names:
+            names.append(name)
+    emit({"type": "tools", "names": names})
+    return command_tools(names)
+
+
+def _retrieved_playbooks(user_text: str, k: int,
+                         emit: EventFn) -> Tuple[str, List[str]]:
+    """``(guidance text, tool names to pin)`` for the procedures that fit.
+
+    Best-effort, exactly like tool retrieval: the assistant works without
+    playbooks, so an unreachable embedding server costs guidance rather than
+    the whole request.
+    """
+    from coot_commands import playbooks
+    try:
+        names = playbooks.select_playbooks(user_text, k)
+    except Exception as e:  # noqa: BLE001 - guidance is best-effort
+        emit({"type": "playbooks", "names": [], "error": str(e)})
+        return "", []
+    emit({"type": "playbooks", "names": names})
+    return playbooks.render(names), playbooks.tools_for(names)
+
+
+# How many earlier user turns join the current one to form the retrieval query.
+RETRIEVAL_CONTEXT_TURNS = 2
+
+
+def _retrieval_query(user_text: str, messages: Optional[List[Dict[str, Any]]],
+                     n_turns: int = RETRIEVAL_CONTEXT_TURNS) -> str:
+    """The text that tools and procedures are ranked against.
+
+    Not just this request.  Mid-conversation a request is often meaningless on
+    its own - "oh no!! let's get 32 sorted ASAP" carries no hint that this is
+    about rotamers, so ranking it alone retrieves noise (font size, zoom) and
+    no procedure clears the relevance floor.  The task was established a turn
+    or two earlier, so the last few user turns join the current one and the
+    query describes what the user is actually working on.
+
+    Only user turns are used: tool results and the model's own replies are
+    long, repeat the vocabulary of whatever it just did, and would pull the
+    ranking towards the last action rather than the current intent.
+    """
+    said = [m.get("content") for m in (messages or [])
+            if m.get("role") == "user"]
+    recent = [c for c in said[-n_turns:] if isinstance(c, str) and c.strip()]
+    return " ".join(recent + [user_text])
+
+
+def _set_playbook_message(messages: List[Dict[str, Any]], text: str) -> None:
+    """Rewrite the leading system message to carry the current guidance.
+
+    The procedures that matter change from request to request, so each turn
+    replaces the last turn's guidance rather than adding to it - otherwise a
+    small model's context fills with advice about problems already dealt with.
+
+    The guidance has to live *inside* the first system message, not in a second
+    one before the user turn.  Several chat templates - Qwen3's among them -
+    raise "System message must be at the beginning" when a system message
+    appears after the conversation has started, which is exactly where a
+    per-request message lands from the second request onwards.  Folding it into
+    message 0 keeps one system message at the front, which every template
+    accepts, and puts the procedures where a small model reads instructions
+    best anyway.
+    """
+    system = {"role": "system", "content": SYSTEM_PROMPT}
+    if messages and messages[0].get("role") == "system":
+        messages[0] = system
+    else:
+        messages.insert(0, system)
+    if text:
+        messages[0]["content"] = SYSTEM_PROMPT + "\n\n" + text
 
 
 def _make_emit(on_event: Optional[EventFn], verbose: bool) -> EventFn:
@@ -303,14 +406,61 @@ def _format_event(event: Dict[str, Any]) -> str:
         if event.get("error"):
             return f"  (retrieval unavailable: {event['error']}; using all tools)"
         return f"  (retrieved {len(names)} tools: {', '.join(names)})"
+    if kind == "playbooks":
+        names = event.get("names") or []
+        if event.get("error"):
+            return f"  (no procedures retrieved: {event['error']})"
+        if not names:
+            return "  (no procedures matched)"
+        return f"  (procedures: {', '.join(names)})"
     if kind == "step":
         args = ", ".join(f"{k}={v!r}" for k, v in (event.get("args") or {}).items())
         return f"  -> {event.get('tool')}({args}): {event.get('result')}"
+    if kind == "warning":
+        return f"  (warning: {event.get('message')})"
     if kind == "final":
         return event.get("text", "")
     if kind == "stopped":
         return f"Stopped after {event.get('steps')} tool-calling rounds without a final answer."
     return json.dumps(event)
+
+
+EMPTY_ANSWER_NOTE = (
+    "The model finished without writing an answer. This usually means its "
+    "context window filled up: Ollama loads a model with a 4096-token context "
+    "by default, which the system prompt, the tool definitions and a few tool "
+    "results together exceed. Restarting the Ollama server with "
+    "OLLAMA_CONTEXT_LENGTH=16384 (or more) fixes it. What was done is listed "
+    "in the steps above."
+)
+
+
+def _recover_empty_answer(messages: List[Dict[str, Any]], thinking: str,
+                          chat: ChatFn, emit: EventFn) -> str:
+    """Salvage a reply that has reasoning, or nothing at all, but no answer.
+
+    A model that runs out of context stops mid-thought and returns empty
+    content, which would otherwise surface as a blank answer after a run that
+    actually did the work.  Ask once more, without tools and with an explicit
+    instruction to write plain text - a short request that often fits where
+    the previous one did not.  Failing that, hand back the reasoning, and
+    failing that, say what has most likely gone wrong.
+    """
+    emit({"type": "warning", "message": "empty answer; asking again"})
+    nudge = list(messages) + [{
+        "role": "user",
+        "content": "Write your answer now, as plain text: what did you do, "
+                   "and what were the before and after numbers?"}]
+    try:
+        retry = chat(nudge, [])
+        _, content = split_thinking(retry)
+        if content:
+            return content
+    except Exception as e:  # noqa: BLE001 - the fallbacks below still apply
+        emit({"type": "warning", "message": f"retry failed: {e}"})
+    if thinking:
+        return thinking
+    return EMPTY_ANSWER_NOTE
 
 
 def run_agent(user_text: str, *,
@@ -322,7 +472,8 @@ def run_agent(user_text: str, *,
               on_event: Optional[EventFn] = None,
               messages: Optional[List[Dict[str, Any]]] = None,
               top_k: Optional[int] = DEFAULT_TOP_K,
-              max_steps: int = 8,
+              playbook_k: Optional[int] = DEFAULT_PLAYBOOK_K,
+              max_steps: int = 16,
               timeout: float = 120.0,
               verbose: bool = True) -> str:
     """Fulfil *user_text* by letting the model call Coot commands.
@@ -339,15 +490,30 @@ def run_agent(user_text: str, *,
     prompt if empty and appended to in place); omit it for a one-shot call.
     *tools* overrides the exposed command set; when it is ``None`` and *top_k*
     is set, embedding retrieval narrows the ~90 commands to the *top_k* most
-    relevant (pass ``top_k=None`` to expose them all).  *max_steps* caps the
+    relevant (pass ``top_k=None`` to expose them all).  *playbook_k* is how
+    many procedures (:mod:`coot_commands.playbooks`) are retrieved and injected
+    as guidance for the request, and whose commands are pinned into the tool
+    set; pass ``0`` or ``None`` to send none.  *max_steps* caps the
     tool-calling rounds so a confused model cannot loop forever.
     """
     model = model or os.environ.get("COOT_AGENT_MODEL", DEFAULT_MODEL)
     url = url or os.environ.get("COOT_AGENT_URL", DEFAULT_URL)
     execute = execute or execute_tool
     emit = _make_emit(on_event, verbose)
+
+    # Rank against the request *in context* - see _retrieval_query.
+    query = _retrieval_query(user_text, messages)
+
+    # Pick the procedures first: they decide which commands must be exposed,
+    # since a procedure that names a command the model was not given is worse
+    # than no procedure at all.
+    guidance, playbook_commands = (
+        _retrieved_playbooks(query, playbook_k, emit) if playbook_k
+        else ("", []))
     if tools is None:
-        commands = _retrieved_tools(user_text, top_k, emit) if top_k else command_tools()
+        pinned = list(PINNED_COMMANDS) + playbook_commands
+        commands = (_retrieved_tools(query, top_k, emit, pinned) if top_k
+                    else command_tools())
         # Custom context tools (e.g. get_active_residue) are always available,
         # so "here"/"this residue" can be resolved whatever the request says.
         tools = custom_tools() + commands
@@ -357,10 +523,11 @@ def run_agent(user_text: str, *,
 
     # Seed a fresh conversation, or continue a caller-supplied one (giving the
     # agent memory across requests); either way append this request's turn.
+    # _set_playbook_message writes the system message, so it also does the
+    # seeding: it puts one at the front whether or not there is one already.
     if messages is None:
-        messages = [{"role": "system", "content": SYSTEM_PROMPT}]
-    elif not messages:
-        messages.append({"role": "system", "content": SYSTEM_PROMPT})
+        messages = []
+    _set_playbook_message(messages, guidance)
     messages.append({"role": "user", "content": user_text})
 
     for _step in range(max_steps):
@@ -371,6 +538,8 @@ def run_agent(user_text: str, *,
             emit({"type": "thinking", "text": thinking})
         tool_calls = message.get("tool_calls")
         if not tool_calls:
+            if not content:
+                content = _recover_empty_answer(messages, thinking, chat, emit)
             emit({"type": "final", "text": content})
             return content
         messages.extend(_run_tool_calls(tool_calls, execute, emit))

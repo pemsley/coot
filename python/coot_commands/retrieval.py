@@ -167,16 +167,24 @@ class ToolRetriever:
             self._vectors = self.embed_fn(
                 [self.document_prefix + self.documents[n] for n in self._names])
 
-    def select(self, query: str, k: int) -> List[str]:
-        """Return the *k* document names most similar to *query*, best first."""
+    def select_scored(self, query: str, k: int) -> List[tuple[str, float]]:
+        """The *k* best ``(name, cosine similarity)`` pairs for *query*.
+
+        The scores matter where a caller needs to know not just which
+        documents rank highest but whether any of them is actually relevant -
+        see :func:`coot_commands.playbooks.select_playbooks`, which drops
+        everything below a floor rather than always returning its top few.
+        """
         self._ensure_embedded()
         query_vec = self.embed_fn([self.query_prefix + query])[0]
-        scored = sorted(
-            zip(self._names, self._vectors),
-            key=lambda nv: cosine(query_vec, nv[1]),
-            reverse=True,
-        )
-        return [name for name, _ in scored[:k]]
+        scored = [(name, cosine(query_vec, vector))
+                  for name, vector in zip(self._names, self._vectors)]
+        scored.sort(key=lambda ns: ns[1], reverse=True)
+        return scored[:k]
+
+    def select(self, query: str, k: int) -> List[str]:
+        """Return the *k* document names most similar to *query*, best first."""
+        return [name for name, _ in self.select_scored(query, k)]
 
 
 # Process-wide default retriever over the registry, embedded via Ollama.  Built
@@ -184,12 +192,15 @@ class ToolRetriever:
 _default_retriever: Optional[ToolRetriever] = None
 
 
-def _default_prefixes() -> tuple[str, str]:
+def default_prefixes() -> tuple[str, str]:
     """The (query, document) prefixes for the configured embed model.
 
     embeddinggemma needs its task prefixes to rank well; other models get none.
     Either can be overridden with ``COOT_EMBED_QUERY_PREFIX`` /
     ``COOT_EMBED_DOC_PREFIX`` (set them to empty strings to disable).
+
+    Public because :mod:`coot_commands.playbooks` builds a second retriever
+    over its own corpus and must embed it the same way this one does.
     """
     model = os.environ.get("COOT_EMBED_MODEL", DEFAULT_EMBED_MODEL)
     if "embeddinggemma" in model.lower():
@@ -205,7 +216,7 @@ def default_retriever() -> ToolRetriever:
     """The shared retriever over all registered commands (Ollama embeddings)."""
     global _default_retriever
     if _default_retriever is None:
-        query_prefix, document_prefix = _default_prefixes()
+        query_prefix, document_prefix = default_prefixes()
         _default_retriever = ToolRetriever(
             command_documents(), ollama_embed,
             query_prefix=query_prefix, document_prefix=document_prefix)

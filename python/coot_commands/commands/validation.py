@@ -56,13 +56,16 @@ def _rama_improbables(imol: int) -> list:
 
 
 def _atom_overlaps(imol: int) -> list:
-    """Atom overlaps with a clash volume above 2.0 A^3."""
-    try:
-        overlaps = coot.molecule_atom_overlaps_py(imol)
-        return [o for o in overlaps
-                if isinstance(o, dict) and o.get("overlap-volume", 0) > 2.0]
-    except Exception:
-        return []
+    """Atom overlaps with a clash volume above 2.0 A^3.
+
+    ``scoring.atom_overlaps`` handles the binding's two-argument signature -
+    the maximum pair count has to be passed, and ``-1`` means "all of them" -
+    which this used to get wrong, silently reporting every model as
+    clash-free.
+    """
+    from coot_commands.scoring import atom_overlaps
+    return [o for o in atom_overlaps(imol)
+            if o.get("overlap-volume", 0) > 2.0]
 
 
 def _as_list(value) -> list:

@@ -27,6 +27,7 @@ here needs Coot or Ollama.  Also discoverable by pytest.
 
 import io
 import json
+import os
 import socket
 import struct
 import threading
@@ -152,7 +153,8 @@ def test_agent_runs_a_tool_call_then_returns_final_text():
                 "arguments": json.dumps({"x": "1", "y": "2", "z": "3"})}}]},
         {"role": "assistant", "content": "Done - centred the view."},
     )
-    out = agent.run_agent("centre at 1 2 3", chat=chat, top_k=None, verbose=False)
+    out = agent.run_agent("centre at 1 2 3", chat=chat, top_k=None,
+                          playbook_k=0, verbose=False)
     assert out == "Done - centred the view."
     # The tool result must be fed back before the final turn.
     final_messages = chat.state["seen"][-1][0]
@@ -163,7 +165,8 @@ def test_agent_runs_a_tool_call_then_returns_final_text():
 
 def test_agent_handles_reply_with_no_tool_calls():
     chat = _fake_chat_script({"role": "assistant", "content": "Hello!"})
-    assert agent.run_agent("hi", chat=chat, top_k=None, verbose=False) == "Hello!"
+    assert agent.run_agent("hi", chat=chat, top_k=None, playbook_k=0,
+                           verbose=False) == "Hello!"
 
 
 def test_agent_stops_after_max_steps():
@@ -171,7 +174,8 @@ def test_agent_stops_after_max_steps():
         {"id": "c", "function": {"name": "centre_at_xyz",
                                  "arguments": "{\"x\":\"0\",\"y\":\"0\",\"z\":\"0\"}"}}]}
     chat = _fake_chat_script(*([loop_reply] * 10))
-    out = agent.run_agent("spin", chat=chat, max_steps=3, top_k=None, verbose=False)
+    out = agent.run_agent("spin", chat=chat, max_steps=3, top_k=None,
+                          playbook_k=0, verbose=False)
     assert "Stopped after 3" in out
     assert chat.state["i"] == 3
 
@@ -237,7 +241,8 @@ def test_agent_uses_retrieved_subset_when_top_k_set():
     orig = retrieval._default_retriever
     retrieval._default_retriever = fake
     try:
-        agent.run_agent("add a water", chat=chat, top_k=1, verbose=False)
+        agent.run_agent("add a water", chat=chat, top_k=1, playbook_k=0,
+                        verbose=False)
     finally:
         retrieval._default_retriever = orig
     names = [t["function"]["name"] for t in captured["tools"]]
@@ -261,7 +266,8 @@ def test_agent_falls_back_to_all_tools_when_retrieval_fails():
     orig = retrieval._default_retriever
     retrieval._default_retriever = fake
     try:
-        agent.run_agent("do something", chat=chat, top_k=5, verbose=False)
+        agent.run_agent("do something", chat=chat, top_k=5, playbook_k=0,
+                        verbose=False)
     finally:
         retrieval._default_retriever = orig
     # Fallback exposes the full command set (plus the pinned custom tools).
@@ -307,7 +313,8 @@ def test_run_agent_uses_injected_executor_and_emits_events():
         {"role": "assistant", "content": "Added a water."},
     )
     out = agent.run_agent("add water", chat=chat, execute=execute,
-                          on_event=events.append, top_k=None, verbose=False)
+                          on_event=events.append, top_k=None, playbook_k=0,
+                          verbose=False)
     assert out == "Added a water."
     assert calls == [("add_water", {})]                      # our executor ran
     kinds = [e["type"] for e in events]
@@ -481,7 +488,8 @@ def test_agent_pins_custom_tools_even_with_no_commands():
         return {"role": "assistant", "content": "ok"}
 
     from coot_commands.tools import custom_tools
-    agent.run_agent("do nothing", chat=chat, tools=None, top_k=None, verbose=False)
+    agent.run_agent("do nothing", chat=chat, tools=None, top_k=None,
+                    playbook_k=0, verbose=False)
     names = [t["function"]["name"] for t in captured["tools"]]
     for custom in custom_tools():
         assert custom["function"]["name"] in names
@@ -491,13 +499,13 @@ def test_run_agent_threads_conversation_across_calls():
     conversation = []
     chat1 = _fake_chat_script({"role": "assistant", "content": "refined A 42"})
     agent.run_agent("refine the worst residue", chat=chat1,
-                    messages=conversation, top_k=None, verbose=False)
+                    messages=conversation, top_k=None, playbook_k=0, verbose=False)
     # The running conversation retains system + this turn.
     assert [m["role"] for m in conversation] == ["system", "user", "assistant"]
 
     chat2 = _fake_chat_script({"role": "assistant", "content": "ok"})
     agent.run_agent("focus on the residue you just refined", chat=chat2,
-                    messages=conversation, top_k=None, verbose=False)
+                    messages=conversation, top_k=None, playbook_k=0, verbose=False)
     # The second call sees the first turn's history (that's the memory).
     seen = chat2.state["seen"][0][0]
     contents = [m.get("content") for m in seen]
@@ -593,6 +601,312 @@ def test_agent_serve_startup_status_reports_rpc_failure():
               if json.loads(l)["type"] == "status"][0]
     assert status["rpc"] is False and "refused" in status["rpc_detail"]
     assert status["ollama"] is False
+
+
+# --- empty final answers -----------------------------------------------------
+#
+# A model that exhausts its context stops mid-thought and returns empty
+# content.  Without a guard that surfaces as a blank answer after a run that
+# did all the work, which is the worst way for it to fail.
+
+def test_agent_retries_when_the_answer_comes_back_empty():
+    chat = _fake_chat_script(
+        {"role": "assistant", "content": "", "reasoning": "The fix worked and"},
+        {"role": "assistant", "content": "Fixed A/45: 0.11% -> 18.40%."},
+    )
+    events = []
+    out = agent.run_agent("fix it", chat=chat, top_k=None, playbook_k=0,
+                          on_event=events.append, verbose=False)
+    assert out == "Fixed A/45: 0.11% -> 18.40%."
+    # The retry asks again without tools, so the model cannot loop on a call.
+    assert chat.state["seen"][1][1] == []
+    assert any(e["type"] == "warning" for e in events)
+
+
+def test_agent_falls_back_to_the_reasoning_when_the_retry_is_also_empty():
+    chat = _fake_chat_script(
+        {"role": "assistant", "content": "", "reasoning": "I refined A 45."},
+        {"role": "assistant", "content": ""},
+    )
+    out = agent.run_agent("fix it", chat=chat, top_k=None, playbook_k=0,
+                          verbose=False)
+    assert out == "I refined A 45."
+
+
+def test_agent_explains_itself_when_there_is_nothing_to_fall_back_on():
+    chat = _fake_chat_script({"role": "assistant", "content": ""},
+                             {"role": "assistant", "content": ""})
+    out = agent.run_agent("fix it", chat=chat, top_k=None, playbook_k=0,
+                          verbose=False)
+    assert out == agent.EMPTY_ANSWER_NOTE
+    assert "OLLAMA_CONTEXT_LENGTH" in out
+
+
+# --- retrieval context -------------------------------------------------------
+#
+# A mid-conversation request is often meaningless alone ("oh no!! let's get 32
+# sorted ASAP"), so ranking it by itself retrieves noise and matches no
+# procedure. The query is built from the recent user turns as well.
+
+def test_retrieval_query_includes_recent_user_turns():
+    from coot_commands.agent import _retrieval_query
+    history = [{"role": "system", "content": "the system prompt"},
+               {"role": "user", "content": "check the rotamer outliers"},
+               {"role": "assistant", "content": "A/32 and A/91 are outliers"},
+               {"role": "tool", "content": "a long tool result"}]
+    query = _retrieval_query("sort out 32", history)
+    assert "check the rotamer outliers" in query      # earlier user turn
+    assert "sort out 32" in query                     # this request
+    # Only user turns: the model's own replies and tool results repeat the
+    # vocabulary of the last action and would drag the ranking backwards.
+    assert "A/32 and A/91" not in query
+    assert "a long tool result" not in query
+    assert "the system prompt" not in query
+
+
+def test_retrieval_query_is_bounded_and_survives_no_history():
+    from coot_commands.agent import _retrieval_query
+    assert _retrieval_query("hello", None) == "hello"
+    assert _retrieval_query("hello", []) == "hello"
+    history = [{"role": "user", "content": f"turn {i}"} for i in range(6)]
+    query = _retrieval_query("now", history)
+    assert query == "turn 4 turn 5 now"               # the last two, plus this
+
+
+def test_retrieval_query_ignores_empty_and_non_string_turns():
+    from coot_commands.agent import _retrieval_query
+    history = [{"role": "user", "content": "   "},
+               {"role": "user", "content": None},
+               {"role": "user", "content": "real request"}]
+    assert _retrieval_query("now", history) == "real request now"
+
+
+def test_refine_sphere_is_always_offered():
+    """The failure that motivated pinning it: the model got as far as "this
+    needs a local refinement" and had no tool to do it with."""
+    from coot_commands import retrieval
+    captured = {}
+
+    def chat(messages, tools):
+        captured["tools"] = tools
+        return {"role": "assistant", "content": "ok"}
+
+    narrow = retrieval.ToolRetriever({"add_water": "add water"},
+                                     _bag_of_words_embed(["water", "add"]))
+    original = retrieval._default_retriever
+    retrieval._default_retriever = narrow
+    try:
+        agent.run_agent("add a water", chat=chat, top_k=1, playbook_k=0,
+                        verbose=False)
+    finally:
+        retrieval._default_retriever = original
+    names = [t["function"]["name"] for t in captured["tools"]]
+    assert "refine_sphere" in names
+    assert "score_residue" in names
+
+
+# --- playbooks (procedures injected per request) -----------------------------
+
+def _use_playbook_retriever(retriever):
+    """Swap in *retriever* as the process-wide playbook retriever."""
+    from coot_commands import playbooks
+    import contextlib
+
+    @contextlib.contextmanager
+    def swap():
+        original = playbooks._default_retriever
+        playbooks._default_retriever = retriever
+        try:
+            yield
+        finally:
+            playbooks._default_retriever = original
+    return swap()
+
+
+def _one_playbook_retriever(name, score=0.9):
+    """A retriever that always returns the named playbook, without embedding."""
+    class Fixed:
+        def select_scored(self, query, k):
+            return [(name, score)][:k]
+
+        def select(self, query, k):
+            return [n for n, _ in self.select_scored(query, k)]
+    return Fixed()
+
+
+def test_playbook_documents_cover_every_playbook():
+    from coot_commands import playbooks
+    docs = playbooks.playbook_documents()
+    assert len(docs) == len(playbooks.PLAYBOOKS)
+    for name, text in docs.items():
+        assert name in text.replace(" ", "-") or name.replace("-", " ") in text
+        assert len(text) > 100          # situation + triggers + steps
+
+
+def test_every_playbook_names_real_tools():
+    """A procedure that cites a command that does not exist is a dead end."""
+    from coot_commands import playbooks
+    from coot_commands.tools import custom_tools
+    known = {c.name for c in all_commands()}
+    known |= {t["function"]["name"] for t in custom_tools()}
+    for playbook in playbooks.PLAYBOOKS:
+        assert playbook.tools, f"{playbook.name} pins no tools"
+        missing = [t for t in playbook.tools if t not in known]
+        assert not missing, f"{playbook.name} names unknown tools: {missing}"
+
+
+def test_playbook_render_is_headed_and_empty_for_nothing():
+    from coot_commands import playbooks
+    assert playbooks.render([]) == ""
+    assert playbooks.render(["not-a-playbook"]) == ""
+    text = playbooks.render(["rotamer-outlier"])
+    assert text.startswith(playbooks.PLAYBOOK_HEADER)
+    assert "fix_rotamer" in text
+
+
+def test_playbook_tools_are_deduplicated_across_playbooks():
+    from coot_commands import playbooks
+    tools = playbooks.tools_for(["rotamer-outlier", "clash"])
+    assert len(tools) == len(set(tools))
+    assert "score_residue" in tools and "check_clashes" in tools
+
+
+def test_playbooks_below_the_relevance_floor_are_dropped():
+    """A request with no problem in it should arrive with no guidance.
+
+    Ranking always has a best match, so without a floor every request - "go to
+    residue A 45" - would be told how to deal with somebody else's problem.
+    """
+    from coot_commands import playbooks
+    weak = _one_playbook_retriever("clash",
+                                   score=playbooks.MIN_RELEVANCE - 0.01)
+    assert playbooks.select_playbooks("go to residue A 45", 2, weak) == []
+    strong = _one_playbook_retriever("clash",
+                                     score=playbooks.MIN_RELEVANCE + 0.01)
+    assert playbooks.select_playbooks("these atoms clash", 2, strong) == ["clash"]
+
+
+def test_playbook_relevance_floor_is_overridable():
+    from coot_commands import playbooks
+    retriever = _one_playbook_retriever("clash", score=0.1)
+    os.environ["COOT_PLAYBOOK_MIN_SCORE"] = "0.05"
+    try:
+        assert playbooks.select_playbooks("anything", 1, retriever) == ["clash"]
+    finally:
+        del os.environ["COOT_PLAYBOOK_MIN_SCORE"]
+    assert playbooks.select_playbooks("anything", 1, retriever) == []
+
+
+def test_agent_sends_no_guidance_when_nothing_is_relevant():
+    from coot_commands import playbooks
+    events = []
+    chat = _fake_chat_script({"role": "assistant", "content": "ok"})
+    weak = _one_playbook_retriever("clash",
+                                   score=playbooks.MIN_RELEVANCE - 0.1)
+    with _use_playbook_retriever(weak):
+        agent.run_agent("go to residue A 45", chat=chat, top_k=None,
+                        on_event=events.append, verbose=False)
+    assert [m["role"] for m in chat.state["seen"][0][0]] == ["system", "user"]
+    assert [e for e in events if e["type"] == "playbooks"][0]["names"] == []
+
+
+def test_agent_injects_the_selected_playbook_as_guidance():
+    from coot_commands import playbooks
+    chat = _fake_chat_script({"role": "assistant", "content": "ok"})
+    with _use_playbook_retriever(_one_playbook_retriever("rotamer-outlier")):
+        agent.run_agent("this side chain looks wrong", chat=chat,
+                        top_k=None, verbose=False)
+    sent = chat.state["seen"][0][0]
+    # The guidance rides inside the leading system message, not a second one.
+    assert sent[0]["role"] == "system"
+    assert sent[0]["content"].startswith(agent.SYSTEM_PROMPT)
+    assert playbooks.PLAYBOOK_HEADER in sent[0]["content"]
+    assert "fix_rotamer" in sent[0]["content"]
+
+
+def test_only_one_system_message_and_it_comes_first():
+    """Qwen3 and friends reject a system message after the conversation starts.
+
+    Guidance is per-request, so the naive place to put it is a system message
+    before each user turn - which is exactly what those chat templates refuse
+    ("System message must be at the beginning") from the second request on.
+    """
+    conversation = []
+    for request, playbook in (("fix this rotamer", "rotamer-outlier"),
+                              ("now the clashes", "clash"),
+                              ("and again", "clash")):
+        chat = _fake_chat_script({"role": "assistant", "content": "done"})
+        with _use_playbook_retriever(_one_playbook_retriever(playbook)):
+            agent.run_agent(request, chat=chat, messages=conversation,
+                            top_k=None, verbose=False)
+        sent = chat.state["seen"][0][0]
+        systems = [i for i, m in enumerate(sent) if m["role"] == "system"]
+        assert systems == [0], f"system messages at {systems} for {request!r}"
+
+
+def test_agent_replaces_guidance_rather_than_stacking_it():
+    from coot_commands import playbooks
+    conversation = []
+    with _use_playbook_retriever(_one_playbook_retriever("rotamer-outlier")):
+        agent.run_agent("fix this rotamer", chat=_fake_chat_script(
+            {"role": "assistant", "content": "done"}),
+            messages=conversation, top_k=None, verbose=False)
+    with _use_playbook_retriever(_one_playbook_retriever("clash")):
+        chat2 = _fake_chat_script({"role": "assistant", "content": "done"})
+        agent.run_agent("now the clashes", chat=chat2,
+                        messages=conversation, top_k=None, verbose=False)
+    system = conversation[0]["content"]
+    assert system.count(playbooks.PLAYBOOK_HEADER) == 1   # replaced, not added
+    # Match the procedure headings, not the commands: playbooks share commands
+    # (the clash procedure reaches for fix_rotamer too), so only the heading
+    # tells you which one is actually loaded.
+    assert "PROCEDURE - clash" in system                  # this turn's
+    assert "PROCEDURE - rotamer outlier" not in system    # not last turn's
+    # The earlier turn's history survives - only the guidance is swapped.
+    assert any(m.get("content") == "fix this rotamer" for m in conversation)
+
+
+def test_agent_pins_the_playbook_commands_into_the_tool_set():
+    """Retrieval may not surface a command a procedure tells the model to use."""
+    from coot_commands import retrieval
+    captured = {}
+
+    def chat(messages, tools):
+        captured["tools"] = tools
+        return {"role": "assistant", "content": "ok"}
+
+    # A tool retriever that only ever offers add_water, so anything else in
+    # the exposed set can only have got there by being pinned.
+    narrow = retrieval.ToolRetriever({"add_water": "add water"},
+                                     _bag_of_words_embed(["water", "add"]))
+    original = retrieval._default_retriever
+    retrieval._default_retriever = narrow
+    try:
+        with _use_playbook_retriever(_one_playbook_retriever("rotamer-outlier")):
+            agent.run_agent("add a water", chat=chat, top_k=1, verbose=False)
+    finally:
+        retrieval._default_retriever = original
+    names = [t["function"]["name"] for t in captured["tools"]]
+    assert "fix_rotamer" in names       # pinned by the playbook
+    assert "backrub_residue" in names   # ditto
+    assert "score_residue" in names     # pinned unconditionally
+
+
+def test_agent_works_when_playbook_retrieval_fails():
+    class Broken:
+        def select_scored(self, query, k):
+            raise RuntimeError("no embedding server")
+
+    events = []
+    chat = _fake_chat_script({"role": "assistant", "content": "ok"})
+    with _use_playbook_retriever(Broken()):
+        out = agent.run_agent("do something", chat=chat, top_k=None,
+                              on_event=events.append, verbose=False)
+    assert out == "ok"
+    failure = [e for e in events if e["type"] == "playbooks"]
+    assert failure and failure[0]["error"] == "no embedding server"
+    # No guidance message was added.
+    assert [m["role"] for m in chat.state["seen"][0][0]] == ["system", "user"]
 
 
 def _run():

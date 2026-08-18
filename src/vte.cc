@@ -1080,6 +1080,255 @@ static void assistant_output_append(const std::string &text) {
    text_view_append_ansi(assistant_output_view, text);
 }
 
+
+// ---------------------------------------------------------------------------
+//   Markdown in the transcript
+// ---------------------------------------------------------------------------
+//
+// The model answers in Markdown - **bold**, `code`, bullet lists, the odd
+// heading - and a GtkTextView renders none of it, so the reader gets literal
+// asterisks and backticks wrapped around exactly the words that were meant to
+// stand out. What follows renders the subset the model actually emits, using
+// text tags on the buffer we already have. It is not a Markdown engine: there
+// are no tables, images or nested block structures, because a text view cannot
+// show them and the assistant does not produce them.
+//
+// Underscore emphasis (_italic_, __bold__) is deliberately NOT supported.
+// Coot's commands are snake_case - score_residue, fix_rotamer, add_terminal_-
+// residue - and treating underscores as emphasis would swallow them and
+// italicise the rest of the sentence. Only * and ** mark emphasis here.
+
+struct md_tags_t {
+   GtkTextTag *bold = nullptr;
+   GtkTextTag *italic = nullptr;
+   GtkTextTag *bold_italic = nullptr;
+   GtkTextTag *code = nullptr;
+   GtkTextTag *code_block = nullptr;
+   GtkTextTag *h1 = nullptr;
+   GtkTextTag *h2 = nullptr;
+   GtkTextTag *h3 = nullptr;
+   GtkTextTag *quote = nullptr;
+};
+
+// Look up (creating them the first time) the tags used to render Markdown.
+// Colours are fixed rather than themed, matching the "think" tag above: a
+// mid-blue and a mid-grey both stay legible on a light and a dark background.
+static md_tags_t md_ensure_tags(GtkTextBuffer *buffer) {
+
+   GtkTextTagTable *table = gtk_text_buffer_get_tag_table(buffer);
+   if (!gtk_text_tag_table_lookup(table, "md-bold")) {
+      gtk_text_buffer_create_tag(buffer, "md-bold",
+                                 "weight", PANGO_WEIGHT_BOLD, NULL);
+      gtk_text_buffer_create_tag(buffer, "md-italic",
+                                 "style", PANGO_STYLE_ITALIC, NULL);
+      gtk_text_buffer_create_tag(buffer, "md-bold-italic",
+                                 "weight", PANGO_WEIGHT_BOLD,
+                                 "style", PANGO_STYLE_ITALIC, NULL);
+      gtk_text_buffer_create_tag(buffer, "md-code",
+                                 "family", "monospace",
+                                 "foreground", "#3584e4", NULL);
+      gtk_text_buffer_create_tag(buffer, "md-code-block",
+                                 "family", "monospace",
+                                 "left-margin", 28, NULL);
+      gtk_text_buffer_create_tag(buffer, "md-h1",
+                                 "weight", PANGO_WEIGHT_BOLD,
+                                 "scale", 1.30, NULL);
+      gtk_text_buffer_create_tag(buffer, "md-h2",
+                                 "weight", PANGO_WEIGHT_BOLD,
+                                 "scale", 1.15, NULL);
+      gtk_text_buffer_create_tag(buffer, "md-h3",
+                                 "weight", PANGO_WEIGHT_BOLD, NULL);
+      gtk_text_buffer_create_tag(buffer, "md-quote",
+                                 "style", PANGO_STYLE_ITALIC,
+                                 "foreground", "#888888",
+                                 "left-margin", 28, NULL);
+   }
+   md_tags_t t;
+   t.bold        = gtk_text_tag_table_lookup(table, "md-bold");
+   t.italic      = gtk_text_tag_table_lookup(table, "md-italic");
+   t.bold_italic = gtk_text_tag_table_lookup(table, "md-bold-italic");
+   t.code        = gtk_text_tag_table_lookup(table, "md-code");
+   t.code_block  = gtk_text_tag_table_lookup(table, "md-code-block");
+   t.h1          = gtk_text_tag_table_lookup(table, "md-h1");
+   t.h2          = gtk_text_tag_table_lookup(table, "md-h2");
+   t.h3          = gtk_text_tag_table_lookup(table, "md-h3");
+   t.quote       = gtk_text_tag_table_lookup(table, "md-quote");
+   return t;
+}
+
+static void md_insert(GtkTextBuffer *buffer, const std::string &text,
+                      GtkTextTag *a, GtkTextTag *b) {
+   if (text.empty()) return;
+   // Normalise so the one tag of a (nullptr, tag) pair is not dropped: an
+   // unemphasised run inside a heading arrives that way round.
+   if (!a) { a = b; b = nullptr; }
+   GtkTextIter end;
+   gtk_text_buffer_get_end_iter(buffer, &end);
+   if (a && b)
+      gtk_text_buffer_insert_with_tags(buffer, &end, text.c_str(), -1, a, b, NULL);
+   else if (a)
+      gtk_text_buffer_insert_with_tags(buffer, &end, text.c_str(), -1, a, NULL);
+   else
+      gtk_text_buffer_insert(buffer, &end, text.c_str(), -1);
+}
+
+// Render one line's inline markup. *base* is the block-level tag for the line
+// (a heading, a quote, or nothing) and is applied to every run.
+static void md_insert_inline(GtkTextBuffer *buffer, const std::string &line,
+                             const md_tags_t &t, GtkTextTag *base) {
+
+   bool bold = false, italic = false;
+   std::string run;
+
+   auto emphasis_tag = [&]() -> GtkTextTag * {
+      if (bold && italic) return t.bold_italic;
+      if (bold)           return t.bold;
+      if (italic)         return t.italic;
+      return nullptr;
+   };
+   auto flush = [&]() {
+      md_insert(buffer, run, emphasis_tag(), base);
+      run.clear();
+   };
+
+   for (std::size_t i = 0; i < line.size(); ) {
+      // A backslash escapes the next character, so a literal asterisk can be
+      // written \* rather than turning the rest of the line italic.
+      if (line[i] == '\\' && i + 1 < line.size()) {
+         run += line[i + 1];
+         i += 2;
+         continue;
+      }
+      if (line[i] == '`') {
+         std::size_t close = line.find('`', i + 1);
+         if (close != std::string::npos) {
+            flush();
+            md_insert(buffer, line.substr(i + 1, close - i - 1), t.code, base);
+            i = close + 1;
+            continue;
+         }
+      }
+      if (line.compare(i, 2, "**") == 0) {
+         flush();
+         bold = !bold;
+         i += 2;
+         continue;
+      }
+      if (line[i] == '*') {
+         flush();
+         italic = !italic;
+         i += 1;
+         continue;
+      }
+      run += line[i];
+      i += 1;
+   }
+   flush();
+   md_insert(buffer, "\n", base, nullptr);
+}
+
+// True if *line* is all of one repeated punctuation character (--- or ***),
+// i.e. a horizontal rule rather than content.
+static bool md_is_rule(const std::string &line) {
+   if (line.size() < 3) return false;
+   char c = line[0];
+   if (c != '-' && c != '*' && c != '_') return false;
+   for (char ch : line)
+      if (ch != c) return false;
+   return true;
+}
+
+// Append *text* to a transcript view, rendering its Markdown.
+static void text_view_append_markdown(GtkWidget *view, const std::string &text) {
+
+   if (!view) return;
+   GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view));
+   md_tags_t t = md_ensure_tags(buffer);
+
+   bool in_code_block = false;
+   std::size_t pos = 0;
+   // Stopping at size(), not size()+1: a trailing newline ends the last line
+   // rather than starting an empty one, which would otherwise add a blank line
+   // to the transcript after every answer.
+   while (pos < text.size()) {
+      std::size_t nl = text.find('\n', pos);
+      std::string line = text.substr(pos, nl == std::string::npos
+                                          ? std::string::npos : nl - pos);
+      pos = (nl == std::string::npos) ? text.size() : nl + 1;
+
+      // Fenced code blocks: the fence lines themselves are not shown, and
+      // nothing between them is interpreted as markup.
+      if (line.compare(0, 3, "```") == 0) {
+         in_code_block = !in_code_block;
+         continue;
+      }
+      if (in_code_block) {
+         md_insert(buffer, line + "\n", t.code_block, nullptr);
+         continue;
+      }
+
+      std::string trimmed = line;
+      std::size_t first = trimmed.find_first_not_of(" \t");
+      std::size_t indent = (first == std::string::npos) ? 0 : first;
+      trimmed = (first == std::string::npos) ? "" : trimmed.substr(first);
+
+      if (md_is_rule(trimmed)) {
+         // Eight U+2500 box-drawing dashes, escaped like the other non-ASCII
+         // literals in this file.
+         md_insert(buffer, "\xE2\x94\x80\xE2\x94\x80\xE2\x94\x80\xE2\x94\x80"
+                           "\xE2\x94\x80\xE2\x94\x80\xE2\x94\x80\xE2\x94\x80\n",
+                   t.quote, nullptr);
+         continue;
+      }
+
+      // Headings: # through ###, deeper ones rendered like ###.
+      if (!trimmed.empty() && trimmed[0] == '#') {
+         std::size_t hashes = trimmed.find_first_not_of('#');
+         if (hashes != std::string::npos && hashes <= 6
+             && (trimmed[hashes] == ' ')) {
+            GtkTextTag *tag = (hashes == 1) ? t.h1 : (hashes == 2) ? t.h2 : t.h3;
+            md_insert_inline(buffer, trimmed.substr(hashes + 1), t, tag);
+            continue;
+         }
+      }
+
+      // Block quote.
+      if (trimmed.compare(0, 2, "> ") == 0) {
+         md_insert_inline(buffer, trimmed.substr(2), t, t.quote);
+         continue;
+      }
+
+      // Bullet list: "- ", "* " or "+ ", with a nested level for indented ones.
+      if (trimmed.size() > 1 && (trimmed[0] == '-' || trimmed[0] == '*'
+                                 || trimmed[0] == '+') && trimmed[1] == ' ') {
+         std::string marker = (indent >= 2) ? "      \xE2\x97\xA6 "   // nested
+                                            : "  \xE2\x80\xA2 ";      // bullet
+         md_insert(buffer, marker, nullptr, nullptr);
+         md_insert_inline(buffer, trimmed.substr(2), t, nullptr);
+         continue;
+      }
+
+      // Numbered list: keep the number, just indent it with the bullets.
+      std::size_t digits = trimmed.find_first_not_of("0123456789");
+      if (digits != std::string::npos && digits > 0
+          && trimmed[digits] == '.' && digits + 1 < trimmed.size()
+          && trimmed[digits + 1] == ' ') {
+         md_insert(buffer, "  " + trimmed.substr(0, digits + 1) + " ",
+                   nullptr, nullptr);
+         md_insert_inline(buffer, trimmed.substr(digits + 2), t, nullptr);
+         continue;
+      }
+
+      md_insert_inline(buffer, line, t, nullptr);
+   }
+
+   GtkTextIter end;
+   gtk_text_buffer_get_end_iter(buffer, &end);
+   GtkTextMark *mark = gtk_text_buffer_create_mark(buffer, nullptr, &end, FALSE);
+   gtk_text_view_scroll_mark_onscreen(GTK_TEXT_VIEW(view), mark);
+   gtk_text_buffer_delete_mark(buffer, mark);
+}
+
 // Render one streamed JSON event line into the transcript.
 static void assistant_handle_event(const std::string &line) {
 
@@ -1108,8 +1357,25 @@ static void assistant_handle_event(const std::string &line) {
    } else if (type == "thinking") {
       vte_output_append_styled(assistant_output_view,
                                "\xF0\x9F\x92\xAD " + ev.value("text", "") + "\n");
+   } else if (type == "playbooks") {
+      // Which procedures the assistant was given for this request. Unlike
+      // "tools", these change what it does, so the transcript names them.
+      if (ev.contains("names") && ev["names"].is_array() && !ev["names"].empty()) {
+         std::string names;
+         for (const auto &n : ev["names"]) {
+            if (!names.empty()) names += ", ";
+            names += n.get<std::string>();
+         }
+         assistant_output_append("  (following: " + names + ")\n");
+      }
+   } else if (type == "warning") {
+      assistant_output_append("  (" + ev.value("message", "") + ")\n");
    } else if (type == "final") {
-      assistant_output_append("\n" + ev.value("text", "") + "\n");
+      // The answer is the one thing the model writes as prose, so it is also
+      // the one thing worth rendering as Markdown; the step and status lines
+      // above are ours and are literal.
+      text_view_append_markdown(assistant_output_view,
+                                "\n" + ev.value("text", "") + "\n");
    } else if (type == "error") {
       assistant_output_append("Error: " + ev.value("message", "") + "\n");
    } else if (type == "context") {
@@ -1473,13 +1739,20 @@ static GtkWidget *create_assistant_tab_widget() {
    gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(assistant_output_view), GTK_WRAP_WORD_CHAR);
    gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled), assistant_output_view);
 
+   // Two rows: the entry gets one to itself so it spans the full width, and
+   // everything else - spinner, model chooser, New chat, Stop - sits on a
+   // second row underneath. Sharing one row squeezed the entry to whatever
+   // was left over, which is the wrong way round for the widget you type in.
+   GtkWidget *entry_row = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
    GtkWidget *row = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
+
    assistant_entry_widget = gtk_entry_new();
    gtk_widget_set_hexpand(assistant_entry_widget, TRUE);
    gtk_entry_set_placeholder_text(GTK_ENTRY(assistant_entry_widget),
       "Ask the assistant, e.g. \"load the tutorial data and refine A 89\"");
    g_signal_connect(assistant_entry_widget, "activate",
                     G_CALLBACK(on_assistant_entry_activate), nullptr);
+   gtk_box_append(GTK_BOX(entry_row), assistant_entry_widget);
 
    GtkWidget *new_chat_button = gtk_button_new_with_label("New chat");
    g_signal_connect(new_chat_button, "clicked",
@@ -1504,10 +1777,15 @@ static GtkWidget *create_assistant_tab_widget() {
    g_signal_connect(refresh_button, "clicked",
                     G_CALLBACK(on_assistant_refresh_models_clicked), nullptr);
 
-   gtk_box_append(GTK_BOX(row), assistant_entry_widget);
+   // Model controls to the left, session buttons pushed to the right by a
+   // blank expanding filler between them.
+   GtkWidget *filler = gtk_label_new("");
+   gtk_widget_set_hexpand(filler, TRUE);
+
    gtk_box_append(GTK_BOX(row), assistant_spinner);
    gtk_box_append(GTK_BOX(row), assistant_model_dropdown);
    gtk_box_append(GTK_BOX(row), refresh_button);
+   gtk_box_append(GTK_BOX(row), filler);
    gtk_box_append(GTK_BOX(row), new_chat_button);
    gtk_box_append(GTK_BOX(row), stop_button);
 
@@ -1528,6 +1806,7 @@ static GtkWidget *create_assistant_tab_widget() {
 
    gtk_box_append(GTK_BOX(box), scrolled);
    gtk_box_append(GTK_BOX(box), assistant_status_label);
+   gtk_box_append(GTK_BOX(box), entry_row);
    gtk_box_append(GTK_BOX(box), row);
    gtk_box_append(GTK_BOX(box), assistant_context_label);
 

@@ -34,11 +34,12 @@ Requests (one JSON object per line on stdin)::
 Events (one JSON object per line on stdout)::
 
     {"type": "ready"}
-    {"type": "tools",  "names": [...]}
-    {"type": "step",   "tool": "...", "args": {...}, "result": "..."}
-    {"type": "final",  "text": "..."}
-    {"type": "error",  "message": "..."}
-    {"type": "done"}                     # one per request, always last
+    {"type": "tools",     "names": [...]}
+    {"type": "playbooks", "names": [...]}   # procedures injected for this request
+    {"type": "step",      "tool": "...", "args": {...}, "result": "..."}
+    {"type": "final",     "text": "..."}
+    {"type": "error",     "message": "..."}
+    {"type": "done"}                        # one per request, always last
 
 The port to reach Coot comes from ``COOT_RPC_PORT`` (Coot sets it when it
 spawns us); the model and endpoints come from the same ``COOT_AGENT_*`` /
