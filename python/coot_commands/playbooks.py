@@ -133,20 +133,41 @@ PLAYBOOKS: Tuple[Playbook, ...] = (
         "Atoms are too close together - a steric clash or atom overlap.",
         "clash, clashes, atom overlap, atoms too close, bumping atoms, "
         "steric problem, bad contacts",
-        "1. check_clashes to find the worst overlaps and which residues they "
-        "involve.\n"
-        "2. go_to_residue on the worst one and score_residue it.\n"
-        "3. If a side chain is involved, fix_rotamer usually resolves it: the "
-        "rotamer search scores clashes, so it will pick a conformation that "
-        "avoids the neighbour.\n"
-        "4. Otherwise refine_sphere on the residue - real-space refinement "
-        "has non-bonded restraints and will push the atoms apart.\n"
-        "5. check_clashes again to confirm. A clash that survives refinement "
-        "often means two things are modelled in the same density (a "
-        "misplaced water, or an alternate conformation modelled as one) - "
-        "say that rather than refining repeatedly.",
-        tools=("check_clashes", "go_to_residue", "score_residue",
-               "fix_rotamer", "refine_sphere", "delete_residue")),
+        "Do these in order, one tool call at a time.\n"
+        "1. check_clashes to find the overlaps - unless validate_anomalies "
+        "has already reported them, which runs the same search and fills the "
+        "same list, in which case go straight to step 2.\n"
+        "2. go_to_clash 1 to frame the worst one. Use this rather than "
+        "go_to_residue: a clash is between two residues, and going to one of "
+        "them can leave the other off screen.\n"
+        "3. Work out which of the two residues can move, from the atom names "
+        "the clash reports. N, CA, C, O and OXT are backbone atoms; every "
+        "other name is a side-chain atom. A residue whose SIDE-CHAIN atom is "
+        "in the clash can move - a side chain swings out of the way. A "
+        "residue whose BACKBONE atom is in the clash cannot. So: if one atom "
+        "is side-chain, that residue is your target; if BOTH are side-chain "
+        "atoms, both residues are targets and you fix both; if both are "
+        "backbone atoms, go to step 7. Say which you picked and why.\n"
+        "4. score_residue on each target, one call each, before you change "
+        "anything. Do this first even though fix_rotamer reports its own "
+        "before-and-after: with two targets, fixing one moves atoms that the "
+        "other is clashing with, so its numbers stop meaning what they meant "
+        "and you need both baselines taken up front.\n"
+        "5. fix_rotamer on the first target, then check_clashes. If the "
+        "clash has gone, stop and report it. If there is a second target and "
+        "the clash is still there, fix_rotamer on that one too, then "
+        "check_clashes again.\n"
+        "6. If it is still there, refine_sphere on the residue you fixed "
+        "last, then check_clashes once more.\n"
+        "7. Now stop - do not go back to step 5 or keep refining. Report "
+        "which residues clash, their before and after scores, what you "
+        "tried, and that it needs a human decision: usually two things "
+        "modelled into the same density (a misplaced water, or one "
+        "conformation where there are really two) or a backbone error that "
+        "local fitting cannot reach.",
+        tools=("check_clashes", "go_to_clash", "go_to_residue",
+               "score_residue", "fix_rotamer", "refine_sphere",
+               "delete_residue")),
 
     Playbook(
         "unmodelled-density",
@@ -316,7 +337,10 @@ PLAYBOOKS: Tuple[Playbook, ...] = (
 PLAYBOOK_HEADER = (
     "Relevant procedures for this request. Follow the one that fits; if none "
     "does, ignore them. Prefer their steps to improvising, and always measure "
-    "before and after so you can report what actually changed."
+    "before and after so you can report what actually changed. Work through "
+    "the steps one at a time: make the call the current step asks for, read "
+    "what it returns, then move on. Do not restate the remaining steps or "
+    "announce calls you are about to make - make the next one."
 )
 
 

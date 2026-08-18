@@ -1080,6 +1080,20 @@ static void assistant_output_append(const std::string &text) {
    text_view_append_ansi(assistant_output_view, text);
 }
 
+// True while streamed reasoning fragments are being appended to the current
+// line, so the next thing to write knows to close that line first.
+static bool assistant_thinking_open = false;
+
+// Finish a run of streamed reasoning, if one is open. Every branch that writes
+// something else must call this, or its output lands on the end of the
+// model's last half-sentence.
+static void assistant_thinking_end() {
+   if (assistant_thinking_open) {
+      vte_output_append_styled(assistant_output_view, "\n");
+      assistant_thinking_open = false;
+   }
+}
+
 
 // ---------------------------------------------------------------------------
 //   Markdown in the transcript
@@ -1340,6 +1354,13 @@ static void assistant_handle_event(const std::string &line) {
    }
    std::string type = ev.value("type", "");
 
+   // Streamed reasoning is written without a trailing newline so the next
+   // fragment continues the line; anything else must close that line first.
+   // Doing it here rather than in each branch means a new event type cannot
+   // forget and end up appended to a half-finished thought.
+   if (type != "thinking_delta")
+      assistant_thinking_end();
+
    if (type == "step") {
       std::string tool = ev.value("tool", "");
       std::string result = ev.value("result", "");
@@ -1354,7 +1375,18 @@ static void assistant_handle_event(const std::string &line) {
          }
       }
       assistant_output_append("  \xE2\x86\x92 " + tool + "(" + args_str + "): " + result + "\n");
+   } else if (type == "thinking_delta") {
+      // Streamed reasoning, a fragment at a time. The model can spend a long
+      // while thinking before it calls anything, and without this the tab sits
+      // silent and looks hung. The thought-bubble marker is printed once, when
+      // the run of fragments starts, not per fragment.
+      if (!assistant_thinking_open) {
+         vte_output_append_styled(assistant_output_view, "\xF0\x9F\x92\xAD ");
+         assistant_thinking_open = true;
+      }
+      vte_output_append_styled(assistant_output_view, ev.value("text", ""));
    } else if (type == "thinking") {
+      // The non-streaming path: the whole reasoning in one event.
       vte_output_append_styled(assistant_output_view,
                                "\xF0\x9F\x92\xAD " + ev.value("text", "") + "\n");
    } else if (type == "playbooks") {

@@ -90,7 +90,7 @@ def split_thinking(message: Dict[str, Any]) -> Tuple[str, str]:
     return thinking.strip(), content.strip()
 
 DEFAULT_URL = "http://localhost:11434/v1/chat/completions"
-DEFAULT_MODEL = "qwen3.8-27b-3bit-16k"
+DEFAULT_MODEL = "gemma4-long"
 # How many commands to expose per request when retrieval is on.  A small model
 # chooses far better from a handful of tools than from all ~90; see
 # coot_commands.retrieval.  16 keeps the surface small while leaving margin so a
@@ -125,6 +125,12 @@ SYSTEM_PROMPT = (
     "provided tools; each tool is a Coot command. Work in small steps: call one "
     "tool at a time, use each result to decide the next, and finish with a short "
     "plain-text summary of what you did.\n"
+    "\n"
+    "Act rather than plan. Decide the single next call and make it - do not "
+    "list the calls you intend to make, and do not restate a plan you have "
+    "already worked out. If you find yourself going over the same decision a "
+    "second time, that means it is time to call the tool, not to think again. "
+    "When a step names two candidates, pick one, say which, and act on it.\n"
     "\n"
     "Molecules: every model and map has an integer molecule number, shared "
     "across models and maps (e.g. model 0, map 1). When the user does not name a "
@@ -222,17 +228,102 @@ def list_models(url: Optional[str] = None, timeout: float = 2.0) -> List[str]:
     return sorted(set(names))
 
 
+def _merge_tool_call_deltas(accumulated: Dict[int, Dict[str, Any]],
+                            deltas: List[Dict[str, Any]]) -> None:
+    """Fold streamed ``tool_calls`` fragments into *accumulated*, keyed by index.
+
+    Ollama happens to send a tool call complete in a single delta, but the
+    OpenAI streaming protocol allows it to arrive in pieces - the id and name
+    in one chunk and the JSON arguments a few characters at a time after it -
+    and other servers do exactly that.  Merging by ``index`` and concatenating
+    the argument text handles both, treating Ollama's whole-in-one form as the
+    degenerate case rather than assuming it.
+    """
+    for delta in deltas:
+        if not isinstance(delta, dict):
+            continue
+        index = delta.get("index", 0)
+        call = accumulated.setdefault(
+            index, {"id": "", "type": "function",
+                    "function": {"name": "", "arguments": ""}})
+        if delta.get("id"):
+            call["id"] = delta["id"]
+        if delta.get("type"):
+            call["type"] = delta["type"]
+        function = delta.get("function") or {}
+        if function.get("name"):
+            call["function"]["name"] = function["name"]
+        if function.get("arguments"):
+            call["function"]["arguments"] += function["arguments"]
+
+
+def _assemble_stream(lines: Iterable[bytes],
+                     on_delta: Optional[EventFn] = None) -> Dict[str, Any]:
+    """Build one reply message from an OpenAI server-sent-event stream.
+
+    Separated from the HTTP call so it can be tested against a canned stream,
+    and so the two transports assemble their result identically: what this
+    returns has the same shape as the non-streaming ``choices[0].message``,
+    and the loop above it cannot tell which produced it.
+
+    *on_delta* receives a ``thinking_delta`` event per reasoning fragment, so
+    the GUI can show the model working instead of a long silence.  Only the
+    reasoning is streamed, not the answer: the answer is rendered as Markdown
+    when it arrives (see ``text_view_append_markdown`` in vte.cc), which needs
+    whole lines, and it is short enough that it appears in one go anyway.
+    """
+    content, reasoning = [], []
+    tool_calls: Dict[int, Dict[str, Any]] = {}
+    for raw in lines:
+        line = raw.decode("utf-8", "replace").strip()
+        if not line.startswith("data:"):
+            continue                       # blank separators and comments
+        body = line[len("data:"):].strip()
+        if body == "[DONE]":
+            break
+        try:
+            chunk = json.loads(body)
+        except json.JSONDecodeError:
+            continue                       # a truncated frame is not fatal
+        choices = chunk.get("choices") or []
+        if not choices:
+            continue
+        delta = choices[0].get("delta") or {}
+        piece = delta.get("reasoning") or delta.get("reasoning_content") or ""
+        if piece:
+            reasoning.append(piece)
+            if on_delta is not None:
+                on_delta({"type": "thinking_delta", "text": piece})
+        if delta.get("content"):
+            content.append(delta["content"])
+        if delta.get("tool_calls"):
+            _merge_tool_call_deltas(tool_calls, delta["tool_calls"])
+
+    message: Dict[str, Any] = {"role": "assistant", "content": "".join(content)}
+    if reasoning:
+        message["reasoning"] = "".join(reasoning)
+    if tool_calls:
+        message["tool_calls"] = [tool_calls[i] for i in sorted(tool_calls)]
+    return message
+
+
 def _ollama_chat(model: str, url: str, timeout: float,
                  messages: List[Dict[str, Any]],
-                 tools: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """Default transport: one round-trip to an OpenAI-compatible endpoint."""
+                 tools: List[Dict[str, Any]],
+                 on_delta: Optional[EventFn] = None) -> Dict[str, Any]:
+    """Default transport: one round-trip to an OpenAI-compatible endpoint.
+
+    Streams when *on_delta* is given, purely so the reasoning can be shown as
+    it is produced; the assembled reply is identical either way.
+    """
     url = _normalise_chat_url(url)
+    streaming = on_delta is not None
     payload = {
         "model": model,
         "messages": messages,
         "tools": tools,
         "tool_choice": "auto",
-        "stream": False,
+        "stream": streaming,
         # Low temperature: we want deterministic tool selection, not prose.
         "temperature": 0.0,
         # Ollama's OpenAI-compatible endpoint maps this to the native
@@ -244,6 +335,11 @@ def _ollama_chat(model: str, url: str, timeout: float,
         url, data=data, headers={"Content-Type": "application/json"})
     try:
         with urllib.request.urlopen(req, timeout=timeout) as resp:
+            if streaming:
+                # Iterating the response yields lines as they arrive, which is
+                # the whole point - reading it all first would reintroduce the
+                # silence we are removing.
+                return _assemble_stream(resp, on_delta)
             body = json.loads(resp.read().decode("utf-8"))
     except urllib.error.HTTPError as e:
         # The server's body carries the real reason (e.g. "model 'x' not
@@ -474,7 +570,7 @@ def run_agent(user_text: str, *,
               top_k: Optional[int] = DEFAULT_TOP_K,
               playbook_k: Optional[int] = DEFAULT_PLAYBOOK_K,
               max_steps: int = 16,
-              timeout: float = 120.0,
+              timeout: float = 300.0,
               verbose: bool = True) -> str:
     """Fulfil *user_text* by letting the model call Coot commands.
 
@@ -488,6 +584,11 @@ def run_agent(user_text: str, *,
     *messages* is the running conversation: pass the same list across calls to
     give the agent memory of earlier requests (it is seeded with the system
     prompt if empty and appended to in place); omit it for a one-shot call.
+    *timeout* is urllib's, which applies per socket operation rather than to
+    the request as a whole.  That distinction matters: without streaming the
+    entire reply arrives in one read at the end, so any generation longer than
+    the timeout fails outright, whereas a streamed reply resets it on every
+    chunk and only a genuine stall trips it.
     *tools* overrides the exposed command set; when it is ``None`` and *top_k*
     is set, embedding retrieval narrows the ~90 commands to the *top_k* most
     relevant (pass ``top_k=None`` to expose them all).  *playbook_k* is how
@@ -517,9 +618,21 @@ def run_agent(user_text: str, *,
         # Custom context tools (e.g. get_active_residue) are always available,
         # so "here"/"this residue" can be resolved whatever the request says.
         tools = custom_tools() + commands
+    # Whether this turn's reasoning already reached the caller a fragment at a
+    # time, so the aggregate "thinking" event below can be skipped rather than
+    # repeating the whole thing under it.  Reset per chat call, since only the
+    # streaming transport sets it and an injected one never will.
+    streamed = {"this_turn": False}
     if chat is None:
         def chat(messages, tools):
-            return _ollama_chat(model, url, timeout, messages, tools)
+            streamed["this_turn"] = False
+
+            def on_delta(event: Dict[str, Any]) -> None:
+                streamed["this_turn"] = True
+                emit(event)
+
+            return _ollama_chat(model, url, timeout, messages, tools,
+                                on_delta=on_delta)
 
     # Seed a fresh conversation, or continue a caller-supplied one (giving the
     # agent memory across requests); either way append this request's turn.
@@ -534,7 +647,7 @@ def run_agent(user_text: str, *,
         message = chat(messages, tools)
         messages.append(message)
         thinking, content = split_thinking(message)
-        if thinking:
+        if thinking and not streamed["this_turn"]:
             emit({"type": "thinking", "text": thinking})
         tool_calls = message.get("tool_calls")
         if not tool_calls:

@@ -44,6 +44,10 @@ CATEGORY = "Validation"
 # entry is an (x, y, z) tuple; index 0 is blob 1.
 _last_blobs: list[tuple[float, float, float]] = []
 
+# The clashes found by the most recent "check clashes", largest first, as
+# (model, atom-1 spec, atom-2 spec) - so "go to clash N" can frame the pair.
+_last_clashes: list = []
+
 
 def _rama_improbables(imol: int) -> list:
     """Residues with Ramachandran probability below 0.02.
@@ -99,6 +103,27 @@ def _as_list(value) -> list:
 # kind into the "A/45 CB - A/88 OD1 (7.5 A^3)" phrasing the summaries use, so
 # a result says where to go and not merely how many there are.  Each takes the
 # raw binding result and the number to name.
+
+
+def _remember_clashes(imol: int, overlaps: list) -> None:
+    """Record *overlaps* largest-first so 'go to clash N' can frame one.
+
+    Every command that computes atom overlaps calls this, not just
+    ``check_clashes``: the overlap calculation covers the whole molecule and
+    is the most expensive thing in this module, so a command that has already
+    paid for it must not throw the result away and leave the next 'go to
+    clash' with nothing to go to.
+    """
+    global _last_clashes
+    _last_clashes = [(imol, o.get("atom-1-spec"), o.get("atom-2-spec"))
+                     for o in sorted(overlaps,
+                                     key=lambda o: o.get("overlap-volume", 0),
+                                     reverse=True)]
+
+
+# The sentence appended to any summary that found clashes, so the reader knows
+# the list is already populated and does not re-run the search to navigate it.
+_GO_TO_CLASH_HINT = "Use 'go to clash 1' to look at the worst one"
 
 
 def _clash_detail(overlaps: list, n: int) -> str:
@@ -159,6 +184,7 @@ def validate_anomalies(model: Optional[str] = None,
 
     rama = _rama_improbables(imol)
     overlaps = _atom_overlaps(imol)
+    _remember_clashes(imol, overlaps)
     c_beta = _as_list(coot.c_beta_deviations_py(imol)) \
         if hasattr(coot, "c_beta_deviations_py") else []
     chirals = _as_list(coot.chiral_volume_errors_py(imol)) \
@@ -185,6 +211,8 @@ def validate_anomalies(model: Optional[str] = None,
         parts.append(f"C-beta deviations: {_c_beta_detail(c_beta, 3)}.")
     if chirals:
         parts.append(f"Chiral errors: {_chiral_detail(chirals, 3)}.")
+    if overlaps:
+        parts.append(_GO_TO_CLASH_HINT + ".")
     return " ".join(parts)
 
 
@@ -345,10 +373,40 @@ def check_clashes(model: Optional[str] = None) -> str:
     if coot is None:
         return f"Checked clashes for model {imol}"
     overlaps = _atom_overlaps(imol)
+    _remember_clashes(imol, overlaps)
     if not overlaps:
         return f"No significant clashes in model {imol}"
     return (f"Model {imol}: {len(overlaps)} clash(es). Worst: "
-            f"{_clash_detail(overlaps, 5)}")
+            f"{_clash_detail(overlaps, 5)}. {_GO_TO_CLASH_HINT}")
+
+
+@command(r"(?:go to|centre on|center on|goto|zoom to) clash (?P<n>\d+)",
+         examples=["go to clash 1", "centre on clash 2"],
+         category=CATEGORY,
+         notes="Frames one of the clashes found by the most recent 'check "
+               "clashes' OR 'validate anomalies', numbered from 1 (largest "
+               "first). Unlike going to a residue, this fits BOTH clashing "
+               "residues in the view - a clash is a relationship between two "
+               "things and you cannot judge it while one of them is off "
+               "screen. Either command populates the list, so there is no "
+               "need to re-run the clash search if you have already validated.")
+def go_to_clash(n: str) -> str:
+    """Centre and zoom on one clash from the last clash search."""
+    from coot_commands import focus
+    from coot_commands.scoring import format_atom_spec
+    index = as_int(n, "clash number")
+    if not _last_clashes:
+        raise CommandError("no clashes to go to - run 'check clashes' or "
+                           "'validate anomalies' first")
+    if index < 1 or index > len(_last_clashes):
+        raise CommandError(
+            f"clash {index} does not exist - there are {len(_last_clashes)} "
+            f"(numbered 1 to {len(_last_clashes)})")
+    imol, spec_1, spec_2 = _last_clashes[index - 1]
+    pair = f"{format_atom_spec(spec_1)} - {format_atom_spec(spec_2)}"
+    if focus.show_contact(imol, spec_1, spec_2) is None:
+        return f"Could not frame clash {index} ({pair})"
+    return f"Framed clash {index}: {pair}"
 
 
 @command(r"(?:(?:check|validate|list|show|find) )?cis[- ]?peptides?" + _MODEL,
