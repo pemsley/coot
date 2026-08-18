@@ -46,13 +46,31 @@ _last_blobs: list[tuple[float, float, float]] = []
 
 
 def _rama_improbables(imol: int) -> list:
-    """Residues with Ramachandran probability below 0.02."""
+    """Residues with Ramachandran probability below 0.02.
+
+    Each entry of ``all_molecule_ramachandran_score_py(imol)[5]`` is
+    ``[[phi, psi], residue_spec, score, [prev, this, next names]]``, so the
+    residue is item 1 (a spec, not a name - see :func:`_rama_spec`) and the
+    score is item 2.
+    """
     try:
         rs = coot.all_molecule_ramachandran_score_py(imol)
         scored = rs[5]
-        return [item for item in scored if item[2] < 0.02]
+        return [item for item in scored
+                if isinstance(item, (list, tuple)) and len(item) >= 3
+                and item[2] < 0.02]
     except Exception:
         return []
+
+
+def _rama_spec(item) -> str:
+    """``A/45 GLY`` for one Ramachandran entry - the residue and its type."""
+    from coot_commands.scoring import format_residue_spec
+    spec = format_residue_spec(item[1])
+    names = item[3] if len(item) > 3 else None
+    if isinstance(names, (list, tuple)) and len(names) > 1:
+        return f"{spec} {str(names[1]).strip()}"
+    return spec
 
 
 def _atom_overlaps(imol: int) -> list:
@@ -71,6 +89,56 @@ def _atom_overlaps(imol: int) -> list:
 def _as_list(value) -> list:
     """Coerce a maybe-list binding result to a list."""
     return list(value) if isinstance(value, (list, tuple)) else []
+
+
+# ---------------------------------------------------------------------------
+#   Naming the offenders
+# ---------------------------------------------------------------------------
+#
+# Coot's validation bindings return specs; these turn the worst few of each
+# kind into the "A/45 CB - A/88 OD1 (7.5 A^3)" phrasing the summaries use, so
+# a result says where to go and not merely how many there are.  Each takes the
+# raw binding result and the number to name.
+
+
+def _clash_detail(overlaps: list, n: int) -> str:
+    """The *n* largest overlaps as ``A/45 CB - A/88 OD1 (7.5 A^3)``."""
+    from coot_commands.scoring import format_atom_spec
+    worst = sorted(overlaps, key=lambda o: o.get("overlap-volume", 0),
+                   reverse=True)[:n]
+    return "; ".join(
+        f"{format_atom_spec(o.get('atom-1-spec'))} - "
+        f"{format_atom_spec(o.get('atom-2-spec'))} "
+        f"({o.get('overlap-volume', 0):.1f} A^3)" for o in worst)
+
+
+def _c_beta_detail(c_beta: list, n: int) -> str:
+    """The first *n* C-beta deviations as ``A/45 (0.31 A)``.
+
+    Each entry is ``[residue_spec, {alt_conf: distance}]``; where a residue has
+    alternate conformations we report its largest deviation.
+    """
+    from coot_commands.scoring import format_residue_spec
+    out = []
+    for entry in c_beta[:n]:
+        if not isinstance(entry, (list, tuple)) or not entry:
+            continue
+        spec = format_residue_spec(entry[0])
+        distances = entry[1] if len(entry) > 1 else None
+        if isinstance(distances, dict) and distances:
+            try:
+                out.append(f"{spec} ({max(distances.values()):.2f} A)")
+                continue
+            except (TypeError, ValueError):
+                pass
+        out.append(spec)
+    return ", ".join(out)
+
+
+def _chiral_detail(chirals: list, n: int) -> str:
+    """The first *n* chiral-volume errors as atom names, ``A/45 CB``."""
+    from coot_commands.scoring import format_atom_spec
+    return ", ".join(format_atom_spec(spec) for spec in chirals[:n])
 
 
 @command(r"validate anomalies(?: (?:of |in |for )?model (?P<model>\S+))?|"
@@ -100,13 +168,23 @@ def validate_anomalies(model: Optional[str] = None,
     if total == 0:
         return f"No outliers found in model {imol}"
 
-    parts = [f"Model {imol}: {total} outlier(s) -",
+    # Every category names where its worst offenders are. A bare count tells
+    # you a problem exists but not which residue to go to, which is the one
+    # thing the reader (and the assistant) needs in order to act on it.
+    parts = [f"Model {imol}: {total} outlier(s) - "
              f"{len(rama)} Ramachandran, {len(overlaps)} clash(es), "
              f"{len(c_beta)} C-beta, {len(chirals)} chiral."]
     if rama:
         worst = sorted(rama, key=lambda item: item[2])[:3]
-        worst_str = ", ".join(f"{item[1]} ({item[2]:.3f})" for item in worst)
-        parts.append(f"Worst Ramachandran: {worst_str}")
+        detail = ", ".join(f"{_rama_spec(item)} ({item[2]:.3f})"
+                           for item in worst)
+        parts.append(f"Worst Ramachandran: {detail}.")
+    if overlaps:
+        parts.append(f"Worst clashes: {_clash_detail(overlaps, 3)}.")
+    if c_beta:
+        parts.append(f"C-beta deviations: {_c_beta_detail(c_beta, 3)}.")
+    if chirals:
+        parts.append(f"Chiral errors: {_chiral_detail(chirals, 3)}.")
     return " ".join(parts)
 
 
@@ -223,7 +301,7 @@ def check_ramachandran(model: Optional[str] = None) -> str:
     if not rama:
         return f"No Ramachandran outliers in model {imol}"
     worst = sorted(rama, key=lambda item: item[2])[:5]
-    detail = ", ".join(f"{item[1]} ({item[2]:.3f})" for item in worst)
+    detail = ", ".join(f"{_rama_spec(item)} ({item[2]:.3f})" for item in worst)
     return f"Model {imol}: {len(rama)} Ramachandran outlier(s). Worst: {detail}"
 
 
@@ -259,7 +337,8 @@ def check_rotamers(model: Optional[str] = None) -> str:
          category=CATEGORY,
          arg_types={"model": ArgType.MODEL},
          notes="Lists atom overlaps (steric clashes) with a clash volume "
-               "above 2 A^3. " + ACTIVE_MODEL_NOTE)
+               "above 2 A^3, naming the atom pair involved in each of the "
+               "worst ones so you can go straight to them. " + ACTIVE_MODEL_NOTE)
 def check_clashes(model: Optional[str] = None) -> str:
     """List steric clashes (atom overlaps) for a model."""
     imol = resolve_model(model)
@@ -268,10 +347,8 @@ def check_clashes(model: Optional[str] = None) -> str:
     overlaps = _atom_overlaps(imol)
     if not overlaps:
         return f"No significant clashes in model {imol}"
-    worst = sorted(overlaps, key=lambda o: o.get("overlap-volume", 0),
-                   reverse=True)[:3]
-    detail = ", ".join(f"{o.get('overlap-volume', 0):.1f} A^3" for o in worst)
-    return f"Model {imol}: {len(overlaps)} clash(es). Largest: {detail}"
+    return (f"Model {imol}: {len(overlaps)} clash(es). Worst: "
+            f"{_clash_detail(overlaps, 5)}")
 
 
 @command(r"(?:(?:check|validate|list|show|find) )?cis[- ]?peptides?" + _MODEL,

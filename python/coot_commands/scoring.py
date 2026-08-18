@@ -255,18 +255,85 @@ def density_fit(imol: int, chain_id: str, resno: int, ins_code: str = "",
         return None
 
 
-def _spec_matches(spec, chain_id: str, resno: int, ins_code: str = "") -> bool:
-    """Does an atom spec from ``molecule_atom_overlaps_py`` name this residue?
+# ---------------------------------------------------------------------------
+#   Specs
+# ---------------------------------------------------------------------------
+#
+# Coot's validation bindings answer with specs rather than text, in two shapes:
+#
+#   atom spec     [user_data, chain_id, res_no, ins_code, atom_name, alt_conf]
+#                 (graphics_info_t::atom_spec_to_py)
+#   residue spec  [chain_id, res_no, ins_code]
+#                 (residue_spec_to_py, c-interface.cc)
+#
+# A command that reports "8 clashes" without saying where they are leaves the
+# reader - and the assistant - with nothing to act on, so the parsers below
+# turn those specs into "A/45" and "A/45 CB". The residue spec grew its current
+# shape recently (it used to carry a leading status flag), so parsing tolerates
+# an extra leading element rather than trusting the length.
 
-    Coot renders an atom spec as the six-element list ``[user_data, chain_id,
-    res_no, ins_code, atom_name, alt_conf]`` (``graphics_info_t::
-    atom_spec_to_py``).
+
+def parse_residue_spec(spec) -> Optional[Tuple[str, int, str]]:
+    """``(chain_id, resno, ins_code)`` from a residue spec, or ``None``.
+
+    Accepts the three-element form and the older four-element one that
+    prefixed a status flag, telling them apart by which element is the chain
+    id (a string) followed by the residue number (an int).
     """
-    if not isinstance(spec, (list, tuple)) or len(spec) < 4:
+    if not isinstance(spec, (list, tuple)):
+        return None
+    items = list(spec)
+    # Drop a leading flag/index so both spec generations parse the same way.
+    if items and not isinstance(items[0], str):
+        items = items[1:]
+    if len(items) < 2 or not isinstance(items[0], str):
+        return None
+    try:
+        resno = int(items[1])
+    except (TypeError, ValueError):
+        return None
+    ins_code = str(items[2]) if len(items) > 2 and isinstance(items[2], str) else ""
+    return items[0].strip(), resno, ins_code.strip()
+
+
+def parse_atom_spec(spec) -> Optional[Tuple[str, int, str, str]]:
+    """``(chain_id, resno, ins_code, atom_name)`` from an atom spec, or ``None``."""
+    if not isinstance(spec, (list, tuple)) or len(spec) < 5:
+        return None
+    try:
+        resno = int(spec[2])
+    except (TypeError, ValueError):
+        return None
+    return (str(spec[1]).strip(), resno, str(spec[3]).strip(),
+            str(spec[4]).strip())
+
+
+def format_residue_spec(spec) -> str:
+    """A residue spec as ``A/45``, or ``"?"`` if it cannot be read."""
+    parsed = parse_residue_spec(spec)
+    if parsed is None:
+        return "?"
+    chain_id, resno, ins_code = parsed
+    return f"{chain_id}/{resno}{ins_code}"
+
+
+def format_atom_spec(spec) -> str:
+    """An atom spec as ``A/45 CB``, or ``"?"`` if it cannot be read."""
+    parsed = parse_atom_spec(spec)
+    if parsed is None:
+        return "?"
+    chain_id, resno, ins_code, atom_name = parsed
+    residue = f"{chain_id}/{resno}{ins_code}"
+    return f"{residue} {atom_name}" if atom_name else residue
+
+
+def _spec_matches(spec, chain_id: str, resno: int, ins_code: str = "") -> bool:
+    """Does an atom spec name this residue?"""
+    parsed = parse_atom_spec(spec)
+    if parsed is None:
         return False
-    return (str(spec[1]).strip() == chain_id
-            and spec[2] == resno
-            and str(spec[3]).strip() == ins_code.strip())
+    return (parsed[0] == chain_id and parsed[1] == resno
+            and parsed[2] == ins_code.strip())
 
 
 def atom_overlaps(imol: int, n_max: int = -1) -> List[Dict]:
