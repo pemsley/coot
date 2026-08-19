@@ -5324,7 +5324,13 @@ int new_molecule_by_residue_type_selection(int imol_orig, const char *residue_ty
    return imol;
 }
 
-int new_molecule_by_atom_selection(int imol_orig, const char* atom_selection_str) {
+// The recentre flag is false when the caller means to move the new fragment itself -
+// otherwise the animated recentring set up here would fly the view off to where the
+// fragment used to be, leaving the moved fragment off-screen. (The view interpolation
+// is a tick-callback animation, so it outlives this function and its target is fixed
+// at the fragment's position at the time of the call.)
+//
+int new_molecule_by_atom_selection_inner(int imol_orig, const char* atom_selection_str, bool recentre) {
 
    auto recentre_on_new_fragment = [] (int imol) {
       graphics_info_t g;
@@ -5362,7 +5368,8 @@ int new_molecule_by_atom_selection(int imol_orig, const char* atom_selection_str
             g.molecules[imol].install_model(imol, asc, g.Geom_p(), name, 1, shelx_flag);
             g.molecules[imol].set_have_unsaved_changes_from_outside();
             update_go_to_atom_window_on_new_mol();
-            recentre_on_new_fragment(imol);
+            if (recentre)
+               recentre_on_new_fragment(imol);
          } else {
             std::cout << "in new_molecule_by_atom_selection "
                       << "Something bad happened - No atoms selected"
@@ -5399,6 +5406,11 @@ int new_molecule_by_atom_selection(int imol_orig, const char* atom_selection_str
                 << "model molecule" << std::endl;
    }
    return imol;
+}
+
+int new_molecule_by_atom_selection(int imol_orig, const char* atom_selection_str) {
+
+   return new_molecule_by_atom_selection_inner(imol_orig, atom_selection_str, true);
 }
 
 int new_molecule_by_sphere_selection(int imol_orig, float x, float y, float z, float r,

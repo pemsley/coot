@@ -784,6 +784,36 @@ public:
    //! @return one pose_score_t per model; empty if the molecule has no Vina scores
    std::vector<coot::pdbqt::pose_score_t> get_vina_scores(int imol) const;
 
+   //! Write a flexible receptor as the AutoDock/Vina pair of files (rigid + flex).
+   //!
+   //! The chosen residues' side chains become CA-rooted torsion trees in the flex
+   //! file (rotatable bonds from the dictionary, no RDKit); everything else, plus
+   //! those residues' backbone, is written to the rigid file. Give the two files
+   //! to Vina as --receptor and --flex.
+   //!
+   //! @param imol the model molecule index
+   //! @param flex_residues_cid a residue selection (cid) naming the flexible residues
+   //! @param rigid_file_name the output rigid-receptor PDBQT file name
+   //! @param flex_file_name the output flexible-side-chain PDBQT file name
+   //! @return the number of flexible side chains written (0 on failure)
+   int export_flexible_receptor_as_pdbqt(int imol, const std::string &flex_residues_cid,
+                                         const std::string &rigid_file_name,
+                                         const std::string &flex_file_name);
+
+   //! Write a flexible receptor, choosing the flexible side chains automatically as
+   //! the polymer residues (excluding GLY/ALA/PRO) with any atom within `radius` of
+   //! the given point - typically the docking-box centre.
+   //!
+   //! @param imol the model molecule index
+   //! @param x,y,z the reference point (e.g. the docking-box centre)
+   //! @param radius the selection radius (Angstroms)
+   //! @param rigid_file_name the output rigid-receptor PDBQT file name
+   //! @param flex_file_name the output flexible-side-chain PDBQT file name
+   //! @return the number of flexible side chains written (0 on failure)
+   int export_flexible_receptor_near_point_as_pdbqt(int imol, float x, float y, float z, float radius,
+                                                    const std::string &rigid_file_name,
+                                                    const std::string &flex_file_name);
+
    //! Read a small molecule CIF file
    //!
    //! @param file_name is the cif file-name

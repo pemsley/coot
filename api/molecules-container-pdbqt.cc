@@ -31,6 +31,52 @@ molecules_container_t::export_molecule_as_pdbqt(int imol, const std::string &fil
 }
 
 int
+molecules_container_t::export_flexible_receptor_as_pdbqt(int imol, const std::string &flex_residues_cid,
+                                                         const std::string &rigid_file_name,
+                                                         const std::string &flex_file_name) {
+
+   if (! is_valid_model_molecule(imol)) {
+      std::cout << "WARNING:: export_flexible_receptor_as_pdbqt(): invalid model molecule "
+                << imol << std::endl;
+      return 0;
+   }
+   std::vector<mmdb::Residue *> residues = molecules[imol].cid_to_residues(flex_residues_cid);
+   std::vector<coot::residue_spec_t> flex_specs;
+   for (unsigned int i=0; i<residues.size(); i++)
+      if (residues[i]) flex_specs.push_back(coot::residue_spec_t(residues[i]));
+   if (flex_specs.empty()) {
+      std::cout << "WARNING:: export_flexible_receptor_as_pdbqt(): no residues for cid "
+                << flex_residues_cid << std::endl;
+      return 0;
+   }
+   return coot::pdbqt::write_flexible_receptor(molecules[imol].atom_sel.mol, geom, imol,
+                                               flex_specs, rigid_file_name, flex_file_name);
+}
+
+int
+molecules_container_t::export_flexible_receptor_near_point_as_pdbqt(int imol,
+                                                                    float x, float y, float z,
+                                                                    float radius,
+                                                                    const std::string &rigid_file_name,
+                                                                    const std::string &flex_file_name) {
+
+   if (! is_valid_model_molecule(imol)) {
+      std::cout << "WARNING:: export_flexible_receptor_near_point_as_pdbqt(): invalid model molecule "
+                << imol << std::endl;
+      return 0;
+   }
+   std::vector<coot::residue_spec_t> flex_specs =
+      coot::pdbqt::flexible_side_chain_residues_near(molecules[imol].atom_sel.mol, x, y, z, radius);
+   if (flex_specs.empty()) {
+      std::cout << "WARNING:: export_flexible_receptor_near_point_as_pdbqt(): no flexible side chains within "
+                << radius << " A of point" << std::endl;
+      return 0;
+   }
+   return coot::pdbqt::write_flexible_receptor(molecules[imol].atom_sel.mol, geom, imol,
+                                               flex_specs, rigid_file_name, flex_file_name);
+}
+
+int
 molecules_container_t::read_pdbqt(const std::string &file_name) {
 
    int imol = -1;

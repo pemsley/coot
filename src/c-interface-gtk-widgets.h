@@ -556,6 +556,11 @@ void move_molecule_here_by_widget(); /* no widget */
 int move_molecule_to_screen_centre_internal(int imol);
 void fill_move_molecule_here_frame(GtkWidget *w);
 
+/*! \brief as new_molecule_by_atom_selection(), but the recentring of the view onto the
+  new fragment can be turned off - which is what a caller that means to move the fragment
+  itself (to the screen centre, say) needs to do. */
+int new_molecule_by_atom_selection_inner(int imol_orig, const char *atom_selection_str, bool recentre);
+
 /* } */
 
 void apply_residue_info_changes();
