@@ -710,7 +710,7 @@ NB_MODULE(coot_headless_api, m) {
          get_docstring_from_xml("get_gaussian_surface").c_str())
     .def("get_gaussian_surface_for_atom_selection",
          &molecules_container_t::get_gaussian_surface_for_atom_selection,
-         nb::arg("imol"), nb::arg("sigma"), nb::arg("cid"), nb::arg("contour_level"),
+         nb::arg("imol"), nb::arg("cid"), nb::arg("sigma"), nb::arg("contour_level"),
          nb::arg("box_radius"), nb::arg("grid_scale"), nb::arg("b_factor"),
          get_docstring_from_xml("get_gaussian_surface_for_atom_selection").c_str())
     .def("get_goodsell_style_mesh_instanced",
@@ -1490,6 +1490,16 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::export_ligand_as_pdbqt,
          nb::arg("imol"), nb::arg("cid"), nb::arg("file_name"),
          get_docstring_from_xml("export_ligand_as_pdbqt").c_str())
+    .def("export_flexible_receptor_as_pdbqt",
+         &molecules_container_t::export_flexible_receptor_as_pdbqt,
+         nb::arg("imol"), nb::arg("flex_residues_cid"),
+         nb::arg("rigid_file_name"), nb::arg("flex_file_name"),
+         get_docstring_from_xml("export_flexible_receptor_as_pdbqt").c_str())
+    .def("export_flexible_receptor_near_point_as_pdbqt",
+         &molecules_container_t::export_flexible_receptor_near_point_as_pdbqt,
+         nb::arg("imol"), nb::arg("x"), nb::arg("y"), nb::arg("z"), nb::arg("radius"),
+         nb::arg("rigid_file_name"), nb::arg("flex_file_name"),
+         get_docstring_from_xml("export_flexible_receptor_near_point_as_pdbqt").c_str())
     .def("write_map",
          &molecules_container_t::write_map,
          nb::arg("imol"), nb::arg("file_name"),
