@@ -611,6 +611,10 @@
             <attribute name="label">Generic Display Objects...</attribute>
             <attribute name="action">app.generic_objects_action</attribute>
           </item>
+          <item>
+            <attribute name="label">3D Box...</attribute>
+            <attribute name="action">app.draw_box_action</attribute>
+          </item>
           <section>
             <submenu>
               <attribute name="label">Projection...</attribute>

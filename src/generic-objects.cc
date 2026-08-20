@@ -1407,3 +1407,283 @@ void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
       }
    }
 }
+
+
+/*  ----------------------------------------------------------------------- */
+/*         An arbitrary, user-controllable 3D box                           */
+/*  ----------------------------------------------------------------------- */
+
+// Draw (or re-draw) the 12 edges of an axis-aligned box into the generic
+// display object object_number. The box is centred on centre and has the
+// given full sizes (not half-sizes) along x, y and z.
+//
+void set_generic_object_to_box(int object_number,
+                               const clipper::Coord_orth &centre,
+                               double size_x, double size_y, double size_z,
+                               const std::string &colour_name,
+                               float edge_radius) {
+
+   if (! graphics_info_t::use_graphics_interface_flag) return;
+   if (! is_valid_generic_display_object_number(object_number)) return;
+
+   graphics_info_t g;
+   meshed_generic_display_object &obj = g.generic_display_objects[object_number];
+
+   g.attach_buffers();
+   obj.clear(); // start afresh so the box can be moved/resized
+
+   const double hx = 0.5 * size_x;
+   const double hy = 0.5 * size_y;
+   const double hz = 0.5 * size_z;
+
+   // The 8 corners, indexed by bits: bit0 -> +/-x, bit1 -> +/-y, bit2 -> +/-z
+   std::vector<clipper::Coord_orth> corner(8);
+   for (int i=0; i<8; i++) {
+      double x = centre.x() + ((i & 1) ? hx : -hx);
+      double y = centre.y() + ((i & 2) ? hy : -hy);
+      double z = centre.z() + ((i & 4) ? hz : -hz);
+      corner[i] = clipper::Coord_orth(x, y, z);
+   }
+
+   coot::colour_holder col = colour_values_from_colour_name(colour_name);
+   const unsigned int n_slices = 12;
+
+   auto add_edge = [&] (int a, int b) {
+      std::pair<glm::vec3, glm::vec3> p(coord_orth_to_glm(corner[a]),
+                                        coord_orth_to_glm(corner[b]));
+      obj.add_cylinder(p, col, edge_radius, n_slices, true, true,
+                       meshed_generic_display_object::ROUNDED_CAP,
+                       meshed_generic_display_object::ROUNDED_CAP);
+   };
+
+   // Two corners are joined by an edge when they differ in exactly one axis.
+   // Note: the cylinder class has a singularity workaround that only draws
+   // correctly for a -z direction, so the vertical (z) edges are drawn from
+   // the higher corner (i | 4) down to the lower corner (i). Drawing them
+   // +z instead leaves the top face detached by one box height.
+   for (int i=0; i<8; i++) {
+      if (!(i & 1)) add_edge(i, i | 1);  // edges along x
+      if (!(i & 2)) add_edge(i, i | 2);  // edges along y
+      if (!(i & 4)) add_edge(i | 4, i);  // edges along z (drawn -z, see above)
+   }
+
+   Material material;
+   obj.mesh.setup(material);
+}
+
+// Create a new displayed box generic object and return its object number.
+//
+int add_box(const std::string &name,
+            double centre_x, double centre_y, double centre_z,
+            double size_x, double size_y, double size_z,
+            const std::string &colour_name, float edge_radius) {
+
+   int object_number = new_generic_object_number(name);
+   clipper::Coord_orth centre(centre_x, centre_y, centre_z);
+   set_generic_object_to_box(object_number, centre, size_x, size_y, size_z,
+                             colour_name, edge_radius);
+   set_display_generic_object(object_number, 1);
+   return object_number;
+}
+
+
+// ---- The interactive box dialog ----
+
+namespace {
+
+   class box_dialog_state_t {
+   public:
+      int object_number = -1;
+      GtkWidget *window = nullptr;
+      GtkWidget *centre_x = nullptr;
+      GtkWidget *centre_y = nullptr;
+      GtkWidget *centre_z = nullptr;
+      GtkWidget *size_x   = nullptr;
+      GtkWidget *size_y   = nullptr;
+      GtkWidget *size_z   = nullptr;
+      GtkWidget *edge_radius = nullptr;
+      GtkWidget *colour_combo = nullptr;
+      GtkWidget *readout = nullptr; // shows the current centre and size
+   };
+
+   box_dialog_state_t box_dialog_state;
+
+   // The colours offered in the dialog. Names must be resolvable by
+   // colour_values_from_colour_name().
+   const std::vector<std::string> &box_dialog_colours() {
+      static const std::vector<std::string> colours =
+         { "yellow", "red", "green", "blue", "cyan", "magenta", "orange", "white" };
+      return colours;
+   }
+
+   std::string box_dialog_selected_colour() {
+      const std::vector<std::string> &colours = box_dialog_colours();
+      if (box_dialog_state.colour_combo) {
+         guint idx = gtk_drop_down_get_selected(GTK_DROP_DOWN(box_dialog_state.colour_combo));
+         if (idx < colours.size())
+            return colours[idx];
+      }
+      return colours[0];
+   }
+
+   void box_dialog_apply() {
+
+      if (! box_dialog_state.window) return;
+      if (! is_valid_generic_display_object_number(box_dialog_state.object_number)) {
+         // (re)create the box object - e.g. it was closed by the user
+         box_dialog_state.object_number = new_generic_object_number("Box");
+      }
+
+      double cx = gtk_spin_button_get_value(GTK_SPIN_BUTTON(box_dialog_state.centre_x));
+      double cy = gtk_spin_button_get_value(GTK_SPIN_BUTTON(box_dialog_state.centre_y));
+      double cz = gtk_spin_button_get_value(GTK_SPIN_BUTTON(box_dialog_state.centre_z));
+      double sx = gtk_spin_button_get_value(GTK_SPIN_BUTTON(box_dialog_state.size_x));
+      double sy = gtk_spin_button_get_value(GTK_SPIN_BUTTON(box_dialog_state.size_y));
+      double sz = gtk_spin_button_get_value(GTK_SPIN_BUTTON(box_dialog_state.size_z));
+      double er = gtk_spin_button_get_value(GTK_SPIN_BUTTON(box_dialog_state.edge_radius));
+
+      set_generic_object_to_box(box_dialog_state.object_number,
+                                clipper::Coord_orth(cx, cy, cz),
+                                sx, sy, sz,
+                                box_dialog_selected_colour(),
+                                static_cast<float>(er));
+      set_display_generic_object(box_dialog_state.object_number, 1);
+
+      if (box_dialog_state.readout) {
+         char buf[256];
+         snprintf(buf, sizeof(buf),
+                  "Centre: (%.2f, %.2f, %.2f) Å\n"
+                  "Size: %.2f × %.2f × %.2f Å   Volume: %.1f Å³",
+                  cx, cy, cz, sx, sy, sz, sx * sy * sz);
+         gtk_label_set_text(GTK_LABEL(box_dialog_state.readout), buf);
+      }
+   }
+
+   GtkWidget *box_dialog_add_spin_button(GtkWidget *grid, int row,
+                                         const std::string &label_text,
+                                         double lo, double hi, double step,
+                                         double value) {
+      GtkWidget *label = gtk_label_new(label_text.c_str());
+      gtk_widget_set_halign(label, GTK_ALIGN_START);
+      GtkWidget *spin_button = gtk_spin_button_new_with_range(lo, hi, step);
+      gtk_spin_button_set_digits(GTK_SPIN_BUTTON(spin_button), 2);
+      gtk_spin_button_set_value(GTK_SPIN_BUTTON(spin_button), value);
+      gtk_widget_set_hexpand(spin_button, TRUE);
+      gtk_grid_attach(GTK_GRID(grid), label,       0, row, 1, 1);
+      gtk_grid_attach(GTK_GRID(grid), spin_button, 1, row, 1, 1);
+      g_signal_connect(spin_button, "value-changed",
+                       G_CALLBACK(+[] (GtkSpinButton *, gpointer) { box_dialog_apply(); }),
+                       nullptr);
+      return spin_button;
+   }
+}
+
+void show_box_dialog() {
+
+   if (! graphics_info_t::use_graphics_interface_flag) return;
+
+   // Bring an existing dialog back to the front rather than making a second one.
+   if (box_dialog_state.window) {
+      gtk_window_present(GTK_WINDOW(box_dialog_state.window));
+      return;
+   }
+
+   GtkWidget *window = gtk_window_new();
+   gtk_window_set_title(GTK_WINDOW(window), "Coot: 3D Box");
+   box_dialog_state.window = window;
+
+   GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
+   gtk_widget_set_margin_start (vbox, 10);
+   gtk_widget_set_margin_end   (vbox, 10);
+   gtk_widget_set_margin_top   (vbox, 10);
+   gtk_widget_set_margin_bottom(vbox, 10);
+   gtk_window_set_child(GTK_WINDOW(window), vbox);
+
+   GtkWidget *grid = gtk_grid_new();
+   gtk_grid_set_row_spacing(GTK_GRID(grid), 4);
+   gtk_grid_set_column_spacing(GTK_GRID(grid), 8);
+   gtk_box_append(GTK_BOX(vbox), grid);
+
+   // start the box centred on the current view centre
+   coot::Cartesian rc = graphics_info_t::RotationCentre();
+
+   box_dialog_state.centre_x = box_dialog_add_spin_button(grid, 0, "Centre X", -9999.0, 9999.0, 0.5, rc.x());
+   box_dialog_state.centre_y = box_dialog_add_spin_button(grid, 1, "Centre Y", -9999.0, 9999.0, 0.5, rc.y());
+   box_dialog_state.centre_z = box_dialog_add_spin_button(grid, 2, "Centre Z", -9999.0, 9999.0, 0.5, rc.z());
+   box_dialog_state.size_x   = box_dialog_add_spin_button(grid, 3, "Size X",       0.0, 9999.0, 0.5, 20.0);
+   box_dialog_state.size_y   = box_dialog_add_spin_button(grid, 4, "Size Y",       0.0, 9999.0, 0.5, 20.0);
+   box_dialog_state.size_z   = box_dialog_add_spin_button(grid, 5, "Size Z",       0.0, 9999.0, 0.5, 20.0);
+   box_dialog_state.edge_radius = box_dialog_add_spin_button(grid, 6, "Edge Radius", 0.02, 5.0, 0.02, 0.15);
+
+   // Colour chooser
+   {
+      GtkWidget *label = gtk_label_new("Colour");
+      gtk_widget_set_halign(label, GTK_ALIGN_START);
+      const std::vector<std::string> &colours = box_dialog_colours();
+      std::vector<const char *> c_strings;
+      for (const auto &c : colours) c_strings.push_back(c.c_str());
+      c_strings.push_back(nullptr);
+      GtkWidget *combo = gtk_drop_down_new_from_strings(c_strings.data());
+      gtk_drop_down_set_selected(GTK_DROP_DOWN(combo), 0);
+      gtk_widget_set_hexpand(combo, TRUE);
+      gtk_grid_attach(GTK_GRID(grid), label, 0, 7, 1, 1);
+      gtk_grid_attach(GTK_GRID(grid), combo, 1, 7, 1, 1);
+      g_signal_connect(combo, "notify::selected",
+                       G_CALLBACK(+[] (GObject *, GParamSpec *, gpointer) { box_dialog_apply(); }),
+                       nullptr);
+      box_dialog_state.colour_combo = combo;
+   }
+
+   // Read-out of the current centre and size
+   {
+      GtkWidget *separator = gtk_separator_new(GTK_ORIENTATION_HORIZONTAL);
+      gtk_widget_set_margin_top(separator, 4);
+      gtk_box_append(GTK_BOX(vbox), separator);
+
+      GtkWidget *readout = gtk_label_new("");
+      gtk_widget_set_halign(readout, GTK_ALIGN_START);
+      gtk_label_set_xalign(GTK_LABEL(readout), 0.0);
+      gtk_widget_set_margin_top(readout, 4);
+      gtk_box_append(GTK_BOX(vbox), readout);
+      box_dialog_state.readout = readout;
+   }
+
+   // Buttons
+   GtkWidget *button_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
+   gtk_widget_set_halign(button_box, GTK_ALIGN_END);
+   gtk_widget_set_margin_top(button_box, 8);
+   gtk_box_append(GTK_BOX(vbox), button_box);
+
+   GtkWidget *centre_button = gtk_button_new_with_label("Centre on View");
+   GtkWidget *close_button  = gtk_button_new_with_label("Close");
+   gtk_box_append(GTK_BOX(button_box), centre_button);
+   gtk_box_append(GTK_BOX(button_box), close_button);
+
+   g_signal_connect(centre_button, "clicked",
+                    G_CALLBACK(+[] (GtkButton *, gpointer) {
+                       coot::Cartesian c = graphics_info_t::RotationCentre();
+                       gtk_spin_button_set_value(GTK_SPIN_BUTTON(box_dialog_state.centre_x), c.x());
+                       gtk_spin_button_set_value(GTK_SPIN_BUTTON(box_dialog_state.centre_y), c.y());
+                       gtk_spin_button_set_value(GTK_SPIN_BUTTON(box_dialog_state.centre_z), c.z());
+                       // the value-changed signals trigger box_dialog_apply()
+                    }),
+                    nullptr);
+
+   g_signal_connect_swapped(close_button, "clicked",
+                            G_CALLBACK(gtk_window_destroy), window);
+
+   // Forget our widget pointers when the window goes away.
+   g_signal_connect(window, "destroy",
+                    G_CALLBACK(+[] (GtkWidget *, gpointer) {
+                       box_dialog_state.window = nullptr;
+                       box_dialog_state.colour_combo = nullptr;
+                       box_dialog_state.readout = nullptr;
+                    }),
+                    nullptr);
+
+   // Create the box now so it appears as soon as the dialog opens.
+   box_dialog_apply();
+
+   gtk_widget_set_visible(window, TRUE);
+   gtk_window_present(GTK_WINDOW(window));
+}
