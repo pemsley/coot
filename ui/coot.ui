@@ -19287,6 +19287,12 @@ Move a copy?</property>
             </child>
             <child>
               <object class="GtkShortcutsShortcut">
+                <property name="accelerator">&lt;Shift&gt;L</property>
+                <property name="title" translatable="yes">Remove All Atom Labels</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
                 <property name="accelerator">quoteleft</property>
                 <property name="title" translatable="yes">Highlight Active Residue</property>
               </object>
