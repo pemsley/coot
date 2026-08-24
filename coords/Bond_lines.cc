@@ -8732,19 +8732,20 @@ Bond_lines_container::add_atom_centres(int imol,
             // Fat atoms are for atom in residues with no dictionary - except
             // colour-by-molecule mode, where the dictionary check is not a thing.
             bool make_fat_atom = false;
+
+      // 2026-08-21-PE Clemens doesn't want fat atoms for atom in ligands with no
+      // dictionary. Eugene didn't understand it either.
+
+            gbai.set_radius_scale_for_atom(at, make_fat_atom);
+
             if (atom_colour_type != coot::COLOUR_BY_MOLECULE)
                if (! have_dict_for_this_type)
                   if (atom_colour_type != coot::COLOUR_BY_ATOM_TYPE)
                      make_fat_atom = true;
-            // std::cout << " atom_colour_type " << atom_colour_type << " c.f. " << coot::COLOUR_BY_MOLECULE
-            // << " make_fat_atom: " << make_fat_atom << std::endl;
-            // 20240712-PE previous: gbai.set_radius_scale_for_atom(at, make_fat_atom);
             if (atom_colour_type != coot::COLOUR_BY_MOLECULE)
                if (! have_dict_for_this_type)
                   if (atom_colour_type != coot::COLOUR_BY_ATOM_TYPE)
                      gbai.set_radius_scale_for_atom_with_no_dictionary(at);
-
-            gbai.set_radius_scale_for_atom(at, make_fat_atom);
 
             // this is a bit hacky
             if (atom_colour_type == coot::COLOUR_BY_USER_DEFINED_COLOURS)
@@ -8775,6 +8776,15 @@ Bond_lines_container::add_atom_centres(int imol,
                          << " with is_H_flag " << is_H_flag << " radius_scale " << gbai.radius_scale << std::endl;
             atom_centres.push_back(gbai);
             int icol = atom_colour(at, atom_colour_type, udd_user_defined_atom_colour_index_handle, atom_colour_map_p);
+
+            // give the user a clue that they don't have a dictionary for this ligand:
+            if (atom_colour_type != coot::COLOUR_BY_MOLECULE) {
+               if (! have_dict_for_this_type) {
+                  if (atom_colour_type != coot::COLOUR_BY_ATOM_TYPE) {
+                     icol = MAGENTA_BOND;
+                  }
+               }
+            }
             bonds_size_colour_check(icol);
             atom_centres_colour.push_back(icol);
          }

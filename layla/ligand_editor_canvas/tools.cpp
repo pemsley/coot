@@ -581,7 +581,24 @@ void BondModifier::on_bond_click(MoleculeClickContext& ctx, CanvasMolecule::Bond
     auto* rdkit_bond = ctx.rdkit_mol->getBondBetweenAtoms(bond.first_atom_idx,bond.second_atom_idx);
     RDKit::MolOps::Kekulize(*ctx.rdkit_mol.get());
     auto old_type = rdkit_bond->getBondType();
-    rdkit_bond->setBondType(CanvasMolecule::bond_type_to_rdkit(this->get_target_bond_type()));
+    auto own_type = this->get_target_bond_type();
+    auto new_type = own_type;
+    if(own_type == CanvasMolecule::BondType::Single || own_type == CanvasMolecule::BondType::Double) {
+        auto own_type_rd = CanvasMolecule::bond_type_to_rdkit(own_type);
+        if(own_type_rd == old_type) { // if the target is already set, we alternate between single and double
+            if (own_type == CanvasMolecule::BondType::Single) {
+                new_type = CanvasMolecule::BondType::Double;
+            } else { //own type is double
+                new_type = CanvasMolecule::BondType::Single;
+            }
+        }
+    } else { // triple bond
+        auto own_type_rd = CanvasMolecule::bond_type_to_rdkit(own_type);
+        if(own_type_rd == old_type) { // if the target is already set, we alternate between triple and single
+            new_type = CanvasMolecule::BondType::Single;
+        }
+    }
+    rdkit_bond->setBondType(CanvasMolecule::bond_type_to_rdkit(new_type));
     try {
         this->sanitize_molecule(ctx.widget_data, *ctx.rdkit_mol.get());
     }catch(std::exception& e) {

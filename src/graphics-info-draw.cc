@@ -2752,17 +2752,17 @@ graphics_info_t::draw_rotation_centre_crosshairs(stereo_eye_t eye, GtkGLArea *gl
 
    // gtk_gl_area_make_current(glarea); // needed?, no it isn't.
    GLenum err = glGetError();
-   if (err) std::cout << "error draw_rotation_centre_crosshairs() A0 err " << err << std::endl;
+   if (err) std::cout << "GL ERROR:: draw_rotation_centre_crosshairs() A0 err " << err << std::endl;
 
    glLineWidth(1.0);
    err = glGetError();
-   if (err) std::cout << "error draw_rotation_centre_crosshairs() A1 err " << err << std::endl;
+   if (err) std::cout << "GL ERROR:: draw_rotation_centre_crosshairs() A1 err " << err << std::endl;
 
    glm::mat4 mvp = get_molecule_mvp(eye);
    glm::mat4 model_rotation = get_model_rotation();
 
    glBindVertexArray(rotation_centre_crosshairs_vertexarray_id);
-   if (err) std::cout << "error draw_rotation_centre_crosshairs() B err " << err << std::endl;
+   if (err) std::cout << "GL ERROR:: draw_rotation_centre_crosshairs() B err " << err << std::endl;
 
    if (pass_type == PASS_TYPE_STANDARD) {
       shader_for_central_cube.Use(); // (it's drawing the crosshairs though - same shader)
@@ -2784,13 +2784,18 @@ graphics_info_t::draw_rotation_centre_crosshairs(stereo_eye_t eye, GtkGLArea *gl
    GLuint mvp_location           = shader_for_central_cube.mvp_uniform_location;
    GLuint view_rotation_location = shader_for_central_cube.view_rotation_uniform_location;
 
+   err = glGetError();
+   if (err)
+      std::cout << "GL ERROR:: draw_rotation_centre_crosshairs() pre glUniformMatrix4fv() for mvp " << err << std::endl;
    glUniformMatrix4fv(mvp_location, 1, GL_FALSE, &mvp[0][0]);
    err = glGetError();
-   if (err) std::cout << "error::draw_rotation_centre_crosshairs() glUniformMatrix4fv() for mvp " << err << std::endl;
+   if (err)
+      std::cout << "GL ERROR:: draw_rotation_centre_crosshairs() glUniformMatrix4fv() for mvp " << err << std::endl;
    glUniformMatrix4fv(view_rotation_location, 1, GL_FALSE, &model_rotation[0][0]);
    err = glGetError();
-   if (err) std::cout << "error::draw_rotation_centre_crosshairs() glUniformMatrix4fv() for view_rotation " << err
-                      << std::endl;
+   if (err)
+      std::cout << "GL ERROR:: draw_rotation_centre_crosshairs() glUniformMatrix4fv() for view_rotation " << err
+                << std::endl;
 
    if (pass_type == PASS_TYPE_STANDARD) {
 

@@ -422,6 +422,7 @@ add_library(cootapi SHARED
             ${coot_src}/coot-utils/contact-info.cc
             ${coot_src}/coot-utils/hole.cc
             ${coot_src}/coot-utils/slurp-map.cc
+            ${coot_src}/coot-utils/read-cube.cc
             ${coot_src}/coot-utils/read-sm-cif.cc
             ${coot_src}/coot-utils/exp-fit.cc
             ${coot_src}/coot-utils/cylinder.cc

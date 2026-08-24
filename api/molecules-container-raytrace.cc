@@ -135,19 +135,35 @@ void extract_wireframe_from_mesh(const coot::simple_mesh_t &mesh,
 } // anonymous namespace
 
 void
-molecules_container_t::ray_trace_init() {
+molecules_container_t::ray_trace_init(int n_threads) {
 
 #ifdef HAVE_OSPRAY
    if (!ospray_is_initialized) {
-      OSPError err = ospInit(nullptr, nullptr);
+      // n_threads <= 0 (the default) leaves OSPRay/Embree at its default (all
+      // available hardware threads). A positive value caps the thread (core)
+      // count via OSPRay's "--osp:num-threads" argument, which is applied before
+      // the device is committed - the reliable point to set it.
+      OSPError err = OSP_NO_ERROR;
+      if (n_threads > 0) {
+         std::string threads_arg = "--osp:num-threads=" + std::to_string(n_threads);
+         const char *argv[] = { "coot", threads_arg.c_str() };
+         int argc = 2;
+         err = ospInit(&argc, argv);
+      } else {
+         err = ospInit(nullptr, nullptr);
+      }
       if (err != OSP_NO_ERROR) {
          std::cout << "ERROR:: ray_trace_init(): ospInit() failed with error " << err << std::endl;
       } else {
          ospray_is_initialized = true;
-         std::cout << "INFO:: OSPRay initialized" << std::endl;
+         if (n_threads > 0)
+            std::cout << "INFO:: OSPRay initialized (limited to " << n_threads << " thread(s))" << std::endl;
+         else
+            std::cout << "INFO:: OSPRay initialized" << std::endl;
       }
    }
 #else
+   (void) n_threads;
    std::cout << "WARNING:: ray_trace_init(): Coot was built without OSPRay support" << std::endl;
 #endif
 }

@@ -777,12 +777,56 @@ public:
    //! @return the new molecule index on success and -1 on failure
    int read_pdbqt(const std::string &file_name);
 
+   //! Read a Gaussian/ORCA "cube" file as a new model molecule and a new map.
+   //!
+   //! A cube file (e.g. an ORCA molecular-orbital or density cube) contains both
+   //! the atoms of the molecule and a volumetric grid. The atoms are read as a
+   //! model molecule (in true, Angstrom-converted coordinates) and the grid is
+   //! read as a map molecule that registers with the model. Orbital cubes (with
+   //! a negative lobe) are flagged as difference maps so both lobes are drawn.
+   //!
+   //! @param file_name is the name of the cube file
+   //!
+   //! @return a pair {imol_model, imol_map}; either element is -1 if that part
+   //!         could not be made (e.g. imol_map is -1 for a non-orthogonal grid)
+   std::pair<int, int> read_cube(const std::string &file_name);
+
    //! Get the AutoDock Vina scores for a molecule read from a PDBQT docking result.
    //!
    //! @param imol is the model molecule index
    //!
    //! @return one pose_score_t per model; empty if the molecule has no Vina scores
    std::vector<coot::pdbqt::pose_score_t> get_vina_scores(int imol) const;
+
+   //! Write a flexible receptor as the AutoDock/Vina pair of files (rigid + flex).
+   //!
+   //! The chosen residues' side chains become CA-rooted torsion trees in the flex
+   //! file (rotatable bonds from the dictionary, no RDKit); everything else, plus
+   //! those residues' backbone, is written to the rigid file. Give the two files
+   //! to Vina as --receptor and --flex.
+   //!
+   //! @param imol the model molecule index
+   //! @param flex_residues_cid a residue selection (cid) naming the flexible residues
+   //! @param rigid_file_name the output rigid-receptor PDBQT file name
+   //! @param flex_file_name the output flexible-side-chain PDBQT file name
+   //! @return the number of flexible side chains written (0 on failure)
+   int export_flexible_receptor_as_pdbqt(int imol, const std::string &flex_residues_cid,
+                                         const std::string &rigid_file_name,
+                                         const std::string &flex_file_name);
+
+   //! Write a flexible receptor, choosing the flexible side chains automatically as
+   //! the polymer residues (excluding GLY/ALA/PRO) with any atom within `radius` of
+   //! the given point - typically the docking-box centre.
+   //!
+   //! @param imol the model molecule index
+   //! @param x,y,z the reference point (e.g. the docking-box centre)
+   //! @param radius the selection radius (Angstroms)
+   //! @param rigid_file_name the output rigid-receptor PDBQT file name
+   //! @param flex_file_name the output flexible-side-chain PDBQT file name
+   //! @return the number of flexible side chains written (0 on failure)
+   int export_flexible_receptor_near_point_as_pdbqt(int imol, float x, float y, float z, float radius,
+                                                    const std::string &rigid_file_name,
+                                                    const std::string &flex_file_name);
 
    //! Read a small molecule CIF file
    //!
@@ -1263,7 +1307,12 @@ public:
    void set_gltf_pbr_metalicity_factor(int imol, float metalicity);
 
    //! Initialise the OSPRay ray-tracing engine. Call this before ray_trace_image().
-   void ray_trace_init();
+   //!
+   //! @param n_threads (optional) caps the number of threads (cores) that
+   //! OSPRay/Embree may use. The default (<= 0) uses all available hardware
+   //! threads. This must be set at initialisation, so it is an argument here
+   //! rather than a ray_trace_image() JSON parameter.
+   void ray_trace_init(int n_threads = -1);
 
    //! Shut down the OSPRay ray-tracing engine.
    void ray_trace_shutdown();

@@ -35,6 +35,8 @@
 #include "clipper-ccp4-map-file-wrapper.hh"
 #include "coot-utils/slurp-map.hh"
 #include "coot-utils/segmap.hh"
+#include "coot-utils/read-cube.hh"
+#include "coot-utils/atom-selection-container.hh"
 
 int
 molecules_container_t::read_ccp4_map(const std::string &file_name, bool is_a_difference_map) {
@@ -157,6 +159,54 @@ molecules_container_t::read_ccp4_map(const std::string &file_name, bool is_a_dif
 clipper::Xmap<float> molecules_container_t::get_xmap(int imol) const {
 
    return molecules[imol].xmap;
+}
+
+// Read a Gaussian/ORCA cube file as a new model molecule (its atoms) and a
+// new map molecule (its grid). Returns {imol_model, imol_map}.
+std::pair<int, int>
+molecules_container_t::read_cube(const std::string &file_name) {
+
+   int imol_model = -1;
+   int imol_map = -1;
+
+   if (! coot::file_exists(file_name)) {
+      std::cout << "WARNING:: read_cube(): file does not exist " << file_name << std::endl;
+      return std::make_pair(imol_model, imol_map);
+   }
+
+   bool read_grid_data = true;
+   coot::util::cube_t cube = coot::util::read_cube_file(file_name, read_grid_data);
+   if (cube.read_success) {
+
+      // the model, from the cube's atoms
+      mmdb::Manager *mol = cube.make_mmdb_manager();
+      if (mol) {
+         int imol_in_hope = molecules.size();
+         atom_selection_container_t asc = make_asc(mol);
+         coot::molecule_t m(asc, imol_in_hope, file_name);
+         molecules.push_back(m);
+         imol_model = imol_in_hope;
+      }
+
+      // the map, from the cube's grid
+      clipper::Xmap<float> xmap;
+      if (cube.make_xmap(&xmap)) {
+         int imol_in_hope = molecules.size();
+         short int is_em_map = 1; // a cube grid is non-crystallographic
+         std::string map_name = file_name + " (density)";
+         coot::molecule_t m_map(map_name, imol_in_hope, is_em_map);
+         m_map.xmap = xmap;
+         if (cube.data_has_negative_lobe())
+            m_map.set_map_is_difference_map(true); // orbital: draw +/- lobes
+         molecules.push_back(m_map);
+         imol_map = imol_in_hope;
+      }
+
+      std::cout << "INFO:: read_cube(): made model molecule " << imol_model << " with "
+                << cube.atoms.size() << " atoms and map molecule " << imol_map
+                << " from " << file_name << std::endl;
+   }
+   return std::make_pair(imol_model, imol_map);
 }
 
 coot::validation_information_t

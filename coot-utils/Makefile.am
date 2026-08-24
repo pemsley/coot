@@ -37,7 +37,7 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
         secondary-structure-headers.hh c-beta-deviations.hh jed-flip.hh lidia-core-functions.hh \
 	bonded-atoms.hh spherical-harmonics.hh zernike.hh helix-like.hh merge-atom-selections.hh \
 	contacts-by-bricks.hh amp-reso.hh stack-and-pair.hh atom-tools.hh segmap.hh fast-eigens.hh strand-fragments.hh \
-	sfcalc-genmap.hh cablam-markup.hh slurp-map.hh merge-molecules.hh arc-info.hh exp-fit.hh \
+	sfcalc-genmap.hh cablam-markup.hh slurp-map.hh read-cube.hh merge-molecules.hh arc-info.hh exp-fit.hh \
 	coot_shiftfield.h shiftfield.h fib-sphere.hh cis-peptide-info.hh \
 	pepflip-using-difference-map.hh blob-line.hh shape-types.hh shapes.hh \
         polar-atoms.hh 3d-texture.hh fragment-container.hh map-index.hh \
@@ -144,7 +144,7 @@ libcoot_coord_extras_la_LDFLAGS = $(SHARED_LDFLAGS)
 # for (map) things that need to link mmdb and clipper:
 libcoot_map_utils_la_SOURCES = coot-map-utils.cc peak-search.cc peak-search-from-list.cc trim.cc \
 	xmap-stats.cc maps-spherical.cc pepflip-using-difference-map.cc exp-fit.cc blob-line.cc \
-        slurp-map.cc find-water-baddies.cc diff-diff-map-peaks.cc mini-texture.cc positron.cc \
+        slurp-map.cc read-cube.cc find-water-baddies.cc diff-diff-map-peaks.cc mini-texture.cc positron.cc \
         texture-as-floats.cc merge-C-and-N-terminii.cc born.cc rebox-map.cc \
         crowther.cc patterson.cc map-cap.cc edcalc.cc
 

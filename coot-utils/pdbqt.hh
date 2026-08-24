@@ -22,6 +22,7 @@
 #include <vector>
 #include <mmdb2/mmdb_manager.h>
 #include "geometry/protein-geometry.hh"
+#include "geometry/residue-and-atom-specs.hh"   // residue_spec_t
 #include "lidia-core/pdbqt-common.hh"   // writable_atom_t, atom_line, ad_type_from_element
 
 namespace coot {
@@ -55,6 +56,28 @@ namespace coot {
       //! @return the number of atoms written (0 on failure)
       int write_receptor(mmdb::Manager *mol, protein_geometry &geom, int imol_enc,
                          const std::string &file_name);
+
+      //! Write a flexible receptor as the AutoDock/Vina pair of files. The rigid
+      //! file holds everything except the movable side-chain atoms of the chosen
+      //! residues (their backbone N/C/O and amide H stay rigid); the flex file
+      //! holds each chosen side chain as a CA-rooted torsion tree. Rotatable bonds
+      //! are the dictionary (non-const, non-ring) side-chain torsions - no RDKit.
+      //! Waters are dropped. Give the two files to Vina as --receptor and --flex.
+      //!
+      //! @return the number of flexible side chains written to the flex file
+      //!         (0 on failure or if none of flex_residues was usable)
+      int write_flexible_receptor(mmdb::Manager *mol, protein_geometry &geom, int imol_enc,
+                                  const std::vector<residue_spec_t> &flex_residues,
+                                  const std::string &rigid_file_name,
+                                  const std::string &flex_file_name);
+
+      //! Convenience selector: the polymer residues that have a rotatable side
+      //! chain and lie within `radius` (any atom) of the point (x,y,z). Skips
+      //! GLY/ALA/PRO (no useful rotatable side chain) and waters. Feed the result
+      //! to write_flexible_receptor().
+      std::vector<residue_spec_t>
+      flexible_side_chain_residues_near(mmdb::Manager *mol, double x, double y, double z,
+                                        double radius);
 
       //! Read a PDBQT file (e.g. an AutoDock/Vina docking result) into a new
       //! mmdb::Manager. This is a lightweight reader, not a full PDB parser: it

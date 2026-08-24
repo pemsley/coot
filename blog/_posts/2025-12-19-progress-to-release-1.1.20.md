@@ -1,4 +1,4 @@
-# What’s New in Coot – October 2025 and Beyond
+# AI-Generated Text: What’s New in Coot – October 2025 and Beyond
 
 The [Coot](https://github.com/pemsley/coot) project has seen a steady stream of updates since October 2025, spanning new features, bug fixes, improvements to usability, and under-the-hood tweaks. Below we summarize the highlights and directions from more than 250 changes, as reflected in commit messages and RELEASE note updates. (Tip: [browse all recent commits](https://github.com/pemsley/coot/search?q=committer-date%3A%3E%3D2025-10-01&type=commits).)
 
