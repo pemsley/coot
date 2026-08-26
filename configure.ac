@@ -517,6 +517,20 @@ else
     AC_SUBST(GEMMI_LIBS)
 fi
 
+dnl AceDRG ASCII tables directory — used at build time to generate the
+dnl acedrg.sqlite database into the user's XDG cache dir (optional).
+AC_ARG_WITH([acedrg-tables-dir],
+   AS_HELP_STRING([--with-acedrg-tables-dir=DIR location of the AceDRG ASCII tables (used at build time to make the acedrg.sqlite database)]),
+   acedrg_tables_dir="$withval", acedrg_tables_dir="")
+AC_MSG_CHECKING([for AceDRG tables directory])
+if test "x$acedrg_tables_dir" = x ; then
+   AC_MSG_RESULT(no)
+else
+   AC_MSG_RESULT($acedrg_tables_dir)
+fi
+AC_SUBST(ACEDRG_TABLES_DIR, "$acedrg_tables_dir")
+AM_CONDITIONAL(HAVE_ACEDRG_TABLES_DIR, [test "x$acedrg_tables_dir" != x])
+
 # 20090613 We need to be able to determine the build type, and embed
 # that value in to coot binary.  We need to do that for the updating
 # Coot.  THe build type will be set by COOT_SYS_BUILD_TYPE.  Which is

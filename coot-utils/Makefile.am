@@ -59,6 +59,7 @@ AM_CPPFLAGS = \
 	$(ENHANCED_LIGAND_TOOLS_CPPFLAGS) \
 	$(CLIPPER_CXXFLAGS)  \
 	$(GEMMI_CXXFLAGS)    \
+	$(SQLITE3_CFLAGS)    \
 	$(MMDB_CXXFLAGS)     \
         $(CAIRO_CFLAGS)      \
 	$(gsl_CFLAGS)	     \
@@ -106,7 +107,7 @@ libcoot_coord_utils_la_LIBADD = \
     $(top_builddir)/mini-mol/libcoot-mini-mol.la     \
     $(top_builddir)/utils/libcoot-utils.la           \
     $(top_builddir)/mini-mol/libcoot-mini-mol.la     \
-    $(CLIPPER_LIBS) $(GEMMI_LIBS) $(MMDB_LIBS) \
+    $(CLIPPER_LIBS) $(GEMMI_LIBS) $(MMDB_LIBS) $(SQLITE3_LIBS) \
     $(gsl_LIBS) $(RDKIT_LIBS) $(CAIRO_LIBS) $(BOOST_LDFLAGS) $(NETCDF_LIBS) -lpthread
 
 libcoot_coord_utils_la_LDFLAGS = $(SHARED_LDFLAGS)
