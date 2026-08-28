@@ -186,6 +186,163 @@ namespace {
       return std::string();
    }
 
+   // Build a coot dictionary_residue_restraints_t from a gemmi ChemComp,
+   // atoms and bond connectivity/type only (dummy values), mirroring how
+   // coot's own dictionary is turned into the converter's input in
+   // production (protein-geometry.hh's dict_atom / dict_bond_restraint_t
+   // constructors).
+   coot::dictionary_residue_restraints_t
+   build_dictionary_from_chemcomp(const gemmi::ChemComp &cc) {
+
+      coot::dictionary_residue_restraints_t rest(cc.name, 1);
+      for (const auto &a : cc.atoms) {
+         coot::dict_atom da(a.id, a.id, a.el.name(), "", std::pair<bool, float>(false, 0));
+         rest.atom_info.push_back(da);
+      }
+      for (const auto &b : cc.rt.bonds) {
+         coot::dict_bond_restraint_t db(b.id1.atom, b.id2.atom,
+                                        gemmi::bond_type_to_string(b.type),
+                                        1.0, 0.02, 0.0, 0.0, false);
+         rest.bond_restraint.push_back(db);
+      }
+      return rest;
+   }
+
+   // For each corpus monomer: build the ChemComp from the block, fill it
+   // directly with fill_chemcomp() (the reference for this test), then
+   // build a coot dictionary from the *same* ChemComp's atoms/bonds and
+   // run it through make_bond_and_angle_restraints(). Every bond/angle
+   // value+esd the bridge returns must match the direct fill, and the
+   // returned restraint count must equal the number of non-NaN direct
+   // fills.
+   int run_dictionary(const std::string &data_dir, const std::string &corpus_dir) {
+
+      coot::acedrg_sqlite_tables t;
+      if (! t.init(data_dir)) {
+         std::cout << "FAIL: could not init acedrg_sqlite_tables from " << data_dir << std::endl;
+         return 1;
+      }
+
+      std::vector<std::filesystem::path> cif_paths;
+      for (const auto &entry : std::filesystem::directory_iterator(corpus_dir)) {
+         if (! entry.is_regular_file()) continue;
+         if (entry.path().extension() != ".cif") continue;
+         std::string name = entry.path().filename().string();
+         if (name.rfind("reference_", 0) == 0) continue;
+         cif_paths.push_back(entry.path());
+      }
+      std::sort(cif_paths.begin(), cif_paths.end());
+
+      bool all_ok = true;
+      int n_tested = 0;
+
+      for (const auto &path : cif_paths) {
+         std::string name = path.filename().string();
+         try {
+            gemmi::cif::Document doc = gemmi::cif::read_file(path.string());
+            gemmi::cif::Block *block = find_chemcomp_block(doc);
+            if (! block) {
+               std::cout << "FAIL " << name << ": no block with _chem_comp_atom.atom_id found" << std::endl;
+               all_ok = false;
+               continue;
+            }
+            gemmi::ChemComp cc_orig = gemmi::make_chemcomp_from_block(*block);
+            std::string comp_id = cc_orig.name;
+
+            // reference: direct fill_chemcomp() on a value-stripped copy
+            gemmi::ChemComp cc_ref = strip_restraint_values(cc_orig);
+            if (! t.fill_chemcomp(cc_ref)) {
+               std::cout << "FAIL " << comp_id << ": fill_chemcomp() returned false" << std::endl;
+               all_ok = false;
+               continue;
+            }
+
+            unsigned int n_expected = 0;
+            std::map<std::string, const gemmi::Restraints::Bond *> ref_bonds;
+            for (const auto &b : cc_ref.rt.bonds) {
+               if (! std::isnan(b.value) && ! std::isnan(b.esd)) {
+                  ref_bonds[b.lexicographic_str()] = &b;
+                  ++n_expected;
+               }
+            }
+            std::map<std::string, const gemmi::Restraints::Angle *> ref_angles;
+            for (const auto &a : cc_ref.rt.angles) {
+               if (! std::isnan(a.value) && ! std::isnan(a.esd)) {
+                  ref_angles[angle_key(a)] = &a;
+                  ++n_expected;
+               }
+            }
+
+            // test: build a coot dictionary from cc_orig's atoms/bonds
+            // (connectivity + type only) and run the bridge
+            coot::dictionary_residue_restraints_t dict = build_dictionary_from_chemcomp(cc_orig);
+            std::pair<bool, coot::dictionary_residue_restraints_t> result =
+               t.make_bond_and_angle_restraints(dict);
+            const coot::dictionary_residue_restraints_t &r = result.second;
+            unsigned int n_got = static_cast<unsigned int>(r.bond_restraint.size() + r.angle_restraint.size());
+
+            if (! result.first && n_expected > 0) {
+               std::cout << "FAIL " << comp_id << ": make_bond_and_angle_restraints() returned status false but "
+                         << n_expected << " values were expected" << std::endl;
+               all_ok = false;
+               continue;
+            }
+
+            ++n_tested;
+
+            std::string err;
+            if (n_got != n_expected) {
+               err = "restraint count mismatch: expected " + std::to_string(n_expected) +
+                     " got " + std::to_string(n_got);
+            }
+            if (err.empty()) {
+               for (const auto &br : r.bond_restraint) {
+                  std::string key = gemmi::Restraints::lexicographic_str(br.atom_id_1(), br.atom_id_2());
+                  auto it = ref_bonds.find(key);
+                  if (it == ref_bonds.end()) { err = "bond " + key + " present in result but not expected"; break; }
+                  if (! nan_or_close(br.value_dist(), it->second->value))
+                     { err = "bond " + key + " value mismatch: got " + std::to_string(br.value_dist()) +
+                              " expected " + std::to_string(it->second->value); break; }
+                  if (! nan_or_close(br.value_esd(), it->second->esd))
+                     { err = "bond " + key + " esd mismatch: got " + std::to_string(br.value_esd()) +
+                              " expected " + std::to_string(it->second->esd); break; }
+               }
+            }
+            if (err.empty()) {
+               for (const auto &ar : r.angle_restraint) {
+                  std::string lo = ar.atom_id_1();
+                  std::string hi = ar.atom_id_3();
+                  if (lo > hi) std::swap(lo, hi);
+                  std::string key = ar.atom_id_2() + "|" + lo + "|" + hi;
+                  auto it = ref_angles.find(key);
+                  if (it == ref_angles.end()) { err = "angle " + key + " present in result but not expected"; break; }
+                  if (! nan_or_close(ar.angle(), it->second->value))
+                     { err = "angle " + key + " value mismatch: got " + std::to_string(ar.angle()) +
+                              " expected " + std::to_string(it->second->value); break; }
+                  if (! nan_or_close(ar.esd(), it->second->esd))
+                     { err = "angle " + key + " esd mismatch: got " + std::to_string(ar.esd()) +
+                              " expected " + std::to_string(it->second->esd); break; }
+               }
+            }
+
+            if (err.empty()) {
+               std::cout << "PASS " << comp_id << " (" << r.bond_restraint.size() << " bonds, "
+                         << r.angle_restraint.size() << " angles)" << std::endl;
+            } else {
+               std::cout << "FAIL " << comp_id << ": " << err << std::endl;
+               all_ok = false;
+            }
+         }
+         catch (const std::exception &e) {
+            std::cout << "FAIL " << name << ": exception: " << e.what() << std::endl;
+            all_ok = false;
+         }
+      }
+
+      std::cout << n_tested << " monomer(s) tested" << std::endl;
+      return all_ok ? 0 : 1;
+   }
+
    int run_corpus(const std::string &full_ascii_dir,
                   const std::string &data_dir,
                   const std::string &corpus_dir) {
@@ -279,7 +436,11 @@ int main(int argc, char **argv) {
    if (args.size() == 4 && args[0] == "corpus")
       return run_corpus(args[1], args[2], args[3]);
 
-   std::cout << "Usage: test-acedrg-sqlite-tables corpus <full-ascii-tables-dir> <data-dir> <corpus-dir>"
+   if (args.size() == 3 && args[0] == "dictionary")
+      return run_dictionary(args[1], args[2]);
+
+   std::cout << "Usage: test-acedrg-sqlite-tables corpus <full-ascii-tables-dir> <data-dir> <corpus-dir>\n"
+             << "       test-acedrg-sqlite-tables dictionary <data-dir> <corpus-dir>"
              << std::endl;
    return 2;
 }

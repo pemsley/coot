@@ -49,6 +49,7 @@
 #include <set>
 #include <tuple>
 #include <cmath>
+#include <limits>
 #include <iostream>
 #include <stdexcept>
 #include <unordered_map>
@@ -408,11 +409,105 @@ coot::acedrg_sqlite_tables::fill_chemcomp(gemmi::ChemComp &cc) {
 
 #endif // USE_SQLITE3
 
+namespace {
+
+   // Build a gemmi ChemComp (atoms + typed bonds, no values) from a coot
+   // dictionary -- the input to AceDRG atom typing. Also synthesizes one
+   // angle record (value/esd = NaN) per bonded-neighbour pair around each
+   // atom: gemmi's fill_restraints() only fills *existing* angle records,
+   // it never derives them from bond adjacency, so the angle topology has
+   // to be supplied up front here or make_bond_and_angle_restraints()
+   // would always come back with zero angles. Mirrors
+   // synthesize_angles_from_bonds() in test-acedrg-sqlite-tables.cc.
+   gemmi::ChemComp
+   chemcomp_from_dictionary(const coot::dictionary_residue_restraints_t &rest) {
+
+      gemmi::ChemComp cc;
+      cc.name = rest.residue_info.comp_id;
+      for (const auto &a : rest.atom_info) {
+         gemmi::ChemComp::Atom atom;
+         atom.id = a.atom_id;
+         atom.el = gemmi::Element(a.type_symbol.c_str()).elem;
+         if (a.formal_charge.first)
+            atom.charge = static_cast<float>(a.formal_charge.second);
+         atom.chem_type = a.type_energy;
+         cc.atoms.push_back(atom);
+      }
+      double nan = std::numeric_limits<double>::quiet_NaN();
+      for (const auto &b : rest.bond_restraint) {
+         gemmi::Restraints::Bond bond;
+         bond.id1 = gemmi::Restraints::AtomId{1, b.atom_id_1()};
+         bond.id2 = gemmi::Restraints::AtomId{1, b.atom_id_2()};
+         bond.type = gemmi::bond_type_from_string(b.type());
+         bond.aromatic = gemmi::is_aromatic_or_deloc(bond.type);
+         bond.value = nan; bond.esd = nan;
+         bond.value_nucleus = nan; bond.esd_nucleus = nan;
+         cc.rt.bonds.push_back(bond);
+      }
+
+      // synthesize angle topology from bond adjacency (see comment above)
+      std::map<std::string, size_t> atom_idx = cc.make_atom_index();
+      std::vector<std::vector<size_t> > nbs(cc.atoms.size());
+      for (const auto &b : cc.rt.bonds) {
+         auto it1 = atom_idx.find(b.id1.atom);
+         auto it2 = atom_idx.find(b.id2.atom);
+         if (it1 == atom_idx.end() || it2 == atom_idx.end()) continue;
+         nbs[it1->second].push_back(it2->second);
+         nbs[it2->second].push_back(it1->second);
+      }
+      for (std::size_t centre = 0; centre < cc.atoms.size(); centre++) {
+         for (std::size_t i = 0; i < nbs[centre].size(); i++) {
+            for (std::size_t j = i + 1; j < nbs[centre].size(); j++) {
+               gemmi::Restraints::Angle ang;
+               ang.id1 = gemmi::Restraints::AtomId{1, cc.atoms[nbs[centre][i]].id};
+               ang.id2 = gemmi::Restraints::AtomId{1, cc.atoms[centre].id};
+               ang.id3 = gemmi::Restraints::AtomId{1, cc.atoms[nbs[centre][j]].id};
+               ang.value = nan;
+               ang.esd   = nan;
+               cc.rt.angles.push_back(ang);
+            }
+         }
+      }
+
+      return cc;
+   }
+
+} // namespace
+
 std::pair<bool, coot::dictionary_residue_restraints_t>
 coot::acedrg_sqlite_tables::make_bond_and_angle_restraints(const dictionary_residue_restraints_t &restraints_in) {
 
-   // implemented in a later task (see plan)
-   return std::make_pair(false, coot::dictionary_residue_restraints_t());
+   dictionary_residue_restraints_t r(restraints_in.residue_info.comp_id, 1);
+   if (! is_usable())
+      return std::make_pair(false, r);
+
+   gemmi::ChemComp cc = chemcomp_from_dictionary(restraints_in);
+   if (! fill_chemcomp(cc))
+      return std::make_pair(false, r);
+
+   // conservatively_replace_with() swaps in whole restraint objects, so
+   // carry the input's bond-type strings across
+   std::map<std::string, std::string> bond_type_for_pair;
+   for (const auto &b : restraints_in.bond_restraint)
+      bond_type_for_pair[gemmi::Restraints::lexicographic_str(b.atom_id_1(), b.atom_id_2())] = b.type();
+
+   unsigned int n_filled = 0;
+   for (const auto &b : cc.rt.bonds) {
+      if (std::isnan(b.value) || std::isnan(b.esd)) continue; // no table hit: keep fallback value
+      std::string type = "single";
+      auto it = bond_type_for_pair.find(gemmi::Restraints::lexicographic_str(b.id1.atom, b.id2.atom));
+      if (it != bond_type_for_pair.end()) type = it->second;
+      dict_bond_restraint_t br(b.id1.atom, b.id2.atom, type, b.value, b.esd, 0.0, 0.0, false);
+      r.bond_restraint.push_back(br);
+      n_filled++;
+   }
+   for (const auto &a : cc.rt.angles) {
+      if (std::isnan(a.value) || std::isnan(a.esd)) continue;
+      dict_angle_restraint_t ar(a.id1.atom, a.id2.atom, a.id3.atom, a.value, a.esd);
+      r.angle_restraint.push_back(ar);
+      n_filled++;
+   }
+   return std::make_pair(n_filled > 0, r);
 }
 
 // ------------------------------------------------------------------------
