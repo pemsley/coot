@@ -310,67 +310,73 @@ coot::acedrg_sqlite_tables::fill_chemcomp(gemmi::ChemComp &cc) {
    if (! is_usable()) return false;
    gemmi::AcedrgTables &tables = pimpl->tables;
 
-   std::vector<gemmi::CodAtomInfo> atom_info = tables.classify_atoms(cc);
-   std::map<std::string, size_t> atom_idx = cc.make_atom_index();
+   try {
+      std::vector<gemmi::CodAtomInfo> atom_info = tables.classify_atoms(cc);
+      std::map<std::string, size_t> atom_idx = cc.make_atom_index();
 
-   std::vector<std::tuple<int, int, std::string> > bond_keys;
-   bond_keys.reserve(cc.rt.bonds.size());
-   for (const auto &b : cc.rt.bonds) {
-      auto it1 = atom_idx.find(b.id1.atom);
-      auto it2 = atom_idx.find(b.id2.atom);
-      if (it1 == atom_idx.end() || it2 == atom_idx.end()) continue;
-      const gemmi::CodAtomInfo &ai1 = atom_info[it1->second];
-      const gemmi::CodAtomInfo &ai2 = atom_info[it2->second];
-      int h1 = ai1.hashing_value;
-      int h2 = ai2.hashing_value;
-      std::string s1 = gemmi::hybridization_to_string(ai1.hybrid);
-      std::string s2 = gemmi::hybridization_to_string(ai2.hybrid);
-      // schema convention: hashes ascending; hybridization strings sorted
-      // lexicographically and joined with '_'
-      if (h1 > h2) std::swap(h1, h2);
-      if (s1 > s2) std::swap(s1, s2);
-      bond_keys.emplace_back(h1, h2, s1 + "_" + s2);
-   }
-
-   std::vector<std::tuple<int, int, int> > angle_triples;
-   angle_triples.reserve(cc.rt.angles.size());
-   for (const auto &a : cc.rt.angles) {
-      auto i1 = atom_idx.find(a.id1.atom);
-      auto i2 = atom_idx.find(a.id2.atom);
-      auto i3 = atom_idx.find(a.id3.atom);
-      if (i1 == atom_idx.end() || i2 == atom_idx.end() || i3 == atom_idx.end()) continue;
-      int h1 = atom_info[i1->second].hashing_value;
-      int h2 = atom_info[i2->second].hashing_value;
-      int h3 = atom_info[i3->second].hashing_value;
-      // schema convention: ha1 = centre hash; outer hashes sorted
-      angle_triples.emplace_back(h2, std::min(h1, h3), std::max(h1, h3));
-   }
-   if (angle_triples.empty()) {
-      // no angle records yet (CCD-style input): the fill pipeline will
-      // derive angles from neighbour pairs around each atom - seed the
-      // prefetch with those triples
-      std::vector<std::vector<size_t> > nbs(cc.atoms.size());
+      std::vector<std::tuple<int, int, std::string> > bond_keys;
+      bond_keys.reserve(cc.rt.bonds.size());
       for (const auto &b : cc.rt.bonds) {
          auto it1 = atom_idx.find(b.id1.atom);
          auto it2 = atom_idx.find(b.id2.atom);
          if (it1 == atom_idx.end() || it2 == atom_idx.end()) continue;
-         nbs[it1->second].push_back(it2->second);
-         nbs[it2->second].push_back(it1->second);
+         const gemmi::CodAtomInfo &ai1 = atom_info[it1->second];
+         const gemmi::CodAtomInfo &ai2 = atom_info[it2->second];
+         int h1 = ai1.hashing_value;
+         int h2 = ai2.hashing_value;
+         std::string s1 = gemmi::hybridization_to_string(ai1.hybrid);
+         std::string s2 = gemmi::hybridization_to_string(ai2.hybrid);
+         // schema convention: hashes ascending; hybridization strings sorted
+         // lexicographically and joined with '_'
+         if (h1 > h2) std::swap(h1, h2);
+         if (s1 > s2) std::swap(s1, s2);
+         bond_keys.emplace_back(h1, h2, s1 + "_" + s2);
       }
-      for (size_t centre = 0; centre < cc.atoms.size(); centre++) {
-         int hc = atom_info[centre].hashing_value;
-         for (size_t i = 0; i < nbs[centre].size(); i++) {
-            for (size_t j = i + 1; j < nbs[centre].size(); j++) {
-               int ha = atom_info[nbs[centre][i]].hashing_value;
-               int hb = atom_info[nbs[centre][j]].hashing_value;
-               angle_triples.emplace_back(hc, std::min(ha, hb), std::max(ha, hb));
+
+      std::vector<std::tuple<int, int, int> > angle_triples;
+      angle_triples.reserve(cc.rt.angles.size());
+      for (const auto &a : cc.rt.angles) {
+         auto i1 = atom_idx.find(a.id1.atom);
+         auto i2 = atom_idx.find(a.id2.atom);
+         auto i3 = atom_idx.find(a.id3.atom);
+         if (i1 == atom_idx.end() || i2 == atom_idx.end() || i3 == atom_idx.end()) continue;
+         int h1 = atom_info[i1->second].hashing_value;
+         int h2 = atom_info[i2->second].hashing_value;
+         int h3 = atom_info[i3->second].hashing_value;
+         // schema convention: ha1 = centre hash; outer hashes sorted
+         angle_triples.emplace_back(h2, std::min(h1, h3), std::max(h1, h3));
+      }
+      if (angle_triples.empty()) {
+         // no angle records yet (CCD-style input): the fill pipeline will
+         // derive angles from neighbour pairs around each atom - seed the
+         // prefetch with those triples
+         std::vector<std::vector<size_t> > nbs(cc.atoms.size());
+         for (const auto &b : cc.rt.bonds) {
+            auto it1 = atom_idx.find(b.id1.atom);
+            auto it2 = atom_idx.find(b.id2.atom);
+            if (it1 == atom_idx.end() || it2 == atom_idx.end()) continue;
+            nbs[it1->second].push_back(it2->second);
+            nbs[it2->second].push_back(it1->second);
+         }
+         for (size_t centre = 0; centre < cc.atoms.size(); centre++) {
+            int hc = atom_info[centre].hashing_value;
+            for (size_t i = 0; i < nbs[centre].size(); i++) {
+               for (size_t j = i + 1; j < nbs[centre].size(); j++) {
+                  int ha = atom_info[nbs[centre][i]].hashing_value;
+                  int hb = atom_info[nbs[centre][j]].hashing_value;
+                  angle_triples.emplace_back(hc, std::min(ha, hb), std::max(ha, hb));
+               }
             }
          }
       }
-   }
 
-   pimpl->prefetch_for_molecule(bond_keys, angle_triples);
-   tables.fill_restraints(cc);
+      pimpl->prefetch_for_molecule(bond_keys, angle_triples);
+      tables.fill_restraints(cc);
+   }
+   catch (const std::exception &e) {
+      std::cout << "WARNING:: acedrg_sqlite_tables: " << e.what() << std::endl;
+      return false;
+   }
    return true;
 }
 
