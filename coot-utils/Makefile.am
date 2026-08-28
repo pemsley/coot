@@ -57,8 +57,8 @@ pkgincludedir = $(includedir)/coot/coot-utils
 AM_CPPFLAGS = \
 	-I$(top_srcdir)	\
 	$(ENHANCED_LIGAND_TOOLS_CPPFLAGS) \
-	$(CLIPPER_CXXFLAGS)  \
 	$(GEMMI_CXXFLAGS)    \
+	$(CLIPPER_CXXFLAGS)  \
 	$(SQLITE3_CFLAGS)    \
 	$(MMDB_CXXFLAGS)     \
         $(CAIRO_CFLAGS)      \
@@ -102,12 +102,13 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc coot-coord-utils-mmdb-free.
 # this needs to be linked with clipper the (ubuntu 18.04) linker tells me - what uses clipper
 # in the source files for libcoot-coord-utils?
 libcoot_coord_utils_la_LIBADD = \
+    $(GEMMI_LIBS) \
     $(top_builddir)/lidia-core/libcoot-lidia-core.la \
     $(top_builddir)/geometry/libcoot-geometry.la     \
     $(top_builddir)/mini-mol/libcoot-mini-mol.la     \
     $(top_builddir)/utils/libcoot-utils.la           \
     $(top_builddir)/mini-mol/libcoot-mini-mol.la     \
-    $(CLIPPER_LIBS) $(GEMMI_LIBS) $(MMDB_LIBS) $(SQLITE3_LIBS) \
+    $(CLIPPER_LIBS) $(MMDB_LIBS) $(SQLITE3_LIBS) \
     $(gsl_LIBS) $(RDKIT_LIBS) $(CAIRO_LIBS) $(BOOST_LDFLAGS) $(NETCDF_LIBS) -lpthread
 
 libcoot_coord_utils_la_LDFLAGS = $(SHARED_LDFLAGS)
@@ -188,7 +189,7 @@ check_PROGRAMS = test-h-bonds testshelxreader test-hole test-elastic \
 		 test-coot-utils test-pae servalcat-tracker test-zd test-grid-balls \
 		 test-dirichlet-process test-born test-gmm test-nef-utils test-zernike \
 		 test-zernike-params test-zernike-nxmap test-zernike-search \
-		 test-coord-utils test-coord-utils-gemmi
+		 test-coord-utils test-coord-utils-gemmi test-acedrg-sqlite-tables
 
 # wrong build order - delete from make check for now.
 # test-emma test-convolute test-coot-utils test-segmap
@@ -222,6 +223,14 @@ coot_make_acedrg_sqlite_LDADD = ./libcoot-coord-utils.la \
 	$(top_builddir)/geometry/libcoot-geometry.la     \
 	$(top_builddir)/utils/libcoot-utils.la           \
 	$(CLIPPER_LIBS) $(GEMMI_LIBS) $(SQLITE3_LIBS)
+
+test_acedrg_sqlite_tables_SOURCES = test-acedrg-sqlite-tables.cc
+test_acedrg_sqlite_tables_LDADD = $(GEMMI_LIBS) \
+	./libcoot-coord-utils.la \
+	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
+	$(top_builddir)/geometry/libcoot-geometry.la     \
+	$(top_builddir)/utils/libcoot-utils.la           \
+	$(CLIPPER_LIBS) $(SQLITE3_LIBS)
 
 make_cablam_like_stats_SOURCES = make-cablam-like-stats.cc
 

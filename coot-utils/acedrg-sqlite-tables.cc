@@ -45,6 +45,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <map>
 #include <set>
 #include <tuple>
 #include <cmath>
@@ -67,7 +68,23 @@
 
 class coot::acedrg_sqlite_tables::impl {
 public:
+   gemmi::AcedrgTables tables;
+#ifdef USE_SQLITE3
+   sqlite3 *db = nullptr;
+#endif
    bool usable = false;
+   ~impl() {
+#ifdef USE_SQLITE3
+      if (db) sqlite3_close(db);
+#endif
+   }
+#ifdef USE_SQLITE3
+   // Fetch this molecule's bond/angle rows from acedrg.sqlite into
+   // tables' on-demand caches. Direct port of gemmi's (fork branch
+   // drg-tables-sqlite) AcedrgTables::prefetch_for_molecule().
+   void prefetch_for_molecule(const std::vector<std::tuple<int, int, std::string> > &bond_keys,
+                              const std::vector<std::tuple<int, int, int> > &angle_triples);
+#endif
 };
 
 coot::acedrg_sqlite_tables::acedrg_sqlite_tables() : pimpl(new impl) {}
@@ -83,33 +100,307 @@ coot::acedrg_sqlite_tables::default_data_dir() {
    return p.string();
 }
 
+#ifdef USE_SQLITE3
+
 bool
 coot::acedrg_sqlite_tables::init(const std::string &acedrg_data_dir) {
 
-   // implemented in a later task (see plan)
+   std::string sqlite_path = acedrg_data_dir + "/acedrg.sqlite";
+   if (! std::filesystem::exists(sqlite_path))
+      return false;
+
+   try {
+      pimpl->tables.load_tables(acedrg_data_dir);
+   }
+   catch (const std::exception &e) {
+      std::cout << "acedrg_sqlite_tables::init(): " << e.what() << std::endl;
+      return false;
+   }
+
+   if (sqlite3_open_v2(sqlite_path.c_str(), &pimpl->db, SQLITE_OPEN_READONLY, nullptr) != SQLITE_OK) {
+      std::cout << "acedrg_sqlite_tables::init(): cannot open " << sqlite_path
+                << ": " << (pimpl->db ? sqlite3_errmsg(pimpl->db) : "unknown") << std::endl;
+      if (pimpl->db) { sqlite3_close(pimpl->db); pimpl->db = nullptr; }
+      return false;
+   }
+   sqlite3_exec(pimpl->db, "PRAGMA query_only = ON;", nullptr, nullptr, nullptr);
+
+   pimpl->usable = true;
+   return true;
+}
+
+bool
+coot::acedrg_sqlite_tables::init() {
+
+   return init(default_data_dir());
+}
+
+bool
+coot::acedrg_sqlite_tables::is_usable() const {
+
+   return pimpl->usable;
+}
+
+namespace {
+
+   inline std::string sqlite_text(sqlite3_stmt *st, int col) {
+      const unsigned char *s = sqlite3_column_text(st, col);
+      return s ? std::string(reinterpret_cast<const char *>(s)) : std::string();
+   }
+
+   // SQLite-quote a string value so it can be spliced directly into a
+   // WHERE-clause VALUES literal (doubling embedded single quotes).
+   std::string sql_quote(const std::string &s) {
+      std::string out; out.reserve(s.size() + 2);
+      out += '\'';
+      for (char c : s) { if (c == '\'') out += "''"; else out += c; }
+      out += '\'';
+      return out;
+   }
+
+} // namespace
+
+void
+coot::acedrg_sqlite_tables::impl::prefetch_for_molecule(const std::vector<std::tuple<int, int, std::string> > &bond_keys,
+                                                         const std::vector<std::tuple<int, int, int> > &angle_triples) {
+
+   if (! db) return;
+
+   // Clear the on-demand caches before refilling for this molecule.
+   tables.bond_idx_1d_.clear();
+   tables.bond_idx_full_.clear();
+   tables.bond_idx_2d_.clear();
+   tables.bond_2d_hybr_keys_.clear();
+   tables.bond_full_4prefix_keys_.clear();
+   tables.angle_idx_1d_.clear();
+   tables.angle_idx_2d_.clear();
+   tables.angle_idx_3d_.clear();
+   tables.angle_idx_4d_.clear();
+   tables.angle_idx_5d_.clear();
+   tables.angle_idx_6d_.clear();
+
+   // Dedup the keys.
+   std::set<std::tuple<int, int, std::string> > uniq_bonds(bond_keys.begin(), bond_keys.end());
+   std::set<std::tuple<int, int, int> > uniq_triples(angle_triples.begin(), angle_triples.end());
+
+   // ---- bond rows: (ha1, ha2, hybr_comb) in {keys}. -----------------------
+   // Note: no in_ring filter -- fill_bond's Y/N ring fallback needs both
+   // values present.
+   if (! uniq_bonds.empty()) {
+      std::string sql =
+         "SELECT ha1, ha2, hybr_comb, in_ring,"
+         " a1_nb2, a2_nb2, a1_nb, a2_nb,"
+         " a1_type_m, a2_type_m, a1_type_f, a2_type_f,"
+         " value, sigma, count, value_1d, sigma_1d, count_1d"
+         " FROM bond_entries WHERE (ha1, ha2, hybr_comb) IN (VALUES ";
+      bool first = true;
+      for (const auto &t : uniq_bonds) {
+         if (! first) sql += ',';
+         sql += '(';
+         sql += std::to_string(std::get<0>(t));
+         sql += ',';
+         sql += std::to_string(std::get<1>(t));
+         sql += ',';
+         sql += sql_quote(std::get<2>(t));
+         sql += ')';
+         first = false;
+      }
+      sql += ')';
+
+      sqlite3_stmt *st = nullptr;
+      if (sqlite3_prepare_v2(db, sql.c_str(), -1, &st, nullptr) != SQLITE_OK)
+         throw std::runtime_error(std::string("acedrg-db: prepare bond: ") + sqlite3_errmsg(db));
+
+      std::string key_buf;  key_buf.reserve(512);
+      std::string hybr_buf; hybr_buf.reserve(64);
+      while (sqlite3_step(st) == SQLITE_ROW) {
+         int ha1 = sqlite3_column_int(st, 0);
+         int ha2 = sqlite3_column_int(st, 1);
+         std::string hybr_comb = sqlite_text(st, 2);
+         std::string in_ring   = sqlite_text(st, 3);
+         std::string a1_nb2    = sqlite_text(st, 4);
+         std::string a2_nb2    = sqlite_text(st, 5);
+         std::string a1_nb     = sqlite_text(st, 6);
+         std::string a2_nb     = sqlite_text(st, 7);
+         std::string a1_type_m = sqlite_text(st, 8);
+         std::string a2_type_m = sqlite_text(st, 9);
+         std::string a1_type_f = sqlite_text(st, 10);
+         std::string a2_type_f = sqlite_text(st, 11);
+         double value    = sqlite3_column_double(st, 12);
+         double sigma    = sqlite3_column_double(st, 13);
+         int    count    = sqlite3_column_int   (st, 14);
+         double value_1d = sqlite3_column_double(st, 15);
+         double sigma_1d = sqlite3_column_double(st, 16);
+         int    count_1d = sqlite3_column_int   (st, 17);
+         tables.insert_bond_row(ha1, ha2, hybr_comb, in_ring,
+                                a1_nb2, a2_nb2, a1_nb, a2_nb,
+                                a1_type_m, a2_type_m, a1_type_f, a2_type_f,
+                                gemmi::CodStats(value, sigma, count),
+                                gemmi::CodStats(value_1d, sigma_1d, count_1d),
+                                key_buf, hybr_buf);
+      }
+      sqlite3_finalize(st);
+   }
+
+   // ---- angle rows: (ha1, ha2, ha3) in {triples}. -------------------------
+   if (! uniq_triples.empty()) {
+      std::string sql =
+         "SELECT ha1, ha2, ha3, value_key,"
+         " a1_root, a2_root, a3_root,"
+         " a1_nb2, a2_nb2, a3_nb2,"
+         " a1_nb, a2_nb, a3_nb,"
+         " a1_type, a2_type, a3_type,"
+         " v1,s1,c1, v2,s2,c2, v3,s3,c3, v4,s4,c4, v5,s5,c5, v6,s6,c6"
+         " FROM angle_entries WHERE (ha1, ha2, ha3) IN (VALUES ";
+      bool first = true;
+      for (const auto &t : uniq_triples) {
+         if (! first) sql += ',';
+         sql += '(';
+         sql += std::to_string(std::get<0>(t)); sql += ',';
+         sql += std::to_string(std::get<1>(t)); sql += ',';
+         sql += std::to_string(std::get<2>(t));
+         sql += ')';
+         first = false;
+      }
+      sql += ')';
+
+      sqlite3_stmt *st = nullptr;
+      if (sqlite3_prepare_v2(db, sql.c_str(), -1, &st, nullptr) != SQLITE_OK)
+         throw std::runtime_error(std::string("acedrg-db: prepare angle: ") + sqlite3_errmsg(db));
+
+      std::string key_buf; key_buf.reserve(1024);
+      while (sqlite3_step(st) == SQLITE_ROW) {
+         int ha1 = sqlite3_column_int(st, 0);
+         int ha2 = sqlite3_column_int(st, 1);
+         int ha3 = sqlite3_column_int(st, 2);
+         std::string value_key = sqlite_text(st, 3);
+         std::string a1_root = sqlite_text(st, 4);
+         std::string a2_root = sqlite_text(st, 5);
+         std::string a3_root = sqlite_text(st, 6);
+         std::string a1_nb2  = sqlite_text(st, 7);
+         std::string a2_nb2  = sqlite_text(st, 8);
+         std::string a3_nb2  = sqlite_text(st, 9);
+         std::string a1_nb   = sqlite_text(st, 10);
+         std::string a2_nb   = sqlite_text(st, 11);
+         std::string a3_nb   = sqlite_text(st, 12);
+         std::string a1_type = sqlite_text(st, 13);
+         std::string a2_type = sqlite_text(st, 14);
+         std::string a3_type = sqlite_text(st, 15);
+         double v[6]; double s[6]; int c[6];
+         int col = 16;
+         for (int i = 0; i < 6; ++i) {
+            v[i] = sqlite3_column_double(st, col++);
+            s[i] = sqlite3_column_double(st, col++);
+            c[i] = sqlite3_column_int   (st, col++);
+         }
+         tables.insert_angle_row(ha1, ha2, ha3, value_key,
+                                 a1_root, a2_root, a3_root,
+                                 a1_nb2, a2_nb2, a3_nb2,
+                                 a1_nb,  a2_nb,  a3_nb,
+                                 a1_type, a2_type, a3_type,
+                                 v, s, c, key_buf);
+      }
+      sqlite3_finalize(st);
+   }
+}
+
+bool
+coot::acedrg_sqlite_tables::fill_chemcomp(gemmi::ChemComp &cc) {
+
+   if (! is_usable()) return false;
+   gemmi::AcedrgTables &tables = pimpl->tables;
+
+   std::vector<gemmi::CodAtomInfo> atom_info = tables.classify_atoms(cc);
+   std::map<std::string, size_t> atom_idx = cc.make_atom_index();
+
+   std::vector<std::tuple<int, int, std::string> > bond_keys;
+   bond_keys.reserve(cc.rt.bonds.size());
+   for (const auto &b : cc.rt.bonds) {
+      auto it1 = atom_idx.find(b.id1.atom);
+      auto it2 = atom_idx.find(b.id2.atom);
+      if (it1 == atom_idx.end() || it2 == atom_idx.end()) continue;
+      const gemmi::CodAtomInfo &ai1 = atom_info[it1->second];
+      const gemmi::CodAtomInfo &ai2 = atom_info[it2->second];
+      int h1 = ai1.hashing_value;
+      int h2 = ai2.hashing_value;
+      std::string s1 = gemmi::hybridization_to_string(ai1.hybrid);
+      std::string s2 = gemmi::hybridization_to_string(ai2.hybrid);
+      // schema convention: hashes ascending; hybridization strings sorted
+      // lexicographically and joined with '_'
+      if (h1 > h2) std::swap(h1, h2);
+      if (s1 > s2) std::swap(s1, s2);
+      bond_keys.emplace_back(h1, h2, s1 + "_" + s2);
+   }
+
+   std::vector<std::tuple<int, int, int> > angle_triples;
+   angle_triples.reserve(cc.rt.angles.size());
+   for (const auto &a : cc.rt.angles) {
+      auto i1 = atom_idx.find(a.id1.atom);
+      auto i2 = atom_idx.find(a.id2.atom);
+      auto i3 = atom_idx.find(a.id3.atom);
+      if (i1 == atom_idx.end() || i2 == atom_idx.end() || i3 == atom_idx.end()) continue;
+      int h1 = atom_info[i1->second].hashing_value;
+      int h2 = atom_info[i2->second].hashing_value;
+      int h3 = atom_info[i3->second].hashing_value;
+      // schema convention: ha1 = centre hash; outer hashes sorted
+      angle_triples.emplace_back(h2, std::min(h1, h3), std::max(h1, h3));
+   }
+   if (angle_triples.empty()) {
+      // no angle records yet (CCD-style input): the fill pipeline will
+      // derive angles from neighbour pairs around each atom - seed the
+      // prefetch with those triples
+      std::vector<std::vector<size_t> > nbs(cc.atoms.size());
+      for (const auto &b : cc.rt.bonds) {
+         auto it1 = atom_idx.find(b.id1.atom);
+         auto it2 = atom_idx.find(b.id2.atom);
+         if (it1 == atom_idx.end() || it2 == atom_idx.end()) continue;
+         nbs[it1->second].push_back(it2->second);
+         nbs[it2->second].push_back(it1->second);
+      }
+      for (size_t centre = 0; centre < cc.atoms.size(); centre++) {
+         int hc = atom_info[centre].hashing_value;
+         for (size_t i = 0; i < nbs[centre].size(); i++) {
+            for (size_t j = i + 1; j < nbs[centre].size(); j++) {
+               int ha = atom_info[nbs[centre][i]].hashing_value;
+               int hb = atom_info[nbs[centre][j]].hashing_value;
+               angle_triples.emplace_back(hc, std::min(ha, hb), std::max(ha, hb));
+            }
+         }
+      }
+   }
+
+   pimpl->prefetch_for_molecule(bond_keys, angle_triples);
+   tables.fill_restraints(cc);
+   return true;
+}
+
+#else // !USE_SQLITE3
+
+bool
+coot::acedrg_sqlite_tables::init(const std::string &acedrg_data_dir) {
+
    return false;
 }
 
 bool
 coot::acedrg_sqlite_tables::init() {
 
-   // implemented in a later task (see plan)
    return false;
 }
 
 bool
 coot::acedrg_sqlite_tables::is_usable() const {
 
-   // implemented in a later task (see plan)
    return false;
 }
 
 bool
 coot::acedrg_sqlite_tables::fill_chemcomp(gemmi::ChemComp &cc) {
 
-   // implemented in a later task (see plan)
    return false;
 }
+
+#endif // USE_SQLITE3
 
 std::pair<bool, coot::dictionary_residue_restraints_t>
 coot::acedrg_sqlite_tables::make_bond_and_angle_restraints(const dictionary_residue_restraints_t &restraints_in) {
