@@ -4325,6 +4325,13 @@ generic_objects_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    generic_objects_gui_wrapper();
 }
 
+void
+draw_box_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                G_GNUC_UNUSED GVariant *parameter,
+                G_GNUC_UNUSED gpointer user_data) {
+   show_box_dialog();
+}
+
 
 
 void
@@ -6625,6 +6632,7 @@ create_actions(GtkApplication *application) {
    add_action(         "label_CA_atoms_action",          label_CA_atoms_action);
    add_action(         "map_parameters_action",          map_parameters_action);
    add_action(        "generic_objects_action",         generic_objects_action);
+   add_action(               "draw_box_action",                draw_box_action);
    add_action(       "label_neighbours_action",        label_neighbours_action);
    add_action(       "gaussian_surface_action",        gaussian_surface_action);
    add_action(      "molecular_surface_action",       molecular_surface_action);
