@@ -49,7 +49,7 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
 	acedrg-types-for-residue.hh gl-matrix.h ortep.hh coot-align.hh grid-balls.hh dict-link-info.hh \
         dirichlet-process.hh cfc.hh cremer-pople.hh born.hh inchikey-store.hh cylinder-utils.hh gmm.hh nef-utils.hh ptm-database.hh \
 	read-amber-trajectory.hh rebox-map.hh coot-coord-utils-gemmi.hh map-cap.hh edcalc.hh crowther.hh patterson.hh surface-on-torus.hh \
-	pdbqt.hh pdbqt-charges.hh
+	pdbqt.hh pdbqt-charges.hh acedrg-sqlite-tables.hh
 
 
 pkgincludedir = $(includedir)/coot/coot-utils
@@ -93,7 +93,7 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc coot-coord-utils-mmdb-free.
 	shapes.cc cmtz-interface.cc pugixml.cpp parse-pisa.cc gltf-export.cc pae.cc \
 	gl-matrix.cc gl-matrix-eigensystem.cc coot-align.cc grid-balls.cc dict-link-info.cc \
 	cremer-pople.cc inchikey-store.cc cylinder-utils.cc nef-utils.cc gaussian-atom-map-for-mask.cc \
-	read-amber-trajectory.cc surface-on-torus.cc pdbqt.cc pdbqt-charges.cc
+	read-amber-trajectory.cc surface-on-torus.cc pdbqt.cc pdbqt-charges.cc acedrg-sqlite-tables.cc
 
 #    $(top_builddir)/mini-mol/libcoot-mini-mol.la
 #    $(top_builddir)/utils/libcoot-utils.la
@@ -193,7 +193,7 @@ check_PROGRAMS = test-h-bonds testshelxreader test-hole test-elastic \
 # wrong build order - delete from make check for now.
 # test-emma test-convolute test-coot-utils test-segmap
 
-bin_PROGRAMS = coot-mmrrcc
+bin_PROGRAMS = coot-mmrrcc coot-make-acedrg-sqlite
 
 # test_zo_chi_table_SOURCES = test-zo-chi-table.cc
 
@@ -215,6 +215,13 @@ coot_mmrrcc_LDADD = ./libcoot-map-utils.la \
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
 	$(top_builddir)/utils/libcoot-utils.la           \
 	$(CLIPPER_LIBS)
+
+coot_make_acedrg_sqlite_SOURCES = make-acedrg-sqlite.cc
+coot_make_acedrg_sqlite_LDADD = ./libcoot-coord-utils.la \
+	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
+	$(top_builddir)/geometry/libcoot-geometry.la     \
+	$(top_builddir)/utils/libcoot-utils.la           \
+	$(CLIPPER_LIBS) $(GEMMI_LIBS) $(SQLITE3_LIBS)
 
 make_cablam_like_stats_SOURCES = make-cablam-like-stats.cc
 
