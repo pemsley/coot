@@ -56,9 +56,44 @@ namespace {
       return nullptr;
    }
 
-   // Copy of cc with all bond values/esds set to NAN and all angle
-   // restraints removed, so fill_restraints()/fill_chemcomp() have to
-   // (re)derive everything from the tables.
+   // Build one angle restraint (value/esd = NAN) per neighbour pair around
+   // each centre atom, from cc.rt.bonds -- the same neighbour-pair
+   // enumeration coot::acedrg_sqlite_tables::fill_chemcomp() uses to seed
+   // its prefetch when a molecule arrives with no angle records (CCD-style
+   // input); Task 4's dictionary-restraints converter will need the same
+   // synthesis step for such input, so this exercises that exact path.
+   void synthesize_angles_from_bonds(gemmi::ChemComp &cc) {
+      std::map<std::string, size_t> atom_idx = cc.make_atom_index();
+      std::vector<std::vector<size_t> > nbs(cc.atoms.size());
+      for (const auto &b : cc.rt.bonds) {
+         auto it1 = atom_idx.find(b.id1.atom);
+         auto it2 = atom_idx.find(b.id2.atom);
+         if (it1 == atom_idx.end() || it2 == atom_idx.end()) continue;
+         nbs[it1->second].push_back(it2->second);
+         nbs[it2->second].push_back(it1->second);
+      }
+      cc.rt.angles.clear();
+      for (size_t centre = 0; centre < cc.atoms.size(); centre++) {
+         for (size_t i = 0; i < nbs[centre].size(); i++) {
+            for (size_t j = i + 1; j < nbs[centre].size(); j++) {
+               gemmi::Restraints::Angle a;
+               a.id1 = {1, cc.atoms[nbs[centre][i]].id};
+               a.id2 = {1, cc.atoms[centre].id};
+               a.id3 = {1, cc.atoms[nbs[centre][j]].id};
+               a.value = NAN;
+               a.esd   = NAN;
+               cc.rt.angles.push_back(a);
+            }
+         }
+      }
+   }
+
+   // Copy of cc with all bond values/esds set to NAN. Angle restraints:
+   // if cc already has angle records (monomer-library input) keep them
+   // and NaN their values/esds; otherwise (CCD-style input, no angle
+   // records) synthesize one NaN-valued angle per bonded neighbour pair
+   // around each atom, so fill_restraints()/fill_chemcomp() always has
+   // real angle topology to fill values into.
    gemmi::ChemComp strip_restraint_values(const gemmi::ChemComp &cc_in) {
       gemmi::ChemComp cc = cc_in;
       for (auto &b : cc.rt.bonds) {
@@ -67,7 +102,14 @@ namespace {
          b.value_nucleus = NAN;
          b.esd_nucleus   = NAN;
       }
-      cc.rt.angles.clear();
+      if (cc.rt.angles.empty()) {
+         synthesize_angles_from_bonds(cc);
+      } else {
+         for (auto &a : cc.rt.angles) {
+            a.value = NAN;
+            a.esd   = NAN;
+         }
+      }
       return cc;
    }
 
@@ -113,6 +155,15 @@ namespace {
       if (cc_ref.rt.angles.size() != cc_test.rt.angles.size())
          return "angle count mismatch: ref " + std::to_string(cc_ref.rt.angles.size()) +
                 " test " + std::to_string(cc_test.rt.angles.size());
+
+      // Every multi-atom monomer should have picked up real angle
+      // topology from synthesize_angles_from_bonds() (or from its own
+      // pre-existing angle records) -- a monomer with zero angles here
+      // (other than the lone-atom ZN) means the angle path silently
+      // produced nothing, which is exactly the gap this check exists to
+      // catch.
+      if (cc_ref.rt.angles.empty() && cc_ref.atoms.size() > 1 && cc_ref.name != "ZN")
+         return "expected nonzero angles for multi-atom monomer " + cc_ref.name + ", got 0";
 
       std::map<std::string, const gemmi::Restraints::Angle *> test_angles;
       for (const auto &a : cc_test.rt.angles)
