@@ -481,33 +481,43 @@ coot::acedrg_sqlite_tables::make_bond_and_angle_restraints(const dictionary_resi
    if (! is_usable())
       return std::make_pair(false, r);
 
-   gemmi::ChemComp cc = chemcomp_from_dictionary(restraints_in);
-   if (! fill_chemcomp(cc))
+   // chemcomp_from_dictionary() calls gemmi::bond_type_from_string(), which
+   // throws for a bond-order spelling it doesn't recognize; this is a
+   // public bridge (pyrogen will feed it arbitrary dictionaries), so guard
+   // the whole conversion the same way fill_chemcomp() guards its own body.
+   try {
+      gemmi::ChemComp cc = chemcomp_from_dictionary(restraints_in);
+      if (! fill_chemcomp(cc))
+         return std::make_pair(false, r);
+
+      // conservatively_replace_with() swaps in whole restraint objects, so
+      // carry the input's bond-type strings across
+      std::map<std::string, std::string> bond_type_for_pair;
+      for (const auto &b : restraints_in.bond_restraint)
+         bond_type_for_pair[gemmi::Restraints::lexicographic_str(b.atom_id_1(), b.atom_id_2())] = b.type();
+
+      unsigned int n_filled = 0;
+      for (const auto &b : cc.rt.bonds) {
+         if (std::isnan(b.value) || std::isnan(b.esd)) continue; // no table hit: keep fallback value
+         std::string type = "single";
+         auto it = bond_type_for_pair.find(gemmi::Restraints::lexicographic_str(b.id1.atom, b.id2.atom));
+         if (it != bond_type_for_pair.end()) type = it->second;
+         dict_bond_restraint_t br(b.id1.atom, b.id2.atom, type, b.value, b.esd, 0.0, 0.0, false);
+         r.bond_restraint.push_back(br);
+         n_filled++;
+      }
+      for (const auto &a : cc.rt.angles) {
+         if (std::isnan(a.value) || std::isnan(a.esd)) continue;
+         dict_angle_restraint_t ar(a.id1.atom, a.id2.atom, a.id3.atom, a.value, a.esd);
+         r.angle_restraint.push_back(ar);
+         n_filled++;
+      }
+      return std::make_pair(n_filled > 0, r);
+   }
+   catch (const std::exception &e) {
+      std::cout << "WARNING:: acedrg_sqlite_tables: " << e.what() << std::endl;
       return std::make_pair(false, r);
-
-   // conservatively_replace_with() swaps in whole restraint objects, so
-   // carry the input's bond-type strings across
-   std::map<std::string, std::string> bond_type_for_pair;
-   for (const auto &b : restraints_in.bond_restraint)
-      bond_type_for_pair[gemmi::Restraints::lexicographic_str(b.atom_id_1(), b.atom_id_2())] = b.type();
-
-   unsigned int n_filled = 0;
-   for (const auto &b : cc.rt.bonds) {
-      if (std::isnan(b.value) || std::isnan(b.esd)) continue; // no table hit: keep fallback value
-      std::string type = "single";
-      auto it = bond_type_for_pair.find(gemmi::Restraints::lexicographic_str(b.id1.atom, b.id2.atom));
-      if (it != bond_type_for_pair.end()) type = it->second;
-      dict_bond_restraint_t br(b.id1.atom, b.id2.atom, type, b.value, b.esd, 0.0, 0.0, false);
-      r.bond_restraint.push_back(br);
-      n_filled++;
    }
-   for (const auto &a : cc.rt.angles) {
-      if (std::isnan(a.value) || std::isnan(a.esd)) continue;
-      dict_angle_restraint_t ar(a.id1.atom, a.id2.atom, a.id3.atom, a.value, a.esd);
-      r.angle_restraint.push_back(ar);
-      n_filled++;
-   }
-   return std::make_pair(n_filled > 0, r);
 }
 
 // ------------------------------------------------------------------------
