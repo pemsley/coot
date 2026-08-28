@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.14)
 
 # Build-variant dispatch: configure with -DCOOT_GEMMI=ON to use CMakeLists-gemmi.txt
 # (the mmdb->gemmi migration build) instead of this full build. Both build dirs coexist.
@@ -31,6 +31,7 @@ find_package(BLAS)
 find_package(GSL REQUIRED)
 find_package(PNG REQUIRED)
 find_package(GEMMI REQUIRED)
+find_package(SQLite3 REQUIRED)
 find_package(Threads REQUIRED)
 find_package(Boost COMPONENTS iostreams regex thread serialization REQUIRED)
 find_package(glm REQUIRED)
@@ -86,7 +87,7 @@ set(coot_src ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_definitions(-DANALYSE_REFINEMENT_TIMING -DPACKAGE_VERSION="1.3.3"
   -DHAVE_CXX_THREAD -DHAVE_SSMLIB -DHAVE_BOOST -DUSE_LIBPNG=1 -DCLIPPER_HAS_TOP8000 -DUSE_GEMMI
-  -DHAVE_BOOST_THREAD -DHAVE_GSL -DLIBCOOTAPI_BUILD
+  -DHAVE_BOOST_THREAD -DHAVE_GSL -DLIBCOOTAPI_BUILD -DUSE_SQLITE3
   -DPKGDATADIR="${CMAKE_INSTALL_PREFIX}/share/coot" -DXDATADIR="${CMAKE_INSTALL_PREFIX}/share")
 
 # 20250314-PE: Charles, I guess that you will need to comment out this block
@@ -437,6 +438,7 @@ add_library(cootapi SHARED
             ${coot_src}/coot-utils/gl-matrix-eigensystem.cc
             ${coot_src}/coot-utils/patterson.cc
             ${coot_src}/coot-utils/crowther.cc
+            ${coot_src}/coot-utils/acedrg-sqlite-tables.cc
             ${coot_src}/coords/Bond_lines.cc
             ${coot_src}/coords/Bond_lines_ext.cc
             ${coot_src}/coords/coot-close.cc
@@ -671,7 +673,7 @@ target_link_libraries(cootmoleculestotriangles PRIVATE ${SSM_LIBRARY} ${CLIPPER-
 
 # Charles adds Boost::iostreams Boost::filesystem Boost::system. I don't know why Boost::filesystem was added - I have removed it.
 # 2025-09-20 14:15 PE: Boost::system is no longer a thing - I have removed it
-target_link_libraries(cootapi PRIVATE cootmoleculestotriangles ${SSM_LIBRARY} ${CLIPPER-MINIMOL_LIBRARY} ${CLIPPER-MMDB_LIBRARY} ${CLIPPER-CIF_LIBRARY} ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${CLIPPER-CONTRIB_LIBRARY} ${FFTW2_LIBRARY} ${RFFTW2_LIBRARY} ${MMDB2_LIBRARY} ${CCP4C_LIBRARY} ${ZLIB_LIBRARIES} ${GSL_LIBRARIES} ${GSL_CBLAS_LIBRARY} ${RDKit_libs_for_libcootapi} ${PNG_LIBRARY} Boost::thread Boost::iostreams gemmi::gemmi_cpp ${libdwarf} ${libelf})
+target_link_libraries(cootapi PRIVATE cootmoleculestotriangles ${SSM_LIBRARY} ${CLIPPER-MINIMOL_LIBRARY} ${CLIPPER-MMDB_LIBRARY} ${CLIPPER-CIF_LIBRARY} ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${CLIPPER-CONTRIB_LIBRARY} ${FFTW2_LIBRARY} ${RFFTW2_LIBRARY} ${MMDB2_LIBRARY} ${CCP4C_LIBRARY} ${ZLIB_LIBRARIES} ${GSL_LIBRARIES} ${GSL_CBLAS_LIBRARY} ${RDKit_libs_for_libcootapi} ${PNG_LIBRARY} Boost::thread Boost::iostreams gemmi::gemmi_cpp SQLite::SQLite3 ${libdwarf} ${libelf})
 
 if (OSPRAY_PREFIX)
    target_link_libraries(cootapi PRIVATE ospray::ospray)
@@ -714,6 +716,22 @@ add_executable(test-molecules-container ${coot_src}/api/test-molecules-container
 add_executable(test-docking ${coot_src}/docking/test-docking.cc)
 
 add_executable(mmcif-tests ${coot_src}/api/mmcif-tests-main.cc ${coot_src}/api/mmcif-tests.cc)
+
+add_executable(coot-make-acedrg-sqlite ${coot_src}/coot-utils/make-acedrg-sqlite.cc)
+target_include_directories(coot-make-acedrg-sqlite PRIVATE ${coot_src})
+target_link_libraries(coot-make-acedrg-sqlite PUBLIC cootapi SQLite::SQLite3 gemmi::gemmi_cpp)
+
+# Optional build-time generation of the AceDRG sqlite DB into the user's
+# XDG cache dir. Configure with -DACEDRG_TABLES_DIR=/path/to/acedrg/tables.
+# The tool exits 0 in --if-missing mode even on failure - "it is OK if
+# this run fails".
+if(ACEDRG_TABLES_DIR)
+   add_custom_target(acedrg-sqlite-db ALL
+      COMMAND coot-make-acedrg-sqlite --if-missing ${ACEDRG_TABLES_DIR}
+      DEPENDS coot-make-acedrg-sqlite
+      COMMENT "Building AceDRG sqlite database from ${ACEDRG_TABLES_DIR} (skipped if present)"
+      VERBATIM)
+endif()
 
 target_compile_features(coot-mini-rsr PRIVATE cxx_std_17)
 
