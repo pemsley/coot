@@ -395,6 +395,13 @@ template <class T> void CIsoSurface<T>::GenerateSurface(const T* ptScalarField, 
    unsigned int nPointsInXDirection = (m_nCellsX + 1);
    unsigned int nPointsInSlice = nPointsInXDirection*(m_nCellsY + 1);
 
+   // Set up the flat, directly-addressed edge -> vertex de-duplication arrays.
+   // The largest edge id is 3 * (nPointsX * nPointsY * nPointsZ) - 1 (see
+   // GetEdgeID()/GetVertexID()), so this many slots covers every possible edge.
+   std::size_t n_edge_ids = std::size_t(3) * nPointsInSlice * (m_nCellsZ + 1);
+   m_edge_to_vertex_index.assign(n_edge_ids, -1);
+   m_edge_vertices.clear();
+
    // Generate isosurface.
    for (unsigned int z = 0; z < m_nCellsZ; z++)
       for (unsigned int y = 0; y < m_nCellsY; y++)
@@ -425,72 +432,72 @@ template <class T> void CIsoSurface<T>::GenerateSurface(const T* ptScalarField, 
 	       if (m_edgeTable[tableIndex] & 8) {
 		  POINT3DID pt = CalculateIntersection(x, y, z, 3);
 		  unsigned int id = GetEdgeID(x, y, z, 3);
-		  m_i2pt3idVertices.insert(ID2POINT3DID::value_type(id, pt));
+		  store_edge_vertex(id, pt);
 	       }
 	       if (m_edgeTable[tableIndex] & 1) {
 		  POINT3DID pt = CalculateIntersection(x, y, z, 0);
 		  unsigned int id = GetEdgeID(x, y, z, 0);
-		  m_i2pt3idVertices.insert(ID2POINT3DID::value_type(id, pt));
+		  store_edge_vertex(id, pt);
 	       }
 	       if (m_edgeTable[tableIndex] & 256) {
 		  POINT3DID pt = CalculateIntersection(x, y, z, 8);
 		  unsigned int id = GetEdgeID(x, y, z, 8);
-		  m_i2pt3idVertices.insert(ID2POINT3DID::value_type(id, pt));
+		  store_edge_vertex(id, pt);
 	       }
 
 	       if (x == m_nCellsX - 1) {
 		  if (m_edgeTable[tableIndex] & 4) {
 		     POINT3DID pt = CalculateIntersection(x, y, z, 2);
 		     unsigned int id = GetEdgeID(x, y, z, 2);
-		     m_i2pt3idVertices.insert(ID2POINT3DID::value_type(id, pt));
+		     store_edge_vertex(id, pt);
 		  }
 		  if (m_edgeTable[tableIndex] & 2048) {
 		     POINT3DID pt = CalculateIntersection(x, y, z, 11);
 		     unsigned int id = GetEdgeID(x, y, z, 11);
-		     m_i2pt3idVertices.insert(ID2POINT3DID::value_type(id, pt));
+		     store_edge_vertex(id, pt);
 		  }
 	       }
 	       if (y == m_nCellsY - 1) {
 		  if (m_edgeTable[tableIndex] & 2) {
 		     POINT3DID pt = CalculateIntersection(x, y, z, 1);
 		     unsigned int id = GetEdgeID(x, y, z, 1);
-		     m_i2pt3idVertices.insert(ID2POINT3DID::value_type(id, pt));
+		     store_edge_vertex(id, pt);
 		  }
 		  if (m_edgeTable[tableIndex] & 512) {
 		     POINT3DID pt = CalculateIntersection(x, y, z, 9);
 		     unsigned int id = GetEdgeID(x, y, z, 9);
-		     m_i2pt3idVertices.insert(ID2POINT3DID::value_type(id, pt));
+		     store_edge_vertex(id, pt);
 		  }
 	       }
 	       if (z == m_nCellsZ - 1) {
 		  if (m_edgeTable[tableIndex] & 16) {
 		     POINT3DID pt = CalculateIntersection(x, y, z, 4);
 		     unsigned int id = GetEdgeID(x, y, z, 4);
-		     m_i2pt3idVertices.insert(ID2POINT3DID::value_type(id, pt));
+		     store_edge_vertex(id, pt);
 		  }
 		  if (m_edgeTable[tableIndex] & 128) {
 		     POINT3DID pt = CalculateIntersection(x, y, z, 7);
 		     unsigned int id = GetEdgeID(x, y, z, 7);
-		     m_i2pt3idVertices.insert(ID2POINT3DID::value_type(id, pt));
+		     store_edge_vertex(id, pt);
 		  }
 	       }
 	       if ((x==m_nCellsX - 1) && (y==m_nCellsY - 1))
 		  if (m_edgeTable[tableIndex] & 1024) {
 		     POINT3DID pt = CalculateIntersection(x, y, z, 10);
 		     unsigned int id = GetEdgeID(x, y, z, 10);
-		     m_i2pt3idVertices.insert(ID2POINT3DID::value_type(id, pt));
+		     store_edge_vertex(id, pt);
 		  }
 	       if ((x==m_nCellsX - 1) && (z==m_nCellsZ - 1))
 		  if (m_edgeTable[tableIndex] & 64) {
 		     POINT3DID pt = CalculateIntersection(x, y, z, 6);
 		     unsigned int id = GetEdgeID(x, y, z, 6);
-		     m_i2pt3idVertices.insert(ID2POINT3DID::value_type(id, pt));
+		     store_edge_vertex(id, pt);
 		  }
 	       if ((y==m_nCellsY - 1) && (z==m_nCellsZ - 1))
 		  if (m_edgeTable[tableIndex] & 32) {
 		     POINT3DID pt = CalculateIntersection(x, y, z, 5);
 		     unsigned int id = GetEdgeID(x, y, z, 5);
-		     m_i2pt3idVertices.insert(ID2POINT3DID::value_type(id, pt));
+		     store_edge_vertex(id, pt);
 		  }
 
 	       for (unsigned int i = 0; m_triTable[tableIndex][i] != -1; i += 3) {
@@ -1247,92 +1254,80 @@ template <class T> POINT3DID CIsoSurface<T>::Interpolate(float fX1, float fY1, f
 
 #include "utils/coot-utils.hh" // for get_max_number_of_threads()
 
+// De-duplicating store of the intersection point on a given edge. The first
+// point stored for an edge id wins (as with the old std::map::insert), which is
+// safe because CalculateIntersection() is deterministic for a given edge.
+template <class T> void CIsoSurface<T>::store_edge_vertex(unsigned int edge_id, const POINT3DID &pt) {
+
+   if (m_edge_to_vertex_index[edge_id] < 0) {
+      m_edge_to_vertex_index[edge_id] = static_cast<int>(m_edge_vertices.size());
+      m_edge_vertices.push_back(pt);
+   }
+}
+
 template <class T> void CIsoSurface<T>::RenameVerticesAndTriangles() {
 
 #ifdef ANALYSE_CONTOURING_TIMING
    auto tp_0 = std::chrono::high_resolution_clock::now();
 #endif
 
-   unsigned int nextID = 0;
-   ID2POINT3DID::iterator mapIterator = m_i2pt3idVertices.begin();
-   TRIANGLEVECTOR::iterator vecIterator = m_trivecTriangles.begin();
+   // Vertices were de-duplicated on the fly by store_edge_vertex() using the flat
+   // m_edge_to_vertex_index array, so m_edge_vertices already holds the unique
+   // intersection points (in first-encounter order) and m_edge_to_vertex_index maps
+   // each edge id to its vertex index. All that remains is to copy the vertices to
+   // the output array and rewrite each triangle's edge ids to those vertex indices.
+   // (This replaces the old std::map keyed by edge id and its ordered rename pass -
+   // the map insertions and lookups dominated the contouring time.)
 
-   // Rename vertices.
-   while (mapIterator != m_i2pt3idVertices.end()) {
-      mapIterator->second.newID = nextID;
-      nextID++;
-      mapIterator++;
+   // Copy vertices.
+   m_nVertices = m_edge_vertices.size();
+   m_ppt3dVertices = new POINT3D[m_nVertices];
+   for (unsigned int i = 0; i < m_nVertices; i++) {
+      m_ppt3dVertices[i][0] = m_edge_vertices[i].x;
+      m_ppt3dVertices[i][1] = m_edge_vertices[i].y;
+      m_ppt3dVertices[i][2] = m_edge_vertices[i].z;
    }
 
 #ifdef ANALYSE_CONTOURING_TIMING
    auto tp_1 = std::chrono::high_resolution_clock::now();
 #endif
 
-   // Now rename triangles (don't do this with (now inner) threads)
-   while (vecIterator != m_trivecTriangles.end()) {
-      for (unsigned int i=0; i<3; i++) {
-	 unsigned int newID = m_i2pt3idVertices.at(vecIterator->pointID[i]).newID;
-	 vecIterator->pointID[i] = newID;
-      }
-      vecIterator++;
+   // Copy the triangles, rewriting each edge id to its compacted vertex index.
+   // Almost all edges referenced by a triangle were stored, but a few boundary
+   // cases can reference an edge whose vertex was not stored (m_edge_to_vertex_index
+   // still -1 for that edge) - the old std::map-based code hit these as an
+   // std::out_of_range from map::at() and abandoned the whole slab. Here we simply
+   // skip such a triangle. Note: we must NOT let a -1 reach the output - cast to
+   // unsigned it becomes a huge index that makes the downstream resize() throw
+   // bad_alloc.
+   m_piTriangleIndices = new unsigned int[m_trivecTriangles.size()*3];
+   unsigned int n_tri_out = 0;
+   for (unsigned int i = 0; i < m_trivecTriangles.size(); i++) {
+      const TRIANGLE &tri = m_trivecTriangles[i];
+      int v0 = m_edge_to_vertex_index[tri.pointID[0]];
+      int v1 = m_edge_to_vertex_index[tri.pointID[1]];
+      int v2 = m_edge_to_vertex_index[tri.pointID[2]];
+      if (v0 < 0 || v1 < 0 || v2 < 0) continue; // unstored edge - skip this triangle
+      m_piTriangleIndices[n_tri_out*3  ] = v0;
+      m_piTriangleIndices[n_tri_out*3+1] = v1;
+      m_piTriangleIndices[n_tri_out*3+2] = v2;
+      n_tri_out++;
    }
+   m_nTriangles = n_tri_out;
 
-#ifdef ANALYSE_CONTOURING_TIMING
-   auto tp_2 = std::chrono::high_resolution_clock::now();
-#endif
-
-   // Copy all the vertices and triangles into two arrays so that they
-   // can be efficiently accessed.
-   // Copy vertices.
-   mapIterator = m_i2pt3idVertices.begin();
-   m_nVertices = m_i2pt3idVertices.size();
-   m_ppt3dVertices = new POINT3D[m_nVertices];
-
-#ifdef ANALYSE_CONTOURING_TIMING
-   auto tp_3 = std::chrono::high_resolution_clock::now();
-#endif
-
-   for (unsigned int i = 0; i < m_nVertices; i++, mapIterator++) {
-      m_ppt3dVertices[i][0] = (*mapIterator).second.x;
-      m_ppt3dVertices[i][1] = (*mapIterator).second.y;
-      m_ppt3dVertices[i][2] = (*mapIterator).second.z;
-   }
-
-#ifdef ANALYSE_CONTOURING_TIMING
-   auto tp_4 = std::chrono::high_resolution_clock::now();
-#endif
-
-   // Copy vertex indices which make triangles.
-   vecIterator = m_trivecTriangles.begin();
-   m_nTriangles = m_trivecTriangles.size();
-   m_piTriangleIndices = new unsigned int[m_nTriangles*3];
-   for (unsigned int i = 0; i < m_nTriangles; i++, vecIterator++) {
-      m_piTriangleIndices[i*3  ] = (*vecIterator).pointID[0];
-      m_piTriangleIndices[i*3+1] = (*vecIterator).pointID[1];
-      m_piTriangleIndices[i*3+2] = (*vecIterator).pointID[2];
-   }
-
-#ifdef ANALYSE_CONTOURING_TIMING
-   auto tp_5 = std::chrono::high_resolution_clock::now();
-#endif
-
-   m_i2pt3idVertices.clear();
+   // Release the working buffers.
+   std::vector<int>().swap(m_edge_to_vertex_index);
+   std::vector<POINT3DID>().swap(m_edge_vertices);
    m_trivecTriangles.clear();
 
 #ifdef ANALYSE_CONTOURING_TIMING
-   auto tp_6 = std::chrono::high_resolution_clock::now();
+   auto tp_2 = std::chrono::high_resolution_clock::now();
 
    auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
    auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
-   auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
-   auto d43 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_4 - tp_3).count();
-   auto d54 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_5 - tp_4).count();
-   auto d65 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_6 - tp_5).count();
 
-   std::cout << "   RenameVerticesAndTriangles d10 " << d10 << "  d21 " << d21
-	     << "  d32 " << d32 << "  d43 " << d43
-	     << "  d54 " << d54 << "  d65 " << d65
-	     << " milliseconds\n";
+   std::cout << "   RenameVerticesAndTriangles vertices-copy " << d10
+	     << "  triangles-copy " << d21 << " milliseconds\n";
 #endif
 }
 

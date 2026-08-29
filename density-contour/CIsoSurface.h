@@ -160,8 +160,19 @@ protected:
 	// The normals.
 	VECTOR3D* m_pvec3dNormals;
 
-	// List of POINT3Ds which form the isosurface.
-	ID2POINT3DID m_i2pt3idVertices;
+	// De-duplication of vertices during marching cubes. Each grid edge that is
+	// cut by the isosurface produces exactly one vertex, shared by the triangles
+	// of all cells that touch that edge. The edge id space is dense and bounded
+	// (see GetEdgeID()/GetVertexID()), so instead of a std::map keyed by edge id
+	// we directly address a flat array: m_edge_to_vertex_index[edge_id] holds the
+	// compacted vertex index (-1 if this edge has no vertex yet), and
+	// m_edge_vertices holds the unique intersection points in first-encounter order.
+	std::vector<int> m_edge_to_vertex_index;
+	std::vector<POINT3DID> m_edge_vertices;
+
+	// De-duplicating store of the intersection point on the given edge (insert if
+	// absent - the first point stored for an edge id wins, as with the old map).
+	void store_edge_vertex(unsigned int edge_id, const POINT3DID &pt);
 
 	// List of TRIANGLES which form the triangulation of the isosurface.
 	TRIANGLEVECTOR m_trivecTriangles;

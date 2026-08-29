@@ -380,6 +380,11 @@ void gensurf_and_add_vecs_threaded_workpackage(const clipper::Xmap<float> *xmap_
 
       coot::molecule_t::draw_vector_sets_lock = false; // unlock
    }
+   // Note: the marching-cubes boundary case (a triangle referencing an edge whose
+   // vertex was not stored) used to be signalled by std::map::at() throwing
+   // std::out_of_range and was handled here. It is now handled inline in
+   // CIsoSurface::RenameVerticesAndTriangles() (such triangles are skipped), so this
+   // catch is only a general safety net for the threaded workpackage now.
    catch (const std::out_of_range &oor) {
       std::cout << "ERROR:: contouring threaded workpackage " << oor.what() << std::endl;
    }
