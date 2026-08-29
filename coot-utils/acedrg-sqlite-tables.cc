@@ -214,7 +214,8 @@ coot::acedrg_sqlite_tables::impl::prefetch_for_molecule(const std::vector<std::t
 
       std::string key_buf;  key_buf.reserve(512);
       std::string hybr_buf; hybr_buf.reserve(64);
-      while (sqlite3_step(st) == SQLITE_ROW) {
+      int rc = SQLITE_ROW;
+      while ((rc = sqlite3_step(st)) == SQLITE_ROW) {
          int ha1 = sqlite3_column_int(st, 0);
          int ha2 = sqlite3_column_int(st, 1);
          std::string hybr_comb = sqlite_text(st, 2);
@@ -239,6 +240,11 @@ coot::acedrg_sqlite_tables::impl::prefetch_for_molecule(const std::vector<std::t
                                 gemmi::CodStats(value, sigma, count),
                                 gemmi::CodStats(value_1d, sigma_1d, count_1d),
                                 key_buf, hybr_buf);
+      }
+      if (rc != SQLITE_DONE) {
+         std::string err = sqlite3_errmsg(db);
+         sqlite3_finalize(st);
+         throw std::runtime_error("acedrg-db: bond read failed: " + err);
       }
       sqlite3_finalize(st);
    }
@@ -270,7 +276,8 @@ coot::acedrg_sqlite_tables::impl::prefetch_for_molecule(const std::vector<std::t
          throw std::runtime_error(std::string("acedrg-db: prepare angle: ") + sqlite3_errmsg(db));
 
       std::string key_buf; key_buf.reserve(1024);
-      while (sqlite3_step(st) == SQLITE_ROW) {
+      int rc = SQLITE_ROW;
+      while ((rc = sqlite3_step(st)) == SQLITE_ROW) {
          int ha1 = sqlite3_column_int(st, 0);
          int ha2 = sqlite3_column_int(st, 1);
          int ha3 = sqlite3_column_int(st, 2);
@@ -300,6 +307,11 @@ coot::acedrg_sqlite_tables::impl::prefetch_for_molecule(const std::vector<std::t
                                  a1_nb,  a2_nb,  a3_nb,
                                  a1_type, a2_type, a3_type,
                                  v, s, c, key_buf);
+      }
+      if (rc != SQLITE_DONE) {
+         std::string err = sqlite3_errmsg(db);
+         sqlite3_finalize(st);
+         throw std::runtime_error("acedrg-db: angle read failed: " + err);
       }
       sqlite3_finalize(st);
    }
@@ -617,8 +629,8 @@ namespace {
 
    // --- bond table converter -----------------------------------------------
 
-   void convert_bond_tables(SqliteDB &db, const std::string &bond_dir,
-                            const std::unordered_map<std::string, std::string> &codes) {
+   int convert_bond_tables(SqliteDB &db, const std::string &bond_dir,
+                           const std::unordered_map<std::string, std::string> &codes) {
       db.exec(
          "DROP TABLE IF EXISTS bond_entries;"
          "CREATE TABLE bond_entries ("
@@ -724,12 +736,14 @@ namespace {
       db.exec("CREATE INDEX idx_bond_full ON bond_entries"
               " (ha1, ha2, hybr_comb, in_ring,"
               "  a1_nb2, a2_nb2, a1_nb, a2_nb);");
+
+      return n_rows;
    }
 
    // --- angle table converter -----------------------------------------------
 
-   void convert_angle_tables(SqliteDB &db, const std::string &angle_dir,
-                             const std::unordered_map<std::string, std::string> &codes) {
+   int convert_angle_tables(SqliteDB &db, const std::string &angle_dir,
+                            const std::unordered_map<std::string, std::string> &codes) {
       db.exec(
          "DROP TABLE IF EXISTS angle_entries;"
          "CREATE TABLE angle_entries ("
@@ -842,6 +856,8 @@ namespace {
       std::cout << "    angle_entries: " << n_files << " files, " << n_rows << " rows" << std::endl;
 
       db.exec("CREATE INDEX idx_angle_hash ON angle_entries (ha1, ha2, ha3, value_key);");
+
+      return n_rows;
    }
 
    // Copy the cheap ASCII table files -- everything at the top level of
@@ -873,43 +889,71 @@ bool
 coot::acedrg_sqlite_tables::build(const std::string &acedrg_ascii_tables_dir,
                                   const std::string &output_data_dir) {
 
+   // Build to a .part file and only rename it onto the real acedrg.sqlite
+   // on success, so a failed or interrupted build never leaves a partial
+   // file at the path that --if-missing treats as "already built".
+   std::string sqlite_path = output_data_dir + "/acedrg.sqlite";
+   std::string part_path   = sqlite_path + ".part";
+
    try {
       std::filesystem::create_directories(output_data_dir);
 
       copy_cheap_tables(acedrg_ascii_tables_dir, output_data_dir);
 
-      std::string sqlite_path = output_data_dir + "/acedrg.sqlite";
+      // Remove any stale partial build left over from a previous
+      // failed/interrupted run so we don't append to old contents.
+      std::remove(part_path.c_str());
 
-      // Erase any prior file so we don't append to old contents.
-      std::remove(sqlite_path.c_str());
+      int n_bond_rows = 0, n_angle_rows = 0;
+      {
+         SqliteDB db;
+         db.open(part_path, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE);
 
-      SqliteDB db;
-      db.open(sqlite_path, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE);
+         // Pragmas to speed bulk insert.
+         db.exec("PRAGMA journal_mode = OFF;");
+         db.exec("PRAGMA synchronous  = OFF;");
+         db.exec("PRAGMA temp_store   = MEMORY;");
+         db.exec("PRAGMA cache_size   = -200000;");  // 200 MB page cache during build
 
-      // Pragmas to speed bulk insert.
-      db.exec("PRAGMA journal_mode = OFF;");
-      db.exec("PRAGMA synchronous  = OFF;");
-      db.exec("PRAGMA temp_store   = MEMORY;");
-      db.exec("PRAGMA cache_size   = -200000;");  // 200 MB page cache during build
+         auto codes = load_atom_codes(acedrg_ascii_tables_dir + "/allAtomTypesFromMolsCoded.list");
+         if (codes.empty()) {
+            std::cout << "coot-make-acedrg-sqlite: no atom-type codes found in "
+                      << acedrg_ascii_tables_dir << "/allAtomTypesFromMolsCoded.list" << std::endl;
+            std::remove(part_path.c_str());
+            return false;
+         }
+         std::cout << "    atom-type codes: " << codes.size() << " entries" << std::endl;
 
-      auto codes = load_atom_codes(acedrg_ascii_tables_dir + "/allAtomTypesFromMolsCoded.list");
-      if (codes.empty()) {
-         std::cout << "coot-make-acedrg-sqlite: no atom-type codes found in "
-                   << acedrg_ascii_tables_dir << "/allAtomTypesFromMolsCoded.list" << std::endl;
+         n_bond_rows  = convert_bond_tables (db, acedrg_ascii_tables_dir + "/allOrgBondTables",  codes);
+         n_angle_rows = convert_angle_tables(db, acedrg_ascii_tables_dir + "/allOrgAngleTables", codes);
+
+         // Final analysis pass so the query planner has stats from the start.
+         db.exec("ANALYZE;");
+      } // db (and its sqlite3 handle) closed here, before the rename below
+
+      if (n_bond_rows == 0 || n_angle_rows == 0) {
+         std::cout << "coot-make-acedrg-sqlite: build produced " << n_bond_rows
+                   << " bond rows and " << n_angle_rows
+                   << " angle rows -- treating as a failed build (wrong tables dir?)"
+                   << std::endl;
+         std::remove(part_path.c_str());
          return false;
       }
-      std::cout << "    atom-type codes: " << codes.size() << " entries" << std::endl;
 
-      convert_bond_tables(db, acedrg_ascii_tables_dir + "/allOrgBondTables", codes);
-      convert_angle_tables(db, acedrg_ascii_tables_dir + "/allOrgAngleTables", codes);
-
-      // Final analysis pass so the query planner has stats from the start.
-      db.exec("ANALYZE;");
+      std::error_code ec;
+      std::filesystem::rename(part_path, sqlite_path, ec);
+      if (ec) {
+         std::cout << "coot-make-acedrg-sqlite: failed to rename " << part_path
+                   << " to " << sqlite_path << ": " << ec.message() << std::endl;
+         std::remove(part_path.c_str());
+         return false;
+      }
 
       return true;
    }
    catch (const std::exception &e) {
       std::cout << "coot-make-acedrg-sqlite: " << e.what() << std::endl;
+      std::remove(part_path.c_str());
       return false;
    }
 }

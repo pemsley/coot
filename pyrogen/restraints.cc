@@ -20,6 +20,8 @@
  * 02110-1301, USA
  */
 
+#include <mutex>
+
 #ifdef LIBCOOTAPI_BUILD
 #else
 #include <boost/python.hpp>
@@ -480,15 +482,21 @@ coot::mmcif_dict_from_mol_using_energy_lib(const std::string &comp_id,
 void
 coot::overlay_acedrg_table_restraints(dictionary_residue_restraints_t *restraints) {
 
+   // acedrg_sqlite_tables (and the gemmi caches it wraps) are mutated per
+   // call via the function-local statics below, so serialize the whole
+   // function against concurrent callers.
+   static std::mutex m;
+   std::lock_guard<std::mutex> lock(m);
+
    static acedrg_sqlite_tables acedrg_tables;
    static bool have_tables = acedrg_tables.init(); // XDG cache dir; false if no DB
    if (have_tables) {
       std::pair<bool, dictionary_residue_restraints_t> p =
          acedrg_tables.make_bond_and_angle_restraints(*restraints);
       if (p.first) {
-         std::cout << "INFO:: acedrg-tables: replacing " << p.second.bond_restraint.size()
+         std::cout << "INFO:: acedrg-tables: " << p.second.bond_restraint.size()
                    << " bond and " << p.second.angle_restraint.size()
-                   << " angle restraints" << std::endl;
+                   << " angle restraint values from AceDRG tables" << std::endl;
          restraints->conservatively_replace_with(p.second);
       }
    }

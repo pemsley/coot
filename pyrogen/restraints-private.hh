@@ -111,11 +111,6 @@ namespace coot {
    bool fill_with_energy_lib_bonds(const RDKit::ROMol &mol,
 				   const energy_lib_t &energy_lib,
 				   dictionary_residue_restraints_t *restraints);
-
-   // acedrg-first, energy-lib fallback: overlay AceDRG COD-table bond and
-   // angle values (from the SQLite tables in the XDG cache dir) onto
-   // already-filled restraints. No database installed -> no-op.
-   void overlay_acedrg_table_restraints(dictionary_residue_restraints_t *restraints);
    // which calls
    bool add_torsion_to_restraints(dictionary_residue_restraints_t *restraints,
 				  const RDKit::ROMol &mol,
@@ -128,6 +123,10 @@ namespace coot {
 				  unsigned int *const_no,
 				  const energy_lib_t &energy_lib);
 
+   // acedrg-first, energy-lib fallback: overlay AceDRG COD-table bond and
+   // angle values (from the SQLite tables in the XDG cache dir) onto
+   // already-filled restraints. No database installed -> no-op.
+   void overlay_acedrg_table_restraints(dictionary_residue_restraints_t *restraints);
 
    // alter restraints
    bool fill_with_energy_lib_angles(const RDKit::ROMol &mol,
