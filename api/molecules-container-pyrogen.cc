@@ -145,6 +145,10 @@ molecules_container_t::pyrogen_from_SMILES(const std::string &smiles_string,
          return -1;
       }
 
+      // 8b. Idealize the conformer (and the dictionary's chem_comp_atom coordinates)
+      // against the generated dictionary restraints, as the pyrogen CLI does.
+      coot::regularize_and_update_mol_and_restraints(mol.get(), &dict_pair.second);
+
       // 9. Store in geometry
       int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
       geom.replace_monomer_restraints(compound_id, imol_enc, dict_pair.second);
@@ -275,6 +279,12 @@ int molecules_container_t::pyrogen_from_rdkit_mol_pickle_base64(const std::strin
          std::cout << "WARNING:: pyrogen_from_rdkit_mol_pickle_base64(): mmcif_dict_from_mol_using_energy_lib() failed" << std::endl;
          return -1;
       }
+
+      // 8b. Idealize the conformer (and the dictionary's chem_comp_atom coordinates)
+      // against the generated dictionary restraints, as the pyrogen CLI does.
+      // `mol` here is already RDKit::RWMol-typed (see the unique_ptr above), so no
+      // ROMol->RWMol copy is needed.
+      coot::regularize_and_update_mol_and_restraints(mol.get(), &dict_pair.second);
 
       // 9. Store in geometry
       int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
