@@ -485,3 +485,12 @@ dictionary_atom_types_LDADD = \
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
 	$(top_builddir)/geometry/libcoot-geometry.la \
 	$(RDKIT_LIBS)
+
+# Build-time generation of the AceDRG sqlite database into the user's XDG
+# cache dir (design doc 2026-08-14-acedrg-sqlite-tables-in-coot-design.md).
+# --if-missing: skips if the DB already exists and exits 0 on failure -
+# "it is OK if this run fails".
+if HAVE_ACEDRG_TABLES_DIR
+all-local: coot-make-acedrg-sqlite$(EXEEXT)
+	-./coot-make-acedrg-sqlite$(EXEEXT) --if-missing $(ACEDRG_TABLES_DIR)
+endif
