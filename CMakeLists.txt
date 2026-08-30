@@ -717,20 +717,29 @@ add_executable(test-docking ${coot_src}/docking/test-docking.cc)
 
 add_executable(mmcif-tests ${coot_src}/api/mmcif-tests-main.cc ${coot_src}/api/mmcif-tests.cc)
 
-add_executable(coot-make-acedrg-sqlite ${coot_src}/coot-utils/make-acedrg-sqlite.cc)
-target_include_directories(coot-make-acedrg-sqlite PRIVATE ${coot_src})
-target_link_libraries(coot-make-acedrg-sqlite PUBLIC cootapi SQLite::SQLite3 gemmi::gemmi_cpp)
+# gemmi+SQLite backend for the AceDRG bond/angle tables. Needs a gemmi
+# with the public insert_bond_row()/insert_angle_row() seam (gemmi PR #438)
+# - explicit opt-in with -DGEMMI_SQLITE=ON until that lands in a gemmi
+# release. Without it acedrg-sqlite-tables.cc compiles to stubs.
+if(GEMMI_SQLITE)
+   add_definitions(-DUSE_GEMMI_SQLITE)
+   message("-- gemmi-sqlite AceDRG tables enabled")
 
-# Optional build-time generation of the AceDRG sqlite DB into the user's
-# XDG cache dir. Configure with -DACEDRG_TABLES_DIR=/path/to/acedrg/tables.
-# The tool exits 0 in --if-missing mode even on failure - "it is OK if
-# this run fails".
-if(ACEDRG_TABLES_DIR)
-   add_custom_target(acedrg-sqlite-db ALL
-      COMMAND coot-make-acedrg-sqlite --if-missing ${ACEDRG_TABLES_DIR}
-      DEPENDS coot-make-acedrg-sqlite
-      COMMENT "Building AceDRG sqlite database from ${ACEDRG_TABLES_DIR} (skipped if present)"
-      VERBATIM)
+   add_executable(coot-make-acedrg-sqlite ${coot_src}/coot-utils/make-acedrg-sqlite.cc)
+   target_include_directories(coot-make-acedrg-sqlite PRIVATE ${coot_src})
+   target_link_libraries(coot-make-acedrg-sqlite PUBLIC cootapi SQLite::SQLite3 gemmi::gemmi_cpp)
+
+   # Optional build-time generation of the AceDRG sqlite DB into the user's
+   # XDG cache dir. Configure with -DACEDRG_TABLES_DIR=/path/to/acedrg/tables.
+   # The tool exits 0 in --if-missing mode even on failure - "it is OK if
+   # this run fails".
+   if(ACEDRG_TABLES_DIR)
+      add_custom_target(acedrg-sqlite-db ALL
+         COMMAND coot-make-acedrg-sqlite --if-missing ${ACEDRG_TABLES_DIR}
+         DEPENDS coot-make-acedrg-sqlite
+         COMMENT "Building AceDRG sqlite database from ${ACEDRG_TABLES_DIR} (skipped if present)"
+         VERBATIM)
+   endif()
 endif()
 
 target_compile_features(coot-mini-rsr PRIVATE cxx_std_17)

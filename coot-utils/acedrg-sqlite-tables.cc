@@ -60,8 +60,20 @@
 #include <sqlite3.h>
 #endif
 
+// The active implementation needs both libsqlite3 and a gemmi that has the
+// public insert_bond_row()/insert_angle_row() seam (gemmi PR #438), which
+// is not yet in any gemmi release - so this is an explicit opt-in:
+// --with-gemmi-sqlite (autotools) / -DGEMMI_SQLITE=ON (CMake), both of
+// which define USE_GEMMI_SQLITE. Without it every entry point compiles to
+// a stub, is_usable() is false and pyrogen keeps its energy-lib values.
+#if defined(USE_SQLITE3) && defined(USE_GEMMI_SQLITE)
+#define COOT_GEMMI_SQLITE_ACTIVE
+#endif
+
+#ifdef COOT_GEMMI_SQLITE_ACTIVE
 #include <gemmi/acedrg_tables.hpp>
 #include <gemmi/chemcomp.hpp>
+#endif
 
 // ------------------------------------------------------------------------
 // impl
@@ -69,17 +81,17 @@
 
 class coot::acedrg_sqlite_tables::impl {
 public:
+#ifdef COOT_GEMMI_SQLITE_ACTIVE
    gemmi::AcedrgTables tables;
-#ifdef USE_SQLITE3
    sqlite3 *db = nullptr;
 #endif
    bool usable = false;
    ~impl() {
-#ifdef USE_SQLITE3
+#ifdef COOT_GEMMI_SQLITE_ACTIVE
       if (db) sqlite3_close(db);
 #endif
    }
-#ifdef USE_SQLITE3
+#ifdef COOT_GEMMI_SQLITE_ACTIVE
    // Fetch this molecule's bond/angle rows from acedrg.sqlite into
    // tables' on-demand caches. Direct port of gemmi's (fork branch
    // drg-tables-sqlite) AcedrgTables::prefetch_for_molecule().
@@ -101,7 +113,7 @@ coot::acedrg_sqlite_tables::default_data_dir() {
    return p.string();
 }
 
-#ifdef USE_SQLITE3
+#ifdef COOT_GEMMI_SQLITE_ACTIVE
 
 bool
 coot::acedrg_sqlite_tables::init(const std::string &acedrg_data_dir) {
@@ -393,34 +405,6 @@ coot::acedrg_sqlite_tables::fill_chemcomp(gemmi::ChemComp &cc) {
    return true;
 }
 
-#else // !USE_SQLITE3
-
-bool
-coot::acedrg_sqlite_tables::init(const std::string &acedrg_data_dir) {
-
-   return false;
-}
-
-bool
-coot::acedrg_sqlite_tables::init() {
-
-   return false;
-}
-
-bool
-coot::acedrg_sqlite_tables::is_usable() const {
-
-   return false;
-}
-
-bool
-coot::acedrg_sqlite_tables::fill_chemcomp(gemmi::ChemComp &cc) {
-
-   return false;
-}
-
-#endif // USE_SQLITE3
-
 namespace {
 
    // Build a gemmi ChemComp (atoms + typed bonds, no values) from a coot
@@ -536,7 +520,46 @@ coot::acedrg_sqlite_tables::make_bond_and_angle_restraints(const dictionary_resi
 // build()
 // ------------------------------------------------------------------------
 
-#ifdef USE_SQLITE3
+#else // !COOT_GEMMI_SQLITE_ACTIVE
+
+bool
+coot::acedrg_sqlite_tables::init(const std::string &acedrg_data_dir) {
+
+   return false;
+}
+
+bool
+coot::acedrg_sqlite_tables::init() {
+
+   return false;
+}
+
+bool
+coot::acedrg_sqlite_tables::is_usable() const {
+
+   return false;
+}
+
+bool
+coot::acedrg_sqlite_tables::fill_chemcomp(gemmi::ChemComp &cc) {
+
+   return false;
+}
+
+std::pair<bool, coot::dictionary_residue_restraints_t>
+coot::acedrg_sqlite_tables::make_bond_and_angle_restraints(const dictionary_residue_restraints_t &restraints_in) {
+
+   dictionary_residue_restraints_t r(restraints_in.residue_info.comp_id, 1);
+   return std::make_pair(false, r);
+}
+
+#endif // COOT_GEMMI_SQLITE_ACTIVE
+
+// ------------------------------------------------------------------------
+// builder
+// ------------------------------------------------------------------------
+
+#ifdef COOT_GEMMI_SQLITE_ACTIVE
 
 namespace {
 
@@ -958,14 +981,14 @@ coot::acedrg_sqlite_tables::build(const std::string &acedrg_ascii_tables_dir,
    }
 }
 
-#else // !USE_SQLITE3
+#else // !COOT_GEMMI_SQLITE_ACTIVE
 
 bool
 coot::acedrg_sqlite_tables::build(const std::string &acedrg_ascii_tables_dir,
                                   const std::string &output_data_dir) {
 
-   std::cout << "coot-make-acedrg-sqlite: compiled without SQLite3 support" << std::endl;
+   std::cout << "coot-make-acedrg-sqlite: compiled without gemmi-sqlite support (configure --with-gemmi-sqlite / -DGEMMI_SQLITE=ON)" << std::endl;
    return false;
 }
 
-#endif // USE_SQLITE3
+#endif // COOT_GEMMI_SQLITE_ACTIVE

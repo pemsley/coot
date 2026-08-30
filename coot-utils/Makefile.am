@@ -60,6 +60,7 @@ AM_CPPFLAGS = \
 	$(GEMMI_CXXFLAGS)    \
 	$(CLIPPER_CXXFLAGS)  \
 	$(SQLITE3_CFLAGS)    \
+	$(GEMMI_SQLITE_CFLAGS) \
 	$(MMDB_CXXFLAGS)     \
         $(CAIRO_CFLAGS)      \
 	$(gsl_CFLAGS)	     \
@@ -189,12 +190,18 @@ check_PROGRAMS = test-h-bonds testshelxreader test-hole test-elastic \
 		 test-coot-utils test-pae servalcat-tracker test-zd test-grid-balls \
 		 test-dirichlet-process test-born test-gmm test-nef-utils test-zernike \
 		 test-zernike-params test-zernike-nxmap test-zernike-search \
-		 test-coord-utils test-coord-utils-gemmi test-acedrg-sqlite-tables
+		 test-coord-utils test-coord-utils-gemmi
+if MAKE_GEMMI_SQLITE
+check_PROGRAMS += test-acedrg-sqlite-tables
+endif
 
 # wrong build order - delete from make check for now.
 # test-emma test-convolute test-coot-utils test-segmap
 
-bin_PROGRAMS = coot-mmrrcc coot-make-acedrg-sqlite
+bin_PROGRAMS = coot-mmrrcc
+if MAKE_GEMMI_SQLITE
+bin_PROGRAMS += coot-make-acedrg-sqlite
+endif
 
 # test_zo_chi_table_SOURCES = test-zo-chi-table.cc
 
@@ -490,7 +497,9 @@ dictionary_atom_types_LDADD = \
 # cache dir (design doc 2026-08-14-acedrg-sqlite-tables-in-coot-design.md).
 # --if-missing: skips if the DB already exists and exits 0 on failure -
 # "it is OK if this run fails".
+if MAKE_GEMMI_SQLITE
 if HAVE_ACEDRG_TABLES_DIR
 all-local: coot-make-acedrg-sqlite$(EXEEXT)
 	-./coot-make-acedrg-sqlite$(EXEEXT) --if-missing $(ACEDRG_TABLES_DIR)
+endif
 endif
