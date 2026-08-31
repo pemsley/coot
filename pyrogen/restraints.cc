@@ -479,8 +479,19 @@ coot::mmcif_dict_from_mol_using_energy_lib(const std::string &comp_id,
 }
 #endif
 
+// controlled by set_use_acedrg_tables() (pyrogen's --no-acedrg-tables)
+static bool use_acedrg_tables_flag = true;
+
+void
+coot::set_use_acedrg_tables(bool state) {
+
+   use_acedrg_tables_flag = state;
+}
+
 void
 coot::overlay_acedrg_table_restraints(dictionary_residue_restraints_t *restraints) {
+
+   if (! use_acedrg_tables_flag) return;
 
    // acedrg_sqlite_tables (and the gemmi caches it wraps) are mutated per
    // call via the function-local statics below, so serialize the whole

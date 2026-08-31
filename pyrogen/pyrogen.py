@@ -541,13 +541,16 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
         return
 
     m_H = m
-    print("DDDDDDDDDDDDDDDD HERE WITH m_H", m_H, "n_atom:s", m_H.GetNumAtoms())
+    print("DDDDDDDDDDDDDDDD HERE WITH m_H", m_H, "n_atoms:", m_H.GetNumAtoms())
     if n_hydrogens(m) == 0:
         m_H = AllChem.AddHs(m)
 
+    print("EEEEEEEEEEE HERE WITH m_H", m_H, "n_atoms:", m_H.GetNumAtoms())
     if do_hydrogen_atoms_shift:
         # simple sane pH H-exchanges
+        print("FFFFFFFF HERE WITH m_H", m_H, "n_atoms:", m_H.GetNumAtoms())
         sane_H_mol = pyrogen_boost.hydrogen_transformations(m_H)
+        print("GGGGGG HERE WITH sane_H_mol_H", m_H, "n_atoms:", sane_H_mol.GetNumAtoms())
         # print >>file('sane_H.mol','w+'),Chem.MolToMolBlock(sane_H_mol)
         AllChem.AssignStereochemistry(sane_H_mol, force=True, cleanIt=True)
     else:
@@ -999,6 +1002,9 @@ if __name__ == "__main__":
                       action="store_false")
     parser.add_option("-n", "--no-mogul", dest="use_mogul", default=False, action="store_false",
                       help='Don\'t run CSD Mogul to update bond and angle restraints')
+    parser.add_option("--no-acedrg-tables", dest="use_acedrg_tables", default=True,
+                      action="store_false",
+                      help="Don't use AceDRG-tables bond and angle restraint values")
     parser.add_option("-N", '--name', dest='compound_name', default=False,
                       help='Compound name')
     parser.add_option('-S', '--smiles', dest="show_smiles",
@@ -1052,6 +1058,9 @@ if __name__ == "__main__":
 
     if options.show_version:
         print('pyrogen-' + pyrogen_version, "revision", coot_git.revision_count())
+
+    if not options.use_acedrg_tables:
+        pysw.set_use_acedrg_tables(False)
 
     if options.fetch:
         fetch(options.fetch)
