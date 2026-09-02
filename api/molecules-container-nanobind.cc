@@ -1073,6 +1073,22 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::make_power_scaled_map,
          nb::arg("imol_ref"), nb::arg("imol_map_for_scaling"),
          get_docstring_from_xml("make_power_scaled_map").c_str())
+    .def("match_ligand_torsions",
+         &molecules_container_t::match_ligand_torsions,
+         nb::arg("imol_ligand"), nb::arg("imol_ref"), nb::arg("chain_id_ref"), nb::arg("resno_ref"),
+         get_docstring_from_xml("match_ligand_torsions").c_str())
+    .def("match_ligand_position",
+         &molecules_container_t::match_ligand_position,
+         nb::arg("imol_ligand"), nb::arg("imol_ref"), nb::arg("chain_id_ref"), nb::arg("resno_ref"),
+         get_docstring_from_xml("match_ligand_position").c_str())
+    .def("match_ligand_torsions_and_position",
+         &molecules_container_t::match_ligand_torsions_and_position,
+         nb::arg("imol_ligand"), nb::arg("imol_ref"), nb::arg("chain_id_ref"), nb::arg("resno_ref"),
+         get_docstring_from_xml("match_ligand_torsions_and_position").c_str())
+    .def("match_ligand_torsions_and_position_using_cid",
+         &molecules_container_t::match_ligand_torsions_and_position_using_cid,
+         nb::arg("imol_ligand"), nb::arg("imol_ref"), nb::arg("cid"),
+         get_docstring_from_xml("match_ligand_torsions_and_position_using_cid").c_str())
     .def("merge_molecules",
          nb::overload_cast<int,const std::string &>(&molecules_container_t::merge_molecules),
          nb::arg("imol"), nb::arg("list_of_other_molecules"),
