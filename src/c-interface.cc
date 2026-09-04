@@ -159,7 +159,7 @@ int git_revision_count();
 
 #include "validation-graphs/sequence-view-widget.hh"
 
-#include "json.hpp"
+#include "coot-utils/json.hpp"
 using json = nlohmann::json;
 
 #include "utils/logging.hh"

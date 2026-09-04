@@ -36,7 +36,7 @@
 #include "utils/logging.hh"
 extern logging logger;
 
-#include "json.hpp" // clever stuff from Niels Lohmann
+#include "coot-utils/json.hpp" // clever stuff from Niels Lohmann
 using json = nlohmann::json;
 
 // in c-interface.hh
