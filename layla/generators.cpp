@@ -100,6 +100,11 @@ std::string coot::layla::GeneratorRequest::get_input_filename() const {
             file_name += ".mol";
             break;
         }
+        case InputFormat::MmCIF: {
+            // "-input" keeps this distinct from the "acedrg-<id>.cif" output
+            file_name += "-input.cif";
+            break;
+        }
         default:
         case InputFormat::SMILES: {
             file_name += ".smi";
@@ -164,6 +169,11 @@ std::vector<std::string> coot::layla::GeneratorRequest::build_commandline() cons
             switch(input_format) {
                 case InputFormat::MolFile: {
                     ret.push_back("-m");
+                    ret.push_back(input_filename);
+                    break;
+                }
+                case InputFormat::MmCIF: {
+                    ret.push_back("-c");
                     ret.push_back(input_filename);
                     break;
                 }
@@ -271,6 +281,17 @@ void write_input_file_async(GTask* task) {
             std::unique_ptr<RDKit::RWMol> mol;
             mol.reset(RDKit::SmilesToMol(task_data->request->molecule_smiles));
             file_contents = RDKit::MolToMolBlock(*mol);
+            break;
+        }
+        case InputFormat::MmCIF: {
+            // pre-rendered from the canvas molecule when the request was built
+            if (!task_data->request->mmcif_input_contents.has_value()) {
+                GError* err = g_error_new(G_OPTION_ERROR, G_OPTION_ERROR_BAD_VALUE,
+                                          "Internal error: mmCIF input requested but no mmCIF was rendered.");
+                g_task_return_error(task, err);
+                return;
+            }
+            file_contents = task_data->request->mmcif_input_contents.value();
             break;
         }
         default:
