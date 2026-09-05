@@ -600,6 +600,28 @@ coot::fill_with_energy_lib_bonds(const RDKit::ROMol &mol,
 				 const coot::energy_lib_t &energy_lib,
 				 coot::dictionary_residue_restraints_t *restraints) {
 
+   // We write the bond type the way that acedrg does: the type is the
+   // KEKULIZED bond order (SINGLE/DOUBLE/TRIPLE) and aromaticity is a
+   // separate flag (the "aromatic" y/n column of the output cif).
+   // Kekulize a copy with clearAromaticFlags=false so that getIsAromatic()
+   // still tells us which bonds get the flag.
+   RDKit::RWMol mol_kek(mol);
+   bool have_kekulized = true;
+   try {
+      RDKit::MolOps::Kekulize(mol_kek, false);
+   }
+   catch (const std::exception &e) {
+      std::cout << "WARNING:: fill_with_energy_lib_bonds(): kekulization failed: "
+                << e.what() << std::endl;
+      have_kekulized = false;
+   }
+   auto acedrg_style_bond_type = [] (RDKit::Bond::BondType bt) {
+      if (bt == RDKit::Bond::DOUBLE) return std::string("DOUBLE");
+      if (bt == RDKit::Bond::TRIPLE) return std::string("TRIPLE");
+      if (bt == RDKit::Bond::AROMATIC) return std::string("AROMATIC"); // shouldn't happen post-kekulize
+      return std::string("SINGLE");
+   };
+
    unsigned int n_bonds = mol.getNumBonds();
    for (unsigned int ib=0; ib<n_bonds; ib++) {
       const RDKit::Bond *bond_p = mol.getBondWithIdx(ib);
@@ -629,7 +651,14 @@ coot::fill_with_energy_lib_bonds(const RDKit::ROMol &mol,
 			    << atom_type_1 << "\" \"" << atom_type_2
 			    << "\" got bond " << bond << " with permissive search " << std::endl;
 	       std::string bond_type = bond.type;
-	       dict_bond_restraint_t bondr(atom_name_1, atom_name_2, bond_type, bond.length, bond.esd, 0.0, 0.0, false);
+	       dict_bond_restraint_t::aromaticity_t arom = dict_bond_restraint_t::UNASSIGNED;
+	       if (have_kekulized) {
+		  const RDKit::Bond *bond_kek_p = mol_kek.getBondWithIdx(ib);
+		  bond_type = acedrg_style_bond_type(bond_kek_p->getBondType());
+		  arom = bond_kek_p->getIsAromatic() ?
+		     dict_bond_restraint_t::AROMATIC : dict_bond_restraint_t::NON_AROMATIC;
+	       }
+	       dict_bond_restraint_t bondr(atom_name_1, atom_name_2, bond_type, bond.length, bond.esd, 0.0, 0.0, false, arom);
 	       restraints->bond_restraint.push_back(bondr);
 	    }
 	    catch (const std::runtime_error &rte) {

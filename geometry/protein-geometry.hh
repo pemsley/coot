@@ -280,6 +280,7 @@ namespace coot {
       }
       void set_atom_1_atom_id(const std::string &id) { set_atom_id_1(id); }
       void set_atom_2_atom_id(const std::string &id) { set_atom_id_2(id); }
+      void set_type(const std::string &t) { type_ = t; }
       // this function called by dictionary parser after all the bonds have been read
       void set_only_bond(const std::string &pos, bool b) {
          if (pos == "first")  atom_has_only_this_non_hydrogen_bond_first  = b;

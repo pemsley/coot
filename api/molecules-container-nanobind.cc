@@ -598,6 +598,10 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::generate_self_restraints,
          nb::arg("imol"), nb::arg("local_dist_max"),
          get_docstring_from_xml("generate_self_restraints").c_str())
+    .def("get_cif_restraints_as_string",
+         &molecules_container_t::get_cif_restraints_as_string,
+         nb::arg("comp_id"), nb::arg("imol_enc"),
+         get_docstring_from_xml("get_cif_restraints_as_string").c_str())
     .def("geometry_init_standard",
          &molecules_container_t::geometry_init_standard,
          get_docstring_from_xml("geometry_init_standard").c_str())

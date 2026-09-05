@@ -1176,13 +1176,28 @@ coot::dictionary_residue_restraints_t::conservatively_replace_with(const diction
 void
 coot::dictionary_residue_restraints_t::conservatively_replace_with_bonds (const dictionary_residue_restraints_t &new_restraints) {
 
+   // "conservatively" means: take the values (distances/esds) from the new
+   // restraints but keep this dictionary's chemistry - the bond type and
+   // the aromaticity flag - which the value-provider (mmff, mogul, the
+   // acedrg tables) doesn't know or represents differently.
+   auto replace_keeping_chemistry = [] (dict_bond_restraint_t &current,
+                                        const dict_bond_restraint_t &new_restraint) {
+      std::string type_orig = current.type();
+      dict_bond_restraint_t::aromaticity_t arom_orig = current.aromaticity;
+      current = new_restraint;
+      if (! type_orig.empty())
+	 current.set_type(type_orig);
+      if (arom_orig != dict_bond_restraint_t::UNASSIGNED)
+	 current.aromaticity = arom_orig;
+   };
+
    for (unsigned int ibond=0; ibond<bond_restraint.size(); ibond++) { 
       for (unsigned int jbond=0; jbond<new_restraints.bond_restraint.size(); jbond++) {
 	 if (bond_restraint[ibond].atom_id_1_4c() ==
 	     new_restraints.bond_restraint[jbond].atom_id_1_4c()) {
 	    if (bond_restraint[ibond].atom_id_2_4c() ==
 		new_restraints.bond_restraint[jbond].atom_id_2_4c()) {
-	       bond_restraint[ibond] = new_restraints.bond_restraint[jbond];
+	       replace_keeping_chemistry(bond_restraint[ibond], new_restraints.bond_restraint[jbond]);
 	       break;
 	    }
 	 } 
@@ -1191,7 +1206,7 @@ coot::dictionary_residue_restraints_t::conservatively_replace_with_bonds (const 
 	     new_restraints.bond_restraint[jbond].atom_id_2_4c()) {
 	    if (bond_restraint[ibond].atom_id_2_4c() ==
 		new_restraints.bond_restraint[jbond].atom_id_1_4c()) {
-	       bond_restraint[ibond] = new_restraints.bond_restraint[jbond];
+	       replace_keeping_chemistry(bond_restraint[ibond], new_restraints.bond_restraint[jbond]);
 	       break;
 	    }
 	 } 
@@ -1425,7 +1440,8 @@ bool
 coot::dictionary_residue_restraints_t::ligand_has_aromatic_bonds_p() const {
 
    for (unsigned int irest=0; irest<bond_restraint.size(); irest++)
-      if (bond_restraint[irest].type() == "aromatic")
+      if (bond_restraint[irest].type() == "aromatic" ||
+	  bond_restraint[irest].aromaticity == dict_bond_restraint_t::AROMATIC)
 	 return true;
    return false;
 }
@@ -1439,7 +1455,8 @@ coot::dictionary_residue_restraints_t::get_ligand_aromatic_ring_list() const {
    // 
    std::vector<std::pair<std::string, std::string> > bonds;
    for (unsigned int irest=0; irest<bond_restraint.size(); irest++) {
-      if (bond_restraint[irest].type() == "aromatic") {
+      if (bond_restraint[irest].type() == "aromatic" ||
+	  bond_restraint[irest].aromaticity == dict_bond_restraint_t::AROMATIC) {
 	 std::pair<std::string, std::string> p(bond_restraint[irest].atom_id_1_4c(),
 					       bond_restraint[irest].atom_id_2_4c());
 	 bonds.push_back(p);

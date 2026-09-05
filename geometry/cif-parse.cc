@@ -2464,6 +2464,14 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
             // nuclear_distances_flag means that we only have one distance - and it's the
             // nuclear distance. So we need to "invent" non-nuclear distance for bonds
             // to hydrogen atoms
+
+            // if any bond knows its aromaticity, write the acedrg-style
+            // "aromatic" y/n column (for the whole loop)
+            bool have_aromaticity = false;
+            for (unsigned int i=0; i<bond_restraint.size(); i++)
+               if (bond_restraint[i].aromaticity != dict_bond_restraint_t::UNASSIGNED)
+                  have_aromaticity = true;
+
             for (unsigned int i=0; i<bond_restraint.size(); i++) {
 
                const dict_bond_restraint_t &br = bond_restraint[i];
@@ -2482,6 +2490,12 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
                mmCIFLoop->PutString(id_2.c_str(), "atom_id_2", i);
                std::string bond_type = bond_restraint[i].type();
                mmCIFLoop->PutString(bond_type.c_str(), "type", i);
+               if (have_aromaticity) {
+                  std::string arom = ".";
+                  if (br.aromaticity == dict_bond_restraint_t::AROMATIC)     arom = "y";
+                  if (br.aromaticity == dict_bond_restraint_t::NON_AROMATIC) arom = "n";
+                  mmCIFLoop->PutString(arom.c_str(), "aromatic", i);
+               }
                try {
 
                   if (nuclear_distances_flag) {
