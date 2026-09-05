@@ -4670,6 +4670,17 @@ scale_up_graphics_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
 }
 
+// So that we can see what the ephemeral overlay label looks like without
+// having to engineer one of the conditions that shows one.
+void
+test_ephemeral_overlay_label_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                    G_GNUC_UNUSED GVariant *parameter,
+                                    G_GNUC_UNUSED gpointer user_data) {
+
+   graphics_info_t::ephemeral_overlay_label("This is an ephemeral overlay label - it hides itself after 2 seconds");
+   graphics_info_t::graphics_grab_focus();
+}
+
 void
 scale_down_graphics_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                            G_GNUC_UNUSED GVariant *parameter,
@@ -6709,6 +6720,7 @@ create_actions(GtkApplication *application) {
    add_action("sequence_view_action",                     sequence_view_action);
    add_action("scale_up_graphics_action",             scale_up_graphics_action);
    add_action("scale_down_graphics_action",         scale_down_graphics_action);
+   add_action("test_ephemeral_overlay_label_action", test_ephemeral_overlay_label_action);
    add_action("undo_symmetry_view_action",           undo_symmetry_view_action);
    add_action("undo_last_navigation_action",       undo_last_navigation_action);
    add_action("ribbons_colour_by_chain_action", ribbons_colour_by_chain_action);

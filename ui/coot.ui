@@ -1368,6 +1368,10 @@
         <attribute name="action">app.superpose_picked_ligands_action</attribute>
       </item>
       <item>
+          <attribute name="label">Superpose Ligand GUI...</attribute>
+          <attribute name="action">app.superpose_ligands_action</attribute>
+      </item>
+      <item>
         <attribute name="label" translatable="no">Jiggle Fit Residue</attribute>
         <attribute name="action">app.jiggle_fit_active_residue_action</attribute>
       </item>
