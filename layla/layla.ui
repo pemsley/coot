@@ -1673,6 +1673,7 @@ Paul Emsley</property>
             <items>
               <item id="smiles">SMILES</item>
               <item id="molfile">MolFile</item>
+              <item id="mmcif">via mmCIF</item>
             </items>
             <signal name="changed" swapped="false" handler="layla_on_generator_input_format_combobox_changed" />
           </object>

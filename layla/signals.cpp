@@ -22,6 +22,7 @@
 #include <gtk/gtk.h>
 #include "state.hpp"
 #include "generators.hpp"
+#include "ccd_export.hpp"
 #include "ligand_editor_canvas.hpp"
 #include "ligand_editor_canvas/core.hpp"
 
@@ -217,7 +218,38 @@ layla_on_apply_dialog_accepted(GtkButton* button, gpointer user_data) {
         request.generator_settings = generator_options;
     }
 
-    if(input_format_name == "SMILES") {
+    const gchar* input_format_id = gtk_combo_box_get_active_id(GTK_COMBO_BOX(input_format_combobox));
+    if(input_format_id && strcmp(input_format_id, "mmcif") == 0) {
+        request.input_format = GeneratorRequest::InputFormat::MmCIF;
+        // Render the CCD-style mmCIF from the canvas molecule now, while we
+        // can reach it: this way the atom names and the drawn 2D layout
+        // survive (the SMILES carried by the request loses both).
+        CootLigandEditorCanvas* canvas = GET_CANVAS();
+        int active_pos = gtk_combo_box_get_active(GTK_COMBO_BOX(molecule_combobox));
+        const RDKit::ROMol* mol = nullptr;
+        int pos = -1;
+        for(unsigned int i = 0; i <= coot_ligand_editor_canvas_get_max_molecule_idx(canvas); i++) {
+            // the molecule combobox lists only the molecules with a non-empty
+            // SMILES, in canvas order (see layla_on_apply)
+            if(coot_ligand_editor_canvas_get_smiles_for_molecule(canvas, i) != "") {
+                pos++;
+                if(pos == active_pos) {
+                    mol = coot_ligand_editor_canvas_get_rdkit_molecule(canvas, i);
+                    break;
+                }
+            }
+        }
+        if(mol == nullptr) {
+            g_warning("layla_on_apply_dialog_accepted(): no molecule found for mmCIF export.");
+            return;
+        }
+        try {
+            request.mmcif_input_contents = coot::layla::make_acedrg_input_mmcif(*mol, request.monomer_id);
+        } catch(const std::exception& e) {
+            g_warning("layla_on_apply_dialog_accepted(): mmCIF export failed: %s", e.what());
+            return;
+        }
+    } else if(input_format_name == "SMILES") {
         request.input_format = GeneratorRequest::InputFormat::SMILES;
     } else {
         request.input_format = GeneratorRequest::InputFormat::MolFile;
