@@ -1,5 +1,25 @@
 --- Items---
 
+o "Fetch Ligand Restraints" shouldn't create a new ligand molecule
+
+o in Layla, the input should be "RDKit->mmCIF" - probably the default
+  where we do something like convert-pkl-to-mmcif.py - but
+  there is no need to pickle so just make the minimal input cif
+  for acedrg from the RDKit molecule.
+
+o try to break bansu with AI
+
+o complex atom selections in coot
+
+o remove redundant json.hpp
+
+o test clipper large maps - needs chat with stuart
+
+o bring the pli interaction info into chapi as json
+
+o can I mutate a residue and get best rotamer without a map?
+  can I do that for a whole protein?
+
 o You can tell which button has been presssed in "Difference Map Peaks"
   button list, but not Unmodelled Blobs, or Outliers table.
 * Done. Nice.
@@ -30,8 +50,8 @@ o ligand restraints accumulated per atom, not every
 o  superpose ligands? gui item seems to fail on hal
 * Done.
 
-o look at COD files from the last year, say. Can
-  they be read by Coot (chapi)?
+o look at COD files from the last year, say. Can they be read by Coot (chapi)?
+  Try to extract the hkls
 
 o scripting: add "delete all hetgroups"
 * Done.
