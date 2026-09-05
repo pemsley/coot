@@ -27,7 +27,7 @@
 #include <fstream>
 #include "utils/coot-utils.hh"
 #include "protein-geometry.hh"
-#include "src/json.hpp"  // thanks Niels Lohmann.
+#include "coot-utils/json.hpp"  // thanks Niels Lohmann.
 using json = nlohmann::json;
 
 std::map<std::string, std::vector<metal_ligand_t> > metals_store;
