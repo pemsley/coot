@@ -2375,6 +2375,65 @@ void geometric_distortions_for_ligand_action(G_GNUC_UNUSED GSimpleAction *simple
    graphics_info_t::graphics_grab_focus();
 }
 
+// The two ligands come from the stored Range/Pair picks (as make_link_action).
+// The molecule with just one residue is the moving one; its ligand gets its
+// torsions matched to the reference ligand and is then overlapped onto it.
+// (superpose_ligands_action, above the Calculate menu, is the older
+// molecule-chooser python gui - this one acts on the picked pair.)
+void superpose_picked_ligands_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                              G_GNUC_UNUSED GVariant *parameter,
+                              G_GNUC_UNUSED gpointer user_data) {
+
+   graphics_info_t g;
+   int imol_1 = g.in_range_first_picked_atom.int_user_data;
+   int imol_2 = g.in_range_second_picked_atom.int_user_data;
+   bool done = false;
+
+   if (g.is_valid_model_molecule(imol_1) && g.is_valid_model_molecule(imol_2)) {
+      mmdb::Atom *at_1 = g.molecules[imol_1].get_atom(g.in_range_first_picked_atom);
+      mmdb::Atom *at_2 = g.molecules[imol_2].get_atom(g.in_range_second_picked_atom);
+      if (at_1 && at_2) {
+         if (imol_1 == imol_2) {
+            info_dialog("Residue selection problem:\nthe picked ligands are in the same molecule");
+            done = true;
+         } else {
+            int n_res_1 = g.molecules[imol_1].n_residues();
+            int n_res_2 = g.molecules[imol_2].n_residues();
+            int imol_moving = -1;
+            int imol_ref    = -1;
+            coot::residue_spec_t ref_spec;
+            if (n_res_1 == 1) {
+               imol_moving = imol_1;
+               imol_ref    = imol_2;
+               ref_spec = coot::residue_spec_t(g.in_range_second_picked_atom);
+            } else {
+               if (n_res_2 == 1) {
+                  imol_moving = imol_2;
+                  imol_ref    = imol_1;
+                  ref_spec = coot::residue_spec_t(g.in_range_first_picked_atom);
+               }
+            }
+            if (imol_moving == -1) {
+               info_dialog("Residue selection problem:\nneither of the picked molecules has just one residue\n(the moving molecule should contain just the ligand)");
+               done = true;
+            } else {
+               match_ligand_torsions(imol_moving, imol_ref, ref_spec.chain_id.c_str(), ref_spec.res_no);
+               overlap_ligands_internal(imol_moving, imol_ref, ref_spec.chain_id.c_str(), ref_spec.res_no, true);
+               g.graphics_draw();
+               done = true;
+            }
+         }
+      }
+   }
+
+   if (! done) {
+      std::string mess = "Use Range/Pair to pick the two ligands to superpose";
+      add_status_bar_text(mess);
+      g.ephemeral_overlay_label(mess);
+   }
+   graphics_info_t::graphics_grab_focus();
+}
+
 void SMILES_to_3D_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                          G_GNUC_UNUSED GVariant *parameter,
                          G_GNUC_UNUSED gpointer user_data) {
@@ -6830,6 +6889,7 @@ create_actions(GtkApplication *application) {
    add_action("flev_action",                               flev_action);
    add_action("coot_contact_dots_for_ligand_action",       coot_contact_dots_for_ligand_action);
    add_action("geometric_distortions_for_ligand_action",   geometric_distortions_for_ligand_action);
+   add_action("superpose_picked_ligands_action",           superpose_picked_ligands_action);
    add_action("SMILES_to_3D_action",                       SMILES_to_3D_action);
    add_action("show_chemical_features_action",             show_chemical_features_action);
    // add_action("quick_ligand_validate_action",              quick_ligand_validate_action); // pythonic gui

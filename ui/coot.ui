@@ -1364,6 +1364,10 @@
         <attribute name="action">app.geometric_distortions_for_ligand_action</attribute>
       </item>
       <item>
+        <attribute name="label" translatable="no">Superpose Ligands</attribute>
+        <attribute name="action">app.superpose_picked_ligands_action</attribute>
+      </item>
+      <item>
         <attribute name="label" translatable="no">Jiggle Fit Residue</attribute>
         <attribute name="action">app.jiggle_fit_active_residue_action</attribute>
       </item>
