@@ -1177,6 +1177,14 @@ NB_MODULE(coot_headless_api, m) {
             &molecules_container_t::pyrogen_from_SMILES,
             nb::arg("SMILES_string"), nb::arg("compound_id"),
             get_docstring_from_xml("pyrogen_from_SMILES").c_str())
+    .def("pyrogen_from_rdkit_mol_pickle_base64",
+            &molecules_container_t::pyrogen_from_rdkit_mol_pickle_base64,
+            nb::arg("rdkit_mol_pickled_string"), nb::arg("compound_id"),
+            get_docstring_from_xml("pyrogen_from_rdkit_mol_pickle_base64").c_str())
+    .def("pyrogen_from_ccd_file",
+            &molecules_container_t::pyrogen_from_ccd_file,
+            nb::arg("ccd_file_name"),
+            get_docstring_from_xml("pyrogen_from_ccd_file").c_str())
     .def("rail_points_total",
          &molecules_container_t::rail_points_total,
          get_docstring_from_xml("rail_points_total").c_str())
@@ -1632,6 +1640,16 @@ NB_MODULE(coot_headless_api, m) {
        .def("get_geometry_distortion_info", &coot::geometry_distortion_info_pod_container_t::get_geometry_distortion_info)
        .def_ro("min_resno",           &coot::geometry_distortion_info_pod_container_t::min_resno)
        .def_ro("max_resno",           &coot::geometry_distortion_info_pod_container_t::max_resno)
+    ;
+    nb::class_<molecules_container_t::auto_read_mtz_info_t>(m, "auto_read_mtz_info_t")
+    .def_ro("idx",          &molecules_container_t::auto_read_mtz_info_t::idx)
+    .def_ro("F",            &molecules_container_t::auto_read_mtz_info_t::F)
+    .def_ro("phi",          &molecules_container_t::auto_read_mtz_info_t::phi)
+    .def_ro("w",            &molecules_container_t::auto_read_mtz_info_t::w)
+    .def_ro("weights_used", &molecules_container_t::auto_read_mtz_info_t::weights_used)
+    .def_ro("F_obs",        &molecules_container_t::auto_read_mtz_info_t::F_obs)
+    .def_ro("sigF_obs",     &molecules_container_t::auto_read_mtz_info_t::sigF_obs)
+    .def_ro("Rfree",        &molecules_container_t::auto_read_mtz_info_t::Rfree)
     ;
     nb::class_<molecules_container_t::fit_ligand_info_t>(m, "fit_ligand_info_t")
     .def_ro("imol", &molecules_container_t::fit_ligand_info_t::imol)
