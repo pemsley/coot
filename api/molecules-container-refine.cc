@@ -1598,16 +1598,10 @@ molecules_container_t::servalcat_refine_xray_internal(int imol, int imol_map, co
    if (is_valid_model_molecule(imol)) {
       if (is_valid_map_molecule(imol_map)) {
 
-         bool set_weight = false;
-         std::string weight_str;
-         if (! key_value_pairs.empty()) {
-            for (const auto &kv : key_value_pairs) {
-               if (kv.first == "weight") {
-                  set_weight = true;
-                  weight_str = kv.second;
-               }
-            }
-         }
+         bool ligand_given_in_keywords = false;
+         for (const auto &kv : key_value_pairs)
+            if (kv.first == "ligand")
+               ligand_given_in_keywords = true;
 
          bool clibd_mon_is_set = false;
          char *e = getenv("CLIBD_MON");
@@ -1647,9 +1641,43 @@ molecules_container_t::servalcat_refine_xray_internal(int imol, int imol_map, co
                                                        "-s", "xray", "--model", input_pdb_file_name,
                                                        "--hklin", mtz_file, "--labin", labin,
                                                        "-o", prefix};
-                  if (set_weight) {
-                     cmd_list.push_back("--weight");
-                     cmd_list.push_back(weight_str);
+
+                  // servalcat can't find dictionaries for non-standard residue
+                  // types (e.g. freshly-made ligands) in the monomer library -
+                  // write out the dictionaries that we hold and pass them with
+                  // --ligand.
+                  std::vector<std::string> nsr_types =
+                     coot::util::non_standard_residue_types_in_molecule(molecules[imol].atom_sel.mol);
+                  std::vector<std::string> dictionary_file_names;
+                  for (const auto &comp_id : nsr_types) {
+                     if (comp_id == "HOH") continue;
+                     std::pair<bool, coot::dictionary_residue_restraints_t> rp =
+                        geom.get_monomer_restraints(comp_id, coot::protein_geometry::IMOL_ENC_ANY);
+                     if (rp.first) {
+                        std::string dict_fn = prefix + "-" + comp_id + "-dict.cif";
+                        rp.second.write_cif(dict_fn);
+                        dictionary_file_names.push_back(dict_fn);
+                     } else {
+                        std::cout << "WARNING::" << __FUNCTION__ << "(): no dictionary for non-standard type "
+                                  << comp_id << " - servalcat will likely fail" << std::endl;
+                     }
+                  }
+                  if (! dictionary_file_names.empty() && ! ligand_given_in_keywords) {
+                     cmd_list.push_back("--ligand");
+                     for (const auto &fn : dictionary_file_names)
+                        cmd_list.push_back(fn);
+                  }
+
+                  // pass every keyword as a --key argument, with the value
+                  // split on whitespace so that multi-valued arguments work,
+                  // e.g. {"weight": "0.5"} -> --weight 0.5
+                  //      {"ligand": "a.cif b.cif"} -> --ligand a.cif b.cif
+                  for (const auto &kv : key_value_pairs) {
+                     cmd_list.push_back("--" + kv.first);
+                     std::istringstream iss(kv.second);
+                     std::string tok;
+                     while (iss >> tok)
+                        cmd_list.push_back(tok);
                   }
 
                   if (true) {

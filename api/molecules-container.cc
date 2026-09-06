@@ -1516,6 +1516,21 @@ molecules_container_t::auto_read_mtz(const std::string &mtz_file_name) {
       }
    };
 
+   // 20260906-PE also associate the observed data with the created map
+   // molecule, so that (e.g.) servalcat_refine_xray() works on a map from
+   // auto_read_mtz() without further ado. Stored as plain labels (the
+   // clipper-facing consumer strips the /crystal/dataset/ part itself and
+   // servalcat wants them plain).
+   auto associate_fobs = [this, mtz_file_name] (int imol, const auto_read_mtz_info_t &armi) {
+      if (! armi.F_obs.empty() && ! armi.sigF_obs.empty() && ! armi.Rfree.empty()) {
+         std::string fo = coot::util::file_name_non_directory(armi.F_obs);
+         std::string sf = coot::util::file_name_non_directory(armi.sigF_obs);
+         std::string fr = coot::util::file_name_non_directory(armi.Rfree);
+         if (is_valid_map_molecule(imol))
+            molecules[imol].associate_data_mtz_file_with_map(mtz_file_name, fo, sf, fr);
+      }
+   };
+
    // 20221001-PE if there is one F and one PHI col, read that also (and it is not a difference map)
    coot::mtz_column_types_info_t r = coot::get_mtz_columns(mtz_file_name);
 
@@ -1550,6 +1565,7 @@ molecules_container_t::auto_read_mtz(const std::string &mtz_file_name) {
 	      if (is_valid_map_molecule(imol)) {
             auto_read_mtz_info_t armi(imol, b.f_col, b.phi_col);
             add_Fobs(&armi, armi_fobs);
+            associate_fobs(imol, armi);
 	         mol_infos.push_back(armi);
          }
       }
@@ -1560,6 +1576,7 @@ molecules_container_t::auto_read_mtz(const std::string &mtz_file_name) {
          int imol = read_mtz(mtz_file_name, r.f_cols[0].column_label, r.phi_cols[0].column_label, "", false, false);
          auto_read_mtz_info_t armi(imol, r.f_cols[0].column_label, r.phi_cols[0].column_label);
          add_Fobs(&armi, armi_fobs);
+         associate_fobs(imol, armi);
          mol_infos.push_back(auto_read_mtz_info_t(armi));
       }
    }
@@ -1578,6 +1595,7 @@ molecules_container_t::auto_read_mtz(const std::string &mtz_file_name) {
                if (is_valid_map_molecule(imol)) {
                   auto_read_mtz_info_t armi(imol, f_col, phi_col);
                   add_Fobs(&armi, armi_fobs);
+                  associate_fobs(imol, armi);
                   mol_infos.push_back(armi);
                }
 	         }
