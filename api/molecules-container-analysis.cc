@@ -44,6 +44,8 @@
 #include "coot-utils/read-amber-trajectory.hh"
 #include "coot-utils/json.hpp"
 
+#include "pli/protein-ligand-interactions.hh"
+
 #include "coords/Bond_lines.hh"
 #include "coords/mmdb.hh"
 #include "coords/mmdb-extras.hh"
@@ -621,6 +623,74 @@ molecules_container_t::get_ligand_distortion(int imol, const std::string &ligand
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
    return std::make_pair(status, d);
+}
+
+// Assess the protein-ligand interactions (H-bonds, metal contacts and covalent
+// bonds) for the given ligand, returning the result as JSON.
+std::string
+molecules_container_t::get_ligand_interactions_as_json(int imol, const std::string &ligand_cid,
+                                                       float h_bond_dist_max) {
+
+   // map the pli::fle_ligand_bond_t bond_type enum to a human/tool-readable string
+   auto bond_type_to_string = [] (int bond_type) {
+      switch (bond_type) {
+         case pli::fle_ligand_bond_t::H_BOND_DONOR_MAINCHAIN:    return std::string("H-bond donor (main-chain)");
+         case pli::fle_ligand_bond_t::H_BOND_DONOR_SIDECHAIN:    return std::string("H-bond donor (side-chain)");
+         case pli::fle_ligand_bond_t::H_BOND_ACCEPTOR_MAINCHAIN: return std::string("H-bond acceptor (main-chain)");
+         case pli::fle_ligand_bond_t::H_BOND_ACCEPTOR_SIDECHAIN: return std::string("H-bond acceptor (side-chain)");
+         case pli::fle_ligand_bond_t::METAL_CONTACT_BOND:        return std::string("metal");
+         case pli::fle_ligand_bond_t::BOND_COVALENT:             return std::string("covalent");
+         default:                                                return std::string("other");
+      }
+   };
+
+   std::string s;
+
+   if (! is_valid_model_molecule(imol)) {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+      return s;
+   }
+
+   mmdb::Manager *mol = molecules[imol].atom_sel.mol;
+   mmdb::Residue *residue_p = molecules[imol].cid_to_residue(ligand_cid);
+   if (! residue_p) {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): no residue for CID " << ligand_cid
+                << " in molecule " << imol << std::endl;
+      return s;
+   }
+
+   std::vector<pli::fle_ligand_bond_t> bonds =
+      pli::protein_ligand_interactions(residue_p, mol, &geom, imol, h_bond_dist_max);
+
+   nlohmann::json j;
+   coot::residue_spec_t lig_spec(residue_p);
+   j["ligand"] = { {"chain_id", lig_spec.chain_id},
+                   {"res_no",   lig_spec.res_no},
+                   {"ins_code", lig_spec.ins_code},
+                   {"res_name", std::string(residue_p->GetResName()) } };
+
+   nlohmann::json bond_list = nlohmann::json::array();
+   for (const auto &b : bonds) {
+      nlohmann::json jb;
+      jb["bond_type"]   = bond_type_to_string(b.bond_type);
+      jb["bond_length"] = b.bond_length;
+      jb["ligand_atom"] = { {"atom_name", b.ligand_atom_spec.atom_name},
+                            {"alt_conf",  b.ligand_atom_spec.alt_conf} };
+      jb["residue"]     = { {"chain_id", b.res_spec.chain_id},
+                            {"res_no",   b.res_spec.res_no},
+                            {"ins_code", b.res_spec.ins_code} };
+      jb["residue_atom"] = { {"atom_name", b.interacting_residue_atom_spec.atom_name},
+                             {"alt_conf",  b.interacting_residue_atom_spec.alt_conf} };
+      jb["is_water"] = b.is_H_bond_to_water;
+      if (b.is_H_bond_to_water)
+         jb["water_protein_length"] = b.water_protein_length;
+      bond_list.push_back(jb);
+   }
+   j["bonds"] = bond_list;
+   j["n_bonds"] = bonds.size();
+
+   s = j.dump(2);
+   return s;
 }
 
 #include "coot-utils/find-water-baddies.hh"

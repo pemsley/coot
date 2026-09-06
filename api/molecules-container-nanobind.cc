@@ -762,6 +762,10 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::get_ligand_distortion,
          nb::arg("imol"), nb::arg("ligand_cid"), nb::arg("include_non_bonded_contacts"),
          get_docstring_from_xml("get_ligand_distortion").c_str())
+    .def("get_ligand_interactions_as_json",
+         &molecules_container_t::get_ligand_interactions_as_json,
+         nb::arg("imol"), nb::arg("ligand_cid"), nb::arg("h_bond_dist_max"),
+         get_docstring_from_xml("get_ligand_interactions_as_json").c_str())
     .def("get_lsq_matrix",
          &molecules_container_t::get_lsq_matrix,
          nb::arg("imol_ref"), nb::arg("imol_mov"), nb::arg("summary_to_screen"),
