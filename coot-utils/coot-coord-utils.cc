@@ -2014,10 +2014,10 @@ coot::util::chains_in_atom_selection(mmdb::Manager *mol, int model_number, const
 
 
 // Match on graph
-// 
+//
 // Return the orientation matrix moving res_moving to res_reference
 // and a flag letting us know that the match worked OK.
-// 
+//
 coot::graph_match_info_t
 coot::graph_match(mmdb::Residue *res_moving,
                   mmdb::Residue *res_reference,
@@ -2026,10 +2026,10 @@ coot::graph_match(mmdb::Residue *res_moving,
 
    std::cout << "DEBUG:: graph_match() called with match_hydrogens_also " << match_hydrogens_also << std::endl;
 
-  clipper::Mat33<double> m_dum(1,0,0,0,1,0,0,0,1);
-  clipper::Coord_orth pt_dum(0,0,0);
-  clipper::RTop_orth rtop(m_dum, pt_dum);
-   bool success = 0;
+   clipper::Mat33<double> m_dum(1,0,0,0,1,0,0,0,1);
+   clipper::Coord_orth pt_dum(0,0,0);
+   clipper::RTop_orth rtop(m_dum, pt_dum);
+   bool success = false;
    std::vector<std::pair<std::pair<std::string, std::string>, std::pair<std::string, std::string> > > best_matching_atoms;
 
    mmdb::math::Graph graph1;
@@ -2049,7 +2049,7 @@ coot::graph_match(mmdb::Residue *res_moving,
    }
 
    // debug
-   if (true) {
+   if (false) {
       int n_residue_atoms_1;
       mmdb::PPAtom residue_atoms_1;
       cleaned_res_moving->GetAtomTable(residue_atoms_1, n_residue_atoms_1);
@@ -2058,7 +2058,8 @@ coot::graph_match(mmdb::Residue *res_moving,
       cleaned_res_moving->GetAtomTable(residue_atoms_2, n_residue_atoms_2);
       // are these the same atoms?
       for (int i=0; i<4; i++) {
-         std::cout << "moving and ref atoms: " << residue_atoms_1[i] <<  " " << residue_atoms_2[i]
+         std::cout << "graph_match(): moving and ref atoms: " << i << "  "
+                   << residue_atoms_1[i] <<  " " << residue_atoms_2[i]
                    << std::endl;
       }
    }
@@ -2127,8 +2128,8 @@ coot::graph_match(mmdb::Residue *res_moving,
             mmdb::ivector FV1, FV2;
             match.GetMatch(imatch, FV1, FV2, n, p1, p2); // n p1 p2 set
 //             For understanding only:
-//          if (true)
-               std::cout << "Match number: " << imatch << "  " << p1*100 << "% "
+            if (false)
+               std::cout << "DEBUG:: graph_(): Match number: " << imatch << "  " << p1*100 << "% "
                          << p2*100 << "% "<< std::endl;
             std::vector<clipper::Coord_orth> coords_1_local;
             std::vector<clipper::Coord_orth> coords_2_local;
@@ -2136,7 +2137,7 @@ coot::graph_match(mmdb::Residue *res_moving,
                mmdb::math::PVertex V1 = graph1.GetVertex ( FV1[ipair] );
                mmdb::math::PVertex V2 = graph2.GetVertex ( FV2[ipair] );
                if ((!V1) || (!V2))  {
-                  std::cout << "Can't get vertices for match "
+                  std::cout << "WARNING:: graph_match(): Can't get vertices for match "
                             << ipair << std::endl;
                } else  {
                   //                   printf(" %4i.  [%4s] <-> [%4s]\n",
