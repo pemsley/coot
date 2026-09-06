@@ -9,6 +9,49 @@ o in Layla, the input should be "RDKit->mmCIF" - probably the default
   there is no need to pickle so just make the minimal input cif
   for acedrg from the RDKit molecule.
 
+o add get_secondary_structure_information() json
+  with a param get-it-from-the-header or calculate-it
+
+o make nice little svgs from bickerton et al (2012) functions
+  to help with QED manipulation.
+
+o "on_glarea_key_controller_key_pressed() key not found in map: 65505"
+should be an ephemeral message.
+
+o remove this:
+if sequence view is displayed update highlighted position here C
+and this
+
+o fix the tiny molecule flev: e.g. erin-2
+
+o average maps: simple usage fails
+
+o read in maps from mtz and set column labels for updating maps
+  turn on updating maps
+  refine something
+  -> Maps don't update
+
+o HEM ligand still tangled
+
+o dnotes: Look at cowcat jholton github
+
+o sharpED - what is this?
+
+o Erin: check non-standard residues in molecule
+* seems OK.
+
+o for jordan: for each chi angle set for each residue
+  type find the number of observations in that basin
+
+o make a smoother copy of a difference map should
+  preserrve the difference map status in the new map.
+
+o for chapi scripts, chapi.spec_to_cid() would be convenient.
+
+o conformer generator in chapi
+  Geneate many (10 * N) without energy minimization, then
+  pick the top N, judged by non-bonded contacts
+
 o try to break bansu with AI
 
 o complex atom selections in coot
@@ -29,6 +72,7 @@ o You can tell which button has been presssed in "Difference Map Peaks"
 o in one of the ligand interaction analysis functions in chapi, add
   charge-charge interactions. Check what autodock vina does for
   the protein and use GM charges using the RDKit for ligands.
+>>>>>>> refs/remotes/origin/main
 
 o transfer gemmi SQL commits to coot/pyrogen
 

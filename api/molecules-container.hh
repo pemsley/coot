@@ -3327,6 +3327,19 @@ public:
    //! @return a pair: the first is the status (1 for OK, 0 for failed to determine the distortion)
    std::pair<int, double> get_ligand_distortion(int imol, const std::string &ligand_cid, bool include_non_bonded_contacts);
 
+   //! Assess the protein-ligand interactions for a given ligand
+   //!
+   //! This uses the pli (protein-ligand interactions) functions to find the
+   //! hydrogen bonds (including to waters), metal contacts and covalent bonds
+   //! between the specified ligand and its surrounding residues.
+   //!
+   //! @param imol is the model molecule index
+   //! @param ligand_cid is the selection CID for the ligand residue, e.g. "//B/900"
+   //! @param h_bond_dist_max is the maximum hydrogen-bond distance, e.g. 3.6
+   //!
+   //! @return a JSON string describing the interactions; an empty string on failure
+   std::string get_ligand_interactions_as_json(int imol, const std::string &ligand_cid, float h_bond_dist_max);
+
    //! Match ligand torsions
    //!
    //! @param imol_ligand is the ligand molecule index
