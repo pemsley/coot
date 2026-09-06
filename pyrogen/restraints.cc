@@ -594,7 +594,7 @@ coot::mmcif_dict_from_mol_using_energy_lib(const std::string &comp_id,
 
 // return success status - did we find something for all the bonds?
 // (executable should fall over if this fails).
-// 
+//
 bool
 coot::fill_with_energy_lib_bonds(const RDKit::ROMol &mol,
 				 const coot::energy_lib_t &energy_lib,
@@ -644,9 +644,36 @@ coot::fill_with_energy_lib_bonds(const RDKit::ROMol &mol,
 	    at_2->getProp("name", atom_name_2);
 	    try {
 	       std::string bt = convert_to_energy_lib_bond_type(bond_p->getBondType());
-	       energy_lib_bond bond =
-		  energy_lib.get_bond(atom_type_1, atom_type_2, bt); // add bond type as arg
-	       if (0) // or bond.needed_permissive
+	       energy_lib_bond bond;
+	       try {
+		  bond = energy_lib.get_bond(atom_type_1, atom_type_2, bt); // add bond type as arg
+	       }
+	       catch (const std::runtime_error &rte) {
+		  // Tautomers (and other unusual inputs) can pair ring-type
+		  // atoms with bond orders that ener_lib.cif doesn't list
+		  // (e.g. CR6-CR16 double). Try the other bond orders before
+		  // giving up - the value is only a starting point (the
+		  // AceDRG-tables overlay replaces the values for the bonds
+		  // that it knows).
+		  std::vector<std::string> fallback_orders = {"single", "aromatic", "deloc", "double", "triple"};
+		  bool found = false;
+		  for (const auto &fb : fallback_orders) {
+		     if (fb == bt) continue;
+		     try {
+			bond = energy_lib.get_bond(atom_type_1, atom_type_2, fb);
+			found = true;
+			std::cout << "INFO:: fill_with_energy_lib_bonds(): no " << bt << " bond for "
+				  << atom_type_1 << " " << atom_type_2 << " - using the " << fb
+				  << " bond value" << std::endl;
+			break;
+		     }
+		     catch (const std::runtime_error &rte_inner) {
+		     }
+		  }
+		  if (! found)
+		     throw; // reported below, as before
+	       }
+	       if (false) // or bond.needed_permissive
 		  std::cout << "....... " << atom_name_1 << " " << atom_name_2 << " types \""
 			    << atom_type_1 << "\" \"" << atom_type_2
 			    << "\" got bond " << bond << " with permissive search " << std::endl;
@@ -662,11 +689,11 @@ coot::fill_with_energy_lib_bonds(const RDKit::ROMol &mol,
 	       restraints->bond_restraint.push_back(bondr);
 	    }
 	    catch (const std::runtime_error &rte) {
-	       std::cout << "ERROR::   runtime_error when adding bond restraint for bond number "
+	       std::cout << "ERROR:: fill_with_energy_lib_bonds(): runtime_error when adding bond restraint for bond number "
 			 << ib << " atom-names: " << atom_name_1 << " " << atom_name_2 << " "
 			 << rte.what() << std::endl;
-	    } 
-	 
+	    }
+
 	 }
 	 catch (const KeyErrorException &kee) {
 	    std::cout << "ERROR:: caught KeyErrorException in fill_with_energy_lib_bonds() - "
@@ -683,7 +710,7 @@ bool
 coot::fill_with_energy_lib_angles(const RDKit::ROMol &mol,
 				  const coot::energy_lib_t &energy_lib,
 				  coot::dictionary_residue_restraints_t *restraints) {
-   
+
    unsigned int n_atoms = mol.getNumAtoms();
    std::map<std::string, bool> done_angle;
    for (unsigned int iat_1=0; iat_1<n_atoms; iat_1++) { 
@@ -1708,7 +1735,7 @@ coot::add_chem_comp_sp2_C_planes(const RDKit::ROMol &mol, coot::dictionary_resid
 	 std::cout << "Matched " << matched << " sp2 N planes" << std::endl;
       for (unsigned int imatch=0; imatch<matches.size(); imatch++) {
 	 if (matches[imatch].size() > 0) {
-	    std::cout << "matched sp2 N plane pattern: " << patterns[ipat].first << std::endl;
+	    std::cout << "DEBUG:: add_chem_comp_sp2_C_planes(): matched sp2 N plane pattern: " << patterns[ipat].first << std::endl;
 	    std::string plane_id = "plane-sp2-N-";
 	    char s[100];
 	    snprintf(s,99,"%d", n_planes);
@@ -1760,7 +1787,7 @@ coot::add_chem_comp_sp2_N_planes(const RDKit::ROMol &mol, coot::dictionary_resid
 	 std::cout << "Matched " << matched << " sp2 N planes" << std::endl;
       for (unsigned int imatch=0; imatch<matches.size(); imatch++) { 
 	 if (matches[imatch].size() > 0) {
-	    std::cout << "matched sp2 N plane pattern: " << patterns[ipat].first << std::endl;
+	    std::cout << "DEBUG:: add_chem_comp_sp2_N_planes(): matched sp2 N plane pattern: " << patterns[ipat].first << std::endl;
 	    std::string plane_id = "plane-sp2-N-";
 	    char s[100];
 	    snprintf(s,99,"%d", n_planes);
@@ -1785,7 +1812,6 @@ coot::add_chem_comp_sp2_N_planes(const RDKit::ROMol &mol, coot::dictionary_resid
 	       }
 	    }
 	    catch (const KeyErrorException &kee) {
-		  
 	    }
 	    n_planes++;
 	 }
@@ -1982,7 +2008,7 @@ coot::assign_chirals_rdkit_tags(const RDKit::ROMol &mol,
 	 }
 
 	 catch (KeyErrorException &kee) {
-	    std::cout << "assign_chirals_rdkit_tags(): no prop name " << iat << std::endl;
+	    std::cout << "DEBUG:: in assign_chirals_rdkit_tags(): KEE no prop name for atom index: " << iat << std::endl;
 	 }
       }
    }
