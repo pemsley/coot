@@ -12,7 +12,6 @@ should be an ephemeral message.
 o remove this:
 if sequence view is displayed update highlighted position here C
 and this
-:::::::: go_to_ligand_inner() C
 
 o fix the tiny molecule flev: e.g. erin-2
 
@@ -44,33 +43,35 @@ o conformer generator in chapi
   Geneate many (10 * N) without energy minimization, then
   pick the top N, judged by non-bonded contacts
 
+o try to break bansu with AI
+
+o complex atom selections in coot
+
+o remove redundant json.hpp
+
+o test clipper large maps - needs chat with stuart
+
+o bring the pli interaction info into chapi as json
+
+o can I mutate a residue and get best rotamer without a map?
+  can I do that for a whole protein?
+
+o You can tell which button has been presssed in "Difference Map Peaks"
+  button list, but not Unmodelled Blobs, or Outliers table.
+* Done. Nice.
+
+o in one of the ligand interaction analysis functions in chapi, add
+  charge-charge interactions. Check what autodock vina does for
+  the protein and use GM charges using the RDKit for ligands.
+>>>>>>> refs/remotes/origin/main
+
 o transfer gemmi SQL commits to coot/pyrogen
-
-o Angle filtering fixes for acedrg atom types validation
-
-o take a look at Avogadro JSON-RPC
-  (dnotes)
-
-o ligand restraints accumulated per atom, not every
-  restraint
-
-o  superpose ligands? gui item seems to fail on hal
-* Done.
-
-o look at COD files from the last year, say. Can
-  they be read by Coot (chapi)?
-
-o scripting: add "delete all hetgroups"
-* Done.
-
-o scripting: delete all waters
-* Done.
 
 o scripting: glob many monomer cifs and import them
   things slow down - fixable?
 
-o make a generic conformer generator - use the old style
-  with torsion sampling and energy minimization
+o add a key-binding for "clear atom labels"
+*  Done. Shift L. Nice.
 
 o in the ligand builder:
    if the molecule exists in the monomer library, import it from there.
@@ -78,22 +79,41 @@ o in the ligand builder:
 e.g. kaempferol
 https://www.ebi.ac.uk/chembl/api/data/molecule/CHEMBL150.json
 
+o Angle filtering fixes for acedrg atom types validation
+
+o ligand restraints accumulated per atom, not every
+  restraint
+
+o  superpose ligands? gui item seems to fail on hal
+* Done.
+
+o look at COD files from the last year, say. Can they be read by Coot (chapi)?
+  Try to extract the hkls
+
+o scripting: add "delete all hetgroups"
+* Done.
+
+o scripting: delete all waters
+* Done.
+
+o conformer generator in chapi
+  Geneate many (10 * N) without energy minimization, then
+  pick the top N, judged by non-bonded contacts
+* Done.
+
 o coot --no-crystallography or --molecular-modelling
 
 o delete in layla should change the cursor
 
-draw an indole and make one of the fused bond carbons a nitrogen
-
-o change difference map peaks buttons and blobs to togglebuttons so they are
-  visually distinct on "click"
+o draw an indole and make one of the fused bond carbons a nitrogen
 
 o add some sort of help/search in the python scripting.
 
 o think about adding extra residue to the ligand figures in ospray
 
 o read in a molecule with a new ligand e.g. 9ymp -> Fetch PDBe Ligand Description
-Ligand goes here: /home/paule/.local/share/A1AG3.cif
-Ahahaha! because I have (incorrectly?) set XDG_DATA_HOME
+   Ligand goes here: /home/paule/.local/share/A1AG3.cif
+   Ahahaha! because I have (incorrectly?) set XDG_DATA_HOME
 
 o "Send to CCP4i2" button replaces "Generate Restraints"
   with command line option to layla.
@@ -105,6 +125,7 @@ o ldaddr (?) for chapi to find its files on relocatable binaries.
   metals and inchikey db.
 
 o fix api documentation generation
+* Done.
 
 o add servalcat_refine_xray_with_keywords
   int servalcat_refine_xray_with_keywords(int imol, int imol_map, const std::string &output_prefix,

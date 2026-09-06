@@ -49,7 +49,7 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
 	acedrg-types-for-residue.hh gl-matrix.h ortep.hh coot-align.hh grid-balls.hh dict-link-info.hh \
         dirichlet-process.hh cfc.hh cremer-pople.hh born.hh inchikey-store.hh cylinder-utils.hh gmm.hh nef-utils.hh ptm-database.hh \
 	read-amber-trajectory.hh rebox-map.hh coot-coord-utils-gemmi.hh map-cap.hh edcalc.hh crowther.hh patterson.hh surface-on-torus.hh \
-	pdbqt.hh pdbqt-charges.hh
+	pdbqt.hh pdbqt-charges.hh acedrg-sqlite-tables.hh
 
 
 pkgincludedir = $(includedir)/coot/coot-utils
@@ -57,8 +57,10 @@ pkgincludedir = $(includedir)/coot/coot-utils
 AM_CPPFLAGS = \
 	-I$(top_srcdir)	\
 	$(ENHANCED_LIGAND_TOOLS_CPPFLAGS) \
-	$(CLIPPER_CXXFLAGS)  \
 	$(GEMMI_CXXFLAGS)    \
+	$(CLIPPER_CXXFLAGS)  \
+	$(SQLITE3_CFLAGS)    \
+	$(GEMMI_SQLITE_CFLAGS) \
 	$(MMDB_CXXFLAGS)     \
         $(CAIRO_CFLAGS)      \
 	$(gsl_CFLAGS)	     \
@@ -92,7 +94,7 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc coot-coord-utils-mmdb-free.
 	shapes.cc cmtz-interface.cc pugixml.cpp parse-pisa.cc gltf-export.cc pae.cc \
 	gl-matrix.cc gl-matrix-eigensystem.cc coot-align.cc grid-balls.cc dict-link-info.cc \
 	cremer-pople.cc inchikey-store.cc cylinder-utils.cc nef-utils.cc gaussian-atom-map-for-mask.cc \
-	read-amber-trajectory.cc surface-on-torus.cc pdbqt.cc pdbqt-charges.cc
+	read-amber-trajectory.cc surface-on-torus.cc pdbqt.cc pdbqt-charges.cc acedrg-sqlite-tables.cc
 
 #    $(top_builddir)/mini-mol/libcoot-mini-mol.la
 #    $(top_builddir)/utils/libcoot-utils.la
@@ -101,12 +103,13 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc coot-coord-utils-mmdb-free.
 # this needs to be linked with clipper the (ubuntu 18.04) linker tells me - what uses clipper
 # in the source files for libcoot-coord-utils?
 libcoot_coord_utils_la_LIBADD = \
+    $(GEMMI_LIBS) \
     $(top_builddir)/lidia-core/libcoot-lidia-core.la \
     $(top_builddir)/geometry/libcoot-geometry.la     \
     $(top_builddir)/mini-mol/libcoot-mini-mol.la     \
     $(top_builddir)/utils/libcoot-utils.la           \
     $(top_builddir)/mini-mol/libcoot-mini-mol.la     \
-    $(CLIPPER_LIBS) $(GEMMI_LIBS) $(MMDB_LIBS) \
+    $(CLIPPER_LIBS) $(MMDB_LIBS) $(SQLITE3_LIBS) \
     $(gsl_LIBS) $(RDKIT_LIBS) $(CAIRO_LIBS) $(BOOST_LDFLAGS) $(NETCDF_LIBS) -lpthread
 
 libcoot_coord_utils_la_LDFLAGS = $(SHARED_LDFLAGS)
@@ -188,11 +191,17 @@ check_PROGRAMS = test-h-bonds testshelxreader test-hole test-elastic \
 		 test-dirichlet-process test-born test-gmm test-nef-utils test-zernike \
 		 test-zernike-params test-zernike-nxmap test-zernike-search \
 		 test-coord-utils test-coord-utils-gemmi
+if MAKE_GEMMI_SQLITE
+check_PROGRAMS += test-acedrg-sqlite-tables
+endif
 
 # wrong build order - delete from make check for now.
 # test-emma test-convolute test-coot-utils test-segmap
 
 bin_PROGRAMS = coot-mmrrcc
+if MAKE_GEMMI_SQLITE
+bin_PROGRAMS += coot-make-acedrg-sqlite
+endif
 
 # test_zo_chi_table_SOURCES = test-zo-chi-table.cc
 
@@ -214,6 +223,21 @@ coot_mmrrcc_LDADD = ./libcoot-map-utils.la \
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
 	$(top_builddir)/utils/libcoot-utils.la           \
 	$(CLIPPER_LIBS)
+
+coot_make_acedrg_sqlite_SOURCES = make-acedrg-sqlite.cc
+coot_make_acedrg_sqlite_LDADD = ./libcoot-coord-utils.la \
+	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
+	$(top_builddir)/geometry/libcoot-geometry.la     \
+	$(top_builddir)/utils/libcoot-utils.la           \
+	$(CLIPPER_LIBS) $(GEMMI_LIBS) $(SQLITE3_LIBS)
+
+test_acedrg_sqlite_tables_SOURCES = test-acedrg-sqlite-tables.cc
+test_acedrg_sqlite_tables_LDADD = $(GEMMI_LIBS) \
+	./libcoot-coord-utils.la \
+	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
+	$(top_builddir)/geometry/libcoot-geometry.la     \
+	$(top_builddir)/utils/libcoot-utils.la           \
+	$(CLIPPER_LIBS) $(SQLITE3_LIBS)
 
 make_cablam_like_stats_SOURCES = make-cablam-like-stats.cc
 
@@ -468,3 +492,14 @@ dictionary_atom_types_LDADD = \
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
 	$(top_builddir)/geometry/libcoot-geometry.la \
 	$(RDKIT_LIBS)
+
+# Build-time generation of the AceDRG sqlite database into the user's XDG
+# cache dir (design doc 2026-08-14-acedrg-sqlite-tables-in-coot-design.md).
+# --if-missing: skips if the DB already exists and exits 0 on failure -
+# "it is OK if this run fails".
+if MAKE_GEMMI_SQLITE
+if HAVE_ACEDRG_TABLES_DIR
+all-local: coot-make-acedrg-sqlite$(EXEEXT)
+	-./coot-make-acedrg-sqlite$(EXEEXT) --if-missing $(ACEDRG_TABLES_DIR)
+endif
+endif

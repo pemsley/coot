@@ -5665,6 +5665,7 @@ std::vector<coot::simple_mesh_t> coot::molecule_t::get_cavities(const protein_ge
    float grid_scale    = 2.0;
    float b_factor      = 2.0;
    unsigned int min_points_for_mesh = 50;
+   min_points_for_mesh = 100; // updated 2026-09-04
 
    for (unsigned int ic=0; ic<gb.cavities.size(); ic++) {
       const coot::grid_balls_t::cavity_t &cav = gb.cavities[ic];

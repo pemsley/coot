@@ -20,6 +20,8 @@
  * 02110-1301, USA
  */
 
+#include <mutex>
+
 #ifdef LIBCOOTAPI_BUILD
 #else
 #include <boost/python.hpp>
@@ -35,6 +37,7 @@
 #include <lidia-core/rdkit-interface.hh>
 #include <utils/coot-utils.hh>
 #include <coot-utils/coot-coord-utils.hh>
+#include "coot-utils/acedrg-sqlite-tables.hh"
 
 #include "mmff-restraints.hh" // needed?
 
@@ -420,6 +423,7 @@ coot::mmcif_dict_from_mol(const std::string &comp_id,
 	 // bonds and angles 
 	 dictionary_residue_restraints_t mmff_restraints = make_mmff_restraints(mol_for_mmff);
 	 restraints.conservatively_replace_with(mmff_restraints);
+	 overlay_acedrg_table_restraints(&restraints); // acedrg values beat MMFF too
       }
    } else {
       std::cout << "WARNING:: failure in calling mmcif_dict_from_mol_using_energy_lib() " << std::endl;
@@ -474,6 +478,40 @@ coot::mmcif_dict_from_mol_using_energy_lib(const std::string &comp_id,
    return p;
 }
 #endif
+
+// controlled by set_use_acedrg_tables() (pyrogen's --no-acedrg-tables)
+static bool use_acedrg_tables_flag = true;
+
+void
+coot::set_use_acedrg_tables(bool state) {
+
+   use_acedrg_tables_flag = state;
+}
+
+void
+coot::overlay_acedrg_table_restraints(dictionary_residue_restraints_t *restraints) {
+
+   if (! use_acedrg_tables_flag) return;
+
+   // acedrg_sqlite_tables (and the gemmi caches it wraps) are mutated per
+   // call via the function-local statics below, so serialize the whole
+   // function against concurrent callers.
+   static std::mutex m;
+   std::lock_guard<std::mutex> lock(m);
+
+   static acedrg_sqlite_tables acedrg_tables;
+   static bool have_tables = acedrg_tables.init(); // XDG cache dir; false if no DB
+   if (have_tables) {
+      std::pair<bool, dictionary_residue_restraints_t> p =
+         acedrg_tables.make_bond_and_angle_restraints(*restraints);
+      if (p.first) {
+         std::cout << "INFO:: acedrg-tables: " << p.second.bond_restraint.size()
+                   << " bond and " << p.second.angle_restraint.size()
+                   << " angle restraint values from AceDRG tables" << std::endl;
+         restraints->conservatively_replace_with(p.second);
+      }
+   }
+}
 
 // return also success status, true is good
 //
@@ -532,6 +570,8 @@ coot::mmcif_dict_from_mol_using_energy_lib(const std::string &comp_id,
       bool status_b = coot::fill_with_energy_lib_bonds(mol, energy_lib, &restraints); // alter restraints
       bool status_a = coot::fill_with_energy_lib_angles(mol, energy_lib, &restraints); // alter restraints
       bool status_t = coot::fill_with_energy_lib_torsions(mol, energy_lib, &restraints); // alter restraints
+
+      coot::overlay_acedrg_table_restraints(&restraints); // acedrg-first, energy-lib fallback
 
       int n_chirals = coot::assign_chirals(mol, &restraints); // alter restraints
       if (n_chirals) 

@@ -1702,9 +1702,6 @@ template <class T> void CIsoSurface<T>::writeTriangles(std::string filename) {
       std::cout << "Could not open " << filename.c_str() << " for some reason\n";
    }
 
-   done_line_list_t done_line_list;
-   to_vertex_list_t to_vertex_list;
-
    for (unsigned int i=0; i < m_nTriangles*3; i+=3) {
 
       j = m_piTriangleIndices[i];
@@ -1725,16 +1722,6 @@ template <class T> void CIsoSurface<T>::writeTriangles(std::string filename) {
       t3_y = m_ppt3dVertices[j][1];
       t3_z = m_ppt3dVertices[j][2];
 
-      // to_vertex_list = done_line_list.to_vertices[m_piTriangleIndices[i]];
-      //
-      //to_vertex_list = done_line_list.to_vertices.at(m_piTriangleIndices[i]);
-
-      // if (to_vertex_list.vertex_list.at(m_piTriangleIndices[i+1]) == 1) {
-
-      //cout << "done bond: " << m_piTriangleIndices[i]
-      //      << " to " << m_piTriangleIndices[i+1] << endl;
-
-	 //} else {
 	 outfile << i << "\n";
 
 	 outfile.setf(std::ios::scientific); //, ios::floatfield);
@@ -1744,11 +1731,6 @@ template <class T> void CIsoSurface<T>::writeTriangles(std::string filename) {
 	 outfile << t3_x << " " << t3_y << " " << t3_z << "\n";
 
 	 i_tri_out++;
-
-	 // now mark it as done
-	 //ndone_line_list[m_piTriangleIndices[i]].assign(m_piTriangleIndices[i+1],1);
-
-	 //      }
    }
 
    outfile.close();
@@ -1757,20 +1739,6 @@ template <class T> void CIsoSurface<T>::writeTriangles(std::string filename) {
 	<< "=" << 3*i_tri_out << " to " << filename.c_str() << std::endl;
 
 }
-
-bool
-do_line(done_line_list_t &done_line_list, int j, int jp) {
-
-   if (done_line_list.done_before(j,jp) == 1) {
-      //cout << "top: " << j << "," << jp << " done before!" << endl;
-      return 0;
-   } else {
-      // _was_ new (now marked as done).
-      // cout << "top: " << j << "," << jp << " was new" << endl;
-      return 1;
-   }
-}
-
 
 template <class T>
 coot::CartesianPairInfo
@@ -1798,14 +1766,6 @@ CIsoSurface<T>::returnTriangles(const clipper::Xmap<T>& xmap,
    clipper::Coord_orth co1, co2, co3;
    float radius_sqd = radius * radius;
    clipper::Coord_orth centre_clipper(centre.x(), centre.y(), centre.z());
-
-   done_line_list_t done_line_list;
-
-   int face_count_1 = 0, face_count_2 = 0, face_count_3 = 0;
-   int not_passed_back_count = 0;
-   short int face;
-
-   unsigned int done_count = 0, d1_2, d2_3, d1_3;
 
    coot::Cartesian co1_c;
    coot::Cartesian co2_c;
@@ -1914,240 +1874,6 @@ CIsoSurface<T>::returnTriangles( const clipper::NXmap<T>& nx_map,
 
    return result_wrapper;
 }
-
-
-// -----------------------------------------------------------------
-// testing stuff
-//
-
-// i is the from index, j is the to index.
-//
-// We'll check once and mark both ways
-bool
-done_line_list_t::done_before(int i, int j) {
-
-   //cout << "i=" << i << " j=" << j
-   //	<< " max_from_vertex=" << max_from_vertex << endl;
-
-
-   int itmp = i > j ? i : j;
-
-   // Because, if this had been done before, the array would have
-   // been of the right size.
-   //
-   if (itmp >= from_vertices_size) {
-      resize_and_copy(itmp);
-      mark_as_done(i,j);
-      return 0;
-   }
-
-   // Same as above, but this time we do not need to extend to array.
-   //
-   if (itmp > max_from_vertex) {
-      mark_as_done(i,j);
-      return 0;
-   }
-
-   if  ( (from_vertices[i]).contains(j) == 1) {
-      return 1;
-   } else {
-      mark_as_done(i,j);
-      return 0;
-   }
-
-}
-
-done_line_list_t::done_line_list_t() {
-
-   int start_size = 40000; // ahem... not 10.
-
-   from_vertices = new to_vertex_list_t[start_size];
-   from_vertices_size = start_size;  // the size of the array
-   max_from_vertex = -1;             // the maximum vertex encountered so far.
-
-}
-
-done_line_list_t::~done_line_list_t() {
-
-   //cout << "destroying a done_line_list_t" << endl;
-   //cout << "from_vertices_size is " << from_vertices_size << endl;
-   //cout << "max_from_vertex is " << max_from_vertex << endl;
-   delete [] from_vertices;
-   //cout << "done deleting from_vertices" << endl;
-
-}
-
-void
-done_line_list_t::resize_and_copy(int i) {
-
-   //cout << "resize and copy to fix start vertex " << i << endl;
-   //cout << "resize: from_vertices_size was " << from_vertices_size << endl;
-
-   int new_size = int (rint(from_vertices_size +
-			    (i - from_vertices_size + 500 )*1.5));
-
-   //cout << "resize: new_size is " << new_size << endl;
-
-   to_vertex_list_t *new_list = new to_vertex_list_t[new_size];
-
-   for (int ii=0; i<max_from_vertex; i++)
-      new_list[ii] = from_vertices[ii];
-
-   max_from_vertex = i;
-   delete [] from_vertices;      // out with the old
-   from_vertices_size = new_size;// in with the new.
-   from_vertices = new_list;
-
-   // cout << "resize: max_from_vertex is " << max_from_vertex << endl;
-}
-
-// We come here only when there is not already a mark.
-//
-void
-done_line_list_t::mark_as_done(int i, int j) {
-
-   // need to mark both i and j indices first.
-   //
-   // First mark i first:
-   //
-   //
-   //cout << "Marking as done: first way: " << i << "," << j << endl;
-   //
-   to_vertex_list_t *v = &from_vertices[i]; // don't copy!
-   v->add(j);
-
-   //cout << "Marking as done: secon way: " << j << "," << i << endl;
-   //
-   v = &from_vertices[j];  // don't copy
-   v->add(i);
-
-   max_from_vertex = (max_from_vertex > i) ? max_from_vertex : i;
-   max_from_vertex = (max_from_vertex > j) ? max_from_vertex : j;
-
-}
-
-//
-to_vertex_list_t
-done_line_list_t::getVertex(unsigned int i) const {
-
-   return from_vertices[i];
-
-}
-
-//
-void
-to_vertex_list_t::add(int i) {
-
-   //cout << "add: n_vertices is currently: " << n_vertices << endl;
-   //cout << "add: adding vertex: " << i << endl;
-
-   if ( n_vertices < vertex_list_size ) {
-
-      //cout << "add: no need for a resize as " << n_vertices
-      //	   << " < " << vertex_list_size << endl;
-      vertex_list[n_vertices] = i;
-      n_vertices++;
-      //cout << "add: now n_vertices is " << n_vertices << endl;
-
-   } else {
-      //cout << "add: vertex_list resizing" << endl;
-     int new_size = vertex_list_size ? vertex_list_size + 2 : 4;
-      int *new_list = new int[new_size ];
-      // copy across the old data
-      //
-      for (int ii=0; ii<n_vertices; ii++)
-	 new_list[ii] = vertex_list[ii];
-
-      vertex_list_size = new_size;
-      delete [] vertex_list;
-      vertex_list = new_list;
-      vertex_list[n_vertices] = i;
-      n_vertices++;
-
-      //cout << "add: vertex_list_size expanded to "
-      //	   << vertex_list_size << endl;
-      //cout << "add: now n_vertices is " << n_vertices << endl;
-   }
-
-
-
-}
-
-// copy constuctor
-//
-to_vertex_list_t::to_vertex_list_t(const to_vertex_list_t &a) {
-
-   //cout << "making a default to_vertex_list_t" << endl;
-   Copy(a);
-}
-
-//
-void
-to_vertex_list_t::Copy(const to_vertex_list_t &a) {
-
-   // cout << "to_vertex_list_t Copy" << endl;
-   //
-   // int *new_vertex_list = new int[a.vertex_list_size];
-   // for (int ii=0; ii<a.vertex_list_size; ii++)
-   //    new_vertex_list[ii] = a.vertex_list[ii];
-
-   n_vertices       = a.n_vertices;
-   vertex_list_size = a.vertex_list_size;
-   std::cout << "post Copy(): vertex_list_size = " << vertex_list_size << std::endl;
-   std::cout << "post Copy(): n_vertices = " << n_vertices << std::endl;
-
-}
-
-//
-const to_vertex_list_t&
-to_vertex_list_t::operator=(const to_vertex_list_t &a) {
-
-   Copy(a);
-
-   return *this;
-}
-
-
-
-// This is a question asked of the class
-//
-bool
-to_vertex_list_t::contains(int i_test_vertex) {
-
-   //cout << "looking for vertex " << i_test_vertex << " in "
-   //	<< n_vertices << " vertices" << endl;
-   for (int i=0; i< n_vertices; i++) {
-      //cout << "for index i=" << i << " comparing " << i_test_vertex
-      //   << " and " << vertex_list[i] << endl;
-      if (vertex_list[i] == i_test_vertex) {
-	 return 1;
-
-      }
-   }
-
-   return 0;
-}
-
-to_vertex_list_t::to_vertex_list_t() {
-
-   vertex_list = 0; /* Allocate memory as needed for this list */
-
-   vertex_list_size = 0;
-   n_vertices = 0;
-}
-
-to_vertex_list_t::~to_vertex_list_t() {
-
-   //cout << "~to_v_l_t: vertex_list_size is " << vertex_list_size << endl;
-   //cout << "~to_v_l_t: n_vertices is " << n_vertices << endl;
-
-   if (vertex_list_size > 0) {
-      delete [] vertex_list;
-   }
-   //cout << "~to_v_l_t: done deleting" << endl;
-
-}
-
 
 
 // Instantiate template(s)

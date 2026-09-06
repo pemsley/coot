@@ -697,6 +697,14 @@ public:
    //! @return a vector/list of non-standard residues
    std::vector<std::string> non_standard_residue_types_in_model(int imol) const;
 
+   //! Get non-standard residues in a model
+   //!
+   //! @param imol is the model molecule index
+   //!
+   //! @return a vector/list of residue specifiers - the residue name is encoded
+   //! in the `string_user_data` data item of the residue specifier
+   std::vector<coot::residue_spec_t> get_non_standard_residues_in_molecule(int imol) const;
+
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
    //! Extract ligand restraints from the dictionary store and make an encoded pickled rdkit molecule
@@ -3962,14 +3970,6 @@ public:
    //! @param add_key should a key be added to the figure?
    //! @return an svg string of the representation. On failure, return an empty string.
    std::string get_svg_for_2d_ligand_environment_view(int imol, const std::string &residue_cid, bool add_key);
-
-   //! Get non-standard residues in a model
-   //!
-   //! @param imol is the model molecule index
-   //!
-   //! @return a vector/list of residue specifiers - the residue name is encoded
-   //! in the `string_user_data` data item of the residue specifier
-   std::vector<coot::residue_spec_t> get_non_standard_residues_in_molecule(int imol) const;
 
    //! Try to read the dictionaries for any residue type in imol that as yet does not have
    //! a dictionary
