@@ -877,7 +877,11 @@ public:
    static float diff_map_iso_level_increment;
    static short int swap_difference_map_colours; // for Jan Dohnalek
 
-   static float map_sampling_rate; // Shannon sampling rate multiplier (1.5 default)
+   // Shannon sampling rate multiplier. Read only when a map is created from
+   // structure factors - changing it does not resample maps already loaded
+   // (use smooth_map() for that).
+   static constexpr float map_sampling_rate_default = 2.5;
+   static float map_sampling_rate;
 
    //
    static int control_is_pressed;

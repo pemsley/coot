@@ -541,7 +541,7 @@ PyObject *graphics_info_t::post_intermediate_atoms_moved_hook = 0;
 #endif
 
 
-float graphics_info_t::map_sampling_rate = 2.5;
+float graphics_info_t::map_sampling_rate = graphics_info_t::map_sampling_rate_default;
 
 // Initialise the static atom_sel.
 //
