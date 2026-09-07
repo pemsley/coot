@@ -606,15 +606,26 @@ void preferences_internal_change_value_int(int preference_type, int ivalue) {
   g.preferences_internal_change_value(preference_type, ivalue);
 }
 
+
+
+#if 0
 #include "setup-gui-components.hh" // for apply_vertical_toolbar_style()
+#endif
 
 void set_vertical_toolbar_style(int style) {
 
    if (style < 0) style = 0;
    if (style > 2) style = 2;
    graphics_info_t::vertical_toolbar_style = style;
+
+#if 0
+   // I don't think we can do this - it is in the Coot-1 gui functions - not part of libcootsumo
+   // So maybe this function should be part of Coot-1 gui functions, not here, and not
+   // in c-interface-preferences.h
+
    apply_vertical_toolbar_style(); // does nothing if the toolbar has not been made yet -
                                    // setup_gui_components() applies the style in that case.
+#endif
 
    // keep the radio items of the toolbar's right-click menu in step with the style
    GtkApplication *application = graphics_info_t::application;
@@ -630,6 +641,7 @@ void set_vertical_toolbar_style(int style) {
    }
    preferences_internal_change_value_int(PREFERENCES_VERTICAL_TOOLBAR_STYLE, style);
 }
+
 
 int vertical_toolbar_style_state() {
 
