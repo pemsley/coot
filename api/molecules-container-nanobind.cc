@@ -1181,6 +1181,10 @@ NB_MODULE(coot_headless_api, m) {
             &molecules_container_t::pyrogen_from_rdkit_mol_pickle_base64,
             nb::arg("rdkit_mol_pickled_string"), nb::arg("compound_id"),
             get_docstring_from_xml("pyrogen_from_rdkit_mol_pickle_base64").c_str())
+    .def("write_acedrg_input_mmcif_from_rdkit_mol_pickle_base64",
+            &molecules_container_t::write_acedrg_input_mmcif_from_rdkit_mol_pickle_base64,
+            nb::arg("rdkit_mol_pickled_string"), nb::arg("compound_id"), nb::arg("file_name"),
+            get_docstring_from_xml("write_acedrg_input_mmcif_from_rdkit_mol_pickle_base64").c_str())
     .def("pyrogen_from_ccd_file",
             &molecules_container_t::pyrogen_from_ccd_file,
             nb::arg("ccd_file_name"),

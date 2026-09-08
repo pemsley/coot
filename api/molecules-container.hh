@@ -4239,6 +4239,18 @@ public:
    //! @return the new molecule index or -1 on failure
    int pyrogen_from_rdkit_mol_pickle_base64(const std::string &rdkit_mol_pickled_string, const std::string &compound_id);
 
+   //! Write a minimal CCD-style mmCIF from an RDKit molecule pickle (base64) -
+   //! the input format for external dictionary generators (acedrg -c,
+   //! pyrogen --mmcif). Atom names carried on the molecule are preserved.
+   //!
+   //! @param rdkit_mol_pickled_string base64-encoded RDKit binary pickle
+   //! @param compound_id the _chem_comp.id for the written file
+   //! @param file_name the output file name
+   //! @return 1 on success, 0 on failure
+   int write_acedrg_input_mmcif_from_rdkit_mol_pickle_base64(const std::string &rdkit_mol_pickled_string,
+                                                             const std::string &compound_id,
+                                                             const std::string &file_name);
+
    // -------------------------------- Other ---------------------------------------
 
    void test_function(const std::string &s);

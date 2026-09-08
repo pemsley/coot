@@ -22,7 +22,7 @@
 #include <gtk/gtk.h>
 #include "state.hpp"
 #include "generators.hpp"
-#include "ccd_export.hpp"
+#include "coot-utils/acedrg-input-mmcif.hh"
 #include "ligand_editor_canvas.hpp"
 #include "ligand_editor_canvas/core.hpp"
 
@@ -244,7 +244,7 @@ layla_on_apply_dialog_accepted(GtkButton* button, gpointer user_data) {
             return;
         }
         try {
-            request.mmcif_input_contents = coot::layla::make_acedrg_input_mmcif(*mol, request.monomer_id);
+            request.mmcif_input_contents = coot::make_acedrg_input_mmcif(*mol, request.monomer_id);
         } catch(const std::exception& e) {
             g_warning("layla_on_apply_dialog_accepted(): mmCIF export failed: %s", e.what());
             return;

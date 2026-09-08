@@ -1,4 +1,4 @@
-/* layla/ccd_export.hpp
+/* coot-utils/acedrg-input-mmcif.hh
  *
  * Copyright 2026 by Global Phasing Ltd.
  * Author: Paul Emsley
@@ -19,14 +19,14 @@
  * 02110-1301, USA
  */
 
-#ifndef LAYLA_CCD_EXPORT_HPP
-#define LAYLA_CCD_EXPORT_HPP
+#ifndef COOT_UTILS_ACEDRG_INPUT_MMCIF_HH
+#define COOT_UTILS_ACEDRG_INPUT_MMCIF_HH
 
 #include <string>
 
 namespace RDKit { class ROMol; }
 
-namespace coot::layla {
+namespace coot {
 
    // Build a minimal CCD-style mmCIF - the "acedrg -c" input format - from
    // the canvas molecule: kekulized bond orders with pdbx_aromatic_flag,
@@ -43,6 +43,6 @@ namespace coot::layla {
    // failure (no atoms, 3D embedding failure).
    std::string make_acedrg_input_mmcif(const RDKit::ROMol &mol_2d, const std::string &comp_id);
 
-} // namespace coot::layla
+} // namespace coot
 
-#endif // LAYLA_CCD_EXPORT_HPP
+#endif // COOT_UTILS_ACEDRG_INPUT_MMCIF_HH

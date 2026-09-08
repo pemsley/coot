@@ -439,6 +439,7 @@ add_library(cootapi SHARED
             ${coot_src}/coot-utils/patterson.cc
             ${coot_src}/coot-utils/crowther.cc
             ${coot_src}/coot-utils/acedrg-sqlite-tables.cc
+            ${coot_src}/coot-utils/acedrg-input-mmcif.cc
             ${coot_src}/coords/Bond_lines.cc
             ${coot_src}/coords/Bond_lines_ext.cc
             ${coot_src}/coords/coot-close.cc

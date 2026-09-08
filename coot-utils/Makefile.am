@@ -49,7 +49,7 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
 	acedrg-types-for-residue.hh gl-matrix.h ortep.hh coot-align.hh grid-balls.hh dict-link-info.hh \
         dirichlet-process.hh cfc.hh cremer-pople.hh born.hh inchikey-store.hh cylinder-utils.hh gmm.hh nef-utils.hh ptm-database.hh \
 	read-amber-trajectory.hh rebox-map.hh coot-coord-utils-gemmi.hh map-cap.hh edcalc.hh crowther.hh patterson.hh surface-on-torus.hh \
-	pdbqt.hh pdbqt-charges.hh acedrg-sqlite-tables.hh
+	pdbqt.hh pdbqt-charges.hh acedrg-sqlite-tables.hh acedrg-input-mmcif.hh
 
 
 pkgincludedir = $(includedir)/coot/coot-utils
@@ -94,7 +94,7 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc coot-coord-utils-mmdb-free.
 	shapes.cc cmtz-interface.cc pugixml.cpp parse-pisa.cc gltf-export.cc pae.cc \
 	gl-matrix.cc gl-matrix-eigensystem.cc coot-align.cc grid-balls.cc dict-link-info.cc \
 	cremer-pople.cc inchikey-store.cc cylinder-utils.cc nef-utils.cc gaussian-atom-map-for-mask.cc \
-	read-amber-trajectory.cc surface-on-torus.cc pdbqt.cc pdbqt-charges.cc acedrg-sqlite-tables.cc
+	read-amber-trajectory.cc surface-on-torus.cc pdbqt.cc pdbqt-charges.cc acedrg-sqlite-tables.cc acedrg-input-mmcif.cc
 
 #    $(top_builddir)/mini-mol/libcoot-mini-mol.la
 #    $(top_builddir)/utils/libcoot-utils.la

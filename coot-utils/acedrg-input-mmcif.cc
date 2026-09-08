@@ -1,4 +1,4 @@
-/* layla/ccd_export.cpp
+/* coot-utils/acedrg-input-mmcif.cc
  *
  * Copyright 2026 by Global Phasing Ltd.
  * Author: Paul Emsley
@@ -22,7 +22,7 @@
 // C++ port of python/convert-pkl-to-mmcif.py: write a CCD-style mmCIF
 // for acedrg directly from the RDKit molecule held by the Layla canvas.
 
-#include "ccd_export.hpp"
+#include "acedrg-input-mmcif.hh"
 
 #include <cstdio>
 #include <map>
@@ -92,7 +92,7 @@ namespace {
 } // namespace
 
 std::string
-coot::layla::make_acedrg_input_mmcif(const RDKit::ROMol &mol_2d_in, const std::string &comp_id_in) {
+coot::make_acedrg_input_mmcif(const RDKit::ROMol &mol_2d_in, const std::string &comp_id_in) {
 
    std::string comp_id = comp_id_in;
    if (comp_id.empty()) comp_id = "LIG";
