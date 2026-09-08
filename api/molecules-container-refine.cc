@@ -44,6 +44,14 @@
 #include "coot-utils/read-amber-trajectory.hh"
 #include "coot-utils/json.hpp"
 
+#include <fstream>
+#ifdef USE_GEMMI
+#include "coot-utils/coot-coord-utils-gemmi.hh" // for coot::trim_atom_names()
+#include <gemmi/mmdb.hpp>     // for gemmi::copy_from_mmdb()
+#include <gemmi/to_mmcif.hpp> // for gemmi::make_mmcif_document()
+#include <gemmi/to_cif.hpp>   // for gemmi::cif::write_cif_to_stream()
+#endif // USE_GEMMI
+
 #include "coords/Bond_lines.hh"
 #include "coords/mmdb.hh"
 #include "coords/mmdb-extras.hh"
@@ -1603,6 +1611,62 @@ molecules_container_t::servalcat_refine_xray_internal(int imol, int imol_map, co
             if (kv.first == "ligand")
                ligand_given_in_keywords = true;
 
+         bool set_weight = false;
+         std::string weight_str;
+         // the format for the model files that we interchange with servalcat:
+         // "pdb" (default) or "mmcif"
+         std::string internal_interchange_format = "pdb";
+         if (! key_value_pairs.empty()) {
+            for (const auto &kv : key_value_pairs) {
+               if (kv.first == "weight") {
+                  set_weight = true;
+                  weight_str = kv.second;
+               }
+               if (kv.first == "internal_interchange_format") {
+                  if (kv.second == "pdb" || kv.second == "mmcif") {
+                     internal_interchange_format = kv.second;
+                  } else {
+                     std::cout << "WARNING:: " << __FUNCTION__ << "(): unknown "
+                               << "internal_interchange_format \"" << kv.second
+                               << "\" - using \"pdb\"" << std::endl;
+                  }
+               }
+            }
+         }
+         bool use_mmcif = (internal_interchange_format == "mmcif");
+
+         // write the model for servalcat in the requested format. For mmcif we go
+         // via a gemmi::Structure. Returns 0 on success (mmdb WritePDBASCII convention).
+         auto write_model_for_servalcat = [use_mmcif, this] (int imol_model, const std::string &fn) -> int {
+            if (! use_mmcif)
+               return molecules[imol_model].write_coordinates(fn);
+#ifdef USE_GEMMI
+            try {
+               gemmi::Structure st = gemmi::copy_from_mmdb(molecules[imol_model].atom_sel.mol);
+               // 2026-09-08-PE trim_atom_names() is not available at the moment
+               // coot::trim_atom_names(st);
+               gemmi::cif::Document doc = gemmi::make_mmcif_document(st);
+               std::ofstream f(fn);
+               if (! f) return 1;
+               gemmi::cif::write_cif_to_stream(f, doc);
+               f.close();
+               return 0;
+            }
+            catch (const std::exception &e) {
+               std::cout << "WARNING:: " << __FUNCTION__ << "(): mmcif write via gemmi failed: "
+                         << e.what() << std::endl;
+               return 1;
+            }
+#else
+            // built without gemmi: fall back to mmdb's mmCIF writer so the .mmcif
+            // interchange file is still valid mmCIF.
+            std::cout << "WARNING:: " << __FUNCTION__ << "(): built without gemmi (USE_GEMMI); "
+                      << "writing mmCIF via mmdb instead" << std::endl;
+            return coot::write_coords_cif(molecules[imol_model].atom_sel.mol, fn);
+#endif // USE_GEMMI
+         };
+
+
          bool clibd_mon_is_set = false;
          char *e = getenv("CLIBD_MON");
          if (e) {
@@ -1625,20 +1689,22 @@ molecules_container_t::servalcat_refine_xray_internal(int imol, int imol_map, co
                std::string dir_1 = "coot-servalcat";
                coot::util::create_directory(dir_1);
                std::string prefix = coot::util::append_dir_file(dir_1, output_prefix);
-               std::string  input_pdb_file_name = prefix + std::string("-in.pdb");
-               std::string output_pdb_file_name = prefix + std::string(".pdb"); // named by servalcat
-               int status = molecules[imol].write_coordinates(input_pdb_file_name);
+               std::string in_ext  = use_mmcif ? std::string("-in.mmcif") : std::string("-in.pdb");
+               std::string out_ext = use_mmcif ? std::string(".mmcif")    : std::string(".pdb");
+               std::string  input_model_file_name = prefix + in_ext;
+               std::string output_model_file_name = prefix + out_ext; // named by servalcat
+               int status = write_model_for_servalcat(imol, input_model_file_name);
                // see https://www.ebi.ac.uk/pdbe/docs/cldoc/object/cl_obj_rdwr.html#CMMDBManager::WritePDBASCII
                if (status == 0) {
                   bool output_pdb_file_name_exists = false;
                   std::filesystem::file_time_type output_pdb_file_name_time;
-                  std::filesystem::path p(output_pdb_file_name);
+                  std::filesystem::path p(output_model_file_name);
                   if (std::filesystem::exists(p)) {
                      output_pdb_file_name_exists = true;
                      output_pdb_file_name_time = std::filesystem::last_write_time(p);
                   }
                   std::vector<std::string> cmd_list = {"servalcat", "refine_xtal_norefmac",
-                                                       "-s", "xray", "--model", input_pdb_file_name,
+                                                       "-s", "xray", "--model", input_model_file_name,
                                                        "--hklin", mtz_file, "--labin", labin,
                                                        "-o", prefix};
 
@@ -1701,7 +1767,7 @@ molecules_container_t::servalcat_refine_xray_internal(int imol, int imol_map, co
                         read_pdb_output = true;
                      }
                      if (read_pdb_output) {
-                        imol_refined_model = read_coordinates(output_pdb_file_name);
+                        imol_refined_model = read_coordinates(output_model_file_name);
                      }
                   } else {
                      std::cout << "WARNING:: " << __FUNCTION__ << "(): path does not exist " << p << std::endl;
