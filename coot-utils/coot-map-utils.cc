@@ -3155,9 +3155,11 @@ coot::util::map_to_model_correlation_stats_per_residue_run(mmdb::Manager *mol,
                            if (it == residue_run_map.end())
                               residue_run_map[spec] = residue_run_t(n_residues_per_blob);
                            residue_run_map[spec].add(residue_vec);
-                           residue_vec.clear();
                         }
                      }
+                     // the window was incomplete (it contained a water, nucleotide or het residue):
+                     // don't let the residues carry over into the next window
+                     residue_vec.clear();
                   }
                }
             }
