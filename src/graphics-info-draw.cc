@@ -3389,13 +3389,35 @@ graphics_info_t::draw_hud_ramachandran_plot() {
    int w = allocation.width;
    int h = allocation.height;
 
-   if (draw_gl_ramachandran_plot_flag) {
-      if (draw_gl_ramachandran_plot_user_control_flag) {
+   if (draw_gl_ramachandran_plot_flag || backbone_torsion_rama_active) {
+      if (draw_gl_ramachandran_plot_user_control_flag || backbone_torsion_rama_active) {
          if (moving_atoms_asc) {
             if (moving_atoms_asc->n_selected_atoms > 0) {
                std::string residue_selection = "//";
                gl_rama_plot_t::draw_mode_t draw_mode = gl_rama_plot_t::draw_mode_t::DRAW_MODE;
-               gl_rama_plot.setup_from(imol_moving_atoms, moving_atoms_asc->mol, residue_selection, draw_mode); // checks to see if an update is acutally needed.
+               if (backbone_torsion_rama_active) {
+                  graphics_info_t g;
+                  const auto pairs = g.phi_psi_pairs_from_moving_atoms();
+                  std::map<coot::residue_spec_t, rama_plot::phi_psi_t> points;
+                  auto add_point = [&points] (mmdb::Atom *atom, const std::pair<double, double> &angles) {
+                     if (atom && angles.first > -200) { // existing invalid-angle sentinel
+                        auto *residue = atom->GetResidue();
+                        coot::residue_spec_t spec(residue);
+                        rama_plot::phi_psi_t point(clipper::Util::rad2d(angles.first),
+                                                   clipper::Util::rad2d(angles.second));
+                        point.residue_name = residue->GetResName();
+                        point.chain_id = residue->GetChainID();
+                        point.res_no = residue->GetSeqNum();
+                        point.ins_code = residue->GetInsCode();
+                        points.emplace(spec, point);
+                     }
+                  };
+                  add_point(coot::get_first_atom_with_atom_name(" C  ", *moving_atoms_asc), pairs.first);
+                  add_point(coot::get_first_atom_with_atom_name(" N  ", *moving_atoms_asc), pairs.second);
+                  gl_rama_plot.setup_from_phi_psis(points);
+               } else {
+                  gl_rama_plot.setup_from(imol_moving_atoms, moving_atoms_asc->mol, residue_selection, draw_mode);
+               }
                // no context switch needed for the HUD Rama plot
                bool clear_needed_flag = false;
                gl_rama_plot.draw(&shader_for_rama_plot_axes_and_ticks,

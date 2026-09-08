@@ -8529,6 +8529,7 @@ void setup_backbone_torsion_edit(short int state) {
    } else {
       g.in_backbone_torsion_define = state;
       if (state) {
+         g.add_status_bar_text("Edit Backbone Torsions: now click a backbone atom (N, CA, C or O)");
          std::cout << "click on an atom in the peptide to change" << std::endl;
          g.pick_cursor_maybe();
          g.pick_pending_flag = 1;

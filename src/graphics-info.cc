@@ -2115,6 +2115,7 @@ graphics_info_t::update_environment_distances_by_rotation_centre_maybe(int imol_
 
 void
 graphics_info_t::clear_up_moving_atoms() {
+   backbone_torsion_rama_active = false;
 
    // this function is not just graphics, so it needs to check use_graphics_interface_flag
    // internally.
@@ -4835,6 +4836,8 @@ graphics_info_t::rama_plot_for_2_phi_psis(int imol, int atom_index) {
 void
 graphics_info_t::destroy_edit_backbone_rama_plot() {  // only one of these.
 
+   backbone_torsion_rama_active = false;
+   graphics_draw();
 }
 
 
