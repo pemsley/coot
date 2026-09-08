@@ -923,9 +923,9 @@ endif
 # coot_bin_LDFLAGS = -static -lstdc++
 #
 if OS_DARWIN
-MacCoot_LDFLAGS = $(EXPORT_DYNAMIC_FLAG_SPEC)
+MacCoot_LDFLAGS = $(EXPORT_DYNAMIC_FLAG_SPEC) $(GEMMI_RPATH)
 else
-coot_1_LDFLAGS = $(EXPORT_DYNAMIC_FLAG_SPEC)
+coot_1_LDFLAGS = $(EXPORT_DYNAMIC_FLAG_SPEC) $(GEMMI_RPATH)
 endif
 
 # coot_bin_CXXFLAGS=-Wl,--export-dynamic -dynamiclib

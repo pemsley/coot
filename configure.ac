@@ -477,6 +477,7 @@ else
             # gemmi.pc does not define USE_GEMMI, so add it here.
             GEMMI_CXXFLAGS="`$PKG_CONFIG --cflags gemmi` -DUSE_GEMMI=1"
             GEMMI_LIBS="`$PKG_CONFIG --libs gemmi`"
+            gemmi_libdir="`$PKG_CONFIG --variable=libdir gemmi`"
             AC_MSG_RESULT([yes (gemmi.pc via pkg-config)])
         fi
         PKG_CONFIG_PATH="$save_PKG_CONFIG_PATH"
@@ -513,8 +514,18 @@ else
         GEMMI_LIBS="-L$gemmi_libdir -lgemmi_cpp"
     fi
 
+    # gemmi's shared library has an @rpath-based install name
+    # (@rpath/libgemmi_cpp.dylib), and libtool flattens the transitive gemmi
+    # dependency onto the final executables' link lines. So those executables
+    # need an rpath pointing at gemmi's lib dir to resolve it at runtime. Use the
+    # resolved lib dir (handles lib vs lib64 and the pkg-config prefix).
+    if test "x$gemmi_libdir" != x ; then
+        GEMMI_RPATH="-Wl,-rpath,$gemmi_libdir"
+    fi
+
     AC_SUBST(GEMMI_CXXFLAGS)
     AC_SUBST(GEMMI_LIBS)
+    AC_SUBST(GEMMI_RPATH)
 fi
 
 dnl AceDRG ASCII tables directory — used at build time to generate the
