@@ -3584,6 +3584,8 @@ public:
    //! @param n_residue_per_residue_range is the number of residues in the residue range. 11
    //!        is a reasonable number for a smooth plot
    //! @param imol_map is the map molecule index
+   //! @return a vector of stats for the mainchain in first and
+   //!         a vector of stats for the sidechains in second
 #ifdef SWIG
 #else
    std::pair<std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t>,
