@@ -2,6 +2,8 @@
 
 o use modern bond info in the cif bond table (aromatic is a flag)
 
+o where did we get to with soi?
+
 o "Fetch Ligand Restraints" shouldn't create a new ligand molecule
 
 o in Layla, the input should be "RDKit->mmCIF" - probably the default
