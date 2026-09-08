@@ -74,6 +74,7 @@ EXTRA_DIST = layla.ui
 
 AM_CXXFLAGS = \
 	-DPKGDATADIR='"$(pkgdatadir)"' \
+	$(GEMMI_CXXFLAGS)              \
 	$(SQLITE3_CFLAGS)              \
 	$(COOT_WINDOWS_CFLAGS)         \
 	$(CURL_CFLAGS)                 \
