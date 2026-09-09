@@ -35,6 +35,9 @@
 
 #include <string>
 #include <vector>
+#include <map>
+#include <cctype>
+#include <cstdlib>
 
 #include <fstream>
 
@@ -297,8 +300,16 @@ static void spawn_vte_helper() {
       nullptr           // user_data
    );
 
-   // Close our copy of the child's socket end
-   close(child_socket_fd);
+   // Do NOT close child_socket_fd here. vte_terminal_spawn_with_fds_async()
+   // takes ownership of every fd in the array ("you must not use or close them
+   // after this call"); it closes the parent's copy itself once the async spawn
+   // completes. Closing it here too is a double close: the fd number is freed
+   // immediately, the next socket() in this process (typically the JSON-RPC
+   // listener, if the RPC server is started after this tab is opened) is handed
+   // the same number, and VTE's later close then silently destroys the
+   // listener - it stays bound in bookkeeping, the idle func keeps printing
+   // "listening N...", but accept() fails with EBADF and clients get
+   // ECONNREFUSED.
 }
 
 void setup_python_vte_terminal() {
@@ -662,7 +673,8 @@ create_vte_terminal_with_style() {
 
 // When the user switches notebook tab directly (rather than via the Py/AI buttons),
 // make sure the terminal for that tab has its child process running. Both spawn
-// functions are idempotent.
+// functions are idempotent. The Assistant tab does NOT auto-start anything: start
+// the JSON-RPC listener yourself (Coot's remote-control menu), then use the tab.
 static void
 on_vte_notebook_switch_page(GtkNotebook *notebook, GtkWidget *page, guint page_num, gpointer user_data) {
    if (page_num == 0)
@@ -692,19 +704,147 @@ static std::vector<std::string> command_history;
 static std::size_t command_history_pos = 0;
 static const std::size_t COMMAND_HISTORY_MAX = 100;
 
-static void command_output_append(const std::string &text) {
+// The 8 standard ANSI colours (SGR 30-37) and their bright variants (90-97),
+// used when the command output asks for a named colour. Values roughly match a
+// typical terminal theme.
+static void ansi_standard_colour(int idx, bool bright, GdkRGBA *c) {
+   static const guint8 base[8][3] = {
+      {0,0,0},   {204,0,0},   {78,154,6},  {196,160,0},
+      {52,101,164},{117,80,123},{6,152,154},{211,215,207}};
+   static const guint8 brt[8][3] = {
+      {85,87,83},{239,41,41},{138,226,52},{252,233,79},
+      {114,159,207},{173,127,168},{52,226,226},{238,238,236}};
+   const guint8 (*tbl)[3] = bright ? brt : base;
+   c->red   = tbl[idx][0] / 255.0;
+   c->green = tbl[idx][1] / 255.0;
+   c->blue  = tbl[idx][2] / 255.0;
+   c->alpha = 1.0;
+}
 
-   if (!command_output_view) return;
-   GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(command_output_view));
+// Parse one SGR parameter string (the bytes between "ESC[" and 'm') and update
+// the running text style. Understands reset (0), bold (1/22), the 8
+// standard/bright foreground colours, and 24-bit "38;2;r;g;b" truecolour -
+// enough for the command interface to colour its output (e.g. the map-colour
+// swatches in "list maps"). Unknown codes are ignored.
+static void apply_sgr(const std::string &params,
+                      bool &have_fg, GdkRGBA &fg, bool &bold) {
+   std::vector<int> codes;
+   std::string tok;
+   const std::string s = params.empty() ? std::string("0") : params;
+   for (char c : s) {
+      if (c == ';') { codes.push_back(tok.empty() ? 0 : atoi(tok.c_str())); tok.clear(); }
+      else tok += c;
+   }
+   codes.push_back(tok.empty() ? 0 : atoi(tok.c_str()));
+
+   for (size_t k = 0; k < codes.size(); k++) {
+      int code = codes[k];
+      if (code == 0)                    { have_fg = false; bold = false; }
+      else if (code == 1)               bold = true;
+      else if (code == 22)              bold = false;
+      else if (code == 39)              have_fg = false;
+      else if (code >= 30 && code <= 37){ ansi_standard_colour(code - 30, false, &fg); have_fg = true; }
+      else if (code >= 90 && code <= 97){ ansi_standard_colour(code - 90, true,  &fg); have_fg = true; }
+      else if (code == 38) {
+         if (k + 4 < codes.size() && codes[k+1] == 2) {   // 38;2;r;g;b truecolour
+            fg.red   = codes[k+2] / 255.0;
+            fg.green = codes[k+3] / 255.0;
+            fg.blue  = codes[k+4] / 255.0;
+            fg.alpha = 1.0;
+            have_fg = true;
+            k += 4;
+         } else if (k + 2 < codes.size() && codes[k+1] == 5) {
+            k += 2;   // 38;5;n 256-colour index - not supported, skip it
+         }
+      }
+   }
+}
+
+// The running SGR style of one output view. Kept per view (rather than per
+// append call) so a colour that spans several appends - the Assistant and
+// Figure tabs stream their output a chunk at a time - is not reset midway.
+struct output_view_style_t {
+   bool have_fg = false;
+   bool bold = false;
+   GdkRGBA fg = {0.0, 0.0, 0.0, 1.0};
+};
+
+// Append text to one of the tab output views (all plain GtkTextViews, not
+// VTE terminals, so nothing interprets escapes for us), rendering the ANSI SGR
+// subset that python/coot_commands/ansi.py emits and dropping every other
+// escape. Without this the codes are inserted literally and the reader sees
+// runs of junk like "[38;2;204;0;0m" around each coloured word.
+//
+// Caveat: an escape sequence split across two calls cannot be joined, so a
+// caller must not break a chunk in the middle of one.
+static void text_view_append_ansi(GtkWidget *view, const std::string &text) {
+
+   if (!view) return;
+   GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view));
+
+   static std::map<GtkWidget *, output_view_style_t> styles;
+   output_view_style_t &style = styles[view];
+   bool &have_fg = style.have_fg;
+   bool &bold = style.bold;
+   GdkRGBA &fg = style.fg;
+
    GtkTextIter end;
-   gtk_text_buffer_get_end_iter(buffer, &end);
-   gtk_text_buffer_insert(buffer, &end, text.c_str(), -1);
+   std::string run;
+
+   auto flush = [&]() {
+      if (run.empty()) return;
+      gtk_text_buffer_get_end_iter(buffer, &end);
+      if (have_fg && bold) {
+         GtkTextTag *tag = gtk_text_buffer_create_tag(buffer, nullptr,
+            "foreground-rgba", &fg, "weight", PANGO_WEIGHT_BOLD, nullptr);
+         gtk_text_buffer_insert_with_tags(buffer, &end, run.c_str(), -1, tag, nullptr);
+      } else if (have_fg) {
+         GtkTextTag *tag = gtk_text_buffer_create_tag(buffer, nullptr,
+            "foreground-rgba", &fg, nullptr);
+         gtk_text_buffer_insert_with_tags(buffer, &end, run.c_str(), -1, tag, nullptr);
+      } else if (bold) {
+         GtkTextTag *tag = gtk_text_buffer_create_tag(buffer, nullptr,
+            "weight", PANGO_WEIGHT_BOLD, nullptr);
+         gtk_text_buffer_insert_with_tags(buffer, &end, run.c_str(), -1, tag, nullptr);
+      } else {
+         gtk_text_buffer_insert(buffer, &end, run.c_str(), -1);
+      }
+      run.clear();
+   };
+
+   size_t i = 0, n = text.size();
+   while (i < n) {
+      if ((unsigned char) text[i] == 0x1b && i + 1 < n && text[i+1] == '[') { // CSI
+         size_t j = i + 2;
+         std::string params;
+         while (j < n && (isdigit((unsigned char) text[j]) || text[j] == ';')) {
+            params += text[j];
+            j++;
+         }
+         if (j < n && text[j] == 'm') {   // SGR - the only CSI we interpret
+            flush();
+            apply_sgr(params, have_fg, fg, bold);
+            i = j + 1;
+            continue;
+         }
+         // Some other or malformed escape: drop it (up to and incl. final byte).
+         i = (j < n) ? j + 1 : n;
+         continue;
+      }
+      run += text[i];
+      i++;
+   }
+   flush();
 
    // Scroll so the newly-inserted text is visible
    gtk_text_buffer_get_end_iter(buffer, &end);
    GtkTextMark *mark = gtk_text_buffer_create_mark(buffer, nullptr, &end, FALSE);
-   gtk_text_view_scroll_mark_onscreen(GTK_TEXT_VIEW(command_output_view), mark);
+   gtk_text_view_scroll_mark_onscreen(GTK_TEXT_VIEW(view), mark);
    gtk_text_buffer_delete_mark(buffer, mark);
+}
+
+static void command_output_append(const std::string &text) {
+   text_view_append_ansi(command_output_view, text);
 }
 
 static void run_natural_language_command(const std::string &input) {
@@ -872,6 +1012,1152 @@ static GtkWidget *create_command_tab_widget() {
    return box;
 }
 
+// ---------------------------------------------------------------------------
+//   "Assistant" tab - a local-model agent that drives Coot
+// ---------------------------------------------------------------------------
+//
+// Unlike the Command tab (instant, deterministic regex dispatch), the Assistant
+// tab hands a natural-language request to a small local language model that
+// plans a sequence of Coot commands to fulfil it. Those model calls are slow,
+// so the agent runs as a SEPARATE process (python3 -m coot_commands.agent_serve)
+// and we drive it over stdin/stdout:
+//   - a request is written as one JSON line: {"text": "..."}
+//   - the agent streams back newline-delimited JSON events
+//     (ready/tools/step/final/error/done) that we render into the transcript.
+// The agent executes each planned command back in THIS Coot over the JSON-RPC
+// socket (json-rpc.cc), which runs it on this main thread - so the GUI never
+// blocks on the model and command execution is never racy.
+
+static GtkWidget *assistant_output_view = nullptr;
+static GtkWidget *assistant_entry_widget = nullptr;
+static GtkWidget *assistant_context_label = nullptr;
+static GtkWidget *assistant_status_label = nullptr;
+static GtkWidget *assistant_spinner = nullptr;
+static GtkWidget *assistant_model_dropdown = nullptr;
+static GSubprocess *assistant_process = nullptr;
+
+// The model the user picked from the dropdown, passed to the agent process as
+// COOT_AGENT_MODEL. Empty means "we have not chosen": the agent then falls back
+// to COOT_AGENT_MODEL from Coot's own environment, or agent.py's DEFAULT_MODEL.
+static std::string assistant_selected_model;
+
+// Set while the dropdown is being filled. Both gtk_drop_down_set_model() and
+// the preselect below emit "notify::selected", and without this the refresh
+// button would look like a user model change and needlessly restart the agent.
+static bool assistant_model_dropdown_populating = false;
+static GDataInputStream *assistant_stdout = nullptr;
+
+// Show/hide the "thinking" spinner while the model works on a request.
+static void assistant_set_thinking(bool thinking) {
+   if (!assistant_spinner) return;
+   gtk_widget_set_visible(assistant_spinner, thinking);
+   if (thinking) gtk_spinner_start(GTK_SPINNER(assistant_spinner));
+   else          gtk_spinner_stop(GTK_SPINNER(assistant_spinner));
+}
+
+// Append text in a dimmed, italic style - used to show the model's "thinking"
+// (reasoning) distinct from its answer. Creates the tag lazily on the buffer.
+static void vte_output_append_styled(GtkWidget *view, const std::string &text) {
+
+   if (!view) return;
+   GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view));
+   GtkTextTagTable *tags = gtk_text_buffer_get_tag_table(buffer);
+   if (!gtk_text_tag_table_lookup(tags, "think"))
+      gtk_text_buffer_create_tag(buffer, "think",
+                                 "foreground", "#888888",
+                                 "style", PANGO_STYLE_ITALIC, NULL);
+   GtkTextIter end;
+   gtk_text_buffer_get_end_iter(buffer, &end);
+   gtk_text_buffer_insert_with_tags_by_name(buffer, &end, text.c_str(), -1,
+                                            "think", NULL);
+   gtk_text_buffer_get_end_iter(buffer, &end);
+   GtkTextMark *mark = gtk_text_buffer_create_mark(buffer, nullptr, &end, FALSE);
+   gtk_text_view_scroll_mark_onscreen(GTK_TEXT_VIEW(view), mark);
+   gtk_text_buffer_delete_mark(buffer, mark);
+}
+
+static void assistant_output_append(const std::string &text) {
+   text_view_append_ansi(assistant_output_view, text);
+}
+
+// True while streamed reasoning fragments are being appended to the current
+// line, so the next thing to write knows to close that line first.
+static bool assistant_thinking_open = false;
+
+// Finish a run of streamed reasoning, if one is open. Every branch that writes
+// something else must call this, or its output lands on the end of the
+// model's last half-sentence.
+static void assistant_thinking_end() {
+   if (assistant_thinking_open) {
+      vte_output_append_styled(assistant_output_view, "\n");
+      assistant_thinking_open = false;
+   }
+}
+
+
+// ---------------------------------------------------------------------------
+//   Markdown in the transcript
+// ---------------------------------------------------------------------------
+//
+// The model answers in Markdown - **bold**, `code`, bullet lists, the odd
+// heading - and a GtkTextView renders none of it, so the reader gets literal
+// asterisks and backticks wrapped around exactly the words that were meant to
+// stand out. What follows renders the subset the model actually emits, using
+// text tags on the buffer we already have. It is not a Markdown engine: there
+// are no tables, images or nested block structures, because a text view cannot
+// show them and the assistant does not produce them.
+//
+// Underscore emphasis (_italic_, __bold__) is deliberately NOT supported.
+// Coot's commands are snake_case - score_residue, fix_rotamer, add_terminal_-
+// residue - and treating underscores as emphasis would swallow them and
+// italicise the rest of the sentence. Only * and ** mark emphasis here.
+
+struct md_tags_t {
+   GtkTextTag *bold = nullptr;
+   GtkTextTag *italic = nullptr;
+   GtkTextTag *bold_italic = nullptr;
+   GtkTextTag *code = nullptr;
+   GtkTextTag *code_block = nullptr;
+   GtkTextTag *h1 = nullptr;
+   GtkTextTag *h2 = nullptr;
+   GtkTextTag *h3 = nullptr;
+   GtkTextTag *quote = nullptr;
+};
+
+// Look up (creating them the first time) the tags used to render Markdown.
+// Colours are fixed rather than themed, matching the "think" tag above: a
+// mid-blue and a mid-grey both stay legible on a light and a dark background.
+static md_tags_t md_ensure_tags(GtkTextBuffer *buffer) {
+
+   GtkTextTagTable *table = gtk_text_buffer_get_tag_table(buffer);
+   if (!gtk_text_tag_table_lookup(table, "md-bold")) {
+      gtk_text_buffer_create_tag(buffer, "md-bold",
+                                 "weight", PANGO_WEIGHT_BOLD, NULL);
+      gtk_text_buffer_create_tag(buffer, "md-italic",
+                                 "style", PANGO_STYLE_ITALIC, NULL);
+      gtk_text_buffer_create_tag(buffer, "md-bold-italic",
+                                 "weight", PANGO_WEIGHT_BOLD,
+                                 "style", PANGO_STYLE_ITALIC, NULL);
+      gtk_text_buffer_create_tag(buffer, "md-code",
+                                 "family", "monospace",
+                                 "foreground", "#3584e4", NULL);
+      gtk_text_buffer_create_tag(buffer, "md-code-block",
+                                 "family", "monospace",
+                                 "left-margin", 28, NULL);
+      gtk_text_buffer_create_tag(buffer, "md-h1",
+                                 "weight", PANGO_WEIGHT_BOLD,
+                                 "scale", 1.30, NULL);
+      gtk_text_buffer_create_tag(buffer, "md-h2",
+                                 "weight", PANGO_WEIGHT_BOLD,
+                                 "scale", 1.15, NULL);
+      gtk_text_buffer_create_tag(buffer, "md-h3",
+                                 "weight", PANGO_WEIGHT_BOLD, NULL);
+      gtk_text_buffer_create_tag(buffer, "md-quote",
+                                 "style", PANGO_STYLE_ITALIC,
+                                 "foreground", "#888888",
+                                 "left-margin", 28, NULL);
+   }
+   md_tags_t t;
+   t.bold        = gtk_text_tag_table_lookup(table, "md-bold");
+   t.italic      = gtk_text_tag_table_lookup(table, "md-italic");
+   t.bold_italic = gtk_text_tag_table_lookup(table, "md-bold-italic");
+   t.code        = gtk_text_tag_table_lookup(table, "md-code");
+   t.code_block  = gtk_text_tag_table_lookup(table, "md-code-block");
+   t.h1          = gtk_text_tag_table_lookup(table, "md-h1");
+   t.h2          = gtk_text_tag_table_lookup(table, "md-h2");
+   t.h3          = gtk_text_tag_table_lookup(table, "md-h3");
+   t.quote       = gtk_text_tag_table_lookup(table, "md-quote");
+   return t;
+}
+
+static void md_insert(GtkTextBuffer *buffer, const std::string &text,
+                      GtkTextTag *a, GtkTextTag *b) {
+   if (text.empty()) return;
+   // Normalise so the one tag of a (nullptr, tag) pair is not dropped: an
+   // unemphasised run inside a heading arrives that way round.
+   if (!a) { a = b; b = nullptr; }
+   GtkTextIter end;
+   gtk_text_buffer_get_end_iter(buffer, &end);
+   if (a && b)
+      gtk_text_buffer_insert_with_tags(buffer, &end, text.c_str(), -1, a, b, NULL);
+   else if (a)
+      gtk_text_buffer_insert_with_tags(buffer, &end, text.c_str(), -1, a, NULL);
+   else
+      gtk_text_buffer_insert(buffer, &end, text.c_str(), -1);
+}
+
+// Render one line's inline markup. *base* is the block-level tag for the line
+// (a heading, a quote, or nothing) and is applied to every run.
+static void md_insert_inline(GtkTextBuffer *buffer, const std::string &line,
+                             const md_tags_t &t, GtkTextTag *base) {
+
+   bool bold = false, italic = false;
+   std::string run;
+
+   auto emphasis_tag = [&]() -> GtkTextTag * {
+      if (bold && italic) return t.bold_italic;
+      if (bold)           return t.bold;
+      if (italic)         return t.italic;
+      return nullptr;
+   };
+   auto flush = [&]() {
+      md_insert(buffer, run, emphasis_tag(), base);
+      run.clear();
+   };
+
+   for (std::size_t i = 0; i < line.size(); ) {
+      // A backslash escapes the next character, so a literal asterisk can be
+      // written \* rather than turning the rest of the line italic.
+      if (line[i] == '\\' && i + 1 < line.size()) {
+         run += line[i + 1];
+         i += 2;
+         continue;
+      }
+      if (line[i] == '`') {
+         std::size_t close = line.find('`', i + 1);
+         if (close != std::string::npos) {
+            flush();
+            md_insert(buffer, line.substr(i + 1, close - i - 1), t.code, base);
+            i = close + 1;
+            continue;
+         }
+      }
+      if (line.compare(i, 2, "**") == 0) {
+         flush();
+         bold = !bold;
+         i += 2;
+         continue;
+      }
+      if (line[i] == '*') {
+         flush();
+         italic = !italic;
+         i += 1;
+         continue;
+      }
+      run += line[i];
+      i += 1;
+   }
+   flush();
+   md_insert(buffer, "\n", base, nullptr);
+}
+
+// True if *line* is all of one repeated punctuation character (--- or ***),
+// i.e. a horizontal rule rather than content.
+static bool md_is_rule(const std::string &line) {
+   if (line.size() < 3) return false;
+   char c = line[0];
+   if (c != '-' && c != '*' && c != '_') return false;
+   for (char ch : line)
+      if (ch != c) return false;
+   return true;
+}
+
+// Append *text* to a transcript view, rendering its Markdown.
+static void text_view_append_markdown(GtkWidget *view, const std::string &text) {
+
+   if (!view) return;
+   GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view));
+   md_tags_t t = md_ensure_tags(buffer);
+
+   bool in_code_block = false;
+   std::size_t pos = 0;
+   // Stopping at size(), not size()+1: a trailing newline ends the last line
+   // rather than starting an empty one, which would otherwise add a blank line
+   // to the transcript after every answer.
+   while (pos < text.size()) {
+      std::size_t nl = text.find('\n', pos);
+      std::string line = text.substr(pos, nl == std::string::npos
+                                          ? std::string::npos : nl - pos);
+      pos = (nl == std::string::npos) ? text.size() : nl + 1;
+
+      // Fenced code blocks: the fence lines themselves are not shown, and
+      // nothing between them is interpreted as markup.
+      if (line.compare(0, 3, "```") == 0) {
+         in_code_block = !in_code_block;
+         continue;
+      }
+      if (in_code_block) {
+         md_insert(buffer, line + "\n", t.code_block, nullptr);
+         continue;
+      }
+
+      std::string trimmed = line;
+      std::size_t first = trimmed.find_first_not_of(" \t");
+      std::size_t indent = (first == std::string::npos) ? 0 : first;
+      trimmed = (first == std::string::npos) ? "" : trimmed.substr(first);
+
+      if (md_is_rule(trimmed)) {
+         // Eight U+2500 box-drawing dashes, escaped like the other non-ASCII
+         // literals in this file.
+         md_insert(buffer, "\xE2\x94\x80\xE2\x94\x80\xE2\x94\x80\xE2\x94\x80"
+                           "\xE2\x94\x80\xE2\x94\x80\xE2\x94\x80\xE2\x94\x80\n",
+                   t.quote, nullptr);
+         continue;
+      }
+
+      // Headings: # through ###, deeper ones rendered like ###.
+      if (!trimmed.empty() && trimmed[0] == '#') {
+         std::size_t hashes = trimmed.find_first_not_of('#');
+         if (hashes != std::string::npos && hashes <= 6
+             && (trimmed[hashes] == ' ')) {
+            GtkTextTag *tag = (hashes == 1) ? t.h1 : (hashes == 2) ? t.h2 : t.h3;
+            md_insert_inline(buffer, trimmed.substr(hashes + 1), t, tag);
+            continue;
+         }
+      }
+
+      // Block quote.
+      if (trimmed.compare(0, 2, "> ") == 0) {
+         md_insert_inline(buffer, trimmed.substr(2), t, t.quote);
+         continue;
+      }
+
+      // Bullet list: "- ", "* " or "+ ", with a nested level for indented ones.
+      if (trimmed.size() > 1 && (trimmed[0] == '-' || trimmed[0] == '*'
+                                 || trimmed[0] == '+') && trimmed[1] == ' ') {
+         std::string marker = (indent >= 2) ? "      \xE2\x97\xA6 "   // nested
+                                            : "  \xE2\x80\xA2 ";      // bullet
+         md_insert(buffer, marker, nullptr, nullptr);
+         md_insert_inline(buffer, trimmed.substr(2), t, nullptr);
+         continue;
+      }
+
+      // Numbered list: keep the number, just indent it with the bullets.
+      std::size_t digits = trimmed.find_first_not_of("0123456789");
+      if (digits != std::string::npos && digits > 0
+          && trimmed[digits] == '.' && digits + 1 < trimmed.size()
+          && trimmed[digits + 1] == ' ') {
+         md_insert(buffer, "  " + trimmed.substr(0, digits + 1) + " ",
+                   nullptr, nullptr);
+         md_insert_inline(buffer, trimmed.substr(digits + 2), t, nullptr);
+         continue;
+      }
+
+      md_insert_inline(buffer, line, t, nullptr);
+   }
+
+   GtkTextIter end;
+   gtk_text_buffer_get_end_iter(buffer, &end);
+   GtkTextMark *mark = gtk_text_buffer_create_mark(buffer, nullptr, &end, FALSE);
+   gtk_text_view_scroll_mark_onscreen(GTK_TEXT_VIEW(view), mark);
+   gtk_text_buffer_delete_mark(buffer, mark);
+}
+
+// Render one streamed JSON event line into the transcript.
+static void assistant_handle_event(const std::string &line) {
+
+   json ev;
+   try {
+      ev = json::parse(line);
+   } catch (...) {
+      return; // ignore any non-JSON noise on stdout
+   }
+   std::string type = ev.value("type", "");
+
+   // Streamed reasoning is written without a trailing newline so the next
+   // fragment continues the line; anything else must close that line first.
+   // Doing it here rather than in each branch means a new event type cannot
+   // forget and end up appended to a half-finished thought.
+   if (type != "thinking_delta")
+      assistant_thinking_end();
+
+   if (type == "step") {
+      std::string tool = ev.value("tool", "");
+      std::string result = ev.value("result", "");
+      std::string args_str;
+      if (ev.contains("args") && ev["args"].is_object()) {
+         bool first = true;
+         for (auto it = ev["args"].begin(); it != ev["args"].end(); ++it) {
+            if (!first) args_str += ", ";
+            first = false;
+            const json &v = it.value();
+            args_str += it.key() + "=" + (v.is_string() ? v.get<std::string>() : v.dump());
+         }
+      }
+      assistant_output_append("  \xE2\x86\x92 " + tool + "(" + args_str + "): " + result + "\n");
+   } else if (type == "thinking_delta") {
+      // Streamed reasoning, a fragment at a time. The model can spend a long
+      // while thinking before it calls anything, and without this the tab sits
+      // silent and looks hung. The thought-bubble marker is printed once, when
+      // the run of fragments starts, not per fragment.
+      if (!assistant_thinking_open) {
+         vte_output_append_styled(assistant_output_view, "\xF0\x9F\x92\xAD ");
+         assistant_thinking_open = true;
+      }
+      vte_output_append_styled(assistant_output_view, ev.value("text", ""));
+   } else if (type == "thinking") {
+      // The non-streaming path: the whole reasoning in one event.
+      vte_output_append_styled(assistant_output_view,
+                               "\xF0\x9F\x92\xAD " + ev.value("text", "") + "\n");
+   } else if (type == "playbooks") {
+      // Which procedures the assistant was given for this request. Unlike
+      // "tools", these change what it does, so the transcript names them.
+      if (ev.contains("names") && ev["names"].is_array() && !ev["names"].empty()) {
+         std::string names;
+         for (const auto &n : ev["names"]) {
+            if (!names.empty()) names += ", ";
+            names += n.get<std::string>();
+         }
+         assistant_output_append("  (following: " + names + ")\n");
+      }
+   } else if (type == "warning") {
+      assistant_output_append("  (" + ev.value("message", "") + ")\n");
+   } else if (type == "final") {
+      // The answer is the one thing the model writes as prose, so it is also
+      // the one thing worth rendering as Markdown; the step and status lines
+      // above are ours and are literal.
+      text_view_append_markdown(assistant_output_view,
+                                "\n" + ev.value("text", "") + "\n");
+   } else if (type == "error") {
+      assistant_output_append("Error: " + ev.value("message", "") + "\n");
+   } else if (type == "context") {
+      // Update the "how full is the context" indicator.
+      if (assistant_context_label) {
+         int n_msgs = ev.value("messages", 0);
+         int approx_tokens = ev.value("approx_tokens", 0);
+         char buf[128];
+         if (approx_tokens >= 1000)
+            g_snprintf(buf, sizeof(buf), "Context: %d msgs \xC2\xB7 ~%.1fk tokens",
+                       n_msgs, approx_tokens / 1000.0);
+         else
+            g_snprintf(buf, sizeof(buf), "Context: %d msgs \xC2\xB7 ~%d tokens",
+                       n_msgs, approx_tokens);
+         gtk_label_set_text(GTK_LABEL(assistant_context_label), buf);
+      }
+   } else if (type == "reset") {
+      if (assistant_context_label)
+         gtk_label_set_text(GTK_LABEL(assistant_context_label), "New conversation");
+   } else if (type == "ready") {
+      if (assistant_status_label)
+         gtk_label_set_text(GTK_LABEL(assistant_status_label),
+                            "Assistant starting\xE2\x80\xA6");
+   } else if (type == "status") {
+      // Readiness indicator: whether the model server and the RPC are reachable.
+      bool ollama = ev.value("ollama", false);
+      bool rpc = ev.value("rpc", false);
+      if (assistant_status_label) {
+         std::string model = ev.value("model", "?");
+         std::string s = "Model " + model + (ollama ? ": connected" : ": UNREACHABLE") +
+                         "   \xC2\xB7   RPC: " + (rpc ? "ready" : "NOT connected");
+         gtk_label_set_text(GTK_LABEL(assistant_status_label), s.c_str());
+      }
+      // Surface the underlying reason for a failure so it can be diagnosed.
+      if (!rpc && ev.contains("rpc_detail"))
+         assistant_output_append("RPC not connected: " +
+                                 ev.value("rpc_detail", "") + "\n");
+      if (!ollama && ev.contains("ollama_detail"))
+         assistant_output_append("Model server unreachable: " +
+                                 ev.value("ollama_detail", "") + "\n");
+   } else if (type == "done") {
+      assistant_set_thinking(false);
+      if (assistant_entry_widget) {
+         gtk_widget_set_sensitive(assistant_entry_widget, TRUE);
+         gtk_widget_grab_focus(assistant_entry_widget);
+      }
+   }
+   // "ready" and "tools" events are informational; we don't clutter the
+   // transcript with them.
+}
+
+static void assistant_read_line_cb(GObject *source, GAsyncResult *res, gpointer user_data);
+
+static void assistant_queue_read() {
+   if (assistant_stdout)
+      g_data_input_stream_read_line_async(assistant_stdout, G_PRIORITY_DEFAULT,
+                                          nullptr, assistant_read_line_cb, nullptr);
+}
+
+static void assistant_read_line_cb(GObject *source, GAsyncResult *res, gpointer user_data) {
+
+   GDataInputStream *stream = G_DATA_INPUT_STREAM(source);
+   gsize length = 0;
+   GError *error = nullptr;
+   char *line = g_data_input_stream_read_line_finish(stream, res, &length, &error);
+
+   if (error) {
+      g_warning("Assistant: stdout read error: %s", error->message);
+      g_error_free(error);
+      return;
+   }
+   if (!line) {
+      // EOF: the agent process exited. Reset so the next request respawns it.
+      if (assistant_process) {
+         assistant_output_append("\n[assistant process ended]\n");
+         g_object_unref(assistant_process);
+         assistant_process = nullptr;
+      }
+      assistant_stdout = nullptr; // freed when this async op drops its ref
+      assistant_set_thinking(false);
+      if (assistant_entry_widget)
+         gtk_widget_set_sensitive(assistant_entry_widget, TRUE);
+      return;
+   }
+
+   assistant_handle_event(std::string(line, length));
+   g_free(line);
+   assistant_queue_read();
+}
+
+// Ask the embedded interpreter where coot_commands lives, so the spawned
+// python3 can import it via PYTHONPATH regardless of install layout.
+static std::string assistant_pythonpath() {
+
+   std::string code =
+      "__import__('os').path.dirname(__import__('coot_commands').__path__[0])";
+   execute_python_results_container_t rc = execute_python_code_with_result_internal(code);
+   if (rc.result && PyUnicode_Check(rc.result)) {
+      const char *s = PyUnicode_AsUTF8(rc.result);
+      if (s) return std::string(s);
+   }
+   return "";
+}
+
+// The port the agent uses to reach Coot's JSON-RPC socket. We deliberately do
+// NOT start the listener from here - start it yourself from Coot's remote-control
+// menu, then use the Assistant. (Auto-starting it proved unreliable.)
+static int assistant_rpc_port() {
+   int port = graphics_info_t::remote_control_port_number;
+   return port == 0 ? 9090 : port;
+}
+
+// Ask the local Ollama server what models it has, via
+// coot_commands.agent.list_models(). Returns an empty vector if Ollama is not
+// running (list_models() swallows the connection error and returns []), which
+// the caller shows as a single "no models found" entry.
+//
+// This runs on the GUI thread, so it blocks - list_models() keeps a 2 s timeout
+// and the server is on localhost, so in practice it returns in milliseconds and
+// fails instantly (ECONNREFUSED) when Ollama is down.
+static std::vector<std::string> assistant_available_models() {
+
+   std::vector<std::string> models;
+   std::string code =
+      "__import__('coot_commands.agent', fromlist=['list_models']).list_models()";
+   execute_python_results_container_t rc = execute_python_code_with_result_internal(code);
+   if (rc.result && PyList_Check(rc.result)) {
+      Py_ssize_t n = PyList_Size(rc.result);
+      for (Py_ssize_t k = 0; k < n; k++) {
+         PyObject *item = PyList_GetItem(rc.result, k);   // borrowed
+         if (item && PyUnicode_Check(item)) {
+            const char *s = PyUnicode_AsUTF8(item);
+            if (s) models.push_back(s);
+         }
+      }
+   }
+   return models;
+}
+
+// Fill (or refill) the dropdown, preselecting whatever model is currently in
+// force. Ollama reports tagged names ("gemma4:latest") while a configured model
+// may be untagged ("gemma4"), so the match ignores a ":latest" suffix.
+static void assistant_populate_model_dropdown() {
+
+   if (!assistant_model_dropdown) return;
+
+   assistant_model_dropdown_populating = true;
+   struct scope_reset {
+      ~scope_reset() { assistant_model_dropdown_populating = false; }
+   } reset_on_return;
+
+   std::vector<std::string> models = assistant_available_models();
+   bool have_models = !models.empty();
+   if (!have_models)
+      models.push_back("(no models - is ollama running?)");
+
+   std::vector<const char *> strs;
+   strs.reserve(models.size() + 1);
+   for (const auto &m : models) strs.push_back(m.c_str());
+   strs.push_back(nullptr);
+
+   GtkStringList *list = gtk_string_list_new(strs.data());
+   gtk_drop_down_set_model(GTK_DROP_DOWN(assistant_model_dropdown), G_LIST_MODEL(list));
+   g_object_unref(list);
+   gtk_widget_set_sensitive(assistant_model_dropdown, have_models);
+   if (!have_models) return;
+
+   // Preselect the model in force: the user's earlier pick, else the
+   // environment's, else the first entry.
+   std::string want = assistant_selected_model;
+   if (want.empty()) {
+      const char *env = g_getenv("COOT_AGENT_MODEL");
+      if (env) want = env;
+   }
+   auto bare = [] (std::string s) {
+      const std::string tag = ":latest";
+      if (s.size() > tag.size() && s.compare(s.size() - tag.size(), tag.size(), tag) == 0)
+         s.erase(s.size() - tag.size());
+      return s;
+   };
+   guint selected = 0;
+   if (!want.empty()) {
+      for (std::size_t k = 0; k < models.size(); k++) {
+         if (models[k] == want || bare(models[k]) == bare(want)) {
+            selected = (guint) k;
+            break;
+         }
+      }
+   }
+   gtk_drop_down_set_selected(GTK_DROP_DOWN(assistant_model_dropdown), selected);
+   assistant_selected_model = models[selected];
+}
+
+// The running agent process was spawned with the old COOT_AGENT_MODEL in its
+// environment, so a model change only takes effect once it is restarted. Kill it
+// here; the next request spawns a fresh one with the new model. Conversation
+// memory lives in that process, so say so rather than losing it silently.
+static void on_assistant_model_changed(GtkDropDown *dropdown,
+                                       G_GNUC_UNUSED GParamSpec *pspec,
+                                       G_GNUC_UNUSED gpointer user_data) {
+
+   if (assistant_model_dropdown_populating) return;
+
+   GtkStringList *list = GTK_STRING_LIST(gtk_drop_down_get_model(dropdown));
+   if (!list) return;
+   guint idx = gtk_drop_down_get_selected(dropdown);
+   if (idx == GTK_INVALID_LIST_POSITION) return;
+   const char *name = gtk_string_list_get_string(list, idx);
+   if (!name) return;
+   if (assistant_selected_model == name) return;   // no-op reselect
+
+   assistant_selected_model = name;
+
+   if (assistant_process) {
+      g_subprocess_force_exit(assistant_process);
+      g_object_unref(assistant_process);
+      assistant_process = nullptr;
+      assistant_stdout = nullptr;
+      assistant_set_thinking(false);
+      assistant_output_append(std::string("\n[model set to ") + name +
+                              " - agent restarted, conversation cleared]\n");
+   } else {
+      assistant_output_append(std::string("\n[model set to ") + name + "]\n");
+   }
+}
+
+static void on_assistant_refresh_models_clicked(G_GNUC_UNUSED GtkButton *button,
+                                                G_GNUC_UNUSED gpointer user_data) {
+   assistant_populate_model_dropdown();
+}
+
+static void spawn_assistant_process() {
+
+   if (assistant_process) return;
+
+   int port = assistant_rpc_port();
+
+   GSubprocessLauncher *launcher = g_subprocess_launcher_new(
+      (GSubprocessFlags)(G_SUBPROCESS_FLAGS_STDIN_PIPE | G_SUBPROCESS_FLAGS_STDOUT_PIPE));
+   g_subprocess_launcher_setenv(launcher, "COOT_RPC_PORT",
+                                std::to_string(port).c_str(), TRUE);
+   // Only override the model when the user has picked one, so an unset dropdown
+   // leaves whatever COOT_AGENT_MODEL is in Coot's environment untouched.
+   if (!assistant_selected_model.empty())
+      g_subprocess_launcher_setenv(launcher, "COOT_AGENT_MODEL",
+                                   assistant_selected_model.c_str(), TRUE);
+   std::string ppath = assistant_pythonpath();
+   if (!ppath.empty()) {
+      const char *existing = g_getenv("PYTHONPATH");
+      std::string combined = existing ? (ppath + ":" + existing) : ppath;
+      g_subprocess_launcher_setenv(launcher, "PYTHONPATH", combined.c_str(), TRUE);
+   }
+
+   GError *error = nullptr;
+   assistant_process = g_subprocess_launcher_spawn(
+      launcher, &error,
+      "python3", "-u", "-m", "coot_commands.agent_serve", nullptr);
+   g_object_unref(launcher);
+
+   if (!assistant_process) {
+      assistant_output_append(std::string("Failed to start assistant: ") +
+                              (error ? error->message : "unknown error") + "\n");
+      if (error) g_error_free(error);
+      return;
+   }
+
+   GInputStream *out_pipe = g_subprocess_get_stdout_pipe(assistant_process);
+   assistant_stdout = g_data_input_stream_new(out_pipe);
+   assistant_queue_read();
+}
+
+// Write one JSON line to the running agent's stdin. Returns false if there is
+// no live process to write to (the caller decides whether to spawn one first).
+static bool assistant_write_line(const json &obj) {
+
+   if (!assistant_process) return false;
+   GOutputStream *in_pipe = g_subprocess_get_stdin_pipe(assistant_process);
+   if (!in_pipe) return false;
+
+   std::string line = obj.dump() + "\n";
+   GError *error = nullptr;
+   g_output_stream_write_all(in_pipe, line.c_str(), line.size(),
+                             nullptr, nullptr, &error);
+   if (error) {
+      assistant_output_append(std::string("Write error: ") + error->message + "\n");
+      g_error_free(error);
+      return false;
+   }
+   g_output_stream_flush(in_pipe, nullptr, nullptr);
+   return true;
+}
+
+static void assistant_send_request(const std::string &text) {
+
+   spawn_assistant_process();
+   json req;
+   req["text"] = text;
+   assistant_write_line(req);
+}
+
+static void on_assistant_entry_activate(GtkEntry *entry, gpointer user_data) {
+
+   const char *text = gtk_editable_get_text(GTK_EDITABLE(entry));
+   if (!text) return;
+   std::string input(text);
+   if (input.find_first_not_of(" \t") == std::string::npos) return; // blank line
+
+   assistant_output_append("> " + input + "\n");
+   // Disable input until the agent signals "done", so requests don't overlap,
+   // and show the thinking spinner while the model works.
+   gtk_widget_set_sensitive(GTK_WIDGET(entry), FALSE);
+   assistant_send_request(input);
+   assistant_set_thinking(true);
+   gtk_editable_set_text(GTK_EDITABLE(entry), "");
+}
+
+static void on_assistant_new_chat_clicked(GtkButton *button, gpointer user_data) {
+
+   // Clear the transcript locally for immediate feedback...
+   if (assistant_output_view) {
+      GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(assistant_output_view));
+      gtk_text_buffer_set_text(buffer, "", -1);
+   }
+   if (assistant_context_label)
+      gtk_label_set_text(GTK_LABEL(assistant_context_label), "New conversation");
+   // ...and tell a running agent to drop its conversation memory. If none is
+   // running, the next request spawns a fresh one (which starts empty anyway).
+   json reset;
+   reset["reset"] = true;
+   assistant_write_line(reset);
+   if (assistant_entry_widget)
+      gtk_widget_grab_focus(assistant_entry_widget);
+}
+
+static void on_assistant_stop_clicked(GtkButton *button, gpointer user_data) {
+
+   if (assistant_process) {
+      g_subprocess_force_exit(assistant_process);
+      g_object_unref(assistant_process);
+      assistant_process = nullptr;
+      assistant_stdout = nullptr;
+      assistant_output_append("\n[stopped]\n");
+   }
+   assistant_set_thinking(false);
+   if (assistant_entry_widget)
+      gtk_widget_set_sensitive(assistant_entry_widget, TRUE);
+}
+
+static GtkWidget *create_assistant_tab_widget() {
+
+   GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
+
+   GtkWidget *scrolled = gtk_scrolled_window_new();
+   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled),
+                                  GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+   gtk_widget_set_vexpand(scrolled, TRUE);
+
+   assistant_output_view = gtk_text_view_new();
+   gtk_text_view_set_editable(GTK_TEXT_VIEW(assistant_output_view), FALSE);
+   gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(assistant_output_view), FALSE);
+   gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(assistant_output_view), GTK_WRAP_WORD_CHAR);
+   gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled), assistant_output_view);
+
+   // Two rows: the entry gets one to itself so it spans the full width, and
+   // everything else - spinner, model chooser, New chat, Stop - sits on a
+   // second row underneath. Sharing one row squeezed the entry to whatever
+   // was left over, which is the wrong way round for the widget you type in.
+   GtkWidget *entry_row = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
+   GtkWidget *row = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
+
+   assistant_entry_widget = gtk_entry_new();
+   gtk_widget_set_hexpand(assistant_entry_widget, TRUE);
+   gtk_entry_set_placeholder_text(GTK_ENTRY(assistant_entry_widget),
+      "Ask the assistant, e.g. \"load the tutorial data and refine A 89\"");
+   g_signal_connect(assistant_entry_widget, "activate",
+                    G_CALLBACK(on_assistant_entry_activate), nullptr);
+   gtk_box_append(GTK_BOX(entry_row), assistant_entry_widget);
+
+   GtkWidget *new_chat_button = gtk_button_new_with_label("New chat");
+   g_signal_connect(new_chat_button, "clicked",
+                    G_CALLBACK(on_assistant_new_chat_clicked), nullptr);
+
+   GtkWidget *stop_button = gtk_button_new_with_label("Stop");
+   g_signal_connect(stop_button, "clicked",
+                    G_CALLBACK(on_assistant_stop_clicked), nullptr);
+
+   // "Thinking" spinner, hidden until a request is in flight.
+   assistant_spinner = gtk_spinner_new();
+   gtk_widget_set_visible(assistant_spinner, FALSE);
+
+   // Which local model answers. Filled from ollama's catalogue; the refresh
+   // button re-reads it for when ollama is started (or a model pulled) after
+   // this tab was built.
+   assistant_model_dropdown = gtk_drop_down_new(nullptr, nullptr);
+   gtk_widget_set_tooltip_text(assistant_model_dropdown,
+                               "The local (ollama) model the assistant uses");
+   GtkWidget *refresh_button = gtk_button_new_from_icon_name("view-refresh-symbolic");
+   gtk_widget_set_tooltip_text(refresh_button, "Re-read the list of ollama models");
+   g_signal_connect(refresh_button, "clicked",
+                    G_CALLBACK(on_assistant_refresh_models_clicked), nullptr);
+
+   // Model controls to the left, session buttons pushed to the right by a
+   // blank expanding filler between them.
+   GtkWidget *filler = gtk_label_new("");
+   gtk_widget_set_hexpand(filler, TRUE);
+
+   gtk_box_append(GTK_BOX(row), assistant_spinner);
+   gtk_box_append(GTK_BOX(row), assistant_model_dropdown);
+   gtk_box_append(GTK_BOX(row), refresh_button);
+   gtk_box_append(GTK_BOX(row), filler);
+   gtk_box_append(GTK_BOX(row), new_chat_button);
+   gtk_box_append(GTK_BOX(row), stop_button);
+
+   // Populate before connecting the handler, so filling the list does not read
+   // as a user model change (which would restart the agent).
+   assistant_populate_model_dropdown();
+   g_signal_connect(assistant_model_dropdown, "notify::selected",
+                    G_CALLBACK(on_assistant_model_changed), nullptr);
+
+   // A readiness line (model + RPC status) and a context-usage line, both dim.
+   assistant_status_label = gtk_label_new("");
+   gtk_widget_set_halign(assistant_status_label, GTK_ALIGN_START);
+   gtk_widget_add_css_class(assistant_status_label, "dim-label");
+
+   assistant_context_label = gtk_label_new("New conversation");
+   gtk_widget_set_halign(assistant_context_label, GTK_ALIGN_START);
+   gtk_widget_add_css_class(assistant_context_label, "dim-label");
+
+   gtk_box_append(GTK_BOX(box), scrolled);
+   gtk_box_append(GTK_BOX(box), assistant_status_label);
+   gtk_box_append(GTK_BOX(box), entry_row);
+   gtk_box_append(GTK_BOX(box), row);
+   gtk_box_append(GTK_BOX(box), assistant_context_label);
+
+   assistant_output_append(
+      "Coot Assistant [alpha] (local model).\n"
+      "Start the JSON-RPC listener yourself from Coot's remote-control menu,\n"
+      "then type a request, e.g. \"refine A 89 and pepflip A 32\".\n");
+   gtk_label_set_text(GTK_LABEL(assistant_status_label),
+                      "Start the RPC listener from the menu, then send a request.");
+
+   // Nothing is auto-started here: the agent process is spawned on the first
+   // request (assistant_send_request), and it connects to the JSON-RPC listener
+   // that you start yourself. Auto-starting the listener proved unreliable.
+   return box;
+}
+
+#ifdef HAVE_COOT_FIGURE_AGENT
+
+// ---------------------------------------------------------------------------
+//   "Figure" tab - a vision-in-the-loop agent that tunes the render
+// ---------------------------------------------------------------------------
+//
+// Like the Assistant, but it judges by what the scene LOOKS like: it renders
+// the current view, shows the image to a multimodal model, which critiques the
+// figure and calls appearance tools (lighting, ambient occlusion, shadows,
+// depth of field, background, materials, ...) to improve it, then renders
+// again. It drives python3 -m coot_commands.figure_serve over stdin/stdout,
+// executing each change back in THIS Coot over the JSON-RPC socket. A picture
+// widget shows the latest render each iteration so you watch the figure evolve.
+
+static GtkWidget *figure_output_view = nullptr;
+static GtkWidget *figure_entry_widget = nullptr;
+static GtkWidget *figure_picture = nullptr;
+static GtkWidget *figure_status_label = nullptr;
+static GtkWidget *figure_spinner = nullptr;
+static GSubprocess *figure_process = nullptr;
+static GDataInputStream *figure_stdout = nullptr;
+
+static void figure_set_thinking(bool thinking) {
+   if (!figure_spinner) return;
+   gtk_widget_set_visible(figure_spinner, thinking);
+   if (thinking) gtk_spinner_start(GTK_SPINNER(figure_spinner));
+   else          gtk_spinner_stop(GTK_SPINNER(figure_spinner));
+}
+
+static void figure_output_append(const std::string &text) {
+   text_view_append_ansi(figure_output_view, text);
+}
+
+// Render one streamed JSON event line into the transcript / picture.
+static void figure_handle_event(const std::string &line) {
+
+   json ev;
+   try {
+      ev = json::parse(line);
+   } catch (...) {
+      return; // ignore any non-JSON noise on stdout
+   }
+   std::string type = ev.value("type", "");
+
+   if (type == "render") {
+      int it = ev.value("iteration", 0);
+      std::string image = ev.value("image", "");
+      figure_output_append("\n[iteration " + std::to_string(it) + "]\n");
+      // Show the freshly written PNG. Each iteration has a distinct filename,
+      // so there is no stale-cache problem re-setting the same path.
+      if (figure_picture && !image.empty())
+         gtk_picture_set_filename(GTK_PICTURE(figure_picture), image.c_str());
+   } else if (type == "thinking") {
+      vte_output_append_styled(figure_output_view,
+                               "\xF0\x9F\x92\xAD " + ev.value("text", "") + "\n");
+   } else if (type == "critique") {
+      figure_output_append(ev.value("text", "") + "\n");
+   } else if (type == "step") {
+      std::string tool = ev.value("tool", "");
+      std::string result = ev.value("result", "");
+      std::string args_str;
+      if (ev.contains("args") && ev["args"].is_object()) {
+         bool first = true;
+         for (auto it = ev["args"].begin(); it != ev["args"].end(); ++it) {
+            if (!first) args_str += ", ";
+            first = false;
+            const json &v = it.value();
+            args_str += it.key() + "=" + (v.is_string() ? v.get<std::string>() : v.dump());
+         }
+      }
+      figure_output_append("  \xE2\x86\x92 " + tool + "(" + args_str + "): " + result + "\n");
+   } else if (type == "final") {
+      figure_output_append("\n\xE2\x9C\x93 " + ev.value("text", "") + "\n");
+   } else if (type == "error") {
+      figure_output_append("Error: " + ev.value("message", "") + "\n");
+   } else if (type == "status") {
+      bool rpc = ev.value("rpc", false);
+      if (figure_status_label) {
+         std::string backend = ev.value("backend", "?");
+         std::string model = ev.value("model", "?");
+         std::string s = "Vision: " + backend + "/" + model +
+                         "   \xC2\xB7   RPC: " + (rpc ? "ready" : "NOT connected");
+         gtk_label_set_text(GTK_LABEL(figure_status_label), s.c_str());
+      }
+      if (!rpc && ev.contains("rpc_detail"))
+         figure_output_append("RPC not connected: " + ev.value("rpc_detail", "") + "\n");
+   } else if (type == "done") {
+      figure_set_thinking(false);
+      if (figure_entry_widget) {
+         gtk_widget_set_sensitive(figure_entry_widget, TRUE);
+         gtk_widget_grab_focus(figure_entry_widget);
+      }
+   }
+   // "ready", "tools" and "config" events are informational.
+}
+
+static void figure_read_line_cb(GObject *source, GAsyncResult *res, gpointer user_data);
+
+static void figure_queue_read() {
+   if (figure_stdout)
+      g_data_input_stream_read_line_async(figure_stdout, G_PRIORITY_DEFAULT,
+                                          nullptr, figure_read_line_cb, nullptr);
+}
+
+static void figure_read_line_cb(GObject *source, GAsyncResult *res, gpointer user_data) {
+
+   GDataInputStream *stream = G_DATA_INPUT_STREAM(source);
+   gsize length = 0;
+   GError *error = nullptr;
+   char *line = g_data_input_stream_read_line_finish(stream, res, &length, &error);
+
+   if (error) {
+      g_warning("Figure: stdout read error: %s", error->message);
+      g_error_free(error);
+      return;
+   }
+   if (!line) {
+      // EOF: the figure process exited. Reset so the next request respawns it.
+      if (figure_process) {
+         figure_output_append("\n[figure process ended]\n");
+         g_object_unref(figure_process);
+         figure_process = nullptr;
+      }
+      figure_stdout = nullptr;
+      figure_set_thinking(false);
+      if (figure_entry_widget)
+         gtk_widget_set_sensitive(figure_entry_widget, TRUE);
+      return;
+   }
+
+   figure_handle_event(std::string(line, length));
+   g_free(line);
+   figure_queue_read();
+}
+
+static void spawn_figure_process() {
+
+   if (figure_process) return;
+
+   int port = assistant_rpc_port(); // shared with the Assistant tab
+
+   GSubprocessLauncher *launcher = g_subprocess_launcher_new(
+      (GSubprocessFlags)(G_SUBPROCESS_FLAGS_STDIN_PIPE | G_SUBPROCESS_FLAGS_STDOUT_PIPE));
+   g_subprocess_launcher_setenv(launcher, "COOT_RPC_PORT",
+                                std::to_string(port).c_str(), TRUE);
+   std::string ppath = assistant_pythonpath();
+   if (!ppath.empty()) {
+      const char *existing = g_getenv("PYTHONPATH");
+      std::string combined = existing ? (ppath + ":" + existing) : ppath;
+      g_subprocess_launcher_setenv(launcher, "PYTHONPATH", combined.c_str(), TRUE);
+   }
+
+   GError *error = nullptr;
+   figure_process = g_subprocess_launcher_spawn(
+      launcher, &error,
+      "python3", "-u", "-m", "coot_commands.figure_serve", nullptr);
+   g_object_unref(launcher);
+
+   if (!figure_process) {
+      figure_output_append(std::string("Failed to start figure agent: ") +
+                           (error ? error->message : "unknown error") + "\n");
+      if (error) g_error_free(error);
+      return;
+   }
+
+   GInputStream *out_pipe = g_subprocess_get_stdout_pipe(figure_process);
+   figure_stdout = g_data_input_stream_new(out_pipe);
+   figure_queue_read();
+}
+
+static bool figure_write_line(const json &obj) {
+
+   if (!figure_process) return false;
+   GOutputStream *in_pipe = g_subprocess_get_stdin_pipe(figure_process);
+   if (!in_pipe) return false;
+   std::string line = obj.dump() + "\n";
+   GError *error = nullptr;
+   g_output_stream_write_all(in_pipe, line.c_str(), line.size(),
+                             nullptr, nullptr, &error);
+   if (error) {
+      figure_output_append(std::string("Write error: ") + error->message + "\n");
+      g_error_free(error);
+      return false;
+   }
+   g_output_stream_flush(in_pipe, nullptr, nullptr);
+   return true;
+}
+
+static void on_figure_entry_activate(GtkEntry *entry, gpointer user_data) {
+
+   const char *text = gtk_editable_get_text(GTK_EDITABLE(entry));
+   if (!text) return;
+   std::string input(text);
+   if (input.find_first_not_of(" \t") == std::string::npos) return;
+
+   figure_output_append("> " + input + "\n");
+   gtk_widget_set_sensitive(GTK_WIDGET(entry), FALSE);
+   spawn_figure_process();
+   json req;
+   req["goal"] = input;
+   figure_write_line(req);
+   figure_set_thinking(true);
+   gtk_editable_set_text(GTK_EDITABLE(entry), "");
+}
+
+static void on_figure_new_clicked(GtkButton *button, gpointer user_data) {
+
+   // Clear the transcript for immediate feedback, and tell a running agent to
+   // drop its conversation so the next goal starts a fresh figure (with no
+   // memory of earlier changes). If none is running, the next goal spawns a
+   // fresh one anyway.
+   if (figure_output_view) {
+      GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(figure_output_view));
+      gtk_text_buffer_set_text(buffer, "", -1);
+   }
+   json reset;
+   reset["reset"] = true;
+   figure_write_line(reset);
+   if (figure_entry_widget)
+      gtk_widget_grab_focus(figure_entry_widget);
+}
+
+static void on_figure_stop_clicked(GtkButton *button, gpointer user_data) {
+
+   if (figure_process) {
+      g_subprocess_force_exit(figure_process);
+      g_object_unref(figure_process);
+      figure_process = nullptr;
+      figure_stdout = nullptr;
+      figure_output_append("\n[stopped]\n");
+   }
+   figure_set_thinking(false);
+   if (figure_entry_widget)
+      gtk_widget_set_sensitive(figure_entry_widget, TRUE);
+}
+
+static GtkWidget *create_figure_tab_widget() {
+
+   GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
+
+   figure_status_label = gtk_label_new("");
+   gtk_widget_set_halign(figure_status_label, GTK_ALIGN_START);
+   gtk_widget_add_css_class(figure_status_label, "dim-label");
+
+   // The picture takes the lion's share of the tab - it is the point. It fills
+   // the available space via vexpand and is allowed to shrink (can-shrink is on
+   // by default), so it imposes NO minimum height: setting one here would raise
+   // the notebook's minimum and stop the VTE paned from being dragged smaller.
+   figure_picture = gtk_picture_new();
+   gtk_widget_set_vexpand(figure_picture, TRUE);
+   gtk_widget_set_hexpand(figure_picture, TRUE);
+
+   // A short transcript below for the critique and the tool calls. A small
+   // natural height only (60px) so the tab keeps a low minimum and the paned
+   // stays draggable; it scrolls when it overflows.
+   GtkWidget *scrolled = gtk_scrolled_window_new();
+   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled),
+                                  GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+   gtk_widget_set_size_request(scrolled, -1, 60);
+   figure_output_view = gtk_text_view_new();
+   gtk_text_view_set_editable(GTK_TEXT_VIEW(figure_output_view), FALSE);
+   gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(figure_output_view), FALSE);
+   gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(figure_output_view), GTK_WRAP_WORD_CHAR);
+   gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled), figure_output_view);
+
+   GtkWidget *row = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
+   figure_entry_widget = gtk_entry_new();
+   gtk_widget_set_hexpand(figure_entry_widget, TRUE);
+   gtk_entry_set_placeholder_text(GTK_ENTRY(figure_entry_widget),
+      "Describe the figure, e.g. \"a clean, dramatic figure of the active model\"");
+   g_signal_connect(figure_entry_widget, "activate",
+                    G_CALLBACK(on_figure_entry_activate), nullptr);
+
+   GtkWidget *new_button = gtk_button_new_with_label("New figure");
+   g_signal_connect(new_button, "clicked", G_CALLBACK(on_figure_new_clicked), nullptr);
+
+   GtkWidget *stop_button = gtk_button_new_with_label("Stop");
+   g_signal_connect(stop_button, "clicked", G_CALLBACK(on_figure_stop_clicked), nullptr);
+
+   figure_spinner = gtk_spinner_new();
+   gtk_widget_set_visible(figure_spinner, FALSE);
+
+   gtk_box_append(GTK_BOX(row), figure_entry_widget);
+   gtk_box_append(GTK_BOX(row), figure_spinner);
+   gtk_box_append(GTK_BOX(row), new_button);
+   gtk_box_append(GTK_BOX(row), stop_button);
+
+   gtk_box_append(GTK_BOX(box), figure_status_label);
+   gtk_box_append(GTK_BOX(box), figure_picture);
+   gtk_box_append(GTK_BOX(box), scrolled);
+   gtk_box_append(GTK_BOX(box), row);
+
+   figure_output_append(
+      "Coot Figure agent [alpha] (multimodal model).\n"
+      "Start the JSON-RPC listener from Coot's remote-control menu, load a model,\n"
+      "then describe the figure you want and watch it tune the render.\n");
+   gtk_label_set_text(GTK_LABEL(figure_status_label),
+                      "Start the RPC listener from the menu, then describe a figure.");
+   return box;
+}
+
+#endif // HAVE_COOT_FIGURE_AGENT
+
 void setup_claude_vte_terminal() {
 
    // Set up lazily and only once. Doing this at startup reparented the Python VTE
@@ -931,6 +2217,18 @@ void setup_claude_vte_terminal() {
    GtkWidget *command_widget = create_command_tab_widget();
    GtkWidget *cmd_label = gtk_label_new("Command");
    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), command_widget, cmd_label);
+
+   // Add the local-model Assistant tab (alpha)
+   GtkWidget *assistant_widget = create_assistant_tab_widget();
+   GtkWidget *assistant_label = gtk_label_new("Assistant (alpha)");
+   gtk_notebook_append_page(GTK_NOTEBOOK(notebook), assistant_widget, assistant_label);
+
+#ifdef HAVE_COOT_FIGURE_AGENT
+   // Add the vision-in-the-loop Figure tab (alpha)
+   GtkWidget *figure_widget = create_figure_tab_widget();
+   GtkWidget *figure_label = gtk_label_new("Figure (alpha)");
+   gtk_notebook_append_page(GTK_NOTEBOOK(notebook), figure_widget, figure_label);
+#endif
 
    // Put the notebook into the paned
    gtk_paned_set_end_child(GTK_PANED(vte_paned_widget), notebook);

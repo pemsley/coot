@@ -312,8 +312,14 @@ _UPDATING_NOTE = (
     "both. Only one updating-maps session can run at a time.")
 
 
-def _start_updating_maps() -> str:
-    """Wire up auto-updating maps for the active model, or raise."""
+def start_updating_maps() -> str:
+    """Wire up auto-updating maps for the active model, or raise.
+
+    Public because 'load tutorial' turns updating maps on for you once it has
+    the data loaded (see :mod:`coot_commands.commands.session`); it raises
+    :class:`CommandError` when the molecules it needs are not there, which
+    that caller reports rather than treats as a failure to load.
+    """
     imol_model = resolve_model()
     imol_data = active_map()
     if coot is not None and coot.map_is_difference_map(imol_data) == 1:
@@ -348,7 +354,7 @@ def set_updating_maps(state: Optional[str] = None) -> str:
     """Turn Coot's auto-updating (sfcalc) maps on or off."""
     if state is not None and state.lower() == "off":
         return _stop_updating_maps()
-    return _start_updating_maps()
+    return start_updating_maps()
 
 
 @command(r"stop updating maps?",

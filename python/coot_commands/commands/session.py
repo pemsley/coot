@@ -24,9 +24,11 @@ from __future__ import annotations
 
 from typing import Optional
 
+from coot_commands.ansi import swatch
 from coot_commands.registry import command
 from coot_commands.types import (resolve_model, molecule_name, ArgType,
-                                 ACTIVE_MODEL_NOTE, loaded_models, loaded_maps)
+                                 CommandError, ACTIVE_MODEL_NOTE,
+                                 loaded_models, loaded_maps)
 
 try:
     import coot
@@ -77,20 +79,83 @@ def list_maps(**_: Optional[str]) -> str:
         except Exception:
             is_diff = False
         suffix = " (difference map)" if is_diff else ""
-        lines.append(f"  {imol}: {_name(imol)}{suffix}")
+        lines.append(f"  {imol}: {_swatch(imol)}{_name(imol)}{suffix}")
     return "\n".join(lines)
+
+
+def _swatch(imol: int) -> str:
+    """A coloured swatch (plus trailing space) for a map, or '' if unknown."""
+    try:
+        colours = coot.get_map_colour_py(imol)
+    except Exception:
+        colours = None
+    # get_map_colour_py returns [[r,g,b], [r,g,b]] (the map colour and the
+    # negative-level colour) as 0-1 floats, or False for a non-map molecule.
+    if not colours:
+        return ""
+    return swatch(colours[0]) + " "
+
+
+def _describe_new(models: list[str], maps: list[str]) -> str:
+    """Describe the molecules a load added, e.g. 'model 0, 2Fo-Fc map 1, ...'.
+
+    Only the molecules that appeared are named, so loading the tutorial into a
+    session that already had things open does not claim credit for them.
+    """
+    parts = [f"model {imol} ({_name(int(imol))})" for imol in models]
+    for imol in maps:
+        try:
+            is_diff = coot.map_is_difference_map(int(imol)) == 1
+        except Exception:  # noqa: BLE001 - fall back to an unlabelled map
+            is_diff = False
+        kind = "Fo-Fc difference map" if is_diff else "2Fo-Fc map"
+        parts.append(f"{kind} {imol}")
+    return ", ".join(parts)
 
 
 @command(r"load tutorial(?: (?:model(?: and data)?|data))?",
          examples=["load tutorial", "load tutorial model and data"],
          category=CATEGORY,
-         notes="Loads the bundled tutorial model and its data (map "
-               "coefficients), the same as File > Open Tutorial.")
+         notes="Loads the bundled tutorial dataset, the same as File > Open "
+               "Tutorial. Both the model AND its data are always loaded - "
+               "there is no way to get one without the other, and all the "
+               "phrasings ('load tutorial', 'load tutorial model', 'load "
+               "tutorial data') do exactly the same thing. You end up with "
+               "three molecules: the model (tutorial-modern), a 2Fo-Fc map "
+               "and an Fo-Fc difference map, both computed from the bundled "
+               "MTZ. The 2Fo-Fc map carries the reflection data and becomes "
+               "the refinement map, so refinement and rotamer fitting work "
+               "straight away. Auto-updating maps are then switched on, so "
+               "both maps recompute as you edit the model; turn that off "
+               "again with 'set updating maps off'.")
 def load_tutorial(**_: Optional[str]) -> str:
-    """Load the tutorial model and data."""
-    if coot is not None:
-        coot.load_tutorial_model_and_data()
-    return "Loaded the tutorial model and data"
+    """Load the tutorial model and data, with updating maps switched on."""
+    if coot is None:
+        return "Loaded the tutorial model and data"
+
+    # Diff the molecule list around the load so the summary names what this
+    # command actually added rather than everything that happens to be open.
+    before_models, before_maps = set(loaded_models()), set(loaded_maps())
+    coot.load_tutorial_model_and_data()
+    new_models = sorted(set(loaded_models()) - before_models, key=int)
+    new_maps = sorted(set(loaded_maps()) - before_maps, key=int)
+
+    loaded = _describe_new(new_models, new_maps)
+    summary = f"Loaded the tutorial: {loaded}" if loaded else \
+        "Loaded the tutorial model and data"
+
+    # Updating maps is what makes the tutorial behave the way the tutorial
+    # describes - the density follows the atoms as you edit. It needs the
+    # refinement map and a difference map, which the load has just provided;
+    # if something is nonetheless missing (another dataset already open makes
+    # the refinement map ambiguous), the data is still loaded, so report the
+    # reason rather than failing the whole command.
+    from coot_commands.commands.settings import start_updating_maps
+    try:
+        return f"{summary}. {start_updating_maps()}"
+    except CommandError as e:
+        return (f"{summary}. Could not turn on updating maps ({e}) - turn "
+                f"them on yourself with 'set updating maps on'")
 
 
 @command(r"(?:open|display|view) sequence(?: (?:of |for )?model (?P<model>\S+))?",
