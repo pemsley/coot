@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <unordered_map>
 #include <sstream>
+#include <functional>
 
 #include <stdlib.h> // for getenv()
 #include <nanobind/nanobind.h>
@@ -1715,6 +1716,16 @@ NB_MODULE(coot_headless_api, m) {
     .def("__repr__", [](const coot::residue_spec_t &rs) {
        std::string r = "residue_spec_t(\"" + rs.chain_id + "\", " + std::to_string(rs.res_no) + ", \"" + rs.ins_code + "\")";
        return r;
+    })
+    .def("__eq__", [](const coot::residue_spec_t &a, const coot::residue_spec_t &b) {
+       return a == b; // chain_id, res_no, ins_code (not model_number)
+    }, nb::is_operator())
+    .def("__hash__", [](const coot::residue_spec_t &rs) {
+       // must be consistent with __eq__: same three fields, model_number ignored
+       size_t h = std::hash<std::string>()(rs.chain_id);
+       h ^= std::hash<int>()(rs.res_no)          + 0x9e3779b9 + (h << 6) + (h >> 2);
+       h ^= std::hash<std::string>()(rs.ins_code) + 0x9e3779b9 + (h << 6) + (h >> 2);
+       return h;
     })
     ;
     nb::class_<coot::atom_spec_t>(m,"atom_spec_t")
