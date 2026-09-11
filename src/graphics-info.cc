@@ -182,7 +182,6 @@ graphics_info_t::post_recentre_update_and_redraw() {
 }
 
 
-#ifndef EMSCRIPTEN
 GdkRGBA colour_by_distortion(float dist) {
 
    GdkRGBA col;
@@ -216,7 +215,6 @@ GdkRGBA colour_by_distortion(float dist) {
    }
    return col;
 }
-#endif
 
 GdkRGBA colour_by_rama_plot_distortion(float plot_value, int rama_type) {
 
@@ -943,7 +941,6 @@ graphics_info_t::smooth_scroll_maybe(float x, float y, float z,
 
 #include <glm/gtx/string_cast.hpp>
 
-#ifndef EMSCRIPTEN
 // static
 gboolean
 graphics_info_t::smooth_scroll_animation_func(GtkWidget *widget,
@@ -977,9 +974,7 @@ graphics_info_t::smooth_scroll_animation_func(GtkWidget *widget,
       return G_SOURCE_REMOVE;
    }
 }
-#endif
 
-#ifndef EMSCRIPTEN
 // static
 gboolean
 graphics_info_t::smooth_sinusoidal_scroll_animation_func(GtkWidget *widget,
@@ -1011,9 +1006,7 @@ graphics_info_t::smooth_sinusoidal_scroll_animation_func(GtkWidget *widget,
       return G_SOURCE_REMOVE;
    }
 }
-#endif
 
-#ifndef EMSCRIPTEN
 bool
 graphics_info_t::smooth_scroll_maybe_sinusoidal_acceleration(float x, float y, float z,
                                                              short int do_zoom_and_move_flag,
@@ -1085,16 +1078,13 @@ graphics_info_t::smooth_scroll_maybe_sinusoidal_acceleration(float x, float y, f
    }
    return done_the_move;
 }
-#endif
 
-#ifndef EMSCRIPTEN
 void
 graphics_info_t::smooth_scroll_maybe_stepped_acceleration(float x, float y, float z,
      short int do_zoom_and_move_flag,
      float target_zoom) {
           // defunct
 }
-#endif
 
 std::vector<int>
 graphics_info_t::displayed_map_imols() const {
@@ -1339,7 +1329,6 @@ graphics_info_t::ShowFPS(){
 void
 graphics_info_t::SetShowFPS(int t) {
 
-#ifndef EMSCRIPTEN
    show_fps_flag = t;
    Frames = 0;
    if (t == 0) {
@@ -1353,7 +1342,6 @@ graphics_info_t::SetShowFPS(int t) {
       }
       do_tick_constant_draw = true;
    }
-#endif
 }
 
 //
@@ -3301,7 +3289,6 @@ graphics_info_t::update_environment_graphics_object(int atom_index, int imol) {
 
    environment_object_bonds_box = molecules[imol].make_environment_bonds_box(atom_index, geom_p);
 
-#ifndef EMSCRIPTEN
    gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
    mesh_for_environment_distances.init(environment_object_bonds_box, background_is_black_p());
 
@@ -3313,7 +3300,6 @@ graphics_info_t::update_environment_graphics_object(int atom_index, int imol) {
 
    add_distance_labels_for_environment_distances();
 
-#endif
 
 }
 
@@ -3385,9 +3371,7 @@ graphics_info_t::add_measure_distance(const coot::Cartesian &p1,
                                         labels_for_measure_distances_and_angles.push_back(ali);
                                      };
 
-#ifndef EMSCRIPTEN
    gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
-#endif
 
    clipper::Coord_orth cp1(p1.x(), p1.y(), p1.z());
    clipper::Coord_orth cp2(p2.x(), p2.y(), p2.z());
@@ -3396,11 +3380,9 @@ graphics_info_t::add_measure_distance(const coot::Cartesian &p1,
    measure_distance_object_vec.push_back(p);
    Material mat;
    glm::vec4 col(0.72, 0.79, 0.72, 1.0);
-#ifndef EMSCRIPTEN
    mesh_for_measure_distance_object_vec.add_dashed_line(p, mat, col);
-#endif
    add_measure_distance_label(p, dist, col);
-   
+
    graphics_draw();
 
    // std::cout << "INFO:: distance: " << dist << " Angstroems" << std::endl;
@@ -3428,9 +3410,7 @@ graphics_info_t::add_measure_distance(const coot::Cartesian &p1,
 void
 graphics_info_t::add_measure_angle() const {
 
-#ifndef EMSCRIPTEN
    gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
-#endif
 
    clipper::Coord_orth p1(angle_tor_pos_1.x(), angle_tor_pos_1.y(), angle_tor_pos_1.z());
    clipper::Coord_orth p2(angle_tor_pos_2.x(), angle_tor_pos_2.y(), angle_tor_pos_2.z());
@@ -3465,11 +3445,9 @@ graphics_info_t::add_measure_angle() const {
    // p2 is the middle atom
    Material mat;
    glm::vec4 colour(0.6, 0.7, 0.5, 1.0); // 20211007-PE same as in add_dashed_line();
-#ifndef EMSCRIPTEN
    mesh_for_measure_angle_object_vec.add_dashed_angle_markup(coord_orth_to_glm(p1),
                                                              coord_orth_to_glm(p2),
                                                              coord_orth_to_glm(p3), colour, mat);
-#endif
 
    clipper::Coord_orth mid_point(0.3333 * (p1+p2+p3));
    clipper::Coord_orth centre_atom_to_mid_point_uv((mid_point-p2).unit());
@@ -5287,8 +5265,6 @@ void graphics_info_t::draw_chi_angles_flash_bond() {
 void
 graphics_info_t::set_last_map_colour(double f1, double f2, double f3) const {
 
-#ifndef EMSCRIPTEN // 20220724-PE for now. This should be restored
-
    // first find the last map:
    int imap = -1;
    for (int i=0; i<n_molecules(); i++) {
@@ -5326,7 +5302,6 @@ graphics_info_t::set_last_map_colour(double f1, double f2, double f3) const {
          }
       }
    }
-#endif
 }
 
 void
@@ -5930,7 +5905,6 @@ graphics_info_t::remove_dictionary_glob_extension(const std::string &extension) 
 void
 graphics_info_t::check_chiral_volumes(int imol) {
 
-#ifndef EMSCRIPTEN
    if (imol < n_molecules()) {
       if (molecules[imol].has_model()) {
          // return a pair: first is the residues for which no
@@ -5947,7 +5921,6 @@ graphics_info_t::check_chiral_volumes(int imol) {
          }
       }
    }
-#endif
 }
 
 
@@ -5969,7 +5942,6 @@ graphics_info_t::set_moving_atoms(atom_selection_container_t asc,
 //    fill_bond_parameters_internals(w, pos); // pos is imol
 // }
 
-#ifndef EMSCRIPTEN
 // static
 void graphics_info_t::bond_parameters_molecule_combobox_changed(GtkWidget *combobox_molecule, gpointer data) {
 
@@ -5983,7 +5955,6 @@ void graphics_info_t::bond_parameters_molecule_combobox_changed(GtkWidget *combo
    fill_bond_parameters_internals(combobox_molecule, imol);
 
 }
-#endif
 
 
 void
@@ -6088,7 +6059,6 @@ void graphics_info_t::difference_map_peaks_previous_peak() {
 // static
 void graphics_info_t::difference_map_peaks_neighbour_peak(int istep) { // could be private
 
-#ifndef EMSCRIPTEN
    graphics_info_t g;
    if (g.difference_map_peaks_dialog) {
       int n_peaks = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(g.difference_map_peaks_dialog), "n_peaks"));
@@ -6132,14 +6102,12 @@ void graphics_info_t::difference_map_peaks_neighbour_peak(int istep) { // could 
    } else {
          std::cout << "ERROR:: difference_map_peaks_neighbour_peak called in error\n";
    }
-#endif
 }
 
 // static
 void
 graphics_info_t::checked_waters_next_baddie(int dir) {
 
-#ifndef EMSCRIPTEN
    graphics_info_t g;
    GtkWidget *dialog = g.checked_waters_baddies_dialog;
    if (dialog) {
@@ -6187,7 +6155,6 @@ graphics_info_t::checked_waters_next_baddie(int dir) {
          std::cout << "active button not found" << std::endl;
       }
    }
-#endif
 }
 
 
@@ -6206,7 +6173,7 @@ graphics_info_t::safe_scheme_command(const std::string &scheme_command) {
       std::cout << "ERROR:: in safe_scheme_command() empty scheme_command" << std::endl;
       return SCM_BOOL_F;
    }
-   
+
    // std::cout << "starting safe_scheme_command() with scheme_command " << scheme_command << std::endl;
 
    // return SCM_BOOL_F;
@@ -6396,7 +6363,6 @@ graphics_info_t::process_socket_string_waiting() {
 }
 #endif
 
-#ifndef EMSCRIPTEN
 // static
 gboolean
 graphics_info_t::process_socket_string_waiting_bool(gpointer user_data) {
@@ -6437,9 +6403,7 @@ graphics_info_t::process_socket_string_waiting_bool(gpointer user_data) {
 
    return FALSE;
 }
-#endif
 
-#ifndef EMSCRIPTEN
 // static
 gboolean
 graphics_info_t::process_socket_python_string_waiting_bool(gpointer user_data) {
@@ -6454,7 +6418,6 @@ graphics_info_t::process_socket_python_string_waiting_bool(gpointer user_data) {
 #endif // USE_PYTHON
    return FALSE;
 }
-#endif
 
 
 // static
