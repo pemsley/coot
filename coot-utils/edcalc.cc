@@ -181,7 +181,7 @@ coot::calc_atom_map_edcalc(mmdb::Manager *mol,
 
    // Threading setup
    unsigned int n_threads = std::thread::hardware_concurrency();
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
    n_threads = 3;
 #endif
 
