@@ -6254,6 +6254,7 @@ delete_item_water(GSimpleAction *simple_action,
          auto &m = g.molecules[imol];
          m.delete_water(atom_spec);
          handled = true;
+         graphics_draw();
       }
    }
 
