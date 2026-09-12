@@ -210,6 +210,13 @@ on_model_toolbar_edit_chi_angles_button_clicked(GtkButton *button,
    }
 }
 
+extern "C" G_MODULE_EXPORT
+void
+on_model_toolbar_edit_backbone_torsions_button_clicked(GtkButton *button,
+                                                       gpointer   user_data) {
+   setup_backbone_torsion_edit(1);
+}
+
 
 
 extern "C" G_MODULE_EXPORT
