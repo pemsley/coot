@@ -6,6 +6,9 @@ o where did we get to with soi?
 
 o "Fetch Ligand Restraints" shouldn't create a new ligand molecule
 
+o Add "shoebox" generic object - and then make Rama plots with
+  planes on 3 sides.
+
 o in Layla, the input should be "RDKit->mmCIF" - probably the default
   where we do something like convert-pkl-to-mmcif.py - but
   there is no need to pickle so just make the minimal input cif

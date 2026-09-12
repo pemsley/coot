@@ -31,6 +31,7 @@
 #include <vector>
 #include <thread>
 #include <algorithm>
+#include "utils/coot-utils.hh"
 
 #include <clipper/core/coords.h>
 #include <clipper/core/xmap.h>
@@ -180,7 +181,7 @@ coot::calc_atom_map_edcalc(mmdb::Manager *mol,
    auto tp_accum_start = std::chrono::high_resolution_clock::now();
 
    // Threading setup
-   unsigned int n_threads = std::thread::hardware_concurrency();
+   unsigned int n_threads = coot::get_max_number_of_threads();
 #ifdef __EMSCRIPTEN__
    n_threads = 3;
 #endif

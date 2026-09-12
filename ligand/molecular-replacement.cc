@@ -37,6 +37,7 @@
 
 #include "molecular-replacement.hh"
 #include "rigid-body.hh"
+#include "utils/coot-utils.hh"
 #include "utils/split-indices.hh"
 #include "coot-utils/coot-map-utils.hh"
 #include "coot-utils/coot-coord-utils.hh"
@@ -377,7 +378,7 @@ coot::molecular_replacement_search(const clipper::Xmap<float> &xmap_obs,
    local_obs_map.fft_to(fphi_obs_local);
 
    unsigned int n_rot = refined.size();
-   unsigned int n_trans_threads = std::thread::hardware_concurrency();
+   unsigned int n_trans_threads = coot::get_max_number_of_threads();
    if (n_trans_threads == 0) n_trans_threads = 4;
    if (n_trans_threads > n_rot) n_trans_threads = n_rot;
 
@@ -540,7 +541,7 @@ coot::molecular_replacement_search(const clipper::Xmap<float> &xmap_obs,
 
    if (! all_solutions.empty()) {
       unsigned int n_sol = all_solutions.size();
-      unsigned int n_rigid_threads = std::thread::hardware_concurrency();
+      unsigned int n_rigid_threads = coot::get_max_number_of_threads();
       if (n_rigid_threads == 0) n_rigid_threads = 4;
       if (n_rigid_threads > n_sol) n_rigid_threads = n_sol;
 
