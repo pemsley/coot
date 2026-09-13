@@ -4672,6 +4672,12 @@ coot::util::deep_copy_this_residue(mmdb::Residue *residue) {
       rres->seqNum = residue->GetSeqNum();
       strcpy(rres->name, residue->name);
       strncpy(rres->insCode, residue->GetInsCode(), 3);
+      // a deep copy should not drop the label fields (they are needed for
+      // mmCIF interchange - cf. 11fc5e63b)
+      rres->label_seq_id    = residue->label_seq_id;
+      rres->label_entity_id = residue->label_entity_id;
+      strcpy(rres->label_comp_id, residue->label_comp_id);
+      strcpy(rres->label_asym_id, residue->label_asym_id);
 
       mmdb::PPAtom residue_atoms = 0;
       int nResidueAtoms;
@@ -4707,6 +4713,12 @@ coot::util::deep_copy_this_residue(mmdb::Residue *residue,
       strcpy(rres->name, residue->name);
       // BL says:: should copy insCode too, maybe more things...
       strncpy(rres->insCode, residue->GetInsCode(), 3);
+      // a deep copy should not drop the label fields (they are needed for
+      // mmCIF interchange - cf. 11fc5e63b)
+      rres->label_seq_id    = residue->label_seq_id;
+      rres->label_entity_id = residue->label_entity_id;
+      strcpy(rres->label_comp_id, residue->label_comp_id);
+      strcpy(rres->label_asym_id, residue->label_asym_id);
 
       mmdb::PPAtom residue_atoms = 0;
       int nResidueAtoms;

@@ -4009,6 +4009,7 @@ mmdb::Residue *coot::residue_from_rdkit_mol(const RDKit::ROMol &mol, int conf_id
             try {
                std::string name;
                rat->getProp("name", name); // They must have been made by caller
+               std::string label_name = name; // unaligned, for label_atom_id
                // this name extraction code is common code
                if (name.size() == 1) name = " " + name + "  ";
                if (name.size() == 2) name = " " + name + " ";
@@ -4017,6 +4018,11 @@ mmdb::Residue *coot::residue_from_rdkit_mol(const RDKit::ROMol &mol, int conf_id
                   std::cout << "DEBUG:: extracted residue atom " << i << " \"" << name
                             << "\" at " << p.x << " " << p.y << " " << p.z << std::endl;
                at->SetAtomName(name.c_str());
+               // gemmi's copy_from_mmdb() (and the mmCIF writer) take the atom
+               // name from label_atom_id - without this, atoms of molecules
+               // made here lose their names on mmCIF interchange (e.g. for
+               // servalcat refinement)
+               strncpy(at->label_atom_id, label_name.c_str(), sizeof(mmdb::AtomName)-1);
             }
             catch (const KeyErrorException &kee) {
                // std::cout << "DEBUG:: residue_from_rdkit_mol(): " << kee.what() << std::endl;
@@ -4024,18 +4030,28 @@ mmdb::Residue *coot::residue_from_rdkit_mol(const RDKit::ROMol &mol, int conf_id
                // OK, there was no atom name, let's invent one.
                std::string name = ele;
                name += std::to_string(ele_count[ele]);
+               std::string label_name = name; // unaligned, for label_atom_id
                if (name.size() == 2) name = " " + name + " ";
                if (name.size() == 3) name = " " + name;
                if (false)
                   std::cout << "DEBUG:: residue atom " << i << " with invented name \"" << name
                             << "\" at " << p.x << " " << p.y << " " << p.z << std::endl;
                at->SetAtomName(name.c_str());
+               strncpy(at->label_atom_id, label_name.c_str(), sizeof(mmdb::AtomName)-1);
             }
             atoms.push_back(at);
          }
          if (! atoms.empty()) {
             r = new mmdb::Residue;
             r->SetResID(new_comp_id.c_str(), 1, "");
+            // as for the atom label_atom_id above - and matching 11fc5e63b
+            // (GetResidue() of dictionary_residue_restraints_t) - the label
+            // fields need setting too, else mmCIF interchange writes
+            // placeholders ("---", -32767) for this residue
+            r->label_seq_id = 1;
+            if (new_comp_id.length() < 20) // see the typedef in mmdb_defs.h
+               strcpy(r->label_comp_id, new_comp_id.c_str());
+            strcpy(r->label_asym_id, "A");
             for (unsigned int i=0; i<atoms.size(); i++) {
                mmdb::Atom *at = atoms[i];
                r->AddAtom(at);
