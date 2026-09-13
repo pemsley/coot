@@ -25,6 +25,7 @@
  */
 
 #include <iostream>
+#include <iterator>
 
 #include "protein-donor-acceptors.hh"
 
@@ -51,15 +52,13 @@ coot::quick_protein_donor_acceptors::init() {
    hb_type_map[key("ARG", " NH1")] = HB_DONOR;
    hb_type_map[key("ARG", " NH2")] = HB_DONOR;
    hb_type_map[key("SER", " OG ")] = HB_BOTH;
-   hb_type_map[key("THR", " OG ")] = HB_BOTH;
+   hb_type_map[key("THR", " OG1")] = HB_BOTH;
    hb_type_map[key("TRP", " NE1")] = HB_DONOR;
    hb_type_map[key("TYR", " OH ")] = HB_BOTH;
-   hb_type_map[key("HOH", " O  ")] = HB_BOTH;
 
    const char *l[] = {"ALA", "CYS", "ASP", "GLU", "PHE", "GLY", "HIS", "ILE", "LYS", "LEU",
-		      "MET", "MSE", "ASN", "PRO", "GLN", "ARG", "SER", "TYR", "VAL", "TRP",
-		      "TYR", "HOH" };
-   unsigned int n_res_types = 21;
+		      "MET", "MSE", "ASN", "GLN", "ARG", "SER", "TYR", "VAL", "TRP", "THR" };
+   unsigned int n_res_types = std::size(l);
 
    for (unsigned int i=0; i<n_res_types; i++) {
       key pn(l[i], " N  ");
@@ -68,6 +67,8 @@ coot::quick_protein_donor_acceptors::init() {
       hb_type_map[po] = HB_ACCEPTOR;
    }
 
+   hb_type_map[key("PRO", " O  ")] = HB_ACCEPTOR;
+   hb_type_map[key("HOH", " O  ")] = HB_BOTH;
 }
 
 coot::hb_t
