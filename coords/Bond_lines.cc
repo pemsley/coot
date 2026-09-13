@@ -2860,6 +2860,8 @@ Bond_lines_container::handle_long_bonded_atom(mmdb::PAtom atom,
 
 
 
+// Constructor G
+//
 // This finds bonds between a residue and the protein (in SelAtom).
 // It is used for the environment bonds box.
 //
@@ -2874,10 +2876,10 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
                                            float min_dist,
                                            float max_dist) {
 
-   if (0)
+   if (false)
       std::cout << "Environment distances NO symm" << std::endl;
-   do_bonds_to_hydrogens = 1;  // added 20070629
 
+   do_bonds_to_hydrogens = 1;  // added 20070629
    b_factor_scale = 1.0;
    have_dictionary = 0;
    for_GL_solid_model_rendering = 1;
@@ -2905,7 +2907,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
                              0,  // seqDist (in same residue allowed)
                              contact, ncontacts);
 
-   if (0) {  // debugging seqDist
+   if (false) {  // debugging seqDist
       std::cout << " DEBUG:: there are " << n_residue_atoms << " residue atoms "
                 << " and " << SelAtom.n_selected_atoms << " mol atoms\n";
       for (int iat=0; iat<n_residue_atoms; iat++)
@@ -2957,7 +2959,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
             if (is_hydrogen(ele2))
                bonding_dist_max -= shorter_bit;
 
-            if (0) { // debug
+            if (false) { // debug
                std::cout << " DEBUG:: add environ dist "
                          << residue_atoms[ contact[i].id1 ] << " to "
                          << SelAtom.atom_selection[ contact[i].id2 ]
@@ -2997,9 +2999,15 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
                               // is-looked-up, is-H-bond
                               int colour_index = 1; // H-bond
                               std::pair<bool,bool> is_valid = pda.is_hydrogen_bond_by_types(k1,k2);
-                              if (is_valid.first)
-                                 if (! is_valid.second)
+                              if (is_valid.first) {
+                                 if (! is_valid.second) {
                                     colour_index = 0;
+                                 }
+                              } else {
+                                 // failed to look up - a regular contact is a better fallback than a hydrogen
+                                 // bond
+                                 colour_index = 0;
+                              }
                               addBond(colour_index, atom_1_pos, atom_2_pos, cc, model_number, iat_1, iat_2); // interesting
                            }
                         }
