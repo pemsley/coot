@@ -26,6 +26,13 @@
 #include <stdexcept>
 #include <set>
 #include <numeric>
+#include <fstream>
+#include <iostream>
+
+#include <gemmi/mmdb.hpp>     // for gemmi::copy_from_mmdb()
+#include <gemmi/to_mmcif.hpp> // for gemmi::make_mmcif_document()
+#include <gemmi/to_cif.hpp>   // for gemmi::cif::write_cif_to_stream()
+
 #include "coot-coord-utils.hh"
 #include "coot-coord-utils-gemmi.hh"
 
@@ -45,6 +52,28 @@ coot::trim_atom_names(gemmi::Structure &st) {
          for (auto &res : chain.residues)
             for (auto &at : res.atoms)
                at.name = trim_spaces(at.name);
+}
+
+// ==================== molecule I/O ====================
+
+int
+coot::write_coords_cif_via_gemmi(mmdb::Manager *mol, const std::string &file_name) {
+
+   try {
+      gemmi::Structure st = gemmi::copy_from_mmdb(mol);
+      trim_atom_names(st);
+      gemmi::cif::Document doc = gemmi::make_mmcif_document(st);
+      std::ofstream f(file_name);
+      if (! f) return 1;
+      gemmi::cif::write_cif_to_stream(f, doc);
+      f.close();
+      return f.fail() ? 1 : 0;
+   }
+   catch (const std::exception &e) {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): mmCIF write via gemmi failed: "
+                << e.what() << std::endl;
+      return 1;
+   }
 }
 
 // ==================== atom-level ====================

@@ -43,6 +43,10 @@
 #include "geometry/mol-utils.hh"
 #include "geometry/residue-and-atom-specs.hh"
 
+#ifdef USE_GEMMI
+#include "coot-coord-utils-gemmi.hh" // for write_coords_cif_via_gemmi()
+#endif
+
 #include "utils/logging.hh"
 extern logging logger;
 
@@ -7229,6 +7233,14 @@ coot::write_coords_cif(mmdb::Manager *mol, const std::string &file_name) {
 
    util::remove_wrong_cis_peptides(mol);
    // util::correct_link_distances(mol);  // this duplicates the molecule.  Needs investigation - GetLink()?
+#ifdef USE_GEMMI
+   // mmdb's WriteCIFASCII() serializes TER pseudo-atoms as junk atom rows
+   // (the Ter guard in mmdb::Atom::MakeCIF() is commented out) - so prefer
+   // gemmi for the conversion and writing.
+   if (write_coords_cif_via_gemmi(mol, file_name) == 0)
+      return 0;
+   // gemmi failed - fall back to mmdb's writer
+#endif
    int r = mol->WriteCIFASCII(file_name.c_str());
    return r;
 }
