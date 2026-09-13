@@ -1651,6 +1651,7 @@ molecules_container_t::servalcat_refine_xray_internal(int imol, int imol_map, co
          auto write_model_for_servalcat = [use_mmcif, this] (int imol_model, const std::string &fn) -> int {
             if (! use_mmcif)
                return molecules[imol_model].write_coordinates(fn);
+
 #ifdef USE_GEMMI
             try {
                gemmi::Structure st = gemmi::copy_from_mmdb(molecules[imol_model].atom_sel.mol);
@@ -1718,6 +1719,13 @@ molecules_container_t::servalcat_refine_xray_internal(int imol, int imol_map, co
                                                        "-s", "xray", "--model", input_model_file_name,
                                                        "--hklin", mtz_file, "--labin", labin,
                                                        "-o", prefix};
+
+                  if (true) { // 20260913-PE debugging
+                     std::cout << "debug:: servalcat command line:";
+                     for (const auto &cmd : cmd_list)
+                        std::cout << " " << cmd;
+                     std::cout<< std::endl;
+                  }
 
                   // servalcat can't find dictionaries for non-standard residue
                   // types (e.g. freshly-made ligands) in the monomer library -
