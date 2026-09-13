@@ -6107,6 +6107,14 @@ delete_item(GSimpleAction *simple_action,
             GVariant *parameter,
             gpointer user_data) {
 
+   // ----------------------------------------------------
+   // -------------------- WARNING!!!!!!!! ---------------
+   // ----------------------------------------------------
+   //
+   // 20260912-PE this code is not called at the moment.
+   // Due to problems with target menu items
+   // 02ba47387a450010c211446c7109a42901472b80
+
    auto delete_residue_range = [] () {
 
       graphics_info_t g;
