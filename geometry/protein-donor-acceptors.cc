@@ -54,10 +54,11 @@ coot::quick_protein_donor_acceptors::init() {
    hb_type_map[key("THR", " OG ")] = HB_BOTH;
    hb_type_map[key("TRP", " NE1")] = HB_DONOR;
    hb_type_map[key("TYR", " OH ")] = HB_BOTH;
+   hb_type_map[key("HOH", " O  ")] = HB_BOTH;
 
    const char *l[] = {"ALA", "CYS", "ASP", "GLU", "PHE", "GLY", "HIS", "ILE", "LYS", "LEU",
 		      "MET", "MSE", "ASN", "PRO", "GLN", "ARG", "SER", "TYR", "VAL", "TRP",
-		      "TYR" };
+		      "TYR", "HOH" };
    unsigned int n_res_types = 21;
 
    for (unsigned int i=0; i<n_res_types; i++) {
@@ -131,8 +132,6 @@ coot::quick_protein_donor_acceptors::is_hydrogen_bond_by_types(std::vector<std::
 
 void
 coot::quick_protein_donor_acceptors::test() const {
-   
-   hb_t r;
 
    if (false) {
       std::cout << "ref: HB_UNASSIGNED " << HB_UNASSIGNED << std::endl;
