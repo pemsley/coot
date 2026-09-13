@@ -108,18 +108,13 @@ coot::molecule_t::setup_dots(instanced_mesh_t &im,
                              float ball_size, unsigned int num_subdivisions,
                              const std::string &molecule_name_stub) const {
 
-   instanced_geometry_t ig_empty;
-   im.add(ig_empty);
-   instanced_geometry_t &ig = im.geom.back();
-
    // -------------------vertices and triangles  --------------
 
    std::pair<std::vector<glm::vec3>, std::vector<g_triangle> > octaphere_geom =
       tessellate_octasphere(num_subdivisions);
-   ig.vertices.resize(octaphere_geom.first.size());
+   std::vector<api::vn_vertex> octasphere_vertices(octaphere_geom.first.size());
    for (unsigned int i=0; i<octaphere_geom.first.size(); i++)
-      ig.vertices[i] = api::vn_vertex(octaphere_geom.first[i], octaphere_geom.first[i]);
-   ig.triangles = octaphere_geom.second;
+      octasphere_vertices[i] = api::vn_vertex(octaphere_geom.first[i], octaphere_geom.first[i]);
 
    // -------------------instancing --------------
 
@@ -150,8 +145,16 @@ coot::molecule_t::setup_dots(instanced_mesh_t &im,
       float point_size = ball_size;
       if (type == "vdw-surface") point_size = 0.06; // 0.03 seems too small
       // if (type == "vdw-surface") specular_strength= 0.1; // dull, reduces zoomed out speckles
-      std::string mesh_name = molecule_name_stub + type; // instanced_geometry_t doesn't have a name holder
-      ig.name = mesh_name + std::string(" ") + type;
+      // One instanced geometry per dot type, so that consumers can tell the
+      // types apart. Previously all the types were appended into a single
+      // geometry whose name was both scrambled ("Molecule 4big-overlap
+      // big-overlap") and overwritten by each type in turn.
+      instanced_geometry_t ig_empty;
+      im.add(ig_empty);
+      instanced_geometry_t &ig = im.geom.back();
+      ig.vertices  = octasphere_vertices;
+      ig.triangles = octaphere_geom.second;
+      ig.name = molecule_name_stub + std::string(" ") + type;
 
       glm::vec3 size(point_size, point_size, point_size);
       for (unsigned int i=0; i<v.size(); i++) {
