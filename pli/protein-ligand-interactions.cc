@@ -34,7 +34,7 @@ pli::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
                           float h_bond_dist_max) {
 
    std::vector<fle_ligand_bond_t> v; // returned value
-   bool debug = true;
+   bool debug = false;
 
    if (debug) {
       std::cout << "::::::::::::::::::::: get_fle_ligand_bonds() inputs: " << std::endl;
@@ -570,7 +570,7 @@ pli::protein_ligand_interactions(mmdb::Residue *ligand_residue_p, mmdb::Manager 
                                                                    mol, *geom_p, imol, h_bond_dist_max);
 
    for (unsigned int i=0; i<hbonds.size(); i++) {
-      if (true)
+      if (false)
 	 std::cout << "DEBUG:: in process_ligand() hbond [" << i << "] donor "
 		   << coot::atom_spec_t(hbonds[i].donor) << "...to... "
 		   << coot::atom_spec_t(hbonds[i].acceptor) << " with ligand donor flag "
