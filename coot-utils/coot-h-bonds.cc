@@ -477,7 +477,7 @@ coot::h_bonds::make_h_bond_from_ligand_hydrogen(mmdb::Atom *at_1, // H on ligand
       double dist  = coot::distance(nb_1[iD].first, at_2);
       if (dist < 3.9)  // McDonald and Thornton
          good_donor_acceptor_dist = 1;
-      if (0) {
+      if (false) {
          std::cout << "   H-on-ligand angle 1: " << angle << "  ";
          std::cout << "     angle: "
                    << coot::atom_spec_t(nb_1[iD].first) << " "
@@ -499,7 +499,7 @@ coot::h_bonds::make_h_bond_from_ligand_hydrogen(mmdb::Atom *at_1, // H on ligand
    for (unsigned int iA=0; iA<nb_2.size(); iA++) { 
       // elements of nb_2 are "AA" in the the above diagram
       double angle = coot::angle(at_1, at_2, nb_2[iA].first);
-      if (0) { 
+      if (false) {
          std::cout << "   H-on-ligand angle 2: " << angle <<  "  ";
          std::cout << "     angle: "
                    << coot::atom_spec_t(at_1) << " "
@@ -516,14 +516,14 @@ coot::h_bonds::make_h_bond_from_ligand_hydrogen(mmdb::Atom *at_1, // H on ligand
    }
 
    // Angle D-A-AA
-   // 
+   //
    for (unsigned int iD=0; iD<nb_1.size(); iD++) { 
       for (unsigned int iA=0; iA<nb_2.size(); iA++) {
 
          double angle = coot::angle(nb_1[iD].first,
                                     at_2,
                                     nb_2[iA].first);
-         if (0) { 
+         if (false) {
             std::cout << "    H-on-ligand angle 3: " << angle <<  "  ";
             std::cout << "     angle: "
                       << coot::atom_spec_t(nb_1[iD].first) << " "
@@ -561,7 +561,7 @@ coot::h_bonds::make_h_bond_from_environment_residue_hydrogen(mmdb::Atom *at_1, /
                                                              const std::vector<std::pair<mmdb::Atom *, float> > &nb_2) const {
 
 
-   bool debug = true;
+   bool debug = false;
    if (debug)
       std::cout << "\nDEBUG:: start make_h_bond_from_environment_residue_hydrogen() with"
                 << " at_1: " << atom_spec_t(at_1) << " " << at_1->GetResName()
@@ -618,11 +618,13 @@ coot::h_bonds::make_h_bond_from_environment_residue_hydrogen(mmdb::Atom *at_1, /
                    << coot::atom_spec_t(at_1) << std::endl;
       }
       if (angle < 90) {
-         std::cout << "DEBUG:: angle-1 bad" << std::endl;
+         if (debug)
+            std::cout << "DEBUG:: angle-1 bad" << std::endl;
          neighbour_distances_and_angles_are_good = false;
          break;
       } else {
-         std::cout << "DEBUG:: angle-1 good" << std::endl;
+         if (debug)
+            std::cout << "DEBUG:: angle-1 good" << std::endl;
       }
       if (! bond.donor) {
          bond.donor = nb_2[iD].first;
@@ -643,10 +645,12 @@ coot::h_bonds::make_h_bond_from_environment_residue_hydrogen(mmdb::Atom *at_1, /
                    << coot::atom_spec_t(nb_1[iA].first) << std::endl;
       }
       if (angle < 90) {
-         std::cout << "DEBUG:: this angle-2 bad" << std::endl;
+         if (debug)
+            std::cout << "DEBUG:: this angle-2 bad" << std::endl;
       } else {
          found_a_goodie_angle_2 = true;
-         std::cout << "DEBUG:: angle-2 good" << std::endl;
+         if (debug)
+            std::cout << "DEBUG:: angle-2 good" << std::endl;
       }
       if (found_a_goodie_angle_2) {
          if (! bond.acceptor) {
@@ -673,9 +677,11 @@ coot::h_bonds::make_h_bond_from_environment_residue_hydrogen(mmdb::Atom *at_1, /
                          << coot::atom_spec_t(nb_1[iA].first) << std::endl;
             }
             if (angle < 90) {
-               std::cout << "DEBUG:: this angle-3 bad" << std::endl;
+               if (debug)
+                  std::cout << "DEBUG:: this angle-3 bad" << std::endl;
             } else {
-               std::cout << "DEBUG:: this angle-3 good" << std::endl;
+               if (debug)
+                  std::cout << "DEBUG:: this angle-3 good" << std::endl;
                found_a_goodie_angle_3 = true;
             }
             if (found_a_goodie_angle_3) {
