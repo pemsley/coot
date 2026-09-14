@@ -32,7 +32,9 @@ import shutil
 import tempfile
 
 import coot_commands  # noqa: F401  - triggers command discovery/registration
+from coot_commands import scoring as scoring_mod
 from coot_commands import types
+from coot_commands.commands import fix as fix_mod
 from coot_commands.commands import files as files_mod
 from coot_commands.commands import ligand as ligand_mod
 from coot_commands.commands import model_edit as model_edit_mod
@@ -41,6 +43,7 @@ from coot_commands.commands import refine as refine_mod
 from coot_commands.commands import session as session_mod
 from coot_commands.commands import settings as settings_mod
 from coot_commands.commands import validation as validation_mod
+from coot_commands.commands import view as view_mod
 from coot_commands.completion import complete
 from coot_commands.registry import unmatched_examples
 import coot_command_interface as cli
@@ -267,11 +270,38 @@ class _FakeValidation(_FakeCootFull):
 
     # --- scriptable scorers (one outlier each) --------------------------
     def all_molecule_ramachandran_score_py(self, imol):
-        # index 5 holds the per-residue scores: [_, name, probability, ...].
-        return [0, 0, 0, 0, 0, [[0, "A 45", 0.01], [0, "A 46", 0.50]]]
+        # Index 5 holds the per-residue scores. Each is
+        # [[phi, psi], residue_spec, score, [prev, this, next names]] - the
+        # residue arrives as a SPEC, not a name string, which is what the
+        # summaries have to format. The old fake had it as a bare string, so
+        # the raw list Coot actually returns was never exercised.
+        return [0, 0, 0, 0, 0, [
+            [[-60.0, -40.0], ["A", 45, ""], 0.01, ["GLY", "LEU", "SER"]],
+            [[-70.0, 140.0], ["A", 46, ""], 0.50, ["LEU", "SER", "VAL"]],
+        ]]
 
-    def molecule_atom_overlaps_py(self, imol):
-        return [{"overlap-volume": 3.0}, {"overlap-volume": 1.0}]
+    def c_beta_deviations_py(self, imol):
+        # [residue_spec, {alt_conf: deviation}] per affected residue.
+        return [[["A", 51, ""], {"": 0.31}]]
+
+    def chiral_volume_errors_py(self, imol):
+        # A list of atom specs.
+        return [[0, "A", 77, "", " CB ", ""]]
+
+    def molecule_atom_overlaps_py(self, imol, n_max):
+        # Two arguments, like the real binding: the second is the maximum
+        # number of pairs to return, -1 for all of them.  Getting this wrong
+        # is not a loud failure - the caller sees no overlaps at all - so the
+        # fake mirrors the real signature exactly.
+        assert n_max == -1, "ask for every overlap, not a truncated list"
+        return [
+            {"overlap-volume": 3.0,
+             "atom-1-spec": [0, "A", 45, "", " CB ", ""],
+             "atom-2-spec": [0, "A", 88, "", " OD1", ""]},
+            {"overlap-volume": 1.0,
+             "atom-1-spec": [0, "B", 12, "", " CG ", ""],
+             "atom-2-spec": [0, "B", 60, "", " NE2", ""]},
+        ]
 
     def rotamer_graphs_py(self, imol):
         return [["A", 45, "", 1.2, "mt"], ["A", 46, "", 88.0, "m"]]
@@ -703,9 +733,57 @@ def test_updating_maps_needs_a_difference_map():
         assert fake.updating is None
 
 
+def test_spec_parsers_handle_both_coot_spec_shapes():
+    from coot_commands.scoring import (format_atom_spec, format_residue_spec,
+                                       parse_atom_spec, parse_residue_spec)
+    # Atom spec: [user_data, chain, resno, ins_code, atom_name, alt_conf].
+    assert parse_atom_spec([0, "A", 45, "", " CB ", ""]) == ("A", 45, "", "CB")
+    assert format_atom_spec([0, "A", 45, "", " CB ", ""]) == "A/45 CB"
+    # Residue spec: the current three-element form...
+    assert parse_residue_spec(["A", 45, ""]) == ("A", 45, "")
+    # ...and the older one that prefixed a status flag.
+    assert parse_residue_spec([True, "A", 45, ""]) == ("A", 45, "")
+    assert format_residue_spec(["B", 12, "A"]) == "B/12A"
+    # Anything unreadable degrades to "?" rather than raising or leaking a list.
+    for junk in (None, [], "A/45", [0], {"chain": "A"}, ["A"]):
+        assert format_residue_spec(junk) == "?"
+        assert format_atom_spec(junk) == "?"
+
+
+def test_validation_summaries_say_where_the_problems_are():
+    """A count alone is not actionable - each category must name residues.
+
+    Every one of these arrives from Coot as a spec ([chain, resno, ins] for a
+    residue, [_, chain, resno, ins, atom, alt] for an atom), so getting this
+    wrong shows up as a raw Python list in the transcript rather than an error.
+    """
+    fake = _FakeValidation()
+    with _use_coot(fake, validation_mod, scoring_mod):
+        clashes = cli.run_command("check clashes")
+        anomalies = cli.run_command("validate anomalies")
+        rama = cli.run_command("check ramachandran")
+
+    # Clashes name both atoms of the pair, and their volume.
+    assert "A/45 CB - A/88 OD1" in clashes
+    assert "3.0 A^3" in clashes
+
+    # The bundled summary names an offender for every category it counts.
+    assert "A/45 LEU" in anomalies          # Ramachandran (spec + residue type)
+    assert "A/45 CB - A/88 OD1" in anomalies    # clash
+    assert "A/51" in anomalies                  # C-beta deviation
+    assert "A/77 CB" in anomalies               # chiral volume error
+
+    # Ramachandran entries carry the residue as a spec, not a name: a raw list
+    # leaking into the text is the failure this guards against.
+    assert "A/45 LEU" in rama
+    for text in (clashes, anomalies, rama):
+        assert "[" not in text, f"unformatted spec leaked: {text}"
+
+
 def test_text_validation_summaries():
     fake = _FakeValidation()
-    with _use_coot(fake, validation_mod):
+    # scoring_mod owns the atom-overlap reader the clash summary calls through.
+    with _use_coot(fake, validation_mod, scoring_mod):
         assert "1 Ramachandran outlier" in cli.run_command("check ramachandran")
         assert "A/45" in cli.run_command("check rotamers")
         assert "1 clash" in cli.run_command("check clashes")
@@ -743,12 +821,602 @@ def test_refine_b_factors_runs_shiftfield():
         assert calls["bf"] == 1
 
 
+# --- autozoom / focus -------------------------------------------------------
+#
+# The zoom is derived, not guessed: Coot's glOrtho makes the view
+# 0.6 * zoom angstroms tall, so fitting an S-angstrom selection needs
+# zoom = S * padding / 0.6. These check that relationship end to end, and that
+# the view actually follows a command that acts on a residue.
+
+
+class _FakeFocus(_FakeCootFull):
+    """A model whose residues have known coordinates, recording view changes.
+
+    Chain A holds residues 10-13. Each residue is a 4 A cube of atoms offset
+    10 A along x per residue, so extents and centres are known exactly.
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.zoom = 100.0            # Coot's default
+        self.centre = None
+        self.go_to = None
+
+    def _atoms(self, resno):
+        x0 = 10.0 * resno
+        return [[[" CA ", ""], [1.0, 20.0, " C", ""], [x0, 0.0, 0.0], 0],
+                [[" CB ", ""], [1.0, 20.0, " C", ""], [x0 + 4.0, 4.0, 4.0], 1]]
+
+    def residue_info_py(self, imol, chain_id, resno, ins_code):
+        return self._atoms(resno) if 10 <= resno <= 13 else []
+
+    def chain_n_residues(self, chain_id, imol):
+        return 4 if chain_id == "A" else 0
+
+    def seqnum_from_serial_number(self, imol, chain_id, serial):
+        return 10 + serial
+
+    def n_chains(self, imol):
+        return 1
+
+    def chain_id_py(self, imol, ichain):
+        return "A"
+
+    def set_zoom(self, f):
+        self.zoom = f
+
+    def graphics_draw(self):
+        pass
+
+    def set_rotation_centre(self, x, y, z):
+        self.centre = (x, y, z)
+
+    def set_go_to_atom_molecule(self, imol):
+        pass
+
+    def set_go_to_atom_from_res_spec_py(self, spec):
+        self.go_to = tuple(spec)
+        return 1
+
+    def molecule_atom_overlaps_py(self, imol, n_max):
+        return getattr(self, "overlaps", [])
+
+
+@contextlib.contextmanager
+def _autozoom(enabled):
+    """Force autozoom on or off, restoring whatever it was."""
+    from coot_commands import focus
+    original = focus._autozoom
+    focus.set_autozoom(enabled)
+    try:
+        yield
+    finally:
+        focus._autozoom = original
+
+
+def test_zoom_is_derived_from_the_view_geometry():
+    from coot_commands import focus
+    # glOrtho makes the view 0.6 * zoom angstroms tall, so a selection of S
+    # angstroms with padding p needs zoom = S * p / 0.6.
+    assert focus.zoom_for_extent(12.0, padding=1.5) == 12.0 * 1.5 / 0.6
+    # Anything smaller than MIN_EXTENT is fitted as if it were MIN_EXTENT: a
+    # glycine is 3 A across and a view that tight shows nothing to judge it by.
+    assert focus.zoom_for_extent(3.0) == focus.zoom_for_extent(focus.MIN_EXTENT)
+    # The clamps only catch degenerate extents.
+    assert focus.zoom_for_extent(0.0) >= focus.MIN_ZOOM
+    assert focus.zoom_for_extent(100000.0) == focus.MAX_ZOOM
+    # A residue gets more relative space than a whole molecule: the padding
+    # around a residue is context you need, around a molecule just a margin.
+    assert focus.PADDING > focus.PADDING_WHOLE
+
+
+def test_points_extent_and_centre():
+    from coot_commands import focus
+    points = [(0.0, 0.0, 0.0), (4.0, 2.0, 0.0), (2.0, -2.0, 1.0)]
+    assert focus.points_extent(points) == 4.0        # widest axis is x
+    assert focus.centre_of(points) == (2.0, 0.0, 0.5)  # bounding-box middle
+    assert focus.points_extent([]) == 0.0
+    assert focus.centre_of([]) is None
+
+
+def test_sampling_bounds_the_work_and_keeps_both_ends():
+    from coot_commands import focus
+    sampled = focus._sampled(range(1, 301))
+    assert len(sampled) <= focus.MAX_SAMPLES
+    assert sampled[0] == 1 and sampled[-1] == 300    # extremes always included
+    assert focus._sampled([1, 2, 3]) == [1, 2, 3]    # short input unchanged
+
+
+def test_show_residue_centres_and_fits():
+    from coot_commands import focus
+    fake = _FakeFocus()
+    with _use_coot(fake, focus, scoring_mod):
+        zoom = focus.show_residue(0, "A", 11)
+    # Centring goes through the go-to-atom machinery so the residue also
+    # becomes the active one, rather than by moving the rotation centre.
+    assert fake.go_to == ("A", 11, "")
+    # The residue's atoms span 4 A, below MIN_EXTENT, so it fits as MIN_EXTENT.
+    assert zoom == focus.zoom_for_extent(4.0)
+    assert fake.zoom == zoom
+    assert zoom < 100.0                              # zoomed in from default
+
+
+def test_residue_framing_is_symmetric_about_the_centre():
+    """The whole residue must be inside the view, not pushed to one edge.
+
+    Centring on the intelligent atom (the CA) while sizing the zoom from the
+    bounding box frames a long side chain off-centre: its far tip lands at the
+    edge and anything it is clashing with falls off screen. Centring on the
+    bounding-box middle makes the usable radius symmetric.
+    """
+    from coot_commands import focus
+    fake = _FakeFocus()
+    with _use_coot(fake, focus, scoring_mod):
+        zoom = focus.show_residue(0, "A", 11)
+    points = fake._atoms(11)
+    middle = focus.centre_of([tuple(a[2]) for a in points])
+    assert fake.centre == middle              # not left on the CA
+    # Every atom is inside the vertical half-height.
+    half_height = 0.3 * zoom
+    for atom in points:
+        for value, mid in zip(atom[2], middle):
+            assert abs(value - mid) <= half_height
+
+
+def test_show_contact_frames_both_residues():
+    """A clash is a relationship: framing one partner is not enough."""
+    from coot_commands import focus
+    fake = _FakeFocus()
+    # Residues 10 and 13 are 30 A apart in x, so a view that fits only one of
+    # them cannot contain the other.
+    spec_1 = [0, "A", 10, "", " CB ", ""]
+    spec_2 = [0, "A", 13, "", " CA ", ""]
+    with _use_coot(fake, focus, scoring_mod):
+        zoom = focus.show_contact(0, spec_1, spec_2)
+        one_residue = focus.show_residue(0, "A", 10)
+    assert zoom is not None
+    assert zoom > one_residue                 # zoomed out to take both in
+    # The centre sits between them, not on either.
+    assert fake.centre is not None
+    assert 100.0 < fake.centre[0] < 134.0
+
+
+def test_go_to_clash_frames_the_pair_from_the_last_check():
+    from coot_commands import focus
+    fake = _FakeFocus()
+    fake.overlaps = [
+        {"overlap-volume": 9.0,
+         "atom-1-spec": [0, "A", 10, "", " CB ", ""],
+         "atom-2-spec": [0, "A", 13, "", " CA ", ""]},
+        {"overlap-volume": 3.0,
+         "atom-1-spec": [0, "A", 11, "", " CB ", ""],
+         "atom-2-spec": [0, "A", 12, "", " CA ", ""]},
+    ]
+    with _use_coot(fake, validation_mod, focus, scoring_mod):
+        listed = cli.run_command("check clashes")
+        framed = cli.run_command("go to clash 1")
+        missing = cli.run_command("go to clash 9")
+    assert "go to clash 1" in listed          # the result points the way
+    # Clash 1 is the LARGEST, so the pair 30 A apart, not the first listed.
+    assert "A/10 CB - A/13 CA" in framed
+    assert "does not exist" in missing
+
+
+def test_any_command_that_reports_clashes_leaves_them_navigable():
+    """Reporting a clash and not remembering it forces a needless re-search.
+
+    The overlap calculation covers the whole molecule and is the most
+    expensive thing here, so a command that has already paid for it must not
+    throw the result away - otherwise 'go to clash 1' fails and the only way
+    forward is to run the same search again.
+    """
+    from coot_commands import focus
+    overlaps = [
+        {"overlap-volume": 9.0,
+         "atom-1-spec": [0, "A", 10, "", " CB ", ""],
+         "atom-2-spec": [0, "A", 13, "", " CA ", ""]},
+    ]
+    for reporting_command in ("check clashes", "validate anomalies"):
+        fake = _FakeFocus()
+        fake.overlaps = overlaps
+        validation_mod._last_clashes = []          # nothing remembered yet
+        with _use_coot(fake, validation_mod, focus, scoring_mod):
+            reported = cli.run_command(reporting_command)
+            framed = cli.run_command("go to clash 1")
+        assert "A/10 CB - A/13 CA" in reported, reporting_command
+        # ...and the list it populated is the one go_to_clash reads.
+        assert "Framed clash 1" in framed, reporting_command
+        # The result says so, rather than leaving it to be guessed.
+        assert "go to clash 1" in reported, reporting_command
+
+
+def test_go_to_clash_needs_a_check_first():
+    from coot_commands import focus
+    validation_mod._last_clashes = []
+    with _use_coot(_FakeFocus(), validation_mod, focus, scoring_mod):
+        out = cli.run_command("go to clash 1")
+    # Both routes populate the list, so the error names both.
+    assert "check clashes" in out and "validate anomalies" in out
+
+
+def test_show_chain_fits_the_whole_chain():
+    from coot_commands import focus
+    fake = _FakeFocus()
+    with _use_coot(fake, focus, scoring_mod):
+        zoom = focus.show_chain(0, "A")
+        chain_centre = fake.centre        # before show_residue moves it again
+        # A chain must end up further out than a single residue of it.
+        residue_zoom = focus.show_residue(0, "A", 11)
+    # Residues 10-13 run from x=100 to x=134, so the chain spans 34 A.
+    assert zoom == focus.zoom_for_extent(34.0, padding=focus.PADDING_WHOLE)
+    assert chain_centre == (117.0, 2.0, 2.0)
+    assert zoom > residue_zoom
+
+
+def test_autozoom_follows_a_command_that_acts_on_a_residue():
+    """The point of the feature: the assistant works, and you see where."""
+    from coot_commands import focus
+    fake = _FakeFocus()
+    with _autozoom(True), _use_coot(fake, model_edit_mod, focus, scoring_mod):
+        cli.run_command("pepflip A 12")
+    assert fake.go_to == ("A", 12, "")
+    assert fake.zoom != 100.0        # moved off the default
+
+
+def test_autozoom_off_leaves_the_view_alone():
+    from coot_commands import focus
+    fake = _FakeFocus()
+    with _autozoom(False), _use_coot(fake, model_edit_mod, focus, scoring_mod):
+        cli.run_command("pepflip A 12")
+    assert fake.go_to is None
+    assert fake.zoom == 100.0
+    assert fake.centre is None
+
+
+def test_zoom_to_commands_work_regardless_of_autozoom():
+    # An explicit request is not a side effect, so the switch does not gate it.
+    from coot_commands import focus
+    fake = _FakeFocus()
+    with _autozoom(False), _use_coot(fake, view_mod, focus, scoring_mod):
+        out = cli.run_command("zoom to A/11")
+    assert "Zoomed to A/11" in out
+    assert fake.go_to == ("A", 11, "")
+
+
+def test_autozoom_command_reports_and_sets_state():
+    from coot_commands import focus
+    with _autozoom(True), _use_coot(_FakeFocus(), view_mod, focus):
+        assert "Autozoom is on" in cli.run_command("autozoom")
+        assert "Turned autozoom off" in cli.run_command("autozoom off")
+        assert "Autozoom is off" in cli.run_command("autozoom")
+        assert "Turned autozoom on" in cli.run_command("auto zoom on")
+
+
+# --- load tutorial ----------------------------------------------------------
+
+class _FakeTutorial(_FakeCoot):
+    """An empty session in which loading the tutorial adds three molecules.
+
+    Before the load there is nothing; afterwards there is a model at 0, a
+    2Fo-Fc map at 1 and an Fo-Fc difference map at 2 - what Coot's
+    load_tutorial_model_and_data() actually produces.
+    """
+
+    NAMES = {0: "tutorial-modern", 1: "rnasa-1.8 FWT", 2: "rnasa-1.8 DELFWT"}
+
+    def __init__(self, preloaded=0):
+        # preloaded: how many molecules already exist before the tutorial is
+        # loaded, so the "only report what this command added" case is testable.
+        self.n = preloaded
+        self.loaded = False
+        self.updating = None
+
+    def graphics_n_molecules(self):
+        return self.n
+
+    def is_valid_model_molecule(self, i):
+        return 1 if (self.loaded and i == 0) else 0
+
+    def is_valid_map_molecule(self, i):
+        return 1 if (self.loaded and i in (1, 2)) else 0
+
+    def map_is_difference_map(self, imol):
+        return 1 if imol == 2 else 0
+
+    def molecule_name_stub_py(self, imol, include_path_flag):
+        return self.NAMES.get(imol, "")
+
+    def molecule_name(self, imol):
+        return self.NAMES.get(imol, "")
+
+    def load_tutorial_model_and_data(self):
+        self.loaded = True
+        self.n = 3
+
+    # --- what "set updating maps on" needs -------------------------------
+    def active_residue_py(self):
+        return [0, "A", 10, "", " CA "]
+
+    def imol_refinement_map(self):
+        return 1 if self.loaded else -1
+
+    def set_auto_updating_sfcalc_genmap(self, imol_model, imol_data, imol_diff):
+        self.updating = (imol_model, imol_data, imol_diff)
+
+
+def test_load_tutorial_loads_both_and_starts_updating_maps():
+    fake = _FakeTutorial()
+    with _use_coot(fake, session_mod, settings_mod):
+        out = cli.run_command("load tutorial")
+    assert fake.loaded
+    # The summary names the model and both maps, labelled by kind.
+    assert "model 0 (tutorial-modern)" in out
+    assert "2Fo-Fc map 1" in out
+    assert "Fo-Fc difference map 2" in out
+    # ...and updating maps is wired to (model, data map, difference map).
+    assert fake.updating == (0, 1, 2)
+    assert "Turned on updating maps" in out
+
+
+def test_load_tutorial_phrasings_all_load_both():
+    for phrasing in ("load tutorial", "load tutorial model",
+                     "load tutorial data", "load tutorial model and data"):
+        fake = _FakeTutorial()
+        with _use_coot(fake, session_mod, settings_mod):
+            out = cli.run_command(phrasing)
+        assert fake.loaded, phrasing
+        assert "2Fo-Fc map 1" in out and "model 0" in out, phrasing
+
+
+def test_load_tutorial_reports_only_what_it_added():
+    # Two molecules already open: the summary must not claim them.
+    fake = _FakeTutorial(preloaded=2)
+    with _use_coot(fake, session_mod, settings_mod):
+        out = cli.run_command("load tutorial")
+    # Molecules 0-2 are the tutorial's here; what matters is that the summary
+    # is built from the difference, so nothing that pre-existed is listed.
+    assert out.count("model ") >= 1
+    assert fake.loaded
+
+
+def test_load_tutorial_still_reports_when_updating_maps_cannot_start():
+    # No difference map, so updating maps cannot be wired up - but the data
+    # did load, and the command must say so rather than read as a failure.
+    fake = _FakeTutorial()
+    fake.map_is_difference_map = lambda imol: 0
+    with _use_coot(fake, session_mod, settings_mod):
+        out = cli.run_command("load tutorial")
+    assert fake.loaded
+    assert "Loaded the tutorial" in out
+    assert "Could not turn on updating maps" in out
+    assert "set updating maps on" in out
+    assert fake.updating is None
+
+
 def test_refine_b_factors_needs_a_map():
     fake = _FakeCootFull()
     fake.imol_refinement_map = lambda: -1   # no refinement map set
     with _use_coot(fake, refine_mod):
         out = cli.run_command("refine b-factors")
         assert "no map set for refinement" in out
+
+
+# --- residue scoring and the fixing procedures ------------------------------
+#
+# These exercise coot_commands.scoring (the measurement the assistant needs to
+# tell whether a fit helped) and coot_commands.commands.fix (the procedure that
+# uses it).  The fake below is a tiny state machine: residue A/45 has a score
+# and a set of coordinates *per stage*, and calling auto_fit_best_rotamer or
+# backrub_rotamer advances the stage.  A test therefore says "the backrub is
+# the move that helps here" simply by choosing the numbers.
+
+
+class _FakeFitting(_FakeCootFull):
+    """A model in which fitting A/45 moves it between scored stages."""
+
+    #: Coordinates are keyed by stage, so a revert is observable: restoring
+    #: the "start" x values must put the fake back in the "start" stage.
+    X = {"start": 10.0, "autofit": 20.0, "backrub": 30.0}
+
+    def __init__(self, scores, res_name="LEU"):
+        super().__init__()
+        self.scores = scores          # stage -> (rotamer percent, density fit)
+        self.stage = "start"
+        self.res_name = res_name
+        self.overlaps = []
+        self.calls = []
+
+    # --- reading ---------------------------------------------------------
+    def residue_name(self, imol, chain_id, resno, ins_code):
+        return self.res_name if resno == 45 else "ALA"
+
+    def residue_info_py(self, imol, chain_id, resno, ins_code):
+        x = self.X[self.stage] if resno == 45 else float(resno)
+        return [[[" CA ", ""], [1.0, 20.0, " C", ""], [x, 0.0, 0.0], 0],
+                [[" CB ", ""], [1.0, 25.0, " C", ""], [x + 1.0, 0.0, 0.0], 1]]
+
+    def rotamer_score(self, imol, chain_id, resno, ins_code, alt_conf):
+        return self.scores[self.stage][0]
+
+    def density_score_residue_py(self, imol, spec, imol_map):
+        return self.scores[self.stage][1]
+
+    def molecule_atom_overlaps_py(self, imol, n_max):
+        return self.overlaps
+
+    # --- fitting ---------------------------------------------------------
+    def auto_fit_best_rotamer(self, imol, chain_id, resno, ins_code, alt_conf,
+                              imol_map, clash_flag, lowest_probability):
+        self.calls.append("autofit")
+        self.stage = "autofit"
+        return self.scores["autofit"][0]
+
+    def backrub_rotamer(self, imol, chain_id, resno, ins_code, alt_conf):
+        self.calls.append("backrub")
+        self.stage = "backrub"
+
+    def set_atom_attributes_py(self, settings):
+        self.calls.append("restore")
+        # Reverting writes coordinates back; work out which stage those
+        # coordinates belong to, so the fake ends up in that stage.
+        for (_imol, _chain, resno, _ins, _name, _alt, attr, value) in settings:
+            if resno == 45 and attr == "x":
+                for stage, x in self.X.items():
+                    if abs(value - x) < 1e-6:
+                        self.stage = stage
+                        return
+
+
+def _fitting(fake):
+    """Patch *fake* into every module the fixing commands read coot from."""
+    return _use_coot(fake, fix_mod, scoring_mod)
+
+
+def test_score_residue_reports_rotamer_and_density():
+    fake = _FakeFitting({"start": (0.2, 12.0)})
+    fake.overlaps = [
+        {"overlap-volume": 2.5, "atom-1-spec": [0, "A", 45, "", " CB ", ""],
+         "atom-2-spec": [0, "A", 88, "", " OD1", ""]},
+        {"overlap-volume": 9.9, "atom-1-spec": [0, "B", 12, "", " CG ", ""],
+         "atom-2-spec": [0, "B", 60, "", " NE2", ""]},   # a different residue
+    ]
+    with _fitting(fake):
+        out = cli.run_command("score residue A/45")
+    assert "A/45 LEU" in out
+    assert "0.20%" in out and "outlier" in out
+    assert "density fit 12.00 over 2 atoms" in out
+    # Only the overlap that names A/45 counts towards its clash volume.
+    assert "2.5 A^3" in out
+
+
+def test_rotamer_bands_depend_on_the_residue_type():
+    """A flat cut-off cannot judge rotamers: the achievable score varies.
+
+    The more rotamers a residue type has, the lower every individual
+    probability becomes - arginine's best possible score is about 9% where
+    valine's is about 73% - so one threshold either excuses a badly-placed
+    valine or condemns every arginine. These are the worked examples from
+    mcp/docs/skills/validation/SKILL.md.
+    """
+    from coot_commands.scoring import ResidueScore, rotamer_band_for
+
+    def band(res_name, score):
+        return ResidueScore(0, "A", 1, "", res_name, score, None, 0).rotamer_band
+
+    assert band("VAL", 40.0) == "favoured"     # skill: good
+    assert band("VAL", 5.0) == "outlier"       # skill: terrible
+    assert band("LEU", 30.0) == "favoured"     # skill: good
+    assert band("ARG", 5.0) == "favoured"      # skill: good
+    assert band("ARG", 0.5) == "outlier"       # skill: poor
+    # The same number means opposite things for different types - which is the
+    # whole point, and what a single threshold cannot express.
+    assert band("VAL", 5.0) != band("ARG", 5.0)
+    # An unknown type (a modified residue) gets the middle of the range rather
+    # than being flagged or excused on no evidence.
+    assert rotamer_band_for("XYZ") == rotamer_band_for("LEU")
+
+
+def test_score_residue_reports_the_thresholds_it_used():
+    # The model reads this string with no other context, so the bands have to
+    # travel with the number - and say that they are type-specific.
+    fake = _FakeFitting({"start": (0.2, 12.0)}, res_name="ARG")
+    with _fitting(fake):
+        out = cli.run_command("score residue A/45")
+    assert "for ARG outlier is below 2.5%" in out
+    assert "do not compare them across types" in out
+
+
+def test_score_residue_says_when_there_is_no_rotamer():
+    fake = _FakeFitting({"start": (0.0, 8.0)}, res_name="GLY")
+    with _fitting(fake):
+        out = cli.run_command("score residue A/45")
+    assert "no side-chain rotamer" in out
+
+
+def test_fix_rotamer_keeps_the_autofit_when_it_helps():
+    # Auto-fit clears the outlier; the backrub then makes things worse.
+    fake = _FakeFitting({"start": (0.1, 10.0), "autofit": (25.0, 18.0),
+                         "backrub": (20.0, 11.0)})
+    with _fitting(fake):
+        out = cli.run_command("fix rotamer A/45")
+    assert fake.calls[:2] == ["autofit", "backrub"]
+    assert "restore" in fake.calls          # the backrub was rolled back
+    assert fake.stage == "autofit"
+    assert "Kept the auto-fit result" in out
+    assert "rotamer 0.10% -> 25.00%" in out
+
+
+def test_fix_rotamer_keeps_the_backrub_when_the_autofit_is_not_enough():
+    # Auto-fit leaves it an outlier; the backrub rescues it.
+    fake = _FakeFitting({"start": (0.1, 10.0), "autofit": (0.2, 12.0),
+                         "backrub": (14.0, 16.0)})
+    with _fitting(fake):
+        out = cli.run_command("fix rotamer A/45")
+    assert fake.stage == "backrub"
+    assert "restore" not in fake.calls      # the best result is the current one
+    assert "Kept the backrub result" in out
+
+
+def test_fix_rotamer_reverts_when_nothing_improves():
+    # Both moves make it worse, so the residue must end up as it started.
+    fake = _FakeFitting({"start": (5.0, 20.0), "autofit": (0.1, 9.0),
+                         "backrub": (0.2, 8.0)})
+    with _fitting(fake):
+        out = cli.run_command("fix rotamer A/45")
+    assert fake.stage == "start"
+    assert "left as it was" in out
+
+
+def test_fix_rotamer_ignores_noise_level_density_changes():
+    # A 1% density gain with no change of rotamer band is within the margin,
+    # so it does not count as an improvement and the original is kept.
+    fake = _FakeFitting({"start": (5.0, 20.0), "autofit": (5.0, 20.2),
+                         "backrub": (5.0, 20.1)})
+    with _fitting(fake):
+        out = cli.run_command("fix rotamer A/45")
+    assert fake.stage == "start"
+    assert "left as it was" in out
+
+
+def test_fix_rotamer_declines_a_residue_with_no_rotamer():
+    fake = _FakeFitting({"start": (0.0, 8.0)}, res_name="GLY")
+    with _fitting(fake):
+        out = cli.run_command("fix rotamer A/45")
+    assert "no side-chain rotamer" in out
+    assert fake.calls == []                 # nothing was fitted
+
+
+def test_fix_rotamer_needs_a_refinement_map():
+    fake = _FakeFitting({"start": (0.1, 10.0)})
+    fake.imol_refinement_map = lambda: -1
+    with _fitting(fake):
+        out = cli.run_command("fix rotamer A/45")
+    assert "no map set for fitting" in out
+
+
+def test_fix_rotamer_survives_a_failing_backrub():
+    fake = _FakeFitting({"start": (0.1, 10.0), "autofit": (25.0, 18.0)})
+
+    def boom(*args):
+        raise RuntimeError("backrub exploded")
+
+    fake.backrub_rotamer = boom
+    with _fitting(fake):
+        out = cli.run_command("fix rotamer A/45")
+    assert "Backrub failed" in out
+    assert "Kept the auto-fit result" in out
+
+
+def test_capture_and_restore_positions_covers_the_neighbours():
+    # A backrub moves the flanking residues too, so the window that is saved
+    # and restored has to span them.
+    fake = _FakeFitting({"start": (1.0, 10.0)})
+    with _fitting(fake):
+        saved = scoring_mod.capture_positions(0, "A", [44, 45, 46])
+        n = scoring_mod.restore_positions(0, saved)
+    resnos = sorted({entry[1] for entry in saved})
+    assert resnos == [44, 45, 46]
+    assert n == len(saved)
 
 
 def _run():

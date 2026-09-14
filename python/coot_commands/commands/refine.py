@@ -47,6 +47,11 @@ def _refine_zone(imol: int, chain_id: str, res1: int, res2: int) -> str:
     if coot.imol_refinement_map() < 0:
         raise CommandError("no map set for refinement - open a map first")
     lo, hi = (res1, res2) if res1 <= res2 else (res2, res1)
+    # Frame what is about to move: a range needs the whole span in view, not
+    # just one residue of it. No-op when autozoom is off (coot_commands.focus).
+    from coot_commands.focus import autozoom_enabled, show_span
+    if autozoom_enabled():
+        show_span(imol, chain_id, lo, hi)
     replacement_state = coot.refinement_immediate_replacement_state()
     coot.set_refinement_immediate_replacement(1)
     try:
