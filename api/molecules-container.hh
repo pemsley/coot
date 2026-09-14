@@ -3584,6 +3584,8 @@ public:
    //! @param n_residue_per_residue_range is the number of residues in the residue range. 11
    //!        is a reasonable number for a smooth plot
    //! @param imol_map is the map molecule index
+   //! @return a vector of stats for the mainchain in first and
+   //!         a vector of stats for the sidechains in second
 #ifdef SWIG
 #else
    std::pair<std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t>,
@@ -4238,6 +4240,18 @@ public:
    //!        and molecule
    //! @return the new molecule index or -1 on failure
    int pyrogen_from_rdkit_mol_pickle_base64(const std::string &rdkit_mol_pickled_string, const std::string &compound_id);
+
+   //! Write a minimal CCD-style mmCIF from an RDKit molecule pickle (base64) -
+   //! the input format for external dictionary generators (acedrg -c,
+   //! pyrogen --mmcif). Atom names carried on the molecule are preserved.
+   //!
+   //! @param rdkit_mol_pickled_string base64-encoded RDKit binary pickle
+   //! @param compound_id the _chem_comp.id for the written file
+   //! @param file_name the output file name
+   //! @return 1 on success, 0 on failure
+   int write_acedrg_input_mmcif_from_rdkit_mol_pickle_base64(const std::string &rdkit_mol_pickled_string,
+                                                             const std::string &compound_id,
+                                                             const std::string &file_name);
 
    // -------------------------------- Other ---------------------------------------
 

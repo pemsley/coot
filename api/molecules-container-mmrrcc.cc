@@ -17,6 +17,7 @@ molecules_container_t::mmrrcc_internal(const atom_selection_container_t &asc,
       coot::util::map_to_model_correlation_stats_per_residue_run(asc.mol, chain_id, xmap,
                                                                  n_residue_per_residue_range, exclude_NOC,
                                                                  atom_mask_radius, NOC_mask_radius);
+
    std::cout << "INFO:: We got " << residue_stats.first.size()  << " residue all-atom correlations"   << std::endl;
    std::cout << "INFO:: We got " << residue_stats.second.size() << " residue side-chain correlations" << std::endl;
 

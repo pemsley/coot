@@ -31,6 +31,7 @@
 #include <clipper/core/map_interp.h>
 
 #include "crowther.hh"
+#include "utils/coot-utils.hh"
 #include "utils/split-indices.hh"
 
 using namespace coot;
@@ -470,7 +471,7 @@ void crowther_t::precompute_c_coefficients() {
    // Parallelise over radial shells, each thread accumulates its own c_coeffs,
    // then merge.
 
-   unsigned int n_threads = std::thread::hardware_concurrency();
+   unsigned int n_threads = coot::get_max_number_of_threads();
    if (n_threads == 0) n_threads = 4;
    if (n_threads > static_cast<unsigned int>(n_radial_)) n_threads = n_radial_;
 
@@ -584,7 +585,7 @@ crowther_t::refine_orientations(const std::vector<rotation_function_result_t> &c
 
    std::vector<rotation_function_result_t> refined(n);
 
-   unsigned int n_threads = std::thread::hardware_concurrency();
+   unsigned int n_threads = coot::get_max_number_of_threads();
    if (n_threads == 0) n_threads = 4;
    if (n_threads > static_cast<unsigned int>(n)) n_threads = n;
 
@@ -678,7 +679,7 @@ crowther_t::compute(int n_beta) {
    // --- Step 4: Evaluate R(alpha, beta, gamma) by 2D DFT ---
    // Parallelise over beta values using std::thread.
 
-   unsigned int n_threads = std::thread::hardware_concurrency();
+   unsigned int n_threads = coot::get_max_number_of_threads();
    if (n_threads == 0) n_threads = 4;
    if (n_threads > static_cast<unsigned int>(n_beta)) n_threads = n_beta;
 

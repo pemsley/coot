@@ -53,7 +53,7 @@ struct GeneratorRequest {
     std::string monomer_id;
     std::string molecule_smiles;
     /// For InputFormat::MmCIF: the CCD-style mmCIF text, pre-rendered from
-    /// the canvas molecule (see ccd_export.hpp) so that atom names and the
+    /// the canvas molecule (see coot-utils/acedrg-input-mmcif.hh) so that atom names and the
     /// drawn 2D layout survive - the SMILES round-trip used by the other
     /// formats loses both.
     std::optional<std::string> mmcif_input_contents;

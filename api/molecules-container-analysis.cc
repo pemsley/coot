@@ -65,7 +65,7 @@ molecules_container_t::rotamer_analysis(int imol_model) const {
 
    coot::validation_information_t r;
    r.name = "Rotamer analysis";
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
    r.type = "PROBABILITY";
 #else
    r.type = coot::PROBABILITY;
@@ -162,7 +162,7 @@ molecules_container_t::ramachandran_analysis(int imol_model) const {
 
    coot::validation_information_t vi;
    vi.name = "Ramachandran plot Probability";
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
    vi.type = "PROBABILITY";
 #else
    vi.type = coot::PROBABILITY;
@@ -196,11 +196,12 @@ molecules_container_t::ramachandran_analysis_for_chain(int imol_model, const std
 
    coot::validation_information_t vi;
    vi.name = "Ramachandran plot Probability";
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
    vi.type = "PROBABILITY";
 #else
    vi.type = coot::PROBABILITY;
 #endif
+
    std::vector<coot::phi_psi_prob_t> rv = ramachandran_validation(imol_model);
 
    for (unsigned int i=0; i<rv.size(); i++) {
@@ -230,7 +231,7 @@ molecules_container_t::peptide_omega_analysis(int imol) const {
 
    coot::validation_information_t vi;
    vi.name = "Peptide Omega Deviation";
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
    vi.type = "TORSION_ANGLE";
 #else
    vi.type = coot::TORSION_ANGLE;

@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <unordered_map>
 #include <sstream>
+#include <functional>
 
 #include <stdlib.h> // for getenv()
 #include <nanobind/nanobind.h>
@@ -17,10 +18,6 @@
 
 #include <clipper/core/ramachandran.h>
 #include <clipper/clipper-ccp4.h>
-
-// #include "coot-docstring-extract.hh"
-
-#include "utils/coot-utils.hh"
 
 #include "mini-mol/mini-mol-utils.hh"
 
@@ -112,6 +109,14 @@ void other_setup_code() {
    // std::cout << "DEBUG:: in other_setup_code(): lib_dir is " << lib_dir.string() << std::endl;
    // coot::set_package_data_dir(lib_dir.string());
 
+}
+
+// used by the __repr__ functions: a float with a sensible number of digits
+static std::string repr_float(double f, int precision=4) {
+   std::ostringstream ss;
+   ss.precision(precision);
+   ss << std::fixed << f;
+   return ss.str();
 }
 
 NB_MODULE(coot_headless_api, m) {
@@ -825,10 +830,13 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::get_molecule_selection_as_json,
          nb::arg("imol"), nb::arg("cid"),
          get_docstring_from_xml("get_molecule_selection_as_json").c_str())
-    .def("get_torsions_for_residues_in_chain",
-         &molecules_container_t::get_torsions_for_residues_in_chain,
-         nb::arg("imol"), nb::arg("chain_id"),
-         "Get torsion angles (phi, psi, tau, chi) for residues in a chain as JSON")
+    .def("get_mmrrcc",
+         &molecules_container_t::get_mmrrcc,
+         nb::arg("imol"),
+         nb::arg("chain_id"),
+         nb::arg("n_residues_per_residue"),
+         nb::arg("imol_map"),
+         get_docstring_from_xml("get_mmrrcc").c_str())
     .def("get_monomer",
          &molecules_container_t::get_monomer,
          nb::arg("monomer_name"),
@@ -987,6 +995,10 @@ NB_MODULE(coot_headless_api, m) {
     .def("get_torsion_restraints_weight",
          &molecules_container_t::get_torsion_restraints_weight,
          get_docstring_from_xml("get_torsion_restraints_weight").c_str())
+    .def("get_torsions_for_residues_in_chain",
+         &molecules_container_t::get_torsions_for_residues_in_chain,
+         nb::arg("imol"), nb::arg("chain_id"),
+         "Get torsion angles (phi, psi, tau, chi) for residues in a chain as JSON")
     .def("get_triangles_for_blender",
          &molecules_container_t::get_triangles_for_blender,
          nb::arg("imol"),
@@ -1121,6 +1133,9 @@ NB_MODULE(coot_headless_api, m) {
          get_docstring_from_xml("mmcif_tests").c_str())
     .def("mmrrcc",
          &molecules_container_t::mmrrcc,
+         nb::arg("imol"),
+         nb::arg("chain_id"),
+         nb::arg("imol_map"),
          get_docstring_from_xml("mmrrcc").c_str())
     .def("molecular_placement_fit",
          &molecules_container_t::molecular_placement_fit,
@@ -1181,6 +1196,10 @@ NB_MODULE(coot_headless_api, m) {
             &molecules_container_t::pyrogen_from_rdkit_mol_pickle_base64,
             nb::arg("rdkit_mol_pickled_string"), nb::arg("compound_id"),
             get_docstring_from_xml("pyrogen_from_rdkit_mol_pickle_base64").c_str())
+    .def("write_acedrg_input_mmcif_from_rdkit_mol_pickle_base64",
+            &molecules_container_t::write_acedrg_input_mmcif_from_rdkit_mol_pickle_base64,
+            nb::arg("rdkit_mol_pickled_string"), nb::arg("compound_id"), nb::arg("file_name"),
+            get_docstring_from_xml("write_acedrg_input_mmcif_from_rdkit_mol_pickle_base64").c_str())
     .def("pyrogen_from_ccd_file",
             &molecules_container_t::pyrogen_from_ccd_file,
             nb::arg("ccd_file_name"),
@@ -1602,6 +1621,24 @@ NB_MODULE(coot_headless_api, m) {
     .def_ro("type", &coot::validation_information_t::type)
     .def_ro("cviv", &coot::validation_information_t::cviv)
     .def("get_index_for_chain",&coot::validation_information_t::get_index_for_chain)
+    .def("__repr__", [](const coot::validation_information_t &vi) {
+       unsigned int n_residues = 0;
+       for (const auto &cvi : vi.cviv) n_residues += cvi.rviv.size();
+       std::string type_name = "Unset";
+       switch (vi.type) {
+       case coot::graph_data_type::DENSITY:         type_name = "Density";        break;
+       case coot::graph_data_type::DISTORTION:      type_name = "Distortion";     break;
+       case coot::graph_data_type::ENERGY:          type_name = "Energy";         break;
+       case coot::graph_data_type::PROBABILITY:     type_name = "Probability";    break;
+       case coot::graph_data_type::CORRELATION:     type_name = "Correlation";    break;
+       case coot::graph_data_type::LOG_PROBABILITY: type_name = "LogProbability"; break;
+       case coot::graph_data_type::TORSION_ANGLE:   type_name = "TorsionAngle";   break;
+       default: break;
+       }
+       std::string r = "validation_information_t(name=\"" + vi.name + "\", type=" + type_name +
+                       ", chains=" + std::to_string(vi.cviv.size()) + ", residues=" + std::to_string(n_residues) + ")";
+       return r;
+    })
     ;
     nb::enum_<coot::restraint_type_t>(m, "restraint_type")
        .value("Bond", coot::restraint_type_t::BOND_RESTRAINT)
@@ -1657,6 +1694,14 @@ NB_MODULE(coot_headless_api, m) {
     .def_ro("ligand_idx", &molecules_container_t::fit_ligand_info_t::ligand_idx)
     .def("get_fitting_score", &molecules_container_t::fit_ligand_info_t::get_fitting_score)
     .def("get_cluster_volume", &molecules_container_t::fit_ligand_info_t::get_cluster_volume)
+    .def("__repr__", [](const molecules_container_t::fit_ligand_info_t &fli) {
+       std::string r = "fit_ligand_info_t(imol=" + std::to_string(fli.imol) +
+                       ", cluster_idx=" + std::to_string(fli.cluster_idx) +
+                       ", ligand_idx=" + std::to_string(fli.ligand_idx) +
+                       ", fitting_score=" + repr_float(fli.fitting_score) +
+                       ", cluster_volume=" + repr_float(fli.cluster_volume, 1) + ")";
+       return r;
+    })
     ;
     nb::class_<coot::residue_spec_t>(m,"residue_spec_t")
     .def(nb::init<const std::string &, int, const std::string &>())
@@ -1668,6 +1713,20 @@ NB_MODULE(coot_headless_api, m) {
     .def_rw("float_user_data",&coot::residue_spec_t::float_user_data)
     .def_rw("string_user_data",&coot::residue_spec_t::string_user_data)
     .def("format", &coot::residue_spec_t::format)
+    .def("__repr__", [](const coot::residue_spec_t &rs) {
+       std::string r = "residue_spec_t(\"" + rs.chain_id + "\", " + std::to_string(rs.res_no) + ", \"" + rs.ins_code + "\")";
+       return r;
+    })
+    .def("__eq__", [](const coot::residue_spec_t &a, const coot::residue_spec_t &b) {
+       return a == b; // chain_id, res_no, ins_code (not model_number)
+    }, nb::is_operator())
+    .def("__hash__", [](const coot::residue_spec_t &rs) {
+       // must be consistent with __eq__: same three fields, model_number ignored
+       size_t h = std::hash<std::string>()(rs.chain_id);
+       h ^= std::hash<int>()(rs.res_no)          + 0x9e3779b9 + (h << 6) + (h >> 2);
+       h ^= std::hash<std::string>()(rs.ins_code) + 0x9e3779b9 + (h << 6) + (h >> 2);
+       return h;
+    })
     ;
     nb::class_<coot::atom_spec_t>(m,"atom_spec_t")
     .def(nb::init<const std::string &, int, const std::string &, const std::string &, const std::string &>())
@@ -1681,6 +1740,11 @@ NB_MODULE(coot_headless_api, m) {
     .def_rw("string_user_data",&coot::atom_spec_t::string_user_data)
     .def_rw("model_number",&coot::atom_spec_t::model_number)
     .def("format", &coot::atom_spec_t::format)
+    .def("__repr__", [](const coot::atom_spec_t &as) {
+       std::string r = "atom_spec_t(\"" + as.chain_id + "\", " + std::to_string(as.res_no) + ", \"" + as.ins_code +
+                       "\", \"" + as.atom_name + "\", \"" + as.alt_conf + "\")";
+       return r;
+    })
     ;
     nb::class_<coot::pdbqt::pose_score_t>(m,"pose_score_t")
     .def(nb::init<>())
@@ -1822,6 +1886,12 @@ NB_MODULE(coot_headless_api, m) {
     nb::class_<coot::instanced_mesh_t>(m,"instanced_mesh_t")
     .def_ro("geom",   &coot::instanced_mesh_t::geom)
     .def_ro("markup", &coot::instanced_mesh_t::markup)
+    .def("__repr__", [](const coot::instanced_mesh_t &im) {
+       std::string r = "instanced_mesh_t(geom=" + std::to_string(im.geom.size()) +
+                       ", markup_vertices=" + std::to_string(im.markup.vertices.size()) +
+                       ", markup_triangles=" + std::to_string(im.markup.triangles.size()) + ")";
+       return r;
+    })
     ;
     nb::class_<coot::acedrg_types_for_bond_t>(m,"acedrg_types_for_bond_t")
        .def_ro("atom_id_1",   &coot::acedrg_types_for_bond_t::atom_id_1)
@@ -1936,6 +2006,11 @@ NB_MODULE(coot_headless_api, m) {
     .def_ro("triangles", &coot::simple_mesh_t::triangles)
     .def_ro("status",    &coot::simple_mesh_t::status)
     .def_ro("name",      &coot::simple_mesh_t::name)
+    .def("__repr__", [](const coot::simple_mesh_t &sm) {
+       std::string r = "simple_mesh_t(name=\"" + sm.name + "\", vertices=" + std::to_string(sm.vertices.size()) +
+                       ", triangles=" + std::to_string(sm.triangles.size()) + ", status=" + std::to_string(sm.status) + ")";
+       return r;
+    })
     ;
     // nb::class_<coot::blender_mesh_t>(m,"blender_mesh_t")
     //    .def_ro("vertices",  &coot::blender_mesh_t::vertices)
@@ -1976,6 +2051,11 @@ NB_MODULE(coot_headless_api, m) {
     .def("var_x",         &coot::util::density_correlation_stats_info_t::var_x)
     .def("var_y",         &coot::util::density_correlation_stats_info_t::var_y)
     .def("correlation",   &coot::util::density_correlation_stats_info_t::correlation)
+    .def("__repr__", [](const coot::util::density_correlation_stats_info_t &dcs) {
+       std::string r = "density_correlation_stats_info_t(n=" + std::to_string(static_cast<long>(dcs.n)) +
+                       ", correlation=" + repr_float(dcs.correlation()) + ")";
+       return r;
+    })
     ;
 
     nb::class_<superpose_results_t>(m,"superpose_results_t")
@@ -2049,6 +2129,16 @@ NB_MODULE(coot_headless_api, m) {
     .def_ro("x", &coot::molecule_t::interesting_place_t::x)
     .def_ro("y", &coot::molecule_t::interesting_place_t::y)
     .def_ro("z", &coot::molecule_t::interesting_place_t::z)
+    .def("__repr__", [](const coot::molecule_t::interesting_place_t &ip) {
+       const coot::residue_spec_t &rs = ip.residue_spec;
+       std::string r = "interesting_place_t(feature_type=\"" + ip.feature_type +
+                       "\", residue_spec=residue_spec_t(\"" + rs.chain_id + "\", " + std::to_string(rs.res_no) + ", \"" + rs.ins_code + "\")" +
+                       ", feature_value=" + repr_float(ip.feature_value) +
+                       ", badness=" + repr_float(ip.badness, 2) +
+                       ", position=(" + repr_float(ip.x, 2) + ", " + repr_float(ip.y, 2) + ", " + repr_float(ip.z, 2) + ")" +
+                       ", button_label=\"" + ip.button_label + "\")";
+       return r;
+    })
     ;
     nb::class_<coot::api::moved_residue_t>(m,"moved_residue_t")
     .def(nb::init<const std::string&, int, const std::string&>())

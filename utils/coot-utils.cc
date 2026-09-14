@@ -191,7 +191,7 @@ coot::util::create_directory(const std::string &dir_name_in) {
       istat = mkdir(dir_name.c_str());
 #else
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
       mode_t mkdir_mode = 0755;
       istat = mkdir(dir_name.c_str(), mkdir_mode);
 #else

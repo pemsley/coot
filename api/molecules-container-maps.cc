@@ -214,7 +214,7 @@ molecules_container_t::density_fit_analysis(int imol_model, int imol_map) const 
 
    coot::validation_information_t r;
    r.name = "Density fit analysis";
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
    r.type = "DENSITY";
 #else
    r.type = coot::DENSITY;
@@ -326,7 +326,7 @@ molecules_container_t::density_correlation_analysis(int imol_model, int imol_map
 
    coot::validation_information_t r;
    r.name = "Density correlation analysis";
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
    r.type = "CORRELATION";
 #else
    r.type = coot::CORRELATION;

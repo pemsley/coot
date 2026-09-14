@@ -1599,15 +1599,16 @@ molecules_container_t::servalcat_refine_xray(int imol, int imol_map, const std::
 
 int
 molecules_container_t::servalcat_refine_xray_internal(int imol, int imol_map, const std::string &output_prefix,
-                                                      const std::map<std::string, std::string> &key_value_pairs) {
+                                                      const std::map<std::string, std::string> &key_value_pairs_in) {
 
    int imol_refined_model = -1;
 
    if (is_valid_model_molecule(imol)) {
       if (is_valid_map_molecule(imol_map)) {
 
+
          bool ligand_given_in_keywords = false;
-         for (const auto &kv : key_value_pairs)
+         for (const auto &kv : key_value_pairs_in)
             if (kv.first == "ligand")
                ligand_given_in_keywords = true;
 
@@ -1616,8 +1617,8 @@ molecules_container_t::servalcat_refine_xray_internal(int imol, int imol_map, co
          // the format for the model files that we interchange with servalcat:
          // "pdb" (default) or "mmcif"
          std::string internal_interchange_format = "pdb";
-         if (! key_value_pairs.empty()) {
-            for (const auto &kv : key_value_pairs) {
+         if (! key_value_pairs_in.empty()) {
+            for (const auto &kv : key_value_pairs_in) {
                if (kv.first == "weight") {
                   set_weight = true;
                   weight_str = kv.second;
@@ -1634,6 +1635,16 @@ molecules_container_t::servalcat_refine_xray_internal(int imol, int imol_map, co
             }
          }
          bool use_mmcif = (internal_interchange_format == "mmcif");
+
+         // now strip out the "Coot-internals" part of the  key_value_pairs, so they
+         // don't get passed to servalcat.
+         std::map<std::string, std::string> key_value_pairs;
+         for (const auto &kv : key_value_pairs_in) {
+            const std::string &key  = kv.first;
+            const std::string &data = kv.second;
+            if (key != "internal_interchange_format")
+               key_value_pairs[key] = data;
+         }
 
          // write the model for servalcat in the requested format. For mmcif we go
          // via a gemmi::Structure. Returns 0 on success (mmdb WritePDBASCII convention).

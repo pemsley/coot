@@ -28,7 +28,6 @@ pkginclude_HEADERS = \
 	ui.hpp \
 	utils.hpp \
 	file_io.hpp \
-	ccd_export.hpp \
 	state.hpp \
 	qed.hpp \
 	ligand_editor_canvas/core.hpp  \
@@ -51,7 +50,6 @@ libcoot_layla_la_SOURCES = \
 	ui.cpp \
 	utils.cpp \
 	file_io.cpp \
-	ccd_export.cpp \
 	qed.cpp \
 	ligand_editor_canvas/core.cpp \
 	ligand_editor_canvas.cpp \
@@ -61,7 +59,8 @@ libcoot_layla_la_SOURCES = \
 	similar_ligands.cpp \
 	network_utils.cpp
 
-libcoot_layla_la_LIBADD = $(top_builddir)/geometry/libcoot-geometry.la \
+libcoot_layla_la_LIBADD = $(top_builddir)/coot-utils/libcoot-coord-utils.la \
+                          $(top_builddir)/geometry/libcoot-geometry.la \
                           $(top_builddir)/lidia-core/libcoot-lidia-core.la \
                           $(top_builddir)/utils/libcoot-utils.la \
                           $(GTK_LIBS) $(GLIB_LIBS) \
