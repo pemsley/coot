@@ -1,5 +1,25 @@
 --- Items---
 
+o add to the api - add dotted/dashed line between points
+  in ospray rendering
+
+o what did Clemens do with the rendering script and how do we use it for pandda
+
+o "upset plot" - intereseting!
+
+o (possibly) fix the origin shift for pandda maps. See map on pumble
+
+o branching from a branch called dev, i.e. double-dev, does it branch
+  from main, or from dev?
+
+o fix installation of coot_headless_api in homebrew
+
+o what does prolif give us?
+
+o add helices as cylinders to MoleculesToTriangles
+
+o remove gemmi-sqlite from configure
+
 o use modern bond info in the cif bond table (aromatic is a flag)
 
 o where did we get to with soi?
