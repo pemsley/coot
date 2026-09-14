@@ -34,7 +34,6 @@
  */
 
 #include <sys/time.h>
-#include <string.h> // strcmp
 
 #include <iostream>
 
