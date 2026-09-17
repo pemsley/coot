@@ -599,6 +599,13 @@ class graphics_info_t {
    static void release_moving_atoms_lock(const std::string &calling_function_name);
    static std::string moving_atoms_locking_function_name; //  static because it is set by above
 
+   // similar for saved_dragged_refinement_results (written by the refinement thread,
+   // read by the render thread in draw_hud_geometry_bars())
+   static std::atomic<bool> saved_dragged_refinement_results_lock;
+   static void get_saved_dragged_refinement_results_lock(const std::string &calling_function_name);
+   static void release_saved_dragged_refinement_results_lock(const std::string &calling_function_name);
+   static std::string saved_dragged_refinement_results_locking_function_name; // set by above
+
 
    // 201803004:
    // refinement now uses references to Xmaps.
@@ -755,6 +762,10 @@ public:
 
    // flag for the main toolbar style
    static short int main_toolbar_style_state;
+
+   // how the buttons of the vertical toolbar (main_window_vbox_inner) are drawn:
+   // 0: icons and labels, 1: labels only, 2: icons only
+   static int vertical_toolbar_style;
 
    static short int do_lighting_flag;
    static bool do_flat_shading_for_solid_density_surface;
@@ -1647,6 +1658,13 @@ public:
    void unsetup_rotate_translate_buttons(GtkWidget *window); /* delete the user data */
    void do_rot_trans_adjustments(GtkWidget *dialog);
    static void rot_trans_adjustment_changed(GtkAdjustment *adj, gpointer user_data);
+   static void regenerate_moving_atoms_bonds_mesh();
+   // for click-and-drag translation of the fragment in rotate/translate mode
+   static void translate_moving_atoms_by_screen_delta(double delta_x, double delta_y);
+   // for ctrl-shift-drag in rotate/translate mode: trackball-like rotation of
+   // the fragment about its centre. Mouse positions in (pixel) window coordinates.
+   static void rotate_moving_atoms_by_trackball(double prev_x, double prev_y,
+                                                double curr_x, double curr_y);
    static float *previous_rot_trans_adjustment;
 
    // rottrans_buttons class calls back this function on button pressed mouse motion
@@ -2162,6 +2180,7 @@ public:
    static HUDTextureMesh mesh_for_hud_tooltip_background;
    static Texture texture_for_hud_tooltip_background;
    static HUDTextureMesh tmesh_for_hud_geometry_tooltip_label;
+   static HUDTextureMesh tmesh_for_hud_button_label; // reused for every button label (set up in setup_hud_buttons())
    static HUDTextureMesh tmesh_for_hud_image_testing;
    static Shader shader_for_hud_geometry_tooltip_text; // shader for the above tmesh (not like atom labels
                                                        // HUD labels are in 2D, don't need mvp, eye position
@@ -2787,6 +2806,12 @@ public:
    static GtkWidget *add_alt_conf_dialog;
    static void new_alt_conf_occ_adjustment_changed(GtkAdjustment *adj, gpointer user_data);
 
+   // NMR or pdbqt split
+
+   //! split an NMR model into multiple models - all in MODEL 1.
+   //! @return the vector of new molecule indices.
+   std::vector<int> split_multi_model_molecule(int imol);
+
    // Backbone torsion
    //
    static short int in_backbone_torsion_define;
@@ -2974,6 +2999,7 @@ public:
    static Texture texture_for_unhappy_atom_markers;
    static TextureMesh tmesh_for_unhappy_atom_markers;
    static void add_unhappy_atom_marker(int imol, const coot::atom_spec_t &atom_spec);
+   static void remove_unhappy_atom_marker(int imol, const coot::atom_spec_t &atom_spec);
    static void remove_all_unhappy_atom_markers();
 
    static std::vector<meshed_particle_container_t> meshed_particles_for_gone_diegos;
@@ -4428,6 +4454,10 @@ string   static std::string sessionid;
    static float hud_geometry_distortion_to_rotation_amount_rama(float distortion);
 
    void setup_hud_buttons();
+   //! reset all the static meshes (and gl_rama_plot) so their VAOs/buffers are
+   //! regenerated after a GL context re-realize. Called from startup_unrealize()
+   //! while the (old) context is still current.
+   static void reset_meshes_for_new_gl_context();
    static HUDMesh mesh_for_hud_buttons;
    static std::vector<HUD_button_info_t> hud_button_info;
 
@@ -4799,6 +4829,10 @@ string   static std::string sessionid;
 
    static std::pair<bool, std::string> servalcat_fofc;
    static std::pair<bool, std::string> servalcat_refine; // output "pdb" file name
+
+   // not static (for now?)
+   int servalcat_refine_xray_with_keywords(int imol, int imol_map, const std::string &output_prefix,
+                                           const std::string &keyword_pairs_json);
 
    static std::pair<bool, std::string> acedrg_link;
    static bool acedrg_running; // not link acedrg - this is acedrg from CCD

@@ -502,6 +502,9 @@ Shader::create() const {
    glLinkProgram(program);
    err = glGetError();
    if (err) std::cout << "GL ERROR:: Shader::create() " << name << " C " << err << std::endl;
+#ifdef __APPLE__
+   // skip validation on Mac
+#else
    glValidateProgram(program);
    err = glGetError();
    if (err) std::cout << "GL ERROR:: Shader::create() " << name << " D " << err << std::endl;
@@ -519,12 +522,7 @@ Shader::create() const {
       std::cout << "WARNING:: validation failed: " << name << " validation status " << status << std::endl;
       message = "validation-failed";
    }
-
-
-   if (false) { // debugging mvp
-      GLint i_mvp = glGetUniformLocation(program, "mvp");
-      std::cout << "debug:: in Shader::create() " << name << " mvp location " << i_mvp << std::endl;
-   }
+#endif
 
    glDeleteShader(vs);
    glDeleteShader(fs);

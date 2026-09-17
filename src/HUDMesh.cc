@@ -38,17 +38,47 @@ std::string stringify_error_code(GLenum err); // from Mesh.cc
 void
 HUDMesh::init() {
 
+   vao = VAO_NOT_SET;
    max_n_instances = 0;
    n_instances = 0;
+   vertex_buffer_id = 0;
+   index_buffer_id  = 0;
+   shades_buffer_id = 0;
+   inst_hud_bar_attribs_buffer_id = 0;
    first_time = true;
    use_blending = false;
-   inst_hud_bar_attribs_buffer_id = 0;
    scales_have_been_set = false;
    offset_position_has_been_set = false;
    scales = glm::vec2(1,1);
    offset_position = glm::vec2(0,0);
    window_resize_scales_correction   = glm::vec2(1.0, 1.0);
    window_resize_position_correction = glm::vec2(0.0, 0.0);
+
+}
+
+void
+HUDMesh::delete_gl_buffers() {
+
+   if (vao == VAO_NOT_SET) {
+      // nothing was stored
+   } else {
+      glBindVertexArray(vao);
+      if (vertex_buffer_id != 0) // test for valid vertex_buffer_id
+         glDeleteBuffers(1, &vertex_buffer_id);
+      if (shades_buffer_id != 0) // test for valid shades_buffer_id
+         glDeleteBuffers(1, &shades_buffer_id);
+      if (index_buffer_id != 0) // test for valid index_buffer_id
+         glDeleteBuffers(1, &index_buffer_id);
+      if (inst_hud_bar_attribs_buffer_id != 0) {
+         glDeleteBuffers(1, &inst_hud_bar_attribs_buffer_id);
+      }
+      vertex_buffer_id = 0;
+      index_buffer_id = 0;
+      shades_buffer_id = 0;
+      inst_hud_bar_attribs_buffer_id = 0;
+      glDeleteVertexArrays(1, &vao);
+      vao = VAO_NOT_SET;
+   }
 
 }
 
@@ -180,6 +210,8 @@ HUDMesh::setup_vertices_and_triangles_for_tooltip_background() {
 void
 HUDMesh::setup_buffers() {
 
+   // std::cout << "HUDMesh setup_buffers() called for " << name << std::endl;
+
    GLenum err = glGetError();
    if (err)
       std::cout << "GL ERROR:: HUDMesh setup_buffers() --- start ---\n";
@@ -234,20 +266,36 @@ HUDMesh::setup_buffers() {
 
    if (first_time) {
       glGenBuffers(1, &index_buffer_id);
-      err = glGetError(); if (err) std::cout << "GL error HUDMesh setup_buffers()\n";
+      err = glGetError();
+      if (err)
+         std::cout << "GL ERROR:: HUDMesh setup_buffers() first-time " << stringify_error_code(err) << std::endl;
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_id);
-      err = glGetError(); if (err) std::cout << "GL error HUDMesh setup_buffers()\n";
+      err = glGetError();
+      if (err)
+         std::cout << "GL ERROR:: HUDMesh setup_buffers() first-time post-bind "
+                   << stringify_error_code(err) << std::endl;
    } else {
       glDeleteBuffers(1, &index_buffer_id);
       glGenBuffers(1, &index_buffer_id);
-      err = glGetError(); if (err) std::cout << "GL error HUDMesh setup_buffers()\n";
+      err = glGetError();
+      if (err)
+         std::cout << "GL ERROR:: HUDMesh setup_buffers() not-first-time pre-bind "
+                   << stringify_error_code(err) << std::endl;
+
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_id);
-      err = glGetError(); if (err) std::cout << "GL error HUDMesh setup_buffers()\n";
+      err = glGetError();
+      if (err)
+         std::cout << "GL ERROR:: HUDMesh setup_buffers() not-first-time post-bind "
+                   << stringify_error_code(err) << std::endl;
    }
+
+   if (false)
+      std::cout << "debug:: in HUDMesh setup_buffers() name: " << name << " first_time_flag: " << first_time
+                << " vao is " << vao << std::endl;
 
    // std::cout << "HUDMesh::setup_buffers() indices " << n_bytes << " bytes" << std::endl;
    glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_bytes, &triangles[0], GL_DYNAMIC_DRAW);
-   err = glGetError(); if (err) std::cout << "GL error HUDMesh setup_simple_triangles()\n";
+   err = glGetError(); if (err) std::cout << "GL error HUDMesh setup triangles\n";
 
    glDisableVertexAttribArray(0);
    glDisableVertexAttribArray(1);
@@ -429,9 +477,18 @@ void
 HUDMesh::draw(Shader *shader_p) { // in this case draw() is draw_instanced() --- maybe rename it later
                                   // to be less confusing/more consistent.
 
-   if (false)
+   if (false) {
       std::cout << "debug:: HUDMesh::draw() --- start --- n_instances: " << n_instances
                 << " name " << name << " vao " << vao << std::endl;
+
+      GLint abuf0 = 0, abuf2 = 0;
+      glGetVertexAttribiv(0, GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING, &abuf0);
+      glGetVertexAttribiv(2, GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING, &abuf2);
+      std::cout << "debug:: HUDMesh::draw() " << name << " vao " << vao
+                << " attrib0->buffer " << abuf0 << " (expect vertex_buffer_id " << vertex_buffer_id << ")"
+                << " attrib2->buffer " << abuf2 << " (expect inst " << inst_hud_bar_attribs_buffer_id << ")"
+                << std::endl;
+   }
 
    if (this_mesh_is_closed) return;
 

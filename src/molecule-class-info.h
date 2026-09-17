@@ -2421,7 +2421,9 @@ public:        //                      public
    // match those of the passed (reference residue (from a different
    // molecule, typically).
    //
-   int match_torsions(mmdb::Residue *res_ref,
+   // 2026-08-02-PE we need imol_res_ref to look up the dictionary
+   // for the reference ligand
+   int match_torsions(mmdb::Residue *res_ref, int imol_res_ref,
 		      const std::vector <coot::dict_torsion_restraint_t> &tr_ligand,
 		      const coot::protein_geometry &geom);
 
@@ -3936,6 +3938,10 @@ void draw_map_molecule(stereo_eye_t eye,
    bool read_nef(const std::string &file_name);
 
    float gaussian_surface_opacity;
+
+   // returns a coloured Gaussian-surface mesh per (non-trivial) cavity; the caller
+   // displays them (e.g. as generic display objects).
+   std::vector<coot::simple_mesh_t> show_cavities(const coot::protein_geometry *geom_p);
 
 
 };

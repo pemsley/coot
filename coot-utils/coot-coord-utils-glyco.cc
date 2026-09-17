@@ -665,13 +665,13 @@ coot::glyco_tree_t::glyco_tree_t(mmdb::Residue *residue_p, mmdb::Manager *mol,
 
    float dist_crit = 3.0; // A
 
-   if (residue_p) { 
+   if (residue_p) {
       geom_p = geom_p_in;
 
       std::queue<mmdb::Residue *> q;
       std::vector<mmdb::Residue *> considered;
       // std::vector<mmdb::Residue *> linked_residues;
-      
+
       if (is_pyranose(residue_p) || std::string(residue_p->name) == "ASN")
          q.push(residue_p);
 
@@ -756,7 +756,7 @@ coot::glyco_tree_t::find_ASN_rooted_tree(mmdb::Residue *residue_p,
 // 
 // residue_p is a member of residues.
 // 
-tree<coot::linked_residue_t> 
+tree<coot::linked_residue_t>
 coot::glyco_tree_t::find_rooted_tree(mmdb::Residue *residue_p,
                                      const std::vector<mmdb::Residue *> &residues) const {
 
@@ -764,7 +764,7 @@ coot::glyco_tree_t::find_rooted_tree(mmdb::Residue *residue_p,
    linked_residue_t first_res(residue_p, "");
    tree<linked_residue_t> glyco_tree;
    glyco_tree.insert(glyco_tree.begin(), first_res);
-   bool something_added = true; // initial value 
+   bool something_added = true; // initial value
    std::vector<std::pair<bool, mmdb::Residue *> > done_residues(residues.size());
    for (unsigned int i=0; i<residues.size(); i++) {
       // Mark as not yet done, except if it is the first one, we have
@@ -780,9 +780,9 @@ coot::glyco_tree_t::find_rooted_tree(mmdb::Residue *residue_p,
       something_added = false;
       for (unsigned int ires=0; ires<done_residues.size(); ires++) {
 
-         if (! done_residues[ires].first) { 
+         if (! done_residues[ires].first) {
             // iterate over the residues already placed in the tree
-            // 
+            //
             tree<linked_residue_t>::iterator it;
             for (it=glyco_tree.begin(); it != glyco_tree.end(); ++it) {
                if (it->residue != done_residues[ires].second) {
@@ -797,28 +797,28 @@ coot::glyco_tree_t::find_rooted_tree(mmdb::Residue *residue_p,
                                                                             done_residues[ires].second);
                   if (link.first != "") {
 
-                     if (link.first == "NAG-ASN") {
+                     if (link.first == "pyr-ASN") {
                         if (link.second == true) {
                            if (debug)
                               std::cout << "   Adding "
                                         << coot::residue_spec_t(done_residues[ires].second)
-                                        << " " << "via NAG-ASN" << " to parent "
+                                        << " " << "via pyr-ASN" << " to parent "
                                         << coot::residue_spec_t(it->residue)
                                         << std::endl;
-                           linked_residue_t this_linked_residue(done_residues[ires].second, "NAG-ASN");
+                           linked_residue_t this_linked_residue(done_residues[ires].second, "pyr-ASN");
                            glyco_tree.append_child(it, this_linked_residue);
                            something_added = true;
                            done_residues[ires].first = true;
                         }
                      } else {
                         if (debug)
-                           std::cout << "found link type " << link.first << " order-switch " 
+                           std::cout << "found link type " << link.first << " order-switch "
                                      << link.second << std::endl;
                         linked_residue_t this_linked_residue(done_residues[ires].second, link.first);
                         this_linked_residue.order_switch = link.second;
                         if (debug)
                            std::cout << "   Adding " << coot::residue_spec_t(done_residues[ires].second)
-                                     << " via " << link.first << " to parent " 
+                                     << " via " << link.first << " to parent "
                                      << coot::residue_spec_t(it->residue)
                                      << std::endl;
                         glyco_tree.append_child(it, this_linked_residue);
@@ -891,6 +891,12 @@ coot::glyco_tree_t::find_stand_alone_tree(const std::vector<mmdb::Residue *> &re
    return tr;
 }
 
+
+// print the tree that this object stores (public, no argument needed)
+void
+coot::glyco_tree_t::print() const {
+   print(glyco_tree);
+}
 
 void
 coot::glyco_tree_t::print(const tree<linked_residue_t> &glyco_tree) const {
@@ -967,7 +973,7 @@ coot::glyco_tree_t::get_level(mmdb::Residue *residue_p) const {
          tree<linked_residue_t>::iterator this_one = it;
          bool has_parent = true;
          while (has_parent) {
-            if (! this_one.node->parent) { 
+            if (! this_one.node->parent) {
                has_parent = false;
             } else {
                this_one = this_one.node->parent;
@@ -1004,7 +1010,7 @@ coot::glyco_tree_t::get_prime(mmdb::Residue *residue_p) const {
          tree<linked_residue_t>::iterator parent_node = it.node->parent;
          while (has_parent) {
 
-            if (! this_one.node->parent) { 
+            if (! this_one.node->parent) {
                has_parent = false;
             } else {
                if (this_one.node->parent->data.residue_name == "BMA") {
@@ -1431,7 +1437,7 @@ coot::glyco_tree_t::oligomannose_tree() const {
 
    // make oligomannose
    linked_residue_t ASN    ("ASN", "");
-   linked_residue_t NAG_1  ("NAG", "NAG-ASN");  // parent is ASN
+   linked_residue_t NAG_1  ("NAG", "pyr-ASN");  // parent is ASN
    linked_residue_t NAG_2  ("NAG", "BETA1-4");  // parent is NAG_1
    linked_residue_t MAN_3  ("BMA", "BETA1-4");  // parent is NAG_2
    linked_residue_t MAN_4_1("MAN", "ALPHA1-6"); // parent is MAN_3
@@ -1470,7 +1476,7 @@ tree<coot::linked_residue_t>
 coot::glyco_tree_t::hybrid_tree() const {
 
    linked_residue_t ASN    ("ASN", "");
-   linked_residue_t NAG_1  ("NAG", "NAG-ASN");  // parent is ASN
+   linked_residue_t NAG_1  ("NAG", "pyr-ASN");  // parent is ASN
    linked_residue_t NAG_2  ("NAG", "BETA1-4");  // parent is NAG_1
    linked_residue_t MAN_3  ("BMA", "BETA1-4");  // parent is NAG_2
    linked_residue_t MAN_4_1("MAN", "ALPHA1-6"); // parent is MAN_3
@@ -1509,7 +1515,7 @@ tree<coot::linked_residue_t>
 coot::glyco_tree_t::complex_tree() const {
 
    linked_residue_t ASN    ("ASN", "");
-   linked_residue_t NAG_1  ("NAG", "NAG-ASN");  // parent is ASN
+   linked_residue_t NAG_1  ("NAG", "pyr-ASN");  // parent is ASN
    linked_residue_t FUC_1  ("FUC", "ALPHA1-6");  // parent is NAG_1
    linked_residue_t FUC_2  ("FUC", "ALPHA1-3");  // parent is NAG_1
    linked_residue_t NAG_2  ("NAG", "BETA1-4");  // parent is NAG_1

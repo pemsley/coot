@@ -3218,9 +3218,24 @@ def superpose_ligand_gui():
     h_sep = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL)
 
     buttons_hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+    buttons_hbox.set_halign(Gtk.Align.END)
 
-    ok_button = Gtk.Button(label="   Superpose 'em  ")
+    ok_button = Gtk.Button(label="  Superpose  ")
     cancel_button = Gtk.Button(label="    Cancel    ")
+
+    # margins and spacing so the dialog doesn't look cramped
+    ligands_vbox.set_margin_start(10)
+    ligands_vbox.set_margin_end(10)
+    ligands_vbox.set_margin_top(10)
+    ligands_vbox.set_margin_bottom(10)
+    ligands_vbox.set_spacing(6)
+    ref_chain_hbox.set_spacing(6)
+    mov_chain_hbox.set_spacing(6)
+    buttons_hbox.set_spacing(6)
+    buttons_hbox.set_margin_top(6)
+    for button in [ok_button, cancel_button]:
+        button.set_margin_top(4)
+        button.set_margin_bottom(4)
 
     window.set_child(ligands_vbox)
     ligands_vbox.append(title)

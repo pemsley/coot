@@ -26,7 +26,7 @@ dnl
 dnl Process this file with autoconf to produce a configure script.
 
 
-AC_INIT([coot],[1.3.1])
+AC_INIT([coot],[1.x-pre])
 AC_CONFIG_SRCDIR(src/main.cc)
 AM_INIT_AUTOMAKE
 
@@ -477,6 +477,7 @@ else
             # gemmi.pc does not define USE_GEMMI, so add it here.
             GEMMI_CXXFLAGS="`$PKG_CONFIG --cflags gemmi` -DUSE_GEMMI=1"
             GEMMI_LIBS="`$PKG_CONFIG --libs gemmi`"
+            gemmi_libdir="`$PKG_CONFIG --variable=libdir gemmi`"
             AC_MSG_RESULT([yes (gemmi.pc via pkg-config)])
         fi
         PKG_CONFIG_PATH="$save_PKG_CONFIG_PATH"
@@ -513,9 +514,56 @@ else
         GEMMI_LIBS="-L$gemmi_libdir -lgemmi_cpp"
     fi
 
+    # gemmi's shared library has an @rpath-based install name
+    # (@rpath/libgemmi_cpp.dylib), and libtool flattens the transitive gemmi
+    # dependency onto the final executables' link lines. So those executables
+    # need an rpath pointing at gemmi's lib dir to resolve it at runtime. Use the
+    # resolved lib dir (handles lib vs lib64 and the pkg-config prefix).
+    if test "x$gemmi_libdir" != x ; then
+        GEMMI_RPATH="-Wl,-rpath,$gemmi_libdir"
+    fi
+
     AC_SUBST(GEMMI_CXXFLAGS)
     AC_SUBST(GEMMI_LIBS)
+    AC_SUBST(GEMMI_RPATH)
 fi
+
+dnl AceDRG ASCII tables directory — used at build time to generate the
+dnl acedrg.sqlite database into the user's XDG cache dir (optional).
+AC_ARG_WITH([acedrg-tables-dir],
+   AS_HELP_STRING([--with-acedrg-tables-dir=DIR location of the AceDRG ASCII tables (used at build time to make the acedrg.sqlite database)]),
+   acedrg_tables_dir="$withval", acedrg_tables_dir="")
+AC_MSG_CHECKING([for AceDRG tables directory])
+if test "x$acedrg_tables_dir" = x ; then
+   AC_MSG_RESULT(no)
+else
+   AC_MSG_RESULT($acedrg_tables_dir)
+fi
+AC_SUBST(ACEDRG_TABLES_DIR, "$acedrg_tables_dir")
+AM_CONDITIONAL(HAVE_ACEDRG_TABLES_DIR, [test "x$acedrg_tables_dir" != x])
+
+dnl Optional gemmi+SQLite backend for the AceDRG bond/angle tables. Needs a
+dnl gemmi with the public insert_bond_row()/insert_angle_row() seam (gemmi
+dnl PR #438) - an explicit opt-in until that lands in a gemmi release.
+AC_ARG_WITH([gemmi-sqlite],
+   AS_HELP_STRING([--with-gemmi-sqlite use gemmi + SQLite for AceDRG bond/angle table lookups (needs a gemmi with the insert-row seam)]),
+   with_gemmi_sqlite=true, with_gemmi_sqlite=false)
+AC_MSG_CHECKING([for gemmi-sqlite AceDRG tables])
+if test "x$with_gemmi_sqlite" = xtrue ; then
+   AC_MSG_RESULT(yes)
+   AC_LANG_PUSH(C++)
+   save_CPPFLAGS="$CPPFLAGS"
+   CPPFLAGS="$CPPFLAGS $GEMMI_CXXFLAGS"
+   AC_CHECK_HEADER([gemmi/acedrg_tables.hpp], [],
+      AC_MSG_FAILURE([--with-gemmi-sqlite given but gemmi/acedrg_tables.hpp was not found - a gemmi with the AceDRG tables and the insert-row seam is needed]))
+   CPPFLAGS="$save_CPPFLAGS"
+   AC_LANG_POP
+   AC_SUBST(GEMMI_SQLITE_CFLAGS, "-DUSE_GEMMI_SQLITE")
+else
+   AC_MSG_RESULT(no)
+   AC_SUBST(GEMMI_SQLITE_CFLAGS, "")
+fi
+AM_CONDITIONAL(MAKE_GEMMI_SQLITE, [test x$with_gemmi_sqlite = xtrue])
 
 # 20090613 We need to be able to determine the build type, and embed
 # that value in to coot binary.  We need to do that for the updating

@@ -37,6 +37,9 @@ void setup_claude_vte_terminal();
 void show_claude_vte_terminal();
 void toggle_claude_vte_terminal_visibility();
 
+void show_command_vte_terminal();
+void toggle_command_vte_terminal_visibility();
+
 #endif // HAVE_VTE
 
 #endif // VTE_HH

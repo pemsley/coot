@@ -1,129 +1,84 @@
-
-#include <vector>
-#include <string>
-#include <map>
-#include <algorithm>
-// why don't I need iostream here?
-#include <iomanip>
-#include "coot-coord-utils.hh"
+#include <cmath>
+#include <limits>
 #include "cremer-pople.hh"
 
-coot::cremer_pople_t::cremer_pople_t(mmdb::Residue *residue_p) {
+coot::cremer_pople_t::cremer_pople_t(const std::vector<clipper::Coord_orth> &ring,
+                                     const clipper::Coord_orth *up_reference) {
 
-   auto is_member = [] (const std::string &an, const std::vector<std::string> &atom_names) {
-      return std::find(atom_names.begin(), atom_names.end(), an) != atom_names.end();
-   };
+   filled = false;
+   n_ring = static_cast<unsigned int>(ring.size());
+   Q = 0.0; q2 = 0.0; q3 = 0.0;
+   theta = std::numeric_limits<double>::quiet_NaN();
+   phi = std::numeric_limits<double>::quiet_NaN();
+   normal = clipper::Coord_orth(0,0,0);
 
+   if (n_ring != 5 && n_ring != 6) return;
+   const double N = static_cast<double>(n_ring);
 
-   bool debug = false;
+   // 1. Centre on the ring centroid.
+   clipper::Coord_orth centre(0,0,0);
+   for (const auto &p : ring) centre += p;
+   centre = clipper::Coord_orth(centre.x()/N, centre.y()/N, centre.z()/N);
 
-   if (debug)
-      std::cout << "::: Residue " << coot::residue_spec_t(residue_p) << " "
-                << residue_p->GetResName() << std::endl;
+   std::vector<clipper::Coord_orth> R;
+   for (const auto &p : ring) R.push_back(p - centre);
 
-   std::vector<std::string> atom_names = {" C1 ", " C2 ", " C3 ", " C4 ", " C5 ", " O5 "};
-
-   // we will deal wih alt conf residues another time
-   std::map<std::string, mmdb::Atom *> atoms_map;
-
-   mmdb::Atom **residue_atoms = 0;
-   int n_residue_atoms = 0;
-   residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-   for (int iat=0; iat<n_residue_atoms; iat++) {
-      mmdb::Atom *at = residue_atoms[iat];
-      if (! at->isTer()) {
-         std::string atom_name(at->GetAtomName());
-         if (is_member(atom_name, atom_names)) {
-            atoms_map[atom_name] = at;
-         }
-      }
+   // 2. The Cremer-Pople mean plane. NOT an LSQ plane: the CP plane is defined
+   //    by sum(z) = 0 AND sum(z cos) = 0 AND sum(z sin) = 0, which LSQ does not
+   //    satisfy. R1 x R2 gives a normal obeying all three by construction.
+   clipper::Coord_orth R1(0,0,0), R2(0,0,0);
+   for (unsigned int j=0; j<n_ring; j++) {
+      double a = 2.0 * M_PI * static_cast<double>(j) / N;
+      R1 += clipper::Coord_orth(R[j].x()*sin(a), R[j].y()*sin(a), R[j].z()*sin(a));
+      R2 += clipper::Coord_orth(R[j].x()*cos(a), R[j].y()*cos(a), R[j].z()*cos(a));
    }
-   if (atoms_map.size() == 6) {
-      std::vector<clipper::Coord_orth> positions;
-      for (auto atom : atoms_map) {
-         clipper::Coord_orth c(atom.second->x, atom.second->y, atom.second->z);
-         positions.push_back(c);
-      }
-      lsq_plane_info_t lsq_plane_info(positions);
+   clipper::Coord_orth n(clipper::Coord_orth::cross(R1, R2));
+   double n_len = std::sqrt(n.lengthsq());
+   if (n_len < 1e-12) return;   // degenerate (collinear) ring
+   n = clipper::Coord_orth(n.x()/n_len, n.y()/n_len, n.z()/n_len);
 
-      // the majority of the carbons should have a positive displacement
-      // so we test here if we need a sign flip:
-      unsigned int n_positive = 0;
-      for (auto atom : atoms_map) {
-         std::string ele = atom.second->element;
-         if (ele == " C") {
-            clipper::Coord_orth c(atom.second->x, atom.second->y, atom.second->z);
-            double d = lsq_plane_info.plane_deviation(c);
-            if (d> 0.0)
-               n_positive++;
-         }
-      }
-      double sign_flip = 1.0;
-      if (n_positive < 3)
-         sign_flip = -1.0;
-
-      // We need indexing now, so convert the atoms_map to a vector
-      unsigned int hash = 0; // sort of a hash
-      std::vector<std::pair<std::string, mmdb::Atom *>> atoms_vector(6);
-      for (unsigned int j=0;j<6; j++) {
-         const std::string &atom_name = atom_names[j];
-         auto it = atoms_map.find(atom_name);
-         if (it != atoms_map.end()) {
-            atoms_vector[j] = *it;
-            hash += (j + 1);
-         } else {
-            std::cout << "ERROR:: missing atom " << atom_name << " in residue "
-                      << coot::residue_spec_t(residue_p) << std::endl;
-         }
-      }
-
-      if (hash == 21) { // 1 + 2 + 3 + 4 + 5 + 6
-
-         const double k1 = - std::sqrt(2.0/6.0);
-         const double k2 =   std::sqrt(1.0/6.0);
-         double c2_sum = 0.0;
-         double s2_sum = 0.0;
-         double q3_sum = 0.0;
-         for (unsigned int jj=0;jj<6; jj++) {
-            mmdb:: Atom *atom = atoms_vector[jj].second;
-            unsigned int j = jj + 1; // j is 1 to 6
-            clipper::Coord_orth c(atom->x, atom->y, atom->z);
-            double z_j = sign_flip * lsq_plane_info.plane_deviation(c);
-            if (debug)
-               std::cout << "   for atom " << coot::atom_spec_t(atom) << " z_j: " << z_j << std::endl;
-            double angle = 2.0 * M_PI * (static_cast<double>(j-1)) / 3.0;
-            double c_part = z_j * cos(angle);
-            double s_part = z_j * sin(angle);
-            c2_sum += c_part;
-            s2_sum += s_part;
-            double q3_part = z_j * std::pow(-1, (j-1));
-            q3_sum += q3_part;
-         }
-         double c2 = k1 * c2_sum;
-         double s2 = k1 * s2_sum;
-         double q3 = k2 * q3_sum;
-         double q2 = std::sqrt(c2*c2 + s2*s2);
-         double Q  = std::sqrt(q2*q2 + q3*q3);
-         double theta = atan2(q2, q3);
-         double phi   = atan2(-s2, c2);
-         double theta_d = clipper::Util::rad2d(theta);
-         double   phi_d = clipper::Util::rad2d(phi);
-         phi_d -= 120.0; // to match privateer
-         if (theta_d < 0.0) theta_d += 360.0;
-         if (phi_d   < 0.0)   phi_d += 360.0;
-         std::string space = " ";
-         std::string conf = "-";
-         if (fabs(theta_d) < 20.0)         conf = "4c1";
-         if (fabs(theta_d - 360.0) < 20.0) conf = "4c1";
-         if (fabs(theta_d - 180.0) < 20.0) conf = "1c4";
-         if (fabs(theta_d + 180.0) < 20.0) conf = "1c4";
-         if (residue_p->GetSeqNum() > 9) space = "";
-         std::cout << "Residue " << coot::residue_spec_t(residue_p) << " " << space
-                   << residue_p->GetResName()
-                   << "   Q: "    << std::setw(8) << Q
-                   << "  theta: " << std::setw(8) << theta_d
-                   << "  phi: "   << std::setw(8) << phi_d
-                   << "  conf: "  << std::setw(8) << conf << std::endl;
-      }
+   // 3. Face selection. Note that reversing the ring traversal direction flips
+   //    R1 (sine weights are antisymmetric) and hence flips n -- so under the
+   //    right-hand-rule default, reversal maps theta to 180-theta. An
+   //    up_reference pins the face from geometry instead, making theta
+   //    reversal-invariant and letting enantiomers superimpose.
+   if (up_reference) {
+      clipper::Coord_orth u = *up_reference - centre;
+      if ((u.x()*n.x() + u.y()*n.y() + u.z()*n.z()) < 0.0)
+         n = clipper::Coord_orth(-n.x(), -n.y(), -n.z());
    }
+   normal = n;
+
+   // 4. Perpendicular displacements.
+   z.clear();
+   for (unsigned int j=0; j<n_ring; j++)
+      z.push_back(R[j].x()*n.x() + R[j].y()*n.y() + R[j].z()*n.z());
+
+   // 5. The m=2 component (present for both N=5 and N=6).
+   double C = 0.0, S = 0.0;
+   for (unsigned int j=0; j<n_ring; j++) {
+      double a = 4.0 * M_PI * static_cast<double>(j) / N;   // m=2 -> 2*(2 pi j / N)
+      C += z[j] * cos(a);
+      S += z[j] * sin(a);
+   }
+   double k2 = std::sqrt(2.0/N);
+   q2  = k2 * std::sqrt(C*C + S*S);
+   phi = atan2(-S, C);
+   if (phi < 0.0) phi += 2.0 * M_PI;
+
+   if (n_ring == 6) {
+      // 6. The m=3 component exists only for N=6. Its (-1)^j parity is why an
+      //    odd rotation of the start atom flips q3, and so swaps 4C1 and 1C4.
+      double A = 0.0;
+      for (unsigned int j=0; j<6; j++) A += z[j] * ((j % 2 == 0) ? 1.0 : -1.0);
+      q3 = std::sqrt(1.0/6.0) * A;
+      Q  = std::sqrt(q2*q2 + q3*q3);
+      theta = atan2(q2, q3);          // q2 >= 0, so theta is in [0, pi]
+   } else {
+      q3 = 0.0;
+      Q  = q2;                       // no m=3 term: a 5-ring lives on a circle
+      // theta stays NaN
+   }
+
+   filled = true;
 }

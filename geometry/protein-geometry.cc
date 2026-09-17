@@ -2879,7 +2879,40 @@ coot::protein_geometry::Get_SMILES_for_comp_id(const std::string &comp_id, int i
       throw (std::runtime_error(mess));
    }
    return s;
-} 
+}
+
+// can throw a std::runtime_error
+std::string
+coot::protein_geometry::Get_InChI_for_comp_id(const std::string &comp_id, int imol_enc) const {
+
+   bool found = false;
+   std::string s;
+   for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
+
+      if (dict_res_restraints[i].second.residue_info.comp_id == comp_id) {
+         if (dict_res_restraints[i].first == imol_enc) {
+
+            unsigned int nd = dict_res_restraints[i].second.descriptors.descriptors.size();
+            for (unsigned int idesc=0; idesc<nd; idesc++) {
+               if (dict_res_restraints[i].second.descriptors.descriptors[idesc].type == "InChI") {
+                  s = dict_res_restraints[i].second.descriptors.descriptors[idesc].descriptor;
+                  found = true;
+                  break;
+               }
+            }
+         }
+         if (found)
+            break;
+      }
+   }
+
+   if (! found){
+      std::string mess = "No InChI in dictionary for ";
+      mess += comp_id;
+      throw (std::runtime_error(mess));
+   }
+   return s;
+}
 
       
 

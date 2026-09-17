@@ -534,11 +534,11 @@ coot::get_names_for_link_type(const std::string &link_type) {
    if (link_type == "BETA1-3")  r = pyranose_link_1_3_to_core();
    if (link_type == "BETA1-4")  r = pyranose_link_1_4_to_core();
    if (link_type == "BETA1-6")  r = pyranose_link_1_6_to_core();
-   if (link_type == "NAG-ASN")  r = asn_pyranose_link_to_core();
+   if (link_type == "pyr-ASN")  r = asn_pyranose_link_to_core();
    if (link_type == "NAG-SER")  r = ser_pyranose_link_to_core();
    return r;
 }
-   
+
 // static
 std::pair<mmdb::Residue *, mmdb::Residue *>
 coot::link_by_torsion_t::get_residue_pair(mmdb::Manager *mol) {

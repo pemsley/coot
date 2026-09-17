@@ -206,6 +206,7 @@ namespace coot {
 
       modification_info_t modification_info;
 
+
       bool use_gemmi; // true now
       int imol_no; // this molecule's index in the container vector
       bool is_closed_flag;
@@ -854,6 +855,8 @@ namespace coot {
 
       void clear_residue_properties();
 
+      std::vector<simple_mesh_t> get_cavities(const protein_geometry *geom_p) const;
+
       simple_mesh_t get_gaussian_surface(float sigma, float contour_level,
                                          float box_radius, float grid_scale, float fft_b_factor) const;
 
@@ -1067,6 +1070,22 @@ namespace coot {
       int delete_residue_atoms_with_alt_conf(coot::residue_spec_t &residue_spec, const std::string &alt_conf);
       int delete_chain_using_atom_cid(const std::string &cid);
       int delete_literal_using_cid(const std::string &cid); // cid is an atom selection, e.g. containing a residue range
+
+      //! delete all waters
+      //!
+      //! @param imol is the model molecule index
+      //!
+      //! @return the number of water molecule deleted
+      int delete_all_waters();
+
+      //! delete all hetgroups
+      //!
+      //! Hetgroups do not include waters
+      //!
+      //! @param imol is the model molecule index
+      //!
+      //! @return the number of water molecule deleted
+      int delete_all_hetgroups();
 
       int change_alt_locs(const std::string &cid, const std::string &change_mode);
 

@@ -38,12 +38,15 @@
 // #include <algorithm>
 
 #include <mmdb2/mmdb_manager.h>
-#include "coords/mmdb-extras.hh"
-#include "coords/mmdb.hh"
-#include "coords/mmdb-crystal.hh"
-#include "coords/Cartesian.hh"
-#include "coords/Bond_lines.hh"
-#include "coot-utils/coot-coord-utils.hh"
+
+// 2026-08-01-PE
+// remove these - currently checkking that compilation is OK without
+// #include "coords/mmdb-extras.hh"
+// #include "coords/mmdb.hh"
+// #include "coords/mmdb-crystal.hh"
+// #include "coords/Cartesian.hh"
+// #include "coords/Bond_lines.hh"
+// #include "coot-utils/coot-coord-utils.hh"
 
 #include "graphics-info.h"
 
@@ -243,3 +246,26 @@ void calculate_hydrogen_bonds(int imol) {
    }
 }
 
+
+
+//! split an NMR model or other such multi-model molecule
+//! into multiple (separate) molecules - all in MODEL 1.
+//!
+//! @return the list of new molecule indices.
+#ifdef USE_PYTHON
+PyObject *split_multi_model_molecule_py(int imol) {
+
+   std::vector<int> new_molecules;
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      new_molecules = g.split_multi_model_molecule(imol);
+   }
+   PyObject *r = PyList_New(new_molecules.size());
+   if (! new_molecules.empty()) {
+      for (size_t i = 0; i < new_molecules.size(); i++) {
+         PyList_SetItem(r, i, PyLong_FromLong(i));
+      }
+   }
+   return r;
+}
+#endif

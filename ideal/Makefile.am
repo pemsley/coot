@@ -76,7 +76,8 @@ libcoot_ideal_la_LIBADD =                 \
    $(MMDB_LIBS) $(CLIPPER_LIBS) $(gsl_LIBS) $(LIBPNG_LIBS) -lm
 
 
-libcoot_ideal_la_SOURCES = simple-restraint.cc make-restraints.cc ng.cc chi-squareds.cc \
+libcoot_ideal_la_SOURCES = simple-restraint.cc simple-restraint-nbc.cc simple-restraint-density.cc \
+	make-restraints.cc ng.cc chi-squareds.cc \
 	mods.cc distortion.cc chirals.cc flanking.cc gradients.cc extra-restraints.cc \
 	pepflip.cc regularize-minimol.cc lograma.cpp process-dfs-in-range.cc process-dfs-in-range.hh \
         extra-restraints-kk.cc simple-restraint-kk.cc torsion-bonds.cc \

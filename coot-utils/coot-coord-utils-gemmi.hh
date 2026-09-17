@@ -44,6 +44,12 @@ namespace coot {
    // This should eventually be fixed in gemmi's copy_from_mmdb() instead.
    void trim_atom_names(gemmi::Structure &st);
 
+   // Write mol as mmCIF via gemmi (copy_from_mmdb() then make_mmcif_document()).
+   // Unlike mmdb's WriteCIFASCII(), TER pseudo-atoms are not serialized as
+   // junk atom rows and LINKs become _struct_conn records.
+   // Returns 0 on success (matching WriteCIFASCII()'s convention).
+   int write_coords_cif_via_gemmi(mmdb::Manager *mol, const std::string &file_name);
+
    // ==================== atom-level ====================
 
    double distance(const gemmi::Atom &at_1, const gemmi::Atom &at_2);

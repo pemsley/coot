@@ -127,6 +127,11 @@ void mogul_out_to_mmcif_dict(const std::string &mogul_file_name,
 					const RDKit::ROMol &rdkit_mol,
 					bool quartet_planes, bool quartet_hydrogen_planes);
 
+   //! enable or disable the overlay of AceDRG-tables bond and angle
+   //! restraint values (on by default when the acedrg.sqlite database is
+   //! found; pyrogen's --no-acedrg-tables uses this to turn it off)
+   void set_use_acedrg_tables(bool state);
+
 #ifdef LIBCOOTAPI_BUILD
 #else
    void write_restraints(PyObject *restraints_py,

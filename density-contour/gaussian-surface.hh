@@ -36,15 +36,16 @@ namespace coot {
    class gaussian_surface_t {
       simple_mesh_t mesh;
       void using_an_nxmap(mmdb::Manager *mol);
-      void using_an_xmap(mmdb::Manager *mol, const std::string &chain_id,
+      void using_an_xmap(mmdb::Manager *mol, const std::string &cid,
                          float sigma, float contour_level, float box_radius, float grid_scale,
                          float b_factor);
       void using_calc_density(mmdb::Manager *mol);
       void normals_from_function_gradient(const clipper::Xmap<float> &xmap,
                                           const glm::vec3 &cb); // changes mesh normals
    public:
-      // explicit gaussian_surface_t(mmdb::Manager *mol, const std::string &chain_id);
-      explicit gaussian_surface_t(mmdb::Manager *mol, const std::string &chain_id,
+      // The selection string is a coot/mmdb CID (e.g. "//A" or "//A/10-20"); a bare
+      // token (e.g. "A") is treated as a chain-id for backwards compatibility.
+      explicit gaussian_surface_t(mmdb::Manager *mol, const std::string &cid,
                                   float sigma=4.4, float contour_level=4.0, float box_radius=5.0,
                                   float grid_scale=0.7, float fft_b_factor=100.0);
       simple_mesh_t get_surface() const;

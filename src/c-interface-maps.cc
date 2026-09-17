@@ -474,15 +474,15 @@ int make_and_draw_patterson_using_intensities(const char *mtz_file_name,
 
 
 
-int  make_and_draw_map_with_refmac_params(const char *mtz_file_name,
-     const char *a, const char *b,
-     const char *weight,
-     int use_weights, int is_diff_map,
-     short int have_refmac_params,
-     const char *fobs_col,
-     const char *sigfobs_col,
-     const char *r_free_col,
-     short int sensible_f_free_col) {
+int make_and_draw_map_with_refmac_params(const char *mtz_file_name,
+                                         const char *a, const char *b,
+                                         const char *weight,
+                                         int use_weights, int is_diff_map,
+                                         short int have_refmac_params,
+                                         const char *fobs_col,
+                                         const char *sigfobs_col,
+                                         const char *r_free_col,
+                                         short int sensible_f_free_col) {
 
    graphics_info_t g;
    int imol = -1;
@@ -493,12 +493,21 @@ int  make_and_draw_map_with_refmac_params(const char *mtz_file_name,
    //
    imol = make_and_draw_map(mtz_file_name, a, b, weight, use_weights, is_diff_map);
    if (is_valid_map_molecule(imol)) {
+
+      if (false) {
+         std::cout << "debug:: make_and_draw_map_with_refmac_params()  store imol " << imol << std::endl;
+         std::cout << "debug:: make_and_draw_map_with_refmac_params()  store " << mtz_file_name << std::endl;
+         std::cout << "debug:: make_and_draw_map_with_refmac_params()  store " << fobs_col << std::endl;
+         std::cout << "debug:: make_and_draw_map_with_refmac_params()  store " << sigfobs_col << std::endl;
+         std::cout << "debug:: make_and_draw_map_with_refmac_params()  store " << r_free_col << std::endl;
+      }
       g.molecules[imol].store_refmac_params(std::string(mtz_file_name),
-       std::string(fobs_col),
-       std::string(sigfobs_col),
-       std::string(r_free_col),
-       sensible_f_free_col);
-      g.molecules[imol].set_refmac_save_state_commands(mtz_file_name, a, b, weight, use_weights, is_diff_map, fobs_col, sigfobs_col, r_free_col, sensible_f_free_col);
+                                            std::string(fobs_col),
+                                            std::string(sigfobs_col),
+                                            std::string(r_free_col),
+                                            sensible_f_free_col);
+      g.molecules[imol].set_refmac_save_state_commands(mtz_file_name, a, b, weight, use_weights, is_diff_map,
+                                                       fobs_col, sigfobs_col, r_free_col, sensible_f_free_col);
    }
    return imol;
 }

@@ -20,6 +20,8 @@
  * 02110-1301, USA
  */
 
+#include <mutex>
+
 #ifdef LIBCOOTAPI_BUILD
 #else
 #include <boost/python.hpp>
@@ -35,6 +37,7 @@
 #include <lidia-core/rdkit-interface.hh>
 #include <utils/coot-utils.hh>
 #include <coot-utils/coot-coord-utils.hh>
+#include "coot-utils/acedrg-sqlite-tables.hh"
 
 #include "mmff-restraints.hh" // needed?
 
@@ -420,6 +423,7 @@ coot::mmcif_dict_from_mol(const std::string &comp_id,
 	 // bonds and angles 
 	 dictionary_residue_restraints_t mmff_restraints = make_mmff_restraints(mol_for_mmff);
 	 restraints.conservatively_replace_with(mmff_restraints);
+	 overlay_acedrg_table_restraints(&restraints); // acedrg values beat MMFF too
       }
    } else {
       std::cout << "WARNING:: failure in calling mmcif_dict_from_mol_using_energy_lib() " << std::endl;
@@ -474,6 +478,40 @@ coot::mmcif_dict_from_mol_using_energy_lib(const std::string &comp_id,
    return p;
 }
 #endif
+
+// controlled by set_use_acedrg_tables() (pyrogen's --no-acedrg-tables)
+static bool use_acedrg_tables_flag = true;
+
+void
+coot::set_use_acedrg_tables(bool state) {
+
+   use_acedrg_tables_flag = state;
+}
+
+void
+coot::overlay_acedrg_table_restraints(dictionary_residue_restraints_t *restraints) {
+
+   if (! use_acedrg_tables_flag) return;
+
+   // acedrg_sqlite_tables (and the gemmi caches it wraps) are mutated per
+   // call via the function-local statics below, so serialize the whole
+   // function against concurrent callers.
+   static std::mutex m;
+   std::lock_guard<std::mutex> lock(m);
+
+   static acedrg_sqlite_tables acedrg_tables;
+   static bool have_tables = acedrg_tables.init(); // XDG cache dir; false if no DB
+   if (have_tables) {
+      std::pair<bool, dictionary_residue_restraints_t> p =
+         acedrg_tables.make_bond_and_angle_restraints(*restraints);
+      if (p.first) {
+         std::cout << "INFO:: acedrg-tables: " << p.second.bond_restraint.size()
+                   << " bond and " << p.second.angle_restraint.size()
+                   << " angle restraint values from AceDRG tables" << std::endl;
+         restraints->conservatively_replace_with(p.second);
+      }
+   }
+}
 
 // return also success status, true is good
 //
@@ -533,6 +571,8 @@ coot::mmcif_dict_from_mol_using_energy_lib(const std::string &comp_id,
       bool status_a = coot::fill_with_energy_lib_angles(mol, energy_lib, &restraints); // alter restraints
       bool status_t = coot::fill_with_energy_lib_torsions(mol, energy_lib, &restraints); // alter restraints
 
+      coot::overlay_acedrg_table_restraints(&restraints); // acedrg-first, energy-lib fallback
+
       int n_chirals = coot::assign_chirals(mol, &restraints); // alter restraints
       if (n_chirals) 
 	 restraints.assign_chiral_volume_targets();
@@ -554,11 +594,33 @@ coot::mmcif_dict_from_mol_using_energy_lib(const std::string &comp_id,
 
 // return success status - did we find something for all the bonds?
 // (executable should fall over if this fails).
-// 
+//
 bool
 coot::fill_with_energy_lib_bonds(const RDKit::ROMol &mol,
 				 const coot::energy_lib_t &energy_lib,
 				 coot::dictionary_residue_restraints_t *restraints) {
+
+   // We write the bond type the way that acedrg does: the type is the
+   // KEKULIZED bond order (SINGLE/DOUBLE/TRIPLE) and aromaticity is a
+   // separate flag (the "aromatic" y/n column of the output cif).
+   // Kekulize a copy with clearAromaticFlags=false so that getIsAromatic()
+   // still tells us which bonds get the flag.
+   RDKit::RWMol mol_kek(mol);
+   bool have_kekulized = true;
+   try {
+      RDKit::MolOps::Kekulize(mol_kek, false);
+   }
+   catch (const std::exception &e) {
+      std::cout << "WARNING:: fill_with_energy_lib_bonds(): kekulization failed: "
+                << e.what() << std::endl;
+      have_kekulized = false;
+   }
+   auto acedrg_style_bond_type = [] (RDKit::Bond::BondType bt) {
+      if (bt == RDKit::Bond::DOUBLE) return std::string("DOUBLE");
+      if (bt == RDKit::Bond::TRIPLE) return std::string("TRIPLE");
+      if (bt == RDKit::Bond::AROMATIC) return std::string("AROMATIC"); // shouldn't happen post-kekulize
+      return std::string("SINGLE");
+   };
 
    unsigned int n_bonds = mol.getNumBonds();
    for (unsigned int ib=0; ib<n_bonds; ib++) {
@@ -582,22 +644,56 @@ coot::fill_with_energy_lib_bonds(const RDKit::ROMol &mol,
 	    at_2->getProp("name", atom_name_2);
 	    try {
 	       std::string bt = convert_to_energy_lib_bond_type(bond_p->getBondType());
-	       energy_lib_bond bond =
-		  energy_lib.get_bond(atom_type_1, atom_type_2, bt); // add bond type as arg
-	       if (0) // or bond.needed_permissive
+	       energy_lib_bond bond;
+	       try {
+		  bond = energy_lib.get_bond(atom_type_1, atom_type_2, bt); // add bond type as arg
+	       }
+	       catch (const std::runtime_error &rte) {
+		  // Tautomers (and other unusual inputs) can pair ring-type
+		  // atoms with bond orders that ener_lib.cif doesn't list
+		  // (e.g. CR6-CR16 double). Try the other bond orders before
+		  // giving up - the value is only a starting point (the
+		  // AceDRG-tables overlay replaces the values for the bonds
+		  // that it knows).
+		  std::vector<std::string> fallback_orders = {"single", "aromatic", "deloc", "double", "triple"};
+		  bool found = false;
+		  for (const auto &fb : fallback_orders) {
+		     if (fb == bt) continue;
+		     try {
+			bond = energy_lib.get_bond(atom_type_1, atom_type_2, fb);
+			found = true;
+			std::cout << "INFO:: fill_with_energy_lib_bonds(): no " << bt << " bond for "
+				  << atom_type_1 << " " << atom_type_2 << " - using the " << fb
+				  << " bond value" << std::endl;
+			break;
+		     }
+		     catch (const std::runtime_error &rte_inner) {
+		     }
+		  }
+		  if (! found)
+		     throw; // reported below, as before
+	       }
+	       if (false) // or bond.needed_permissive
 		  std::cout << "....... " << atom_name_1 << " " << atom_name_2 << " types \""
 			    << atom_type_1 << "\" \"" << atom_type_2
 			    << "\" got bond " << bond << " with permissive search " << std::endl;
 	       std::string bond_type = bond.type;
-	       dict_bond_restraint_t bondr(atom_name_1, atom_name_2, bond_type, bond.length, bond.esd, 0.0, 0.0, false);
+	       dict_bond_restraint_t::aromaticity_t arom = dict_bond_restraint_t::UNASSIGNED;
+	       if (have_kekulized) {
+		  const RDKit::Bond *bond_kek_p = mol_kek.getBondWithIdx(ib);
+		  bond_type = acedrg_style_bond_type(bond_kek_p->getBondType());
+		  arom = bond_kek_p->getIsAromatic() ?
+		     dict_bond_restraint_t::AROMATIC : dict_bond_restraint_t::NON_AROMATIC;
+	       }
+	       dict_bond_restraint_t bondr(atom_name_1, atom_name_2, bond_type, bond.length, bond.esd, 0.0, 0.0, false, arom);
 	       restraints->bond_restraint.push_back(bondr);
 	    }
 	    catch (const std::runtime_error &rte) {
-	       std::cout << "ERROR::   runtime_error when adding bond restraint for bond number "
+	       std::cout << "ERROR:: fill_with_energy_lib_bonds(): runtime_error when adding bond restraint for bond number "
 			 << ib << " atom-names: " << atom_name_1 << " " << atom_name_2 << " "
 			 << rte.what() << std::endl;
-	    } 
-	 
+	    }
+
 	 }
 	 catch (const KeyErrorException &kee) {
 	    std::cout << "ERROR:: caught KeyErrorException in fill_with_energy_lib_bonds() - "
@@ -614,7 +710,7 @@ bool
 coot::fill_with_energy_lib_angles(const RDKit::ROMol &mol,
 				  const coot::energy_lib_t &energy_lib,
 				  coot::dictionary_residue_restraints_t *restraints) {
-   
+
    unsigned int n_atoms = mol.getNumAtoms();
    std::map<std::string, bool> done_angle;
    for (unsigned int iat_1=0; iat_1<n_atoms; iat_1++) { 
@@ -1639,7 +1735,7 @@ coot::add_chem_comp_sp2_C_planes(const RDKit::ROMol &mol, coot::dictionary_resid
 	 std::cout << "Matched " << matched << " sp2 N planes" << std::endl;
       for (unsigned int imatch=0; imatch<matches.size(); imatch++) {
 	 if (matches[imatch].size() > 0) {
-	    std::cout << "matched sp2 N plane pattern: " << patterns[ipat].first << std::endl;
+	    std::cout << "DEBUG:: add_chem_comp_sp2_C_planes(): matched sp2 N plane pattern: " << patterns[ipat].first << std::endl;
 	    std::string plane_id = "plane-sp2-N-";
 	    char s[100];
 	    snprintf(s,99,"%d", n_planes);
@@ -1691,7 +1787,7 @@ coot::add_chem_comp_sp2_N_planes(const RDKit::ROMol &mol, coot::dictionary_resid
 	 std::cout << "Matched " << matched << " sp2 N planes" << std::endl;
       for (unsigned int imatch=0; imatch<matches.size(); imatch++) { 
 	 if (matches[imatch].size() > 0) {
-	    std::cout << "matched sp2 N plane pattern: " << patterns[ipat].first << std::endl;
+	    std::cout << "DEBUG:: add_chem_comp_sp2_N_planes(): matched sp2 N plane pattern: " << patterns[ipat].first << std::endl;
 	    std::string plane_id = "plane-sp2-N-";
 	    char s[100];
 	    snprintf(s,99,"%d", n_planes);
@@ -1716,7 +1812,6 @@ coot::add_chem_comp_sp2_N_planes(const RDKit::ROMol &mol, coot::dictionary_resid
 	       }
 	    }
 	    catch (const KeyErrorException &kee) {
-		  
 	    }
 	    n_planes++;
 	 }
@@ -1913,7 +2008,7 @@ coot::assign_chirals_rdkit_tags(const RDKit::ROMol &mol,
 	 }
 
 	 catch (KeyErrorException &kee) {
-	    std::cout << "assign_chirals_rdkit_tags(): no prop name " << iat << std::endl;
+	    std::cout << "DEBUG:: in assign_chirals_rdkit_tags(): KEE no prop name for atom index: " << iat << std::endl;
 	 }
       }
    }

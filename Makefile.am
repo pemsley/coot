@@ -58,7 +58,6 @@ EXTRA_DIST = 		\
 	autogen.sh 	\
 	make-scheme-tar \
 	py-compile      \
-	standard-residues.pdb \
 	BUGS		\
 	depcomp 	\
 	libtool 	\
@@ -109,8 +108,7 @@ EXTRA_DIST = 		\
 
 # packdatadir is xxx/share/coot
 subpkgdatadir = $(pkgdatadir)
-subpkgdata_DATA = standard-residues.pdb cod-types-db-normalized.bin
-
+dist_subpkgdata_DATA = standard-residues.pdb cod-types-db-normalized.bin
 
 appdatadir = ${datarootdir}/appdata
 dist_appdata_DATA = coot.appdata.xml

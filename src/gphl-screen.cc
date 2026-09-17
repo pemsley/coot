@@ -173,6 +173,13 @@ std::vector<coot::atom_spec_t> gphl_atom_ids_to_atom_specs(const std::string &at
          }
       }
    }
+
+   if (false) {
+      std::cout << "returning " << atom_specs.size() << " atom specs" << std::endl;
+      for (unsigned int iat=0; iat<atom_specs.size(); iat++) {
+         std::cout << "   " << atom_specs[iat] << std::endl;
+      }
+   }
    return atom_specs;
 }
 
@@ -200,8 +207,6 @@ void go_to_gphl_atoms(int imol, const std::string &atom_ids, const std::string &
          graphics_info_t::pulse_marked_positions(positions, broken_lines_mode, n_rings, radius_overall, n_ticks, col, rf);
       }
    };
-
-   // std::cout << "DEBUG:: ::::::::::::::::::: go_to_gphl_atoms(): " << atom_ids << std::endl;
 
    bool debug = false;
 
@@ -516,6 +521,9 @@ void go_to_gphl_atoms(int imol, const std::string &atom_ids, const std::string &
       std::vector<coot::atom_spec_t> atom_specs = gphl_atom_ids_to_atom_specs(atom_ids, "aniso-sph-nonb");
       if (atom_specs.size() == 1) {
          mmdb:: Atom *at = coot::util::get_atom_using_fuzzy_search(atom_specs[0], mol);
+         if (debug)
+            std::cout << "debug:: aniso-sph-nonb found 1 atom " << atom_specs[0] << " atom at " << at
+                      << std::endl;
          if (at) {
             set_rotation_centre(at->x, at->y, at->z);
             pulse_atom_specs(imol, atom_specs);

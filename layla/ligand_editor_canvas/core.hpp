@@ -141,6 +141,8 @@ struct WidgetCoreData {
 
     bool allow_invalid_molecules;
     bool use_coordgen;
+    /// "Show Alerts": highlight atoms matching structural-alert SMARTS patterns.
+    bool show_alerts = false;
 
     DisplayMode display_mode;
 

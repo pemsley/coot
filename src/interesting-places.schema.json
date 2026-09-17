@@ -1,0 +1,142 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://www.mrc-lmb.cam.ac.uk/coot/schemas/interesting-places.schema.json",
+  "title": "Coot Interesting Places",
+  "description": "Schema for the JSON consumed by Coot's read_interesting_places_json() / read_interesting_places_json_file(). It describes a set of named sections, each holding a list of 'interesting' positions in the active molecule that are presented as buttons in the interesting-positions dialog.",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Title for the interesting-positions dialog. Optional; defaults to \"<Title>\" if absent."
+    },
+    "sections": {
+      "type": "array",
+      "description": "The sections shown in the dialog. Each section groups a set of items.",
+      "items": { "$ref": "#/$defs/section" }
+    }
+  },
+  "required": ["sections"],
+  "additionalProperties": true,
+
+  "$defs": {
+    "section": {
+      "type": "object",
+      "description": "A named group of interesting-position items.",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "Section heading. Optional."
+        },
+        "items": {
+          "type": "array",
+          "description": "The interesting positions in this section.",
+          "items": { "$ref": "#/$defs/item" }
+        }
+      },
+      "required": ["items"],
+      "additionalProperties": true
+    },
+
+    "item": {
+      "type": "object",
+      "description": "A single interesting position. The value of \"position-type\" selects which spec field is read; items lacking a recognised \"position-type\" are ignored.",
+      "properties": {
+        "position-type": {
+          "type": "string",
+          "enum": ["by-atom-spec", "by-atom-spec-pair", "by-residue-spec", "by-coordinates"],
+          "description": "Discriminator selecting how the position is specified."
+        },
+        "label": {
+          "type": "string",
+          "description": "Button label for this item."
+        },
+        "badness": {
+          "type": "number",
+          "description": "Optional severity/score. Honoured for \"by-atom-spec\" and \"by-residue-spec\"."
+        },
+        "atom-spec": {
+          "$ref": "#/$defs/atomSpec",
+          "description": "Used when position-type is \"by-atom-spec\"."
+        },
+        "atom-1-spec": {
+          "$ref": "#/$defs/atomSpec",
+          "description": "First atom; used when position-type is \"by-atom-spec-pair\"."
+        },
+        "atom-2-spec": {
+          "$ref": "#/$defs/atomSpec",
+          "description": "Second atom; used when position-type is \"by-atom-spec-pair\"."
+        },
+        "residue-spec": {
+          "$ref": "#/$defs/residueSpec",
+          "description": "Used when position-type is \"by-residue-spec\"."
+        },
+        "position": {
+          "$ref": "#/$defs/cartesian",
+          "description": "Used when position-type is \"by-coordinates\"."
+        }
+      },
+      "required": ["position-type"],
+      "additionalProperties": true,
+
+      "allOf": [
+        {
+          "if": { "properties": { "position-type": { "const": "by-atom-spec" } } },
+          "then": { "required": ["atom-spec"] }
+        },
+        {
+          "if": { "properties": { "position-type": { "const": "by-atom-spec-pair" } } },
+          "then": { "required": ["atom-1-spec", "atom-2-spec"] }
+        },
+        {
+          "if": { "properties": { "position-type": { "const": "by-residue-spec" } } },
+          "then": { "required": ["residue-spec"] }
+        },
+        {
+          "if": { "properties": { "position-type": { "const": "by-coordinates" } } },
+          "then": { "required": ["position"] }
+        }
+      ]
+    },
+
+    "atomSpec": {
+      "type": "array",
+      "description": "An atom specification as a 5-tuple: [chain_id, res_no, ins_code, atom_name, alt_conf]. Only read when it has exactly 5 elements.",
+      "minItems": 5,
+      "maxItems": 5,
+      "prefixItems": [
+        { "type": "string",  "description": "chain_id" },
+        { "type": "integer", "description": "res_no" },
+        { "type": "string",  "description": "ins_code" },
+        { "type": "string",  "description": "atom_name" },
+        { "type": "string",  "description": "alt_conf" }
+      ],
+      "items": false
+    },
+
+    "residueSpec": {
+      "type": "array",
+      "description": "A residue specification. Either a 3-tuple [chain_id, res_no, ins_code], or a 5-tuple whose first three elements are used (an ins_code of a single space is treated as empty). Only 3- or 5-element arrays are read.",
+      "minItems": 3,
+      "maxItems": 5,
+      "prefixItems": [
+        { "type": "string",  "description": "chain_id" },
+        { "type": "integer", "description": "res_no" },
+        { "type": "string",  "description": "ins_code" }
+      ],
+      "items": true
+    },
+
+    "cartesian": {
+      "type": "array",
+      "description": "A position in orthogonal coordinates as [x, y, z]. Only read when it has exactly 3 elements.",
+      "minItems": 3,
+      "maxItems": 3,
+      "prefixItems": [
+        { "type": "number", "description": "x" },
+        { "type": "number", "description": "y" },
+        { "type": "number", "description": "z" }
+      ],
+      "items": false
+    }
+  }
+}

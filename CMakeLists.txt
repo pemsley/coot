@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.14)
 
 # Build-variant dispatch: configure with -DCOOT_GEMMI=ON to use CMakeLists-gemmi.txt
 # (the mmdb->gemmi migration build) instead of this full build. Both build dirs coexist.
@@ -31,6 +31,7 @@ find_package(BLAS)
 find_package(GSL REQUIRED)
 find_package(PNG REQUIRED)
 find_package(GEMMI REQUIRED)
+find_package(SQLite3 REQUIRED)
 find_package(Threads REQUIRED)
 find_package(Boost COMPONENTS iostreams regex thread serialization REQUIRED)
 find_package(glm REQUIRED)
@@ -84,9 +85,9 @@ endif()
 
 set(coot_src ${CMAKE_CURRENT_SOURCE_DIR})
 
-add_definitions(-DANALYSE_REFINEMENT_TIMING -DPACKAGE_VERSION="1.3.1"
+add_definitions(-DANALYSE_REFINEMENT_TIMING -DPACKAGE_VERSION="1.3.3"
   -DHAVE_CXX_THREAD -DHAVE_SSMLIB -DHAVE_BOOST -DUSE_LIBPNG=1 -DCLIPPER_HAS_TOP8000 -DUSE_GEMMI
-  -DHAVE_BOOST_THREAD -DHAVE_GSL -DLIBCOOTAPI_BUILD
+  -DHAVE_BOOST_THREAD -DHAVE_GSL -DLIBCOOTAPI_BUILD -DUSE_SQLITE3
   -DPKGDATADIR="${CMAKE_INSTALL_PREFIX}/share/coot" -DXDATADIR="${CMAKE_INSTALL_PREFIX}/share")
 
 # 20250314-PE: Charles, I guess that you will need to comment out this block
@@ -197,6 +198,7 @@ add_library(cootapi SHARED
             ${coot_src}/lidia-core/svg-molecule.cc
             ${coot_src}/lidia-core/cod-types.cc
             ${coot_src}/lidia-core/cod-atom-types.cc
+            ${coot_src}/lidia-core/cod-atom-types-acedrg.cc
             ${coot_src}/lidia-core/cod-types-similarity.cc
             ${coot_src}/lidia-core/chemical-feature-clusters.cc
             ${coot_src}/lidia-core/bond-record-container-t.cc
@@ -228,11 +230,18 @@ add_library(cootapi SHARED
             ${coot_src}/api/ghost-molecule-display.cc
             ${coot_src}/api/model-analysis.cc
             ${coot_src}/api/molecules-container.cc
+            ${coot_src}/api/molecules-container-refine.cc
+            ${coot_src}/api/molecules-container-analysis.cc
             ${coot_src}/api/molecules-container-blender.cc
             ${coot_src}/api/molecules-container-bucca-ml-growing.cc
             ${coot_src}/api/molecules-container-gltf.cc
             ${coot_src}/api/molecules-container-raytrace.cc
             ${coot_src}/api/molecules-container-ligand-fitting.cc
+            ${coot_src}/api/molecules-container-pdbqt.cc
+            ${coot_src}/coot-utils/pdbqt.cc
+            ${coot_src}/coot-utils/pdbqt-charges.cc
+            ${coot_src}/lidia-core/pdbqt-common.cc
+            ${coot_src}/lidia-core/pdbqt-ligand.cc
             ${coot_src}/api/molecules-container-maps.cc
             ${coot_src}/api/molecules-container-mmrrcc.cc
             ${coot_src}/api/molecules-container-molecular-placement.cc
@@ -269,6 +278,8 @@ add_library(cootapi SHARED
             ${coot_src}/ideal/pepflip.cc
             ${coot_src}/ideal/parallel-planes.cc
             ${coot_src}/ideal/simple-restraint.cc
+            ${coot_src}/ideal/simple-restraint-nbc.cc
+            ${coot_src}/ideal/simple-restraint-density.cc
             ${coot_src}/ideal/ng.cc
             ${coot_src}/ideal/torsion-bonds.cc
             ${coot_src}/ideal/chi-squareds.cc
@@ -344,6 +355,7 @@ add_library(cootapi SHARED
             ${coot_src}/coot-utils/coot-least-squares.cc
             ${coot_src}/coot-utils/diff-diff-map-peaks.cc
             ${coot_src}/coot-utils/gltf-export.cc
+            ${coot_src}/coot-utils/grid-balls.cc
             ${coot_src}/coot-utils/shiftfield.cpp
             ${coot_src}/coot-utils/gaussian-atom-map-for-mask.cc
             ${coot_src}/coot-utils/stack-and-pair.cc
@@ -358,6 +370,7 @@ add_library(cootapi SHARED
             ${coot_src}/coot-utils/atom-selection-container.cc
             ${coot_src}/coot-utils/blob-line.cc
             ${coot_src}/coot-utils/coot-coord-utils-glyco.cc
+            ${coot_src}/coot-utils/coot-coord-utils-gemmi.cc
             ${coot_src}/coot-utils/coot-coord-utils.cc
             ${coot_src}/coot-utils/coot-coord-utils-mmdb-free.cc
             ${coot_src}/coot-utils/merge-molecules.cc
@@ -368,6 +381,7 @@ add_library(cootapi SHARED
             ${coot_src}/coot-utils/c-beta-deviations.cc
             ${coot_src}/coot-utils/atom-tools.cc
             ${coot_src}/coot-utils/coot-rama.cc
+            ${coot_src}/coot-utils/cremer-pople.cc
             ${coot_src}/coot-utils/secondary-structure-headers.cc
             ${coot_src}/coot-utils/helix-like.cc
             ${coot_src}/coot-utils/polar-atoms.cc
@@ -410,6 +424,7 @@ add_library(cootapi SHARED
             ${coot_src}/coot-utils/contact-info.cc
             ${coot_src}/coot-utils/hole.cc
             ${coot_src}/coot-utils/slurp-map.cc
+            ${coot_src}/coot-utils/read-cube.cc
             ${coot_src}/coot-utils/read-sm-cif.cc
             ${coot_src}/coot-utils/exp-fit.cc
             ${coot_src}/coot-utils/cylinder.cc
@@ -424,6 +439,8 @@ add_library(cootapi SHARED
             ${coot_src}/coot-utils/gl-matrix-eigensystem.cc
             ${coot_src}/coot-utils/patterson.cc
             ${coot_src}/coot-utils/crowther.cc
+            ${coot_src}/coot-utils/acedrg-sqlite-tables.cc
+            ${coot_src}/coot-utils/acedrg-input-mmcif.cc
             ${coot_src}/coords/Bond_lines.cc
             ${coot_src}/coords/Bond_lines_ext.cc
             ${coot_src}/coords/coot-close.cc
@@ -554,10 +571,11 @@ if(MAEPARSER_LIBS)
 endif()
 
 # --- Embedded API docstrings -------------------------------------------------
-# Parse the doxygen XML at build time and generate a C++ source that embeds the
-# docstrings into the module, so the documentation is available at runtime even
-# when the source tree (and the doxygen XML) has been removed.
-set(COOT_DOCSTRING_XML ${coot_src}/api/doxy-sphinx/xml/classmolecules__container__t.xml)
+# Chain: doxygen (curated .cfg) -> XML -> coot-make-docstrings -> generated .cc,
+# which is compiled into the coot_headless_api module so the docstrings are
+# available at runtime even when the source tree has been removed. Everything
+# lives in the build tree; the source-code build only needs the XML, not
+# sphinx/breathe/HTML.
 set(COOT_DOCSTRINGS_GENERATED ${CMAKE_CURRENT_BINARY_DIR}/coot-docstrings-generated.cc)
 
 add_executable(coot-make-docstrings ${coot_src}/api/make-docstrings-source.cc
@@ -566,29 +584,51 @@ add_executable(coot-make-docstrings ${coot_src}/api/make-docstrings-source.cc
 target_include_directories(coot-make-docstrings PRIVATE ${coot_src} ${coot_src}/api ${coot_src}/coot-utils)
 target_compile_features(coot-make-docstrings PRIVATE cxx_std_17)
 
-# Only depend on the XML if it exists at configure time, so a fresh tree without
-# doxygen output still configures and builds (with an empty docstring table).
-if (EXISTS ${COOT_DOCSTRING_XML})
-  set(COOT_DOCSTRING_XML_DEP ${COOT_DOCSTRING_XML})
-else()
-  set(COOT_DOCSTRING_XML_DEP "")
-endif()
-
-add_custom_command(
-  OUTPUT ${COOT_DOCSTRINGS_GENERATED}
-  COMMAND coot-make-docstrings ${COOT_DOCSTRING_XML} ${COOT_DOCSTRINGS_GENERATED}
-  DEPENDS coot-make-docstrings ${COOT_DOCSTRING_XML_DEP}
-  COMMENT "Generating embedded API docstrings from doxygen XML"
-  VERBATIM)
-# -----------------------------------------------------------------------------
-
+# Expand the @CMAKE_CURRENT_SOURCE_DIR@ / @CMAKE_CURRENT_BINARY_DIR@ tokens in the
+# curated doxygen config into <build>/Doxyfile (this is the only place they are
+# expanded). OUTPUT_DIRECTORY in the .cfg points at ${CMAKE_CURRENT_BINARY_DIR}/doxygen.
 configure_file(
         ${CMAKE_CURRENT_SOURCE_DIR}/api/doxy-sphinx/coot-api-dox.cfg
         ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
         @ONLY
 )
 
-doxygen_add_docs(docs)
+# The molecules_container_t XML is the file the docstring extractor reads; it
+# stands in for the whole xml/ tree as this command's output. Listing the parsed
+# headers as DEPENDS means editing any of them re-runs doxygen. NB: doxygen_add_docs()
+# is deliberately NOT used - it writes its own Doxyfile and ignores the curated
+# INPUT/PREDEFINED in the .cfg.
+set(COOT_DOCSTRING_XML ${CMAKE_CURRENT_BINARY_DIR}/doxygen/xml/classmolecules__container__t.xml)
+set(COOT_DOXYGEN_INPUTS
+    ${coot_src}/api/molecules-container.hh   ${coot_src}/api/coot-molecule.hh
+    ${coot_src}/coot-utils/simple-mesh.hh    ${coot_src}/api/instancing.hh
+    ${coot_src}/api/superpose-results.hh     ${coot_src}/api/validation-information.hh
+    ${coot_src}/coot-utils/vertex.hh         ${coot_src}/geometry/residue-and-atom-specs.hh
+    ${coot_src}/coot-utils/sfcalc-genmap.hh  ${coot_src}/coot-utils/coot-density-stats.hh
+    ${coot_src}/coot-utils/coot-map-utils.hh ${coot_src}/coords/mmdb-crystal.hh
+    ${coot_src}/coords/Cartesian.hh          ${coot_src}/api/generic-3d-lines.hh
+    ${coot_src}/analysis/stats.hh            ${coot_src}/api/moorhen-h-bonds.hh
+    ${coot_src}/api/coot-colour.hh           ${coot_src}/api/api-cell.hh
+    ${coot_src}/coot-utils/g_triangle.hh     ${coot_src}/api/residue-validation-information.hh)
+
+add_custom_command(
+  OUTPUT ${COOT_DOCSTRING_XML}
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/doxygen
+  COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+  DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile ${COOT_DOXYGEN_INPUTS}
+  COMMENT "Generating API documentation XML with Doxygen"
+  VERBATIM)
+
+# Convenience target: `make docs` (re)generates just the XML.
+add_custom_target(docs DEPENDS ${COOT_DOCSTRING_XML})
+
+add_custom_command(
+  OUTPUT ${COOT_DOCSTRINGS_GENERATED}
+  COMMAND coot-make-docstrings ${COOT_DOCSTRING_XML} ${COOT_DOCSTRINGS_GENERATED}
+  DEPENDS coot-make-docstrings ${COOT_DOCSTRING_XML}
+  COMMENT "Generating embedded API docstrings from doxygen XML"
+  VERBATIM)
+# -----------------------------------------------------------------------------
 
 nanobind_add_module(coot_headless_api ${coot_src}/api/molecules-container-nanobind.cc
                                       ${coot_src}/api/molecules-container-nanobind-functions.cc
@@ -635,7 +675,7 @@ target_link_libraries(cootmoleculestotriangles PRIVATE ${SSM_LIBRARY} ${CLIPPER-
 
 # Charles adds Boost::iostreams Boost::filesystem Boost::system. I don't know why Boost::filesystem was added - I have removed it.
 # 2025-09-20 14:15 PE: Boost::system is no longer a thing - I have removed it
-target_link_libraries(cootapi PRIVATE cootmoleculestotriangles ${SSM_LIBRARY} ${CLIPPER-MINIMOL_LIBRARY} ${CLIPPER-MMDB_LIBRARY} ${CLIPPER-CIF_LIBRARY} ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${CLIPPER-CONTRIB_LIBRARY} ${FFTW2_LIBRARY} ${RFFTW2_LIBRARY} ${MMDB2_LIBRARY} ${CCP4C_LIBRARY} ${ZLIB_LIBRARIES} ${GSL_LIBRARIES} ${GSL_CBLAS_LIBRARY} ${RDKit_libs_for_libcootapi} ${PNG_LIBRARY} Boost::thread Boost::iostreams gemmi::gemmi_cpp ${libdwarf} ${libelf})
+target_link_libraries(cootapi PRIVATE cootmoleculestotriangles ${SSM_LIBRARY} ${CLIPPER-MINIMOL_LIBRARY} ${CLIPPER-MMDB_LIBRARY} ${CLIPPER-CIF_LIBRARY} ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${CLIPPER-CONTRIB_LIBRARY} ${FFTW2_LIBRARY} ${RFFTW2_LIBRARY} ${MMDB2_LIBRARY} ${CCP4C_LIBRARY} ${ZLIB_LIBRARIES} ${GSL_LIBRARIES} ${GSL_CBLAS_LIBRARY} ${RDKit_libs_for_libcootapi} ${PNG_LIBRARY} Boost::thread Boost::iostreams gemmi::gemmi_cpp SQLite::SQLite3 ${libdwarf} ${libelf})
 
 if (OSPRAY_PREFIX)
    target_link_libraries(cootapi PRIVATE ospray::ospray)
@@ -654,22 +694,6 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   )
   target_link_libraries(cootapi PRIVATE netapi32.lib)
 endif()
-
-# Generate the doxygen XML that the embedded-docstring generator consumes
-# (COOT_DOCSTRING_XML, above). Run doxygen directly with the curated config file
-# from its own directory: the INPUT paths in coot-api-dox.cfg are relative to
-# api/doxy-sphinx/, and with no OUTPUT_DIRECTORY set the XML lands in
-# api/doxy-sphinx/xml/ - exactly where the generator looks for it.
-#
-# Note: doxygen_add_docs() is deliberately not used here - it generates its own
-# Doxyfile and ignores the curated INPUT list and PREDEFINED macros in the cfg.
-# add_custom_target(docs
-# COMMAND ${DOXYGEN_EXECUTABLE} coot-api-dox.cfg
-# WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/api/doxy-sphinx
-# COMMENT "Generating API documentation XML with Doxygen"
-# VERBATIM)
-
-#WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/api/doxy-sphinx
 
 target_include_directories(coot_headless_api PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${coot_src}/ccp4mg-utils
                                                      ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4mg-utils/pygl ${coot_src}/api
@@ -791,6 +815,13 @@ install(DIRECTORY ${CMAKE_SOURCE_DIR}/monomers DESTINATION share/coot/lib/data
 install(TARGETS coot_headless_api DESTINATION ${Python_SITELIB_REL})
 
 install(TARGETS coot_headless_api DESTINATION lib)
+
+# The chapi Python package: on import it points coot_headless_api at the
+# installed data dir. Installs as <site-packages>/chapi/__init__.py.
+# .... 2026-07-14 - I don't think this is the right thing to do.
+#   AFAICS, this works when Coot and Python share a (run-time) prefix.
+#   Is that the problem that I want to solve?
+# install(FILES ${coot_src}/chapi/__init__.py DESTINATION ${Python_SITELIB_REL}/chapi)
 
 # thanks merkys
 set_target_properties(cootapi PROPERTIES SOVERSION 1.2)

@@ -28,6 +28,8 @@
 #include <iostream>
 #include <sstream>
 #include "coot-utils/simple-mesh.hh"
+#include "geometry/residue-and-atom-specs.hh"
+#include "mmdb2/mmdb_atom.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
@@ -47,6 +49,8 @@
 
 #include "add-terminal-residue.hh"
 #include "molecules-container.hh"
+
+#include "coot-utils/grid-balls.hh"
 
 
 bool
@@ -2326,6 +2330,99 @@ coot::molecule_t::delete_literal_using_cid(const std::string &atom_selection_cid
             // save_info.new_modification(s);
    }
    return status;
+}
+
+int coot::molecule_t::delete_all_hetgroups() {
+
+   int n_deleted = 0;
+   std::vector<mmdb::Residue *> residues_to_be_deleted;
+   if (atom_sel.mol) {
+      for(int imod = 1; imod<=atom_sel.mol->GetNumberOfModels(); imod++) {
+         mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+         if (model_p) {
+            int n_chains = model_p->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains; ichain++) {
+               mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               int n_res = chain_p->GetNumberOfResidues();
+               for (int ires=0; ires<n_res; ires++) {
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                  if (residue_p) {
+                     int n_atoms = residue_p->GetNumberOfAtoms();
+                     bool res_is_het = false;
+                     for (int iat=0; iat<n_atoms; iat++) {
+                        mmdb::Atom *at = residue_p->GetAtom(iat);
+                        if (! at->isTer()) {
+                           if (at->Het) {
+                              res_is_het = true;
+                              break;
+                           }
+                        }
+                     }
+                     if (res_is_het) {
+                        residues_to_be_deleted.push_back(residue_p);
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+   if (! residues_to_be_deleted.empty()) {
+      std::string s = std::string("delete-all-hetgroups");
+      make_backup(s);
+      n_deleted = residues_to_be_deleted.size();
+      for (auto residue : residues_to_be_deleted) {
+         delete residue ;
+      }
+      atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+      atom_sel.mol->FinishStructEdit();
+      atom_sel = make_asc(atom_sel.mol);
+      coot::util::pdbcleanup_serial_residue_numbers(atom_sel.mol);
+   }
+   return n_deleted;
+}
+
+int coot::molecule_t::delete_all_waters() {
+
+   int n_deleted = 0;
+   std::vector<mmdb::Residue *> residues_to_be_deleted;
+
+   if (atom_sel.mol) {
+      for(int imod = 1; imod<=atom_sel.mol->GetNumberOfModels(); imod++) {
+         mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+         if (model_p) {
+            int n_chains = model_p->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains; ichain++) {
+               mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               int n_res = chain_p->GetNumberOfResidues();
+               for (int ires=0; ires<n_res; ires++) {
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                  if (residue_p) {
+                     std::string res_name = residue_p->GetResName();
+                     if (res_name == "HOH") {
+                        residues_to_be_deleted.push_back(residue_p);
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+
+   if (! residues_to_be_deleted.empty()) {
+      std::string s = std::string("delete-all-waters");
+      make_backup(s);
+
+      n_deleted = residues_to_be_deleted.size();
+      for (auto residue : residues_to_be_deleted) {
+         delete residue;
+      }
+      atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+      atom_sel.mol->FinishStructEdit();
+      atom_sel = make_asc(atom_sel.mol);
+      coot::util::pdbcleanup_serial_residue_numbers(atom_sel.mol);
+   }
+   return n_deleted;
 }
 
 #include "geometry/main-chain.hh"
@@ -4830,6 +4927,7 @@ coot::molecule_t::match_torsions(mmdb::Residue *res_reference,
 
    if (res_ligand) { // the local (moving) residue is xxx_ligand
       std::string res_name_ligand(res_ligand->GetResName());
+      std::cout << "DEBUG:: res_ligand " << coot::residue_spec_t(res_ligand) << " \"" << res_name_ligand << "\"" << std::endl;
       std::pair<bool, coot::dictionary_residue_restraints_t> ligand_restraints_info =
          geom.get_monomer_restraints(res_name_ligand, imol_no);
       if (ligand_restraints_info.first) {
@@ -4845,10 +4943,10 @@ coot::molecule_t::match_torsions(mmdb::Residue *res_reference,
             n_torsions_moved = mt.match(tr_ligand, tr_ref_res);
             atom_sel.mol->FinishStructEdit();
          } else {
-            std::cout << "WARNING torsion restraints of ligand: size 0" << std::endl;
+            std::cout << "WARNING:: torsion restraints of ligand: size 0" << std::endl;
          }
       } else {
-         std::cout << "WARNING ligand_restraints_info.first failed " << std::endl;
+         std::cout << "WARNING:: ligand_restraints_info.first failed res-name: \"" << res_name_ligand << "\" " << imol_no << std::endl;
       }
    } else {
       std::cout << "WARNING:: null ligand residue (trying to get first) " << std::endl;
@@ -5245,7 +5343,56 @@ coot::molecule_t::set_occupancy(const std::string &cid, float occ_new) {
 std::vector<std::pair<std::string, std::string> >
 coot::molecule_t::get_sequence_info() const {
 
+   // 20260710-PE c.f. get_fragment_by_fragment_scores() function
+   auto residue_to_single_letter_code = [] (mmdb::Residue *residue_p) {
+      char code = '-';
+      std::string res_name = residue_p->GetResName();
+      if (res_name == "ALA") code = 'A';
+      if (res_name == "CYS") code = 'C';
+      if (res_name == "ASP") code = 'D';
+      if (res_name == "GLU") code = 'E';
+      if (res_name == "PHE") code = 'F';
+      if (res_name == "GLY") code = 'G';
+      if (res_name == "HIS") code = 'H';
+      if (res_name == "ILE") code = 'I';
+      if (res_name == "LYS") code = 'K';
+      if (res_name == "LEU") code = 'L';
+      if (res_name == "MET") code = 'M';
+      if (res_name == "MSE") code = 'M';
+      if (res_name == "ASN") code = 'N';
+      if (res_name == "PRO") code = 'P';
+      if (res_name == "GLN") code = 'Q';
+      if (res_name == "ARG") code = 'R';
+      if (res_name == "SER") code = 'S';
+      if (res_name == "THR") code = 'T';
+      if (res_name == "VAL") code = 'V';
+      if (res_name == "TRP") code = 'W';
+      if (res_name == "TYR") code = 'Y';
+      return code;
+   };
+
    std::vector<std::pair<std::string, std::string> > v;
+   // pairs of chain-id and single-letter code sequence
+   int imod = 1;
+   mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         int n_res = chain_p->GetNumberOfResidues();
+         std::string chain_id(chain_p->GetChainID());
+         std::string seq;
+         for (int ires=0; ires<n_res; ires++) {
+            mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+            if (residue_p) {
+               char slc = residue_to_single_letter_code(residue_p);
+               seq += slc;
+            }
+         }
+         v.push_back(std::pair<std::string, std::string>(chain_id, seq));
+      }
+   }
+
    return v;
 
 }
@@ -5493,5 +5640,53 @@ coot::molecule_t::get_test_function_on_surface_mesh(const std::string &cid,
    float height_scale = 0.3f;
    simple_mesh_t mesh = make_surface_on_torus(rama_data, R, r, height_scale);
    return mesh;
+
+}
+
+std::vector<coot::simple_mesh_t> coot::molecule_t::get_cavities(const protein_geometry *geom_p) const {
+
+   std::vector<simple_mesh_t> cavity_meshes;
+
+   // geom.init_refmac_mon_lib("PC1.cif", read_number); need PC1 for testing.
+   // but do it in python
+
+   int imol = 0;
+   grid_balls_t gb(imol, atom_sel.mol, geom_p, 1.4, 4.5);
+   gb.write_cavity_points("cavity-points.table");
+   gb.write_subpocket_points("subpocket-points.table");
+
+   // A Gaussian surface for each (non-trivial) cavity: build an mmdb molecule from
+   // the cavity's grid points (create_mmdbmanager_from_points() uses chain "A"), then
+   // contour it. Skip tiny cavities that can't make a meaningful surface.
+   const std::string chain_id = "A";
+   float sigma         = 1.2;
+   float contour_level = 3.2;
+   float box_radius    = 3.0;
+   float grid_scale    = 2.0;
+   float b_factor      = 2.0;
+   unsigned int min_points_for_mesh = 50;
+   min_points_for_mesh = 100; // updated 2026-09-04
+
+   for (unsigned int ic=0; ic<gb.cavities.size(); ic++) {
+      const coot::grid_balls_t::cavity_t &cav = gb.cavities[ic];
+      if (cav.grid_indices.size() < min_points_for_mesh) continue;
+
+      std::vector<clipper::Coord_orth> pts;
+      pts.reserve(cav.grid_indices.size());
+      for (unsigned int i=0; i<cav.grid_indices.size(); i++) {
+         coot::grid_balls_t::point_3d_t p =
+            gb.grid_point_to_mol_space(gb.deindex(cav.grid_indices[i]));
+         pts.push_back(clipper::Coord_orth(p.x, p.y, p.z));
+      }
+
+      mmdb::Manager *cav_mol = coot::util::create_mmdbmanager_from_points(pts, b_factor);
+      cav_mol->FinishStructEdit();
+      gaussian_surface_t gauss_surf(cav_mol, chain_id, sigma, contour_level,
+                                    box_radius, grid_scale, b_factor);
+      cavity_meshes.push_back(gauss_surf.get_surface());
+      delete cav_mol;
+   }
+
+   return cavity_meshes;
 
 }

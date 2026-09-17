@@ -630,7 +630,8 @@ coot::protein_geometry::find_glycosidic_linkage_type_by_distance(mmdb::Residue *
 	    if (name_2 == " C1 ")
 	       if (close[i].distance < smallest_link_dist) {
 		  coot::atom_quad glyco_chiral_quad(first, second, "BETA1-6");
-		  if (glyco_chiral_quad.chiral_volume() < 0.0) {
+		  // BETA anomer: positive chiral volume (consistent with 1-2/1-3/1-4 links)
+		  if (glyco_chiral_quad.chiral_volume() > 0.0) {
 		     smallest_link_dist = close[i].distance;
 		     link_type = "BETA1-6";
 		  }
@@ -687,7 +688,9 @@ coot::protein_geometry::find_glycosidic_linkage_type_by_distance(mmdb::Residue *
 	    if (name_2 == " C1 ")
 	       if (close[i].distance < smallest_link_dist) {
 		  coot::atom_quad glyco_chiral_quad(first, second, "ALPHA1-6");
-		  if (glyco_chiral_quad.chiral_volume() > 0.0) {
+		  // ALPHA anomer: negative chiral volume (consistent with 1-2/1-3/1-4 links).
+		  // Verified on 2qc1 chain C MAN 3 -(a1-6)- MAN 7: chiral volume -2.27 -> ALPHA1-6.
+		  if (glyco_chiral_quad.chiral_volume() < 0.0) {
 		     smallest_link_dist = close[i].distance;
 		     link_type = "ALPHA1-6";
 		  }

@@ -43,6 +43,23 @@
 #include <string>
 #include "network_utils.hpp"
 
+// Prevents preprocessor substitution of `VERSION` in `MolPickler.h`
+#ifndef RD_MOLPICKLE_H
+
+#ifdef VERSION
+#define __COOT_VERSION_VALUE VERSION
+#undef VERSION
+#endif
+
+#include <rdkit/GraphMol/MolPickler.h>
+
+#ifdef __COOT_VERSION_VALUE
+#define VERSION __COOT_VERSION_VALUE
+#undef __COOT_VERSION_VALUE
+#endif
+
+#endif //RD_MOLPICKLE_H
+
 using namespace coot::layla;
 
 LaylaState::LaylaState(CootLigandEditorCanvas* canvas_widget, GtkWindow* win, GtkLabel* status_label) noexcept {
@@ -563,6 +580,7 @@ void LaylaState::run_file_save_dialog(unsigned int molecule_idx) noexcept {
     add_filter("InChI (*.inchi)", {"inchi"});
     add_filter("CDXML (*.cdxml)", {"cdxml"});
     add_filter("SMILES (*.smi)", {"smi"});
+    add_filter("RDKit pickle (*.pkl)", {"pkl", "pickle"});
     gtk_file_dialog_set_filters(save_dialog, G_LIST_MODEL(filters));
     g_object_unref(filters);
 

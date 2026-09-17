@@ -135,19 +135,35 @@ void extract_wireframe_from_mesh(const coot::simple_mesh_t &mesh,
 } // anonymous namespace
 
 void
-molecules_container_t::ray_trace_init() {
+molecules_container_t::ray_trace_init(int n_threads) {
 
 #ifdef HAVE_OSPRAY
    if (!ospray_is_initialized) {
-      OSPError err = ospInit(nullptr, nullptr);
+      // n_threads <= 0 (the default) leaves OSPRay/Embree at its default (all
+      // available hardware threads). A positive value caps the thread (core)
+      // count via OSPRay's "--osp:num-threads" argument, which is applied before
+      // the device is committed - the reliable point to set it.
+      OSPError err = OSP_NO_ERROR;
+      if (n_threads > 0) {
+         std::string threads_arg = "--osp:num-threads=" + std::to_string(n_threads);
+         const char *argv[] = { "coot", threads_arg.c_str() };
+         int argc = 2;
+         err = ospInit(&argc, argv);
+      } else {
+         err = ospInit(nullptr, nullptr);
+      }
       if (err != OSP_NO_ERROR) {
          std::cout << "ERROR:: ray_trace_init(): ospInit() failed with error " << err << std::endl;
       } else {
          ospray_is_initialized = true;
-         std::cout << "INFO:: OSPRay initialized" << std::endl;
+         if (n_threads > 0)
+            std::cout << "INFO:: OSPRay initialized (limited to " << n_threads << " thread(s))" << std::endl;
+         else
+            std::cout << "INFO:: OSPRay initialized" << std::endl;
       }
    }
 #else
+   (void) n_threads;
    std::cout << "WARNING:: ray_trace_init(): Coot was built without OSPRay support" << std::endl;
 #endif
 }
@@ -203,6 +219,16 @@ molecules_container_t::ray_trace_image(const std::string &json_str) {
       return;
    }
 
+   // Optional explicit scene centre for map contouring. This is the look-at target
+   // (e.g. the ligand centre), NOT the camera position. When absent, maps are
+   // contoured on the model bounding-box centre (see below).
+   bool have_explicit_centre = false;
+   glm::vec3 explicit_centre(0.0f, 0.0f, 0.0f);
+   if (j.contains("centre") && j["centre"].is_array() && j["centre"].size() >= 3) {
+      explicit_centre = glm::vec3(j["centre"][0], j["centre"][1], j["centre"][2]);
+      have_explicit_centre = true;
+   }
+
    // ---- 1. Generate geometry ----
 
    // Model meshes are triangle geometry; map meshes are wireframe (curve geometry).
@@ -223,7 +249,23 @@ molecules_container_t::ray_trace_image(const std::string &json_str) {
    glm::vec3 model_bb_min( 1e30f,  1e30f,  1e30f);
    glm::vec3 model_bb_max(-1e30f, -1e30f, -1e30f);
 
+   // Process models before maps: map contouring centres on the model bounding box,
+   // so all models must be seen first. Without this, the result depends on the
+   // (lexicographically sorted) key order of the "molecules" object - a map with a
+   // lower-numbered imol than the model would be contoured at the origin.
+   std::vector<std::string> ordered_keys, map_keys, other_keys;
    for (auto &[key, mol_params] : j["molecules"].items()) {
+      int imol = std::stoi(key);
+      if (imol < 0) continue;   // silently skip sentinel indices (e.g. -1 from a missing file)
+      if (is_valid_model_molecule(imol))    ordered_keys.push_back(key);
+      else if (is_valid_map_molecule(imol)) map_keys.push_back(key);
+      else                                  other_keys.push_back(key);
+   }
+   ordered_keys.insert(ordered_keys.end(), map_keys.begin(),   map_keys.end());
+   ordered_keys.insert(ordered_keys.end(), other_keys.begin(), other_keys.end());
+
+   for (const std::string &key : ordered_keys) {
+      auto &mol_params = j["molecules"][key];
       int imol = std::stoi(key);
 
       if (is_valid_model_molecule(imol)) {
@@ -288,16 +330,22 @@ molecules_container_t::ray_trace_image(const std::string &json_str) {
                map_colour = rkcommon::math::vec4f(mc[0], mc[1], mc[2], mc.size() >= 4 ? float(mc[3]) : 1.0f);
          }
 
-         // Determine map centre and radius from model bounding box if available
+         // Determine the map centre: an explicit JSON "centre" wins, otherwise the
+         // model bounding-box centre (all models have been processed by now).
          glm::vec3 map_centre(0.0f, 0.0f, 0.0f);
-         if (have_model) {
+         if (have_explicit_centre)
+            map_centre = explicit_centre;
+         else if (have_model)
             map_centre = 0.5f * (model_bb_min + model_bb_max);
-            if (map_radius < 0.0f) {
+
+         // Default radius from the model bounding box when not given.
+         if (map_radius < 0.0f) {
+            if (have_model) {
                float extent = glm::length(model_bb_max - model_bb_min);
                map_radius = extent * 0.5f + 5.0f;
+            } else {
+               map_radius = 20.0f;
             }
-         } else {
-            if (map_radius < 0.0f) map_radius = 20.0f;
          }
 
          clipper::Coord_orth position(map_centre.x, map_centre.y, map_centre.z);

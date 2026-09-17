@@ -23,7 +23,7 @@ pkginclude_HEADERS = lbg-shared.hh lbg-molfile.hh lig-build.hh \
 	cod-atom-types.hh cod-atom-type-t.hh primes.hh \
 	cod-types-similarity.hh \
 	chemical-feature-clusters.hh third-neighbour-info-t.hh get-residue.hh \
-	svg-molecule.hh svg-container.hh
+	svg-molecule.hh svg-container.hh pdbqt-common.hh pdbqt-ligand.hh
 
 pkgincludedir = $(includedir)/coot/lidia-core
 
@@ -39,12 +39,13 @@ AM_CPPFLAGS = \
 libcoot_lidia_core_la_SOURCES = lbg-shared.cc lbg-molfile.cc lig-build.cc \
 	rdkit-interface.cc cod-types.cc atom-types.cc bond-record-container-t.cc \
 	cod-atom-type-t.cc cod-atom-types.cc bond-table-record-t.cc \
-	cod-types-similarity.cc \
-	chemical-feature-clusters.cc get-residue.cc svg-molecule.cc
+	cod-types-similarity.cc cod-atom-types-acedrg.cc \
+	chemical-feature-clusters.cc get-residue.cc svg-molecule.cc \
+	pdbqt-common.cc pdbqt-ligand.cc
 
 # Are these needed?
-#   $(top_builddir)/coot-utils/libcoot-coord-utils.la  
-#   $(top_builddir)/utils/libcoot-utils.la             
+#   $(top_builddir)/coot-utils/libcoot-coord-utils.la
+#   $(top_builddir)/utils/libcoot-utils.la
 #
 # bond-record-container-t has sqlite3 code in it (to create the atoms database currently)
 libcoot_lidia_core_la_LIBADD =                    \

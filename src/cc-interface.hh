@@ -695,16 +695,41 @@ PyObject *multi_residue_torsion_fit_py(int imol, PyObject *residues_specs_py, in
 // Where should this go?
 void import_bild(const std::string &file_name);
 
-// resolution in A.
+//! Use servalcat for generationn of Fo-Fc maps for cryo-EM data
+//!
+//! @param resolution in A.
 void servalcat_fofc(int imol_model,
                     int imol_fofc_map, const std::string &half_map_1, const std::string &half_map_2,
                     float resolution);
 
-//! resolution in A.
+//! Use servalcat for refinement for cryo-EM data
+//!
+//! @param imol_model is the model molecule index
+//! @param half_map_1 is the file name for the half-map-1
+//! @param half_map_2 is the file name for the half-map-2
+//! @param half_map_2 is the file name for the mask
+//! @param resolution in A.
 //!
 void servalcat_refine(int imol_model,
                       const std::string &half_map_1, const std::string &half_map_2,
                       const std::string &mask_map, float resolution);
+
+//! Use servalcat for refinement for x-ray data.
+//!
+//! This blocks until refinement has completed! This function has been designed
+//! with scripting in mind - not interactivity!
+//!
+//! This presumes that the mtz for the data has already been associated with the map.
+//!
+//! This presumes that CCP4 has been setup correctly before invoking Coot.
+//!
+//! @param imol is the model molecule index
+//! @param imol is the map molecule index
+//! @param output_prefix is the prefix for the output
+//! @param keyword_pairs_json a JSON string of keyword pairs to control the refinement
+//! @return the model index of the refined molecule - or -1 on failure
+int servalcat_refine_xray_with_keywords(int imol, int imol_map, const std::string &output_prefix,
+                                        const std::string &keyword_pairs_json);
 
 //! run acedrg link
 void
@@ -894,14 +919,28 @@ int handle_cif_dictionary(const std::string &filename);
 return the number of bonds read (> 0 can be treated as success) */
 int read_cif_dictionary(const std::string &filename);
 
-/* \brief return the number of bonds read (> 0 can be treated as success).
- Apply to the given molecule.
+/* \brief this is the callback used by the cif dictionary file import dialog
 
- imol_enc can be the model molecule number or
+ Apply dictionary to the given molecule if the checkbutton was active
+
+ @param imol_enc can be the model molecule number or
  IMOL_ENC_ANY = -999999, IMOL_ENC_AUTO = -999998, IMOL_ENC_UNSET = -999997
-
+ @return the number of bonds read (> 0 can be treated as success).
  */
 int handle_cif_dictionary_for_molecule(const std::string &filename, int imol_enc, short int new_molecule_from_dictionary_cif_checkbutton_state);
+
+/* \brief import a cif dictionary
+
+ As above, but this is the scripting interface.
+
+ Apply to the given molecule.
+
+ @param imol_enc can be the model molecule number or
+ IMOL_ENC_ANY = -999999, IMOL_ENC_AUTO = -999998, IMOL_ENC_UNSET = -999997
+ @return the number of bonds read (> 0 can be treated as success).
+
+ */
+int read_cif_dictionary_for_molecule(const std::string &filename, int imol_enc);
 
 //! dictionary entries
 std::vector<std::string> dictionary_entries();
@@ -2759,6 +2798,12 @@ void set_gaussian_surface_opacity(int imol, float opacity);
 
 void show_gaussian_surface_overlay();
 
+/* ------------------------------------------------------------------------- */
+/*                      Cavities                                             */
+/* ------------------------------------------------------------------------- */
+/*! \name Coot's Cavities */
+void show_cavities(int imol);
+
 
 /* ------------------------------------------------------------------------- */
 /*                      Acedrg for dictionary                                */
@@ -3730,6 +3775,8 @@ void display_svg_from_string_in_a_dialog(const std::string &string, const std::s
 void display_pae_from_file_in_a_dialog(int imol, const std::string &file_name);
 
 void read_interesting_places_json_file(const std::string &file_name);
+
+void read_interesting_places_json(const std::string &json_as_string);
 
 //! return the section index (the middle section currently)
 int setup_tomo_slider(int imol);

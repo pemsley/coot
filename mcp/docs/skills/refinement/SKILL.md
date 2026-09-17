@@ -46,7 +46,7 @@ result = coot.refine_residues_py(imol, residue_specs)
 # 4. so-called "sphere refine" is often useful because it allows movement/improvement
 # of residues that are close in space but distant in sequence.
 central_residue_spec = ['A', 12, '']
-neigbs = coot.residues_near_residue(imol, central_residue_spec)
+neigbs = coot.residues_near_residue_py(imol, central_residue_spec)
 residue_spec = neigbs
 residue_specs.append(central_residue_spec)
 result = coot.refine_residues_py(imol, residue_specs)

@@ -1599,9 +1599,14 @@ on_copy_fragment_ok_button_clicked(G_GNUC_UNUSED GtkButton       *button,
    GtkWidget *entry = widget_from_builder("copy_fragment_atom_selection_entry");
    std::string text = gtk_editable_get_text(GTK_EDITABLE(GTK_ENTRY(entry)));
 
-   int imol_new = new_molecule_by_atom_selection(imol, text.c_str());
    GtkWidget *checkbutton = widget_from_builder("copy_fragment_move_molecule_here_checkbutton");
-   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(checkbutton)))
+   bool move_here = gtk_check_button_get_active(GTK_CHECK_BUTTON(checkbutton));
+
+   // when the new fragment is to be moved here, the view must not be recentred on the
+   // fragment - otherwise the (animated) recentring flies the view off to where the
+   // fragment used to be and the fragment that we just moved here is left off-screen.
+   int imol_new = new_molecule_by_atom_selection_inner(imol, text.c_str(), ! move_here);
+   if (move_here)
       move_molecule_to_screen_centre_internal(imol_new);
 
    if (is_valid_model_molecule(imol_new))

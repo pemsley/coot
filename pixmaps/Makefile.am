@@ -27,7 +27,7 @@ cootpixmapdir = $(pkgdatadir)/pixmaps
 cootsplashscreendir = $(pkgdatadir)/images
 cootpixmapdarkdir = $(pkgdatadir)/pixmaps/dark
 
-dist_cootsplashscreen_DATA = coot-1.3.1.png
+dist_cootsplashscreen_DATA = coot-1.3.3.png
 
 dist_cootpixmap_DATA = \
 add-alt-conf.png      dna.svg			   probe-clash.svg                \
@@ -55,10 +55,10 @@ connect-to-ccp4.svg   gtk-font.png		   secondary-structure.svg        \
 connect-to-oca.svg    gtk-open-16.png		   sequence-view.png              \
 connect-to-usf.svg    gtk-open-24.png		   sequence-view.svg              \
 connect-to-world.svg  gtk-open.png		   side-chain-180.png             \
-	    kevin.jpg			   side-chain-180.svg             \
-	    kevin-orig.jpg		   smiles.png                     \
-	    kleywegt.svg		   smiles.svg                     \
-	    map.svg			   spin-view.png                  \
+kevin.jpg	      side-chain-180.svg           range-pair.svg                 \
+kevin-orig.jpg	      smiles.png                     \
+kleywegt.svg	      smiles.svg                     \
+map.svg		      spin-view.png                  \
 coot-favicon.png      merge-molecules.svg	   spin-view.svg                  \
 coot-icon.png	      mutate-auto-fit.svg	   stereo-view.svg                \
 coot-save.png	      mutate.svg		   stop.svg                       \
@@ -72,7 +72,8 @@ diff-map.png	      plane-distances.png	   unknown-blob.svg               \
 diff-map.svg	      plane-distances.svg	   water-diff-map.svg             \
 display-manager.png   pointer-distances.png	   water-drop.svg                 \
 display-manager.svg   pointer-distances.svg \
-edit-undo.png edit-redo.png edit-delete.png python-logo.svg \
+coot-configuration.svg coot-delete.svg \
+edit-undo.png edit-redo.png edit-delete.png python-logo.svg coot-undo.svg coot-redo.svg \
 koppi-green-tick-64.png rygle-red-cross-64.png forest51690-dwcheckno-incomplete-64.png \
   go-to-ligand.png go-to-atom.png azerbaijan.png add-water.png mutate.png \
   mutate-auto-fit.png edit-backbone.png torsion-general.png anchor.png regularize-1.png \

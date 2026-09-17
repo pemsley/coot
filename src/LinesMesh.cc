@@ -194,6 +194,26 @@ LinesMesh::clear() {
 }
 
 void
+LinesMesh::delete_gl_buffers() {
+
+   // Frees the GL objects and resets the ids so the next setup() regenerates them
+   // in the (new) context. Call only while the GL context is current - e.g. from
+   // the "unrealize" handler.
+
+   if (vao == VAO_NOT_SET) {
+      // nothing was stored
+   } else {
+      glBindVertexArray(vao);
+      glDeleteBuffers(1, &buffer_id);
+      glDeleteBuffers(1, &index_buffer_id);
+      glDeleteVertexArrays(1, &vao);
+      vao = VAO_NOT_SET;
+      buffer_id = 999999;
+      index_buffer_id = 999999;
+   }
+}
+
+void
 LinesMesh::draw(Shader *shader_p,
                 const glm::mat4 &mvp, const glm::mat4 &view_rotation, bool use_view_rotation) {
 

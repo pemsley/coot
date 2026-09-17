@@ -30,7 +30,8 @@ namespace coot {
 
    minimol::molecule
    regularize_minimol_molecule(const minimol::molecule &molin,
-			       const protein_geometry &geom);
+			       const protein_geometry &geom,
+			       int n_steps_max = 30);
 
    // update the coordinates of frag_in internal to this function
    void refine_minimol_fragment(minimol::fragment &frag_in,

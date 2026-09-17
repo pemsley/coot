@@ -139,6 +139,24 @@ GtkApplicationWindow* coot::layla::setup_main_window(GtkApplication* app, GtkBui
         gtk_label_set_text(GTK_LABEL(user_data), status_text);
     }), status_label);
 
+    // "Show Alerts": while enabled, hovering the canvas shows which structural
+    // alerts were matched (the on-canvas circles show where). Read live so the
+    // list stays current as the molecule is edited.
+    gtk_widget_set_has_tooltip(GTK_WIDGET(canvas), TRUE);
+    g_signal_connect(canvas, "query-tooltip", G_CALLBACK(+[](GtkWidget* widget, gint x, gint y, gboolean keyboard_mode, GtkTooltip* tooltip, gpointer user_data) -> gboolean {
+        CootLigandEditorCanvas* c = (CootLigandEditorCanvas*) user_data;
+        if(!coot_ligand_editor_canvas_get_show_alerts(c)) {
+            return FALSE;
+        }
+        std::string summary = coot_ligand_editor_canvas_get_alert_summary(c);
+        if(summary.empty()) {
+            return FALSE;
+        }
+        std::string text = "Structural alerts: " + summary;
+        gtk_tooltip_set_text(tooltip, text.c_str());
+        return TRUE;
+    }), canvas);
+
     GtkSpinButton* scale_spinbutton = (GtkSpinButton*) gtk_builder_get_object(builder, "layla_scale_spinbutton");
     g_signal_connect(canvas, "scale-changed", G_CALLBACK(+[](CootLigandEditorCanvas* canvas, float new_scale, gpointer user_data){
         GtkSpinButton* spinbutton = GTK_SPIN_BUTTON(user_data);

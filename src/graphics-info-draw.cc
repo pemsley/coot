@@ -1152,7 +1152,9 @@ graphics_info_t::update_rama_balls(std::vector<Instanced_Markup_Mesh_attrib_t> *
    // the calling function calls
    // rama_balls_mesh.update_instancing_buffers(balls) after this function
 
-   const auto &rr = saved_dragged_refinement_results;
+   get_saved_dragged_refinement_results_lock(__FUNCTION__);
+   coot::refinement_results_t rr = saved_dragged_refinement_results;
+   release_saved_dragged_refinement_results_lock(__FUNCTION__);
 
    balls->clear();
 
@@ -2750,17 +2752,17 @@ graphics_info_t::draw_rotation_centre_crosshairs(stereo_eye_t eye, GtkGLArea *gl
 
    // gtk_gl_area_make_current(glarea); // needed?, no it isn't.
    GLenum err = glGetError();
-   if (err) std::cout << "error draw_rotation_centre_crosshairs() A0 err " << err << std::endl;
+   if (err) std::cout << "GL ERROR:: draw_rotation_centre_crosshairs() A0 err " << err << std::endl;
 
    glLineWidth(1.0);
    err = glGetError();
-   if (err) std::cout << "error draw_rotation_centre_crosshairs() A1 err " << err << std::endl;
+   if (err) std::cout << "GL ERROR:: draw_rotation_centre_crosshairs() A1 err " << err << std::endl;
 
    glm::mat4 mvp = get_molecule_mvp(eye);
    glm::mat4 model_rotation = get_model_rotation();
 
    glBindVertexArray(rotation_centre_crosshairs_vertexarray_id);
-   if (err) std::cout << "error draw_rotation_centre_crosshairs() B err " << err << std::endl;
+   if (err) std::cout << "GL ERROR:: draw_rotation_centre_crosshairs() B err " << err << std::endl;
 
    if (pass_type == PASS_TYPE_STANDARD) {
       shader_for_central_cube.Use(); // (it's drawing the crosshairs though - same shader)
@@ -2782,13 +2784,18 @@ graphics_info_t::draw_rotation_centre_crosshairs(stereo_eye_t eye, GtkGLArea *gl
    GLuint mvp_location           = shader_for_central_cube.mvp_uniform_location;
    GLuint view_rotation_location = shader_for_central_cube.view_rotation_uniform_location;
 
+   err = glGetError();
+   if (err)
+      std::cout << "GL ERROR:: draw_rotation_centre_crosshairs() pre glUniformMatrix4fv() for mvp " << err << std::endl;
    glUniformMatrix4fv(mvp_location, 1, GL_FALSE, &mvp[0][0]);
    err = glGetError();
-   if (err) std::cout << "error::draw_rotation_centre_crosshairs() glUniformMatrix4fv() for mvp " << err << std::endl;
+   if (err)
+      std::cout << "GL ERROR:: draw_rotation_centre_crosshairs() glUniformMatrix4fv() for mvp " << err << std::endl;
    glUniformMatrix4fv(view_rotation_location, 1, GL_FALSE, &model_rotation[0][0]);
    err = glGetError();
-   if (err) std::cout << "error::draw_rotation_centre_crosshairs() glUniformMatrix4fv() for view_rotation " << err
-                      << std::endl;
+   if (err)
+      std::cout << "GL ERROR:: draw_rotation_centre_crosshairs() glUniformMatrix4fv() for view_rotation " << err
+                << std::endl;
 
    if (pass_type == PASS_TYPE_STANDARD) {
 
@@ -3069,6 +3076,11 @@ graphics_info_t::setup_hud_buttons() {
    unsigned int n_buttons_max = 20; // surely 6 is enough?
    mesh_for_hud_buttons.setup_instancing_buffer(n_buttons_max, sizeof(HUD_button_info_t));
 
+   // Set up the (single, reused) mesh for drawing button labels once, here. Creating a
+   // fresh HUDTextureMesh per button per frame in draw_hud_buttons() leaks GL objects
+   // (HUDTextureMesh has no destructor), so we draw every label with this one instead.
+   tmesh_for_hud_button_label.setup_quad();
+
    err = glGetError();
    if (err)
       std::cout << "debug:: in setup_hud_buttons() finish " << std::endl;
@@ -3082,6 +3094,69 @@ graphics_info_t::clear_hud_buttons() {
    attach_buffers();
    hud_button_info.clear();
    mesh_for_hud_buttons.update_instancing_buffer_data(hud_button_info); // empty
+}
+
+// static
+void
+graphics_info_t::reset_meshes_for_new_gl_context() {
+
+   // The GtkGLArea has been unrealized (its GL context is being destroyed) and
+   // will be realized again with a fresh context. Reset every static mesh so its
+   // VAO/buffers are regenerated in the new context by the next setup call -
+   // otherwise a mesh keeps a stale VAO id that can alias a different mesh's VAO
+   // in the new context, which crashes the driver on the instanced HUD draws.
+   //
+   // Must be called while the old context is still current (i.e. from the
+   // "unrealize" handler after gtk_gl_area_make_current()) - reset() frees GL objects.
+
+   // Mesh
+   mesh_for_measure_distance_object_vec.reset();
+   mesh_for_measure_angle_object_vec.reset();
+   mesh_for_extra_distance_restraints.reset();
+   bad_nbc_atom_pair_dashed_line.reset();
+   mesh_for_eyelashes.reset();
+   translation_gizmo_mesh.reset();
+   mesh_for_outline_of_active_residue.reset();
+   mesh_for_particles.reset();
+   mesh_for_boids.reset();
+   mesh_for_hydrogen_bonds.reset();
+
+   // HUDMesh
+   mesh_for_hud_geometry.reset();
+   mesh_for_hud_buttons.reset();
+
+   // HUDTextureMesh
+   mesh_for_hud_geometry_labels.reset();
+   mesh_for_hud_tooltip_background.reset();
+   tmesh_for_hud_geometry_tooltip_label.reset();
+   tmesh_for_hud_button_label.reset();
+   tmesh_for_hud_image_testing.reset();
+   tmesh_for_hud_refinement_dialog_arrow.reset();
+   tmesh_for_background_image.reset();
+   tmesh_for_hud_colour_bar.reset();
+   tmesh_for_shadow_map.reset();
+
+   // TextureMesh
+   tmesh_for_labels.reset();
+   tmesh_for_camera_facing_quad.reset();
+   tmesh_for_anchored_atom_markers.reset();
+   tmesh_for_unhappy_atom_markers.reset();
+   tmesh_for_bad_nbc_atom_pair_markers.reset();
+   tmesh_for_chiral_volume_outlier_markers.reset();
+   tmesh_for_happy_face_residues_markers.reset();
+
+   // LinesMesh
+   lines_mesh_for_pull_restraint_neighbour_displacement_max_radius_ring.reset();
+   lines_mesh_for_identification_pulse.reset();
+   lines_mesh_for_generic_pulse.reset();
+   lines_mesh_for_boids_box.reset();
+   lines_mesh_for_hud_lines.reset();
+
+   // Instanced_Markup_Mesh
+   rama_balls_mesh.reset();
+
+   // sub-object that owns its own meshes
+   gl_rama_plot.reset();
 }
 
 float
@@ -3228,9 +3303,10 @@ graphics_info_t::draw_hud_buttons() {
       const auto &button = hud_button_info[i];
       const std::string &label = button.button_label;
       if (! label.empty()) {
-         std::string mesh_name = "HUDTexturemesh for button with label " + label;
-         HUDTextureMesh htm(mesh_name);
-         htm.setup_quad();
+         // Reuse the single persistent mesh (set up once in setup_hud_buttons()) rather
+         // than creating a new HUDTextureMesh here - a fresh one each frame generates a
+         // VAO and buffers that are never freed (HUDTextureMesh has no destructor).
+         HUDTextureMesh &htm = tmesh_for_hud_button_label;
          float text_scale_raw = 0.4 * 0.00018;
          text_scale_raw *= 1.2; // 20220324-PE
          // text_scale_raw *= 100.0;
@@ -3685,10 +3761,12 @@ graphics_info_t::draw_hud_geometry_bars() {
    int h = allocation.height;
 
    // Take a snapshot copy (not a reference): the refinement thread writes
-   // saved_dragged_refinement_results without a lock, so reading it by reference
-   // throughout this function races with that writer (its vectors can be
-   // reallocated mid-read). Copying once narrows that window to a single read.
+   // saved_dragged_refinement_results, so reading it by reference throughout this
+   // function races with that writer (its vectors can be reallocated mid-read).
+   // Hold the lock only for the copy, so the writer can't mutate it mid-read.
+   get_saved_dragged_refinement_results_lock(__FUNCTION__);
    coot::refinement_results_t rr = saved_dragged_refinement_results;
+   release_saved_dragged_refinement_results_lock(__FUNCTION__);
 
    // --------------------- first draw the text (labels) texture -----------------------
 
@@ -4022,7 +4100,9 @@ graphics_info_t::check_if_hud_bar_moused_over_or_act_on_hud_bar_clicked(double m
    if (! moving_atoms_asc) return std::pair<bool, mmdb::Atom *>(false, 0);
    if (! moving_atoms_asc->mol) return std::pair<bool, mmdb::Atom *>(false, 0);
 
-   coot::refinement_results_t &rr = saved_dragged_refinement_results;
+   get_saved_dragged_refinement_results_lock(__FUNCTION__);
+   coot::refinement_results_t rr = saved_dragged_refinement_results;
+   release_saved_dragged_refinement_results_lock(__FUNCTION__);
 
    // this values in this loop must match those in the loop above
    // (draw_hud_geometry_bars())
@@ -5436,7 +5516,9 @@ graphics_info_t::update_bad_nbc_atom_pair_marker_positions() {
 
    if (moving_atoms_asc) {
       if (moving_atoms_asc->mol) {
-         coot::refinement_results_t &rr = saved_dragged_refinement_results;
+         get_saved_dragged_refinement_results_lock(__FUNCTION__);
+         coot::refinement_results_t rr = saved_dragged_refinement_results;
+         release_saved_dragged_refinement_results_lock(__FUNCTION__);
 
          if (false) {
             unsigned int gone_count_prev = get_gone_count(previous_round_nbc_baddies_atom_index_map);
@@ -5552,7 +5634,9 @@ void graphics_info_t::update_bad_nbc_atom_pair_dashed_lines() {
 
    if (moving_atoms_asc) {
       if (moving_atoms_asc->mol) {
-         coot::refinement_results_t &rr = saved_dragged_refinement_results;
+         get_saved_dragged_refinement_results_lock(__FUNCTION__);
+         coot::refinement_results_t rr = saved_dragged_refinement_results;
+         release_saved_dragged_refinement_results_lock(__FUNCTION__);
 
          unsigned int n_dashes = 23;
 
@@ -5706,7 +5790,7 @@ void graphics_info_t::setup_draw_for_bad_nbc_atom_pair_dashed_line() {
       logger.log(log_t::WARNING, logging::function_name_t("setup_draw_for_bad_nbc_atom_pair_dashed_line"),
                  "---start---", stringify_error_code(err));
 
-   attach_buffers();
+   // attach_buffers(); 2026-07-21-PE - not needed, causes GL error in fact.
    cylinder c;
    c.init_unit(20);
    c.add_flat_end_cap();
@@ -5715,6 +5799,7 @@ void graphics_info_t::setup_draw_for_bad_nbc_atom_pair_dashed_line() {
    bad_nbc_atom_pair_dashed_line.set_name("bad_nbc_atom_pair_dashed_line Mesh");
    bad_nbc_atom_pair_dashed_line.setup_buffers();
 
+   err = glGetError();
    if (err)
       logger.log(log_t::WARNING, logging::function_name_t("setup_draw_for_bad_nbc_atom_pair_dashed_line"),
                  "---end---", stringify_error_code(err));
@@ -5885,6 +5970,29 @@ void graphics_info_t::add_unhappy_atom_marker(int imol, const coot::atom_spec_t 
    }
 }
 
+void graphics_info_t::remove_unhappy_atom_marker(int imol, const coot::atom_spec_t &atom_spec) {
+
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Atom *at = molecules[imol].get_atom(atom_spec);
+      if (at) {
+         glm::vec3 p(at->x, at->y, at->z);
+         auto &positions = molecules[imol].unhappy_atom_marker_positions;
+         std::vector<glm::vec3>::iterator it;
+         for (it=positions.begin(); it!=positions.end(); ++it) {
+            if (glm::distance(*it, p) < 0.01f) {
+               positions.erase(it);
+               attach_buffers();
+               tmesh_for_unhappy_atom_markers.update_instancing_buffer_data(positions);
+               if (positions.empty())
+                  tmesh_for_unhappy_atom_markers.draw_this_mesh = false;
+               graphics_draw();
+               break;
+            }
+         }
+      }
+   }
+}
+
 void graphics_info_t::remove_all_unhappy_atom_markers() {
 
    for (unsigned int imol=0; imol<molecules.size(); imol++) {
@@ -5954,7 +6062,9 @@ graphics_info_t::update_hydrogen_bond_positions() {
 
    if (moving_atoms_asc) {
       if (moving_atoms_asc->mol) {
-         coot::refinement_results_t &rr = saved_dragged_refinement_results;
+         get_saved_dragged_refinement_results_lock(__FUNCTION__);
+         coot::refinement_results_t rr = saved_dragged_refinement_results;
+         release_saved_dragged_refinement_results_lock(__FUNCTION__);
          if (! rr.hydrogen_bond_atom_index_vec.empty()) {
 
             // fill hydrogen_bonds_atom_position_pairs

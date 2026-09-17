@@ -28,15 +28,34 @@
 #include <rdkit/GraphMol/inchi.h>
 #endif
 #include <rdkit/GraphMol/chemdraw.h>
+
+// Prevents preprocessor substitution of `VERSION` in `MolPickler.h`
+#ifndef RD_MOLPICKLE_H
+
+#ifdef VERSION
+#define __COOT_VERSION_VALUE VERSION
+#undef VERSION
+#endif
+
+#include <rdkit/GraphMol/MolPickler.h>
+
+#ifdef __COOT_VERSION_VALUE
+#define VERSION __COOT_VERSION_VALUE
+#undef __COOT_VERSION_VALUE
+#endif
+
+#endif //RD_MOLPICKLE_H
 #include <algorithm>
 #include <cctype>
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
 
+
 namespace coot::layla::io {
 
 std::unique_ptr<RDKit::RWMol> mol_from_string(const std::string& data, CheminformaticsFileFormat format) {
+
     std::unique_ptr<RDKit::RWMol> mol;
     switch(format) {
         case CheminformaticsFileFormat::Molfile:
@@ -70,6 +89,13 @@ std::unique_ptr<RDKit::RWMol> mol_from_string(const std::string& data, Cheminfor
             mol = rdkit_mol_from_smiles(begin == std::string::npos ? std::string() : data.substr(begin, end - begin + 1));
             break;
         }
+        case CheminformaticsFileFormat::Pickle: {
+            mol = std::make_unique<RDKit::RWMol>();
+            // molFromPickle throws on malformed input; properties stored in the
+            // pickle are restored onto the molecule/atoms/bonds automatically.
+            RDKit::MolPickler::molFromPickle(data, *mol);
+            break;
+        }
         default: {
             throw std::runtime_error("Unknown file format");
         }
@@ -81,6 +107,7 @@ std::unique_ptr<RDKit::RWMol> mol_from_string(const std::string& data, Cheminfor
 }
 
 std::string mol_to_string(const RDKit::ROMol& mol, CheminformaticsFileFormat format) {
+
     switch(format) {
         case CheminformaticsFileFormat::Molfile: {
             return RDKit::MolToMolBlock(mol);
@@ -101,6 +128,13 @@ std::string mol_to_string(const RDKit::ROMol& mol, CheminformaticsFileFormat for
         }
         case CheminformaticsFileFormat::SMILES: {
             return rdkit_mol_to_smiles(mol) + "\n";
+        }
+        case CheminformaticsFileFormat::Pickle: {
+            std::string out;
+            // AllProps => include molecule, atom and bond property dictionaries
+            // (the default pickle drops them).
+            RDKit::MolPickler::pickleMol(mol, out, RDKit::PicklerOps::AllProps);
+            return out;
         }
         default: {
             throw std::runtime_error("Unknown file format");
@@ -130,6 +164,8 @@ std::optional<CheminformaticsFileFormat> format_from_extension(const std::string
     if (ext == "inchi") return CheminformaticsFileFormat::InChI;
     if (ext == "cdxml") return CheminformaticsFileFormat::CDXML;
     if (ext == "smi")   return CheminformaticsFileFormat::SMILES;
+    if (ext == "pkl")   return CheminformaticsFileFormat::Pickle;
+    if (ext == "pickle") return CheminformaticsFileFormat::Pickle;
     return std::nullopt;
 }
 
@@ -152,6 +188,7 @@ std::unique_ptr<RDKit::RWMol> mol_from_file(const std::string& path,
 
 void mol_to_file(const RDKit::ROMol& mol, const std::string& path,
                  std::optional<CheminformaticsFileFormat> format) {
+
     if (!format) {
         format = format_from_extension(path);
         if (!format) {

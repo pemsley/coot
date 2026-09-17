@@ -150,7 +150,7 @@ get_atom_index(const cod::atom_type_t &cod_1, sqlite3 *db) {
 
    if (db) {
       std::string cmd = "SELECT atom_index from COD_TYPE_4_INDICES WHERE level_4_atom_type = " +
-         coot::util::single_quote(cod_1.level_4, "'");
+         coot::util::single_quote(cod_1.cod_type, "'");
       int index = -1; // unset
       void *data_pointer = static_cast<void *>(&index);
       char *zErrMsg = 0;
@@ -163,7 +163,7 @@ get_atom_index(const cod::atom_type_t &cod_1, sqlite3 *db) {
             sqlite3_free(zErrMsg);
          }
       } else {
-         std::cout << "    " << cod_1.level_4 << " " << index << std::endl;
+         std::cout << "    " << cod_1.cod_type << " " << index << std::endl;
          idx = index;
       }
    }
@@ -264,8 +264,8 @@ get_bond_record_try_type_2(const cod::atom_type_t &cod_1,
 
       std::string cmd_1 = "SELECT atom_index from COD_TYPE_4_INDICES WHERE level_2_atom_type = ";
       std::string cmd_2 = "SELECT atom_index from COD_TYPE_4_INDICES WHERE level_2_atom_type = ";
-      cmd_1 += coot::util::single_quote(cod_1.level_2.extra_electron_type(), "'");
-      cmd_2 += coot::util::single_quote(cod_2.level_2.extra_electron_type(), "'");
+      cmd_1 += coot::util::single_quote(cod_1.nb1nb2.extra_electron_type(), "'");
+      cmd_2 += coot::util::single_quote(cod_2.nb1nb2.extra_electron_type(), "'");
       cmd_1 += " AND hash_code = " + coot::util::int_to_string(cod_1.hash_value);
       cmd_2 += " AND hash_code = " + coot::util::int_to_string(cod_2.hash_value);
       // cmd_1 += coot::util::int_to_string(cod_1.hash_value);
@@ -389,8 +389,8 @@ get_bond_record_try_colon_types(const cod::atom_type_t &cod_1,
    if (db) {
       std::string cmd_1 = "SELECT atom_index from COD_TYPE_4_INDICES WHERE colon_degree_atom_type = ";
       std::string cmd_2 = "SELECT atom_index from COD_TYPE_4_INDICES WHERE colon_degree_atom_type = ";
-      cmd_1 += coot::util::single_quote(cod_1.neighb_degrees_str(), "'");
-      cmd_2 += coot::util::single_quote(cod_2.neighb_degrees_str(), "'");
+      cmd_1 += coot::util::single_quote(cod_1.nb2_extra_els_str(), "'");
+      cmd_2 += coot::util::single_quote(cod_2.nb2_extra_els_str(), "'");
       cmd_1 += " AND hash_code = " + coot::util::int_to_string(cod_1.hash_value);
       cmd_2 += " AND hash_code = " + coot::util::int_to_string(cod_2.hash_value);
       std::vector<int> cod_1_atom_indices;
@@ -480,8 +480,8 @@ get_bond_record_try_type_3(const cod::atom_type_t &cod_1,
    cod::bond_table_record_t btr;
    //
    bool done_2 = false;
-   if (cod_1.level_4 == cod_1.level_3) {
-      if (cod_2.level_4 == cod_2.level_3) {
+   if (cod_1.cod_type == cod_1.main_type) {
+      if (cod_2.cod_type == cod_2.main_type) {
          btr = get_bond_record_try_type_2(cod_1, cod_2, idx_1, idx_2, n_count_min, db);
          done_2 = true;
       }
@@ -497,8 +497,8 @@ get_bond_record_try_type_3(const cod::atom_type_t &cod_1,
       //
       std::string cmd_1 = "SELECT atom_index from COD_TYPE_4_INDICES WHERE level_3_atom_type = ";
       std::string cmd_2 = "SELECT atom_index from COD_TYPE_4_INDICES WHERE level_3_atom_type = ";
-      cmd_1 += coot::util::single_quote(cod_1.level_3, "'");
-      cmd_2 += coot::util::single_quote(cod_2.level_3, "'");
+      cmd_1 += coot::util::single_quote(cod_1.main_type, "'");
+      cmd_2 += coot::util::single_quote(cod_2.main_type, "'");
       std::vector<int> cod_1_type_3_atom_indices;
       std::vector<int> cod_2_type_3_atom_indices;
       void *data_pointer_1 = static_cast<void *> (&cod_1_type_3_atom_indices);
@@ -751,13 +751,13 @@ void debug_atom_types(const RDKit::RWMol &rdkm,
          std::string name;
          RDKit::Atom *at = rdkm[i].get();
          at->getProp("name", name);
-         std::string ee_type = v[i].level_2.extra_electron_type();
+         std::string ee_type = v[i].nb1nb2.extra_electron_type();
          std::cout << " types for " << name
-                   << " type-4 " << v[i].level_4
-                   << " nee " << v[i].level_2.n_extra_electrons()
-                   << " std-level_2: " << std::setw(20) << v[i].level_2.string()
+                   << " type-4 " << v[i].cod_type
+                   << " nee " << v[i].nb1nb2.n_extra_electrons()
+                   << " std-level_2: " << std::setw(20) << v[i].nb1nb2.string()
                    << " ee: " << ee_type
-                   << " colon-hybrid: " << v[i].neighb_degrees_str()
+                   << " colon-hybrid: " << v[i].nb2_extra_els_str()
                    << " hash: " << v[i].hash_value
                    << std::endl;
       }
@@ -824,8 +824,8 @@ void validate_bonds(mmdb::Residue *residue_p,
                   // cod::bond_table_record_t btr = get_bond_table_record(cod_1, cod_2, db);
 
                   std::cout << "##### " << atom_name_1 << " " << atom_name_2 << " types:  l4: "
-                            << cod_1.level_4 << "  l2: " << cod_1.level_2.extra_electron_type() << " and l4: "
-                            << cod_2.level_4 << "  l2: " << cod_2.level_2.extra_electron_type() << std::endl;
+                            << cod_1.cod_type << "  l2: " << cod_1.nb1nb2.extra_electron_type() << " and l4: "
+                            << cod_2.cod_type << "  l2: " << cod_2.nb1nb2.extra_electron_type() << std::endl;
 
                   hybridization_info_t hybridization_info =
                      get_hybridization_info_string(rdkm, atom_1.first, atom_2.first);
@@ -865,12 +865,12 @@ void validate_bonds(mmdb::Residue *residue_p,
 
                         }
                      } else {
-                        std::cout << "No db atom type index for atom type " << cod_2.level_4 << std::endl;
+                        std::cout << "No db atom type index for atom type " << cod_2.cod_type << std::endl;
                         // something like:
                         // cod::bond_table_record_t btr = get_bond_record_try_type_3(cod_1, cod_2, -1, -1, n_count_min, db);
                      }
                   } else {
-                     std::cout << "No db atom type index for atom type " << cod_1.level_4 << std::endl;
+                     std::cout << "No db atom type index for atom type " << cod_1.cod_type << std::endl;
                      // so... what do we do now?
                   }
 

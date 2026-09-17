@@ -22,6 +22,8 @@
 #ifndef COOT_LIGAND_EDITOR_CANVAS_HPP
 #define COOT_LIGAND_EDITOR_CANVAS_HPP
 
+#include <string>
+
 #include "ligand_editor_canvas/core.hpp"
 #include "ligand_editor_canvas/model.hpp"
 #include "ligand_editor_canvas/tools.hpp"
@@ -71,6 +73,16 @@ bool coot_ligand_editor_canvas_get_allow_invalid_molecules(CootLigandEditorCanva
 
 void coot_ligand_editor_canvas_set_coordgen_mode_enabled(CootLigandEditorCanvas* self, bool value) noexcept;
 bool coot_ligand_editor_canvas_get_coordgen_mode_enabled(CootLigandEditorCanvas* self) noexcept;
+
+/// "Show Alerts": when enabled, atoms matching structural-alert SMARTS patterns
+/// (QED::StructuralAlerts) are highlighted on the canvas. The match is
+/// recomputed automatically after every edit.
+void coot_ligand_editor_canvas_set_show_alerts(CootLigandEditorCanvas* self, bool value) noexcept;
+bool coot_ligand_editor_canvas_get_show_alerts(CootLigandEditorCanvas* self) noexcept;
+/// Returns a human-readable, comma-separated summary of the structural alerts
+/// currently matched across all molecules (empty string if none). Suitable for
+/// a status message or tooltip.
+std::string coot_ligand_editor_canvas_get_alert_summary(CootLigandEditorCanvas* self) noexcept;
 
 coot::ligand_editor_canvas::DisplayMode coot_ligand_editor_canvas_get_display_mode(CootLigandEditorCanvas* self) noexcept;
 void coot_ligand_editor_canvas_set_display_mode(CootLigandEditorCanvas* self, coot::ligand_editor_canvas::DisplayMode value) noexcept;

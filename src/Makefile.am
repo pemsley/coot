@@ -669,6 +669,7 @@ libcootsumo_la_SOURCES = \
 	graphics-info-state.cc	 \
 	graphics-info-statics.cc \
 	graphics-info-superpose.cc	\
+	graphics-info-servalcat.cc	\
 	graphics-info-tick-function.cc \
 	graphics-info-trackball.cc	\
 	graphics-info-utils.cc	 \
@@ -865,8 +866,7 @@ libcootsumo_la_SOURCES = \
 	new-centre.hh            \
 	widget-headers.hh        \
 	widget-from-builder.hh   \
-	widget-from-builder.cc   \
-	json.hpp
+	widget-from-builder.cc
 
 
 # 20220228-PE this appeared in a merge - not sure if it's needed (or should be included directly)
@@ -923,9 +923,9 @@ endif
 # coot_bin_LDFLAGS = -static -lstdc++
 #
 if OS_DARWIN
-MacCoot_LDFLAGS = $(EXPORT_DYNAMIC_FLAG_SPEC)
+MacCoot_LDFLAGS = $(EXPORT_DYNAMIC_FLAG_SPEC) $(GEMMI_RPATH)
 else
-coot_1_LDFLAGS = $(EXPORT_DYNAMIC_FLAG_SPEC)
+coot_1_LDFLAGS = $(EXPORT_DYNAMIC_FLAG_SPEC) $(GEMMI_RPATH)
 endif
 
 # coot_bin_CXXFLAGS=-Wl,--export-dynamic -dynamiclib

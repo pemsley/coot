@@ -60,6 +60,12 @@ namespace cod {
       
       static bool neighbour_sorter(const std::string &a, const std::string &b);
 
+      // orders (neighbour-type-string, neighbour-degree) pairs the way acedrg's
+      // desSortMapKey2 orders codClass neighbour groups: string length
+      // descending, then neighbour degree (nNB) descending.
+      static bool neighbour_pair_sorter(const std::pair<std::string, int> &a,
+					const std::pair<std::string, int> &b);
+
       static bool fei_neighb_sorter(const std::string &a, const std::string &b);
       
    
@@ -86,6 +92,7 @@ namespace cod {
       make_cod_level_3_and_4_atom_type(const RDKit::Atom *base_atom_p,
 				       const std::string &atom_ele,
 				       const std::vector<std::string> &neighbour_types,
+				       const std::vector<int> &neighbour_n_neighbours,
 				       const std::list<third_neighbour_info_t> &tniv,
 				       int level);
       // which calls:
@@ -120,6 +127,22 @@ namespace cod {
 
 
       // int hybridization_to_int(RDKit::Atom::HybridizationType) const;
+
+      // Port of acedrg's setAtomsBondingAndChiralCenter (the bondingIdx part)
+      // followed by the only reachable bondingIdx change in
+      // modAtomsBondingAndChiralCenter() with tMode==1 (the non-ring,
+      // 2-coordinate N geometry rule). Each atom is given an int property
+      // "acedrg_bondingIdx". The level_2 (NB1NB2) atom type uses this instead of
+      // RDKit's hybridization so that the per-neighbour integer matches libmol's
+      // codNB1NB2_SP (acedrg/src/kernel/chemPropSet.cpp:setAtomsNB1NB2_SP)
+      // byte-for-byte. Metals are out of scope (treated as ordinary neighbours).
+      static void set_acedrg_bonding_indices(RDKit::ROMol &rdkm);
+
+      // Maps acedrg's bondingIdx to its hybridisation string (a port of
+      // acedrg/src/kernel/chemPropSet.cpp:strTransSP): 1->"SP1", 2->"SP2",
+      // 3->"SP3", >3->"SPDn" (SPD5, SPD6, ...), and 0/unset->"SP-NON". The
+      // result is byte-identical to libmol's Atom*_sp column.
+      static std::string strTransSP(int tSP);
 
    public:
       // can throw a std::runtime_error

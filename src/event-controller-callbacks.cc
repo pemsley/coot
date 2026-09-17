@@ -236,9 +236,46 @@ graphics_info_t::on_glarea_drag_update_primary(GtkGestureDrag *gesture,
             }
             handled = true;
          } else {
+            // moving atoms, but no refinement running: if we are in
+            // rotate/translate mode, drag the fragment along with the mouse -
+            // or, with ctrl-shift, rotate it (trackball-like) about its centre
+            GtkWidget *rt_dialog = get_widget_from_builder("rotate_translate_obj_dialog");
+            if (rt_dialog) {
+               if (gtk_widget_get_visible(rt_dialog)) {
+                  if (control_is_pressed && shift_is_pressed) {
+                     rotate_moving_atoms_by_trackball(get_mouse_previous_position_x(),
+                                                      get_mouse_previous_position_y(),
+                                                      x, y);
+                  } else {
+                     translate_moving_atoms_by_screen_delta(delta_delta_x, delta_delta_y);
+                  }
+                  handled = true;
+               }
+            }
          }
       } else {
-         if (control_is_pressed) {
+
+         // ctrl-shift-drag in rotate/translate mode rotates the fragment about
+         // its centre - the drag does not need to start on the fragment atoms
+         if (control_is_pressed && shift_is_pressed) {
+            if (moving_atoms_asc && last_restraints_size() == 0) {
+               if (moving_atoms_asc->n_selected_atoms > 0) {
+                  GtkWidget *rt_dialog = get_widget_from_builder("rotate_translate_obj_dialog");
+                  if (rt_dialog) {
+                     if (gtk_widget_get_visible(rt_dialog)) {
+                        rotate_moving_atoms_by_trackball(get_mouse_previous_position_x(),
+                                                         get_mouse_previous_position_y(),
+                                                         x, y);
+                        handled = true;
+                     }
+                  }
+               }
+            }
+         }
+
+         if (handled) {
+            // rotate/translate fragment rotation (above) - done
+         } else if (control_is_pressed) {
             do_drag_pan_gtk3(gl_area, drag_delta_x, drag_delta_y); // 20220613-PE no redraw here currently
             // Update mouse_x/mouse_y so that if ctrl is released mid-drag,
             // the next view rotation starts from the current position
@@ -254,7 +291,7 @@ graphics_info_t::on_glarea_drag_update_primary(GtkGestureDrag *gesture,
                do_view_zoom(drag_delta_x, drag_delta_y);
             } else {
                if (use_primary_mouse_for_view_rotation_flag) {
-                  if (edit_chi_current_chi >= 1) {
+                  if (edit_chi_current_chi >= 1 && moving_atoms_asc) {
                      rotate_chi(delta_delta_x, delta_delta_y); // does its own graphics_draw()
                   } else {
                      // view rotation is the last thing to test for/do
@@ -264,7 +301,7 @@ graphics_info_t::on_glarea_drag_update_primary(GtkGestureDrag *gesture,
                   }
                } else {
                   // is this logic correct?
-                  if (edit_chi_current_chi >= 1) {
+                  if (edit_chi_current_chi >= 1 && moving_atoms_asc) {
                      // rotate_chi() needs moving atoms
                      rotate_chi(delta_delta_x, delta_delta_y); // does its own graphics_draw()
                   }
@@ -668,6 +705,31 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
 
                      } else {
 
+                        auto do_red_ring_ping = [] () {
+                           // red ring "ping" under the cursor: the midpoint between the unprojected
+                           // front- and back-clipping-plane points at the mouse position.
+                           // c.f. the front/back unproject in atom_pick_gtk3() and the gizmo picker.
+                           graphics_info_t g;
+                           GtkAllocation allocation = get_glarea_allocation();
+                           float w = allocation.width;
+                           float h = allocation.height;
+                           float mouseX = g.GetMouseBeginX() / (w * 0.5f) - 1.0f;
+                           float mouseY = g.GetMouseBeginY() / (h * 0.5f) - 1.0f;
+                           float real_y = - mouseY; // in range -1 -> 1
+                           stereo_eye_t eye = stereo_eye_t::MONO;
+                           glm::mat4 mvp = get_molecule_mvp(eye);
+                           glm::mat4 vp_inv = glm::inverse(mvp);
+                           glm::vec4 screenPos_f = glm::vec4(mouseX, real_y, -1.0f, 1.0f);
+                           glm::vec4 screenPos_b = glm::vec4(mouseX, real_y,  1.0f, 1.0f);
+                           glm::vec4 worldPos_f = vp_inv * screenPos_f;
+                           glm::vec4 worldPos_b = vp_inv * screenPos_b;
+                           glm::vec3 front = glm::vec3(worldPos_f) / worldPos_f.w;
+                           glm::vec3 back  = glm::vec3(worldPos_b) / worldPos_b.w;
+                           glm::vec3 mid = 0.5f * (front + back);
+                           glm::vec4 col(0.9, 0.2, 0.2, 1.0);
+                           pulse_marked_positions({mid}, false, 3, 6.0f, 12, col);
+                        };
+
                         if (delete_item_atom == 1) {
                            std::cout << "here A " << std::endl;
                            bool intermediate_atoms_only_flag = false;
@@ -686,10 +748,38 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
                                  delete_item_atom = 0; // unset
                               }
                            } else {
-                              std::cout << "Missed" << std::endl;
-                              // do red ring ping here.
+                              std::cout << "INFO:: Missed" << std::endl;
+                              do_red_ring_ping();
                            }
                            handled = true;
+
+                        } else {
+                           if (delete_item_water == 1) {
+                              bool intermediate_atoms_only_flag = false;
+                              pick_info naii = atom_pick_gtk3(intermediate_atoms_only_flag);
+                              if (naii.success) {
+                                 mmdb::Atom *at = molecules[naii.imol].atom_sel.atom_selection[naii.atom_index];
+                                 if (at) {
+                                    std::string res_name = at->GetResName();
+                                    if (res_name == "HOH") {
+                                       coot::atom_spec_t at_spec(at);
+                                       molecules[naii.imol].delete_atom(at_spec);
+                                       graphics_draw();
+                                       if (modifier & GDK_CONTROL_MASK) {
+                                          // continue with active water picking
+                                       } else {
+                                          delete_item_water = 0; // unset
+                                       }
+                                    } else {
+                                       do_red_ring_ping();
+                                    }
+                                 }
+                              } else {
+                                 std::cout << "INFO:: Missed" << std::endl;
+                                 do_red_ring_ping();
+                              }
+                              handled = true;
+                           }
                         }
 
                         // std::cout << "Here with in_range_define " << in_range_define << std::endl;
@@ -837,7 +927,7 @@ graphics_info_t::do_drag_pan_gtk4(GtkWidget *widget, double drag_delta_x, double
                 << mouse_current_x - get_mouse_previous_position_x() << " "
                 << mouse_current_y - get_mouse_previous_position_y() << std::endl;
    }
-   if (true) {
+   if (false) {
       std::cout << "in do_drag_pan_gtk4() mouse-current: "
                 << mouse_current_x << " " << mouse_current_y << " "
                 << "mouse-prev: " << get_mouse_previous_position_x() << " " << get_mouse_previous_position_y()

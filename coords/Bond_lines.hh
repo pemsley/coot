@@ -662,9 +662,13 @@ public:
    //
    // This is the one for user-defined, occupancy and B-factor representation
    //
+   // no_bonds_to_these_atoms lets these representations honour the molecule's
+   // non-drawn bonds (set via set_new_non_drawn_bonds()/add_to_non_drawn_bonds()).
+   //
    Bond_lines_container (const atom_selection_container_t &SelAtom, int imol,
                          const coot::protein_geometry *protein_geom,
-                         bond_representation_type br_type);
+                         bond_representation_type br_type,
+                         const std::set<int> &no_bonds_to_these_atoms = std::set<int>());
 
    // Constructor J
    //

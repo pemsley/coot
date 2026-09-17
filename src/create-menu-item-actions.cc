@@ -29,6 +29,10 @@
 
 #include "coords/Cartesian.hh"
 #include "coot-utils/coot-coord-utils.hh"
+#include "coot-utils/glyco-tree.hh"
+#include "utils/coot-utils.hh"
+#include <fstream>
+#include <filesystem>
 #include "coot-utils/ptm-database.hh"
 #include "gdk/gdk.h"
 #include "geometry/residue-and-atom-specs.hh"
@@ -90,13 +94,25 @@ void on_coords_filechooser_dialog_response_gtk4(GtkDialog *dialog,
             char *file_name = g_file_get_path(f);
             // std::cout << "          file_name " << file_name << std::endl;
             if (file_name) {
-               if (move_molecule_here_flag) {
-                  handle_read_draw_molecule_and_move_molecule_here(file_name);
+               std::string fn(file_name);
+               if (coot::util::file_name_extension(fn) == ".pdbqt") {
+                  // AutoDock/Vina PDBQT: use the dedicated reader (multi-model
+                  // poses, Vina scores as UDData, AutoDock-type -> element).
+                  bool save = graphics_info_t::recentre_on_read_pdb;
+                  graphics_info_t::recentre_on_read_pdb = recentre_on_read_pdb_flag;
+                  int imol = read_pdbqt(fn);
+                  graphics_info_t::recentre_on_read_pdb = save;
+                  if (move_molecule_here_flag && is_valid_model_molecule(imol))
+                     move_molecule_to_screen_centre_internal(imol);
                } else {
-                  if (recentre_on_read_pdb_flag)
-                     handle_read_draw_molecule_with_recentre(file_name, 1);
-                  else
-                     handle_read_draw_molecule_with_recentre(file_name, 0); // no recentre
+                  if (move_molecule_here_flag) {
+                     handle_read_draw_molecule_and_move_molecule_here(file_name);
+                  } else {
+                     if (recentre_on_read_pdb_flag)
+                        handle_read_draw_molecule_with_recentre(file_name, 1);
+                     else
+                        handle_read_draw_molecule_with_recentre(file_name, 0); // no recentre
+                  }
                }
             }
 
@@ -209,22 +225,26 @@ void open_coordinates_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    // I don't follow the options and labels, but this works strangely.
    gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(dialog), "recentering", "Recentre", options, labels);
 
-   GtkFileFilter *filter_pdb  = gtk_file_filter_new();
-   GtkFileFilter *filter_pdbx = gtk_file_filter_new();
-   GtkFileFilter *filter_cif  = gtk_file_filter_new();
-   GtkFileFilter *filter_ent  = gtk_file_filter_new();
-   gtk_file_filter_set_name(filter_pdb,  "pdb files");
-   gtk_file_filter_set_name(filter_pdbx, "pdbx files");
-   gtk_file_filter_set_name(filter_cif,  "cif files");
-   gtk_file_filter_set_name(filter_ent,  "ent files");
-   gtk_file_filter_add_pattern(filter_pdb,  "*.pdb");
-   gtk_file_filter_add_pattern(filter_pdbx, "*.pdbx");
-   gtk_file_filter_add_pattern(filter_cif,  "*.cif");
-   gtk_file_filter_add_pattern(filter_ent,  "*.ent");
+   GtkFileFilter *filter_pdb   = gtk_file_filter_new();
+   GtkFileFilter *filter_pdbx  = gtk_file_filter_new();
+   GtkFileFilter *filter_cif   = gtk_file_filter_new();
+   GtkFileFilter *filter_ent   = gtk_file_filter_new();
+   GtkFileFilter *filter_pdbqt = gtk_file_filter_new();
+   gtk_file_filter_set_name(filter_pdb,   "pdb files");
+   gtk_file_filter_set_name(filter_pdbx,  "pdbx files");
+   gtk_file_filter_set_name(filter_cif,   "cif files");
+   gtk_file_filter_set_name(filter_ent,   "ent files");
+   gtk_file_filter_set_name(filter_pdbqt, "pdbqt files");
+   gtk_file_filter_add_pattern(filter_pdb,   "*.pdb");
+   gtk_file_filter_add_pattern(filter_pdbx,  "*.pdbx");
+   gtk_file_filter_add_pattern(filter_cif,   "*.cif");
+   gtk_file_filter_add_pattern(filter_ent,   "*.ent");
+   gtk_file_filter_add_pattern(filter_pdbqt, "*.pdbqt");
    gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter_pdb);
    gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter_pdbx);
    gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter_cif);
    gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter_ent);
+   gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter_pdbqt);
 
    add_filename_filter_button(dialog, COOT_COORDS_FILE_SELECTION);
 
@@ -725,8 +745,8 @@ fetch_pdbe_ligand_description_action(G_GNUC_UNUSED GSimpleAction *simple_action,
       //             and that calls get_pdbe_cif_for_comp_id()
       xdg_t xdg;
       std::string file_name = comp_id + ".cif";
-      std::filesystem::path data_home = xdg.get_data_home();
-      std::filesystem::path file_path = data_home / file_name;
+      std::filesystem::path cache_home = xdg.get_cache_home();
+      std::filesystem::path file_path = cache_home / file_name;
       // maybe check that the file exists first?
       std::string url = std::string("https://www.ebi.ac.uk/pdbe/static/files/pdbechem_v2/") + file_name;
       int status = coot_get_url(url, file_path.string());
@@ -2355,6 +2375,65 @@ void geometric_distortions_for_ligand_action(G_GNUC_UNUSED GSimpleAction *simple
    graphics_info_t::graphics_grab_focus();
 }
 
+// The two ligands come from the stored Range/Pair picks (as make_link_action).
+// The molecule with just one residue is the moving one; its ligand gets its
+// torsions matched to the reference ligand and is then overlapped onto it.
+// (superpose_ligands_action, above the Calculate menu, is the older
+// molecule-chooser python gui - this one acts on the picked pair.)
+void superpose_picked_ligands_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                              G_GNUC_UNUSED GVariant *parameter,
+                              G_GNUC_UNUSED gpointer user_data) {
+
+   graphics_info_t g;
+   int imol_1 = g.in_range_first_picked_atom.int_user_data;
+   int imol_2 = g.in_range_second_picked_atom.int_user_data;
+   bool done = false;
+
+   if (g.is_valid_model_molecule(imol_1) && g.is_valid_model_molecule(imol_2)) {
+      mmdb::Atom *at_1 = g.molecules[imol_1].get_atom(g.in_range_first_picked_atom);
+      mmdb::Atom *at_2 = g.molecules[imol_2].get_atom(g.in_range_second_picked_atom);
+      if (at_1 && at_2) {
+         if (imol_1 == imol_2) {
+            info_dialog("Residue selection problem:\nthe picked ligands are in the same molecule");
+            done = true;
+         } else {
+            int n_res_1 = g.molecules[imol_1].n_residues();
+            int n_res_2 = g.molecules[imol_2].n_residues();
+            int imol_moving = -1;
+            int imol_ref    = -1;
+            coot::residue_spec_t ref_spec;
+            if (n_res_1 == 1) {
+               imol_moving = imol_1;
+               imol_ref    = imol_2;
+               ref_spec = coot::residue_spec_t(g.in_range_second_picked_atom);
+            } else {
+               if (n_res_2 == 1) {
+                  imol_moving = imol_2;
+                  imol_ref    = imol_1;
+                  ref_spec = coot::residue_spec_t(g.in_range_first_picked_atom);
+               }
+            }
+            if (imol_moving == -1) {
+               info_dialog("Residue selection problem:\nneither of the picked molecules has just one residue\n(the moving molecule should contain just the ligand)");
+               done = true;
+            } else {
+               match_ligand_torsions(imol_moving, imol_ref, ref_spec.chain_id.c_str(), ref_spec.res_no);
+               overlap_ligands_internal(imol_moving, imol_ref, ref_spec.chain_id.c_str(), ref_spec.res_no, true);
+               g.graphics_draw();
+               done = true;
+            }
+         }
+      }
+   }
+
+   if (! done) {
+      std::string mess = "Use Range/Pair to pick the two ligands to superpose";
+      add_status_bar_text(mess);
+      g.ephemeral_overlay_label(mess);
+   }
+   graphics_info_t::graphics_grab_focus();
+}
+
 void SMILES_to_3D_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                          G_GNUC_UNUSED GVariant *parameter,
                          G_GNUC_UNUSED gpointer user_data) {
@@ -3629,6 +3708,238 @@ void glyco_wta_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    }
 }
 
+coot::residue_spec_t add_linked_residue_helper(int imol, mmdb::Residue *residue_p,
+                                               const std::string &tla, const std::string &link_type,
+                                               int n_trials) {
+
+   // we can't use the c-interface version of add_linked_residue() because it doesn't return
+   // a Residue * for the added residue.
+
+   coot::residue_spec_t r;
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      if (g.Geom_p()->have_dictionary_for_residue_type_no_dynamic_add(tla, imol)) {
+      } else {
+         g.Geom_p()->try_dynamic_add(tla, g.cif_dictionary_read_number);
+      }
+      g.cif_dictionary_read_number++;
+      coot::residue_spec_t res_spec(residue_p);
+      //          g.molecules[imol].add_linked_residue(res_spec, new_residue_comp_id,
+      //                                               link_type, g.Geom_p());
+      float new_b = g.default_new_atoms_b_factor;
+      // 20140429
+      coot::residue_spec_t new_res_spec =
+         g.molecules[imol].add_linked_residue_by_atom_torsions(res_spec, tla, link_type, g.Geom_p(), new_b);
+      r = new_res_spec; // this is the return value (the added residue)
+
+      if (! new_res_spec.unset_p()) {
+         if (is_valid_map_molecule(imol_refinement_map())) {
+            const clipper::Xmap<float> &xmap = g.molecules[imol_refinement_map()].xmap;
+            std::vector<coot::residue_spec_t> residue_specs;
+            residue_specs.push_back(res_spec);
+            residue_specs.push_back(new_res_spec);
+            g.molecules[imol].multi_residue_torsion_fit(residue_specs, xmap, n_trials, g.Geom_p());
+         }
+      }
+      graphics_draw();
+   }
+   return r;
+}
+
+// Port of the Scheme add-cho-restraints-for-residue (cho-restraints-from-models.scm):
+// look up this residue's position in the glyco tree, read the matching
+// cho-models "model-level-N-<new>-<link>-<parent>.tab" file and add inter-residue
+// extra bond restraints (new-residue atom <-> parent-residue atom) to the molecule.
+// These are then used by the subsequent refinement.
+void add_cho_restraints_for_residue(int imol, const coot::residue_spec_t &new_res_spec) {
+
+   // The larger the sigma scale, the weaker the restraints (c.f. 1.0).
+   const double cho_bond_sigma_scale = 3.0;
+
+   // pad an atom name to the 4-character PDB form, e.g. "C1" -> " C1 ", "C" -> " C  "
+   auto pad_name = [] (const std::string &s) -> std::string {
+      std::string::size_type l = s.length();
+      if (l > 3) return s;
+      if (l == 3) return std::string(" ") + s;
+      if (l == 2) return std::string(" ") + s + " ";
+      return std::string(" ") + s + "  ";
+   };
+
+   if (! is_valid_model_molecule(imol)) return;
+
+   graphics_info_t g;
+   mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+   mmdb::Residue *residue_p = g.molecules[imol].get_residue(new_res_spec);
+   if (! residue_p) return;
+
+   coot::glyco_tree_t gt(residue_p, mol, g.Geom_p());
+   coot::glyco_tree_t::residue_id_t id = gt.get_id(residue_p);
+
+   // res_type is empty when the residue_id was not filled (no tree/parent found)
+   if (id.res_type.empty())          return;
+   if (id.link_type.empty())         return;
+   if (id.parent_res_spec.unset_p()) return;
+
+   std::string fn = "model-level-" + std::to_string(id.level) + "-" +
+                    id.res_type + "-" + id.link_type + "-" + id.parent_res_type + ".tab";
+   std::filesystem::path cho_models_path =
+      std::filesystem::path(coot::package_data_dir()) / "data" / "cho-models";
+   std::filesystem::path model_path = cho_models_path / fn;
+
+   if (! std::filesystem::exists(model_path)) {
+      logger.log(log_t::INFO, logging::function_name_t(__FUNCTION__),
+                 "no cho model file", model_path.string());
+      return;
+   }
+
+   // each line is: atom-name-1 atom-name-2 mean sd n d mod-sarle
+   std::vector<coot::extra_restraints_t::extra_bond_restraint_t> bond_specs;
+   std::ifstream f(model_path);
+   std::string line;
+   while (std::getline(f, line)) {
+      std::vector<std::string> parts = coot::util::split_string_on_whitespace_no_blanks(line);
+      if (parts.size() == 7) {
+         double mean = coot::util::string_to_double(parts[2]);
+         double sd   = coot::util::string_to_double(parts[3]);
+         int    n    = coot::util::string_to_int(parts[4]);
+         double d    = coot::util::string_to_double(parts[5]);
+         if (n >= 20 && d < 0.42) {
+            coot::atom_spec_t atom_spec_1(new_res_spec.chain_id, new_res_spec.res_no,
+                                          new_res_spec.ins_code, pad_name(parts[0]), "");
+            coot::atom_spec_t atom_spec_2(id.parent_res_spec.chain_id, id.parent_res_spec.res_no,
+                                          id.parent_res_spec.ins_code, pad_name(parts[1]), "");
+            double sigma = sd * cho_bond_sigma_scale;
+            bond_specs.push_back(coot::extra_restraints_t::extra_bond_restraint_t(atom_spec_1, atom_spec_2,
+                                                                                  mean, sigma));
+         }
+      }
+   }
+   f.close();
+
+   if (! bond_specs.empty())
+      g.molecules[imol].add_extra_bond_restraints(bond_specs);
+}
+
+void glyco_lma_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                      G_GNUC_UNUSED GVariant *parameter,
+                      G_GNUC_UNUSED gpointer user_data) {
+
+   auto clear_out_container = [] (GtkWidget *box) {
+
+      if (box) {
+         GtkWidget *item_widget = gtk_widget_get_first_child(box);
+         while (item_widget) {
+            GtkWidget *w = item_widget;
+            item_widget = gtk_widget_get_next_sibling(item_widget);
+            gtk_box_remove(GTK_BOX(box), w);
+         };
+      }
+   };
+
+   auto callback = +[] (GtkButton *button, gpointer data) {
+
+      const char *tla       = static_cast<const char *>(g_object_get_data(G_OBJECT(button), "tla"));
+      const char *link_type = static_cast<const char *>(g_object_get_data(G_OBJECT(button), "link_type"));
+
+      graphics_info_t g;
+      std::pair<int, mmdb::Atom *> aa = g.get_active_atom();
+      int imol = aa.first;
+      if (is_valid_model_molecule(imol)) {
+
+         set_refine_with_torsion_restraints(1);
+         mmdb::Atom *at = aa.second;
+         mmdb::Residue *residue_p = at->GetResidue();
+         // Capture the parent (clicked) residue spec now, before the molecule is edited.
+         coot::residue_spec_t parent_spec(residue_p);
+         coot::residue_spec_t new_res_spec = add_linked_residue_helper(imol, residue_p, tla, link_type, 20);
+         if (! new_res_spec.unset_p()) {
+
+            // Extra inter-residue distance restraints from the cho model files.
+            add_cho_restraints_for_residue(imol, new_res_spec);
+
+            // Refine the parent residue and its neighbours (which now include the
+            // newly-added child) with the extra restraints applied. Halve the map
+            // weight during this refinement, as the Scheme version does, then restore.
+            float wm = get_map_weight();
+            set_matrix(wm * 0.5);
+            set_add_linked_residue_do_fit_and_refine(0);
+
+            mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+            std::vector<mmdb::Residue *> residues;
+            mmdb::Residue *parent_p = g.molecules[imol].get_residue(parent_spec);
+            if (parent_p) residues.push_back(parent_p);
+            std::vector<coot::residue_spec_t> near_specs =
+               g.molecules[imol].residues_near_residue(parent_spec, 1.9);
+            for (const auto &spec : near_specs) {
+               mmdb::Residue *r = g.molecules[imol].get_residue(spec);
+               if (r) residues.push_back(r);
+            }
+
+            if (! residues.empty()) {
+               std::string alt_conf;
+               short int save_state = g.refinement_immediate_replacement_flag;
+               g.refinement_immediate_replacement_flag = 1;
+               g.refine_residues_vec(imol, residues, alt_conf, mol);
+               g.refinement_immediate_replacement_flag = save_state;
+               c_accept_moving_atoms();
+            }
+
+            set_matrix(wm); // restore
+            graphics_draw();
+         }
+      }
+
+   };
+
+   auto add_lma_option = [callback] (GtkWidget *box, const std::string &label, const std::string &tla,
+                                     const std::string &link_type) {
+
+      GtkWidget *button = gtk_button_new_with_label(label.c_str());
+      g_object_set_data_full(G_OBJECT(button), "tla",       g_strdup(tla.c_str()),       g_free);
+      g_object_set_data_full(G_OBJECT(button), "link_type", g_strdup(link_type.c_str()), g_free);
+      g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(callback), nullptr);
+      gtk_box_append(GTK_BOX(box), button);
+   };
+
+   auto fill_glyco_lma_box = [add_lma_option] (GtkWidget *box) {
+
+      add_lma_option(box, "Add a pyr-ASN NAG",   "NAG", "pyr-ASN");
+      add_lma_option(box, "Add a BETA1-4 NAG",   "NAG", "BETA1-4");
+      add_lma_option(box, "Add a BETA1-4 BMA",   "BMA", "BETA1-4");
+      add_lma_option(box, "Add an ALPHA1-2 MAN", "MAN", "ALPHA1-2");
+      add_lma_option(box, "Add an ALPHA1-3 MAN", "MAN", "ALPHA1-3");
+      add_lma_option(box, "Add an ALPHA2-3 MAN", "MAN", "ALPHA2-3");
+      add_lma_option(box, "Add an ALPHA2-3 GAL", "GAL", "ALPHA2-3");
+      add_lma_option(box, "Add an ALPHA1-6 MAN", "MAN", "ALPHA1-6");
+      add_lma_option(box, "Add a BETA1-2 NAG",   "NAG", "BETA1-2");
+      add_lma_option(box, "Add a BETA1-4 GAL",   "GAL", "BETA1-4");
+      add_lma_option(box, "Add an ALPHA1-2 FUC", "FUC", "ALPHA1-2");
+      add_lma_option(box, "Add an ALPHA1-3 FUC", "FUC", "ALPHA1-3");
+      add_lma_option(box, "Add an ALPHA1-6 FUC", "FUC", "ALPHA1-6");
+      add_lma_option(box, "Add an BETA1-6 FUL",  "FUL", "BETA1-6");
+      add_lma_option(box, "Add an XYP-BMA XYP",  "XYP", "XYP-BMA");
+      add_lma_option(box, "Add an ALPHA2-3 SIA", "SIA", "ALPHA2-3");
+      add_lma_option(box, "Add an ALPHA2-6 SIA", "SIA", "ALPHA2-6");
+   };
+
+   GtkWidget *dialog = widget_from_builder("glyco-lma-dialog");
+   if (dialog) {
+      set_transient_for_main_window(dialog);
+      gtk_widget_set_visible(dialog, TRUE);
+      GtkWidget *box = widget_from_builder("glyco_lma_vbox_internal");
+      if (box) {
+         clear_out_container(box);
+         fill_glyco_lma_box(box);
+         // quitely (or behind the users back) set the GM alpha
+         graphics_info_t g;
+         g.set_geman_mcclure_alpha(1.0);
+      } else {
+         std::cout << "no box glyco_lma_vbox_internal" << std::endl;
+      }
+   }
+}
+
 void place_helix_here_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                              G_GNUC_UNUSED GVariant *parameter,
                              G_GNUC_UNUSED gpointer user_data) {
@@ -4001,6 +4312,23 @@ fullscreen_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    graphics_info_t::graphics_grab_focus();
 }
 
+// this action is a radio-item action - it comes from the right-click menu of the
+// vertical toolbar. The parameter is the target of the menu item.
+void
+vertical_toolbar_style_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                              GVariant *parameter,
+                              G_GNUC_UNUSED gpointer user_data) {
+
+   if (! parameter) return;
+   std::string s(g_variant_get_string(parameter, NULL));
+   int style = 0; // icons and labels
+   if (s == "labels") style = 1;
+   if (s == "icons")  style = 2;
+   set_vertical_toolbar_style(style); // sets the state of this action also
+   save_preferences();                // persist the choice immediately
+   graphics_info_t::graphics_grab_focus();
+}
+
 void
 gaussian_surface_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                         G_GNUC_UNUSED GVariant *parameter,
@@ -4340,6 +4668,17 @@ scale_up_graphics_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    graphics_draw();
    graphics_info_t::graphics_grab_focus();
 
+}
+
+// So that we can see what the ephemeral overlay label looks like without
+// having to engineer one of the conditions that shows one.
+void
+test_ephemeral_overlay_label_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                    G_GNUC_UNUSED GVariant *parameter,
+                                    G_GNUC_UNUSED gpointer user_data) {
+
+   graphics_info_t::ephemeral_overlay_label("This is an ephemeral overlay label - it hides itself after 2 seconds");
+   graphics_info_t::graphics_grab_focus();
 }
 
 void
@@ -5768,6 +6107,14 @@ delete_item(GSimpleAction *simple_action,
             GVariant *parameter,
             gpointer user_data) {
 
+   // ----------------------------------------------------
+   // -------------------- WARNING!!!!!!!! ---------------
+   // ----------------------------------------------------
+   //
+   // 20260912-PE this code is not called at the moment.
+   // Due to problems with target menu items
+   // 02ba47387a450010c211446c7109a42901472b80
+
    auto delete_residue_range = [] () {
 
       graphics_info_t g;
@@ -5915,6 +6262,7 @@ delete_item_water(GSimpleAction *simple_action,
          auto &m = g.molecules[imol];
          m.delete_water(atom_spec);
          handled = true;
+         graphics_draw();
       }
    }
 
@@ -6120,6 +6468,15 @@ void delete_item_pick_delete(GSimpleAction *simple_action,
    add_status_bar_text("Use Ctrl-click for multi-atom delete");
 }
 
+// this is "old-style" - delete happens on pick.
+void delete_item_pick_water_delete(GSimpleAction *simple_action,
+                                   GVariant *parameter,
+                                   gpointer user_data) {
+
+   graphics_info_t::delete_item_water = 1; // setup for atom pick
+   add_status_bar_text("Use Ctrl-click for multi-water delete");
+}
+
 void
 create_actions(GtkApplication *application) {
 
@@ -6146,6 +6503,21 @@ create_actions(GtkApplication *application) {
       // GSimpleAction *my_action = g_simple_action_new("my-action", g_variant_type_new("s")); // Expects a string parameter
       // g_action_map_add_action(G_ACTION_MAP(application), "my-action", my_action);
       // g_object_unref(my_action);
+   };
+
+   // an action with a string state - the menu items that use it (with a "target"
+   // attribute) are drawn as radio items.
+   auto add_stateful_string_action = [application] (const std::string &action_name,
+                                                    const std::string &initial_state,
+                                                    void (*action_function) (GSimpleAction *simple_action,
+                                                                             GVariant *parameter,
+                                                                             gpointer user_data)) {
+
+      GSimpleAction *simple_action = g_simple_action_new_stateful(action_name.c_str(),
+                                                                  G_VARIANT_TYPE_STRING,
+                                                                  g_variant_new_string(initial_state.c_str()));
+      g_action_map_add_action(G_ACTION_MAP(application), G_ACTION(simple_action));
+      g_signal_connect(simple_action, "activate", G_CALLBACK(action_function), NULL);
    };
 
 
@@ -6274,6 +6646,7 @@ create_actions(GtkApplication *application) {
    add_action(                   "find_ligands_action",                    find_ligands_action);
    add_action(                    "find_waters_action",                     find_waters_action);
    add_action(                      "glyco_wta_action",                       glyco_wta_action);
+   add_action(                      "glyco_lma_action",                       glyco_lma_action);
    add_action(                 "dna_rna_models_action",                  dna_rna_models_action);
    add_action(               "place_helix_here_action",                place_helix_here_action);
    add_action(              "cis_trans_convert_action",               cis_trans_convert_action);
@@ -6322,6 +6695,11 @@ create_actions(GtkApplication *application) {
    add_action(           "bond_colours_action",            bond_colours_action);
    add_action(             "fullscreen_action",              fullscreen_action);
    add_action(               "map_caps_action",                map_caps_action);
+
+   // the right-click menu of the vertical toolbar
+   add_stateful_string_action("vertical_toolbar_style_action", "icons-and-labels",
+                              vertical_toolbar_style_action);
+
    add_action(             "go_to_atom_action",              go_to_atom_action);
    add_action(         "label_CA_atoms_action",          label_CA_atoms_action);
    add_action(         "map_parameters_action",          map_parameters_action);
@@ -6351,6 +6729,7 @@ create_actions(GtkApplication *application) {
    add_action("sequence_view_action",                     sequence_view_action);
    add_action("scale_up_graphics_action",             scale_up_graphics_action);
    add_action("scale_down_graphics_action",         scale_down_graphics_action);
+   add_action("test_ephemeral_overlay_label_action", test_ephemeral_overlay_label_action);
    add_action("undo_symmetry_view_action",           undo_symmetry_view_action);
    add_action("undo_last_navigation_action",       undo_last_navigation_action);
    add_action("ribbons_colour_by_chain_action", ribbons_colour_by_chain_action);
@@ -6490,6 +6869,7 @@ create_actions(GtkApplication *application) {
    add_action("delete_item_chain", delete_item_chain);
    add_action("delete_item_hydrogen_atoms_in_molecule", delete_item_hydrogen_atoms_in_molecule);
    add_action("delete_item_pick_delete", delete_item_pick_delete);
+   add_action("delete_item_pick_water_delete", delete_item_pick_water_delete);
 
    // --- Modules ---
 
@@ -6530,6 +6910,7 @@ create_actions(GtkApplication *application) {
    add_action("flev_action",                               flev_action);
    add_action("coot_contact_dots_for_ligand_action",       coot_contact_dots_for_ligand_action);
    add_action("geometric_distortions_for_ligand_action",   geometric_distortions_for_ligand_action);
+   add_action("superpose_picked_ligands_action",           superpose_picked_ligands_action);
    add_action("SMILES_to_3D_action",                       SMILES_to_3D_action);
    add_action("show_chemical_features_action",             show_chemical_features_action);
    // add_action("quick_ligand_validate_action",              quick_ligand_validate_action); // pythonic gui

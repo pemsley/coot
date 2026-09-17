@@ -1643,40 +1643,74 @@ void test_make_mask_map(int argc, char **argv) {
 
 #include "cremer-pople.hh"
 
-void
-test_cremer_pople(int argc, char **argv) {
-
-   auto is_member = [] (const std::string &rn, const std::vector<std::string> &res_names) {
-      return std::find(res_names.begin(), res_names.end(), rn) != res_names.end();
-   };
-
-   if (argc > 1) {
-      std::string pdb_file_name(argv[1]);
-      atom_selection_container_t asc = get_atom_selection(pdb_file_name, false);
-      if (asc.read_success) {
-         mmdb::Manager *mol = asc.mol;
-         std::vector<std::string> res_names = {"NAG", "MAN", "BMA", "GAL", "FUC"};
-         for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
-            mmdb::Model *model_p = mol->GetModel(imod);
-            if (model_p) {
-               int n_chains = model_p->GetNumberOfChains();
-               for (int ichain=0; ichain<n_chains; ichain++) {
-                  mmdb::Chain *chain_p = model_p->GetChain(ichain);
-                  int n_res = chain_p->GetNumberOfResidues();
-                  for (int ires=0; ires<n_res; ires++) {
-                     mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-                     if (residue_p) {
-                        std::string rn = residue_p->GetResName();
-                        if (is_member(rn, res_names)) {
-                           coot::cremer_pople_t cpi(residue_p);
-                        }
-                     }
-                  }
-               }
-            }
-         }
-      }
+// A regular hexagon of radius r with alternating z = +/- d/2.
+// Pure m=3: q2 == 0, Q == |q3| == d*sqrt(3/2), theta == 0 or 180.
+static std::vector<clipper::Coord_orth> ideal_chair(double r, double d) {
+   std::vector<clipper::Coord_orth> v;
+   for (unsigned int j=0; j<6; j++) {
+      double a = 2.0 * M_PI * static_cast<double>(j) / 6.0;
+      double z = ((j % 2) == 0) ? 0.5*d : -0.5*d;
+      v.push_back(clipper::Coord_orth(r*cos(a), r*sin(a), z));
    }
+   return v;
+}
+
+static std::vector<clipper::Coord_orth>
+rotate_start(const std::vector<clipper::Coord_orth> &v, unsigned int k) {
+   std::vector<clipper::Coord_orth> o;
+   for (unsigned int i=0; i<v.size(); i++) o.push_back(v[(i+k) % v.size()]);
+   return o;
+}
+
+int test_cremer_pople(int argc, char **argv) {
+   int status = 1;
+   const double d = 0.5, r = 1.45, tol = 1e-6;
+   const double Q_expected = d * std::sqrt(1.5);   // 0.61237...
+
+   std::vector<clipper::Coord_orth> ring = ideal_chair(r, d);
+   coot::cremer_pople_t cp(ring);
+
+   if (! cp.filled)                            { std::cout << "FAIL not filled\n"; status = 0; }
+   if (cp.n_ring != 6)                         { std::cout << "FAIL n_ring\n";     status = 0; }
+   if (std::fabs(cp.q2) > tol)                 { std::cout << "FAIL q2 != 0: " << cp.q2 << "\n"; status = 0; }
+   if (std::fabs(cp.Q - Q_expected) > tol)      { std::cout << "FAIL Q: " << cp.Q << " want " << Q_expected << "\n"; status = 0; }
+
+   // Mean-plane conformance: the three Cremer-Pople conditions. An LSQ plane fails these.
+   double s0 = 0.0, sc = 0.0, ss = 0.0;
+   for (unsigned int j=0; j<6; j++) {
+      double a = 2.0 * M_PI * static_cast<double>(j) / 6.0;
+      s0 += cp.z[j];  sc += cp.z[j]*cos(a);  ss += cp.z[j]*sin(a);
+   }
+   if (std::fabs(s0) > 1e-8) { std::cout << "FAIL sum z: "        << s0 << "\n"; status = 0; }
+   if (std::fabs(sc) > 1e-8) { std::cout << "FAIL sum z cos: "    << sc << "\n"; status = 0; }
+   if (std::fabs(ss) > 1e-8) { std::cout << "FAIL sum z sin: "    << ss << "\n"; status = 0; }
+
+   // The load-bearing property: an odd rotation of the start atom flips theta
+   // to 180-theta (swapping 4C1 and 1C4); an even rotation preserves it.
+   // Q is invariant under every frame.
+   double t0 = clipper::Util::rad2d(cp.theta);
+   coot::cremer_pople_t cp1(rotate_start(ring, 1));
+   coot::cremer_pople_t cp2(rotate_start(ring, 2));
+   if (std::fabs(clipper::Util::rad2d(cp1.theta) - (180.0 - t0)) > 1e-4)
+      { std::cout << "FAIL odd rotation did not flip theta\n"; status = 0; }
+   if (std::fabs(clipper::Util::rad2d(cp2.theta) - t0) > 1e-4)
+      { std::cout << "FAIL even rotation changed theta\n"; status = 0; }
+   if (std::fabs(cp1.Q - cp.Q) > tol || std::fabs(cp2.Q - cp.Q) > tol)
+      { std::cout << "FAIL Q not frame-invariant\n"; status = 0; }
+
+   // A 5-ring has no theta.
+   std::vector<clipper::Coord_orth> five(ring.begin(), ring.begin()+5);
+   coot::cremer_pople_t cp5(five);
+   if (cp5.n_ring != 5)          { std::cout << "FAIL five n_ring\n";        status = 0; }
+   if (! std::isnan(cp5.theta))  { std::cout << "FAIL five theta not NaN\n"; status = 0; }
+
+   // Wrong ring size is rejected, not silently mangled.
+   std::vector<clipper::Coord_orth> four(ring.begin(), ring.begin()+4);
+   coot::cremer_pople_t cp4(four);
+   if (cp4.filled) { std::cout << "FAIL 4-ring should not be filled\n"; status = 0; }
+
+   if (status) std::cout << "PASS test_cremer_pople\n";
+   return status;
 }
 
 int test_ribose_torsions(int argc, char **argv) {
@@ -1756,7 +1790,7 @@ int main(int argc, char **argv) {
    if (true)
       test_ribose_torsions(argc, argv);
 
-   if (false)
+   if (true)
       test_cremer_pople(argc, argv);
 
    if (false)

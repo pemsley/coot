@@ -59,7 +59,8 @@ libcoot_layla_la_SOURCES = \
 	similar_ligands.cpp \
 	network_utils.cpp
 
-libcoot_layla_la_LIBADD = $(top_builddir)/geometry/libcoot-geometry.la \
+libcoot_layla_la_LIBADD = $(top_builddir)/coot-utils/libcoot-coord-utils.la \
+                          $(top_builddir)/geometry/libcoot-geometry.la \
                           $(top_builddir)/lidia-core/libcoot-lidia-core.la \
                           $(top_builddir)/utils/libcoot-utils.la \
                           $(GTK_LIBS) $(GLIB_LIBS) \
@@ -72,6 +73,7 @@ EXTRA_DIST = layla.ui
 
 AM_CXXFLAGS = \
 	-DPKGDATADIR='"$(pkgdatadir)"' \
+	$(GEMMI_CXXFLAGS)              \
 	$(SQLITE3_CFLAGS)              \
 	$(COOT_WINDOWS_CFLAGS)         \
 	$(CURL_CFLAGS)                 \

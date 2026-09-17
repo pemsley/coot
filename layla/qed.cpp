@@ -104,6 +104,53 @@ namespace impl {
         // }
     }
 
+    // Human-readable names for the structural alerts, aligned index-for-index
+    // with `smarts_array` in make_structural_alerts(). Transferred from the old
+    // lbg `alerts-list.cc` (SilOS-it's biscu-it). "" = no descriptive name.
+    auto make_structural_alert_names() -> std::vector<std::string> {
+        return {
+            "three-membered hetrocycle", "", "alkyl halide",
+            "sulfonic acid", "Michael acceptor", "Michael acceptor",
+            "N-hydroxyl pyridine", "Michael acceptor", "",
+            "2-halo pyridine", "aldehyde", "",
+            "", "diazo group", "",
+            "", "", "acyl hydrazine",
+            "thiocarbonyl group", "isolated alkene", "chinone",
+            "chinone", "polycyclic aromatic hydrocarbon", "polycyclic aromatic hydrocarbon",
+            "polycyclic aromatic hydrocarbon", "aniline", "heavy metal",
+            "iodine", "sulphate", "nitro group",
+            "hydroxamic acid", "hydantoin", "thiol",
+            "thiol", "halogenated ring", "halogenated ring",
+            "cycloheptane", "cycloheptane", "cyclooctane",
+            "cyclooctane", "azepane", "azocane",
+            "carbon triple bond", "crown ether", "",
+            "oxime", "oxime", "beta-keto/anhydride",
+            "cumarine", "charged oxygen or sulfur", "isocyanate",
+            "N-halo", "phenol ester", "polyene",
+            "carbo cation/anion", "azido group", "biotin analogue",
+            "catechol", "phosphor", "cyanate/aminonitrile/thiocyanate",
+            "ketone", "silicon halogen", "sulfur-oxygen single bond",
+            "triphenyl methyl-silyl", "saponine derivative", "imine",
+            "benzidine", "", "diaminobenzene",
+            "diaminobenzene", "diaminobenzene", "hydroquinone",
+            "phenol carbonate", "sulfur-nitrogen single bond", "thiobenzothiazole",
+            "thiobenzothiazole", "amidotetrazole", "N-acyl-2-amino-5-mercapto-1,3,4-thiadiazole",
+            "methylidene-1,3-dithiole", "ester of HOBT", "triflate",
+            "cyanhydrin", "acyl cyanide", "",
+            "cyanamide", "", "sulfonic acid",
+            "", "", "",
+            "oxygen-nitrogen single bond", "more than 2 ester groups", "enamine",
+            "", "het-C-het not in ring", "quaternary nitrogen",
+            "quaternary nitrogen", "quaternary nitrogen", "sulfinic acid",
+            "azo group", "", "aliphatic long chain",
+            "phthalimide", "Michael acceptor", "",
+            "", "", "",
+            "", "", "",
+            "", "radioactive", "radioactive",
+            "radioactive", "radioactive"
+        };
+    }
+
     inline double QEDproperties_sum(const QED::QEDproperties& props) noexcept {
         return props.MW + props.ALOGP + props.HBA + props.HBD + props.PSA + props.ROTB + props.AROM + props.ALERTS;
     }
@@ -130,10 +177,12 @@ const QED::QEDproperties QED::WEIGHT_NONE = QEDproperties({1.00, 1.00, 1.00, 1.0
 const std::unique_ptr<const ::RDKit::ROMol> QED::AliphaticRings = std::unique_ptr<const ::RDKit::ROMol>(nullptr);
 const std::vector<std::unique_ptr<const ::RDKit::ROMol>> QED::Acceptors = std::vector<std::unique_ptr<const ::RDKit::ROMol>>();
 const std::vector<std::unique_ptr<const ::RDKit::ROMol>> QED::StructuralAlerts = std::vector<std::unique_ptr<const ::RDKit::ROMol>>();
+const std::vector<std::string> QED::StructuralAlertNames = std::vector<std::string>();
 #else
 const std::unique_ptr<const ::RDKit::ROMol> QED::AliphaticRings = impl::make_aliphatic_rings();
 const std::vector<std::unique_ptr<const ::RDKit::ROMol>> QED::Acceptors = impl::make_acceptors();
 const std::vector<std::unique_ptr<const ::RDKit::ROMol>> QED::StructuralAlerts = impl::make_structural_alerts();
+const std::vector<std::string> QED::StructuralAlertNames = impl::make_structural_alert_names();
 #endif
 
 const std::vector<QED::ADSparameter> QED::adsParameters = {
@@ -155,6 +204,14 @@ const std::vector<QED::ADSparameter> QED::adsParameters = {
   ADSparameter({0.010000000, 1199.094025, -0.09002883, 0.000000001, 0.185904477, 0.875193782, 417.7253140})
 };
 
+const std::vector<std::unique_ptr<const ::RDKit::ROMol>>& QED::get_structural_alerts() {
+    return QED::StructuralAlerts;
+}
+
+const std::vector<std::string>& QED::get_structural_alert_names() {
+    return QED::StructuralAlertNames;
+}
+
 double QED::ads(double x, const ADSparameter& p) noexcept {
     double exp1 = 1 + exp(-1 * (x - p.C + p.D / 2) / p.E);
     double exp2 = 1 + exp(-1 * (x - p.C - p.D / 2) / p.F);
@@ -169,9 +226,11 @@ QED::QEDproperties QED::properties(const ::RDKit::ROMol& mol_raw) {
         auto& AliphaticRings = const_cast<std::unique_ptr<const ::RDKit::ROMol>&>(QED::AliphaticRings);
         auto& Acceptors = const_cast<std::vector<std::unique_ptr<const ::RDKit::ROMol>>&>(QED::Acceptors);
         auto& StructuralAlerts = const_cast<std::vector<std::unique_ptr<const ::RDKit::ROMol>>&>(QED::StructuralAlerts);
+        auto& StructuralAlertNames = const_cast<std::vector<std::string>&>(QED::StructuralAlertNames);
         AliphaticRings = impl::make_aliphatic_rings();
         Acceptors = impl::make_acceptors();
         StructuralAlerts = impl::make_structural_alerts();
+        StructuralAlertNames = impl::make_structural_alert_names();
     });
     #endif
     auto mol = std::unique_ptr<const ::RDKit::ROMol>(::RDKit::MolOps::removeHs(mol_raw));

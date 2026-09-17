@@ -70,9 +70,13 @@ public:
    std::vector<interesting_position_button_t> positions;
 };
 
-void show_interesting_positions_dialog(int imol, const std::string &title, std::vector<interesting_positions_section_t> &interesting_sections) {
+// it's not a dialog (I think)
+void show_interesting_positions_dialog(int imol, const std::string &title,
+                                       std::vector<interesting_positions_section_t> &interesting_sections) {
 
-   std::cout << "DEBUG:: ---------------- show_interesting_positions_dialog was given " << interesting_sections.size() << " sections" << std::endl;
+   if (true)
+      std::cout << "DEBUG:: ---------------- show_interesting_positions_dialog was given "
+                << interesting_sections.size() << " sections" << std::endl;
 
    auto atom_spec_to_position = [] (int imol, const coot::atom_spec_t &atom_spec) {
       bool status = false;
@@ -235,8 +239,6 @@ void show_interesting_positions_dialog(int imol, const std::string &title, std::
       }
    }
 
-   graphics_info_t g;
-
    GtkWidget *mwravp  = widget_from_builder("main_window_ramachandran_and_validation_pane");
    GtkWidget *mwgrvgp = widget_from_builder("main_window_graphics_rama_vs_graphics_pane");
    GtkWidget* vbox_vbox = widget_from_builder("validation_boxes_vbox");
@@ -267,10 +269,10 @@ void show_interesting_positions_dialog(int imol, const std::string &title, std::
 
 }
 
-void read_interesting_places_json_file(const std::string &file_name) {
+void read_interesting_places_json(const std::string &json_as_string) {
 
    bool debug = false;
-   if (coot::file_exists(file_name)) {
+   {
 
       graphics_info_t g;
       std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
@@ -331,12 +333,7 @@ void read_interesting_places_json_file(const std::string &file_name) {
             return spec;
          };
 
-         std::string s;
-         std::fstream f(file_name);
-         f.seekg(0, std::ios::end);
-         s.reserve(f.tellg());
-         f.seekg(0, std::ios::beg);
-         s.assign((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
+         const std::string &s = json_as_string;
 
          std::string title = "<Title>";
 
@@ -538,6 +535,23 @@ void read_interesting_places_json_file(const std::string &file_name) {
             show_interesting_positions_dialog(imol, title, sections);
          }
       }
+   }
+}
+
+
+void read_interesting_places_json_file(const std::string &file_name) {
+
+   if (coot::file_exists(file_name)) {
+
+      std::string s;
+      std::fstream f(file_name);
+      f.seekg(0, std::ios::end);
+      s.reserve(f.tellg());
+      f.seekg(0, std::ios::beg);
+      s.assign((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
+
+      read_interesting_places_json(s);
+
    } else {
       std::cout << "File does not exist " << file_name << std::endl;
    }

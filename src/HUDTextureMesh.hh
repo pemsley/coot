@@ -57,6 +57,7 @@ class HUDTextureMesh {
    std::string name;
    void init(); // does not call setup_quad()
    void setup_buffers();
+   void delete_gl_buffers();
    bool draw_this_mesh;
    GLuint inst_positions_id;
    unsigned int n_instances; // 20210903-PE instancing for phi_psi points (initially)
@@ -103,6 +104,12 @@ public:
                                           // which is the phi_psi "position".
    float get_sum_x_advance(const std::string &label, const std::map<GLchar, FT_character> &ft_characters) const;
    void close() { draw_this_mesh = false; }
+   // use this when the GL context is unrealized/rerealized (must be called while
+   // the context is still current, e.g. from the GtkGLArea "unrealize" handler).
+   void reset() {
+      delete_gl_buffers();
+      first_time = true;
+   }
 };
 
 

@@ -58,6 +58,14 @@ void hide_model_toolbar_icon(int pos);
 void show_main_toolbar_icon(int pos);
 void hide_main_toolbar_icon(int pos);
 
+/*! \brief set how the buttons of the vertical toolbar are drawn
+
+  style 0: icons and labels, 1: labels only, 2: icons only.  A button that has no icon
+  shows its label whatever the style. */
+void set_vertical_toolbar_style(int style);
+/*! \brief the current vertical toolbar style */
+int vertical_toolbar_style_state();
+
 int preferences_internal_font_own_colour_flag();
 
 #ifndef SWIG

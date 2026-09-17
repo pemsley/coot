@@ -26,6 +26,8 @@
 #include "lidia-core/rdkit-interface.hh"
 // #define LIBCOOTAPI_BUILD // means no python - this is set with cmake now.
 #include "pyrogen/restraints.hh"
+#include "coot-utils/acedrg-input-mmcif.hh"
+#include <fstream>
 
 // C++ port of pyrogen/pyrogen.py pad_atom_name() and add_atom_names()
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
@@ -145,6 +147,10 @@ molecules_container_t::pyrogen_from_SMILES(const std::string &smiles_string,
          return -1;
       }
 
+      // 8b. Idealize the conformer (and the dictionary's chem_comp_atom coordinates)
+      // against the generated dictionary restraints, as the pyrogen CLI does.
+      coot::regularize_and_update_mol_and_restraints(mol.get(), &dict_pair.second);
+
       // 9. Store in geometry
       int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
       geom.replace_monomer_restraints(compound_id, imol_enc, dict_pair.second);
@@ -211,6 +217,41 @@ int molecules_container_t::pyrogen_from_ccd_file(const std::string &ccd_file_nam
 //! @param compound_id is the compound_id that should be assigned to the new dictionary
 //!        and molecule
 //! @return the new molecule index or -1 on failure
+//! write a minimal CCD-style mmCIF from an RDKit molecule pickle - the input
+//! format for external dictionary generators (acedrg -c, pyrogen --mmcif).
+//! Atom names carried on the molecule are preserved; see
+//! coot-utils/acedrg-input-mmcif.hh.
+//! @return 1 on success, 0 on failure
+int molecules_container_t::write_acedrg_input_mmcif_from_rdkit_mol_pickle_base64(const std::string &rdkit_mol_pickle_base64_string,
+                                                                                 const std::string &compound_id,
+                                                                                 const std::string &file_name) {
+
+   int status = 0;
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+   try {
+      std::string pickle_string = moorhen_base64::base64_decode(rdkit_mol_pickle_base64_string);
+      std::unique_ptr<RDKit::RWMol> mol = std::make_unique<RDKit::RWMol>();
+      RDKit::MolPickler::molFromPickle(pickle_string, mol.get());
+      if (! mol || mol->getNumAtoms() == 0) {
+         std::cout << "WARNING:: " << __FUNCTION__ << "(): failed to unpickle molecule" << std::endl;
+         return 0;
+      }
+      std::string cif = coot::make_acedrg_input_mmcif(*mol, compound_id);
+      std::ofstream f(file_name.c_str());
+      if (f) {
+         f << cif;
+         status = 1;
+      } else {
+         std::cout << "WARNING:: " << __FUNCTION__ << "(): failed to open " << file_name << std::endl;
+      }
+   }
+   catch (const std::exception &e) {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): " << e.what() << std::endl;
+   }
+#endif
+   return status;
+}
+
 int molecules_container_t::pyrogen_from_rdkit_mol_pickle_base64(const std::string &rdkit_mol_pickle_base64_string,
                                                                 const std::string &compound_id) {
 
@@ -275,6 +316,12 @@ int molecules_container_t::pyrogen_from_rdkit_mol_pickle_base64(const std::strin
          std::cout << "WARNING:: pyrogen_from_rdkit_mol_pickle_base64(): mmcif_dict_from_mol_using_energy_lib() failed" << std::endl;
          return -1;
       }
+
+      // 8b. Idealize the conformer (and the dictionary's chem_comp_atom coordinates)
+      // against the generated dictionary restraints, as the pyrogen CLI does.
+      // `mol` here is already RDKit::RWMol-typed (see the unique_ptr above), so no
+      // ROMol->RWMol copy is needed.
+      coot::regularize_and_update_mol_and_restraints(mol.get(), &dict_pair.second);
 
       // 9. Store in geometry
       int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;

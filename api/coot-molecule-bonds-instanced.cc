@@ -235,7 +235,16 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
             // 20240218-PE base_atom_radius is typically 0.12 but can be 1.67 for "Goodsell" model.
             // 4 * 1.67 is 6.68 and that is too big. So let's just add a limit to the size of sar
             float scale = at_info.radius_scale;
-            float sar = scale * base_atom_radius;
+            // 20260822-PE Waters (2.0), no-dictionary atoms (2.4) and metals (4.0) already have a
+            // big radius_scale. We don't want that to compound with the atom-radius-to-bond-width
+            // ratio (which inflates base_atom_radius) - otherwise these atoms look huge when the
+            // ratio is (say) 2. So for any atom with an enlarged radius_scale (> 1.0) scale from
+            // base_bond_radius, i.e. the radius it would "naturally" have when the ratio is 1.0,
+            // rather than the ratio-inflated base_atom_radius. Ordinary atoms (scale 1.0) and
+            // hydrogens (scale 0.5) still respond to the ratio via base_atom_radius.
+            bool has_enlarged_radius = at_info.radius_scale > 1.0f; // waters, no-dict atoms, metals
+            float radius_base = has_enlarged_radius ? base_bond_radius : base_atom_radius;
+            float sar = scale * radius_base;
             if (sar > 2.2) sar = 2.2; // atom radius limit
             // 20231113-PE should I check for waters for this limit?
             if (at_info.is_water)

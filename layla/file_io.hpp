@@ -38,7 +38,10 @@ enum class CheminformaticsFileFormat {
     SDF,
     InChI,
     CDXML,
-    SMILES
+    SMILES,
+    // RDKit binary pickle. Serialized with all properties (molecule, atom and
+    // bond) included, so a round-trip preserves the property dictionaries.
+    Pickle
 };
 
 // Molecule <-> in-memory string in the given format. Both throw std::exception

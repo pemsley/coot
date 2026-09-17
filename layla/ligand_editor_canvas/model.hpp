@@ -25,6 +25,8 @@
 #include <vector>
 #include <variant>
 #include <optional>
+#include <string>
+#include <set>
 #include <rdkit/GraphMol/RWMol.h>
 // Forward declaration of types defined at "render.hpp"
 namespace coot::ligand_editor_canvas::impl {
@@ -101,7 +103,9 @@ class CanvasMolecule {
         Edition = 2,
         Error = 4,
         // A concept for the future
-        Selection = 8
+        Selection = 8,
+        // Atoms matching a structural-alert SMARTS pattern (the "Show Alerts" feature)
+        Alert = 16
     };
 
    struct Atom {
@@ -267,6 +271,21 @@ class CanvasMolecule {
     /// QED info is updated while lowering from RDKit.
     std::optional<QEDInfo> qed_info;
 
+    /// When true, atoms matching structural-alert SMARTS patterns are
+    /// highlighted (the "Show Alerts" feature). Recomputed on every lowering.
+    bool draw_alerts = false;
+
+    /// Names of the structural alerts currently matched by this molecule.
+    /// Populated by apply_alert_highlights() during lowering when draw_alerts
+    /// is set; used to tell the user *which* alerts were found.
+    std::set<std::string> matched_alert_names;
+
+    /// Runs the structural-alert SMARTS patterns (QED::StructuralAlerts) against
+    /// the RDKit molecule, flags matching atoms with HighlightType::Alert and
+    /// records the matched alert names in `matched_alert_names`.
+    /// Part of the lowering process (only when `draw_alerts` is set).
+    void apply_alert_highlights();
+
     /// Uses RDDepict to get molecule depiction & geometry info
     ///
     /// Part of the lowering process.
@@ -342,6 +361,14 @@ class CanvasMolecule {
     /// Returns the thing that was clicked on (or nullopt if there's no match).
     /// Works on canvas coordinates, i.e. those acquired after viewport offset had been accounted for
     MaybeAtomOrBond resolve_click(int x, int y, float scale) const noexcept;
+
+    /// Enables/disables structural-alert highlighting for this molecule.
+    /// The change takes effect on the next call to lower_from_rdkit().
+    void set_draw_alerts(bool enabled) noexcept;
+    bool get_draw_alerts() const noexcept;
+    /// The names of the structural alerts currently matched (empty if none or
+    /// if alert highlighting is disabled).
+    const std::set<std::string>& get_matched_alert_names() const noexcept;
 
     void add_atom_highlight(int atom_idx, HighlightType htype);
     void add_bond_highlight(unsigned int atom_a, unsigned int atom_b, HighlightType htype);

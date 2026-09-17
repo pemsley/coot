@@ -30,6 +30,15 @@
 #include "dynamic-validation.hh"
 #include "coot-utils/c-beta-deviations.hh"
 
+namespace {
+   // GDestroyNotify: delete an atom_spec_t attached as button object-data, so the
+   // heap-allocated spec is freed (with its std::string members) when the button
+   // is destroyed - i.e. when the outliers vbox is cleared and repopulated.
+   void delete_atom_spec(gpointer data) {
+      delete static_cast<coot::atom_spec_t *>(data);
+   }
+}
+
 void dynamic_validation_internal(int imol, int imol_map) {
 
    overlaps_peptides_cbeta_ramas_and_rotas_internal(imol); // for now
@@ -91,7 +100,8 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
       return s;
    };
 
-   auto overlap_button_callback = +[] (GtkButton *button, G_GNUC_UNUSED gpointer user_data) {
+   auto overlap_button_callback = +[] (GtkToggleButton *button, G_GNUC_UNUSED gpointer user_data) {
+      if (! gtk_toggle_button_get_active(button)) return; // only act on the newly-selected button
       std::string target_position_x_str(static_cast<const char *>(g_object_get_data(G_OBJECT(button), "target-position-x")));
       std::string target_position_y_str(static_cast<const char *>(g_object_get_data(G_OBJECT(button), "target-position-y")));
       std::string target_position_z_str(static_cast<const char *>(g_object_get_data(G_OBJECT(button), "target-position-z")));
@@ -112,7 +122,8 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
 
    // How do I go to a position from a residue elsewhere in the code!? I don't recall!
    //
-   auto rota_button_callback = +[] (GtkButton *button, G_GNUC_UNUSED gpointer user_data) {
+   auto rota_button_callback = +[] (GtkToggleButton *button, G_GNUC_UNUSED gpointer user_data) {
+      if (! gtk_toggle_button_get_active(button)) return; // only act on the newly-selected button
       std::string target_position_x_str(static_cast<const char *>(g_object_get_data(G_OBJECT(button), "target-position-x")));
       std::string target_position_y_str(static_cast<const char *>(g_object_get_data(G_OBJECT(button), "target-position-y")));
       std::string target_position_z_str(static_cast<const char *>(g_object_get_data(G_OBJECT(button), "target-position-z")));
@@ -131,19 +142,9 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
    };
 
    auto set_target_position_data = [] (GtkWidget *button, const clipper::Coord_orth &p) {
-      // std::to_string(p.x()).c_str()
-      char *x = new char[10];
-      char *y = new char[10];
-      char *z = new char[10];
-      for (unsigned int i=0; i<10; i++) x[i] = 0;
-      for (unsigned int i=0; i<10; i++) y[i] = 0;
-      for (unsigned int i=0; i<10; i++) z[i] = 0;
-      strncpy(x, std::to_string(p.x()).c_str(), 9);
-      strncpy(y, std::to_string(p.y()).c_str(), 9);
-      strncpy(z, std::to_string(p.z()).c_str(), 9);
-      g_object_set_data(G_OBJECT(button), "target-position-x", x);
-      g_object_set_data(G_OBJECT(button), "target-position-y", y);
-      g_object_set_data(G_OBJECT(button), "target-position-z", z);
+      g_object_set_data_full(G_OBJECT(button), "target-position-x", g_strdup(std::to_string(p.x()).c_str()), g_free);
+      g_object_set_data_full(G_OBJECT(button), "target-position-y", g_strdup(std::to_string(p.y()).c_str()), g_free);
+      g_object_set_data_full(G_OBJECT(button), "target-position-z", g_strdup(std::to_string(p.z()).c_str()), g_free);
    };
 
 
@@ -207,7 +208,7 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
          lab += " OV: " + coot::util::float_to_string_using_dec_pl(o.overlap_volume, 2);
          lab += "Å³";
          // GtkWidget *button = gtk_button_new_with_label(lab.c_str());
-         GtkWidget *button = gtk_button_new();
+         GtkWidget *button = gtk_toggle_button_new();
          GtkWidget *label = gtk_label_new(lab.c_str());
          gtk_widget_set_halign(label, GTK_ALIGN_START);
          gtk_button_set_child(GTK_BUTTON(button), label);
@@ -217,7 +218,7 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
          gtk_widget_set_margin_bottom(button, 2);
          clipper::Coord_orth target_position = get_target_position(o);
          set_target_position_data(button, target_position);
-         g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(overlap_button_callback), nullptr);
+         g_signal_connect(G_OBJECT(button), "toggled", G_CALLBACK(overlap_button_callback), nullptr);
          auto p = std::make_pair(coot::residue_spec_t(o.atom_1->residue), button);
          buttons.push_back(p);
       }
@@ -245,12 +246,12 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
                lab += coot::util::float_to_string_using_dec_pl(f, 2);
                lab += "%";
                // GtkWidget *button = gtk_button_new_with_label(lab.c_str());
-               GtkWidget *button = gtk_button_new();
+               GtkWidget *button = gtk_toggle_button_new();
                GtkWidget *label = gtk_label_new(lab.c_str());
                gtk_widget_set_halign(label, GTK_ALIGN_START);
                gtk_button_set_child(GTK_BUTTON(button), label);
                set_target_position_from_residue(residue_p, button);
-               g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(rota_button_callback), nullptr);
+               g_signal_connect(G_OBJECT(button), "toggled", G_CALLBACK(rota_button_callback), nullptr);
                gtk_widget_set_margin_start (button, 4);
                gtk_widget_set_margin_end   (button, 4);
                gtk_widget_set_margin_top   (button, 2);
@@ -263,7 +264,8 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
       return buttons;
    };
 
-   auto chiral_volume_button_clicked_callback = +[] (GtkButton *button, gpointer user_data) {
+   auto chiral_volume_button_clicked_callback = +[] (GtkToggleButton *button, gpointer user_data) {
+      if (! gtk_toggle_button_get_active(button)) return; // only act on the newly-selected button
       coot::atom_spec_t *atom_spec_p = static_cast<coot::atom_spec_t *>(user_data);
       int imol = atom_spec_p->int_user_data;
       const auto &atom_spec(*atom_spec_p);
@@ -297,7 +299,7 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
             lab += " ";
             lab += coot::util::float_to_string_using_dec_pl(distortion, 1);
             // GtkWidget *button = gtk_button_new_with_label(lab.c_str());
-            GtkWidget *button = gtk_button_new();
+            GtkWidget *button = gtk_toggle_button_new();
             GtkWidget *label = gtk_label_new(lab.c_str());
             gtk_widget_set_halign(label, GTK_ALIGN_START);
             gtk_button_set_child(GTK_BUTTON(button), label);
@@ -305,7 +307,8 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
             gtk_widget_set_margin_end   (button, 4);
             gtk_widget_set_margin_top   (button, 2);
             gtk_widget_set_margin_bottom(button, 2);
-            g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(chiral_volume_button_clicked_callback), spec_p);
+            g_signal_connect(G_OBJECT(button), "toggled", G_CALLBACK(chiral_volume_button_clicked_callback), spec_p);
+            g_object_set_data_full(G_OBJECT(button), "atom-spec", spec_p, delete_atom_spec);
             auto p = std::make_pair(res_spec, button);
             buttons.push_back(p);
          }
@@ -314,7 +317,8 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
    };
 
    // these are mostly the same and can be consolidated.
-   auto rama_button_clicked_callback = +[] (GtkButton *button, gpointer user_data) {
+   auto rama_button_clicked_callback = +[] (GtkToggleButton *button, gpointer user_data) {
+      if (! gtk_toggle_button_get_active(button)) return; // only act on the newly-selected button
       coot::atom_spec_t *atom_spec_p = static_cast<coot::atom_spec_t *>(user_data);
       int imol = atom_spec_p->int_user_data;
       const auto &atom_spec(*atom_spec_p);
@@ -349,7 +353,7 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
             lab += std::string(spp.residue_this->GetResName());
             lab += " pr: ";
             lab += coot::util::float_to_string_using_dec_pl(spp.score, 3);
-            GtkWidget *button = gtk_button_new();
+            GtkWidget *button = gtk_toggle_button_new();
             GtkWidget *label = gtk_label_new(lab.c_str());
             gtk_widget_set_halign(label, GTK_ALIGN_START);
             gtk_button_set_child(GTK_BUTTON(button), label);
@@ -361,7 +365,8 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
             coot::atom_spec_t atom_spec(spp.res_spec.chain_id, spp.res_spec.res_no, spp.res_spec.ins_code, " CA ", "");
             coot::atom_spec_t *spec_p = new coot::atom_spec_t(atom_spec);
             spec_p->int_user_data = imol;
-            g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(rama_button_clicked_callback), spec_p);
+            g_signal_connect(G_OBJECT(button), "toggled", G_CALLBACK(rama_button_clicked_callback), spec_p);
+            g_object_set_data_full(G_OBJECT(button), "atom-spec", spec_p, delete_atom_spec);
             auto p = std::make_pair(spp.res_spec, button);
             buttons.push_back(p);
          }
@@ -369,7 +374,8 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
       return buttons;
    };
 
-   auto non_pro_cis_button_clicked_callback = +[] (GtkButton *button, gpointer user_data) {
+   auto non_pro_cis_button_clicked_callback = +[] (GtkToggleButton *button, gpointer user_data) {
+      if (! gtk_toggle_button_get_active(button)) return; // only act on the newly-selected button
       coot::atom_spec_t *atom_spec_p = static_cast<coot::atom_spec_t *>(user_data);
       int imol = atom_spec_p->int_user_data;
       const auto &atom_spec(*atom_spec_p);
@@ -397,7 +403,7 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
                lab += coot::util::float_to_string_using_dec_pl(cpi.omega_torsion_angle, 2);
                lab += "°";
                // GtkWidget *button = gtk_button_new_with_label(lab.c_str());
-               GtkWidget *button = gtk_button_new();
+               GtkWidget *button = gtk_toggle_button_new();
                GtkWidget *label = gtk_label_new(lab.c_str());
                gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
                gtk_widget_set_halign(label, GTK_ALIGN_START);
@@ -409,7 +415,8 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
                coot::atom_spec_t spec(cpi.chain_id_1, cpi.resno_1, cpi.ins_code_1, " CA ", "");
                coot::atom_spec_t *spec_p = new coot::atom_spec_t(spec);
                spec_p->int_user_data = imol;
-               g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(non_pro_cis_button_clicked_callback), spec_p);
+               g_signal_connect(G_OBJECT(button), "toggled", G_CALLBACK(non_pro_cis_button_clicked_callback), spec_p);
+               g_object_set_data_full(G_OBJECT(button), "atom-spec", spec_p, delete_atom_spec);
                auto p = std::make_pair(res_spec, button);
                buttons.push_back(p);
             }
@@ -418,7 +425,8 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
       return buttons;
    };
 
-   auto twisted_trans_button_clicked_callback = +[] (GtkButton *button, gpointer user_data) {
+   auto twisted_trans_button_clicked_callback = +[] (GtkToggleButton *button, gpointer user_data) {
+      if (! gtk_toggle_button_get_active(button)) return; // only act on the newly-selected button
       coot::atom_spec_t *atom_spec_p = static_cast<coot::atom_spec_t *>(user_data);
       int imol = atom_spec_p->int_user_data;
       const auto &atom_spec(*atom_spec_p);
@@ -447,7 +455,7 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
                lab += coot::util::float_to_string_using_dec_pl(omega, 2);
                lab += "°";
                // GtkWidget *button = gtk_button_new_with_label(lab.c_str());
-               GtkWidget *button = gtk_button_new();
+               GtkWidget *button = gtk_toggle_button_new();
                GtkWidget *label = gtk_label_new(lab.c_str());
                gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
                gtk_widget_set_halign(label, GTK_ALIGN_START);
@@ -459,7 +467,8 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
                coot::residue_spec_t res_spec(v[i].quad.atom_2->residue);
                coot::atom_spec_t *spec_p = new coot::atom_spec_t(v[i].quad.atom_2);
                spec_p->int_user_data = imol;
-               g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(twisted_trans_button_clicked_callback), spec_p);
+               g_signal_connect(G_OBJECT(button), "toggled", G_CALLBACK(twisted_trans_button_clicked_callback), spec_p);
+               g_object_set_data_full(G_OBJECT(button), "atom-spec", spec_p, delete_atom_spec);
                auto p = std::make_pair(res_spec, button);
                buttons.push_back(p);
             }
@@ -471,7 +480,8 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
       return buttons;
    };
 
-   auto c_beta_devi_button_clicked_callback = +[] (GtkButton *button, gpointer user_data) {
+   auto c_beta_devi_button_clicked_callback = +[] (GtkToggleButton *button, gpointer user_data) {
+      if (! gtk_toggle_button_get_active(button)) return; // only act on the newly-selected button
       coot::atom_spec_t *atom_spec_p = static_cast<coot::atom_spec_t *>(user_data);
       int imol = atom_spec_p->int_user_data;
       const auto &atom_spec(*atom_spec_p);
@@ -509,7 +519,7 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
                lab += coot::util::float_to_string_using_dec_pl(cbd.dist, 2);
                if (! alt_conf_key.empty())
                   lab += std::string(" ") + alt_conf_key;
-               GtkWidget *button = gtk_button_new();
+               GtkWidget *button = gtk_toggle_button_new();
                GtkWidget *label = gtk_label_new(lab.c_str());
                gtk_widget_set_halign(label, GTK_ALIGN_START);
                gtk_button_set_child(GTK_BUTTON(button), label);
@@ -520,7 +530,8 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
                coot::atom_spec_t spec(cbd.at);
                coot::atom_spec_t *spec_p = new coot::atom_spec_t(spec);
                spec_p->int_user_data = imol;
-               g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(c_beta_devi_button_clicked_callback), spec_p);
+               g_signal_connect(G_OBJECT(button), "toggled", G_CALLBACK(c_beta_devi_button_clicked_callback), spec_p);
+               g_object_set_data_full(G_OBJECT(button), "atom-spec", spec_p, delete_atom_spec);
                auto p = std::make_pair(res_spec, button);
                buttons.push_back(p);
             }
@@ -537,7 +548,7 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
          mmdb::Residue *residue_p = nullptr;
          std::string lab = "xx";
          lab += " ";
-         GtkWidget *button = gtk_button_new();
+         GtkWidget *button = gtk_toggle_button_new();
          GtkWidget *label = gtk_label_new(lab.c_str());
          gtk_widget_set_halign(label, GTK_ALIGN_START);
          gtk_button_set_child(GTK_BUTTON(button), label);
@@ -548,7 +559,7 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
          coot::residue_spec_t res_spec(residue_p);
          // coot::atom_spec_t *spec_p = new coot::atom_spec_t(spec);
          // spec_p->int_user_data = imol;
-         g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(chiral_volume_button_clicked_callback), nullptr);
+         g_signal_connect(G_OBJECT(button), "toggled", G_CALLBACK(chiral_volume_button_clicked_callback), nullptr);
          auto p = std::make_pair(res_spec, button);
          buttons.push_back(p);
       }
@@ -600,8 +611,15 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
 
    auto sorted_buttons = sort_buttons(buttons); // sort by chain-id and residue number
 
-   for(auto button_info : sorted_buttons)
-      gtk_box_append(GTK_BOX(vbox), button_info.second);
+   GtkWidget *group = nullptr; // grouped toggle buttons: the selected outlier stays visually pressed
+   for(auto button_info : sorted_buttons) {
+      GtkWidget *button = button_info.second;
+      if (group)
+         gtk_toggle_button_set_group(GTK_TOGGLE_BUTTON(button), GTK_TOGGLE_BUTTON(group));
+      else
+         group = button;
+      gtk_box_append(GTK_BOX(vbox), button);
+   }
 
 }
 
@@ -620,7 +638,8 @@ void phenix_geo_validation_buttons(int imol,
       return s;
    };
 
-   auto button_callback = +[] (GtkButton *button, G_GNUC_UNUSED gpointer user_data) {
+   auto button_callback = +[] (GtkToggleButton *button, G_GNUC_UNUSED gpointer user_data) {
+      if (! gtk_toggle_button_get_active(button)) return; // only act on the newly-selected button
       std::string target_position_x_str(static_cast<const char *>(g_object_get_data(G_OBJECT(button), "target-position-x")));
       std::string target_position_y_str(static_cast<const char *>(g_object_get_data(G_OBJECT(button), "target-position-y")));
       std::string target_position_z_str(static_cast<const char *>(g_object_get_data(G_OBJECT(button), "target-position-z")));
@@ -639,18 +658,9 @@ void phenix_geo_validation_buttons(int imol,
    };
 
    auto set_target_position_data = [] (GtkWidget *button, const clipper::Coord_orth &p) {
-      char *x = new char[10];
-      char *y = new char[10];
-      char *z = new char[10];
-      for (unsigned int i=0; i<10; i++) x[i] = 0;
-      for (unsigned int i=0; i<10; i++) y[i] = 0;
-      for (unsigned int i=0; i<10; i++) z[i] = 0;
-      strncpy(x, std::to_string(p.x()).c_str(), 9);
-      strncpy(y, std::to_string(p.y()).c_str(), 9);
-      strncpy(z, std::to_string(p.z()).c_str(), 9);
-      g_object_set_data(G_OBJECT(button), "target-position-x", x);
-      g_object_set_data(G_OBJECT(button), "target-position-y", y);
-      g_object_set_data(G_OBJECT(button), "target-position-z", z);
+      g_object_set_data_full(G_OBJECT(button), "target-position-x", g_strdup(std::to_string(p.x()).c_str()), g_free);
+      g_object_set_data_full(G_OBJECT(button), "target-position-y", g_strdup(std::to_string(p.y()).c_str()), g_free);
+      g_object_set_data_full(G_OBJECT(button), "target-position-z", g_strdup(std::to_string(p.z()).c_str()), g_free);
    };
 
    auto sorter = [] (const std::pair<coot::residue_spec_t, GtkWidget *> &r1,
@@ -698,7 +708,7 @@ void phenix_geo_validation_buttons(int imol,
       lab += " Δ: " + coot::util::float_to_string_using_dec_pl(gb.delta, 3) + "Å";
       lab += " (" + coot::util::float_to_string_using_dec_pl(std::sqrt(gb.residual), 1) + "σ)";
 
-      GtkWidget *button = gtk_button_new();
+      GtkWidget *button = gtk_toggle_button_new();
       GtkWidget *button_label = gtk_label_new(lab.c_str());
       gtk_widget_set_halign(button_label, GTK_ALIGN_START);
       gtk_button_set_child(GTK_BUTTON(button), button_label);
@@ -708,7 +718,7 @@ void phenix_geo_validation_buttons(int imol,
       gtk_widget_set_margin_bottom(button, 2);
 
       set_target_position_data(button, midpoint);
-      g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(button_callback), nullptr);
+      g_signal_connect(G_OBJECT(button), "toggled", G_CALLBACK(button_callback), nullptr);
 
       coot::residue_spec_t res_spec(gb.atom_1);
       buttons.push_back(std::make_pair(res_spec, button));
@@ -733,7 +743,7 @@ void phenix_geo_validation_buttons(int imol,
       lab += " Δ: " + coot::util::float_to_string_using_dec_pl(ga.delta, 1) + "°";
       lab += " (" + coot::util::float_to_string_using_dec_pl(std::sqrt(ga.residual), 1) + "σ)";
 
-      GtkWidget *button = gtk_button_new();
+      GtkWidget *button = gtk_toggle_button_new();
       GtkWidget *button_label = gtk_label_new(lab.c_str());
       gtk_widget_set_halign(button_label, GTK_ALIGN_START);
       gtk_button_set_child(GTK_BUTTON(button), button_label);
@@ -743,7 +753,7 @@ void phenix_geo_validation_buttons(int imol,
       gtk_widget_set_margin_bottom(button, 2);
 
       set_target_position_data(button, target);
-      g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(button_callback), nullptr);
+      g_signal_connect(G_OBJECT(button), "toggled", G_CALLBACK(button_callback), nullptr);
 
       coot::residue_spec_t res_spec(ga.atom_2);
       buttons.push_back(std::make_pair(res_spec, button));
@@ -763,7 +773,7 @@ void phenix_geo_validation_buttons(int imol,
       lab += " Δ: " + coot::util::float_to_string_using_dec_pl(gc.delta, 2) + "ų";
       lab += " (" + coot::util::float_to_string_using_dec_pl(std::sqrt(gc.residual), 1) + "σ)";
 
-      GtkWidget *button = gtk_button_new();
+      GtkWidget *button = gtk_toggle_button_new();
       GtkWidget *button_label = gtk_label_new(lab.c_str());
       gtk_widget_set_halign(button_label, GTK_ALIGN_START);
       gtk_button_set_child(GTK_BUTTON(button), button_label);
@@ -773,7 +783,7 @@ void phenix_geo_validation_buttons(int imol,
       gtk_widget_set_margin_bottom(button, 2);
 
       set_target_position_data(button, target);
-      g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(button_callback), nullptr);
+      g_signal_connect(G_OBJECT(button), "toggled", G_CALLBACK(button_callback), nullptr);
 
       coot::residue_spec_t res_spec(gc.atom_centre);
       buttons.push_back(std::make_pair(res_spec, button));
@@ -797,7 +807,7 @@ void phenix_geo_validation_buttons(int imol,
       lab += " Δ: " + coot::util::float_to_string_using_dec_pl(gd.delta, 1) + "°";
       lab += " (" + coot::util::float_to_string_using_dec_pl(std::sqrt(gd.residual), 1) + "σ)";
 
-      GtkWidget *button = gtk_button_new();
+      GtkWidget *button = gtk_toggle_button_new();
       GtkWidget *button_label = gtk_label_new(lab.c_str());
       gtk_widget_set_halign(button_label, GTK_ALIGN_START);
       gtk_button_set_child(GTK_BUTTON(button), button_label);
@@ -807,7 +817,7 @@ void phenix_geo_validation_buttons(int imol,
       gtk_widget_set_margin_bottom(button, 2);
 
       set_target_position_data(button, target);
-      g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(button_callback), nullptr);
+      g_signal_connect(G_OBJECT(button), "toggled", G_CALLBACK(button_callback), nullptr);
 
       coot::residue_spec_t res_spec(gd.atom_2);
       buttons.push_back(std::make_pair(res_spec, button));
@@ -831,7 +841,7 @@ void phenix_geo_validation_buttons(int imol,
       std::string lab = "Clash " + atom_spec_to_label(gnb.atom_1) + " - " + atom_spec_to_label(gnb.atom_2);
       lab += " overlap: " + coot::util::float_to_string_using_dec_pl(overlap, 2) + "Å";
 
-      GtkWidget *button = gtk_button_new();
+      GtkWidget *button = gtk_toggle_button_new();
       GtkWidget *button_label = gtk_label_new(lab.c_str());
       gtk_widget_set_halign(button_label, GTK_ALIGN_START);
       gtk_button_set_child(GTK_BUTTON(button), button_label);
@@ -841,7 +851,7 @@ void phenix_geo_validation_buttons(int imol,
       gtk_widget_set_margin_bottom(button, 2);
 
       set_target_position_data(button, midpoint);
-      g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(button_callback), nullptr);
+      g_signal_connect(G_OBJECT(button), "toggled", G_CALLBACK(button_callback), nullptr);
 
       coot::residue_spec_t res_spec(gnb.atom_1);
       buttons.push_back(std::make_pair(res_spec, button));
@@ -856,9 +866,15 @@ void phenix_geo_validation_buttons(int imol,
 
    std::sort(buttons.begin(), buttons.end(), sorter);
 
+   GtkWidget *group = nullptr; // grouped toggle buttons: the selected outlier stays visually pressed
    for (const auto &button_info : buttons) {
-      gtk_widget_set_visible(button_info.second, TRUE);
-      gtk_box_append(GTK_BOX(vbox), button_info.second);
+      GtkWidget *button = button_info.second;
+      if (group)
+         gtk_toggle_button_set_group(GTK_TOGGLE_BUTTON(button), GTK_TOGGLE_BUTTON(group));
+      else
+         group = button;
+      gtk_widget_set_visible(button, TRUE);
+      gtk_box_append(GTK_BOX(vbox), button);
    }
    gtk_widget_set_visible(vbox, TRUE);
 }

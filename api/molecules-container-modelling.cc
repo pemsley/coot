@@ -1,6 +1,7 @@
 
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot-utils/atom-selection-container.hh"
+#include "ideal/regularize-minimol.hh"
 #include "molecules-container.hh"
 
 #include "utils/logging.hh"
@@ -704,7 +705,7 @@ molecules_container_t::match_ligand_torsions(int imol_ligand, int imol_ref, cons
                geom.get_monomer_restraints(res_name_ref_res, imol_ref);
             if (restraints_info.first) {
                std::vector <coot::dict_torsion_restraint_t> tr_ref_res =
-                  geom.get_monomer_torsions_from_geometry(res_name_ref_res, 0);
+                  geom.get_monomer_torsions_from_geometry(res_name_ref_res, imol_ref);
                int n_torsions_moved = molecules[imol_ligand].match_torsions(res_reference, tr_ref_res, geom);
 
                if (n_torsions_moved > 0) status = true;
@@ -801,6 +802,88 @@ molecules_container_t::get_dictionary_conformers(const std::string &comp_id, int
       std::cout << "mol_indices:" << std::endl;
       for (unsigned int i=0; i<mol_indices.size(); i++) {
          std::cout << "       " << mol_indices[i] << std::endl;
+      }
+   }
+   return mol_indices;
+}
+
+//! Get conformers with torsion angles randomly sampled from a Gaussian distribution
+//! @return a vector of indices of the new molecules
+std::vector<int>
+molecules_container_t::get_dictionary_conformers_by_random_sampling(const std::string &comp_id, int imol_enc,
+                                                                    unsigned int n_conformers,
+                                                                    float esd_scale_factor,
+                                                                    bool remove_internal_clash_conformers) {
+
+   std::vector<int> mol_indices;
+   std::pair<bool, coot::dictionary_residue_restraints_t> r = geom.get_monomer_restraints(comp_id, imol_enc);
+   if (r.first) {
+      const coot::dictionary_residue_restraints_t &restraints = r.second;
+
+      // The raw conformers have their torsions set to idealized dictionary values, which
+      // typically leaves conjugated linkages flat and strained (and hence "clashing").
+      // So regularize each conformer, and only then apply the clash test.
+      //
+      auto regularize_conformer = [this] (mmdb::Residue *residue_p) {
+         mmdb::Manager *mol = nullptr; // return this, caller owns
+         try {
+            coot::minimol::residue mini_res(residue_p);
+            coot::minimol::fragment frag("A");
+            frag.addresidue(mini_res, false);
+            coot::minimol::molecule mm(frag);
+            int n_steps_max = 1000;
+            coot::minimol::molecule reg = coot::regularize_minimol_molecule(mm, geom, n_steps_max);
+            mol = reg.pcmmdbmanager();
+         }
+         catch (const std::runtime_error &rte) {
+            std::cout << "WARNING:: get_dictionary_conformers_by_random_sampling(): "
+                      << rte.what() << std::endl;
+         }
+         return mol;
+      };
+
+      // a raw conformer with interpenetrating atoms is beyond rescue by regularization
+      // (the minimizer gets trapped) - resample rather than regularize those.
+      float interpenetration_dist_crit = 1.7; // A
+
+      std::vector<mmdb::Manager *> accepted;
+      unsigned int n_attempts_max = 10 * n_conformers;
+      unsigned int n_attempts = 0;
+      while (accepted.size() < n_conformers && n_attempts < n_attempts_max) {
+         unsigned int n_needed = n_conformers - accepted.size();
+         std::vector<mmdb::Residue *> confs =
+            coot::util::get_dictionary_conformers_by_random_sampling(restraints, n_needed,
+                                                                     esd_scale_factor, false);
+         n_attempts += n_needed;
+         for (unsigned int i=0; i<confs.size(); i++) {
+            if (coot::util::residue_has_internal_clash(confs[i], restraints, interpenetration_dist_crit))
+               continue;
+            mmdb::Manager *mol = regularize_conformer(confs[i]);
+            if (mol) {
+               bool reject_this = false;
+               if (remove_internal_clash_conformers) {
+                  mmdb::Residue *reg_res = coot::util::get_first_residue(mol);
+                  if (reg_res)
+                     reject_this = coot::util::residue_has_internal_clash(reg_res, restraints);
+               }
+               if (reject_this)
+                  delete mol;
+               else
+                  accepted.push_back(mol);
+            }
+         }
+         bool no_more_variety = (confs.size() < n_needed); // no rotatable torsions
+         for (unsigned int i=0; i<confs.size(); i++)
+            delete confs[i];
+         if (no_more_variety) break;
+      }
+
+      for (unsigned int i=0; i<accepted.size(); i++) {
+         std::string name = comp_id + "-rand-conf-" + std::to_string(i);
+         atom_selection_container_t asc = make_asc(accepted[i]);
+         int imol_no = molecules.size();
+         molecules.push_back(coot::molecule_t(asc, imol_no, name));
+         mol_indices.push_back(imol_no);
       }
    }
    return mol_indices;
@@ -927,4 +1010,42 @@ molecules_container_t::delete_all_carbohydrate(int imol) {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
    return status;
+}
+
+//! delete all waters
+//!
+//! @param imol is the model molecule index
+//!
+//! @return the number of water molecule deleted
+int
+molecules_container_t::delete_all_waters(int imol) {
+
+   int n_deleted = 0;
+   if (is_valid_model_molecule(imol)) {
+      n_deleted = molecules[imol].delete_all_waters();
+      set_updating_maps_need_an_update(imol);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return n_deleted;
+}
+
+//! delete all hetgroups
+//!
+//! Hetgroups do not include waters
+//!
+//! @param imol is the model molecule index
+//!
+//! @return the number of water molecule deleted
+int
+molecules_container_t::delete_all_hetgroups(int imol) {
+
+   int n_deleted = 0;
+   if (is_valid_model_molecule(imol)) {
+      n_deleted = molecules[imol].delete_all_hetgroups();
+      set_updating_maps_need_an_update(imol);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return n_deleted;
 }

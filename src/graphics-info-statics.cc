@@ -181,6 +181,9 @@ short int graphics_info_t::main_toolbar_show_hide_state = 1;
 // the main toolbar style
 short int graphics_info_t::main_toolbar_style_state = 2;
 
+// the vertical toolbar style: 0: icons and labels, 1: labels only, 2: icons only
+int graphics_info_t::vertical_toolbar_style = 0;
+
 // refmac option menu
 int graphics_info_t::refmac_molecule = -1;
 
@@ -1698,6 +1701,7 @@ Texture graphics_info_t::texture_for_anchored_atom_markers;
 std::vector<glm::vec3> graphics_info_t::anchored_atom_marker_texture_positions;
 
 HUDTextureMesh graphics_info_t::tmesh_for_hud_geometry_tooltip_label = HUDTextureMesh("tmesh-for-hud-geometry-tooltip-labels");
+HUDTextureMesh graphics_info_t::tmesh_for_hud_button_label = HUDTextureMesh("tmesh-for-hud-button-label");
 
 HUDTextureMesh graphics_info_t::tmesh_for_hud_refinement_dialog_arrow = HUDTextureMesh("tmesh-for-hud-refinement-dialog-arrow");
 Texture graphics_info_t::texture_for_hud_refinement_dialog_arrow;

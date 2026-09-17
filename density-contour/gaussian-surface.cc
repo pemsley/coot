@@ -47,7 +47,7 @@ coot::gaussian_surface_t::get_surface() const {
 }
 
 void
-coot::gaussian_surface_t::using_an_xmap(mmdb::Manager *mol, const std::string &chain_id,
+coot::gaussian_surface_t::using_an_xmap(mmdb::Manager *mol, const std::string &cid,
                                         float sigma_in, float contour_level_in, float box_radius_in, float grid_scale,
                                         float fft_b_factor) {
 
@@ -132,31 +132,31 @@ coot::gaussian_surface_t::using_an_xmap(mmdb::Manager *mol, const std::string &c
       }
    };
 
+   // The passed selection string is a coot/mmdb CID (e.g. "//A" or "//A/10-20").
+   // For backwards compatibility a bare token (e.g. "A") is treated as a chain-id.
+   std::string selection_cid = cid;
+   if (selection_cid.find('/') == std::string::npos)
+      selection_cid = "//" + selection_cid;
+
    int sel_hnd = mol->NewSelection(); // d
-   mol->SelectAtoms (sel_hnd, 0, chain_id.c_str(),
-                     mmdb::ANY_RES, // starting resno, an int
-                     "*", // any insertion code
-                     mmdb::ANY_RES, // ending resno
-                     "*", // ending insertion code
-                     "!HOH", // any residue name
-                     "*",
-                     "*", // elements
-                     "*"  // alt loc.
-                     );
-   std::pair<clipper::Coord_orth, clipper::Coord_orth> e = util::extents(mol, sel_hnd);
+   mol->Select(sel_hnd, mmdb::STYPE_ATOM, selection_cid.c_str(), mmdb::SKEY_NEW);
    mmdb::PAtom *atom_selection = NULL;
-   int n_selected_atoms;
+   int n_selected_atoms = 0;
    mol->GetSelIndex(sel_hnd, atom_selection, n_selected_atoms);
 
-   if (n_selected_atoms == 0)  return;
+   if (n_selected_atoms == 0) {
+      mol->DeleteSelection(sel_hnd);
+      return;
+   }
+
+   std::pair<clipper::Coord_orth, clipper::Coord_orth> e = util::extents(mol, sel_hnd);
 
    if (false)
-      std::cout << "debug: chain-id " << chain_id << " extents: "
+      std::cout << "debug: cid " << cid << " (selection " << selection_cid << ") extents: "
                 << e.first.format() << " "
                 << e.second.format() << std::endl;
 
-   mol->DeleteSelection(sel_hnd);
-   // extend the extents
+   // extend the extents (the selection is deleted after the atoms have been placed in the grid)
    clipper::Coord_orth delta(5,5,5);
    e.first  -= delta;
    e.second += delta;
@@ -190,35 +190,20 @@ coot::gaussian_surface_t::using_an_xmap(mmdb::Manager *mol, const std::string &c
       expo[i] = exp(x);
    }
 
-   int imod = 1;
-   mmdb::Model *model_p = mol->GetModel(imod);
-   if (model_p) {
-      int n_chains = model_p->GetNumberOfChains();
-      for (int ichain=0; ichain<n_chains; ichain++) {
-         mmdb::Chain *chain_p = model_p->GetChain(ichain);
-         std::string chain_id_this = chain_p->GetChainID();
-         if (chain_id_this == chain_id) {
-            int n_res = chain_p->GetNumberOfResidues();
-            for (int ires=0; ires<n_res; ires++) {
-               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-               if (residue_p) {
-                  std::string res_name_this = residue_p->GetResName();
-                  if (res_name_this == "HOH") continue;
-                  int n_atoms = residue_p->GetNumberOfAtoms();
-                  for (int iat=0; iat<n_atoms; iat++) {
-                     // std::cout << "atom " << iat << std::endl;
-                     mmdb::Atom *at = residue_p->GetAtom(iat);
-                     if (! at->isTer()) {
-                        clipper::Coord_orth pt = mmdb_to_clipper(at);
-                        clipper::Coord_orth position_in_grid = pt - coords_base;
-                        place_atom_in_grid(position_in_grid, xmap, expo); // change xmap
-                     }
-                  }
-               }
-            }
+   for (int iat=0; iat<n_selected_atoms; iat++) {
+      mmdb::Atom *at = atom_selection[iat];
+      if (! at->isTer()) {
+         mmdb::Residue *residue_p = at->residue;
+         if (residue_p) {
+            std::string res_name_this = residue_p->GetResName();
+            if (res_name_this == "HOH") continue; // waters don't contribute to the surface
          }
+         clipper::Coord_orth pt = mmdb_to_clipper(at);
+         clipper::Coord_orth position_in_grid = pt - coords_base;
+         place_atom_in_grid(position_in_grid, xmap, expo); // change xmap
       }
    }
+   mol->DeleteSelection(sel_hnd);
 
    if (b_factor > 0.0)
       util::sharpen_blur_map(&xmap, b_factor);
@@ -392,11 +377,11 @@ coot::gaussian_surface_t::using_calc_density(mmdb::Manager *mol) {
 }
 
 // optional args: float sigma=4.4, float contour_level=4.0, float box_radius=5.0, float grid_scale=0.7);
-coot::gaussian_surface_t::gaussian_surface_t(mmdb::Manager *mol, const std::string &chain_id,
+coot::gaussian_surface_t::gaussian_surface_t(mmdb::Manager *mol, const std::string &cid,
                                              float sigma, float contour_level, float box_radius, float grid_scale,
                                              float b_factor) {
 
    // using_calc_density(mol);
-   using_an_xmap(mol, chain_id, sigma, contour_level, box_radius, grid_scale, b_factor);
+   using_an_xmap(mol, cid, sigma, contour_level, box_radius, grid_scale, b_factor);
 
 }

@@ -32,6 +32,7 @@
 
 #include "cc-interface.hh"
 #include "graphics-info.h"
+#include "coot-utils/pdbqt.hh"   // pdbqt::get_scores for the single-model-view status text
 
 #include "c-interface.h"
 
@@ -634,6 +635,32 @@ void scale_model(unsigned int model_index, float scale_factor) {
 /*  ----------------------------------------------------------------------- */
 /*! \name single-model view */
 /* \{ */
+
+namespace {
+   // Status-bar text for single-model view: "Model m/n", plus the AutoDock Vina
+   // affinity for that model if the molecule carries per-pose scores (from a PDBQT
+   // docking result). Model number 0 is the "all models shown" state.
+   std::string single_model_view_status_text(int imol, int model_no) {
+      graphics_info_t g;
+      mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+      int n = mol ? mol->GetNumberOfModels() : 0;
+      if (model_no <= 0)
+         return std::string("All ") + coot::util::int_to_string(n) + " models shown";
+      std::string s = "Model " + coot::util::int_to_string(model_no) + "/" +
+                      coot::util::int_to_string(n);
+      std::vector<coot::pdbqt::pose_score_t> scores = coot::pdbqt::get_scores(mol);
+      for (unsigned int i=0; i<scores.size(); i++) {
+         if (scores[i].model_no == model_no) {
+            char buf[64];
+            snprintf(buf, sizeof(buf), "   affinity %.2f kcal/mol", scores[i].affinity);
+            s += buf;
+            break;
+         }
+      }
+      return s;
+   }
+}
+
 /*! \brief put molecule number imol to display only model number imodel */
 void single_model_view_model_number(int imol, int imodel) {
 
@@ -641,9 +668,7 @@ void single_model_view_model_number(int imol, int imodel) {
       graphics_info_t g;
       g.molecules[imol].single_model_view_model_number(imodel);
       graphics_draw();
-      std::string s = "Model number ";
-      s += coot::util::int_to_string(imodel);
-      add_status_bar_text(s.c_str());
+      add_status_bar_text(single_model_view_status_text(imol, imodel).c_str());
    } 
 }
 
@@ -653,9 +678,7 @@ int single_model_view_this_model_number(int imol) {
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       r = g.molecules[imol].single_model_view_this_model_number();
-      std::string s = "Model number ";
-      s += coot::util::int_to_string(r);
-      add_status_bar_text(s.c_str());
+      add_status_bar_text(single_model_view_status_text(imol, r).c_str());
       graphics_draw();
    }
    return r;
@@ -667,9 +690,7 @@ int single_model_view_next_model_number(int imol) {
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       r = g.molecules[imol].single_model_view_next_model_number();
-      std::string s = "Model number ";
-      s += coot::util::int_to_string(r);
-      add_status_bar_text(s.c_str());
+      add_status_bar_text(single_model_view_status_text(imol, r).c_str());
       graphics_draw();
    }
    return r;
@@ -681,9 +702,7 @@ int single_model_view_prev_model_number(int imol) {
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       r = g.molecules[imol].single_model_view_prev_model_number();
-      std::string s = "Model number ";
-      s += coot::util::int_to_string(r);
-      add_status_bar_text(s.c_str());
+      add_status_bar_text(single_model_view_status_text(imol, r).c_str());
       graphics_draw();
    }
    return r;

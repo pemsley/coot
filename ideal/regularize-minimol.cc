@@ -123,7 +123,8 @@ coot::refine_minimol_fragment(coot::minimol::fragment &frag,
 
 coot::minimol::molecule
 coot::regularize_minimol_molecule(const coot::minimol::molecule &molin,
-                                  const coot::protein_geometry &geom) {
+                                  const coot::protein_geometry &geom,
+                                  int n_steps_max) {
 
    // By far the most often we get here with molin as a molecule made
    // from a single residue that we are regularizing as a wiggly
@@ -191,8 +192,7 @@ coot::regularize_minimol_molecule(const coot::minimol::molecule &molin,
                                                    pseudos);
 
       if (nrestraints > 0) {
-         int n_steps_max = 30;
-         restraints.minimize(flags,n_steps_max);
+         restraints.minimize(flags, n_steps_max);
       }
 
       m = coot::minimol::molecule(mol);

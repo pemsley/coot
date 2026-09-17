@@ -290,6 +290,11 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
                      }
                   }
 
+                  if (cat_name == "_pdbx_chem_comp_synonyms") {
+                     pdbx_chem_comp_synonyms(mmCIFLoop, imol_enc);
+                     handled = 1; // 20260622-PE not really. I just want the wraning messaage to go away
+                  }
+
                   if (cat_name == "_chem_comp_tor") {
                      handled = 1;
                      mmdb::mmcif::PStruct structure = data->GetStructure(cat_name.c_str());
@@ -1026,6 +1031,16 @@ coot::protein_geometry::pdbe_chem_comp_atom_depiction(mmdb::mmcif::PLoop mmCIFLo
       }
    }
 }
+
+void
+coot::protein_geometry::pdbx_chem_comp_synonyms(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc) {
+
+   // 20260622-PE don't do anything at the moment
+
+   // c.f. add_synonyms(mmCIFLoop);
+
+}
+
 
 void
 coot::protein_geometry::pdbx_chem_comp_description_generator(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc) {
@@ -2019,20 +2034,19 @@ coot::protein_geometry::add_chem_mods(mmdb::mmcif::PData data) {
 }
 
 
-// 
+//
 void
 coot::protein_geometry::add_synonyms(mmdb::mmcif::PData data) {
 
-   for (int icat=0; icat<data->GetNumberOfCategories(); icat++) { 
-      
+   for (int icat=0; icat<data->GetNumberOfCategories(); icat++) {
+
       mmdb::mmcif::PCategory cat = data->GetCategory(icat);
       std::string cat_name(cat->GetCategoryName());
       mmdb::mmcif::PLoop mmCIFLoop = data->GetLoop(cat_name.c_str() );
-            
-      if (mmCIFLoop == NULL) { 
-	 std::cout << "null loop" << std::endl; 
+
+      if (mmCIFLoop == NULL) {
+	 std::cout << "null loop" << std::endl;
       } else {
-	 int n_chiral = 0;
 	 if (cat_name == "_chem_comp_synonym") {
 	    add_chem_comp_synonym(mmCIFLoop);
 	 }
@@ -2040,7 +2054,7 @@ coot::protein_geometry::add_synonyms(mmdb::mmcif::PData data) {
    }
 }
 
-void 
+void
 coot::protein_geometry::add_chem_comp_synonym(mmdb::mmcif::PLoop mmCIFLoop) {
 
    int ierr = 0;
@@ -2068,9 +2082,9 @@ coot::protein_geometry::add_chem_comp_synonym(mmdb::mmcif::PLoop mmCIFLoop) {
 							  comp_alternative_id,
 							  mod_id);
 	 residue_name_synonyms.push_back(rns);
-      } 
+      }
    }
-} 
+}
 
 
 
@@ -2450,6 +2464,14 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
             // nuclear_distances_flag means that we only have one distance - and it's the
             // nuclear distance. So we need to "invent" non-nuclear distance for bonds
             // to hydrogen atoms
+
+            // if any bond knows its aromaticity, write the acedrg-style
+            // "aromatic" y/n column (for the whole loop)
+            bool have_aromaticity = false;
+            for (unsigned int i=0; i<bond_restraint.size(); i++)
+               if (bond_restraint[i].aromaticity != dict_bond_restraint_t::UNASSIGNED)
+                  have_aromaticity = true;
+
             for (unsigned int i=0; i<bond_restraint.size(); i++) {
 
                const dict_bond_restraint_t &br = bond_restraint[i];
@@ -2468,6 +2490,12 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
                mmCIFLoop->PutString(id_2.c_str(), "atom_id_2", i);
                std::string bond_type = bond_restraint[i].type();
                mmCIFLoop->PutString(bond_type.c_str(), "type", i);
+               if (have_aromaticity) {
+                  std::string arom = ".";
+                  if (br.aromaticity == dict_bond_restraint_t::AROMATIC)     arom = "y";
+                  if (br.aromaticity == dict_bond_restraint_t::NON_AROMATIC) arom = "n";
+                  mmCIFLoop->PutString(arom.c_str(), "aromatic", i);
+               }
                try {
 
                   if (nuclear_distances_flag) {

@@ -325,11 +325,13 @@ Bond_lines_container::Bond_lines_container(atom_selection_container_t asc,
 Bond_lines_container::Bond_lines_container(const atom_selection_container_t &SelAtom,
                                            int imol,
                                            const coot::protein_geometry *protein_geom,
-                                           Bond_lines_container::bond_representation_type br_type) {
+                                           Bond_lines_container::bond_representation_type br_type,
+                                           const std::set<int> &no_bonds_to_these_atoms_in) {
 
    // std::cout << "*************************** Bond_lines_container() constructor with geom and type " << br_type << std::endl;
 
    init(); // sets geom to null pointer
+   no_bonds_to_these_atoms = no_bonds_to_these_atoms_in; // honour non-drawn bonds in these representations
    verbose_reporting = 0;
    do_disulfide_bonds_flag = 1;
    udd_has_ca_handle = -1;
@@ -2858,6 +2860,8 @@ Bond_lines_container::handle_long_bonded_atom(mmdb::PAtom atom,
 
 
 
+// Constructor G
+//
 // This finds bonds between a residue and the protein (in SelAtom).
 // It is used for the environment bonds box.
 //
@@ -2872,10 +2876,10 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
                                            float min_dist,
                                            float max_dist) {
 
-   if (0)
+   if (false)
       std::cout << "Environment distances NO symm" << std::endl;
-   do_bonds_to_hydrogens = 1;  // added 20070629
 
+   do_bonds_to_hydrogens = 1;  // added 20070629
    b_factor_scale = 1.0;
    have_dictionary = 0;
    for_GL_solid_model_rendering = 1;
@@ -2903,7 +2907,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
                              0,  // seqDist (in same residue allowed)
                              contact, ncontacts);
 
-   if (0) {  // debugging seqDist
+   if (false) {  // debugging seqDist
       std::cout << " DEBUG:: there are " << n_residue_atoms << " residue atoms "
                 << " and " << SelAtom.n_selected_atoms << " mol atoms\n";
       for (int iat=0; iat<n_residue_atoms; iat++)
@@ -2955,7 +2959,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
             if (is_hydrogen(ele2))
                bonding_dist_max -= shorter_bit;
 
-            if (0) { // debug
+            if (false) { // debug
                std::cout << " DEBUG:: add environ dist "
                          << residue_atoms[ contact[i].id1 ] << " to "
                          << SelAtom.atom_selection[ contact[i].id2 ]
@@ -2995,9 +2999,15 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
                               // is-looked-up, is-H-bond
                               int colour_index = 1; // H-bond
                               std::pair<bool,bool> is_valid = pda.is_hydrogen_bond_by_types(k1,k2);
-                              if (is_valid.first)
-                                 if (! is_valid.second)
+                              if (is_valid.first) {
+                                 if (! is_valid.second) {
                                     colour_index = 0;
+                                 }
+                              } else {
+                                 // failed to look up - a regular contact is a better fallback than a hydrogen
+                                 // bond
+                                 colour_index = 0;
+                              }
                               addBond(colour_index, atom_1_pos, atom_2_pos, cc, model_number, iat_1, iat_2); // interesting
                            }
                         }
@@ -5669,7 +5679,7 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
                                  return ORANGE_BOND;
                               } else {
                                  if (element == " F") {
-                                    return GREEN_BOND;
+                                    return GREEN_BUT_SLIGHTLY_BLUE_BOND;
                                  } else {
                                     if (element == "CL" || element == "Cl") {
                                        return GREEN_BOND;
@@ -5741,7 +5751,7 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
                                        return HYDROGEN_GREY_BOND;
                                  } else {
                                     if (element == " F") {
-                                       return GREEN_BOND;
+                                       return GREEN_BUT_SLIGHTLY_BLUE_BOND;
                                     } else {
                                        if (element == "CL" || element == "Cl") {
                                           return GREEN_BOND;
@@ -8730,19 +8740,20 @@ Bond_lines_container::add_atom_centres(int imol,
             // Fat atoms are for atom in residues with no dictionary - except
             // colour-by-molecule mode, where the dictionary check is not a thing.
             bool make_fat_atom = false;
+
+      // 2026-08-21-PE Clemens doesn't want fat atoms for atom in ligands with no
+      // dictionary. Eugene didn't understand it either.
+
+            gbai.set_radius_scale_for_atom(at, make_fat_atom);
+
             if (atom_colour_type != coot::COLOUR_BY_MOLECULE)
                if (! have_dict_for_this_type)
                   if (atom_colour_type != coot::COLOUR_BY_ATOM_TYPE)
                      make_fat_atom = true;
-            // std::cout << " atom_colour_type " << atom_colour_type << " c.f. " << coot::COLOUR_BY_MOLECULE
-            // << " make_fat_atom: " << make_fat_atom << std::endl;
-            // 20240712-PE previous: gbai.set_radius_scale_for_atom(at, make_fat_atom);
             if (atom_colour_type != coot::COLOUR_BY_MOLECULE)
                if (! have_dict_for_this_type)
                   if (atom_colour_type != coot::COLOUR_BY_ATOM_TYPE)
                      gbai.set_radius_scale_for_atom_with_no_dictionary(at);
-
-            gbai.set_radius_scale_for_atom(at, make_fat_atom);
 
             // this is a bit hacky
             if (atom_colour_type == coot::COLOUR_BY_USER_DEFINED_COLOURS)
@@ -8773,6 +8784,15 @@ Bond_lines_container::add_atom_centres(int imol,
                          << " with is_H_flag " << is_H_flag << " radius_scale " << gbai.radius_scale << std::endl;
             atom_centres.push_back(gbai);
             int icol = atom_colour(at, atom_colour_type, udd_user_defined_atom_colour_index_handle, atom_colour_map_p);
+
+            // give the user a clue that they don't have a dictionary for this ligand:
+            if (atom_colour_type != coot::COLOUR_BY_MOLECULE) {
+               if (! have_dict_for_this_type) {
+                  if (atom_colour_type != coot::COLOUR_BY_ATOM_TYPE) {
+                     icol = MAGENTA_BOND;
+                  }
+               }
+            }
             bonds_size_colour_check(icol);
             atom_centres_colour.push_back(icol);
          }

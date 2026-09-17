@@ -280,6 +280,7 @@ namespace coot {
       }
       void set_atom_1_atom_id(const std::string &id) { set_atom_id_1(id); }
       void set_atom_2_atom_id(const std::string &id) { set_atom_id_2(id); }
+      void set_type(const std::string &t) { type_ = t; }
       // this function called by dictionary parser after all the bonds have been read
       void set_only_bond(const std::string &pos, bool b) {
          if (pos == "first")  atom_has_only_this_non_hydrogen_bond_first  = b;
@@ -1380,7 +1381,7 @@ namespace coot {
       // Added to by the simple_mon_lib* functions.
       //
       // Use a map for faster lookups.  the key is the comp_id;
-      // 
+      //
       std::map<std::string,dictionary_residue_restraints_t> simple_monomer_descriptions;
 
       int  comp_atom(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc, bool is_from_pdbx_model_atom=false); 
@@ -1404,11 +1405,12 @@ namespace coot {
       void add_chem_links (mmdb::mmcif::PLoop mmCIFLoop); // references to the modifications
                                                 // to the link groups (the modifications
                                                 // themselves are in data_mod_list)
-      int  link_bond   (mmdb::mmcif::PLoop mmCIFLoop); 
-      void link_angle  (mmdb::mmcif::PLoop mmCIFLoop); 
-      void link_torsion(mmdb::mmcif::PLoop mmCIFLoop); 
+      int  link_bond   (mmdb::mmcif::PLoop mmCIFLoop);
+      void link_angle  (mmdb::mmcif::PLoop mmCIFLoop);
+      void link_torsion(mmdb::mmcif::PLoop mmCIFLoop);
       void link_plane  (mmdb::mmcif::PLoop mmCIFLoop);
       int  link_chiral  (mmdb::mmcif::PLoop mmCIFLoop); // return number of new chirals
+      void pdbx_chem_comp_synonyms(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc);
       void pdbx_chem_comp_descriptor(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc);
 
       void pdbe_chem_comp_atom_depiction(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc);
@@ -1418,7 +1420,7 @@ namespace coot {
       void gphl_chem_comp_info(mmdb::mmcif::PStruct structure, int imol_enc);
 
       // return the comp id (so that later we can associate the file name with the comp_id).
-      // 
+      //
       std::string chem_comp_component( mmdb::mmcif::PStruct structure, int imol_enc);
       std::string pdbx_chem_comp_model(mmdb::mmcif::PStruct structure, int imol_enc);
       // non-looping (single) tor
@@ -2229,6 +2231,9 @@ namespace coot {
 
       // can throw a std::runtime_error
       std::string Get_SMILES_for_comp_id(const std::string &comp_id,  int imol_enc) const;
+
+      // can throw a std::runtime_error
+      std::string Get_InChI_for_comp_id(const std::string &comp_id,  int imol_enc) const;
 
       // debug
       void debug() const;

@@ -160,8 +160,19 @@ protected:
 	// The normals.
 	VECTOR3D* m_pvec3dNormals;
 
-	// List of POINT3Ds which form the isosurface.
-	ID2POINT3DID m_i2pt3idVertices;
+	// De-duplication of vertices during marching cubes. Each grid edge that is
+	// cut by the isosurface produces exactly one vertex, shared by the triangles
+	// of all cells that touch that edge. The edge id space is dense and bounded
+	// (see GetEdgeID()/GetVertexID()), so instead of a std::map keyed by edge id
+	// we directly address a flat array: m_edge_to_vertex_index[edge_id] holds the
+	// compacted vertex index (-1 if this edge has no vertex yet), and
+	// m_edge_vertices holds the unique intersection points in first-encounter order.
+	std::vector<int> m_edge_to_vertex_index;
+	std::vector<POINT3DID> m_edge_vertices;
+
+	// De-duplicating store of the intersection point on the given edge (insert if
+	// absent - the first point stored for an edge id wins, as with the old map).
+	void store_edge_vertex(unsigned int edge_id, const POINT3DID &pt);
 
 	// List of TRIANGLES which form the triangulation of the isosurface.
 	TRIANGLEVECTOR m_trivecTriangles;
@@ -220,60 +231,6 @@ protected:
 	void adjustVertices(unsigned int i);
 
 
-};
-
-
-// This is a list of vertices (basically, indices)
-//
-class to_vertex_list_t {
-
-   //vector<bool> vertex_list;
-   int *vertex_list;
-   int vertex_list_size;  // the size of the array
-   int n_vertices;        // the maximum index filled so far.
-
- public:
-   to_vertex_list_t();
-   to_vertex_list_t(const to_vertex_list_t &a);
-   void Copy(const to_vertex_list_t &a);
-   ~to_vertex_list_t();
-
-   const to_vertex_list_t& operator=(const to_vertex_list_t &a);
-
-   void add(int i);
-   bool contains(int i);
-   // bool operator[](unsigned int) const;
-};
-
-// This is a list of vertices to which there may be connections to
-// other vertices.
-//
-// It is a container class.
-//
-// I loathe this type of programming. I loathe it, I loathe it, I
-// loathe it, I loathe it, I loathe it.  I've spent two days on this now
-// and it still doesn't work.  Grrrr.  Waaagh.... and it would be so
-// simple in scheme...
-//
-class done_line_list_t {
-
-   to_vertex_list_t *from_vertices;
-   void resize_and_copy(int j);
-
- public:
-
-   done_line_list_t();
-
-   ~done_line_list_t();
-
-   int from_vertices_size;  // the size of the array
-   int max_from_vertex;     // the maximum vertex encountered so far.
-
-   // to_vertex_list_t operator[](unsigned int) const;
-   to_vertex_list_t getVertex(unsigned int i) const;
-
-   void mark_as_done(int i, int j);
-   bool done_before(int i, int j) ;  // question and manipulation of class
 };
 
 

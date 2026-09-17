@@ -3016,7 +3016,7 @@ int test_beam_in_residue() {
    r_mol->ReadPDBASCII("coot-ccp4/monomer-ASN.pdb");
    mmdb::Residue *r = coot::util::get_first_residue(r_mol);
    if (r) {
-      coot::beam_in_linked_residue lr(r, "NAG-ASN", "NAG", &t.geom);
+      coot::beam_in_linked_residue lr(r, "pyr-ASN", "NAG", &t.geom);
       mmdb::Residue *result = lr.get_residue();
       if (result) {
 	 status = 1;
@@ -3061,7 +3061,7 @@ int test_multi_residue_torsion() {
 	 std::cout << "problem in test_multi_residue_torsion" << std::endl;
       } else {
 	 mmdb::Residue *res_2 = SelResidues[0];
-	 coot::bonded_pair_t bp(res_1, res_2, 0, 0, "NAG-ASN");
+	 coot::bonded_pair_t bp(res_1, res_2, 0, 0, "pyr-ASN");
 	 coot::bonded_pair_container_t bpc;
 	 bpc.try_add(bp);
 	 atom_selection_container_t asc;

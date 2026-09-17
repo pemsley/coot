@@ -79,6 +79,9 @@
                                                      //         1: yes
 #define PREFERENCES_VIEW_ROTATION_MOUSE_BUTTON    44
 #define PREFERENCES_PHYSICS                       45
+#define PREFERENCES_VERTICAL_TOOLBAR_STYLE        46 // values 0: icons and labels
+                                                     //        1: labels only
+                                                     //        2: icons only
 
 #define MODEL_TOOLBAR                              0
 #define MAIN_TOOLBAR                               1

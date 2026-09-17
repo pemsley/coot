@@ -34,8 +34,8 @@ namespace cod {
    // return the number of rings and the ringinfo string.
    std::pair<int, std::string> make_ring_info_string(const RDKit::Atom *atom_p);
 
-   class atom_level_2_type {
-      class atom_level_2_component_type {
+   class nb1nb2_type {
+      class nb1nb2_component_type {
       public:
 	 std::string element;
 	 unsigned int number_of_rings;
@@ -44,37 +44,37 @@ namespace cod {
 	 std::vector<int> neighb_extra_elect; // same size as above needed
 	 std::string atom_name;
 	 int n_extra_elect;
-	 atom_level_2_component_type(const RDKit::Atom *at, const RDKit::ROMol &rdkm);
-	 atom_level_2_component_type() {}
+	 nb1nb2_component_type(const RDKit::Atom *at, const RDKit::ROMol &rdkm);
+	 nb1nb2_component_type() {}
       };
       std::string str;
       std::string element;
       int n_extra_elect;
    public:
 
-      atom_level_2_type() {}
-      explicit atom_level_2_type(const std::string &s) : str(s) { n_extra_elect = 0; } // read
-      atom_level_2_type(const RDKit::Atom *p, const RDKit::ROMol &rdkm);
+      nb1nb2_type() {}
+      explicit nb1nb2_type(const std::string &s) : str(s) { n_extra_elect = 0; } // read
+      nb1nb2_type(const RDKit::Atom *p, const RDKit::ROMol &rdkm);
 
-      std::vector<atom_level_2_component_type> components;
+      std::vector<nb1nb2_component_type> components;
       std::string string() const {return str; }
       std::string extra_electron_type() const;
       int n_extra_electrons() const;
-      static bool level_2_component_sorter(const atom_level_2_component_type &la,
-					   const atom_level_2_component_type &lb);
+      static bool nb1nb2_component_sorter(const nb1nb2_component_type &la,
+					   const nb1nb2_component_type &lb);
       friend std::ostream &operator<<(std::ostream &s,
-				      const atom_level_2_component_type &c);
+				      const nb1nb2_component_type &c);
    };
    std::ostream &operator<<(std::ostream &s,
-			    const atom_level_2_type::atom_level_2_component_type &c);
-   
+			    const nb1nb2_type::nb1nb2_component_type &c);
+
    // a container for strings of COD atom types at various levels.
    // The first one was at the 4th level - most sophisticated and
    // with 3rd neighbour info
    //
    class atom_type_t {
-      std::string neighb_degrees_str_; // string set on read from tables
-      void set_neighb_degrees_string(); //
+      std::string nb2_extra_els_str_; // string set on read from tables
+      void set_nb2_extra_els_string(); //
    public:
       enum { COLON_DEGREE_TYPE = 546 };
 
@@ -82,53 +82,56 @@ namespace cod {
 
       atom_type_t(const std::string &s1,
 		  const std::string &s_neigh_degrees_colon,
-		  const atom_level_2_type &l2,
+		  const nb1nb2_type &l2,
 		  const std::string &s3, const std::string &s4);
 
-      atom_type_t(const std::string &l4) {
-	 level_4 = l4;
-	 level_3 = level_4_type_to_level_3_type(l4);
+      atom_type_t(const std::string &l) {
+	 full_type = l;
+	 main_type = cod_type_to_main_type(l);
 	 hash_value = -1;
       }
+      //! called with main_type and full_type (not the other way around!)
       atom_type_t(const std::string &s1, const std::string &s2) {
-	 level_3 = s1;
-	 level_4 = s2;
+	 main_type = s1;
+	 full_type = s2;
 	 hash_value = -1;
       }
-      explicit atom_type_t(const std::vector<unsigned int> &degrees) : neighb_degrees(degrees) {
-	 set_neighb_degrees_string();
+      explicit atom_type_t(const std::vector<unsigned int> &degrees) : nb2_extra_els(degrees) {
+	 set_nb2_extra_els_string();
       }
-      std::string level_4;
-      std::string level_3; // as 4 but without 3rd neighbour info
-      atom_level_2_type level_2;
-      std::vector<unsigned int> neighb_degrees; // for "colon type" - e.g. 3:3:2
+      std::string full_type;                   // acedrg FULL class, incl. trailing {...}
+      std::string main_type;                  // as cod_type but without 3rd neighbour info
+      nb1nb2_type nb1nb2;                      // acedrg NB1NB2
+      std::string sp;      // acedrg sp string (SP1/SP2/SP3/SP-NON/SPDn), == libmol Atom*_sp
+      std::string element; // acedrg Atom*_elem
+      std::vector<unsigned int> nb2_extra_els; // for "colon type" - e.g. 3:3:2
       int hash_value; // can be zero (?), so use -1 for fail.
       std::list<third_neighbour_info_t> tnil;
 
-      std::string neighb_degrees_str() {
-	 if (neighb_degrees_str_.empty())
-	    set_neighb_degrees_string(); // use neighb_degrees
-	 return neighb_degrees_str_;
+      std::string nb2_extra_els_str() {
+	 if (nb2_extra_els_str_.empty())
+	    set_nb2_extra_els_string(); // use nb2_extra_els
+	 return nb2_extra_els_str_;
       }
-      std::string neighb_degrees_str() const { return neighb_degrees_str_; }
+      std::string nb2_extra_els_str() const { return nb2_extra_els_str_; }
       void extract_degree_info(const atom_type_t &at) {
-	 neighb_degrees = at.neighb_degrees;
-	 set_neighb_degrees_string();
+	 nb2_extra_els = at.nb2_extra_els;
+	 set_nb2_extra_els_string();
       }
 
       // helper function
-      static std::string level_4_type_to_level_3_type(const std::string &l4t);
+      static std::string cod_type_to_main_type(const std::string &l4t);
 
       bool operator==(const atom_type_t &t_in) const {
-	 return (t_in.level_4 == level_4);
+	 return (t_in.full_type == full_type);
       }
 
-      bool l3_match(const atom_type_t &t_in) const {
-	 return (t_in.level_3 == level_3);
+      bool main_type_match(const atom_type_t &t_in) const {
+	 return (t_in.main_type == main_type);
       }
 
       bool operator<(const atom_type_t &t_in) const {
-	 return (level_4 < t_in.level_4); // is this the right way round?
+	 return (full_type < t_in.full_type); // is this the right way round?
       }
 
       void set_hash_value(unsigned int hash_in) {

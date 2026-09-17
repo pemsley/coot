@@ -35,6 +35,7 @@
 #endif
 
 #include <iostream>
+#include <algorithm>
 
 
 #ifdef USE_GUILE
@@ -473,7 +474,7 @@ void display_svg_from_string_in_a_dialog(const std::string &image_string, const 
       gtk_widget_set_margin_top(button_close, 14);
       gtk_widget_set_margin_bottom(button_close, 10);
 
-      gtk_window_set_default_size(GTK_WINDOW(window), 600, 620);
+      gtk_window_set_default_size(GTK_WINDOW(window), 600, 756);
 
       // Connect the draw signal to our drawing function, passing the SVG handle
 
@@ -483,17 +484,26 @@ void display_svg_from_string_in_a_dialog(const std::string &image_string, const 
          RsvgDimensionData dimension_data;
          rsvg_handle_get_dimensions(handle, &dimension_data);
 
-         double scale = static_cast<double>(w / dimension_data.em);
+         double svg_w = static_cast<double>(dimension_data.width);
+         double svg_h = static_cast<double>(dimension_data.height);
+         if (svg_w <= 0.0 || svg_h <= 0.0) return;
+
+         // Scale to fit the drawing area while preserving the aspect ratio,
+         // then centre the result.
+         double scale = std::min(static_cast<double>(w) / svg_w,
+                                 static_cast<double>(h) / svg_h);
+         double tx = (static_cast<double>(w) - svg_w * scale) * 0.5;
+         double ty = (static_cast<double>(h) - svg_h * scale) * 0.5;
+         cairo_translate(cr, tx, ty);
          cairo_scale(cr, scale, scale);
-         cairo_translate(cr, dimension_data.em/2.0, dimension_data.ex/2.0);
 
 #if LIBRSVG_CHECK_VERSION(2, 46, 0)
          GError *error = NULL;
          RsvgRectangle viewbox;
          viewbox.x = 0;
          viewbox.y = 0;
-         viewbox.width  = dimension_data.width;
-         viewbox.height = dimension_data.height;
+         viewbox.width  = svg_w;
+         viewbox.height = svg_h;
          rsvg_handle_render_document(handle, cr, &viewbox, &error);
 #else
          rsvg_handle_render_cairo(handle, cr);

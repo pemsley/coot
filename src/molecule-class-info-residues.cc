@@ -1377,6 +1377,7 @@ molecule_class_info_t::add_linked_residue_by_atom_torsions(const coot::residue_s
 							   const std::string &link_type,
 							   coot::protein_geometry *geom_p,
 							   float default_b_factor_new_atoms) {
+
    coot::residue_spec_t new_residue_spec;
    mmdb::Residue *residue_ref = get_residue(spec_in);
    if (residue_ref) {
@@ -1390,6 +1391,9 @@ molecule_class_info_t::add_linked_residue_by_atom_torsions(const coot::residue_s
 	 if (status_pair.first) {
 	    new_residue_spec = coot::residue_spec_t(status_pair.second);
 	    coot::dict_link_info_t link_info(residue_ref, status_pair.second, link_type, *geom_p); // exception caught
+            if (false)
+               std::cout << "debug:: " << link_info.spec_ref << " "
+                         << link_info.spec_new << " dist: " << link_info.dist << std::endl;
 	    make_link(link_info.spec_ref, link_info.spec_new, link_type, link_info.dist, *geom_p);
 	 }
       }
@@ -2325,8 +2329,10 @@ molecule_class_info_t::delete_all_carbohydrate() {
 
    if (atom_sel.mol) {
       make_backup(__FUNCTION__);
-      coot::util::delete_all_carbohydrate(atom_sel.mol);
-      make_bonds_type_checked();
+      atom_sel.delete_atom_selection();
+      bool deleted = coot::util::delete_all_carbohydrate(atom_sel.mol);
+      if (deleted)
+         update_molecule_after_additions();
    }
 }
 

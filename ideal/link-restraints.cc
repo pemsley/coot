@@ -358,10 +358,22 @@ coot::restraints_container_t::add_link_bond(std::string link_type,
                            // 20230110-PE are you here again? Check that udd_atom_index_handle
                            // is set (by calling init_shared_post()).
 
-			   first_sel [ifat]->GetUDData(udd_atom_index_handle, index1);
-			   second_sel[isat]->GetUDData(udd_atom_index_handle, index2);
+			   index1 = -1; // so that a failed GetUDData() is detectable
+			   index2 = -1;
+			   int udd_get_status_1 = first_sel [ifat]->GetUDData(udd_atom_index_handle, index1);
+			   int udd_get_status_2 = second_sel[isat]->GetUDData(udd_atom_index_handle, index2);
 
-			   // set the UDD flag for this residue being bonded/angle with 
+			   if (udd_get_status_1 != mmdb::UDDATA_Ok || udd_get_status_2 != mmdb::UDDATA_Ok ||
+			       index1 < 0 || index1 >= n_atoms || index2 < 0 || index2 >= n_atoms) {
+			      std::cout << "ERROR:: add_link_bond(): bad atom index from UDD: statuses "
+			                << udd_get_status_1 << " " << udd_get_status_2 << " indices "
+			                << index1 << " " << index2 << " n_atoms " << n_atoms << " for atoms "
+			                << atom_spec_t(first_sel[ifat]) << " " << atom_spec_t(second_sel[isat])
+			                << " udd_atom_index_handle " << udd_atom_index_handle << std::endl;
+			      continue;
+			   }
+
+			   // set the UDD flag for this residue being bonded/angle with
 			   // the other
 
 			   bonded_atom_indices[index1].insert(index2);

@@ -77,6 +77,7 @@ class Instanced_Markup_Mesh {
    std::string name;
    void init();
    void setup_buffers();
+   void delete_gl_buffers();
    bool draw_this_mesh;
    bool first_time;
    bool this_mesh_is_closed;
@@ -101,6 +102,12 @@ public:
              bool do_depth_fog);
    void close();
    void clear();
+   // use this when the GL context is unrealized/rerealized (must be called while
+   // the context is still current, e.g. from the GtkGLArea "unrealize" handler).
+   void reset() {
+      delete_gl_buffers();
+      first_time = true;
+   }
 };
 
 
