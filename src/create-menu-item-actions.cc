@@ -721,7 +721,7 @@ fetch_ligand_restraints_from_github_action(G_GNUC_UNUSED GSimpleAction *simple_a
       int imol = pp.second.first;
       const auto &atom_spec = pp.second.second;
       std::string rn = g.molecules[imol].get_residue_name(coot::residue_spec_t(atom_spec));
-      get_monomer_dictionary_in_subthread(rn, true);
+      get_monomer_dictionary_in_subthread(rn, false); // false: don't make a new ligand molecule
    }
 }
 
