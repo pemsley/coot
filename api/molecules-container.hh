@@ -2325,9 +2325,11 @@ public:
    //! Delete atom using cid
    //!
    //! @param imol is the model molecule index
-   //! @param cid is the atom selection CID e.g "//A/15/OH" (atom OH in residue 15 of chain A)
+   //! @param cid is the atom selection CID e.g "//A/15/OH" (atom OH in residue 15 of chain A).
+   //!        If the `cid` matches multiple atoms, then the first one (only) is deleted.
    //!
-   //! @return 1 on successful deletion, return 0 on failure to delete.
+   //! @return first: 1 on successful deletion, return 0 on failure to delete.
+   //!         second: the new atom count
    std::pair<int, unsigned int> delete_atom_using_cid(int imol, const std::string &cid);
 
    //! Delete residue
