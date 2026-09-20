@@ -6940,21 +6940,63 @@ Bond_lines_container::bond_by_distance(const atom_selection_container_t &asc, in
                                        std::vector<mmdb::Residue *> &residues,
                                        bool have_udd_atoms, int udd_found_bond_handle) {
 
+   // 20260920-PE Bonds to hydrogen atoms need a shorter cut-off than bonds
+   // between non-hydrogen atoms - c.f. H_min_dist/H_max_dist in the
+   // do_bonds_to_hydrogens block of the main constructor. Passing all the
+   // atoms of the residue with max_dist 2.0 bonded a hydroxyl hydrogen to the
+   // carbon beta to it (C...H ~1.96A), e.g. H1 of P6G in 9qkh.
+   //
+   float max_dist = 2.0;
+   float min_dist = 0.01;
+   float H_max_dist = 1.4;
+   float H_min_dist = 0.7;
+   int atom_colour_type = coot::COLOUR_BY_CHAIN_C_ONLY;
+
    for (unsigned int i=0; i<residues.size(); i++) {
       mmdb::Residue *residue_p = residues[i];
-      mmdb::PPAtom residue_atoms;
-      int nResidueAtoms;
-      float max_dist = 2.0;
-      float min_dist = 0.01;
-      int atom_colour_type = coot::COLOUR_BY_CHAIN_C_ONLY;
-
+      mmdb::PPAtom residue_atoms = nullptr;
+      int nResidueAtoms = 0;
       residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
-      construct_from_atom_selection(asc,
-                                    residue_atoms, nResidueAtoms,
-                                    residue_atoms, nResidueAtoms,
-                                    imol,
-                                    min_dist, max_dist, atom_colour_type,
-                                    0, have_udd_atoms, udd_found_bond_handle);
+
+      std::vector<mmdb::Atom *> non_H_atoms;
+      std::vector<mmdb::Atom *> H_atoms;
+      for (int iat=0; iat<nResidueAtoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (at->isTer()) continue;
+         if (is_hydrogen(std::string(at->element)))
+            H_atoms.push_back(at);
+         else
+            non_H_atoms.push_back(at);
+      }
+      int n_non_H = non_H_atoms.size();
+      int n_H = H_atoms.size();
+
+      if (n_non_H > 0)
+         construct_from_atom_selection(asc,
+                                       non_H_atoms.data(), n_non_H,
+                                       non_H_atoms.data(), n_non_H,
+                                       imol,
+                                       min_dist, max_dist, atom_colour_type,
+                                       0, have_udd_atoms, udd_found_bond_handle);
+
+      if (do_bonds_to_hydrogens && n_H > 0) {
+
+         // H-X
+         if (n_non_H > 0)
+            construct_from_atom_selection(asc,
+                                          non_H_atoms.data(), n_non_H,
+                                          H_atoms.data(), n_H,
+                                          imol,
+                                          H_min_dist, H_max_dist, atom_colour_type,
+                                          1, have_udd_atoms, udd_found_bond_handle);
+         // H-H
+         construct_from_atom_selection(asc,
+                                       H_atoms.data(), n_H,
+                                       H_atoms.data(), n_H,
+                                       imol,
+                                       H_min_dist, H_max_dist, atom_colour_type,
+                                       0, have_udd_atoms, udd_found_bond_handle);
+      }
    }
 }
 
