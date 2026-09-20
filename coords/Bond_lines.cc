@@ -2976,13 +2976,12 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
                    (alt_conf_1 == "") ||
                    (alt_conf_2 == "")) {
                   if (draw_env_distances_to_hydrogens_flag ||
-                      // ((ele1 != " H") && (ele2 != " H"))) {
                       ((! is_hydrogen(ele1)) && (! is_hydrogen(ele2)))) {
-                     if (ele1 == " C")
-                        addBond(0, atom_1_pos, atom_2_pos, cc, model_number, iat_1, iat_2);
-                     else {
+                     if (ele1 == " C") {
+                        addBond(1, atom_1_pos, atom_2_pos, cc, model_number, iat_1, iat_2);
+                     } else {
                         if (ele2 == " C") {
-                           addBond(0, atom_1_pos, atom_2_pos, cc, model_number, iat_1, iat_2);
+                           addBond(1, atom_1_pos, atom_2_pos, cc, model_number, iat_1, iat_2);
                         } else {
 
                            // both atoms not Carbon
@@ -2997,16 +2996,14 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
                               coot::quick_protein_donor_acceptors::key k1(atom_1->GetResName(), atom_1->GetAtomName());
                               coot::quick_protein_donor_acceptors::key k2(atom_2->GetResName(), atom_2->GetAtomName());
                               // is-looked-up, is-H-bond
-                              int colour_index = 1; // H-bond
+                              int colour_index = 0; // not found/untyped
                               std::pair<bool,bool> is_valid = pda.is_hydrogen_bond_by_types(k1,k2);
                               if (is_valid.first) {
-                                 if (! is_valid.second) {
-                                    colour_index = 0;
+                                 if (is_valid.second) {
+                                    colour_index = 2;
+                                 } else {
+                                    colour_index = 1;
                                  }
-                              } else {
-                                 // failed to look up - a regular contact is a better fallback than a hydrogen
-                                 // bond
-                                 colour_index = 0;
                               }
                               addBond(colour_index, atom_1_pos, atom_2_pos, cc, model_number, iat_1, iat_2); // interesting
                            }
