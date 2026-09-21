@@ -18,6 +18,10 @@
  */
 
 
+#include <algorithm>
+#include <cmath>
+
+#include "utils/coot-utils.hh"
 #include "coot-utils/coot-h-bonds.hh"
 #include "protein-ligand-interactions.hh"
 
@@ -239,6 +243,18 @@ pli::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
 
       if (debug)
 	 std::cout << ".... get_fle_ligand_bonds(): after metal bonds v.size() is " << v.size()
+		   << std::endl;
+
+      // -----------------------
+      //   halogen bonds
+      // -----------------------
+
+      std::vector<fle_ligand_bond_t> halogen_bonds = get_halogen_bonds(ligand_res, residues, geom, imol);
+      for (unsigned int i=0; i<halogen_bonds.size(); i++)
+	 v.push_back(halogen_bonds[i]);
+
+      if (debug)
+	 std::cout << ".... get_fle_ligand_bonds(): after halogen bonds v.size() is " << v.size()
 		   << std::endl;
 
       
@@ -514,6 +530,161 @@ pli::get_metal_bonds(mmdb::Residue *ligand_residue, const std::vector<mmdb::Resi
       }
    }
 
+   return v;
+}
+
+
+std::vector<pli::fle_ligand_bond_t>
+pli::get_halogen_bonds(mmdb::Residue *ligand_residue,
+                       const std::vector<mmdb::Residue *> &residues,
+                       const coot::protein_geometry &geom, int imol) {
+
+   std::vector<fle_ligand_bond_t> v;
+
+   const double dist_max        = 3.5;   // X...A
+   const double angle_CXA_min   = 130.0; // degrees
+   const double angle_XAR_min   =  80.0;
+   const double angle_XAR_max   = 140.0;
+   const double bonded_dist_max = 1.9;   // to find heavy-atom neighbours R of A
+   const double ligand_bonded_dist_max = 2.3; // fallback for the C of C-X when there is no dictionary
+
+   auto trimmed = [] (const std::string &s) { return coot::util::remove_whitespace(s); };
+
+   auto is_hydrogen = [] (mmdb::Atom *at) {
+      std::string ele = coot::util::remove_whitespace(std::string(at->element));
+      return (ele == "H" || ele == "D");
+   };
+
+   auto is_xb_halogen = [] (mmdb::Atom *at) {
+      std::string ele = coot::util::remove_whitespace(std::string(at->element));
+      std::transform(ele.begin(), ele.end(), ele.begin(), ::toupper);
+      return (ele == "CL" || ele == "BR" || ele == "I");
+   };
+
+   auto alt_confs_clash = [] (mmdb::Atom *at_1, mmdb::Atom *at_2) {
+      std::string a1(at_1->altLoc);
+      std::string a2(at_2->altLoc);
+      return (! a1.empty() && ! a2.empty() && a1 != a2);
+   };
+
+   // The heavy atom bonded to the halogen: from the ligand dictionary if we
+   // have one, else the closest heavy atom in the ligand residue.
+   //
+   std::string lig_res_name(ligand_residue->GetResName());
+   std::pair<bool, coot::dictionary_residue_restraints_t> rp = geom.get_monomer_restraints(lig_res_name, imol);
+
+   mmdb::PPAtom ligand_residue_atoms = 0;
+   int n_ligand_residue_atoms = 0;
+   ligand_residue->GetAtomTable(ligand_residue_atoms, n_ligand_residue_atoms);
+
+   auto ligand_atom_by_name = [&] (const std::string &name, mmdb::Atom *like_this_alt_conf) -> mmdb::Atom * {
+      std::string n = trimmed(name);
+      for (int i=0; i<n_ligand_residue_atoms; i++) {
+         mmdb::Atom *at = ligand_residue_atoms[i];
+         if (at->isTer()) continue;
+         if (trimmed(std::string(at->name)) == n)
+            if (! alt_confs_clash(at, like_this_alt_conf))
+               return at;
+      }
+      return nullptr;
+   };
+
+   auto bonded_heavy_neighbour_in_ligand = [&] (mmdb::Atom *x_at) -> mmdb::Atom * {
+      if (rp.first) {
+         std::string x_name = trimmed(std::string(x_at->name));
+         for (const auto &b : rp.second.bond_restraint) {
+            std::string other;
+            if (trimmed(b.atom_id_1()) == x_name) other = b.atom_id_2();
+            if (trimmed(b.atom_id_2()) == x_name) other = b.atom_id_1();
+            if (! other.empty()) {
+               mmdb::Atom *o = ligand_atom_by_name(other, x_at);
+               if (o && ! is_hydrogen(o))
+                  return o;
+            }
+         }
+      }
+      // fallback: closest heavy atom
+      mmdb::Atom *best = nullptr;
+      double best_d = ligand_bonded_dist_max;
+      for (int i=0; i<n_ligand_residue_atoms; i++) {
+         mmdb::Atom *at = ligand_residue_atoms[i];
+         if (at == x_at || at->isTer() || is_hydrogen(at)) continue;
+         if (alt_confs_clash(at, x_at)) continue;
+         double d = coot::distance(at, x_at);
+         if (d < best_d) { best_d = d; best = at; }
+      }
+      return best;
+   };
+
+   // Heavy-atom neighbours of an environment atom, looked for in the environment
+   // residues (so the peptide-bond neighbour is found only if that residue is in
+   // the list - fine for the usual O and side-chain acceptors).
+   //
+   auto heavy_neighbours = [&] (mmdb::Atom *a_at) {
+      std::vector<mmdb::Atom *> nbs;
+      for (unsigned int ir=0; ir<residues.size(); ir++) {
+         mmdb::PPAtom residue_atoms = 0;
+         int n_residue_atoms = 0;
+         residues[ir]->GetAtomTable(residue_atoms, n_residue_atoms);
+         for (int i=0; i<n_residue_atoms; i++) {
+            mmdb::Atom *at = residue_atoms[i];
+            if (at == a_at || at->isTer() || is_hydrogen(at)) continue;
+            if (alt_confs_clash(at, a_at)) continue;
+            if (coot::distance(at, a_at) < bonded_dist_max)
+               nbs.push_back(at);
+         }
+      }
+      return nbs;
+   };
+
+   for (int ilat=0; ilat<n_ligand_residue_atoms; ilat++) {
+      mmdb::Atom *x_at = ligand_residue_atoms[ilat];
+      if (x_at->isTer()) continue;
+      if (! is_xb_halogen(x_at)) continue;
+      mmdb::Atom *c_at = bonded_heavy_neighbour_in_ligand(x_at);
+      if (! c_at) continue;
+
+      for (unsigned int ir=0; ir<residues.size(); ir++) {
+         mmdb::Residue *res = residues[ir];
+         if (res == ligand_residue) continue;
+         std::string res_name(res->GetResName());
+         mmdb::PPAtom residue_atoms = 0;
+         int n_residue_atoms = 0;
+         res->GetAtomTable(residue_atoms, n_residue_atoms);
+         for (int irat=0; irat<n_residue_atoms; irat++) {
+            mmdb::Atom *a_at = residue_atoms[irat];
+            if (a_at->isTer() || is_hydrogen(a_at)) continue;
+            if (alt_confs_clash(a_at, x_at)) continue;
+            double d = coot::distance(x_at, a_at);
+            if (d > dist_max) continue;
+
+            coot::hb_t hb_type = geom.get_h_bond_type(a_at->name, res_name, imol);
+            if (hb_type != coot::HB_ACCEPTOR && hb_type != coot::HB_BOTH) continue;
+
+            double angle_cxa = coot::angle(c_at, x_at, a_at);
+            if (angle_cxa < angle_CXA_min) continue;
+
+            std::vector<mmdb::Atom *> nbs = heavy_neighbours(a_at);
+            double angle_xar = -1.0;
+            bool angle_xar_ok = nbs.empty(); // e.g. water O: no R to check
+            for (unsigned int in=0; in<nbs.size(); in++) {
+               double a = coot::angle(x_at, a_at, nbs[in]);
+               if (a >= angle_XAR_min && a <= angle_XAR_max) {
+                  angle_xar_ok = true;
+                  if (angle_xar < 0.0 || std::abs(a - 110.0) < std::abs(angle_xar - 110.0))
+                     angle_xar = a;
+               }
+            }
+            if (! angle_xar_ok) continue;
+
+            fle_ligand_bond_t bond(coot::atom_spec_t(x_at), coot::atom_spec_t(a_at),
+                                   fle_ligand_bond_t::HALOGEN_BOND, d, (res_name == "HOH"));
+            bond.angle_1 = angle_cxa;
+            bond.angle_2 = angle_xar;
+            v.push_back(bond);
+         }
+      }
+   }
    return v;
 }
 

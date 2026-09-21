@@ -3332,8 +3332,10 @@ public:
    //! Assess the protein-ligand interactions for a given ligand
    //!
    //! This uses the pli (protein-ligand interactions) functions to find the
-   //! hydrogen bonds (including to waters), metal contacts and covalent bonds
-   //! between the specified ligand and its surrounding residues.
+   //! hydrogen bonds (including to waters), metal contacts, covalent bonds and
+   //! halogen bonds (ligand C-X...A with X = Cl, Br, I) between the specified
+   //! ligand and its surrounding residues. Halogen bonds carry an `angles`
+   //! object with the C-X...A and X...A-R angles in degrees.
    //!
    //! @param imol is the model molecule index
    //! @param ligand_cid is the selection CID for the ligand residue, e.g. "//B/900"

@@ -169,7 +169,8 @@ namespace pli {
          H_BOND_ACCEPTOR_SIDECHAIN,
          METAL_CONTACT_BOND,
          BOND_COVALENT,
-         BOND_OTHER };  // must sync this to lbg.hh (why not extract it? (you can do it now))
+         HALOGEN_BOND,  // ligand C-X...A, X = Cl, Br, I; A an energy-lib acceptor
+         BOND_OTHER };  // must sync this to bond-to-ligand.hh (why not extract it? (you can do it now))
       coot::atom_spec_t ligand_atom_spec;
       int bond_type; // acceptor/donor
 
@@ -186,6 +187,11 @@ namespace pli {
       // ligand_atom_spec and interacting_residue_atom_spec are always heavy atoms.
       bool has_hydrogen_atom;
       coot::atom_spec_t hydrogen_atom_spec;
+      // Interaction geometry (degrees), -1 if not set. For HALOGEN_BOND:
+      // angle_1 is C-X...A and angle_2 is X...A-R (R the neighbour of A giving
+      // the best angle).
+      double angle_1;
+      double angle_2;
       fle_ligand_bond_t(const coot::atom_spec_t &ligand_atom_spec_in,
                         const coot::atom_spec_t &interacting_residue_atom_spec_in,
                         int bond_type_in,
@@ -199,6 +205,8 @@ namespace pli {
          is_H_bond_to_water = is_water;
          water_protein_length = 100.0;
          has_hydrogen_atom = false;
+         angle_1 = -1.0;
+         angle_2 = -1.0;
       }
       static int get_bond_type(mmdb::Atom *at_donor, mmdb::Atom *at_acceptor, bool ligand_atom_is_donor_flag) {
          int r_bond_type = BOND_OTHER;

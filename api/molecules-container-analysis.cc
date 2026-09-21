@@ -641,6 +641,7 @@ molecules_container_t::get_ligand_interactions_as_json(int imol, const std::stri
          case pli::fle_ligand_bond_t::H_BOND_ACCEPTOR_SIDECHAIN: return std::string("H-bond acceptor (side-chain)");
          case pli::fle_ligand_bond_t::METAL_CONTACT_BOND:        return std::string("metal");
          case pli::fle_ligand_bond_t::BOND_COVALENT:             return std::string("covalent");
+         case pli::fle_ligand_bond_t::HALOGEN_BOND:              return std::string("halogen bond");
          default:                                                return std::string("other");
       }
    };
@@ -685,6 +686,11 @@ molecules_container_t::get_ligand_interactions_as_json(int imol, const std::stri
       jb["is_water"] = b.is_H_bond_to_water;
       if (b.is_H_bond_to_water)
          jb["water_protein_length"] = b.water_protein_length;
+      if (b.bond_type == pli::fle_ligand_bond_t::HALOGEN_BOND) {
+         // ligand_atom is the halogen X, residue_atom is the acceptor A
+         jb["angles"] = { {"C-X...A", b.angle_1},
+                          {"X...A-R", b.angle_2} }; // -1 if A has no heavy neighbour (e.g. water)
+      }
       if (b.has_hydrogen_atom) {
          // the explicit hydrogen through which this H-bond was found; it belongs
          // either to the ligand atom or to the residue atom
