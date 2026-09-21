@@ -292,7 +292,8 @@ molecule_class_info_t::setup_internal() { // init
    material_for_maps = graphics_info_t::default_material_for_maps;
 
    material_for_models.do_specularity = true;
-   material_for_models.specular_strength = 1.0;
+   material_for_models.specular_strength = 0.25; // 0.25 is new default.
+                                                 // 1.00 was too shiny it seems
 
    map_as_mesh.set_name("empty map molecule mesh");
    model_molecule_meshes.set_name("empty model molecule mesh");

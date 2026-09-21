@@ -2860,6 +2860,8 @@ Bond_lines_container::handle_long_bonded_atom(mmdb::PAtom atom,
 
 
 
+// Constructor G
+//
 // This finds bonds between a residue and the protein (in SelAtom).
 // It is used for the environment bonds box.
 //
@@ -2874,10 +2876,10 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
                                            float min_dist,
                                            float max_dist) {
 
-   if (0)
+   if (false)
       std::cout << "Environment distances NO symm" << std::endl;
-   do_bonds_to_hydrogens = 1;  // added 20070629
 
+   do_bonds_to_hydrogens = 1;  // added 20070629
    b_factor_scale = 1.0;
    have_dictionary = 0;
    for_GL_solid_model_rendering = 1;
@@ -2905,7 +2907,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
                              0,  // seqDist (in same residue allowed)
                              contact, ncontacts);
 
-   if (0) {  // debugging seqDist
+   if (false) {  // debugging seqDist
       std::cout << " DEBUG:: there are " << n_residue_atoms << " residue atoms "
                 << " and " << SelAtom.n_selected_atoms << " mol atoms\n";
       for (int iat=0; iat<n_residue_atoms; iat++)
@@ -2957,7 +2959,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
             if (is_hydrogen(ele2))
                bonding_dist_max -= shorter_bit;
 
-            if (0) { // debug
+            if (false) { // debug
                std::cout << " DEBUG:: add environ dist "
                          << residue_atoms[ contact[i].id1 ] << " to "
                          << SelAtom.atom_selection[ contact[i].id2 ]
@@ -2974,13 +2976,12 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
                    (alt_conf_1 == "") ||
                    (alt_conf_2 == "")) {
                   if (draw_env_distances_to_hydrogens_flag ||
-                      // ((ele1 != " H") && (ele2 != " H"))) {
                       ((! is_hydrogen(ele1)) && (! is_hydrogen(ele2)))) {
-                     if (ele1 == " C")
-                        addBond(0, atom_1_pos, atom_2_pos, cc, model_number, iat_1, iat_2);
-                     else {
+                     if (ele1 == " C") {
+                        addBond(1, atom_1_pos, atom_2_pos, cc, model_number, iat_1, iat_2);
+                     } else {
                         if (ele2 == " C") {
-                           addBond(0, atom_1_pos, atom_2_pos, cc, model_number, iat_1, iat_2);
+                           addBond(1, atom_1_pos, atom_2_pos, cc, model_number, iat_1, iat_2);
                         } else {
 
                            // both atoms not Carbon
@@ -2995,11 +2996,15 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
                               coot::quick_protein_donor_acceptors::key k1(atom_1->GetResName(), atom_1->GetAtomName());
                               coot::quick_protein_donor_acceptors::key k2(atom_2->GetResName(), atom_2->GetAtomName());
                               // is-looked-up, is-H-bond
-                              int colour_index = 1; // H-bond
+                              int colour_index = 0; // not found/untyped
                               std::pair<bool,bool> is_valid = pda.is_hydrogen_bond_by_types(k1,k2);
-                              if (is_valid.first)
-                                 if (! is_valid.second)
-                                    colour_index = 0;
+                              if (is_valid.first) {
+                                 if (is_valid.second) {
+                                    colour_index = 2;
+                                 } else {
+                                    colour_index = 1;
+                                 }
+                              }
                               addBond(colour_index, atom_1_pos, atom_2_pos, cc, model_number, iat_1, iat_2); // interesting
                            }
                         }
@@ -6935,21 +6940,63 @@ Bond_lines_container::bond_by_distance(const atom_selection_container_t &asc, in
                                        std::vector<mmdb::Residue *> &residues,
                                        bool have_udd_atoms, int udd_found_bond_handle) {
 
+   // 20260920-PE Bonds to hydrogen atoms need a shorter cut-off than bonds
+   // between non-hydrogen atoms - c.f. H_min_dist/H_max_dist in the
+   // do_bonds_to_hydrogens block of the main constructor. Passing all the
+   // atoms of the residue with max_dist 2.0 bonded a hydroxyl hydrogen to the
+   // carbon beta to it (C...H ~1.96A), e.g. H1 of P6G in 9qkh.
+   //
+   float max_dist = 2.0;
+   float min_dist = 0.01;
+   float H_max_dist = 1.4;
+   float H_min_dist = 0.7;
+   int atom_colour_type = coot::COLOUR_BY_CHAIN_C_ONLY;
+
    for (unsigned int i=0; i<residues.size(); i++) {
       mmdb::Residue *residue_p = residues[i];
-      mmdb::PPAtom residue_atoms;
-      int nResidueAtoms;
-      float max_dist = 2.0;
-      float min_dist = 0.01;
-      int atom_colour_type = coot::COLOUR_BY_CHAIN_C_ONLY;
-
+      mmdb::PPAtom residue_atoms = nullptr;
+      int nResidueAtoms = 0;
       residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
-      construct_from_atom_selection(asc,
-                                    residue_atoms, nResidueAtoms,
-                                    residue_atoms, nResidueAtoms,
-                                    imol,
-                                    min_dist, max_dist, atom_colour_type,
-                                    0, have_udd_atoms, udd_found_bond_handle);
+
+      std::vector<mmdb::Atom *> non_H_atoms;
+      std::vector<mmdb::Atom *> H_atoms;
+      for (int iat=0; iat<nResidueAtoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (at->isTer()) continue;
+         if (is_hydrogen(std::string(at->element)))
+            H_atoms.push_back(at);
+         else
+            non_H_atoms.push_back(at);
+      }
+      int n_non_H = non_H_atoms.size();
+      int n_H = H_atoms.size();
+
+      if (n_non_H > 0)
+         construct_from_atom_selection(asc,
+                                       non_H_atoms.data(), n_non_H,
+                                       non_H_atoms.data(), n_non_H,
+                                       imol,
+                                       min_dist, max_dist, atom_colour_type,
+                                       0, have_udd_atoms, udd_found_bond_handle);
+
+      if (do_bonds_to_hydrogens && n_H > 0) {
+
+         // H-X
+         if (n_non_H > 0)
+            construct_from_atom_selection(asc,
+                                          non_H_atoms.data(), n_non_H,
+                                          H_atoms.data(), n_H,
+                                          imol,
+                                          H_min_dist, H_max_dist, atom_colour_type,
+                                          1, have_udd_atoms, udd_found_bond_handle);
+         // H-H
+         construct_from_atom_selection(asc,
+                                       H_atoms.data(), n_H,
+                                       H_atoms.data(), n_H,
+                                       imol,
+                                       H_min_dist, H_max_dist, atom_colour_type,
+                                       0, have_udd_atoms, udd_found_bond_handle);
+      }
    }
 }
 

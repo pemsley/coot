@@ -721,7 +721,7 @@ fetch_ligand_restraints_from_github_action(G_GNUC_UNUSED GSimpleAction *simple_a
       int imol = pp.second.first;
       const auto &atom_spec = pp.second.second;
       std::string rn = g.molecules[imol].get_residue_name(coot::residue_spec_t(atom_spec));
-      get_monomer_dictionary_in_subthread(rn, true);
+      get_monomer_dictionary_in_subthread(rn, false); // false: don't make a new ligand molecule
    }
 }
 
@@ -6107,6 +6107,14 @@ delete_item(GSimpleAction *simple_action,
             GVariant *parameter,
             gpointer user_data) {
 
+   // ----------------------------------------------------
+   // -------------------- WARNING!!!!!!!! ---------------
+   // ----------------------------------------------------
+   //
+   // 20260912-PE this code is not called at the moment.
+   // Due to problems with target menu items
+   // 02ba47387a450010c211446c7109a42901472b80
+
    auto delete_residue_range = [] () {
 
       graphics_info_t g;
@@ -6254,6 +6262,7 @@ delete_item_water(GSimpleAction *simple_action,
          auto &m = g.molecules[imol];
          m.delete_water(atom_spec);
          handled = true;
+         graphics_draw();
       }
    }
 

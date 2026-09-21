@@ -43,6 +43,10 @@
 #include "geometry/mol-utils.hh"
 #include "geometry/residue-and-atom-specs.hh"
 
+#ifdef USE_GEMMI
+#include "coot-coord-utils-gemmi.hh" // for write_coords_cif_via_gemmi()
+#endif
+
 #include "utils/logging.hh"
 extern logging logger;
 
@@ -4672,6 +4676,12 @@ coot::util::deep_copy_this_residue(mmdb::Residue *residue) {
       rres->seqNum = residue->GetSeqNum();
       strcpy(rres->name, residue->name);
       strncpy(rres->insCode, residue->GetInsCode(), 3);
+      // a deep copy should not drop the label fields (they are needed for
+      // mmCIF interchange - cf. 11fc5e63b)
+      rres->label_seq_id    = residue->label_seq_id;
+      rres->label_entity_id = residue->label_entity_id;
+      strcpy(rres->label_comp_id, residue->label_comp_id);
+      strcpy(rres->label_asym_id, residue->label_asym_id);
 
       mmdb::PPAtom residue_atoms = 0;
       int nResidueAtoms;
@@ -4707,6 +4717,12 @@ coot::util::deep_copy_this_residue(mmdb::Residue *residue,
       strcpy(rres->name, residue->name);
       // BL says:: should copy insCode too, maybe more things...
       strncpy(rres->insCode, residue->GetInsCode(), 3);
+      // a deep copy should not drop the label fields (they are needed for
+      // mmCIF interchange - cf. 11fc5e63b)
+      rres->label_seq_id    = residue->label_seq_id;
+      rres->label_entity_id = residue->label_entity_id;
+      strcpy(rres->label_comp_id, residue->label_comp_id);
+      strcpy(rres->label_asym_id, residue->label_asym_id);
 
       mmdb::PPAtom residue_atoms = 0;
       int nResidueAtoms;
@@ -7217,6 +7233,14 @@ coot::write_coords_cif(mmdb::Manager *mol, const std::string &file_name) {
 
    util::remove_wrong_cis_peptides(mol);
    // util::correct_link_distances(mol);  // this duplicates the molecule.  Needs investigation - GetLink()?
+#ifdef USE_GEMMI
+   // mmdb's WriteCIFASCII() serializes TER pseudo-atoms as junk atom rows
+   // (the Ter guard in mmdb::Atom::MakeCIF() is commented out) - so prefer
+   // gemmi for the conversion and writing.
+   if (write_coords_cif_via_gemmi(mol, file_name) == 0)
+      return 0;
+   // gemmi failed - fall back to mmdb's writer
+#endif
    int r = mol->WriteCIFASCII(file_name.c_str());
    return r;
 }

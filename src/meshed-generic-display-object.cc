@@ -239,6 +239,7 @@ void
 meshed_generic_display_object::init(const graphical_bonds_container &bonds_box,
                                     bool background_is_black_flag) {
 
+   std::cout << "debug:: in meshed_generic_display_object::init() --- start --- " << std::endl;
    mesh.clear();
    for (int i=0; i<bonds_box.num_colours; i++) {
       unsigned int n_slices = 16;
@@ -247,9 +248,12 @@ meshed_generic_display_object::init(const graphical_bonds_container &bonds_box,
       float dark_bg_cor = 0.0;
       if (! background_is_black_flag)
          dark_bg_cor = 0.29;
-      float fidx = static_cast<float>(i);
-      coot::colour_holder col (0.8-dark_bg_cor, 0.8-0.4*fidx-dark_bg_cor, 0.4+0.5*fidx-dark_bg_cor);
+      float fidx = static_cast<float>(i-1);
+      coot::colour_holder col (0.7-dark_bg_cor, 0.7-0.4*fidx-dark_bg_cor, 0.4+0.5*fidx-dark_bg_cor);
+      if (i==0) col = coot::colour_holder(0.4, 0.4, 0.4); // unset
       unsigned int n_segments = 8;
+      // if (ll.num_lines > 0)
+      //    std::cout << "Debug:: --------------- i: " << i << " col " << col << std::endl;
       for (int j=0; j< ll.num_lines; j++) {
          glm::vec3 s = cartesian_to_glm(ll.pair_list[j].positions.getStart());
          glm::vec3 e = cartesian_to_glm(ll.pair_list[j].positions.getFinish());
@@ -259,7 +263,7 @@ meshed_generic_display_object::init(const graphical_bonds_container &bonds_box,
             glm::vec3 pos_1 = s + static_cast<float>(iseg) * delta_frag;
             glm::vec3 pos_2 = pos_1 + 0.5f * delta_frag;
             std::pair<glm::vec3, glm::vec3> start_end(pos_1, pos_2);
-            float line_radius = 0.06;
+            float line_radius = 0.05;
             if (do_thinning) line_radius *= 0.5;
             add_cylinder(start_end, col, line_radius, n_slices, true, true, FLAT_CAP, FLAT_CAP);
          }
