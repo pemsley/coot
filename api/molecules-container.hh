@@ -3339,6 +3339,11 @@ public:
    //! @param ligand_cid is the selection CID for the ligand residue, e.g. "//B/900"
    //! @param h_bond_dist_max is the maximum hydrogen-bond distance, e.g. 3.6
    //!
+   //! Each bond reports the ligand atom and residue atom as heavy atoms and the
+   //! `bond_length` as the heavy-atom (donor to acceptor) distance, whether or not
+   //! the model has hydrogens. When an H-bond was found via an explicit hydrogen
+   //! (McDonald & Thornton), that hydrogen is reported as `hydrogen_atom`.
+   //!
    //! @return a JSON string describing the interactions; an empty string on failure
    std::string get_ligand_interactions_as_json(int imol, const std::string &ligand_cid, float h_bond_dist_max);
 

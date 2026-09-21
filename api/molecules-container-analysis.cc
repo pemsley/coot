@@ -685,6 +685,16 @@ molecules_container_t::get_ligand_interactions_as_json(int imol, const std::stri
       jb["is_water"] = b.is_H_bond_to_water;
       if (b.is_H_bond_to_water)
          jb["water_protein_length"] = b.water_protein_length;
+      if (b.has_hydrogen_atom) {
+         // the explicit hydrogen through which this H-bond was found; it belongs
+         // either to the ligand atom or to the residue atom
+         coot::residue_spec_t h_res_spec(b.hydrogen_atom_spec);
+         jb["hydrogen_atom"] = { {"chain_id",  h_res_spec.chain_id},
+                                 {"res_no",    h_res_spec.res_no},
+                                 {"ins_code",  h_res_spec.ins_code},
+                                 {"atom_name", b.hydrogen_atom_spec.atom_name},
+                                 {"alt_conf",  b.hydrogen_atom_spec.alt_conf} };
+      }
       bond_list.push_back(jb);
    }
    j["bonds"] = bond_list;

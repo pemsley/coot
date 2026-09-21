@@ -177,9 +177,15 @@ namespace pli {
       coot::atom_spec_t interacting_residue_atom_spec; // contains res_spec obviously.
 
       bool is_H_bond_to_water;
-      double bond_length;  // from residue atom to ligand atom
+      double bond_length;  // heavy-atom distance: from residue (donor/acceptor) atom
+                           // to ligand (acceptor/donor) atom - never to a hydrogen
       double water_protein_length; // if residue is a water, this is the closest
                                    // distance to protein (100 if very far).
+      // When the H-bond was found with an explicit hydrogen (McDonald & Thornton),
+      // this is that hydrogen (it may be on the ligand or on the residue).
+      // ligand_atom_spec and interacting_residue_atom_spec are always heavy atoms.
+      bool has_hydrogen_atom;
+      coot::atom_spec_t hydrogen_atom_spec;
       fle_ligand_bond_t(const coot::atom_spec_t &ligand_atom_spec_in,
                         const coot::atom_spec_t &interacting_residue_atom_spec_in,
                         int bond_type_in,
@@ -191,6 +197,8 @@ namespace pli {
          bond_type = bond_type_in;
          bond_length = bl_in;
          is_H_bond_to_water = is_water;
+         water_protein_length = 100.0;
+         has_hydrogen_atom = false;
       }
       static int get_bond_type(mmdb::Atom *at_donor, mmdb::Atom *at_acceptor, bool ligand_atom_is_donor_flag) {
          int r_bond_type = BOND_OTHER;

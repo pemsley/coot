@@ -107,25 +107,48 @@ pli::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
 	 //
 	 mmdb::Atom      *ligand_atom = hbonds[i].acceptor;
 	 mmdb::Atom *env_residue_atom = hbonds[i].donor;
-	 double explict_H_bond_fudge_factor = 0.0; // for H-bonds with no Hs.
 	 //
 	 if (hbonds[i].ligand_atom_is_donor) {
 	    ligand_atom = hbonds[i].donor;
 	    env_residue_atom = hbonds[i].acceptor;
 	 }
 
-	 // OK, 20110511 new style, where is the hydrogen?
+	 // For McDonald & Thornton H-bonds (explicit hydrogens) the h_bond's dist is
+	 // the H...A distance and hb_hydrogen is the H (or, for a water donor, the
+	 // water O standing in for its unmodelled H).  We want to report the heavy
+	 // atoms (donor and acceptor) and the heavy-atom D...A distance, so that the
+	 // numbers mean the same thing whether or not the model has hydrogens.
+	 // Previously the H was reported as the ligand/residue atom and 1.2 A was
+	 // added to the H...A distance as an approximation to D...A.
 	 //
+	 mmdb::Atom *hydrogen_atom = nullptr;
 	 if (hbonds[i].has_hydrogen()) {
-	    if (hbonds[i].ligand_atom_is_H()) {
-	       ligand_atom      = hbonds[i].hb_hydrogen;
-	       env_residue_atom = hbonds[i].acceptor;
+	    mmdb::Atom *donor    = hbonds[i].donor;
+	    mmdb::Atom *acceptor = hbonds[i].acceptor;
+	    if (donor && acceptor) {
+	       if (hbonds[i].ligand_atom_is_H()) {
+		  ligand_atom      = donor;
+		  env_residue_atom = acceptor;
+	       } else {
+		  ligand_atom      = acceptor;
+		  env_residue_atom = donor;
+	       }
+	       if (hbonds[i].hb_hydrogen != donor) // water O is not a hydrogen
+		  hydrogen_atom = hbonds[i].hb_hydrogen;
 	    } else {
-	       ligand_atom      = hbonds[i].acceptor;
-	       env_residue_atom = hbonds[i].hb_hydrogen;
+	       // should not happen for a "good" M&T H-bond: fall back to the H
+	       if (hbonds[i].ligand_atom_is_H()) {
+		  ligand_atom      = hbonds[i].hb_hydrogen;
+		  env_residue_atom = hbonds[i].acceptor;
+	       } else {
+		  ligand_atom      = hbonds[i].acceptor;
+		  env_residue_atom = hbonds[i].hb_hydrogen;
+	       }
 	    }
-	    explict_H_bond_fudge_factor = 1.2;
 	 }
+	 double bond_length = hbonds[i].dist;
+	 if (ligand_atom && env_residue_atom)
+	    bond_length = coot::distance(ligand_atom, env_residue_atom);
 
 	 // This map no longer works because we don't pass ligand atom
 	 // name any more (we pass a spec).
@@ -156,7 +179,7 @@ pli::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
 	    std::string env_residue_name(env_residue_atom->GetResName());
 	    if (env_residue_name == "HOH") {
 	       is_bond_to_water = true;
-	       if (hbonds[i].dist > water_dist_max)
+	       if (bond_length > water_dist_max)
 		  ok_to_add = false;
 	    }
 	 }
@@ -168,7 +191,11 @@ pli::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
 	    fle_ligand_bond_t bond(coot::atom_spec_t(ligand_atom),
 					 coot::atom_spec_t(env_residue_atom),
 					 bond_type,
-					 hbonds[i].dist+explict_H_bond_fudge_factor, is_bond_to_water);
+					 bond_length, is_bond_to_water);
+	    if (hydrogen_atom) {
+	       bond.has_hydrogen_atom = true;
+	       bond.hydrogen_atom_spec = coot::atom_spec_t(hydrogen_atom);
+	    }
 
 	    std::string residue_name = ligand_atom->GetResName();
 	    if (residue_name == "HOH")
