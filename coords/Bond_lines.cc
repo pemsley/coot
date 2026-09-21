@@ -4173,7 +4173,7 @@ Bond_lines_container::do_disulphide_bonds_by_distance(atom_selection_container_t
    int selHnd2 = SelAtom.mol->NewSelection();
 
    // model 1
-   // Note that now we force the resname to be CYS and atom name to be SG
+   // Note that now we only select when the resname is CYS and atom name is SG
    SelAtom.mol->SelectAtoms(selHnd2, imodel,"*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*",
                             "CYS"," SG ","S","*" );
 
