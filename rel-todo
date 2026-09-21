@@ -1,9 +1,15 @@
 --- Items---
 
+o make nice little svgs from bickerton et al (2012) functions
+  to help with QED manipulation.
+
+o average maps: simple usage fails
+
+o HEM ligand still tangled. Exclude HEM
+
 o add to the api - add dotted/dashed line between points
   in ospray rendering
-
-o what did Clemens do with the rendering script and how do we use it for pandda
+* Meh. At some stage.
 
 o "upset plot" - intereseting!
 
@@ -11,6 +17,7 @@ o (possibly) fix the origin shift for pandda maps. See map on pumble
 
 o branching from a branch called dev, i.e. double-dev, does it branch
   from main, or from dev?
+* From dev.
 
 o fix installation of coot_headless_api in homebrew
 
@@ -18,14 +25,13 @@ o what does prolif give us?
 
 o add helices as cylinders to MoleculesToTriangles
 
+o where did we get to with soi?
+
+o what did Clemens do with the rendering script and how do we use it for pandda
+* Done.
+
 o remove gemmi-sqlite from configure
-
-o average maps: simple usage fails
-
-o HEM ligand still tangled. Exclude HEM
-
-o make nice little svgs from bickerton et al (2012) functions
-  to help with QED manipulation.
+* Done.
 
 o when there is no ligand dictionary, don't draw bonds to hydrogens
   beyond 1.2 A. See B210 P6G in 9qkh.
@@ -41,8 +47,6 @@ o see 5e4a1e3dcb3d7e0643fb76f43f3c9489b335aa6e
 
 o use modern bond info in the cif bond table (aromatic is a flag)
 * Done.
-
-o where did we get to with soi?
 
 o "Fetch Ligand Restraints" shouldn't create a new ligand molecule
 * Done.
