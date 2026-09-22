@@ -118,6 +118,21 @@ namespace pli {
       // ring atom names (and cation atom name) already set in st.
       void fill_geometry(pi_stacking_instance_t &st, mmdb::Residue *res_ref) const;
 
+      // positions of the named atoms of res (in name order; missing atoms are skipped)
+      std::vector<clipper::Coord_orth> ring_atom_positions(const std::vector<std::string> &names,
+                                                           mmdb::Residue *res) const;
+
+      // The pi-point overlap score is a face-to-face detector: a T-shaped
+      // (edge-to-face) stack has almost no overlap. So, for a ligand ring and a
+      // residue that did not score, test the geometry the way ProLIF's
+      // EdgeToFace does: centroid distance <= 6.5 A, plane angle 50..90,
+      // normal-to-centroid angle <= 30 for either ring, and the line where the
+      // two ring planes meet passes within 1.5 A of one of the centroids.
+      // Returns the residue ring atom names on success (empty on failure).
+      std::vector<std::string>
+      edge_to_face_ring_by_geometry(const std::vector<std::string> &ligand_ring_atom_names,
+                                    mmdb::Residue *res_ref, mmdb::Residue *res) const;
+
       std::pair<clipper::Coord_orth, clipper::Coord_orth>
       get_ring_pi_centre_points(const std::vector<std::string> &ring_atom_names,
 				mmdb::Residue *res_ref) const;

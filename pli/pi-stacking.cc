@@ -130,6 +130,20 @@ pli::pi_stacking_container_t::init(const coot::dictionary_residue_restraints_t &
 	       if (debug)
 		  std::cout << "adding a stacking " << st << std::endl;
 	       stackings.push_back(st);
+	    } else {
+	       // no overlap: is it a T-shaped (edge-to-face) stack?
+	       std::vector<std::string> e2f_ring =
+		  edge_to_face_ring_by_geometry(aromatic_ring_list[iring], res_ref, residues[ires]);
+	       if (! e2f_ring.empty()) {
+		  pi_stacking_instance_t st(residues[ires], pi_stacking_instance_t::PI_PI_STACKING,
+					    aromatic_ring_list[iring]);
+		  st.overlap_score = (best.type == pi_stacking_instance_t::PI_PI_STACKING) ? best.score : 0.0f;
+		  st.residue_ring_atom_names = e2f_ring;
+		  fill_geometry(st, res_ref);
+		  if (debug)
+		     std::cout << "adding an edge-to-face stacking " << st << std::endl;
+		  stackings.push_back(st);
+	       }
 	    }
 	 }
       }
@@ -782,24 +796,99 @@ pli::pi_stacking_container_t::overlap_of_cation_pi(const clipper::Coord_orth &li
 }
 
 
+std::vector<clipper::Coord_orth>
+pli::pi_stacking_container_t::ring_atom_positions(const std::vector<std::string> &names,
+                                                  mmdb::Residue *res) const {
+   std::vector<clipper::Coord_orth> pts;
+   mmdb::PPAtom residue_atoms = 0;
+   int n_residue_atoms = 0;
+   res->GetAtomTable(residue_atoms, n_residue_atoms);
+   for (unsigned int i=0; i<names.size(); i++)
+      for (int iat=0; iat<n_residue_atoms; iat++)
+         if (names[i] == std::string(residue_atoms[iat]->name)) {
+            pts.push_back(clipper::Coord_orth(residue_atoms[iat]->x, residue_atoms[iat]->y, residue_atoms[iat]->z));
+            break;
+         }
+   return pts;
+}
+
+std::vector<std::string>
+pli::pi_stacking_container_t::edge_to_face_ring_by_geometry(const std::vector<std::string> &ligand_ring_atom_names,
+                                                            mmdb::Residue *res_ref, mmdb::Residue *res) const {
+
+   const double centroid_dist_max = 6.5;  // ProLIF EdgeToFace defaults
+   const double plane_angle_min   = 50.0;
+   const double n2c_angle_max     = 30.0;
+   const double intersect_radius  = 1.5;
+
+   std::vector<std::string> result;
+   std::vector<clipper::Coord_orth> lig_pts = ring_atom_positions(ligand_ring_atom_names, res_ref);
+   if (lig_pts.size() < 3) return result;
+
+   auto folded_angle = [] (const clipper::Coord_orth &a, const clipper::Coord_orth &b) {
+      double c = clipper::Coord_orth::dot(a.unit(), b.unit());
+      if (c < 0.0) c = -c;
+      if (c > 1.0) c = 1.0;
+      return clipper::Util::rad2d(acos(c));
+   };
+
+   try {
+      std::pair<clipper::Coord_orth, clipper::Coord_orth> lig = ring_centre_and_normal(lig_pts);
+      std::vector<std::vector<std::string> > res_rings = ring_atom_names(std::string(res->GetResName()));
+      double best_d = centroid_dist_max + 1.0;
+      for (unsigned int iring=0; iring<res_rings.size(); iring++) {
+	 std::vector<clipper::Coord_orth> res_pts = ring_atom_positions(res_rings[iring], res);
+	 if (res_pts.size() < 3) continue;
+	 std::pair<clipper::Coord_orth, clipper::Coord_orth> rr = ring_centre_and_normal(res_pts);
+	 clipper::Coord_orth cc = rr.first - lig.first;
+	 double d = sqrt(cc.lengthsq());
+	 if (d > centroid_dist_max) continue;
+	 if (folded_angle(lig.second, rr.second) < plane_angle_min) continue;
+	 double a1 = folded_angle(lig.second, cc);
+	 double a2 = folded_angle(rr.second, cc);
+	 if (a1 > n2c_angle_max && a2 > n2c_angle_max) continue;
+
+	 // the line where the two ring planes meet: direction n1 x n2, through
+	 // a point satisfying n1.p = n1.c1, n2.p = n2.c2, (n1 x n2).p = 0
+	 const clipper::Coord_orth &n1 = lig.second;
+	 const clipper::Coord_orth &n2 = rr.second;
+	 clipper::Coord_orth dir(clipper::Coord_orth::cross(n1, n2));
+	 clipper::Mat33<double> A(n1.x(),  n1.y(),  n1.z(),
+				  n2.x(),  n2.y(),  n2.z(),
+				  dir.x(), dir.y(), dir.z());
+	 if (fabs(A.det()) < 1e-6) continue; // parallel planes
+	 clipper::Vec3<double> rhs(clipper::Coord_orth::dot(n1, lig.first),
+				   clipper::Coord_orth::dot(n2, rr.first),
+				   0.0);
+	 clipper::Vec3<double> pv = A.inverse() * rhs;
+	 clipper::Coord_orth p(pv[0], pv[1], pv[2]);
+	 // projection of the ligand centroid onto that line
+	 clipper::Coord_orth u(dir.unit());
+	 clipper::Coord_orth q = p + clipper::Coord_orth(clipper::Coord_orth::dot(lig.first - p, u) * u);
+	 double dq_lig = sqrt((q - lig.first).lengthsq());
+	 double dq_res = sqrt((q - rr.first).lengthsq());
+	 if (dq_lig > intersect_radius && dq_res > intersect_radius) continue;
+
+	 if (d < best_d) {
+	    best_d = d;
+	    result = res_rings[iring];
+	 }
+      }
+   }
+   catch (const std::runtime_error &rte) {
+      result.clear();
+   }
+   return result;
+}
+
 // Geometry for comparison with other tools (ProLIF, PLIP): centroid distance,
 // plane angle and normal-to-centroid angle. Angles are folded into 0..90.
 //
 void
 pli::pi_stacking_container_t::fill_geometry(pi_stacking_instance_t &st, mmdb::Residue *res_ref) const {
 
-   auto ring_points = [] (const std::vector<std::string> &names, mmdb::Residue *res) {
-      std::vector<clipper::Coord_orth> pts;
-      mmdb::PPAtom residue_atoms = 0;
-      int n_residue_atoms = 0;
-      res->GetAtomTable(residue_atoms, n_residue_atoms);
-      for (unsigned int i=0; i<names.size(); i++)
-         for (int iat=0; iat<n_residue_atoms; iat++)
-            if (names[i] == std::string(residue_atoms[iat]->name)) {
-               pts.push_back(clipper::Coord_orth(residue_atoms[iat]->x, residue_atoms[iat]->y, residue_atoms[iat]->z));
-               break;
-            }
-      return pts;
+   auto ring_points = [this] (const std::vector<std::string> &names, mmdb::Residue *res) {
+      return ring_atom_positions(names, res);
    };
    auto atom_position = [] (const std::string &name, mmdb::Residue *res, clipper::Coord_orth &pos) {
       mmdb::PPAtom residue_atoms = 0;
