@@ -622,6 +622,15 @@ pli::pi_stacking_container_t::ring_atom_names(const std::string &residue_name) c
       v.push_back(" CE2");
       v_outer.push_back(v);
    }
+   if (residue_name == "HIS") {
+      std::vector<std::string> v;
+      v.push_back(" CG ");
+      v.push_back(" ND1");
+      v.push_back(" CD2");
+      v.push_back(" CE1");
+      v.push_back(" NE2");
+      v_outer.push_back(v);
+   }
    if (residue_name == "TRP") {
       std::vector<std::string> v;
       v.push_back(" CG ");
