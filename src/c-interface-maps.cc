@@ -1841,14 +1841,13 @@ int transform_map_raw(int imol,
                                    rtop, pt, box_size);
 
       const coot::ghost_molecule_display_t ghost_info;
-      // int is_diff_map_flag = graphics_info_t::molecules[imol].is_difference_map_p();
-      // int swap_colours_flag = graphics_info_t::swap_difference_map_colours;
       bool ipz = graphics_info_t::ignore_pseudo_zeros_for_map_stats;
       mean_and_variance<float> mv = map_density_distribution(new_map, 40, false, ipz);
       std::string name = "Transformed map";
       imol_new = graphics_info_t::create_molecule();
       bool is_em_flag = graphics_info_t::molecules[imol].is_EM_map();
-      graphics_info_t::molecules[imol_new].install_new_map(new_map, name, is_em_flag);
+      bool is_diff_map_flag = graphics_info_t::molecules[imol].is_difference_map_p();
+      graphics_info_t::molecules[imol_new].install_new_map(new_map, name, is_em_flag, is_diff_map_flag);
       graphics_draw();
 
    } else {
@@ -1900,7 +1899,8 @@ int reinterp_map(int map_no, int reference_map_no) {
 	 name += " re-interprolated to match ";
 	 name += coot::util::int_to_string(reference_map_no);
 	 bool is_em_flag = graphics_info_t::molecules[map_no].is_EM_map();
-	 graphics_info_t::molecules[imol].install_new_map(new_map, name, is_em_flag);
+	 bool is_diff_map_flag = graphics_info_t::molecules[map_no].is_difference_map_p();
+	 graphics_info_t::molecules[imol].install_new_map(new_map, name, is_em_flag, is_diff_map_flag);
 	 r = imol;
 	 graphics_draw();
       }
@@ -1925,7 +1925,8 @@ int smooth_map(int map_no, float sampling_multiplier) {
       name += " re-interprolated by factor ";
       name += coot::util::float_to_string(sampling_multiplier);
       bool is_em_flag = graphics_info_t::molecules[map_no].is_EM_map();
-      graphics_info_t::molecules[imol].install_new_map(new_map, name, is_em_flag);
+      bool is_diff_map_flag = graphics_info_t::molecules[map_no].is_difference_map_p();
+      graphics_info_t::molecules[imol].install_new_map(new_map, name, is_em_flag, is_diff_map_flag);
       r = imol;
       graphics_draw();
    }
@@ -2775,7 +2776,8 @@ int sharpen_blur_map(int imol_map, float b_factor) {
          map_name += " Blur ";
       map_name += coot::util::float_to_string(b_factor);
       bool is_em_flag = graphics_info_t::molecules[imol_map].is_EM_map();
-      g.molecules[imol_new].install_new_map(xmap_new, map_name, is_em_flag);
+      bool is_diff_map_flag = graphics_info_t::molecules[imol_map].is_difference_map_p();
+      g.molecules[imol_new].install_new_map(xmap_new, map_name, is_em_flag, is_diff_map_flag);
       float contour_level = graphics_info_t::molecules[imol_map].get_contour_level();
       graphics_info_t::molecules[imol_new].set_contour_level(contour_level);
       float cl = 5.0; // rmsd
@@ -2800,7 +2802,8 @@ int sharpen_blur_map_with_resampling(int imol_map, float b_factor, float resampl
 	 map_name += " Blur ";
       map_name += coot::util::float_to_string(b_factor);
       bool is_em_map_flag = g.molecules[imol_map].is_EM_map();
-      g.molecules[imol_new].install_new_map(xmap_new, map_name, is_em_map_flag);
+      bool is_diff_map_flag = g.molecules[imol_map].is_difference_map_p();
+      g.molecules[imol_new].install_new_map(xmap_new, map_name, is_em_map_flag, is_diff_map_flag);
       float contour_level = g.molecules[imol_map].get_contour_level();
       g.molecules[imol_new].set_contour_level(contour_level);
       graphics_draw();
@@ -2830,18 +2833,20 @@ void sharpen_blur_map_with_resampling_threaded_version(int imol_map, float b_fac
          map_name += " Blur ";
       map_name += coot::util::float_to_string(b_factor);
       bool is_em_map_flag = g.molecules[imol_map].is_EM_map();
+      bool is_diff_map_flag = g.molecules[imol_map].is_difference_map_p();
       float contour_level = g.molecules[imol_map].get_contour_level();
       std::promise<clipper::Xmap<float>> computation_result_promise;
 
       struct sbr_callback_data_t {
-         sbr_callback_data_t(const std::string &n, bool f, float cl, ProgressBarPopUp&& pp) : new_map_name(n), is_em_map_flag(f), contour_level(cl), popup(std::move(pp)) {}
+         sbr_callback_data_t(const std::string &n, bool f, bool dm, float cl, ProgressBarPopUp&& pp) : new_map_name(n), is_em_map_flag(f), is_diff_map_flag(dm), contour_level(cl), popup(std::move(pp)) {}
          std::string new_map_name;
          bool is_em_map_flag;
+         bool is_diff_map_flag;
          float contour_level;
          std::future<clipper::Xmap<float>> computation_result;
          ProgressBarPopUp popup;
       };
-      sbr_callback_data_t *sbrcd_p = new sbr_callback_data_t(map_name, is_em_map_flag, contour_level, ProgressBarPopUp("Sharpen Blur", "Computing..."));
+      sbr_callback_data_t *sbrcd_p = new sbr_callback_data_t(map_name, is_em_map_flag, is_diff_map_flag, contour_level, ProgressBarPopUp("Sharpen Blur", "Computing..."));
       sbrcd_p->computation_result = computation_result_promise.get_future();
 
       std::thread thread(sharpen_blur_inner, std::move(computation_result_promise), std::move(xmap), b_factor, resample_factor);
@@ -2856,7 +2861,8 @@ void sharpen_blur_map_with_resampling_threaded_version(int imol_map, float b_fac
             graphics_info_t g;
             int imol_new = g.create_molecule();
             auto result = sbrcd_p->computation_result.get();
-            g.molecules[imol_new].install_new_map(result, sbrcd_p->new_map_name, sbrcd_p->is_em_map_flag);
+            g.molecules[imol_new].install_new_map(result, sbrcd_p->new_map_name, sbrcd_p->is_em_map_flag,
+                                                  sbrcd_p->is_diff_map_flag);
             g.molecules[imol_new].set_contour_level(sbrcd_p->contour_level);
             g.set_imol_refinement_map(imol_new);
             graphics_draw();
@@ -2911,7 +2917,8 @@ void multi_sharpen_blur_map_scm(int imol_map, SCM b_factors_list_scm) {
 	       map_name += " Blur ";
 	    map_name += coot::util::float_to_string(b_factor);
 	    bool is_em_map_flag = graphics_info_t::molecules[imol_map].is_EM_map();
-	    g.molecules[imol_new].install_new_map(xmap_new, map_name, is_em_map_flag);
+	    bool is_diff_map_flag = graphics_info_t::molecules[imol_map].is_difference_map_p();
+	    g.molecules[imol_new].install_new_map(xmap_new, map_name, is_em_map_flag, is_diff_map_flag);
 	    graphics_info_t::molecules[imol_new].set_contour_level(contour_level*exp(-0.02*b_factor));
 	 }
 
@@ -2954,7 +2961,8 @@ void multi_sharpen_blur_map_py(int imol_map, PyObject *b_factors_list_py) {
 	       map_name += " Blur ";
 	    map_name += coot::util::float_to_string(b_factor);
 	    bool is_em_map_flag = graphics_info_t::molecules[imol_map].is_EM_map();
-	    g.molecules[imol_new].install_new_map(xmap_new, map_name, is_em_map_flag);
+	    bool is_diff_map_flag = graphics_info_t::molecules[imol_map].is_difference_map_p();
+	    g.molecules[imol_new].install_new_map(xmap_new, map_name, is_em_map_flag, is_diff_map_flag);
 	    graphics_info_t::molecules[imol_new].set_contour_level(contour_level*exp(-0.02*b_factor));
 	 }
       }
@@ -3193,7 +3201,8 @@ int flip_hand(int imol) {
       name += " Flipped Hand";
       float contour_level = graphics_info_t::molecules[imol].get_contour_level();
       bool is_em_flag = graphics_info_t::molecules[imol].is_EM_map();
-      graphics_info_t::molecules[imol_new].install_new_map(xmap, name, is_em_flag);
+      bool is_diff_map_flag = graphics_info_t::molecules[imol].is_difference_map_p();
+      graphics_info_t::molecules[imol_new].install_new_map(xmap, name, is_em_flag, is_diff_map_flag);
       graphics_info_t::molecules[imol_new].set_contour_level(contour_level);
       graphics_draw();
    }

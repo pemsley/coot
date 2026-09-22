@@ -1660,7 +1660,11 @@ public:        //                      public
 			  int swap_difference_map_colours_flag,
 			  float contour_level_in);
 
-   void install_new_map(const clipper::Xmap<float> &mapin, std::string name, bool is_em_map_in);
+   // is_diff_map_in: pass the source map's is_difference_map_p() when this map is derived
+   // from another one (resampling, sharpening, transforming), so the new map keeps its
+   // difference-map status, colours and contour level.
+   void install_new_map(const clipper::Xmap<float> &mapin, std::string name, bool is_em_map_in,
+                        bool is_diff_map_in = false);
 
    void install_new_map_with_contour_level(const clipper::Xmap<float> &mapin, std::string name, float contour_level, bool is_em_map_in);
 

@@ -3386,6 +3386,8 @@ molecules_container_t::sharpen_blur_map(int imol_map, float b_factor, bool in_pl
          bool is_em = molecules[imol_map].is_EM_map();
          coot::molecule_t cm(name, imol_new, is_em);
          cm.xmap = xmap_new;
+         // a sharpened/blurred difference map is still a difference map
+         cm.set_map_is_difference_map(molecules[imol_map].is_difference_map_p());
          molecules.push_back(cm);
       }
    }
@@ -3415,8 +3417,11 @@ molecules_container_t::sharpen_blur_map_with_resample(int imol_map, float b_fact
             name += coot::util::float_to_string_using_dec_pl(resample_factor, 2);
          }
          imol_new = molecules.size();
-         coot::molecule_t cm(name, imol_new);
+         bool is_em = molecules[imol_map].is_EM_map();
+         coot::molecule_t cm(name, imol_new, is_em);
          cm.xmap = xmap_new;
+         // a sharpened/blurred/resampled difference map is still a difference map
+         cm.set_map_is_difference_map(molecules[imol_map].is_difference_map_p());
          molecules.push_back(cm);
       }
    }
