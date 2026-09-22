@@ -80,20 +80,27 @@ pli::pi_stacking_container_t::init(const coot::dictionary_residue_restraints_t &
                                          // a bit more than that then.
 
    for (unsigned int iring=0; iring<aromatic_ring_list.size(); iring++) {
+      std::pair<clipper::Coord_orth, clipper::Coord_orth> ligand_ring_pi_pts;
       try {
-         std::pair<clipper::Coord_orth, clipper::Coord_orth> ligand_ring_pi_pts =
-            get_ring_pi_centre_points(aromatic_ring_list[iring], res_ref);
+         ligand_ring_pi_pts = get_ring_pi_centre_points(aromatic_ring_list[iring], res_ref);
+      }
+      catch (const std::runtime_error &rte) {
+         std::cout << "WARNING:: pi-stacking: ligand ring: " << rte.what() << std::endl;
+         continue; // next ligand ring
+      }
 
-         if (debug) {
-            std::cout << "========= ligand ring ";
-            for (unsigned int iat=0; iat<aromatic_ring_list[iring].size(); iat++)
-               std::cout << aromatic_ring_list[iring][iat] << "  ";
+      if (debug) {
+         std::cout << "========= ligand ring ";
+         for (unsigned int iat=0; iat<aromatic_ring_list[iring].size(); iat++)
+            std::cout << aromatic_ring_list[iring][iat] << "  ";
 
-            std::cout << " ====== points " << ligand_ring_pi_pts.first.format() << " "
-                      << ligand_ring_pi_pts.second.format() << std::endl;
-         }
+         std::cout << " ====== points " << ligand_ring_pi_pts.first.format() << " "
+                   << ligand_ring_pi_pts.second.format() << std::endl;
+      }
 
-         for (unsigned int ires=0; ires<residues.size(); ires++) {
+      for (unsigned int ires=0; ires<residues.size(); ires++) {
+         // a residue with a missing ring atom throws: skip it, not the rest of the residues
+         try {
 
             if (debug) {
                std::string res_name(residues[ires]->GetResName());
@@ -146,9 +153,10 @@ pli::pi_stacking_container_t::init(const coot::dictionary_residue_restraints_t &
                }
             }
          }
-      }
-      catch (const std::runtime_error &rte) {
-         std::cout << "WARNING:: " << rte.what() << std::endl;
+         catch (const std::runtime_error &rte) {
+            std::cout << "WARNING:: pi-stacking: residue " << coot::residue_spec_t(residues[ires])
+                      << ": " << rte.what() << std::endl;
+         }
       }
    }
 
