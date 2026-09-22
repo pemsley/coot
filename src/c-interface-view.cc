@@ -269,6 +269,31 @@ void set_default_map_material_diffuse(float r, float g, float b, float alpha) {
 
 }
 
+//! \brief set default model material ambient
+void set_default_model_material_ambient(float r, float g, float b, float alpha) {
+
+   glm::vec4 a(r,g,b,alpha);
+   graphics_info_t::default_material_for_models.ambient = a;
+
+}
+
+//! \brief set default model material diffuse
+void set_default_model_material_diffuse(float r, float g, float b, float alpha) {
+
+   glm::vec4 d(r,g,b,alpha);
+   graphics_info_t::default_material_for_models.diffuse = d;
+
+}
+
+//! \brief set default model material specular
+void set_default_model_material_specular(int do_specularity, float specular_strength, float shininess) {
+
+   graphics_info_t::default_material_for_models.turn_specularity_on(do_specularity);
+   graphics_info_t::default_material_for_models.specular_strength = specular_strength;
+   graphics_info_t::default_material_for_models.shininess         = shininess;
+
+}
+
 //! \brief set the default map material ambient
 void set_map_material_ambient(int imol, float r, float g, float b, float alpha) {
 

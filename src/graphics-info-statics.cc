@@ -1883,4 +1883,5 @@ std::pair<bool, std::string> graphics_info_t::servalcat_refine  = std::pair<bool
 std::string graphics_info_t::current_alt_conf = "";
 
 Material graphics_info_t::default_material_for_maps;
+Material graphics_info_t::default_material_for_models;
 
