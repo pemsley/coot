@@ -21,6 +21,7 @@
  */
 
 
+#include <cmath>
 #include <cstring> // otherwise strchr() problems when using clang/Mac,
                    // when including mmdb2/mmdb_manager.h at the top (or
                    // after Python.h?)
@@ -29,6 +30,7 @@
 #include <clipper/core/coords.h>
 
 #include "geometry/protein-geometry.hh"
+#include "coot-utils/coot-coord-utils.hh"
 #include "geometry/residue-and-atom-specs.hh"
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #include "lidia-core/rdkit-interface.hh"
@@ -99,37 +101,34 @@ pli::pi_stacking_container_t::init(const coot::dictionary_residue_restraints_t &
 			 << " " << res_name << std::endl;
 	    }
 
-	    // return a pair that is the score and the stacking type
-	    std::pair<float, pi_stacking_instance_t::stacking_t> pi_overlap_1 =
+	    // score both pi points (above and below the ligand ring) and keep the
+	    // better one - one stacking per (ligand ring, residue).
+	    overlap_result_t pi_overlap_1 =
 	       get_pi_overlap_to_ligand_ring(residues[ires], ligand_ring_pi_pts.first);
-	    std::pair<float, pi_stacking_instance_t::stacking_t> pi_overlap_2 =
+	    overlap_result_t pi_overlap_2 =
 	       get_pi_overlap_to_ligand_ring(residues[ires], ligand_ring_pi_pts.second);
 
 	    if (debug)
 	       std::cout << "    protein cation:ligand ring: Overlaps:  score "
-			 << pi_overlap_1.first << " type: " << pi_overlap_1.second << "  score: "
-			 << pi_overlap_2.first << " type: " << pi_overlap_2.second << std::endl;
+			 << pi_overlap_1.score << " type: " << pi_overlap_1.type << "  score: "
+			 << pi_overlap_2.score << " type: " << pi_overlap_2.type << std::endl;
+
+	    const overlap_result_t &best = (pi_overlap_2.score > pi_overlap_1.score) ? pi_overlap_2 : pi_overlap_1;
 
 	    float thresh = -1;
-	    if (pi_overlap_1.second == pi_stacking_instance_t::PI_PI_STACKING)
+	    if (best.type == pi_stacking_instance_t::PI_PI_STACKING)
 	       thresh = pi_pi_overlap_thresh;
-	    if (pi_overlap_1.second == pi_stacking_instance_t::PI_CATION_STACKING)
+	    if (best.type == pi_stacking_instance_t::PI_CATION_STACKING)
 	       thresh = pi_cation_overlap_thresh;
 
-	    if (pi_overlap_1.first > thresh) {
-	       pi_stacking_instance_t st(residues[ires],
-                                         pi_overlap_1.second,
-                                         aromatic_ring_list[iring]);
-	       st.overlap_score = pi_overlap_1.first;
-	       std::cout << "adding a stacking " << st << std::endl;
-	       stackings.push_back(st);
-	    }
-	    if (pi_overlap_2.first > thresh) {
-               pli::pi_stacking_instance_t st(residues[ires],
-                                              pi_overlap_2.second,
-                                              aromatic_ring_list[iring]);
-	       st.overlap_score = pi_overlap_2.first;
-	       std::cout << "adding a stacking " << st << std::endl;
+	    if (thresh > 0.0 && best.score > thresh) {
+	       pi_stacking_instance_t st(residues[ires], best.type, aromatic_ring_list[iring]);
+	       st.overlap_score = best.score;
+	       st.residue_ring_atom_names = best.residue_ring_atom_names;
+	       st.residue_cation_atom_name = best.residue_cation_atom_name;
+	       fill_geometry(st, res_ref);
+	       if (debug)
+		  std::cout << "adding a stacking " << st << std::endl;
 	       stackings.push_back(st);
 	    }
 	 }
@@ -154,16 +153,13 @@ pli::pi_stacking_container_t::init(const coot::dictionary_residue_restraints_t &
    for (unsigned int icat=0; icat<cation_points.size(); icat++) {
       for (unsigned int ires=0; ires<residues.size(); ires++) {
 	 // get_ligand_cation_residue_pi_overlap
-	 float score = get_pi_overlap_to_ligand_cation(residues[ires], cation_points[icat].second);
-
-	 // std::cout << "debug:: in pi_stacking_container_t constructor cation point " << icat << " of "
-	 // << cation_points.size() << "  score: " << score << " c.f. " << pi_overlap_thresh
-	 // << std::endl;
-
-	 if (score > pi_cation_overlap_thresh) { 
+	 overlap_result_t r = get_pi_overlap_to_ligand_cation(residues[ires], cation_points[icat].second);
+	 if (r.score > pi_cation_overlap_thresh) {
 	    // add a stacking to stackings.
 	    pi_stacking_instance_t stacking(residues[ires], cation_points[icat].first);
-	    stacking.overlap_score = score;
+	    stacking.overlap_score = r.score;
+	    stacking.residue_ring_atom_names = r.residue_ring_atom_names;
+	    fill_geometry(stacking, res_ref);
 	    stackings.push_back(stacking);
 	 }
       }
@@ -350,15 +346,15 @@ pli::pi_stacking_container_t::get_ligand_cations(mmdb::Residue *res_ref,
 //
 // should return the stacking type, e.g. PI_CATION_STACKING.
 // 
-std::pair<float, pli::pi_stacking_instance_t::stacking_t>
+pli::pi_stacking_container_t::overlap_result_t
 pli::pi_stacking_container_t::get_pi_overlap_to_ligand_ring(mmdb::Residue *res,
 							     const clipper::Coord_orth &ligand_pi_point) const {
 
    float pi_pi_score = 0;
    float pi_cation_score = 0;
-   
    std::string res_name(res->GetResName());
-   pi_stacking_instance_t::stacking_t stacking_type = pi_stacking_instance_t::PI_PI_STACKING;
+   std::vector<std::string> best_ring_atom_names;
+   std::string best_cation_atom_name;
 
    // First test all the ring systems in the residue
    // 
@@ -370,41 +366,50 @@ pli::pi_stacking_container_t::get_pi_overlap_to_ligand_ring(mmdb::Residue *res,
 					    0.78, -1, 0.78, -1);
       float score_2 = overlap_of_pi_spheres(ligand_pi_point, residue_pi_points.second,
 					    0.78, -1, 0.78, -1);
-      if (score_1 > pi_pi_score)
-	 pi_pi_score = score_1;
-      if (score_2 > pi_pi_score)
-	 pi_pi_score = score_2;
+      float score = (score_2 > score_1) ? score_2 : score_1;
+      if (score > pi_pi_score) {
+	 pi_pi_score = score;
+	 best_ring_atom_names = atom_names[iring];
+      }
    }
 
-   // Now test all the cation-pi interactions
+   // Now test all the cation-pi interactions (the score is the sum over the
+   // residue's cation atoms; we report the atom that contributed most)
    // 
-   std::vector<clipper::Coord_orth> cation_atom_point = get_cation_atom_positions(res);
-
-   // std::cout << "DEBUG:: there are " << cation_atom_point.size()
-   // << " cation atom points" << std::endl;
-   
+   std::vector<std::pair<std::string, clipper::Coord_orth> > cation_atom_point = get_cation_atom_positions(res);
+   float best_cation_contribution = 0.0;
    for (unsigned int icat=0; icat<cation_atom_point.size(); icat++) {
-      pi_cation_score += overlap_of_cation_pi(ligand_pi_point, cation_atom_point[icat]);
+      float c = overlap_of_cation_pi(ligand_pi_point, cation_atom_point[icat].second);
+      pi_cation_score += c;
+      if (c > best_cation_contribution) {
+	 best_cation_contribution = c;
+	 best_cation_atom_name = cation_atom_point[icat].first;
+      }
    }
 
-   float score = pi_pi_score;
+   overlap_result_t r;
+   r.score = pi_pi_score;
+   r.type = pi_stacking_instance_t::PI_PI_STACKING;
+   r.residue_ring_atom_names = best_ring_atom_names;
    if (pi_cation_score > pi_pi_score) {
-      score = pi_cation_score;
-      stacking_type = pi_stacking_instance_t::PI_CATION_STACKING;
+      r.score = pi_cation_score;
+      r.type = pi_stacking_instance_t::PI_CATION_STACKING;
+      r.residue_ring_atom_names.clear();
+      r.residue_cation_atom_name = best_cation_atom_name;
    }
-   
-   return std::pair<float, pi_stacking_instance_t::stacking_t> (score, stacking_type);
+   return r;
 }
 
 // Return the best score of the ligand cation overlap to any of the
 // ring systems in res (if any of course, typically this function just
 // falls through returning 0.0).
 // 
-float
+pli::pi_stacking_container_t::overlap_result_t
 pli::pi_stacking_container_t::get_pi_overlap_to_ligand_cation(mmdb::Residue *res,
                                                               const clipper::Coord_orth &pt) const {
 
-   float score = 0.0;
+   overlap_result_t r;
+   r.type = pi_stacking_instance_t::CATION_PI_STACKING;
    std::string res_name(res->GetResName());
    std::vector<std::vector<std::string> > atom_names = ring_atom_names(res_name);
    for (unsigned int iring=0; iring<atom_names.size(); iring++) {
@@ -412,14 +417,14 @@ pli::pi_stacking_container_t::get_pi_overlap_to_ligand_cation(mmdb::Residue *res
 	 get_ring_pi_centre_points(atom_names[iring], res);
       float pi_cation_score_1 = overlap_of_cation_pi(pt, residue_pi_points.first);
       float pi_cation_score_2 = overlap_of_cation_pi(pt, residue_pi_points.second );
-      if (pi_cation_score_1 > score)
-	 score = pi_cation_score_1;
-      if (pi_cation_score_2 > score)
-	 score = pi_cation_score_2;
+      float score = (pi_cation_score_2 > pi_cation_score_1) ? pi_cation_score_2 : pi_cation_score_1;
+      if (score > r.score) {
+	 r.score = score;
+	 r.residue_ring_atom_names = atom_names[iring];
+      }
    }
-   return score;
+   return r;
 }
-
 
 // the sum of the product of the function: m1 exp [ m2 d^2 ]. Where d
 // is the is distance of this particular point from either the control
@@ -577,9 +582,10 @@ pli::pi_stacking_container_t::ring_centre_and_normal(const std::vector<clipper::
    sum_sq += eigen_vec.y() * eigen_vec.y();
    sum_sq += eigen_vec.z() * eigen_vec.z();
 
-   normal = clipper::Coord_orth(eigen_vec.x()/sum_sq,
-				eigen_vec.y()/sum_sq,
-				eigen_vec.z()/sum_sq);
+   double norm = sqrt(sum_sq);
+   normal = clipper::Coord_orth(eigen_vec.x()/norm,
+				eigen_vec.y()/norm,
+				eigen_vec.z()/norm);
 
    return std::pair<clipper::Coord_orth, clipper::Coord_orth> (centre, normal);
 }
@@ -719,10 +725,10 @@ pli::pi_stacking_container_t::ring_atom_names(const std::string &residue_name) c
 }
 
 
-std::vector<clipper::Coord_orth>
+std::vector<std::pair<std::string, clipper::Coord_orth> >
 pli::pi_stacking_container_t::get_cation_atom_positions(mmdb::Residue *res) const {
-   
-   std::vector<clipper::Coord_orth> v;
+
+   std::vector<std::pair<std::string, clipper::Coord_orth> > v;
 
    std::string res_name(res->GetResName());
 
@@ -736,7 +742,7 @@ pli::pi_stacking_container_t::get_cation_atom_positions(mmdb::Residue *res) cons
 	    clipper::Coord_orth pt(residue_atoms[i]->x,
 				   residue_atoms[i]->y,
 				   residue_atoms[i]->z);
-	    v.push_back(pt);
+	    v.push_back(std::make_pair(atom_name, pt));
 	 }
       }
    }
@@ -752,7 +758,7 @@ pli::pi_stacking_container_t::get_cation_atom_positions(mmdb::Residue *res) cons
 	    clipper::Coord_orth pt(residue_atoms[i]->x,
 				   residue_atoms[i]->y,
 				   residue_atoms[i]->z);
-	    v.push_back(pt);
+	    v.push_back(std::make_pair(atom_name, pt));
 	 }
       }
    }
@@ -775,6 +781,123 @@ pli::pi_stacking_container_t::overlap_of_cation_pi(const clipper::Coord_orth &li
    return score;
 }
 
+
+// Geometry for comparison with other tools (ProLIF, PLIP): centroid distance,
+// plane angle and normal-to-centroid angle. Angles are folded into 0..90.
+//
+void
+pli::pi_stacking_container_t::fill_geometry(pi_stacking_instance_t &st, mmdb::Residue *res_ref) const {
+
+   auto ring_points = [] (const std::vector<std::string> &names, mmdb::Residue *res) {
+      std::vector<clipper::Coord_orth> pts;
+      mmdb::PPAtom residue_atoms = 0;
+      int n_residue_atoms = 0;
+      res->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (unsigned int i=0; i<names.size(); i++)
+         for (int iat=0; iat<n_residue_atoms; iat++)
+            if (names[i] == std::string(residue_atoms[iat]->name)) {
+               pts.push_back(clipper::Coord_orth(residue_atoms[iat]->x, residue_atoms[iat]->y, residue_atoms[iat]->z));
+               break;
+            }
+      return pts;
+   };
+   auto atom_position = [] (const std::string &name, mmdb::Residue *res, clipper::Coord_orth &pos) {
+      mmdb::PPAtom residue_atoms = 0;
+      int n_residue_atoms = 0;
+      res->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++)
+         if (name == std::string(residue_atoms[iat]->name)) {
+            pos = clipper::Coord_orth(residue_atoms[iat]->x, residue_atoms[iat]->y, residue_atoms[iat]->z);
+            return true;
+         }
+      return false;
+   };
+   auto folded_angle = [] (const clipper::Coord_orth &a, const clipper::Coord_orth &b) {
+      double c = clipper::Coord_orth::dot(a.unit(), b.unit());
+      if (c < 0.0) c = -c;
+      if (c > 1.0) c = 1.0;
+      return clipper::Util::rad2d(acos(c));
+   };
+
+   try {
+      if (st.type == pi_stacking_instance_t::PI_PI_STACKING) {
+         std::vector<clipper::Coord_orth> lig_pts = ring_points(st.ligand_ring_atom_names, res_ref);
+         std::vector<clipper::Coord_orth> res_pts = ring_points(st.residue_ring_atom_names, st.res);
+         if (lig_pts.size() < 3 || res_pts.size() < 3) return;
+         std::pair<clipper::Coord_orth, clipper::Coord_orth> lig = ring_centre_and_normal(lig_pts);
+         std::pair<clipper::Coord_orth, clipper::Coord_orth> res = ring_centre_and_normal(res_pts);
+         clipper::Coord_orth cc = res.first - lig.first;
+         st.centroid_distance = sqrt(cc.lengthsq());
+         st.plane_angle = folded_angle(lig.second, res.second);
+         double a1 = folded_angle(lig.second, cc);
+         double a2 = folded_angle(res.second, cc);
+         st.normal_to_centroid_angle = (a2 < a1) ? a2 : a1;
+      }
+      if (st.type == pi_stacking_instance_t::PI_CATION_STACKING) {
+         // ligand ring, residue cation atom
+         std::vector<clipper::Coord_orth> lig_pts = ring_points(st.ligand_ring_atom_names, res_ref);
+         clipper::Coord_orth cat;
+         if (lig_pts.size() < 3) return;
+         if (! atom_position(st.residue_cation_atom_name, st.res, cat)) return;
+         std::pair<clipper::Coord_orth, clipper::Coord_orth> lig = ring_centre_and_normal(lig_pts);
+         clipper::Coord_orth cc = cat - lig.first;
+         st.centroid_distance = sqrt(cc.lengthsq());
+         st.normal_to_centroid_angle = folded_angle(lig.second, cc);
+      }
+      if (st.type == pi_stacking_instance_t::CATION_PI_STACKING) {
+         // ligand cation atom, residue ring
+         std::vector<clipper::Coord_orth> res_pts = ring_points(st.residue_ring_atom_names, st.res);
+         clipper::Coord_orth cat;
+         if (res_pts.size() < 3) return;
+         if (! atom_position(st.ligand_cationic_atom_name, res_ref, cat)) return;
+         std::pair<clipper::Coord_orth, clipper::Coord_orth> res = ring_centre_and_normal(res_pts);
+         clipper::Coord_orth cc = cat - res.first;
+         st.centroid_distance = sqrt(cc.lengthsq());
+         st.normal_to_centroid_angle = folded_angle(res.second, cc);
+      }
+   }
+   catch (const std::runtime_error &rte) {
+      // leave the geometry unset
+   }
+}
+
+std::vector<pli::pi_stacking_instance_t>
+pli::get_pi_stackings(mmdb::Residue *ligand_residue, mmdb::Manager *mol,
+                      const coot::protein_geometry &geom, int imol,
+                      float residues_near_radius) {
+
+   std::vector<pi_stacking_instance_t> v;
+   if (! ligand_residue) return v;
+   std::string res_name(ligand_residue->GetResName());
+   std::pair<bool, coot::dictionary_residue_restraints_t> rp = geom.get_monomer_restraints(res_name, imol);
+   if (! rp.first) {
+      std::cout << "WARNING:: get_pi_stackings(): no dictionary for " << res_name << std::endl;
+      return v;
+   }
+   std::vector<mmdb::Residue *> residues = coot::residues_near_residue(ligand_residue, mol, residues_near_radius);
+
+   if (rp.second.ligand_has_aromatic_bonds_p()) {
+      pi_stacking_container_t psc(rp.second, residues, ligand_residue);
+      v = psc.stackings;
+   } else {
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+      // a kekulized dictionary: let RDKit find the aromatic rings
+      try {
+         RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(ligand_residue, imol, geom);
+         pi_stacking_container_t psc(rp.second, residues, ligand_residue, rdkm);
+         v = psc.stackings;
+      }
+      catch (const std::exception &e) {
+         std::cout << "WARNING:: get_pi_stackings(): RDKit molecule failed for " << res_name
+                   << ": " << e.what() << std::endl;
+      }
+#else
+      pi_stacking_container_t psc(rp.second, residues, ligand_residue); // no rings found
+      v = psc.stackings;
+#endif
+   }
+   return v;
+}
 
 std::ostream&
 pli::operator<<(std::ostream& s, const pi_stacking_instance_t &stack) {

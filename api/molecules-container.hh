@@ -3337,6 +3337,13 @@ public:
    //! ligand and its surrounding residues. Halogen bonds carry an `angles`
    //! object with the C-X...A and X...A-R angles in degrees.
    //!
+   //! Pi stacking (ring-ring, and cation-pi in both directions) is reported in a
+   //! separate `stackings` array. Detection uses Coot's pi-point overlap score
+   //! (`overlap_score`); each entry also gives the ring atoms on both sides,
+   //! `centroid_distance`, `plane_angle`, `normal_to_centroid_angle` and, for
+   //! ring-ring stacks, a `geometry` label: face-to-face, edge-to-face or
+   //! intermediate.
+   //!
    //! @param imol is the model molecule index
    //! @param ligand_cid is the selection CID for the ligand residue, e.g. "//B/900"
    //! @param h_bond_dist_max is the maximum hydrogen-bond distance, e.g. 3.6
