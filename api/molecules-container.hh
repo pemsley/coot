@@ -3351,7 +3351,12 @@ public:
    //! Each bond reports the ligand atom and residue atom as heavy atoms and the
    //! `bond_length` as the heavy-atom (donor to acceptor) distance, whether or not
    //! the model has hydrogens. When an H-bond was found via an explicit hydrogen
-   //! (McDonald & Thornton), that hydrogen is reported as `hydrogen_atom`.
+   //! (McDonald & Thornton), that hydrogen is reported as `hydrogen_atom` with
+   //! `h_a_distance`. H-bonds carry an `angles` object (D-H...A, H...A-AA,
+   //! D...A-AA, -1 if not available) and `geometry_warnings`: the McDonald &
+   //! Thornton limits the bond does not meet (H...A > 2.5 A, an acceptor-side
+   //! angle < 90 deg). Only D...A < 3.9 A and D-H...A >= 90 deg are used to
+   //! select H-bonds; the rest is reported so that the caller can filter.
    //!
    //! @return a JSON string describing the interactions; an empty string on failure
    std::string get_ligand_interactions_as_json(int imol, const std::string &ligand_cid, float h_bond_dist_max);

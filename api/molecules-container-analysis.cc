@@ -687,6 +687,17 @@ molecules_container_t::get_ligand_interactions_as_json(int imol, const std::stri
       jb["is_water"] = b.is_H_bond_to_water;
       if (b.is_H_bond_to_water)
          jb["water_protein_length"] = b.water_protein_length;
+      if (b.bond_type <= pli::fle_ligand_bond_t::H_BOND_ACCEPTOR_SIDECHAIN) {
+         // McDonald & Thornton geometry: reported in full, with the limits the
+         // bond fails listed as warnings rather than used to drop it (-1 = not
+         // available, e.g. no hydrogen, or no acceptor antecedent for a water)
+         if (b.has_hydrogen_atom)
+            jb["h_a_distance"] = b.h_a_distance;
+         jb["angles"] = { {"D-H...A", b.angle_1},
+                          {"H...A-AA", b.angle_2},
+                          {"D...A-AA", b.angle_3} };
+         jb["geometry_warnings"] = b.geometry_warnings;
+      }
       if (b.bond_type == pli::fle_ligand_bond_t::HALOGEN_BOND) {
          // ligand_atom is the halogen X, residue_atom is the acceptor A
          jb["angles"] = { {"C-X...A", b.angle_1},

@@ -199,7 +199,12 @@ pli::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
 	    if (hydrogen_atom) {
 	       bond.has_hydrogen_atom = true;
 	       bond.hydrogen_atom_spec = coot::atom_spec_t(hydrogen_atom);
+	       bond.h_a_distance = hbonds[i].dist;
 	    }
+	    bond.angle_1 = hbonds[i].angle_1;
+	    bond.angle_2 = hbonds[i].angle_2;
+	    bond.angle_3 = hbonds[i].angle_3;
+	    bond.geometry_warnings = hbonds[i].geometry_warnings;
 
 	    std::string residue_name = ligand_atom->GetResName();
 	    if (residue_name == "HOH")
@@ -207,6 +212,34 @@ pli::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
 
 	    v.push_back(bond);
 	 }
+      }
+
+      // One H-bond per heavy-atom pair. With explicit hydrogens the same pair can
+      // be found more than once (both hydrogens of a Lys NZ, or a hydroxyl that is
+      // typed as both donor and acceptor, seen in both directions). Keep the one
+      // with the fewest geometry warnings, then the better D-H...A angle.
+      {
+	 auto better = [] (const fle_ligand_bond_t &a, const fle_ligand_bond_t &b) {
+	    if (a.geometry_warnings.size() != b.geometry_warnings.size())
+	       return a.geometry_warnings.size() < b.geometry_warnings.size();
+	    return a.angle_1 > b.angle_1;
+	 };
+	 std::vector<fle_ligand_bond_t> deduped;
+	 for (unsigned int i=0; i<v.size(); i++) {
+	    bool replaced_or_dropped = false;
+	    for (unsigned int j=0; j<deduped.size(); j++) {
+	       if (deduped[j].ligand_atom_spec == v[i].ligand_atom_spec &&
+		   deduped[j].interacting_residue_atom_spec == v[i].interacting_residue_atom_spec) {
+		  if (better(v[i], deduped[j]))
+		     deduped[j] = v[i];
+		  replaced_or_dropped = true;
+		  break;
+	       }
+	    }
+	    if (! replaced_or_dropped)
+	       deduped.push_back(v[i]);
+	 }
+	 v = deduped;
       }
 
       if (debug)
