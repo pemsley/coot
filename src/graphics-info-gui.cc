@@ -2813,15 +2813,13 @@ graphics_info_t::execute_setup_backbone_torsion_edit(int imol, int atom_index) {
 // 		  std::cout << "DEBUG:: backbone_torsion_end_ca_2: "
 // 			    << backbone_torsion_end_ca_2.format() << std::endl;
 
+          backbone_torsion_rama_active = true;
 		  graphics_draw();
 		  // GtkWidget *widget = create_edit_backbone_torsions_dialog();
 		  GtkWidget *widget = widget_from_builder("edit_backbone_torsions_dialog");
 		  set_edit_backbone_adjustments(widget);
-		  gtk_widget_set_visible(widget, TRUE);
-        // update the graph to show both
-        GtkWidget *adj;
-        adj = widget_from_builder("edit_backbone_torsions_rotate_carbonyl_adjustment");
-        g_signal_emit_by_name(G_OBJECT(adj), "value_changed");
+          set_transient_for_main_window(widget);
+          gtk_window_present(GTK_WINDOW(widget));
 
 	       } else {
 		  std::cout << "WARNING:: not all atoms found in "
@@ -2872,8 +2870,6 @@ graphics_info_t::set_edit_backbone_adjustments(GtkWidget *widget) {
 void
 graphics_info_t::edit_backbone_peptide_changed_func(GtkAdjustment *adj, GtkWidget *window) {
 
-#ifdef HAVE_GOOCANVAS
-
    graphics_info_t g;
    // std::cout << "change backbone peptide by: " << adj->value << std::endl;
 
@@ -2911,6 +2907,7 @@ graphics_info_t::edit_backbone_peptide_changed_func(GtkAdjustment *adj, GtkWidge
       o_atom_p->y = new_o.y();
       o_atom_p->z = new_o.z();
 
+#ifdef DO_RAMA_PLOT
       std::pair<std::pair<double, double>, std::pair<double, double> > pp =
 	 g.phi_psi_pairs_from_moving_atoms();
 
@@ -2939,10 +2936,10 @@ graphics_info_t::edit_backbone_peptide_changed_func(GtkAdjustment *adj, GtkWidge
 	 if (vp.size() > 0)
 	    edit_phi_psi_plot->draw_it(vp);
       }
+#endif
 
       regularize_object_bonds_box.clear_up();
-      int imol = 0; // should be fine for backbone edits
-      g.make_moving_atoms_graphics_object(imol, *moving_atoms_asc);
+      g.make_moving_atoms_graphics_object(imol_moving_atoms, *moving_atoms_asc);
       graphics_draw();
 
    } else {
@@ -2950,14 +2947,11 @@ graphics_info_t::edit_backbone_peptide_changed_func(GtkAdjustment *adj, GtkWidge
 		<< std::endl;
    }
 
-#endif
 }
 
 // static
 void
 graphics_info_t::edit_backbone_carbonyl_changed_func(GtkAdjustment *adj, GtkWidget *window) {
-
-#ifdef HAVE_GOOCANVAS
    graphics_info_t g;
    // std::cout << "change backbone peptide by: " << adj->value << std::endl;
 
@@ -2989,6 +2983,7 @@ graphics_info_t::edit_backbone_carbonyl_changed_func(GtkAdjustment *adj, GtkWidg
       o_atom_p->y = new_o.y();
       o_atom_p->z = new_o.z();
 
+#ifdef DO_RAMA_PLOT
       std::pair<std::pair<double, double>, std::pair<double, double> > pp =
 	 g.phi_psi_pairs_from_moving_atoms();
 
@@ -3024,11 +3019,11 @@ graphics_info_t::edit_backbone_carbonyl_changed_func(GtkAdjustment *adj, GtkWidg
 	 if (vp.size() > 0)
 	    edit_phi_psi_plot->draw_it(vp);
       }
+#endif
 
 
       regularize_object_bonds_box.clear_up();
-      int imol = 0; // should be fine for backbone edits
-      g.make_moving_atoms_graphics_object(imol, *moving_atoms_asc);
+      g.make_moving_atoms_graphics_object(imol_moving_atoms, *moving_atoms_asc);
       graphics_draw();
 
    } else {
@@ -3036,7 +3031,6 @@ graphics_info_t::edit_backbone_carbonyl_changed_func(GtkAdjustment *adj, GtkWidg
 		<< std::endl;
    }
 
-#endif
 }
 
 
@@ -3045,8 +3039,6 @@ graphics_info_t::edit_backbone_carbonyl_changed_func(GtkAdjustment *adj, GtkWidg
 // Tinker with the moving atoms
 void
 graphics_info_t::change_peptide_carbonyl_by(double angle) {
-
-#ifdef HAVE_GOOCANVAS
 
 //    std::cout << "move carbonyl by " << angle << std::endl;
    mmdb::Atom *n_atom_p = coot::get_first_atom_with_atom_name(" N  ", *moving_atoms_asc);
@@ -3076,6 +3068,7 @@ graphics_info_t::change_peptide_carbonyl_by(double angle) {
    o_atom_p->y = new_o.y();
    o_atom_p->z = new_o.z();
 
+#ifdef DO_RAMA_PLOT
    std::pair<std::pair<double, double>, std::pair<double, double> > pp =
       phi_psi_pairs_from_moving_atoms();
 
@@ -3101,14 +3094,13 @@ graphics_info_t::change_peptide_carbonyl_by(double angle) {
       vp.push_back(phipsi2);
       edit_phi_psi_plot->draw_it(vp);
    }
+#endif
 
 
    regularize_object_bonds_box.clear_up();
-   int imol = 0; // should be fine for backbone edits
-   make_moving_atoms_graphics_object(imol, *moving_atoms_asc);
+   make_moving_atoms_graphics_object(imol_moving_atoms, *moving_atoms_asc);
    graphics_draw();
 
-#endif // HAVE_GOOCANVAS
 }
 
 
@@ -3178,8 +3170,6 @@ graphics_info_t::phi_psi_pairs_from_moving_atoms() {
 void
 graphics_info_t::change_peptide_peptide_by(double angle) {
 
-#ifdef HAVE_GOOCANVAS
-
    //    std::cout << "move peptide by " << angle << std::endl;
 
    mmdb::Atom *n_atom_p = coot::get_first_atom_with_atom_name(" N  ", *moving_atoms_asc);
@@ -3218,13 +3208,12 @@ graphics_info_t::change_peptide_peptide_by(double angle) {
    o_atom_p->y = new_o.y();
    o_atom_p->z = new_o.z();
 
+#ifdef DO_RAMA_PLOT
    std::pair<std::pair<double, double>, std::pair<double, double> > pp =
       phi_psi_pairs_from_moving_atoms();
 
 //    std::cout << pp.first.first  << " " << pp.first.second << "      "
 // 	     << pp.second.first << " " << pp.second.second << std::endl;
-
-#ifdef DO_RAMA_PLOT
 
    if (edit_phi_psi_plot) {
       std::vector <coot::util::phi_psi_t> vp;
@@ -3247,11 +3236,9 @@ graphics_info_t::change_peptide_peptide_by(double angle) {
 
 
    regularize_object_bonds_box.clear_up();
-   int imol = 0; // should be fine for backbone edits
-   make_moving_atoms_graphics_object(imol, *moving_atoms_asc);
+   make_moving_atoms_graphics_object(imol_moving_atoms, *moving_atoms_asc);
    graphics_draw();
 
-#endif // HAVE_GOOCANVAS
 }
 
 

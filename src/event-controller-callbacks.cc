@@ -563,6 +563,20 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
 
    SetMouseBegin(x,y);
 
+   // Picking is a click action, not a drag gesture (notably on macOS).
+   if (in_backbone_torsion_define) {
+      pick_info picked = atom_pick_gtk3(false);
+      if (picked.success == GL_TRUE) {
+         in_backbone_torsion_define = 0;
+         pick_pending_flag = 0;
+         normal_cursor();
+         execute_setup_backbone_torsion_edit(picked.imol, picked.atom_index);
+      } else {
+         add_status_bar_text("Edit Backbone Torsions: click a backbone atom (N, CA, C or O)");
+      }
+      return;
+   }
+
    bool clicked = check_if_hud_bar_clicked(x,y);
 
    // std::cout << "status for HUD bar clicked: " << clicked << " x " << x << " y " << y << std::endl;
