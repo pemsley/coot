@@ -1016,6 +1016,10 @@
         <attribute name="action">app.refine_regularize_single_residue</attribute>
       </item>
       <item>
+        <attribute name="label" translatable="yes">Regularize Range</attribute>
+        <attribute name="action">app.refine_regularize_range</attribute>
+      </item>
+      <item>
         <attribute name="label" translatable="yes">Regularize Fragment</attribute>
         <attribute name="action">app.refine_regularize_fragment</attribute>
       </item>
