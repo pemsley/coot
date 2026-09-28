@@ -2084,6 +2084,24 @@ on_environment_distance_dialog_ok_button_clicked
 
 }
 
+// Pressing Enter in the min or max distance entry: apply the settings
+// (as "OK" does) but leave the dialog open.
+extern "C" G_MODULE_EXPORT
+void
+on_environment_distance_min_entry_activate(GtkEntry *entry,
+                                           gpointer  user_data)
+{
+   execute_environment_settings(GTK_WIDGET(entry));
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_environment_distance_max_entry_activate(GtkEntry *entry,
+                                           gpointer  user_data)
+{
+   execute_environment_settings(GTK_WIDGET(entry));
+}
+
 
 extern "C" G_MODULE_EXPORT
 void

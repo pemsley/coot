@@ -45,6 +45,7 @@
 #include "coot-utils/json.hpp"
 
 #include "pli/protein-ligand-interactions.hh"
+#include "pli/pi-stacking.hh"
 
 #include "coords/Bond_lines.hh"
 #include "coords/mmdb.hh"
@@ -641,6 +642,7 @@ molecules_container_t::get_ligand_interactions_as_json(int imol, const std::stri
          case pli::fle_ligand_bond_t::H_BOND_ACCEPTOR_SIDECHAIN: return std::string("H-bond acceptor (side-chain)");
          case pli::fle_ligand_bond_t::METAL_CONTACT_BOND:        return std::string("metal");
          case pli::fle_ligand_bond_t::BOND_COVALENT:             return std::string("covalent");
+         case pli::fle_ligand_bond_t::HALOGEN_BOND:              return std::string("halogen bond");
          default:                                                return std::string("other");
       }
    };
@@ -685,10 +687,94 @@ molecules_container_t::get_ligand_interactions_as_json(int imol, const std::stri
       jb["is_water"] = b.is_H_bond_to_water;
       if (b.is_H_bond_to_water)
          jb["water_protein_length"] = b.water_protein_length;
+      if (b.bond_type <= pli::fle_ligand_bond_t::H_BOND_ACCEPTOR_SIDECHAIN) {
+         // McDonald & Thornton geometry: reported in full, with the limits the
+         // bond fails listed as warnings rather than used to drop it (-1 = not
+         // available, e.g. no hydrogen, or no acceptor antecedent for a water)
+         if (b.has_hydrogen_atom)
+            jb["h_a_distance"] = b.h_a_distance;
+         jb["angles"] = { {"D-H...A", b.angle_1},
+                          {"H...A-AA", b.angle_2},
+                          {"D...A-AA", b.angle_3} };
+         jb["geometry_warnings"] = b.geometry_warnings;
+      }
+      if (b.bond_type == pli::fle_ligand_bond_t::HALOGEN_BOND) {
+         // ligand_atom is the halogen X, residue_atom is the acceptor A
+         jb["angles"] = { {"C-X...A", b.angle_1},
+                          {"X...A-R", b.angle_2} }; // -1 if A has no heavy neighbour (e.g. water)
+      }
+      if (b.has_hydrogen_atom) {
+         // the explicit hydrogen through which this H-bond was found; it belongs
+         // either to the ligand atom or to the residue atom
+         coot::residue_spec_t h_res_spec(b.hydrogen_atom_spec);
+         jb["hydrogen_atom"] = { {"chain_id",  h_res_spec.chain_id},
+                                 {"res_no",    h_res_spec.res_no},
+                                 {"ins_code",  h_res_spec.ins_code},
+                                 {"atom_name", b.hydrogen_atom_spec.atom_name},
+                                 {"alt_conf",  b.hydrogen_atom_spec.alt_conf} };
+      }
       bond_list.push_back(jb);
    }
    j["bonds"] = bond_list;
    j["n_bonds"] = bonds.size();
+
+   // ---------------- pi stacking -------------------
+   //
+   // Detection is Coot's Clark & Labute style pi-point overlap score; the
+   // geometry (centroid distance, plane angle, normal-to-centroid angle) is
+   // reported so that the result can be compared with other tools, and
+   // "geometry" classifies ring-ring stacks by plane angle: face-to-face
+   // (< 35 degrees), edge-to-face (> 50 degrees) or intermediate.
+   //
+   auto stacking_type_to_string = [] (pli::pi_stacking_instance_t::stacking_t t) {
+      switch (t) {
+         case pli::pi_stacking_instance_t::PI_PI_STACKING:     return std::string("pi-pi");
+         case pli::pi_stacking_instance_t::PI_CATION_STACKING: return std::string("pi-cation"); // protein cation, ligand ring
+         case pli::pi_stacking_instance_t::CATION_PI_STACKING: return std::string("cation-pi"); // ligand cation, protein ring
+         default:                                              return std::string("none");
+      }
+   };
+   auto trimmed_names = [] (const std::vector<std::string> &names) {
+      nlohmann::json a = nlohmann::json::array();
+      for (const auto &n : names) a.push_back(coot::util::remove_whitespace(n));
+      return a;
+   };
+
+   std::vector<pli::pi_stacking_instance_t> stackings = pli::get_pi_stackings(residue_p, mol, geom, imol);
+   nlohmann::json stacking_list = nlohmann::json::array();
+   for (const auto &st : stackings) {
+      nlohmann::json js;
+      js["type"] = stacking_type_to_string(st.type);
+      coot::residue_spec_t rs(st.res);
+      js["residue"] = { {"chain_id", rs.chain_id},
+                        {"res_no",   rs.res_no},
+                        {"ins_code", rs.ins_code},
+                        {"res_name", std::string(st.res->GetResName())} };
+      if (st.type == pli::pi_stacking_instance_t::CATION_PI_STACKING)
+         js["ligand_cation_atom"] = coot::util::remove_whitespace(st.ligand_cationic_atom_name);
+      else
+         js["ligand_ring_atoms"] = trimmed_names(st.ligand_ring_atom_names);
+      if (st.type == pli::pi_stacking_instance_t::PI_CATION_STACKING)
+         js["residue_cation_atom"] = coot::util::remove_whitespace(st.residue_cation_atom_name);
+      else
+         js["residue_ring_atoms"] = trimmed_names(st.residue_ring_atom_names);
+      js["overlap_score"] = st.overlap_score;
+      js["centroid_distance"] = st.centroid_distance;
+      js["normal_to_centroid_angle"] = st.normal_to_centroid_angle;
+      if (st.type == pli::pi_stacking_instance_t::PI_PI_STACKING) {
+         js["plane_angle"] = st.plane_angle;
+         std::string g = "unknown";
+         if (st.plane_angle >= 0.0) {
+            if (st.plane_angle < 35.0) g = "face-to-face";
+            else if (st.plane_angle > 50.0) g = "edge-to-face";
+            else g = "intermediate";
+         }
+         js["geometry"] = g;
+      }
+      stacking_list.push_back(js);
+   }
+   j["stackings"] = stacking_list;
+   j["n_stackings"] = stackings.size();
 
    s = j.dump(2);
    return s;

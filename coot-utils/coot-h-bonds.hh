@@ -28,6 +28,7 @@
 #define COOT_H_BONDS_HH
 
 #include <vector>
+#include <string>
 #include <map>
 #include <algorithm>
 
@@ -50,7 +51,11 @@ namespace coot {
       double angle_1;  // degrees
       double angle_2;
       double angle_3;
-      double dist;  // H-bond length
+      double dist;  // H-bond length: H...A when there is a hydrogen, else D...A
+      double donor_acceptor_dist; // D...A (heavy atoms), -1 if not set
+      // McDonald & Thornton limits that this bond does not meet (H...A > 2.5,
+      // H...A-AA or D...A-AA < 90): reported, not used to reject the bond.
+      std::vector<std::string> geometry_warnings;
       bool ligand_atom_is_donor; // for use when hb_hydrogen is NULL -
                                  // no hydrogens in H-bond analysis.
       bool hydrogen_is_ligand_atom;
@@ -66,6 +71,7 @@ namespace coot {
          angle_1 = -1;
          angle_2 = -1;
          angle_3 = -1;
+         donor_acceptor_dist = -1;
          hydrogen_is_ligand_atom = 0; // no hydrogen
          bond_has_hydrogen_flag = 0;
       }
@@ -79,7 +85,8 @@ namespace coot {
          dist = -1;
          angle_1 = -1;
          angle_2 = -1;
-         angle_3 = -1; 
+         angle_3 = -1;
+         donor_acceptor_dist = -1; 
          hydrogen_is_ligand_atom = 0; // no hydrogen
          bond_has_hydrogen_flag = 0;
       }
@@ -102,7 +109,8 @@ namespace coot {
          dist = -1;
          angle_1 = -1; 
          angle_2 = -1; 
-         angle_3 = -1; 
+         angle_3 = -1;
+         donor_acceptor_dist = -1; 
       }
       bool operator<(const h_bond &hb_2) const {
          return (residue_spec_t(atom_spec_t(donor)) < residue_spec_t(atom_spec_t(hb_2.donor)));
@@ -128,6 +136,10 @@ namespace coot {
       std::map<mmdb::Atom *,  std::vector<std::pair<mmdb::Atom *, float> > >
       make_neighbour_map(int selHnd_1, int selHnd_2, mmdb::Manager *mol);
       
+      bool assess_mcdonald_and_thornton(h_bond &bond, mmdb::Atom *H, mmdb::Atom *A,
+                                        const std::vector<mmdb::Atom *> &donors,
+                                        const std::vector<mmdb::Atom *> &antecedents) const;
+      static std::vector<mmdb::Atom *> heavy_neighbours(const std::vector<std::pair<mmdb::Atom *, float> > &nb);
       std::pair<bool, h_bond> 
       make_h_bond_from_ligand_hydrogen(mmdb::Atom *at_1, // H on ligand
                                        mmdb::Atom *at_2, // acceptor on residue

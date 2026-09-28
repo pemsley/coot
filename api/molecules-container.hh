@@ -2325,9 +2325,11 @@ public:
    //! Delete atom using cid
    //!
    //! @param imol is the model molecule index
-   //! @param cid is the atom selection CID e.g "//A/15/OH" (atom OH in residue 15 of chain A)
+   //! @param cid is the atom selection CID e.g "//A/15/OH" (atom OH in residue 15 of chain A).
+   //!        If the `cid` matches multiple atoms, then the first one (only) is deleted.
    //!
-   //! @return 1 on successful deletion, return 0 on failure to delete.
+   //! @return first: 1 on successful deletion, return 0 on failure to delete.
+   //!         second: the new atom count
    std::pair<int, unsigned int> delete_atom_using_cid(int imol, const std::string &cid);
 
    //! Delete residue
@@ -3330,12 +3332,31 @@ public:
    //! Assess the protein-ligand interactions for a given ligand
    //!
    //! This uses the pli (protein-ligand interactions) functions to find the
-   //! hydrogen bonds (including to waters), metal contacts and covalent bonds
-   //! between the specified ligand and its surrounding residues.
+   //! hydrogen bonds (including to waters), metal contacts, covalent bonds and
+   //! halogen bonds (ligand C-X...A with X = Cl, Br, I) between the specified
+   //! ligand and its surrounding residues. Halogen bonds carry an `angles`
+   //! object with the C-X...A and X...A-R angles in degrees.
+   //!
+   //! Pi stacking (ring-ring, and cation-pi in both directions) is reported in a
+   //! separate `stackings` array. Detection uses Coot's pi-point overlap score
+   //! (`overlap_score`); each entry also gives the ring atoms on both sides,
+   //! `centroid_distance`, `plane_angle`, `normal_to_centroid_angle` and, for
+   //! ring-ring stacks, a `geometry` label: face-to-face, edge-to-face or
+   //! intermediate.
    //!
    //! @param imol is the model molecule index
    //! @param ligand_cid is the selection CID for the ligand residue, e.g. "//B/900"
    //! @param h_bond_dist_max is the maximum hydrogen-bond distance, e.g. 3.6
+   //!
+   //! Each bond reports the ligand atom and residue atom as heavy atoms and the
+   //! `bond_length` as the heavy-atom (donor to acceptor) distance, whether or not
+   //! the model has hydrogens. When an H-bond was found via an explicit hydrogen
+   //! (McDonald & Thornton), that hydrogen is reported as `hydrogen_atom` with
+   //! `h_a_distance`. H-bonds carry an `angles` object (D-H...A, H...A-AA,
+   //! D...A-AA, -1 if not available) and `geometry_warnings`: the McDonald &
+   //! Thornton limits the bond does not meet (H...A > 2.5 A, an acceptor-side
+   //! angle < 90 deg). Only D...A < 3.9 A and D-H...A >= 90 deg are used to
+   //! select H-bonds; the rest is reported so that the caller can filter.
    //!
    //! @return a JSON string describing the interactions; an empty string on failure
    std::string get_ligand_interactions_as_json(int imol, const std::string &ligand_cid, float h_bond_dist_max);

@@ -1,49 +1,120 @@
 --- Items---
 
-o use modern bond info in the cif bond table (aromatic is a flag)
+o for agentic coot, create a function that does "validate_residue()" - combining metrics
+
+o we are looking at a ligand with a nitrogen: 6RD, it would be nice to get
+  and fetch COD structures that have the same atom type (and possibly matching atom types
+  of the direct neighbours too) - i.e. there should be a database query for this.
+
+o use RDKit canonical SMILES for atom order and hence atom name.
+
+o 1a31 fix the charge change (I think) so that the PTR-DT link can be made (the atom that is
+  deleted is the O3' on the ribose)
+
+o GPhL: check that pandda maps read into coot - do we need the rotation/translation in the header.
+
+o Regularize residue range
+
+o 5s9s FAD A 501 OA1 and O2A should have the same hydrogen bond type
+   (acceptor) see ener_lib.cif for O and OP. So the RDKit output
+   needs to be augmented.
+
+o make nice little svgs from bickerton et al (2012) functions
+  to help with QED manipulation.
+
+o average maps: simple usage fails
+
+o HEM ligand still tangled. Exclude HEM
+
+o add to the api - add dotted/dashed line between points
+  in ospray rendering
+* Meh. At some stage.
+
+o "upset plot" - intereseting!
+
+o (possibly) fix the origin shift for pandda maps. See map on pumble
+
+o branching from a branch called dev, i.e. double-dev, does it branch
+  from main, or from dev?
+* From dev.
+
+o fix installation of coot_headless_api in homebrew
+
+o what does prolif give us?
+
+o add helices as cylinders to MoleculesToTriangles
 
 o where did we get to with soi?
 
+o what did Clemens do with the rendering script and how do we use it for pandda
+* Done.
+
+o remove gemmi-sqlite from configure
+* Done.
+
+o when there is no ligand dictionary, don't draw bonds to hydrogens
+  beyond 1.2 A. See B210 P6G in 9qkh.
+* Done.
+
+o change the default shininess strength for models to 0.3
+* Done.
+
+o see 5e4a1e3dcb3d7e0643fb76f43f3c9489b335aa6e
+  if the H bond status can't be looked up, make it grey.
+  because both yellow and purple mean something now.
+* Done.
+
+o use modern bond info in the cif bond table (aromatic is a flag)
+* Done.
+
 o "Fetch Ligand Restraints" shouldn't create a new ligand molecule
+* Done.
 
 o Add "shoebox" generic object - and then make Rama plots with
-  planes on 3 sides.
+  planes on 3 sides. Low priority.
 
 o in Layla, the input should be "RDKit->mmCIF" - probably the default
   where we do something like convert-pkl-to-mmcif.py - but
   there is no need to pickle so just make the minimal input cif
   for acedrg from the RDKit molecule.
-
-o add get_secondary_structure_information() json
-  with a param get-it-from-the-header or calculate-it
-
-o make nice little svgs from bickerton et al (2012) functions
-  to help with QED manipulation.
-
-o "on_glarea_key_controller_key_pressed() key not found in map: 65505"
-should be an ephemeral message.
+* Done.
 
 o remove this:
 if sequence view is displayed update highlighted position here C
-and this
+* Done.
 
 o fix the tiny molecule flev: e.g. erin-2
+* Done.
 
-o average maps: simple usage fails
+o remove redundant json.hpp
+* Done.
+
+o You can tell which button has been presssed in "Difference Map Peaks"
+  button list, but not Unmodelled Blobs, or Outliers table.
+* Done. Nice.
+
+o transfer gemmi SQL commits to coot/pyrogen
+* Done.
+
+o add a key-binding for "clear atom labels"
+*  Done. Shift L. Nice.
+
+o Erin: check non-standard residues in molecule
+* seems OK.
+
+o "on_glarea_key_controller_key_pressed() key not found in map: 65505"
+should be an ephemeral message.
+* Meh.
+
+o add get_secondary_structure_information() json
+  with a param get-it-from-the-header or calculate-it
 
 o read in maps from mtz and set column labels for updating maps
   turn on updating maps
   refine something
   -> Maps don't update
 
-o HEM ligand still tangled
-
 o dnotes: Look at cowcat jholton github
-
-o sharpED - what is this?
-
-o Erin: check non-standard residues in molecule
-* seems OK.
 
 o for jordan: for each chi angle set for each residue
   type find the number of observations in that basin
@@ -61,8 +132,6 @@ o try to break bansu with AI
 
 o complex atom selections in coot
 
-o remove redundant json.hpp
-
 o test clipper large maps - needs chat with stuart
 
 o bring the pli interaction info into chapi as json
@@ -70,22 +139,12 @@ o bring the pli interaction info into chapi as json
 o can I mutate a residue and get best rotamer without a map?
   can I do that for a whole protein?
 
-o You can tell which button has been presssed in "Difference Map Peaks"
-  button list, but not Unmodelled Blobs, or Outliers table.
-* Done. Nice.
-
 o in one of the ligand interaction analysis functions in chapi, add
   charge-charge interactions. Check what autodock vina does for
   the protein and use GM charges using the RDKit for ligands.
->>>>>>> refs/remotes/origin/main
-
-o transfer gemmi SQL commits to coot/pyrogen
 
 o scripting: glob many monomer cifs and import them
   things slow down - fixable?
-
-o add a key-binding for "clear atom labels"
-*  Done. Shift L. Nice.
 
 o in the ligand builder:
    if the molecule exists in the monomer library, import it from there.
@@ -98,11 +157,11 @@ o Angle filtering fixes for acedrg atom types validation
 o ligand restraints accumulated per atom, not every
   restraint
 
-o  superpose ligands? gui item seems to fail on hal
-* Done.
-
 o look at COD files from the last year, say. Can they be read by Coot (chapi)?
   Try to extract the hkls
+
+o  superpose ligands? gui item seems to fail on hal
+* Done.
 
 o scripting: add "delete all hetgroups"
 * Done.

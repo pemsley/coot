@@ -925,7 +925,7 @@ namespace coot {
       // trying to match the names of the atoms of ref.  Do graph
       // matching to find the set of atom names that match/need to be
       // changed.
-      // 
+      //
 
       // If new_comp_id is "auto", suggest_new_comp_id() is called to
       // generate a comp_id string.
@@ -976,7 +976,7 @@ namespace coot {
 #ifdef HAVE_CCP4SRS
       bool fill_using_ccp4srs(ccp4srs::Manager *srs_manager, const std::string &monomer_type);
 #endif // HAVE_CCP4SRS
-      
+
    };
    std::ostream& operator<<(std::ostream &s, const dictionary_residue_restraints_t &rest);
 

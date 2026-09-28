@@ -721,7 +721,7 @@ fetch_ligand_restraints_from_github_action(G_GNUC_UNUSED GSimpleAction *simple_a
       int imol = pp.second.first;
       const auto &atom_spec = pp.second.second;
       std::string rn = g.molecules[imol].get_residue_name(coot::residue_spec_t(atom_spec));
-      get_monomer_dictionary_in_subthread(rn, true);
+      get_monomer_dictionary_in_subthread(rn, false); // false: don't make a new ligand molecule
    }
 }
 
@@ -5445,7 +5445,50 @@ refine_with_range_picked_atoms() {
                                 alt_conf, is_water_flag);
       }
    }
+}
 
+void
+refine_regularize_with_range_picked_atoms() {
+
+   graphics_info_t g;
+   std::string alt_conf; // needs to be set correctly
+   short int is_water_flag = false; // needs to be set correctly
+
+   const std::string &alt_conf_1 = g.in_range_first_picked_atom.alt_conf;
+   const std::string &alt_conf_2 = g.in_range_second_picked_atom.alt_conf;
+
+   if (alt_conf_1 == alt_conf_2)
+      if (! alt_conf_1.empty())
+         alt_conf = alt_conf_1;
+
+   int imol_1 = g.in_range_first_picked_atom.int_user_data;
+   int imol_2 = g.in_range_second_picked_atom.int_user_data;
+
+   const std::string &chain_id_1 = g.in_range_first_picked_atom.chain_id;
+   const std::string &chain_id_2 = g.in_range_second_picked_atom.chain_id;
+
+   int res_no_1 = g.in_range_first_picked_atom.res_no;
+   int res_no_2 = g.in_range_second_picked_atom.res_no;
+
+   const std::string &ins_code_1 = g.in_range_first_picked_atom.ins_code;
+   const std::string &ins_code_2 = g.in_range_second_picked_atom.ins_code;
+
+   if (g.is_valid_model_molecule(imol_1)) {
+
+      if (imol_1 == imol_2) {
+         int idx_1 = g.molecules[imol_1].atom_index_first_atom_in_residue(chain_id_1, res_no_1, ins_code_1);
+         int idx_2 = g.molecules[imol_1].atom_index_first_atom_in_residue(chain_id_2, res_no_2, ins_code_2);
+         if (idx_1 >= 0) {
+            if (idx_2 >= 0) {
+               g.regularize(imol_1, 0, idx_1, idx_2);
+            } else {
+               std::cout << "WARNING:: no atom index for second picked residue" << std::endl;
+            }
+         } else {
+            std::cout << "WARNING:: no atom index for first picked residue" << std::endl;
+         }
+      }
+   }
 }
 
 void
@@ -5454,7 +5497,7 @@ refine_range(G_GNUC_UNUSED GSimpleAction *simple_action,
              G_GNUC_UNUSED gpointer user_data) {
 
    graphics_info_t g;
-   std::cout << "in refine_range with in_range_define " << g.in_range_define << std::endl;
+   std::cout << "DEBUG:: in refine_range with in_range_define " << g.in_range_define << std::endl;
    if (g.in_range_define == 2) {
       // so what were the two atoms?
 
@@ -5492,6 +5535,24 @@ refine_regularize_tandem_3(G_GNUC_UNUSED GSimpleAction *simple_action,
    regularize_tandem_3();
 }
 
+
+void
+refine_regularize_range(G_GNUC_UNUSED GSimpleAction *simple_action,
+                G_GNUC_UNUSED GVariant *parameter,
+                G_GNUC_UNUSED gpointer user_data) {
+
+   graphics_info_t g;
+   std::cout << "DEBUG:: in refine_range with in_range_define " << g.in_range_define << std::endl;
+   if (g.in_range_define == 2) {
+      // so what were the two atoms?
+
+      refine_regularize_with_range_picked_atoms();
+
+   } else {
+      std::string m = "Use the Range button to define a residue range (pick 2 atoms)";
+      g.add_status_bar_text(m);
+   }
+}
 
 void
 refine_regularize_single_residue(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -6790,6 +6851,7 @@ create_actions(GtkApplication *application) {
    add_action("refine_regularize_sphere",         refine_regularize_sphere);
    add_action("refine_regularize_tandem_3",       refine_regularize_tandem_3);
    add_action("refine_regularize_single_residue", refine_regularize_single_residue);
+   add_action("refine_regularize_range",          refine_regularize_range);
 
    // Fix Atoms
 

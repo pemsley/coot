@@ -169,7 +169,8 @@ namespace pli {
          H_BOND_ACCEPTOR_SIDECHAIN,
          METAL_CONTACT_BOND,
          BOND_COVALENT,
-         BOND_OTHER };  // must sync this to lbg.hh (why not extract it? (you can do it now))
+         HALOGEN_BOND,  // ligand C-X...A, X = Cl, Br, I; A an energy-lib acceptor
+         BOND_OTHER };  // must sync this to bond-to-ligand.hh (why not extract it? (you can do it now))
       coot::atom_spec_t ligand_atom_spec;
       int bond_type; // acceptor/donor
 
@@ -177,9 +178,27 @@ namespace pli {
       coot::atom_spec_t interacting_residue_atom_spec; // contains res_spec obviously.
 
       bool is_H_bond_to_water;
-      double bond_length;  // from residue atom to ligand atom
+      double bond_length;  // heavy-atom distance: from residue (donor/acceptor) atom
+                           // to ligand (acceptor/donor) atom - never to a hydrogen
       double water_protein_length; // if residue is a water, this is the closest
                                    // distance to protein (100 if very far).
+      // When the H-bond was found with an explicit hydrogen (McDonald & Thornton),
+      // this is that hydrogen (it may be on the ligand or on the residue).
+      // ligand_atom_spec and interacting_residue_atom_spec are always heavy atoms.
+      bool has_hydrogen_atom;
+      coot::atom_spec_t hydrogen_atom_spec;
+      // Interaction geometry (degrees), -1 if not set. For HALOGEN_BOND:
+      // angle_1 is C-X...A and angle_2 is X...A-R (R the neighbour of A giving
+      // the best angle). For H-bonds found with a hydrogen: angle_1 is D-H...A,
+      // angle_2 is H...A-AA and angle_3 is D...A-AA (McDonald & Thornton), the
+      // acceptor-side ones being the least favourable over the antecedents AA.
+      double angle_1;
+      double angle_2;
+      double angle_3;
+      // H-bonds: the H...A distance (-1 without a hydrogen) and McDonald &
+      // Thornton limits the bond does not meet - reported, not filtered.
+      double h_a_distance;
+      std::vector<std::string> geometry_warnings;
       fle_ligand_bond_t(const coot::atom_spec_t &ligand_atom_spec_in,
                         const coot::atom_spec_t &interacting_residue_atom_spec_in,
                         int bond_type_in,
@@ -191,6 +210,12 @@ namespace pli {
          bond_type = bond_type_in;
          bond_length = bl_in;
          is_H_bond_to_water = is_water;
+         water_protein_length = 100.0;
+         has_hydrogen_atom = false;
+         angle_1 = -1.0;
+         angle_2 = -1.0;
+         angle_3 = -1.0;
+         h_a_distance = -1.0;
       }
       static int get_bond_type(mmdb::Atom *at_donor, mmdb::Atom *at_acceptor, bool ligand_atom_is_donor_flag) {
          int r_bond_type = BOND_OTHER;

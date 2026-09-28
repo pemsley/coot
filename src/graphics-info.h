@@ -1164,6 +1164,7 @@ public:
    static coot::Cartesian smooth_scroll_target_point;
 
    static Material default_material_for_maps;
+   static Material default_material_for_models;
 
    // possibly for multi-threading, public access.
    void update_maps();

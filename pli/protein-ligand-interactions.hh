@@ -54,6 +54,18 @@ namespace pli {
    std::vector<fle_ligand_bond_t> get_metal_bonds(mmdb::Residue *ligand_res,
 						  const std::vector<mmdb::Residue *> &residues);
 
+   // Halogen bonds: ligand C-X...A-R with X = Cl, Br or I and A an atom that the
+   // energy library types as an H-bond acceptor (HB_ACCEPTOR or HB_BOTH).
+   // Geometric criteria (as ProLIF's XBDonor): d(X...A) <= 3.5 A,
+   // C-X...A angle >= 130 degrees and, for at least one heavy-atom neighbour R
+   // of A, X...A-R angle in [80, 140] (atoms with no neighbours, e.g. water O,
+   // are not angle-checked). The returned bond has the halogen as the ligand
+   // atom, A as the residue atom, the X...A distance as bond_length and the
+   // two angles in angle_1 (C-X...A) and angle_2 (X...A-R).
+   std::vector<fle_ligand_bond_t> get_halogen_bonds(mmdb::Residue *ligand_res,
+                                                    const std::vector<mmdb::Residue *> &residues,
+                                                    const coot::protein_geometry &geom, int imol);
+
 
    // uses the coot::h_bond class (which uses the dictionary).
    // 

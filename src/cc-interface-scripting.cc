@@ -73,6 +73,14 @@ void add_key_binding_gtk4_py(PyObject *key_py, int ctrl_key, PyObject *func, con
       if (! PyCallable_Check(func))
          func_is_valid = false;
       if (func_is_valid) {
+         // The binding stores this PyObject* and calls it later (on the key
+         // press), so we must keep it alive. func is a borrowed reference; without
+         // this Py_INCREF the callable (e.g. the lambda passed from Python) is
+         // deallocated when this function returns, leaving function_py dangling -
+         // pressing the key then calls freed memory and crashes. With the
+         // reference held, a bad callback instead raises a Python error that
+         // key_bindings_t::run() reports via PyErr_PrintEx().
+         Py_INCREF(func);
          key_bindings_t kb(func, description);
          graphics_info_t::add_key_binding(k, kb);
       }

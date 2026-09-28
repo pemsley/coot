@@ -52,11 +52,31 @@ namespace pli {
       float overlap_score;
       std::string ligand_cationic_atom_name; // for cations on the ligand
 
+      // The residue side of the interaction: the ring atoms (PI_PI_STACKING and
+      // CATION_PI_STACKING) or the cation atom (PI_CATION_STACKING, e.g. LYS NZ)
+      // that gave the best overlap score.
+      std::vector<std::string> residue_ring_atom_names;
+      std::string residue_cation_atom_name;
+
+      // Geometry (Angstroms, degrees), -1 if not set. For ring-ring stackings:
+      // centroid_distance is between the ring centroids, plane_angle is the
+      // angle between the ring planes (0..90), normal_to_centroid_angle is the
+      // smaller of the angles between each ring's normal and the centroid-centroid
+      // vector (0..90). For cation-ring: centroid_distance is cation to ring
+      // centroid and normal_to_centroid_angle is between the ring normal and the
+      // centroid-to-cation vector; plane_angle stays -1.
+      double centroid_distance;
+      double plane_angle;
+      double normal_to_centroid_angle;
+
       pi_stacking_instance_t(mmdb::Residue *res_in, stacking_t type_in,
 			     const std::vector<std::string> &ring_atoms) : ligand_ring_atom_names(ring_atoms) {
 	 res = res_in;
 	 type = type_in;
          overlap_score = 0;
+         centroid_distance = -1.0;
+         plane_angle = -1.0;
+         normal_to_centroid_angle = -1.0;
       }
 
       // and the constructor for CATION_PI_STACKING
@@ -66,6 +86,9 @@ namespace pli {
 	 type = CATION_PI_STACKING;
 	 res = residue_in;
 	 overlap_score = 0;
+         centroid_distance = -1.0;
+         plane_angle = -1.0;
+         normal_to_centroid_angle = -1.0;
       }
       friend std::ostream& operator<< (std::ostream& s, const pi_stacking_instance_t &spec);
    };
@@ -73,11 +96,42 @@ namespace pli {
 
    class pi_stacking_container_t {
    private:
+      // the result of scoring one ligand pi point (or cation) against a residue:
+      // the best score, its type and which residue ring/cation atom gave it.
+      class overlap_result_t {
+      public:
+         float score;
+         pi_stacking_instance_t::stacking_t type;
+         std::vector<std::string> residue_ring_atom_names;
+         std::string residue_cation_atom_name;
+         overlap_result_t() : score(0.0), type(pi_stacking_instance_t::NO_STACKING) {}
+      };
+
       // can throw an exception
-      std::pair<float, pi_stacking_instance_t::stacking_t>
+      overlap_result_t
       get_pi_overlap_to_ligand_ring(mmdb::Residue *res, const clipper::Coord_orth &pt) const;
 
-      float get_pi_overlap_to_ligand_cation(mmdb::Residue *res, const clipper::Coord_orth &pt) const;
+      overlap_result_t
+      get_pi_overlap_to_ligand_cation(mmdb::Residue *res, const clipper::Coord_orth &pt) const;
+
+      // fill centroid_distance, plane_angle, normal_to_centroid_angle from the
+      // ring atom names (and cation atom name) already set in st.
+      void fill_geometry(pi_stacking_instance_t &st, mmdb::Residue *res_ref) const;
+
+      // positions of the named atoms of res (in name order; missing atoms are skipped)
+      std::vector<clipper::Coord_orth> ring_atom_positions(const std::vector<std::string> &names,
+                                                           mmdb::Residue *res) const;
+
+      // The pi-point overlap score is a face-to-face detector: a T-shaped
+      // (edge-to-face) stack has almost no overlap. So, for a ligand ring and a
+      // residue that did not score, test the geometry the way ProLIF's
+      // EdgeToFace does: centroid distance <= 6.5 A, plane angle 50..90,
+      // normal-to-centroid angle <= 30 for either ring, and the line where the
+      // two ring planes meet passes within 1.5 A of one of the centroids.
+      // Returns the residue ring atom names on success (empty on failure).
+      std::vector<std::string>
+      edge_to_face_ring_by_geometry(const std::vector<std::string> &ligand_ring_atom_names,
+                                    mmdb::Residue *res_ref, mmdb::Residue *res) const;
 
       std::pair<clipper::Coord_orth, clipper::Coord_orth>
       get_ring_pi_centre_points(const std::vector<std::string> &ring_atom_names,
@@ -101,7 +155,7 @@ namespace pli {
       overlap_of_cation_pi(const clipper::Coord_orth &ligand_pi_point,
 			   const clipper::Coord_orth &cation_atom_point) const;
 
-      std::vector<clipper::Coord_orth> get_cation_atom_positions(mmdb::Residue *res) const;
+      std::vector<std::pair<std::string, clipper::Coord_orth> > get_cation_atom_positions(mmdb::Residue *res) const;
       // by search through res_ref
       std::vector<std::pair<std::string, clipper::Coord_orth> >
       get_ligand_cations(mmdb::Residue *res, const coot::dictionary_residue_restraints_t &monomer_restraints) const;
@@ -136,6 +190,16 @@ namespace pli {
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
       std::size_t size() const { return stackings.size(); }
    };
+
+   // Convenience for API users (e.g. get_ligand_interactions_as_json()): find the
+   // ligand's dictionary, the residues within residues_near_radius and build the
+   // container. If the dictionary has no aromatic-bond flags (a kekulized
+   // dictionary) and enhanced ligand tools are available, the aromatic rings are
+   // found with RDKit instead. Returns an empty vector if there is no dictionary.
+   std::vector<pi_stacking_instance_t>
+   get_pi_stackings(mmdb::Residue *ligand_residue, mmdb::Manager *mol,
+                    const coot::protein_geometry &geom, int imol,
+                    float residues_near_radius = 6.0);
 
 }
 

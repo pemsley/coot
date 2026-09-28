@@ -1610,6 +1610,9 @@ flev_t::draw_bonds_to_ligand() {
                   // dash = goo_canvas_line_dash_new (2, 2.7, 0.1);
                   stroke_colour = "#bb00bb";
                }
+               if (residue_circles[ic].bonds_to_ligand[ib].bond_type == bond_to_ligand_t::HALOGEN_BOND) {
+                  stroke_colour = "#008888"; // teal, no arrow heads
+               }
 
                if (residue_circles[ic].residue_type == "HOH") {
                   stroke_colour = lime;

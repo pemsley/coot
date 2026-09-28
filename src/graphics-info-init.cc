@@ -135,6 +135,12 @@ graphics_info_t::init() {
 
       on_going_updating_map_lock = false;
 
+      // the default material for models - the user can change these before
+      // a model is read in (see set_default_model_material_*()).
+      default_material_for_models.do_specularity = true;
+      default_material_for_models.specular_strength = 0.25; // 0.25 is new default.
+                                                            // 1.00 was too shiny it seems
+
       find_ligand_ligand_mols_ = new std::vector<std::pair<int, bool> >;
       geom_p = new coot::protein_geometry;
       geom_p->set_verbose(true); // was false

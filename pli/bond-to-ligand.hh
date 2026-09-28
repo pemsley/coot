@@ -40,6 +40,7 @@ public:
           H_BOND_ACCEPTOR_SIDECHAIN,
           METAL_CONTACT_BOND,
           BOND_COVALENT,
+          HALOGEN_BOND,
           BOND_OTHER };
    std::string ligand_atom_name;
    double bond_length;

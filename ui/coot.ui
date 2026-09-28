@@ -1016,6 +1016,10 @@
         <attribute name="action">app.refine_regularize_single_residue</attribute>
       </item>
       <item>
+        <attribute name="label" translatable="yes">Regularize Range</attribute>
+        <attribute name="action">app.refine_regularize_range</attribute>
+      </item>
+      <item>
         <attribute name="label" translatable="yes">Regularize Fragment</attribute>
         <attribute name="action">app.refine_regularize_fragment</attribute>
       </item>
@@ -1175,10 +1179,6 @@
         <attribute name="action">app.delete_item_water</attribute>
       </item>
       <item>
-        <attribute name="label" translatable="yes">All Waters</attribute>
-        <attribute name="action">app.delete_item_all_waters</attribute>
-      </item>
-      <item>
         <attribute name="label" translatable="yes">Side-chain</attribute>
         <attribute name="action">app.delete_item_side_chain</attribute>
       </item>
@@ -1209,6 +1209,10 @@
       <item>
         <attribute name="label" translatable="yes">Chain</attribute>
         <attribute name="action">app.delete_item_chain</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">All Waters</attribute>
+        <attribute name="action">app.delete_item_all_waters</attribute>
       </item>
       <item>
         <attribute name="label" translatable="yes">All Carbohydrate</attribute>
@@ -5077,6 +5081,7 @@ that you wish to delete.               </property>
                             <property name="can-focus">1</property>
                             <property name="primary-icon-activatable">0</property>
                             <property name="secondary-icon-activatable">0</property>
+                            <signal name="activate" handler="on_environment_distance_min_entry_activate" swapped="no"/>
                           </object>
                         </child>
                         <child>
@@ -5101,6 +5106,7 @@ that you wish to delete.               </property>
                             <property name="can-focus">1</property>
                             <property name="primary-icon-activatable">0</property>
                             <property name="secondary-icon-activatable">0</property>
+                            <signal name="activate" handler="on_environment_distance_max_entry_activate" swapped="no"/>
                           </object>
                         </child>
                         <child>
