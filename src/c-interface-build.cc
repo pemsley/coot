@@ -5195,11 +5195,11 @@ void c_accept_moving_atoms() {
    graphics_info_t g;
    while (g.continue_threaded_refinement_loop)
       std::this_thread::sleep_for(std::chrono::milliseconds(200));
-   if (g.use_graphics_interface_flag) {
+   if (g.use_graphics_interface_flag)
       g.clear_hud_buttons();
-      g.accept_moving_atoms();
+   g.accept_moving_atoms();
+   if (g.use_graphics_interface_flag)
       g.clear_moving_atoms_object();
-   }
 
 }
 

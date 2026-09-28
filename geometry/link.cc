@@ -81,6 +81,8 @@ coot::chem_link::make_hash_code(const std::string &comp_id_1, const std::string 
 
    if (local_group_1 == "RNA") local_group_1 = "DNA/RNA";
    if (local_group_2 == "RNA") local_group_2 = "DNA/RNA";
+   if (local_group_1 == "DNA") local_group_1 = "DNA/RNA";
+   if (local_group_2 == "DNA") local_group_2 = "DNA/RNA";
 
    for (unsigned int i = 0; i < comp_id_1.length(); i++) {
      unsigned int chr = comp_id_1[i];
@@ -145,6 +147,8 @@ coot::chem_link::matches_comp_ids_and_groups_hashed(const std::string &comp_id_1
 
    if (local_group_1 == "RNA") local_group_1 = "DNA/RNA";
    if (local_group_2 == "RNA") local_group_2 = "DNA/RNA";
+   if (local_group_1 == "DNA") local_group_1 = "DNA/RNA";
+   if (local_group_2 == "DNA") local_group_2 = "DNA/RNA";
 
    unsigned int hash_test = make_hash_code(comp_id_1, comp_id_2, local_group_1, local_group_2);
 
@@ -242,8 +246,10 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
    std::string self_group_1 = chem_link_group_comp_1;
    std::string self_group_2 = chem_link_group_comp_2;
 
-   if (self_group_1 == "RNA") self_group_1 = "RNA/DNA"; // to match the input type ! (which was converted to make the hash)
-   if (self_group_2 == "RNA") self_group_2 = "RNA/DNA";
+   if (self_group_1 == "RNA") self_group_1 = "DNA/RNA"; // to match the input type ! (which was converted to make the hash)
+   if (self_group_2 == "RNA") self_group_2 = "DNA/RNA";
+   if (self_group_1 == "DNA") self_group_1 = "DNA/RNA";
+   if (self_group_2 == "DNA") self_group_2 = "DNA/RNA";
 
    if (debug)
       std::cout << "     sighx... check match: group_1: dict \""
