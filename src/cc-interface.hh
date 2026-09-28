@@ -2405,22 +2405,31 @@ void set_default_map_material_ambient(float r, float g, float b, float alpha);
 //! \brief set the default map material diffuse
 void set_default_map_material_diffuse(float r, float g, float b, float alpha);
 
-//! \brief set the default map material ambient
+//! \brief set the default model material ambient
+void set_default_model_material_ambient(float r, float g, float b, float alpha);
+
+//! \brief set the default model material diffuse
+void set_default_model_material_diffuse(float r, float g, float b, float alpha);
+
+//! \brief set the default model material specularity
+void set_default_model_material_specular(int do_specularity, float specular_strength, float shininess);
+
+//! \brief set the map material ambient
 void set_map_material_ambient(int imol, float r, float g, float b, float alpha);
 
-//! \brief set the default map material diffuse
+//! \brief set the map material diffuse
 void set_map_material_diffuse(int imol, float r, float g, float b, float alpha);
 
-//! \brief
+//! \brief the specularity for a map
 void set_map_material_specular(int imol, float specular_strength, float shininess);
 
-//! \brief
+//! \brief set the specularity for a model
 void set_model_material_specular(int imol, float specular_strength, float shininess);
 
-//! \brief set the ambient
+//! \brief set the ambient material for a model
 void set_model_material_ambient(int imol, float r, float g, float b, float alpha);
 
-//! \brief
+//! \brief set the diffuse material for a model
 void set_model_material_diffuse(int imol, float r, float g, float b, float alpha);
 
 //! \brief set the goodselliness (pastelization_factor) 0.3 is about right, but "the right value"

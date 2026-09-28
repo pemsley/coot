@@ -1,7 +1,6 @@
 
 
 #include "molecules-container.hh"
-#include "blender-mesh.hh"
 
 std::vector<float>
 molecules_container_t::get_colour_table_for_blender(int imol) {
