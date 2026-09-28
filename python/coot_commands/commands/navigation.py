@@ -53,6 +53,10 @@ def go_to_residue(chain: str, resno: str, model: Optional[str] = None) -> str:
         success = coot.set_go_to_atom_from_res_spec_py([chain_id, res, ""])
         if success <= 0:
             return f"No residue {chain_id}/{res} in model {imol}"
+        # This command names a residue directly rather than going through
+        # resolve_residue, so it asks for the zoom itself.
+        from coot_commands.focus import follow_residue
+        follow_residue(imol, chain_id, res)
     return f"Centred on {chain_id}/{res} of model {imol}"
 
 
