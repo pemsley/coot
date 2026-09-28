@@ -248,7 +248,7 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
    int local_go_to_atom_mol = 0;
 
    // map sampling rate
-   if (map_sampling_rate != 1.5) { // only set it if it is not the default
+   if (map_sampling_rate != map_sampling_rate_default) { // only set it if it is not the default
       // command_strings.push_back("set-map-sampling-rate");
       // command_strings.push_back(float_to_string(map_sampling_rate));
       // commands.push_back(state_command("coot", command_strings, il));

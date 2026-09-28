@@ -2750,14 +2750,17 @@ molecule_class_info_t::set_map_has_symmetry(bool is_em_map) {
 
 
 void
-molecule_class_info_t::install_new_map(const clipper::Xmap<float> &map_in, std::string name_in, bool is_em_map_flag_in) {
+molecule_class_info_t::install_new_map(const clipper::Xmap<float> &map_in, std::string name_in, bool is_em_map_flag_in,
+                                       bool is_diff_map_flag_in) {
 
    xmap = map_in;
    if (is_em_map_flag_in)
       is_em_map_cached_flag = 1;
    // the map name is filled by using set_name(std::string)
    // sets name_ to name_in:
-   initialize_map_things_on_read_molecule(name_in, false, false, false); // not a diff_map
+   // 20260902-JD a map made from a difference map (resampled, sharpened, transformed...) is still a difference map 
+   initialize_map_things_on_read_molecule(name_in, is_diff_map_flag_in, false,
+                                          graphics_info_t::swap_difference_map_colours);
 
    // 20240702-PE now we can install empty maps (which get quickly overwritten by sensible maps)
    // (adding servalcat interface)
@@ -2771,12 +2774,20 @@ molecule_class_info_t::install_new_map(const clipper::Xmap<float> &map_in, std::
       float mean = mv.mean;
       float var = mv.variance;
 
-      contour_level  = nearest_step(mean + 1.5*sqrt(var), 0.05);
-      update_map_in_display_control_widget();
-
-      // fill class variables
+      // fill class variables (before the contour level, which is set from them)
       map_mean_ = mv.mean;
       map_sigma_ = sqrt(mv.variance);
+
+      if (is_diff_map_flag_in) {
+         // a difference map is contoured either side of zero, at a lower level:
+         // set_initial_contour_level() reads xmap_is_diff_map (set just above) and
+         // the mean/sigma to pick it.
+         set_initial_contour_level();
+      } else {
+         contour_level = nearest_step(mean + 1.5*sqrt(var), 0.05);
+      }
+      update_map_in_display_control_widget();
+
       if (is_em_map_flag_in)
          contour_sigma_step = 0.3; // 0.1 is the default
 
