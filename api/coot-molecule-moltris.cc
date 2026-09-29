@@ -37,6 +37,7 @@
 #include <MoleculesToTriangles/CXXClasses/MolecularRepresentationInstance.h>
 #include <MoleculesToTriangles/CXXClasses/VertexColorNormalPrimitive.h>
 #include <MoleculesToTriangles/CXXClasses/BallsPrimitive.h>
+#include <MoleculesToTriangles/CXXClasses/SurfacePrimitive.h>
 
 #include "MoleculesToTriangles/CXXClasses/tubes.hh"
 
@@ -44,6 +45,8 @@
 #include <glm/gtx/string_cast.hpp>
 
 #include <tuple>
+#include <map>
+#include <string>
 
 
 //! Add a colour rule: eg. ("//A", "red")
@@ -292,7 +295,31 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
       return res_no_max;
    };
 
-   auto molecular_representation_instance_to_mesh = [] (std::shared_ptr<MolecularRepresentationInstance> molrepinst,
+   // A residue as a CID of the form /1/A/23(ALA), or /1/A/23(ALA).B with an insertion code,
+   // which is what a caller will want to hand back to the rest of the API.
+   //
+   // The insertion code goes after the residue name, following mmdb's own
+   // /mdl/chn/seq(res).ins grammar. Putting it after the number instead parses, but wrongly: a
+   // reader taking the text after the dot then gets "B(ALA)" rather than "B".
+   auto residue_cid = [] (mmdb::Residue *residue_p) {
+      std::string cid = "/";
+      cid += std::to_string(residue_p->GetModelNum());
+      cid += "/";
+      cid += residue_p->GetChainID();
+      cid += "/";
+      cid += std::to_string(residue_p->GetSeqNum());
+      cid += "(";
+      cid += residue_p->GetResName();
+      cid += ")";
+      std::string ins_code = residue_p->GetInsCode();
+      if (! ins_code.empty()) {
+         cid += ".";
+         cid += ins_code;
+      }
+      return cid;
+   };
+
+   auto molecular_representation_instance_to_mesh = [&residue_cid] (std::shared_ptr<MolecularRepresentationInstance> molrepinst,
                                                         const std::vector<std::pair<std::string, float> > &M2T_float_params,
                                                         const std::vector<std::pair<std::string, int> > &M2T_int_params) {
       coot::simple_mesh_t mesh;
@@ -340,6 +367,74 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
                   gv.color *= 0.00392f; // /255
                   if (gv.color[3] > 0.99)
                      gv.color[3] = 1.0;
+               }
+            }
+
+            // Which residue each vertex belongs to.
+            //
+            // The surface is built from one sphere patch per atom and one torus per pair, and
+            // CXXSurface records the generating atom against every vertex as it goes. That
+            // survives into SurfacePrimitive::atomArray but has never been read by anything -
+            // it was simply dropped here, because simple_mesh_t had nowhere to put it. Now it
+            // does, so a caller can tell which residue is under a triangle it has hit.
+            //
+            // Surfaces only for the moment. BoxSectionPrimitive and CylindersPrimitive fill
+            // atomArray too, so ribbons and sticks can follow the same route, but each needs
+            // its own check that every vertex is really covered before it is relied upon.
+            if (displayPrimitive.type() == DisplayPrimitive::PrimitiveType::SurfacePrimitive) {
+               SurfacePrimitive &surfacePrimitive = dynamic_cast<SurfacePrimitive &>(displayPrimitive);
+               const mmdb::Atom **atomArray = surface.getAtomArray();
+               // The other atom of a saddle and the split between the two. Only a surface has
+               // these, which is why they are on SurfacePrimitive rather than on the base.
+               const mmdb::Atom **atom2Array = surfacePrimitive.getAtom2Array();
+               const float *atomWeightArray = surfacePrimitive.getAtomWeightArray();
+               if (atomArray) {
+                  submesh.vertex_owner.resize(surface.nVertices(), coot::simple_mesh_t::no_owner);
+                  submesh.vertex_owner_other.resize(surface.nVertices(), coot::simple_mesh_t::no_owner);
+                  submesh.vertex_owner_weight.resize(surface.nVertices(), 1.0f);
+                  std::map<mmdb::Residue *, unsigned int> residue_index;
+
+                  // Name a residue, adding it to this submesh's table the first time it is seen.
+                  auto index_of_residue = [&residue_index, &submesh, &residue_cid] (mmdb::Atom *at) {
+                     if (! at) return coot::simple_mesh_t::no_owner;
+                     mmdb::Residue *residue_p = at->GetResidue();
+                     if (! residue_p) return coot::simple_mesh_t::no_owner;
+                     std::map<mmdb::Residue *, unsigned int>::const_iterator it = residue_index.find(residue_p);
+                     if (it != residue_index.end()) return it->second;
+                     unsigned int idx = submesh.owners.size();
+                     submesh.owners.push_back(residue_cid(residue_p));
+                     residue_index[residue_p] = idx;
+                     return idx;
+                  };
+
+                  for (unsigned int iVertex=0; iVertex < surface.nVertices(); iVertex++) {
+                     // const_cast because mmdb's accessors are not const, not because anything
+                     // here modifies the atom.
+                     mmdb::Atom *at = const_cast<mmdb::Atom *>(atomArray[iVertex]);
+                     unsigned int owner = index_of_residue(at);
+                     if (owner == coot::simple_mesh_t::no_owner) continue;
+
+                     mmdb::Atom *at2 = atom2Array ? const_cast<mmdb::Atom *>(atom2Array[iVertex]) : 0;
+                     unsigned int other = index_of_residue(at2);
+                     float weight = atomWeightArray ? atomWeightArray[iVertex] : 1.0f;
+
+                     // A saddle between two atoms of the SAME residue is not a boundary at all,
+                     // and most of them are: collapse it, so the common case stays a single
+                     // full-weight owner and the data only grows where a boundary really runs.
+                     if (other == owner) other = coot::simple_mesh_t::no_owner;
+                     if (other == coot::simple_mesh_t::no_owner) weight = 1.0f;
+
+                     // The heavier of the two goes first, so a reader that wants one answer -
+                     // which residue was clicked - can take vertex_owner without comparing.
+                     if (other != coot::simple_mesh_t::no_owner && weight < 0.5f) {
+                        std::swap(owner, other);
+                        weight = 1.0f - weight;
+                     }
+
+                     submesh.vertex_owner[iVertex] = owner;
+                     submesh.vertex_owner_other[iVertex] = other;
+                     submesh.vertex_owner_weight[iVertex] = weight;
+                  }
                }
             }
 
