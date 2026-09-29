@@ -372,22 +372,29 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
 
             // Which residue each vertex belongs to.
             //
-            // The surface is built from one sphere patch per atom and one torus per pair, and
-            // CXXSurface records the generating atom against every vertex as it goes. That
-            // survives into SurfacePrimitive::atomArray but has never been read by anything -
-            // it was simply dropped here, because simple_mesh_t had nowhere to put it. Now it
-            // does, so a caller can tell which residue is under a triangle it has hit.
+            // Several of these primitives already know. A surface is built from one sphere
+            // patch per atom and one torus per pair, and records the generating atom against
+            // every vertex; a ribbon is swept along a spline and records the alpha carbon of
+            // the residue whose half-turn it is drawing. All of it survived into atomArray on
+            // the base class and was dropped here, because simple_mesh_t had nowhere to put
+            // it. Now it does, so a caller can tell which residue is under a triangle it hit.
             //
-            // Surfaces only for the moment. BoxSectionPrimitive and CylindersPrimitive fill
-            // atomArray too, so ribbons and sticks can follow the same route, but each needs
-            // its own check that every vertex is really covered before it is relied upon.
-            if (displayPrimitive.type() == DisplayPrimitive::PrimitiveType::SurfacePrimitive) {
-               SurfacePrimitive &surfacePrimitive = dynamic_cast<SurfacePrimitive &>(displayPrimitive);
+            // No list of primitive types: the question is whether this one recorded anything,
+            // and a null array answers it. That works only because all three that allocate
+            // the array now value-initialise it, so an unwritten slot is null rather than
+            // heap litter - the primitives that record nothing never allocate it at all.
+            {
                const mmdb::Atom **atomArray = surface.getAtomArray();
                // The other atom of a saddle and the split between the two. Only a surface has
-               // these, which is why they are on SurfacePrimitive rather than on the base.
-               const mmdb::Atom **atom2Array = surfacePrimitive.getAtom2Array();
-               const float *atomWeightArray = surfacePrimitive.getAtomWeightArray();
+               // these, and only a surface needs them: a ribbon vertex lies within one
+               // residue's half-turn of spline, so it belongs to that residue outright.
+               const mmdb::Atom **atom2Array = 0;
+               const float *atomWeightArray = 0;
+               if (displayPrimitive.type() == DisplayPrimitive::PrimitiveType::SurfacePrimitive) {
+                  SurfacePrimitive &surfacePrimitive = dynamic_cast<SurfacePrimitive &>(displayPrimitive);
+                  atom2Array = surfacePrimitive.getAtom2Array();
+                  atomWeightArray = surfacePrimitive.getAtomWeightArray();
+               }
                if (atomArray) {
                   submesh.vertex_owner.resize(surface.nVertices(), coot::simple_mesh_t::no_owner);
                   submesh.vertex_owner_other.resize(surface.nVertices(), coot::simple_mesh_t::no_owner);
