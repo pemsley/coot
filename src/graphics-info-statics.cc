@@ -1561,6 +1561,13 @@ float graphics_info_t::goodselliness = 0.3; // the pastelization factor
 std::map<unsigned int, lights_info_t> graphics_info_t::lights;
 
 std::vector<molecule_class_info_t> graphics_info_t::molecules;
+// These default materials must be defined *before* moving_atoms_molecule: it is a
+// static molecule_class_info_t whose constructor (setup_internal()) copies these into
+// its material_for_models/material_for_maps. Within this translation unit dynamic
+// initialization runs in definition order, so if they came later they would still be
+// zero-initialized (all-black) at that point, making the intermediate atoms render dark.
+Material graphics_info_t::default_material_for_maps;
+Material graphics_info_t::default_material_for_models;
 molecule_class_info_t graphics_info_t::moving_atoms_molecule;
 std::atomic<bool> molecule_class_info_t::draw_vector_sets_lock(false);
 
@@ -1882,6 +1889,6 @@ std::pair<bool, std::string> graphics_info_t::servalcat_refine  = std::pair<bool
 
 std::string graphics_info_t::current_alt_conf = "";
 
-Material graphics_info_t::default_material_for_maps;
-Material graphics_info_t::default_material_for_models;
+// default_material_for_maps and default_material_for_models are defined earlier in this
+// file (before moving_atoms_molecule) to avoid a static-initialization-order problem.
 
