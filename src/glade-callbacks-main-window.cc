@@ -45,6 +45,7 @@ typedef const char entry_char_type;
 
 #include <vector>
 #include "utils/coot-utils.hh"
+#include "coot-utils/coot-map-utils.hh" // for coot::util::average_map()
 #include "ideal/add-linked-cho.hh"
 #include "graphics-info.h"
 
@@ -1823,11 +1824,34 @@ on_make_an_average_map_ok_button_clicked(G_GNUC_UNUSED GtkButton       *button,
             std::cout << "WARNING::" << e.what() << std::endl;
          }
       } else {
-         std::cout << "null t in on_make_an_average_map_ik_button_clicked()" << std::endl;
+         std::cout << "ERROR:: null t in on_make_an_average_map_ik_button_clicked()" << std::endl;
       }
       item_widget = gtk_widget_get_next_sibling(item_widget);
    };
 
+   // Now apply the accumulated scales: build the maps-and-scales vector, make the
+   // average map and install it as a new map molecule.
+   graphics_info_t g;
+   std::vector<std::pair<clipper::Xmap<float>, float> > maps_and_scales_vec;
+   bool is_em_flag = false;
+   for (const auto &imol_and_scale : imol_map_and_scale_vec) {
+      int imol_map = imol_and_scale.first;
+      float scale  = imol_and_scale.second;
+      if (is_valid_map_molecule(imol_map)) {
+         maps_and_scales_vec.push_back(std::make_pair(g.molecules[imol_map].xmap, scale));
+         is_em_flag = g.molecules[imol_map].is_EM_map();
+      } else {
+         std::cout << "ERROR:: Invalid map number " << imol_map << std::endl;
+      }
+   }
+
+   if (! maps_and_scales_vec.empty()) {
+      clipper::Xmap<float> averaged_map = coot::util::average_map(maps_and_scales_vec);
+      int imol = graphics_info_t::create_molecule();
+      std::string name = "averaged-map";
+      g.molecules[imol].install_new_map(averaged_map, name, is_em_flag);
+      g.graphics_draw();
+   }
 
    GtkWidget *frame = widget_from_builder("make_an_average_map_frame");
    if (frame)
