@@ -123,6 +123,17 @@ class QED {
     /// ADS function
     static double ads(double x, const ADSparameter& p) noexcept;
 
+    /// Read access to the (private) ADS parameter table for a property.
+    static const ADSparameter& get_ads_parameter(QEDPropName name);
+
+    /// Sensible x-axis range for plotting a property's desirability curve d(x),
+    /// taken from Fig. 1 of Bickerton et al. 2012. The y range is always [0,1].
+    struct plot_range_t { double x_min; double x_max; };
+    static plot_range_t get_plot_range(QEDPropName name);
+
+    /// Short human-readable label for a property (e.g. "MW", "cLogP", "#HBA").
+    static std::string get_property_label(QEDPropName name);
+
     /// Calculates the QED descriptor using maximal descriptor weights
     inline static double weights_max(const ::RDKit::ROMol& mol) {
        return qed(mol, WEIGHT_MAX).qed_score;
