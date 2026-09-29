@@ -209,3 +209,12 @@ lib, and `protein_geom_p` is in scope at the call site. The quick table could
 remain as a fast path for protein atoms, or go entirely.
 
 Quick-table defects all fixed 2026-09-13: THR " OG1", THR in the main-chain list, HOH " O  " = HB_BOTH (explicit entry after the loop, overriding the loop's blanket HB_ACCEPTOR), and `n_res_types` now comes from `std::size(l)`. Consider `#include <iterator>` for `std::size` portability (GCC's `<iostream>` provides it transitively; libc++ may not).
+
+## Speed up average-map generation by checking the grids
+
+`on_make_an_average_map_ok_button_clicked()` (src/glade-callbacks-main-window.cc)
+currently uses the general `coot::util::average_map()` route, which does not
+require the contributing maps to share a grid sampling. It could be speeded up
+by first checking that the grids of the contributing maps match, and if so using
+the `regen_map` route (as `regen_map_py()` in src/c-interface-maps.cc does),
+which averages in place and presumes matching grids.
