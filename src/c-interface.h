@@ -2281,7 +2281,6 @@ int  vt_surface_status();
 
 /*! \} */
 
-
 /*  --------------------------------------------------------------------- */
 /*                      clipping                                          */
 /*  --------------------------------------------------------------------- */
@@ -2302,9 +2301,13 @@ void decrease_clipping_front();
 void decrease_clipping_back();
 
 //! set clipping plane back  - this goes in differnent directions for orthographics vs perspective 
+
+//! @param v the distance from the camera to the back clipping plane
 void set_clipping_back(float v);
 
 //! set clipping plane front - this goes in differnent directions for orthographics vs perspective  
+//! @param v the distance from the camera to the front clipping plane
+
 void set_clipping_front(float v);
 
 //! get clipping plane front 
@@ -2323,20 +2326,22 @@ float get_clipping_plane_back();
 /*! \{ */
 
 /*! \brief return the stage of show unit cell for molecule number imol */
+//! @param imol the molecule index
 short int get_show_unit_cell(int imol);
 
-/*! \brief set the state of show unit cell for all molecules
-
-1 for displayed
-0 for undisplayed */
+//! set the state of show unit cell for all molecules
+//! @param istate 1 for displayed, 0 for undisplayed
 void set_show_unit_cells_all(short int istate);
 
-/*! \brief set the state of show unit cell for the particular molecule number imol
-
-1 for displayed
-0 for undisplayed */
+//! set the state of show unit cell for the particular molecule number imol
+//! @param imol is the molecule index
+//! @param istate 1 for displayed, 0 for undisplayed
 void set_show_unit_cell(int imol, short int istate);
 
+//! set unit cell colour
+//! @param red the red component
+//! @param green the green component
+//! @param blue the blue component
 void set_unit_cell_colour(float red, float green, float blue);
 /*! \} */
 
@@ -2347,59 +2352,70 @@ void set_unit_cell_colour(float red, float green, float blue);
 /*! \name  Colour */
 /*! \{ */
 
-/* set the colour merge ratio (a fraction 0.0 to 1.0) */
+//! Set the symmetry colour merge 
+//! @param v the colour merge ratio (a fraction 0.0 to 1.0)
 void set_symmetry_colour_merge(float v);
 
-/*! \brief set the hue change step on reading a new molecule */
+/*! \brief Set the hue change step on reading a new molecule */
+//! @param f the hue change step in degrees
 void set_colour_map_rotation_on_read_pdb(float f);
 
-/*! \brief shall the hue change step be used?
 
- @param i 0 for no, 1 for yes */
+
+//! @param i 0 for no, 1 for yes */
 void set_colour_map_rotation_on_read_pdb_flag(short int i);
 
 /*! \brief shall the colour map rotation apply only to C atoms?
 
- @param i 0 for no, 1 for yes */
+//! @param i 0 for no, 1 for yes */
 void set_colour_map_rotation_on_read_pdb_c_only_flag(short int i);
 
-/*! \brief colour molecule number imol by chain type */
+/*! \brief Colour by chain t */
+//! @param imol the molecule index
 void set_colour_by_chain(int imol);
 
-/*! \brief colour molecule number imol by chain type */
+/*! \brief colour molecule number imol by ncs chain type */
+//! @param imol the molecule index
+//! @param goodsell_mode 0 for no, 1 for yes
 void set_colour_by_ncs_chain(int imol, short int goodsell_mode);
 
 /*! \brief colour molecule number imol by chain type, goodsell-like colour scheme */
+//! @param imol the molecule index
 void set_colour_by_chain_goodsell_mode(int imol);
 
-/*! \brief set the goodsell chain colour colour wheel step (default 0.22) */
+/*! \brief Set the goodsell chain colour colour wheel step  */
+//! @param s the step size, default 0.22
 void set_goodsell_chain_colour_wheel_step(float s);
 
-/*! \brief colour molecule number imol by molecule */
+/*! \brief Colour by molecule */
+//! @param imol the molecule index
 void set_colour_by_molecule(int imol);
 
 /* get the value of graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag */
 int get_colour_map_rotation_on_read_pdb_c_only_flag();
 
 /*! \brief set the symmetry colour base */
+//! @param r the red component
+//! @param g the green component
+//! @param b the blue component
 void set_symmetry_colour(float r, float g, float b);
 
 /*! \} */
 
 /*  Section Map colour*/
 /*! \name   Map colour*/
-/*! \{ */
-/*! \brief set the colour map rotation (hue change) for maps
+/* \{ */
+/*! \brief Set the colour map rotation (hue change) for maps
+//! @param f the hue change step in degrees, default for maps is 14 degrees. */
+void set_colour_map_rotation_for_map(float f);
 
-   default: for maps is 14 degrees. */
-void set_colour_map_rotation_for_map(float f); /* "global"/default */
-
-/*! \brief set the colour map rotation for molecule number imol
-
-theta is in degrees */
+/*! \brief Set the colour map rotation
+//! @param imol the molecule index
+//! @param theta is in degrees */
 void set_molecule_bonds_colour_map_rotation(int imol, float theta);
 
-/*! \brief Get the colour map rotation for molecule number imol */
+/*! \brief Get the colour map rotation */
+//! @param imol the molecule index
 float get_molecule_bonds_colour_map_rotation(int imol);
 /*! \} */
 
@@ -2412,25 +2428,30 @@ float get_molecule_bonds_colour_map_rotation(int imol);
 /*  we use the text interface to this in callback.c rather */
 /*  than getting the float directly. */
 
-/*! \brief get the aniso radius limit */
+/*! \brief Get the aniso radius limit */
 float get_limit_aniso();           /* not a function of the molecule */
 
-/*! \brief get show the aniso limit */
+/*! \brief Get show the aniso limit */
 short int get_show_limit_aniso();  /* not a function of the molecule */
 
 /*! \brief return show-aniso-atoms state  - FIXME- per molecule */
 short int get_show_aniso();       /*  not a function of the molecule */
 
-/*! \brief set the aniso atom limit */
+/*! \brief Set the aniso atom limit */
+//! @param state 0 for no, 1 for yes
 void set_limit_aniso(short int state);
 
 /*! \brief does nothing */
 void set_show_aniso(int state);
 
 /*! \brief set show aniso atoms */
+//! @param imol the molecule index
+//! @param state 0 for no, 1 for yes
 void set_show_aniso_atoms(int imol, int state);
 
 /*! \brief set show aniso atoms as ortep */
+//! @param imol the molecule index
+//! @param state 0 for no, 1 for yes
 void set_show_aniso_atoms_as_ortep(int imol, int state);
 
 /*! \brief set show aniso atoms as ortep */

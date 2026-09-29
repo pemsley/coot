@@ -192,9 +192,15 @@ void setup_python_basic(int argc, char **argv) {
    PyObject* d_main = PyModule_GetDict(PyImport_AddModule("__main__"));
    std::cout << "DEBUG:: in setup_python_basic(): d_main " << d_main << std::endl;
 
+   // Insert (not append) our own coot python directories at the front of sys.path.
+   // When we don't have our own bundled Python (see have_own_python above), Python's
+   // own startup has already populated sys.path with the system/Homebrew site-packages
+   // directories, which may contain an unrelated coot.py/_coot.so from a different
+   // install. Appending would put ours last, so "import coot" would silently pick up
+   // that other installation instead of this one.
    PyObject *sys_path = PySys_GetObject("path");
-   PyList_Append(sys_path, PyUnicode_FromString(pydirectory.c_str()));
-   PyList_Append(sys_path, PyUnicode_FromString(pkgpydirectory.c_str()));
+   PyList_Insert(sys_path, 0, PyUnicode_FromString(pkgpydirectory.c_str()));
+   PyList_Insert(sys_path, 0, PyUnicode_FromString(pydirectory.c_str()));
 
    PyObject *sys = PyImport_ImportModule("sys");
    if (! sys) {
@@ -229,11 +235,11 @@ void setup_python_coot_module() {
    std::string pkgpydirectory = get_pkgpythondir();
    std::string    pydirectory = get_pythondir();
 
-   std::cout << "DEBUG:: in setup_python_coot_module() appending to sys path: " << pydirectory << std::endl;
    PyObject *sys_path = PySys_GetObject("path");
-   PyList_Append(sys_path, PyUnicode_FromString(pydirectory.c_str()));
-   std::cout << "DEBUG:: in setup_python_coot_module() appending to sys path: " << pkgpydirectory << std::endl;
-   PyList_Append(sys_path, PyUnicode_FromString(pkgpydirectory.c_str()));
+   std::cout << "DEBUG:: in setup_python_coot_module() inserting into sys path: " << pkgpydirectory << std::endl;
+   PyList_Insert(sys_path, 0, PyUnicode_FromString(pkgpydirectory.c_str()));
+   std::cout << "DEBUG:: in setup_python_coot_module() inserting into sys path: " << pydirectory << std::endl;
+   PyList_Insert(sys_path, 0, PyUnicode_FromString(pydirectory.c_str()));
    PyObject *coot = PyImport_ImportModule("coot");
 
    if (! coot) {
@@ -278,11 +284,11 @@ void setup_python_with_coot_modules(int argc, char **argv) {
    std::cout << "DEBUG:: in setup_python_with_coot_modules() pkgpydirectory: " << pkgpydirectory << std::endl;
    std::cout << "DEBUG:: in setup_python_with_coot_modules()    pydirectory: " <<    pydirectory << std::endl;
 
-   std::cout << "DEBUG:: in setup_python_with_coot_modules() appending to sys path: " << pydirectory << std::endl;
    PyObject *sys_path = PySys_GetObject("path");
-   PyList_Append(sys_path, PyUnicode_FromString(pydirectory.c_str()));
-   std::cout << "DEBUG:: in setup_python_with_coot_modules() appending to sys path: " << pkgpydirectory << std::endl;
-   PyList_Append(sys_path, PyUnicode_FromString(pkgpydirectory.c_str()));
+   std::cout << "DEBUG:: in setup_python_with_coot_modules() inserting into sys path: " << pkgpydirectory << std::endl;
+   PyList_Insert(sys_path, 0, PyUnicode_FromString(pkgpydirectory.c_str()));
+   std::cout << "DEBUG:: in setup_python_with_coot_modules() inserting into sys path: " << pydirectory << std::endl;
+   PyList_Insert(sys_path, 0, PyUnicode_FromString(pydirectory.c_str()));
 
    // int err = PyRun_SimpleString("import coot");
    // std::cout << "in setup_python_with_coot_modules(): import coot gives err:: " << err << std::endl;

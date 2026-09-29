@@ -1541,9 +1541,9 @@ int get_continue_updating_refinement_atoms_state();
 
 //! \}
 
-//! \name status bar string functions
+//! \name Status bar string functions
 //! \{
-// status bar atom info text here?!
+//! status bar atom info text here?!
 std::string atom_info_as_text_for_statusbar(int atom_index, int imol);
 std::string atom_info_as_text_for_statusbar(int atom_index, int imol,
                                             const std::pair<symm_trans_t, Cell_Translation> &sts);
