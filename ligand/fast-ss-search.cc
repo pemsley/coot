@@ -183,7 +183,7 @@ void SSfind::prep_xmap( const clipper::Xmap<float>& xmap, const double radius )
 
   // make 1d list of densities
   clipper::Xmap<float>::Map_reference_index ix( xmap );
-  for ( unsigned int i = 0; i < mapbox.size(); i++ ) {
+  for ( clipper::itype32 i = 0; i < mapbox.size(); i++ ) {
     ix.set_coord( mxgr.deindex( i ) );
     mapbox[i] = xmap[ix];
   }
