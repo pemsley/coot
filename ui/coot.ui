@@ -9171,6 +9171,8 @@ Do you want to continue?
 				 <object class="GtkEntry" id="acedrg_link_first_residue_name_entry">
 				   <property name="can-focus">1</property>
 				   <property name="hexpand">False</property>
+				   <property name="placeholder-text">e.g. PTR, then press Enter</property>
+				   <property name="tooltip-text">Type the 3-letter code, then press Enter to load its atoms</property>
                                    <signal name="activate" handler="on_acedrg_link_first_residue_activate" />
 				 </object>
 			       </child>
@@ -9346,6 +9348,8 @@ Do you want to continue?
 				 <object class="GtkEntry" id="acedrg_link_second_residue_name_entry">
 				   <property name="can-focus">1</property>
 				   <property name="hexpand">False</property>
+				   <property name="placeholder-text">e.g. DT, then press Enter</property>
+				   <property name="tooltip-text">Type the 3-letter code, then press Enter to load its atoms</property>
                                    <signal name="activate" handler="on_acedrg_link_second_residue_activate" />
 				 </object>
 			       </child>

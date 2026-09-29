@@ -4837,6 +4837,8 @@ string   static std::string sessionid;
 
    static std::pair<bool, std::string> acedrg_link;
    static bool acedrg_running; // not link acedrg - this is acedrg from CCD
+   static std::string acedrg_link_command_output; // acedrg's own stdout/stderr from the last
+                                                   // (possibly failed) link-generation run
 
    static bool curmudgeon_mode; // default false, particles and faces
    static bool use_sounds; // default true
