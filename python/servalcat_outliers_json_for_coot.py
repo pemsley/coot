@@ -1,7 +1,7 @@
 import json
 import re
 
-# this script reads the JSON output from Servalcat refinement (prefix_mod_refined_stats.json) and generates a new JSON file formatted for Coot, 
+# this script reads the JSON output from Servalcat refinement (prefix_mod_refined_stats.json) and generates a new JSON file formatted for Coot,
 # containing outlier information for bonds, angles, torsions, chirality, planes, and van der Waals clashes.
 # It reports outliers from the last refinement cycle.
 
@@ -17,13 +17,13 @@ output = {
     "sections": []
 }
 
-    
+
 def parse_atom_string(atom_str):
     # Example: "B/SER 282I/CB" or "A/ZN 360/ZN.A"
     chain, rest = atom_str.split("/", 1)
     res_part, atom_part = rest.split("/")
     resname, resseq_raw = res_part.split()
-    
+
     # Split resseq and insertion code (e.g., "282I" → 282, "I")
     match = re.match(r"(\d+)([A-Za-z]?)", resseq_raw)
     if match:
@@ -31,14 +31,14 @@ def parse_atom_string(atom_str):
         icode = match.group(2)
     else:
         raise ValueError(f"Invalid residue format: {resseq_raw}")
-    
+
     # Handle atom name + altloc
     if "." in atom_part:
         name, altloc = atom_part.split(".", 1)
     else:
         name = atom_part
         altloc = ""
-    
+
     return {
         "chain_id": chain,
         "resname": resname,
@@ -58,7 +58,7 @@ def get_atom_spec_as_string(obj):
         obj["atom_name"],
         obj["altloc"] if obj["altloc"] else ""
     ]
-    
+
     return " ".join(parts)
 
 
@@ -76,8 +76,8 @@ def get_atom_spec(obj):
 vdw_items = []
 
 try:
-    vdw_outliers = data[-1]["geom"]["outliers"]["vdw"]    
-    for vdw in vdw_outliers:      
+    vdw_outliers = data[-1]["geom"]["outliers"]["vdw"]
+    for vdw in vdw_outliers:
         atom1 = parse_atom_string(vdw["atom1"])
         atom2 = parse_atom_string(vdw["atom2"])
         vdw_items.append({
@@ -108,7 +108,7 @@ except KeyError:
     print("No van der Waals clashes")
 
 
-#--------- Bonds ------------------------    
+#--------- Bonds ------------------------
 bonds_items = []
 
 try:
@@ -125,12 +125,12 @@ try:
             f"sigma={round(bond.get('sigma', 0), 3)}, "
             f"z={round(bond.get('z', 0), 1)}"
         )
-        
+
         # append type/alpha only if type >= 2
         bond_type = bond.get("type", 0)
         if bond_type >= 2:
             label += f", type={bond_type}, alpha={round(bond.get('alpha', 0), 1)}"
-        
+
         bonds_items.append({
             "type": "Bond Outlier",
             "label": label,
@@ -153,7 +153,7 @@ except KeyError:
 
 angle_items = []
 
-try: 
+try:
     angles = data[-1]["geom"]["outliers"]["angle"]
     for angle in angles:
         atom1 = parse_atom_string(angle["atom1"])
@@ -237,7 +237,7 @@ chiral_items = []
 
 try:
     chirs = data[-1]["geom"]["outliers"]["chir"]
-    for chir in chirs:    
+    for chir in chirs:
         atomc = parse_atom_string(chir["atomc"])
         atom1 = parse_atom_string(chir["atom1"])
         atom2 = parse_atom_string(chir["atom2"])
@@ -249,7 +249,7 @@ try:
                 f"{get_atom_spec_as_string(atom1)} - "
                 f"{get_atom_spec_as_string(atom2)} - "
                 f"{get_atom_spec_as_string(atom3)}, "
-                
+
                 f"value={round(chir.get('value', 0), 3)}, "
                 f"ideal={round(chir.get('ideal', 0), 3)}, "
                 f"sigma={round(chir.get('sigma', 0), 3)}, "
