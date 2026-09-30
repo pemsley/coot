@@ -46,6 +46,10 @@ void CXXSphereElement::init(){
 //	flatTriangles.reserve(2000);
 //	theEdges.reserve(720);
 	nDrawnTriangles=0;
+	contactAtoms[0] = 0;
+	contactAtoms[1] = 0;
+	contactAtoms[2] = 0;
+	hasThreeContacts = false;
 }
 CXXSphereElement::CXXSphereElement() : 
 theAtom(0)
@@ -266,9 +270,16 @@ flatTriangles(oldOne.getFlatTriangles()),
 theCircles(oldOne.getCircles()),
 theRadius ( oldOne.radius()),
 deltaRadians ( oldOne.delta()),
-nDrawnTriangles (oldOne.getNDrawnTriangles())
+nDrawnTriangles (oldOne.getNDrawnTriangles()),
+hasThreeContacts (oldOne.hasThreeContacts)
 {
-	//Makes a complete independent copy of the oldOne;	
+	//This constructor lists its members rather than calling init(), so anything added to the
+	//class has to be added here too or it is left uninitialised in every copy.
+	for (int i=0; i<3; i++){
+		contactAtoms[i] = oldOne.contactAtoms[i];
+		contactDirections[i] = oldOne.contactDirections[i];
+	}
+	//Makes a complete independent copy of the oldOne;
 	std::vector<CXXSphereTriangle  >::iterator trianglesEnd = theTriangles.end();
 	for (std::vector<CXXSphereTriangle  >::iterator triangle = theTriangles.begin();
 		 triangle!= trianglesEnd;
@@ -359,6 +370,16 @@ void CXXSphereElement::initWith(const CXXCoord<CXXCoord_ftype>&aCentre, mmdb::At
 	u2.normalise();
 	u3 = u3-theCentre;
 	u3.normalise();
+
+	// Keep the three contacts, so how much of a vertex belongs to each can be worked out
+	// rather than flattened to whichever of the three sectors the vertex fell in.
+	contactAtoms[0] = atomK;
+	contactAtoms[1] = atomJ;
+	contactAtoms[2] = atomI;
+	contactDirections[0] = u1;
+	contactDirections[1] = u2;
+	contactDirections[2] = u3;
+	hasThreeContacts = true;
 	
 	CXXCoord<CXXCoord_ftype>u12;
 	u12 = u1 + u2;

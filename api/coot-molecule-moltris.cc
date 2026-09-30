@@ -37,6 +37,7 @@
 #include <MoleculesToTriangles/CXXClasses/MolecularRepresentationInstance.h>
 #include <MoleculesToTriangles/CXXClasses/VertexColorNormalPrimitive.h>
 #include <MoleculesToTriangles/CXXClasses/BallsPrimitive.h>
+#include <MoleculesToTriangles/CXXClasses/SurfacePrimitive.h>
 
 #include "MoleculesToTriangles/CXXClasses/tubes.hh"
 
@@ -44,6 +45,8 @@
 #include <glm/gtx/string_cast.hpp>
 
 #include <tuple>
+#include <map>
+#include <string>
 
 
 //! Add a colour rule: eg. ("//A", "red")
@@ -292,7 +295,31 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
       return res_no_max;
    };
 
-   auto molecular_representation_instance_to_mesh = [] (std::shared_ptr<MolecularRepresentationInstance> molrepinst,
+   // A residue as a CID of the form /1/A/23(ALA), or /1/A/23(ALA).B with an insertion code,
+   // which is what a caller will want to hand back to the rest of the API.
+   //
+   // The insertion code goes after the residue name, following mmdb's own
+   // /mdl/chn/seq(res).ins grammar. Putting it after the number instead parses, but wrongly: a
+   // reader taking the text after the dot then gets "B(ALA)" rather than "B".
+   auto residue_cid = [] (mmdb::Residue *residue_p) {
+      std::string cid = "/";
+      cid += std::to_string(residue_p->GetModelNum());
+      cid += "/";
+      cid += residue_p->GetChainID();
+      cid += "/";
+      cid += std::to_string(residue_p->GetSeqNum());
+      cid += "(";
+      cid += residue_p->GetResName();
+      cid += ")";
+      std::string ins_code = residue_p->GetInsCode();
+      if (! ins_code.empty()) {
+         cid += ".";
+         cid += ins_code;
+      }
+      return cid;
+   };
+
+   auto molecular_representation_instance_to_mesh = [&residue_cid] (std::shared_ptr<MolecularRepresentationInstance> molrepinst,
                                                         const std::vector<std::pair<std::string, float> > &M2T_float_params,
                                                         const std::vector<std::pair<std::string, int> > &M2T_int_params) {
       coot::simple_mesh_t mesh;
@@ -316,13 +343,21 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
       auto displayPrimitiveIter = vdp.begin();
       for (displayPrimitiveIter=vdp.begin(); displayPrimitiveIter != vdp.end(); displayPrimitiveIter++) {
          DisplayPrimitive &displayPrimitive = **displayPrimitiveIter;
+         // FlatFanPrimitive is the face of a dishy base: triangles, and a
+         // VertexColorNormalPrimitive like the rest of these. It belongs here, and until
+         // DisplayPrimitive::primitiveType was initialised it only arrived when the
+         // uninitialised value happened to read as one of the four types named below.
          if (displayPrimitive.type() == DisplayPrimitive::PrimitiveType::SurfacePrimitive    ||
              displayPrimitive.type() == DisplayPrimitive::PrimitiveType::BoxSectionPrimitive ||
              displayPrimitive.type() == DisplayPrimitive::PrimitiveType::BallsPrimitive      ||
+             displayPrimitive.type() == DisplayPrimitive::PrimitiveType::FlatFanPrimitive    ||
              displayPrimitive.type() == DisplayPrimitive::PrimitiveType::CylinderPrimitive ){
             displayPrimitive.generateArrays();
 
             coot::simple_mesh_t submesh;
+            // A reference cast, so a primitive that is not one of these throws std::bad_cast
+            // rather than returning null. That is deliberate - but it only ever fired because
+            // type() could lie, which it no longer can.
             VertexColorNormalPrimitive &surface = dynamic_cast<VertexColorNormalPrimitive &>(displayPrimitive);
             submesh.vertices.resize(surface.nVertices());
 
@@ -343,6 +378,81 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
                }
             }
 
+            // Which residue each vertex belongs to.
+            //
+            // Several of these primitives already know. A surface is built from one sphere
+            // patch per atom and one torus per pair, and records the generating atom against
+            // every vertex; a ribbon is swept along a spline and records the alpha carbon of
+            // the residue whose half-turn it is drawing. All of it survived into atomArray on
+            // the base class and was dropped here, because simple_mesh_t had nowhere to put
+            // it. Now it does, so a caller can tell which residue is under a triangle it hit.
+            //
+            // No list of primitive types: the question is whether this one recorded anything,
+            // and a null array answers it. That works only because all three that allocate
+            // the array now value-initialise it, so an unwritten slot is null rather than
+            // heap litter - the primitives that record nothing never allocate it at all.
+            {
+               const mmdb::Atom **atomArray = surface.getAtomArray();
+               // The other atom of a saddle and the split between the two. Only a surface has
+               // these, and only a surface needs them: a ribbon vertex lies within one
+               // residue's half-turn of spline, so it belongs to that residue outright.
+               const mmdb::Atom **atom2Array = 0;
+               const float *atomWeightArray = 0;
+               if (displayPrimitive.type() == DisplayPrimitive::PrimitiveType::SurfacePrimitive) {
+                  SurfacePrimitive &surfacePrimitive = dynamic_cast<SurfacePrimitive &>(displayPrimitive);
+                  atom2Array = surfacePrimitive.getAtom2Array();
+                  atomWeightArray = surfacePrimitive.getAtomWeightArray();
+               }
+               if (atomArray) {
+                  submesh.vertex_owner.resize(surface.nVertices(), coot::simple_mesh_t::no_owner);
+                  submesh.vertex_owner_other.resize(surface.nVertices(), coot::simple_mesh_t::no_owner);
+                  submesh.vertex_owner_weight.resize(surface.nVertices(), 1.0f);
+                  std::map<mmdb::Residue *, unsigned int> residue_index;
+
+                  // Name a residue, adding it to this submesh's table the first time it is seen.
+                  auto index_of_residue = [&residue_index, &submesh, &residue_cid] (mmdb::Atom *at) {
+                     if (! at) return coot::simple_mesh_t::no_owner;
+                     mmdb::Residue *residue_p = at->GetResidue();
+                     if (! residue_p) return coot::simple_mesh_t::no_owner;
+                     std::map<mmdb::Residue *, unsigned int>::const_iterator it = residue_index.find(residue_p);
+                     if (it != residue_index.end()) return it->second;
+                     unsigned int idx = submesh.owners.size();
+                     submesh.owners.push_back(residue_cid(residue_p));
+                     residue_index[residue_p] = idx;
+                     return idx;
+                  };
+
+                  for (unsigned int iVertex=0; iVertex < surface.nVertices(); iVertex++) {
+                     // const_cast because mmdb's accessors are not const, not because anything
+                     // here modifies the atom.
+                     mmdb::Atom *at = const_cast<mmdb::Atom *>(atomArray[iVertex]);
+                     unsigned int owner = index_of_residue(at);
+                     if (owner == coot::simple_mesh_t::no_owner) continue;
+
+                     mmdb::Atom *at2 = atom2Array ? const_cast<mmdb::Atom *>(atom2Array[iVertex]) : 0;
+                     unsigned int other = index_of_residue(at2);
+                     float weight = atomWeightArray ? atomWeightArray[iVertex] : 1.0f;
+
+                     // A saddle between two atoms of the SAME residue is not a boundary at all,
+                     // and most of them are: collapse it, so the common case stays a single
+                     // full-weight owner and the data only grows where a boundary really runs.
+                     if (other == owner) other = coot::simple_mesh_t::no_owner;
+                     if (other == coot::simple_mesh_t::no_owner) weight = 1.0f;
+
+                     // The heavier of the two goes first, so a reader that wants one answer -
+                     // which residue was clicked - can take vertex_owner without comparing.
+                     if (other != coot::simple_mesh_t::no_owner && weight < 0.5f) {
+                        std::swap(owner, other);
+                        weight = 1.0f - weight;
+                     }
+
+                     submesh.vertex_owner[iVertex] = owner;
+                     submesh.vertex_owner_other[iVertex] = other;
+                     submesh.vertex_owner_weight[iVertex] = weight;
+                  }
+               }
+            }
+
             auto indexArray = surface.getIndexArray();
             submesh.triangles.resize(surface.nTriangles());
             for (unsigned int iTriangle=0; iTriangle<surface.nTriangles(); iTriangle++){
@@ -355,6 +465,23 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
                          << submesh.vertices.size() << " vertices and "
                          << submesh.triangles.size() << " triangles" << std::endl;
             mesh.add_submesh(submesh);
+
+            // The primitive's own arrays have now been copied twice - into submesh, and from
+            // there into mesh - and nothing reads them again. Left alone they stay allocated
+            // until the next redraw(), so by the end of this loop every vertex of the
+            // representation is resident three times over: once in the primitives, once in the
+            // merged mesh, and briefly once more in the submesh. For a ribosome's dishy bases
+            // that is about half a gigabyte held for no reason, on top of the half gigabyte
+            // being assembled - which is what leaves no contiguous block big enough for the
+            // merged mesh to grow into.
+            //
+            // Named through the base class deliberately: CylindersPrimitive hides emptyArrays()
+            // with a version that frees only the vertex array.
+            //
+            // Safe to do here because the arrays are a cache - renderWithRenderer() regenerates
+            // them when it finds the vertex array null - and because the mesh, not the
+            // primitive, is what this function returns.
+            surface.VertexColorNormalPrimitive::emptyArrays();
          }
       }
 
@@ -592,14 +719,46 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
             }
             mesh.fill_colour_map(); // for blendering
          }
+         // A mesh that could not be built says so, rather than being returned empty.
+         //
+         // simple_mesh_t::status is documented as exactly this flag - "1 is good, 0 is bad
+         // (0 is set when we get a bad_alloc)" - but nothing here was setting it, so a
+         // representation that threw came back indistinguishable from one whose selection
+         // legitimately matched nothing. A caller then drew no geometry and had no way to
+         // tell whether that was the answer or a failure.
+         //
+         // Partly built is also failed: whatever was added before the throw is not the mesh
+         // that was asked for, so it is cleared rather than half drawn.
          catch (const std::out_of_range &oor) {
             std::cout << "ERROR:: out of range in get_molecular_representation_mesh() " << oor.what() << std::endl;
+            mesh.clear();
+            mesh.status = 0;
          }
          catch (const std::runtime_error &rte) {
             std::cout << "ERROR:: runtime error in get_molecular_representation_mesh() " << rte.what() << std::endl;
+            mesh.clear();
+            mesh.status = 0;
+         }
+         // std::bad_alloc derives from std::exception, not from std::runtime_error, so it used
+         // to fall through to catch (...) and report itself as "unknown exception" - which left
+         // no way to tell running out of memory from any other failure. Name it, and say how
+         // far the mesh had got, so the size at which it gives up is on the record.
+         catch (const std::bad_alloc &ba) {
+            std::cout << "ERROR:: out of memory in get_molecular_representation_mesh(): "
+                      << ba.what() << std::endl;
+            mesh.clear();
+            mesh.status = 0;
+         }
+         catch (const std::exception &e) {
+            std::cout << "ERROR:: std::exception in get_molecular_representation_mesh(): "
+                      << e.what() << std::endl;
+            mesh.clear();
+            mesh.status = 0;
          }
          catch (...) {
             std::cout << "ERROR:: unknown exception in get_molecular_representation_mesh()! " << std::endl;
+            mesh.clear();
+            mesh.status = 0;
          }
       }
    }

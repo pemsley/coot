@@ -31,6 +31,8 @@ SurfacePrimitive::SurfacePrimitive() : VertexColorNormalPrimitive (){
     drawModeGL = DrawAsTriangles;
     enableColorGL = true;
     cxxSurfaceMaker = 0;
+    atom2Array = 0;
+    atomWeightArray = 0;
     primitiveType = DisplayPrimitive::PrimitiveType::SurfacePrimitive;
 }
 
@@ -50,13 +52,23 @@ void SurfacePrimitive::generateArrays()
     }
     
     vertexColorNormalArray = new VertexColorNormal[_nVertices];
-    atomArray = new const mmdb::Atom*[_nVertices];
-    
+    // Value-initialised, so a vertex whose atom cannot be found reads back as null rather than
+    // as whatever was on the heap.
+    atomArray = new const mmdb::Atom*[_nVertices]();
+    // The second atom of a saddle, null for a convex cap where there is only one. The weight
+    // then stays at 1 and the vertex belongs to its own atom outright.
+    atom2Array = new const mmdb::Atom*[_nVertices]();
+    atomWeightArray = new float[_nVertices];
+    for (size_t i=0; i<_nVertices; i++) atomWeightArray[i] = 1.0f;
+
     size_t iGlobalVert=0;
     for (vector<CXXSurface>::iterator surfIter = containerSurface.getChildSurfaces().begin();
          surfIter != containerSurface.getChildSurfaces().end();
          ++surfIter){
         CXXSurface &childSurface = *surfIter;
+        // Looked up once per child surface rather than per vertex, and SIZE_MAX when this
+        // surface has no saddles at all - an isolated atom, say.
+        const size_t weightHandle = childSurface.getReadScalarHandle("atomWeight");
         for (size_t iLocalVert=0; iLocalVert< childSurface.numberOfVertices(); iLocalVert++){
             VertexColorNormal &vcn(vertexColorNormalArray[iGlobalVert]);
             //Copy vertex into vertices array
@@ -84,9 +96,29 @@ void SurfacePrimitive::generateArrays()
             else for (int k=0; k<4; k++) vcn.color[k] = 0.5;
             
             //Copy atom pointer into atom pointers array
+            // CXXSurface::getPointer returns 0 on success, as the two loops over "atom" in the
+            // constructor below both assume. The test here was the other way round, so the
+            // pointer was stored only when the lookup had failed - and every vertex whose atom
+            // WAS found kept uninitialised heap memory instead. Nothing read atomArray, so it
+            // went unnoticed.
             mmdb::Atom *atomPointer;
             int result = childSurface.getPointer("atom", iLocalVert, (void**)&(atomPointer));
-            if (result) atomArray[iGlobalVert] = atomPointer;
+            if (result == 0) atomArray[iGlobalVert] = atomPointer;
+
+            // ...and the other atom of the saddle, where this vertex is on one. Only the
+            // toroidal patches set these, so a cap leaves the null and the weight of 1 that
+            // were put there above. getScalar is asked for the weight only when there really
+            // is a second atom, because an unset scalar reads back as zero rather than as one.
+            mmdb::Atom *atom2Pointer = 0;
+            if (childSurface.getPointer("atom2", iLocalVert, (void**)&(atom2Pointer)) == 0
+                && atom2Pointer != 0) {
+                atom2Array[iGlobalVert] = atom2Pointer;
+                if (weightHandle != SIZE_MAX) {
+                    double weight = 1.;
+                    if (childSurface.getScalar(int(weightHandle), int(iLocalVert), weight) == 0)
+                        atomWeightArray[iGlobalVert] = float(weight);
+                }
+            }
             iGlobalVert++;
         }
     }
@@ -115,6 +147,8 @@ SurfacePrimitive::SurfacePrimitive(mmdb::Manager *mmdb, int chunkHndl, int selHn
     cxxSurfaceMaker = 0;
     vertexColorNormalArray = 0;
     indexArray = 0;
+    atom2Array = 0;
+    atomWeightArray = 0;
     colorScheme = _colorScheme;
     cxxSurfaceMaker = new CXXSurfaceMaker();
     try {
