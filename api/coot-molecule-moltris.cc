@@ -694,14 +694,30 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
             }
             mesh.fill_colour_map(); // for blendering
          }
+         // A mesh that could not be built says so, rather than being returned empty.
+         //
+         // simple_mesh_t::status is documented as exactly this flag - "1 is good, 0 is bad
+         // (0 is set when we get a bad_alloc)" - but nothing here was setting it, so a
+         // representation that threw came back indistinguishable from one whose selection
+         // legitimately matched nothing. A caller then drew no geometry and had no way to
+         // tell whether that was the answer or a failure.
+         //
+         // Partly built is also failed: whatever was added before the throw is not the mesh
+         // that was asked for, so it is cleared rather than half drawn.
          catch (const std::out_of_range &oor) {
             std::cout << "ERROR:: out of range in get_molecular_representation_mesh() " << oor.what() << std::endl;
+            mesh.clear();
+            mesh.status = 0;
          }
          catch (const std::runtime_error &rte) {
             std::cout << "ERROR:: runtime error in get_molecular_representation_mesh() " << rte.what() << std::endl;
+            mesh.clear();
+            mesh.status = 0;
          }
          catch (...) {
             std::cout << "ERROR:: unknown exception in get_molecular_representation_mesh()! " << std::endl;
+            mesh.clear();
+            mesh.status = 0;
          }
       }
    }
