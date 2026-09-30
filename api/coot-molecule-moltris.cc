@@ -496,7 +496,7 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
    if (style == "Tubes") { //  bendy helices
 
       mmdb::Manager *mol = atom_sel.mol;
-      std::string atom_selection = "//";
+      const std::string &atom_selection = atom_selection_str;
       std::string colour_scheme = "Helix";
       float radius_for_helices = 3.2;
       unsigned int n_slices_for_helices = 16;
@@ -504,9 +504,19 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
       float Cn_for_coil = 2;
       int accuracy_for_coil = 12;
       unsigned int n_slices_for_coil = 12;
-      // make_tubes_representation() removed until it can be compiled without using coot include/libs
-      // mesh = make_tubes_representation(mol, atom_selection, colour_scheme, radius_for_coil, Cn_for_coil,
-      //                                  accuracy_for_coil, n_slices_for_coil, secondaryStructureUsageFlag);
+      coot::m2t::simple_mesh_t tubes_mesh =
+         make_tubes_representation(mol, atom_selection, colour_scheme, radius_for_coil, Cn_for_coil,
+                                   accuracy_for_coil, n_slices_for_coil, secondaryStructureUsageFlag);
+
+      // MoleculesToTriangles can't depend on coot-utils (it's low in the link
+      // order), so make_tubes_representation() returns a coot::m2t::simple_mesh_t.
+      // Convert it here into the coot::simple_mesh_t that this function returns.
+      mesh.vertices.reserve(tubes_mesh.vertices.size());
+      for (const auto &v : tubes_mesh.vertices)
+         mesh.vertices.push_back(coot::api::vnc_vertex(v.pos, v.normal, v.color));
+      mesh.triangles.reserve(tubes_mesh.triangles.size());
+      for (const auto &t : tubes_mesh.triangles)
+         mesh.triangles.push_back(g_triangle(t.point_id[0], t.point_id[1], t.point_id[2]));
 
    } else {
 

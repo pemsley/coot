@@ -6,7 +6,6 @@
 
 #include <clipper/core/coords.h>
 #include "MoleculesToTriangles/CXXClasses/NRStuff.h"
-#include "coot-utils/cylinder.hh"
 
 #include "MoleculesToTriangles/CXXSurface/CXXCoord.h"
 #include "mmdb2/mmdb_selmngr.h"
@@ -227,6 +226,19 @@ make_coil_splines_and_helicies(mmdb::Manager *mol, int atom_selection_handle, bo
    std::vector<helix_residues_info_t> hriv;
    std::vector<coil_residues_info_t> coil_runs_of_residues;
 
+   // does any residue of this chain belong to the (mmdb) selection?
+   // (used so that a chain-level cid, e.g. "//A", actually restricts
+   // which helices/coils get built, rather than always using the whole molecule)
+   auto chain_intersects_selection = [atom_selection_handle] (mmdb::Chain *chain_p) {
+      int n_res = chain_p->GetNumberOfResidues();
+      for (int i=0; i<n_res; i++) {
+         mmdb::Residue *r = chain_p->GetResidue(i);
+         if (r && r->isInSelection(atom_selection_handle))
+            return true;
+      }
+      return false;
+   };
+
    // --------------- using header mode ---------------------
    if (use_header) {
 
@@ -246,7 +258,7 @@ make_coil_splines_and_helicies(mmdb::Manager *mol, int atom_selection_handle, bo
                      mmdb::Chain *chain_p = model_p->GetChain(ichain);
                      if (chain_p) {
                         std::string this_chain_id = chain_p->GetChainID();
-                        if (this_chain_id == helix_chain_id) {
+                        if (this_chain_id == helix_chain_id && chain_intersects_selection(chain_p)) {
                            int n_residues = chain_p->GetNumberOfResidues();
                            for (int ires=0; ires<n_residues; ires++) {
                               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
@@ -277,6 +289,7 @@ make_coil_splines_and_helicies(mmdb::Manager *mol, int atom_selection_handle, bo
             int n_chains = model_p->GetNumberOfChains();
             for (int ichain=0; ichain<n_chains; ichain++) {
                mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               if (! chain_intersects_selection(chain_p)) continue;
                int n_res = chain_p->GetNumberOfResidues();
                mmdb::Residue *residue_prev_p = nullptr;
                std::string chain_id = chain_p->GetChainID();
@@ -399,7 +412,7 @@ make_coil_splines_and_helicies(mmdb::Manager *mol, int atom_selection_handle, bo
 
 }
 
-coot::simple_mesh_t
+coot::m2t::simple_mesh_t
 make_mesh_for_helical_representation(const std::vector<helix_residues_info_t> &helices,
                                      mmdb::Manager *mol,
                                      float radius_for_helices,
@@ -543,7 +556,7 @@ make_mesh_for_helical_representation(const std::vector<helix_residues_info_t> &h
       return rtop;
    };
 
-   coot::simple_mesh_t m;
+   coot::m2t::simple_mesh_t m;
 
    if (! helices.empty()) {
 
@@ -577,7 +590,7 @@ make_mesh_for_helical_representation(const std::vector<helix_residues_info_t> &h
       bool flat_end_caps = false; // so hemispheres
       std::vector<clipper::Coord_orth> end_cap_points;
       std::vector<clipper::Coord_orth> end_cap_point_normals;
-      std::vector<g_triangle> end_cap_triangles;
+      std::vector<coot::m2t::mesh_triangle_t> end_cap_triangles;
       for (unsigned int ir=0; ir<n_end_cap_rings; ir++) {
          float scale_factor = static_cast<float>(ir+1)/static_cast<float>(n_end_cap_rings);
          // if (scale_factor == 0.0f) scale_factor = 0.0001f;
@@ -611,8 +624,8 @@ make_mesh_for_helical_representation(const std::vector<helix_residues_info_t> &h
             int idx_1 = idx + 1;
             int idx_2 = idx + n_slices_for_helices;
             int idx_3 = idx + n_slices_for_helices + 1;
-            g_triangle t1(idx_0, idx_1, idx_2);
-            g_triangle t2(idx_1, idx_3, idx_2);
+            coot::m2t::mesh_triangle_t t1(idx_0, idx_1, idx_2);
+            coot::m2t::mesh_triangle_t t2(idx_1, idx_3, idx_2);
             t1.rebase(ring_offset);
             t2.rebase(ring_offset);
             end_cap_triangles.push_back(t1);
@@ -620,8 +633,8 @@ make_mesh_for_helical_representation(const std::vector<helix_residues_info_t> &h
          }
          // and the triangles that connect the start the the end
          // (these seem to have "backward" winding compared to other start-to-end triangles - FWIW)
-         g_triangle t1(0, n_slices_for_helices, n_slices_for_helices - 1);
-         g_triangle t2(n_slices_for_helices, 2 * n_slices_for_helices - 1, n_slices_for_helices -1);
+         coot::m2t::mesh_triangle_t t1(0, n_slices_for_helices, n_slices_for_helices - 1);
+         coot::m2t::mesh_triangle_t t2(n_slices_for_helices, 2 * n_slices_for_helices - 1, n_slices_for_helices -1);
          t1.rebase(ring_offset);
          t2.rebase(ring_offset);
          end_cap_triangles.push_back(t1);
@@ -632,8 +645,8 @@ make_mesh_for_helical_representation(const std::vector<helix_residues_info_t> &h
          const auto &helix = helices[ih];
          if (helix.size() > 3) {
             glm::vec4 col = get_helix_colour(ih);
-            std::vector<coot::api::vnc_vertex> vertices;
-            std::vector<g_triangle> triangles;
+            std::vector<coot::m2t::mesh_vertex_t> vertices;
+            std::vector<coot::m2t::mesh_triangle_t> triangles;
 
             clipper::RTop_orth rtop_for_start_end_cap(clipper::RTop_orth::null());
             clipper::RTop_orth rtop_for_end_end_cap(clipper::RTop_orth::null());
@@ -659,7 +672,7 @@ make_mesh_for_helical_representation(const std::vector<helix_residues_info_t> &h
                      rotated_normals[i_pt] = t_n;
                      glm::vec3 v(t_pt.x(), t_pt.y(), t_pt.z());
                      glm::vec3 n(t_n.x(), t_n.y(), t_n.z());
-                     coot::api::vnc_vertex vnc_v(v, n, col);
+                     coot::m2t::mesh_vertex_t vnc_v(v, n, col);
                      vertices.push_back(vnc_v);
                   }
                   n_rings_in_helix++;
@@ -687,8 +700,8 @@ make_mesh_for_helical_representation(const std::vector<helix_residues_info_t> &h
                         if (jo_1 >= n_slices_for_helices) jo_1 -= n_slices_for_helices;
                         if (jo_2 >= n_slices_for_helices) jo_2 -= n_slices_for_helices;
                         // winding is important
-                        g_triangle t1(j + 1, j, n_slices_for_helices + jo_1);
-                        g_triangle t2(n_slices_for_helices + jo_1, n_slices_for_helices + jo_2, j + 1);
+                        coot::m2t::mesh_triangle_t t1(j + 1, j, n_slices_for_helices + jo_1);
+                        coot::m2t::mesh_triangle_t t2(n_slices_for_helices + jo_1, n_slices_for_helices + jo_2, j + 1);
                         t1.rebase(ring_offset);
                         t2.rebase(ring_offset);
                         triangles.push_back(t1);
@@ -697,8 +710,8 @@ make_mesh_for_helical_representation(const std::vector<helix_residues_info_t> &h
                      // now the join the end to the start: - I had to get a pen and paper out for this...
                      unsigned int jbo = j_best + n_slices_for_helices - 1;
                      if (j_best == 0) jbo = 2 * n_slices_for_helices - 1;
-                     g_triangle t_end_1(0, n_slices_for_helices - 1, j_best + n_slices_for_helices);
-                     g_triangle t_end_2(j_best + n_slices_for_helices, n_slices_for_helices -1, jbo);
+                     coot::m2t::mesh_triangle_t t_end_1(0, n_slices_for_helices - 1, j_best + n_slices_for_helices);
+                     coot::m2t::mesh_triangle_t t_end_2(j_best + n_slices_for_helices, n_slices_for_helices -1, jbo);
                      t_end_1.rebase(ring_offset);
                      t_end_2.rebase(ring_offset);
                      triangles.push_back(t_end_1);
@@ -706,17 +719,17 @@ make_mesh_for_helical_representation(const std::vector<helix_residues_info_t> &h
                   }
                }
             }
-            coot::simple_mesh_t helices_mesh(vertices, triangles);
+            coot::m2t::simple_mesh_t helices_mesh(vertices, triangles);
             m.add_submesh(helices_mesh);
 
             // now add the end-caps:
             // start end-cap:
             glm::vec4 unassigned_bendiness_colour(0.152, 0.12f, 1.0f, 1.0f); // matches above in lambda
             col = unassigned_bendiness_colour;
-            std::vector<g_triangle> end_cap_triangles_with_reversed_windings = end_cap_triangles;
+            std::vector<coot::m2t::mesh_triangle_t> end_cap_triangles_with_reversed_windings = end_cap_triangles;
             for (auto &tri : end_cap_triangles_with_reversed_windings)
                tri.reverse_winding();
-            std::vector<coot::api::vnc_vertex> end_cap_vertices;
+            std::vector<coot::m2t::mesh_vertex_t> end_cap_vertices;
             // rtop_for_start_end_cap = clipper::RTop_orth::identity();
             std::cout << "debug:: rtop_for_start_end_cap:\n" << rtop_for_start_end_cap.format() << std::endl;
             clipper::RTop_orth rtop_for_start_end_cap_rot = strip_trn(rtop_for_start_end_cap);
@@ -730,10 +743,10 @@ make_mesh_for_helical_representation(const std::vector<helix_residues_info_t> &h
                glm::vec3 v(vc.x(), vc.y(), vc.z());
                glm::vec3 n(nc.x(), nc.y(), nc.z());
                float ss = n.x * n.x + n.y * n.y + n.z * n.z;
-               coot::api::vnc_vertex vnc_v(v, n, col);
+               coot::m2t::mesh_vertex_t vnc_v(v, n, col);
                end_cap_vertices.push_back(vnc_v);
             }
-            coot::simple_mesh_t start_end_cap_sub_mesh(end_cap_vertices, end_cap_triangles_with_reversed_windings);
+            coot::m2t::simple_mesh_t start_end_cap_sub_mesh(end_cap_vertices, end_cap_triangles_with_reversed_windings);
             m.add_submesh(start_end_cap_sub_mesh);
 
             // end end cap
@@ -746,10 +759,10 @@ make_mesh_for_helical_representation(const std::vector<helix_residues_info_t> &h
                clipper::Coord_orth nc = rtop_for_end_end_cap_rot * (-1.0f * end_cap_point_normals[i]);
                glm::vec3 v(vc.x(), vc.y(), vc.z());
                glm::vec3 n(-nc.x(), -nc.y(), -nc.z());
-               coot::api::vnc_vertex vnc_v(v, n, col);
+               coot::m2t::mesh_vertex_t vnc_v(v, n, col);
                end_cap_vertices.push_back(vnc_v);
             }
-            coot::simple_mesh_t end_end_cap_sub_mesh(end_cap_vertices, end_cap_triangles);
+            coot::m2t::simple_mesh_t end_end_cap_sub_mesh(end_cap_vertices, end_cap_triangles);
             m.add_submesh(end_end_cap_sub_mesh);
 
          }
@@ -760,7 +773,7 @@ make_mesh_for_helical_representation(const std::vector<helix_residues_info_t> &h
 }
 
 
-coot::simple_mesh_t
+coot::m2t::simple_mesh_t
 make_mesh_for_coil_representation(const std::vector<coil_residues_info_t> &coils,
                                   float radius,
                                   int Cn, int accuracy,
@@ -828,7 +841,7 @@ make_mesh_for_coil_representation(const std::vector<coil_residues_info_t> &coils
        unsigned int n_slices) {
 
       std::vector<std::vector<std::pair<glm::vec3, glm::vec3> > > rings;
-      coot::simple_mesh_t m;
+      coot::m2t::simple_mesh_t m;
       if (spline_points.size() > 2) {
          std::size_t spline_points_end = spline_points.size() -1;
          for (std::size_t i=1; i<spline_points_end; i++) {
@@ -843,7 +856,7 @@ make_mesh_for_coil_representation(const std::vector<coil_residues_info_t> &coils
          glm::vec4 col(0.6, 0.6, 0.6, 1.0);
          for (const auto &ring : rings) {
             for (const auto &point : ring) {
-               coot::api::vnc_vertex v(point.first, point.second, col);
+               coot::m2t::mesh_vertex_t v(point.first, point.second, col);
                m.vertices.push_back(v);
             }
          }
@@ -857,14 +870,14 @@ make_mesh_for_coil_representation(const std::vector<coil_residues_info_t> &coils
                unsigned int ring_offset = i * n_slices;
                for (unsigned int j=0; j<n_slices-1; j++) {
                   // winding is important
-                  g_triangle t1(ring_offset + j + 1, ring_offset + j, ring_offset + n_slices + j);
-                  g_triangle t2(ring_offset + n_slices + j, ring_offset + n_slices + j + 1, ring_offset + j + 1);
+                  coot::m2t::mesh_triangle_t t1(ring_offset + j + 1, ring_offset + j, ring_offset + n_slices + j);
+                  coot::m2t::mesh_triangle_t t2(ring_offset + n_slices + j, ring_offset + n_slices + j + 1, ring_offset + j + 1);
                   m.triangles.push_back(t1);
                   m.triangles.push_back(t2);
                }
                // now the join the end to the start:
-               g_triangle t_end_1(ring_offset, ring_offset + n_slices - 1, ring_offset + n_slices);
-               g_triangle t_end_2(ring_offset + n_slices, ring_offset + n_slices -1, ring_offset + 2 * n_slices -1);
+               coot::m2t::mesh_triangle_t t_end_1(ring_offset, ring_offset + n_slices - 1, ring_offset + n_slices);
+               coot::m2t::mesh_triangle_t t_end_2(ring_offset + n_slices, ring_offset + n_slices -1, ring_offset + 2 * n_slices -1);
                m.triangles.push_back(t_end_1);
                m.triangles.push_back(t_end_2);
             }
@@ -892,8 +905,8 @@ make_mesh_for_coil_representation(const std::vector<coil_residues_info_t> &coils
                      if (jo_1 >= n_slices) jo_1 -= n_slices;
                      if (jo_2 >= n_slices) jo_2 -= n_slices;
                      // winding is important
-                     g_triangle t1(j + 1, j, n_slices + jo_1);
-                     g_triangle t2(n_slices + jo_1, n_slices + jo_2, j + 1);
+                     coot::m2t::mesh_triangle_t t1(j + 1, j, n_slices + jo_1);
+                     coot::m2t::mesh_triangle_t t2(n_slices + jo_1, n_slices + jo_2, j + 1);
                      t1.rebase(ring_offset);
                      t2.rebase(ring_offset);
                      m.triangles.push_back(t1);
@@ -902,8 +915,8 @@ make_mesh_for_coil_representation(const std::vector<coil_residues_info_t> &coils
                   // now the join the end to the start: - I had to get a pen and paper out for this...
                   unsigned int jbo = j_best + n_slices - 1;
                   if (j_best == 0) jbo = 2 * n_slices - 1;
-                  g_triangle t_end_1(0, n_slices - 1, j_best + n_slices);
-                  g_triangle t_end_2(j_best + n_slices, n_slices -1, jbo);
+                  coot::m2t::mesh_triangle_t t_end_1(0, n_slices - 1, j_best + n_slices);
+                  coot::m2t::mesh_triangle_t t_end_2(j_best + n_slices, n_slices -1, jbo);
                   t_end_1.rebase(ring_offset);
                   t_end_2.rebase(ring_offset);
                   m.triangles.push_back(t_end_1);
@@ -916,7 +929,7 @@ make_mesh_for_coil_representation(const std::vector<coil_residues_info_t> &coils
       if (true) { // check mesh
 
          for (unsigned int ii=0; ii<m.triangles.size(); ii++) {
-            const g_triangle &t1 = m.triangles[ii];
+            const coot::m2t::mesh_triangle_t &t1 = m.triangles[ii];
             if (t1.point_id[0]>m.vertices.size() ||
                 t1.point_id[1]>m.vertices.size() ||
                 t1.point_id[2]>m.vertices.size()) {
@@ -929,7 +942,7 @@ make_mesh_for_coil_representation(const std::vector<coil_residues_info_t> &coils
       return m;
    };
 
-   coot::simple_mesh_t m;
+   coot::m2t::simple_mesh_t m;
    for (unsigned int ic=0; ic<coils.size(); ic++) {
       // std::cout << "::::: coil " << ic << " of " << coils.size() << std::endl;
       const auto &coil = coils[ic];
@@ -949,7 +962,7 @@ make_mesh_for_coil_representation(const std::vector<coil_residues_info_t> &coils
          int iinterp = 1;
          try {
             std::vector<FCXXCoord> v = cs.SplineCurve(ctlPts, nsteps, Cn, iinterp);
-            coot::simple_mesh_t cs = make_continuous_spline_mesh(v, radius, n_slices);
+            coot::m2t::simple_mesh_t cs = make_continuous_spline_mesh(v, radius, n_slices);
             if (false)
                std::cout << ":::::::::::::::: continuous_spline: " << cs.vertices.size() << " " << cs.triangles.size()
                       << std::endl;
@@ -965,7 +978,7 @@ make_mesh_for_coil_representation(const std::vector<coil_residues_info_t> &coils
    return m;
 }
 
-coot::simple_mesh_t
+coot::m2t::simple_mesh_t
 make_tubes_representation(mmdb::Manager *mol,
                           const std::string &atom_selection_str,
                           const std::string &colour_scheme,
@@ -976,7 +989,7 @@ make_tubes_representation(mmdb::Manager *mol,
 
    std::cout << "---------------- start make_tubes_representation() " << std::endl;
 
-   coot::simple_mesh_t m;
+   coot::m2t::simple_mesh_t m;
    float radius_for_helices = 2.5;
    unsigned int n_slices_for_helices = 16;
    helix_residues_info_t::end_cap_style end_cap_style = helix_residues_info_t::end_cap_style::FLAT;
@@ -1002,10 +1015,10 @@ make_tubes_representation(mmdb::Manager *mol,
    const auto &helices = helices_and_coils_pair.first;
    const auto &coils   = helices_and_coils_pair.second;
 
-   coot::simple_mesh_t helices_mesh =
+   coot::m2t::simple_mesh_t helices_mesh =
       make_mesh_for_helical_representation(helices, mol, radius_for_helices, n_slices_for_helices);
 
-   coot::simple_mesh_t coils_mesh =
+   coot::m2t::simple_mesh_t coils_mesh =
       make_mesh_for_coil_representation(coils, radius_for_coil, Cn_for_coil, accuracy_for_coil,
                                         n_slices_for_coil);
 
