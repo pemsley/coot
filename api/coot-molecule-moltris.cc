@@ -343,13 +343,21 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
       auto displayPrimitiveIter = vdp.begin();
       for (displayPrimitiveIter=vdp.begin(); displayPrimitiveIter != vdp.end(); displayPrimitiveIter++) {
          DisplayPrimitive &displayPrimitive = **displayPrimitiveIter;
+         // FlatFanPrimitive is the face of a dishy base: triangles, and a
+         // VertexColorNormalPrimitive like the rest of these. It belongs here, and until
+         // DisplayPrimitive::primitiveType was initialised it only arrived when the
+         // uninitialised value happened to read as one of the four types named below.
          if (displayPrimitive.type() == DisplayPrimitive::PrimitiveType::SurfacePrimitive    ||
              displayPrimitive.type() == DisplayPrimitive::PrimitiveType::BoxSectionPrimitive ||
              displayPrimitive.type() == DisplayPrimitive::PrimitiveType::BallsPrimitive      ||
+             displayPrimitive.type() == DisplayPrimitive::PrimitiveType::FlatFanPrimitive    ||
              displayPrimitive.type() == DisplayPrimitive::PrimitiveType::CylinderPrimitive ){
             displayPrimitive.generateArrays();
 
             coot::simple_mesh_t submesh;
+            // A reference cast, so a primitive that is not one of these throws std::bad_cast
+            // rather than returning null. That is deliberate - but it only ever fired because
+            // type() could lie, which it no longer can.
             VertexColorNormalPrimitive &surface = dynamic_cast<VertexColorNormalPrimitive &>(displayPrimitive);
             submesh.vertices.resize(surface.nVertices());
 
@@ -457,6 +465,23 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
                          << submesh.vertices.size() << " vertices and "
                          << submesh.triangles.size() << " triangles" << std::endl;
             mesh.add_submesh(submesh);
+
+            // The primitive's own arrays have now been copied twice - into submesh, and from
+            // there into mesh - and nothing reads them again. Left alone they stay allocated
+            // until the next redraw(), so by the end of this loop every vertex of the
+            // representation is resident three times over: once in the primitives, once in the
+            // merged mesh, and briefly once more in the submesh. For a ribosome's dishy bases
+            // that is about half a gigabyte held for no reason, on top of the half gigabyte
+            // being assembled - which is what leaves no contiguous block big enough for the
+            // merged mesh to grow into.
+            //
+            // Named through the base class deliberately: CylindersPrimitive hides emptyArrays()
+            // with a version that frees only the vertex array.
+            //
+            // Safe to do here because the arrays are a cache - renderWithRenderer() regenerates
+            // them when it finds the vertex array null - and because the mesh, not the
+            // primitive, is what this function returns.
+            surface.VertexColorNormalPrimitive::emptyArrays();
          }
       }
 
@@ -711,6 +736,22 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
          }
          catch (const std::runtime_error &rte) {
             std::cout << "ERROR:: runtime error in get_molecular_representation_mesh() " << rte.what() << std::endl;
+            mesh.clear();
+            mesh.status = 0;
+         }
+         // std::bad_alloc derives from std::exception, not from std::runtime_error, so it used
+         // to fall through to catch (...) and report itself as "unknown exception" - which left
+         // no way to tell running out of memory from any other failure. Name it, and say how
+         // far the mesh had got, so the size at which it gives up is on the record.
+         catch (const std::bad_alloc &ba) {
+            std::cout << "ERROR:: out of memory in get_molecular_representation_mesh(): "
+                      << ba.what() << std::endl;
+            mesh.clear();
+            mesh.status = 0;
+         }
+         catch (const std::exception &e) {
+            std::cout << "ERROR:: std::exception in get_molecular_representation_mesh(): "
+                      << e.what() << std::endl;
             mesh.clear();
             mesh.status = 0;
          }
