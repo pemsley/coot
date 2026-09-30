@@ -2734,6 +2734,8 @@ public:
    // is where the individual colour rotation steps are changed:
    static void bonds_colour_rotation_adjustment_changed(GtkAdjustment *adj,
 							GtkWidget *window);
+   // per-molecule "Grey Carbons" checkbutton in the Bond Colours dialog:
+   static void grey_carbons_checkbutton_toggled(GtkCheckButton *checkbutton, gpointer user_data);
    static int bond_parameters_molecule;
    static float bond_thickness_intermediate_atoms; // white atoms
    void set_bond_thickness_intermediate_atoms(float f);

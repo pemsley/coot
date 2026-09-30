@@ -3459,6 +3459,30 @@ on_draw_hydrogens_no_radiobutton_toggled(GtkToggleButton *togglebutton,
 
 extern "C" G_MODULE_EXPORT
 void
+on_bond_smoothness_default_radiobutton_toggled(GtkCheckButton *checkbutton,
+                                               gpointer         user_data) {
+   if (gtk_check_button_get_active(checkbutton))
+      set_bond_smoothness_factor(1);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_bond_smoothness_smooth_radiobutton_toggled(GtkCheckButton *checkbutton,
+                                              gpointer         user_data) {
+   if (gtk_check_button_get_active(checkbutton))
+      set_bond_smoothness_factor(2);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_bond_smoothness_fine_radiobutton_toggled(GtkCheckButton *checkbutton,
+                                            gpointer         user_data) {
+   if (gtk_check_button_get_active(checkbutton))
+      set_bond_smoothness_factor(3);
+}
+
+extern "C" G_MODULE_EXPORT
+void
 on_renumber_residues_molecule_combobox_changed(GtkComboBox     *combobox,
                                                                    gpointer         user_data) {
 
@@ -4043,6 +4067,26 @@ void
 on_draw_ncs_ghosts_no_radiobutton_toggled(GtkToggleButton *togglebutton,
                                           gpointer         user_data) {
 
+}
+
+extern "C" G_MODULE_EXPORT
+void
+bond_parameters_atom_radius_scale_hscale_changed(GtkScale *range,
+                                                 gpointer  user_data) {
+
+   GtkWidget *bond_parameters_molecule_comboboxtext = widget_from_builder("bond_parameters_molecule_comboboxtext");
+   if (bond_parameters_molecule_comboboxtext) {
+      GtkAdjustment *adjustment = gtk_range_get_adjustment(GTK_RANGE(range));
+      float fvalue = gtk_adjustment_get_value(adjustment);
+      graphics_info_t g;
+      if (g.n_molecules() > 0) { // protection from occuring at start-up
+         int imol = g.combobox_get_imol(GTK_COMBO_BOX(bond_parameters_molecule_comboboxtext));
+         if (is_valid_model_molecule(imol)) {
+            graphics_info_t::molecules[imol].set_atom_radius_scale_factor(fvalue);
+            g.graphics_draw();
+         }
+      }
+   }
 }
 
 extern "C" G_MODULE_EXPORT
