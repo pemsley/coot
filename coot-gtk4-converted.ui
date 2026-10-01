@@ -312,18 +312,21 @@
           <attribute name="label">Rock View</attribute>
           <attribute name="action">app.rock_view_action</attribute>
         </item>
-        <item>
-          <attribute name="label">Ribbons: By Chain</attribute>
-          <attribute name="action">app.ribbons_colour_by_chain_action</attribute>
-        </item>
-        <item>
-          <attribute name="label">Ribbons: Rainbow</attribute>
-          <attribute name="action">app.ribbons_colour_rainbow_action</attribute>
-        </item>
-        <item>
-          <attribute name="label">Ribbons: Sec. Struct.</attribute>
-          <attribute name="action">app.ribbons_colour_by_secondary_structure_action</attribute>
-        </item>
+        <submenu>
+          <attribute name="label">Ribbons...</attribute>
+          <item>
+            <attribute name="label">By Chain</attribute>
+            <attribute name="action">app.ribbons_colour_by_chain_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Rainbow</attribute>
+            <attribute name="action">app.ribbons_colour_rainbow_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Sec. Struct.</attribute>
+            <attribute name="action">app.ribbons_colour_by_secondary_structure_action</attribute>
+          </item>
+        </submenu>
         <item>
           <attribute name="label">Screenshot</attribute>
           <attribute name="action">app.screenshot_action</attribute>

@@ -28,6 +28,8 @@
 #include "Python.h"
 #endif
 
+#include <algorithm>
+
 #include "graphics-info.h"
 #include "molecule-class-info.h"
 
@@ -100,7 +102,25 @@ molecule_class_info_t::add_molecular_representation(const std::string &atom_sele
    gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glareas[0])); // needed?
    gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
    molecular_mesh_generator_t mmg;
-   std::string name = atom_selection + " " + colour_scheme + " " + style;
+
+   // user-facing label shown against this representation in the Display Manager
+   std::string colour_scheme_label = colour_scheme;
+   if (colour_scheme == "Chain" || colour_scheme == "colorChainsScheme") colour_scheme_label = "By Chain";
+   if (colour_scheme == "colorRampChainsScheme")                        colour_scheme_label = "Rainbow";
+   if (colour_scheme == "colorBySecondaryScheme" || colour_scheme == "Secondary") colour_scheme_label = "Sec. Struct.";
+   if (colour_scheme == "colorByElementScheme" || colour_scheme == "Element")     colour_scheme_label = "By Element";
+   std::string name = style + ": " + colour_scheme_label;
+
+   // identifies the "slot" that this representation occupies (independent of the
+   // display label above), so that re-requesting the same atom_selection/style replaces
+   // the existing representation rather than being added on top of it - without this,
+   // two near-identical overlapping meshes z-fight and the new colouring never becomes
+   // visible on screen.
+   std::string representation_key = atom_selection + "\x1f" + style;
+   meshes.erase(std::remove_if(meshes.begin(), meshes.end(),
+      [&representation_key] (const Mesh &m) { return m.representation_key == representation_key; }),
+      meshes.end());
+
    Material material;
 
    err = glGetError();
@@ -129,7 +149,8 @@ molecule_class_info_t::add_molecular_representation(const std::string &atom_sele
                                                    secondary_structure_usage_flag,
                                                    M2T_float_params, M2T_int_params);
                Mesh mesh(verts_and_tris);
-               mesh.set_name(atom_selection + " " + colour_scheme + " Rainbow Ribbons");
+               mesh.set_name(name);
+               mesh.set_representation_key(representation_key);
                meshes.push_back(mesh);
                meshes.back().setup(material); // do I need the shader to do this!?
             }
@@ -170,6 +191,7 @@ molecule_class_info_t::add_molecular_representation(const std::string &atom_sele
             meshes_together_pair(meshes_together.vertices, meshes_together.triangles);
          Mesh mesh(meshes_together_pair);
          mesh.set_name(name);
+         mesh.set_representation_key(representation_key);
          meshes.push_back(mesh);
          // meshes.back().setup(&molecular_triangles_shader, material); 20210910-PE
          meshes.back().setup(material);
