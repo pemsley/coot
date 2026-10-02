@@ -1,20 +1,20 @@
 
+#include <thread>
+
 #include "utils/subprocess.hpp"
 #include "coot-utils/json.hpp"
 #include "graphics-info.h"
 #include "read-molecule.hh"
 
-int
-graphics_info_t::servalcat_refine_xray_with_keywords(int imol, int imol_map, const std::string &output_prefix,
-                                                     const std::string &keyword_pairs_json) {
+namespace {
 
-   // ---------------- blocking! ----------------
-
-   auto fill_key_map = [] (const std::string &keyword_pairs_json) {
-      // keyword_pairs_json is a simple list of keyword key:data pair items
-      //
-      // We accept either a JSON object {"weight": "0.5", "ncycle": "10"}
-      // or a JSON array of pairs [["weight", "0.5"], ["ncycle", "10"]].
+   // keyword_pairs_json is a simple list of keyword key:data pair items
+   //
+   // We accept either a JSON object {"weight": "0.5", "ncycle": "10"}
+   // or a JSON array of pairs [["weight", "0.5"], ["ncycle", "10"]].
+   //
+   std::map<std::string, std::string>
+   servalcat_fill_key_map(const std::string &keyword_pairs_json) {
 
       using json = nlohmann::json;
 
@@ -48,7 +48,33 @@ graphics_info_t::servalcat_refine_xray_with_keywords(int imol, int imol_map, con
                    << " for " << keyword_pairs_json << std::endl;
       }
       return kvm;
-   };
+   }
+
+   // Build the servalcat command line for an x-ray refinement.
+   // weight_str is added as a "--weight" argument when set_weight is true.
+   //
+   std::vector<std::string>
+   servalcat_xray_cmd_list(const std::string &input_pdb_file_name, const std::string &mtz_file,
+                           const std::string &labin, const std::string &prefix,
+                           bool set_weight, const std::string &weight_str) {
+
+      std::vector<std::string> cmd_list = {"servalcat", "refine_xtal_norefmac",
+                                           "-s", "xray", "--model", input_pdb_file_name,
+                                           "--hklin", mtz_file, "--labin", labin,
+                                           "-o", prefix};
+      if (set_weight) {
+         cmd_list.push_back("--weight");
+         cmd_list.push_back(weight_str);
+      }
+      return cmd_list;
+   }
+}
+
+int
+graphics_info_t::servalcat_refine_xray_with_keywords(int imol, int imol_map, const std::string &output_prefix,
+                                                     const std::string &keyword_pairs_json) {
+
+   // ---------------- blocking! ----------------
 
    int imol_refined_model = -1;
 
@@ -60,7 +86,7 @@ graphics_info_t::servalcat_refine_xray_with_keywords(int imol, int imol_map, con
 
          std::map<std::string, std::string> kvm;
          // fill kvm from keyword_pairs_json
-         kvm = fill_key_map(keyword_pairs_json);
+         kvm = servalcat_fill_key_map(keyword_pairs_json);
 
          bool set_weight = false;
          std::string weight_str;
@@ -116,14 +142,9 @@ graphics_info_t::servalcat_refine_xray_with_keywords(int imol, int imol_map, con
                      output_pdb_file_name_exists = true;
                      output_pdb_file_name_time = std::filesystem::last_write_time(p);
                   }
-                  std::vector<std::string> cmd_list = {"servalcat", "refine_xtal_norefmac",
-                                                       "-s", "xray", "--model", input_pdb_file_name,
-                                                       "--hklin", mtz_file, "--labin", labin,
-                                                       "-o", prefix};
-                  if (set_weight) {
-                     cmd_list.push_back("--weight");
-                     cmd_list.push_back(weight_str);
-                  }
+                  std::vector<std::string> cmd_list =
+                     servalcat_xray_cmd_list(input_pdb_file_name, mtz_file, labin, prefix,
+                                             set_weight, weight_str);
 
                   if (true) {
                      std::cout << "commandline: ";
@@ -169,5 +190,165 @@ graphics_info_t::servalcat_refine_xray_with_keywords(int imol, int imol_map, con
 
    return imol_refined_model;
 
+}
+
+
+// The asynchronous version of the above. The servalcat subprocess is run in a
+// detached thread and the refined model is read in by an idle function once the
+// subprocess has finished (so that the GUI is not blocked while servalcat runs).
+//
+void
+graphics_info_t::servalcat_refine_xray_with_keywords_async(int imol, int imol_map,
+                                                           const std::string &output_prefix,
+                                                           const std::string &keyword_pairs_json) {
+
+   // This runs the servalcat subprocess and, on success, stores the name of the
+   // output pdb file in servalcat_refine_xray.second. It always sets the "finished"
+   // flag servalcat_refine_xray.first when it is done (the stored file name is empty
+   // on failure, so that check_it() can tell that something went wrong).
+   //
+   auto servalcat_refine_xray_func = [] (const std::vector<std::string> &cmd_list,
+                                         const std::string &output_pdb_file_name,
+                                         bool output_pdb_file_name_existed,
+                                         std::filesystem::file_time_type output_pdb_file_name_time) {
+
+      graphics_info_t g;
+      std::string refined_pdb; // empty means "failed"
+      try {
+         std::cout << "running servalcat..." << std::endl;
+         subprocess::OutBuffer obuf = subprocess::check_output(cmd_list);
+         std::filesystem::path p(output_pdb_file_name);
+         if (std::filesystem::exists(p)) {
+            bool output_is_new = true;
+            if (output_pdb_file_name_existed) {
+               // only accept the output if it is newer than the pre-existing file
+               std::filesystem::file_time_type new_time = std::filesystem::last_write_time(p);
+               auto t1 = output_pdb_file_name_time.time_since_epoch();
+               auto t2 = new_time.time_since_epoch();
+               auto tt1 = std::chrono::duration_cast<std::chrono::seconds>(t1).count();
+               auto tt2 = std::chrono::duration_cast<std::chrono::seconds>(t2).count();
+               output_is_new = ((tt2 - tt1) > 0);
+            }
+            if (output_is_new)
+               refined_pdb = output_pdb_file_name;
+         } else {
+            std::cout << "WARNING:: " << __FUNCTION__ << "(): path does not exist " << p << std::endl;
+         }
+      }
+      catch (const std::runtime_error &e) {
+         // this happens when servalcat fails to run correctly (e.g. input error)
+         std::cout << "WARNING:: runtime_error " << e.what() << std::endl;
+      }
+      catch (const std::exception &e) {
+         std::cout << "WARNING:: exception " << e.what() << std::endl;
+      }
+      catch (...) {
+         std::cout << "WARNING:: caught some other error" << std::endl;
+      }
+      g.servalcat_refine_xray.second = refined_pdb;
+      g.servalcat_refine_xray.first = true; // mark refinement process as finished
+   };
+
+   auto check_it = +[] (gpointer data) {
+
+      graphics_info_t g;
+      if (g.servalcat_refine_xray.first) {
+         const std::string &pdb_file_name = g.servalcat_refine_xray.second;
+         g.servalcat_refine_xray.first = false; // turn it off
+         if (pdb_file_name.empty()) {
+            std::cout << "WARNING:: servalcat_refine_xray_with_keywords_async(): refinement failed"
+                      << std::endl;
+         } else {
+            std::cout << "INFO:: servalcat_refine_xray_with_keywords_async(): reading refined model "
+                      << pdb_file_name << std::endl;
+            read_coordinates(pdb_file_name);
+            g.graphics_draw();
+         }
+         return gboolean(FALSE); // all done, remove the timeout
+      }
+      return gboolean(TRUE); // not finished yet, call me again
+   };
+
+   if (! is_valid_model_molecule(imol)) {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+      return;
+   }
+   if (! is_valid_map_molecule(imol_map)) {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid map molecule " << imol_map << std::endl;
+      return;
+   }
+
+   bool clibd_mon_is_set = false;
+   char *e = getenv("CLIBD_MON");
+   if (e) {
+      std::string env(e);
+      if (std::filesystem::exists(env))
+         clibd_mon_is_set = true;
+   }
+   if (! clibd_mon_is_set) {
+      std::cout << "WARNING::" << __FUNCTION__ << "(): CLIBD_MON was not set correctly" << std::endl;
+      return;
+   }
+
+   std::map<std::string, std::string> kvm = servalcat_fill_key_map(keyword_pairs_json);
+   bool set_weight = false;
+   std::string weight_str;
+   for (const auto &kv : kvm) {
+      if (kv.first == "weight") {
+         set_weight = true;
+         weight_str = kv.second;
+      }
+   }
+
+   std::string mtz_file    = molecules[imol_map].Refmac_mtz_filename();
+   std::string fobs_col    = molecules[imol_map].Refmac_fobs_col();
+   std::string sigfobs_col = molecules[imol_map].Refmac_sigfobs_col();
+   std::string r_free_col  = molecules[imol_map].Refmac_r_free_col();
+
+   if (mtz_file.empty()) {
+      std::cout << "WARNING::" << __FUNCTION__ << "(): mtz file_name was empty" << std::endl;
+      return;
+   }
+
+   std::string c(",");
+   std::string labin = fobs_col + c + sigfobs_col + c + r_free_col;
+
+   std::string dir_1 = "coot-servalcat";
+   coot::util::create_directory(dir_1);
+   std::string prefix = coot::util::append_dir_file(dir_1, output_prefix);
+   std::string  input_pdb_file_name = prefix + std::string("-in.pdb");
+   std::string output_pdb_file_name = prefix + std::string(".pdb"); // named by servalcat
+
+   int status = molecules[imol].export_coordinates(input_pdb_file_name);
+   if (status != 0) {
+      std::cout << "WARNING::" << __FUNCTION__ << "(): bad status on writing servalcat input file"
+                << std::endl;
+      return;
+   }
+
+   // capture the state of any pre-existing output file so that the thread can tell
+   // whether servalcat actually wrote a new one.
+   bool output_pdb_file_name_existed = false;
+   std::filesystem::file_time_type output_pdb_file_name_time;
+   std::filesystem::path p(output_pdb_file_name);
+   if (std::filesystem::exists(p)) {
+      output_pdb_file_name_existed = true;
+      output_pdb_file_name_time = std::filesystem::last_write_time(p);
+   }
+
+   std::vector<std::string> cmd_list =
+      servalcat_xray_cmd_list(input_pdb_file_name, mtz_file, labin, prefix, set_weight, weight_str);
+
+   std::cout << "commandline: ";
+   for (unsigned int i=0; i<cmd_list.size(); i++) std::cout << " " << cmd_list[i];
+   std::cout << "\n";
+
+   servalcat_refine_xray.first = false;
+   std::thread thread(servalcat_refine_xray_func, cmd_list, output_pdb_file_name,
+                      output_pdb_file_name_existed, output_pdb_file_name_time);
+   thread.detach();
+
+   GSourceFunc f = GSourceFunc(check_it);
+   g_timeout_add(400, f, nullptr);
 }
 

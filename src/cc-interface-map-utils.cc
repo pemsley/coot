@@ -412,6 +412,18 @@ int servalcat_refine_xray_with_keywords(int imol, int imol_map, const std::strin
    return g.servalcat_refine_xray_with_keywords(imol, imol_map, output_prefix, keyword_pairs_json);
 }
 
+//! Use servalcat for refinement for x-ray data (asynchronous/non-blocking version).
+//!
+//! As servalcat_refine_xray_with_keywords(), but the GUI is not blocked while
+//! servalcat runs - the refined model is read in when the refinement has finished.
+//!
+void servalcat_refine_xray_with_keywords_async(int imol, int imol_map, const std::string &output_prefix,
+                                               const std::string &keyword_pairs_json) {
+
+   graphics_info_t g;
+   g.servalcat_refine_xray_with_keywords_async(imol, imol_map, output_prefix, keyword_pairs_json);
+}
+
 
 
 #include "c-interface-python.hh" // because we use display_python().

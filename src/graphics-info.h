@@ -4830,10 +4830,17 @@ string   static std::string sessionid;
 
    static std::pair<bool, std::string> servalcat_fofc;
    static std::pair<bool, std::string> servalcat_refine; // output "pdb" file name
+   static std::pair<bool, std::string> servalcat_refine_xray; // output "pdb" file name (async)
 
    // not static (for now?)
+   // the synchronous (blocking) interface:
    int servalcat_refine_xray_with_keywords(int imol, int imol_map, const std::string &output_prefix,
                                            const std::string &keyword_pairs_json);
+
+   // the asynchronous interface - the refined model is read in by an idle function
+   // when the servalcat subprocess (run in a detached thread) has finished:
+   void servalcat_refine_xray_with_keywords_async(int imol, int imol_map, const std::string &output_prefix,
+                                                  const std::string &keyword_pairs_json);
 
    static std::pair<bool, std::string> acedrg_link;
    static bool acedrg_running; // not link acedrg - this is acedrg from CCD
