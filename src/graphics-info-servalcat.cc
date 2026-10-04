@@ -5,6 +5,7 @@
 #include "coot-utils/json.hpp"
 #include "graphics-info.h"
 #include "read-molecule.hh"
+#include "servalcat-refine-progress-gui.hh"
 
 namespace {
 
@@ -252,6 +253,10 @@ graphics_info_t::servalcat_refine_xray_with_keywords_async(int imol, int imol_ma
    auto check_it = +[] (gpointer data) {
 
       graphics_info_t g;
+
+      // re-read the growing "<prefix>_stats.json" and redraw the live graphs
+      servalcat_refine_progress_update();
+
       if (g.servalcat_refine_xray.first) {
          const std::string &pdb_file_name = g.servalcat_refine_xray.second;
          g.servalcat_refine_xray.first = false; // turn it off
@@ -342,6 +347,10 @@ graphics_info_t::servalcat_refine_xray_with_keywords_async(int imol, int imol_ma
    std::cout << "commandline: ";
    for (unsigned int i=0; i<cmd_list.size(); i++) std::cout << " " << cmd_list[i];
    std::cout << "\n";
+
+   // show the live progress graphs and point the poller at servalcat's stats file
+   std::string stats_file_name = prefix + std::string("_stats.json");
+   servalcat_refine_progress_show(stats_file_name);
 
    servalcat_refine_xray.first = false;
    std::thread thread(servalcat_refine_xray_func, cmd_list, output_pdb_file_name,

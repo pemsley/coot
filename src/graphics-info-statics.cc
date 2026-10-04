@@ -1887,6 +1887,8 @@ coot::ptm_database_t graphics_info_t::ptm_database;
 std::pair<bool, std::string> graphics_info_t::servalcat_fofc        = std::pair<bool, std::string> (false, "");
 std::pair<bool, std::string> graphics_info_t::servalcat_refine      = std::pair<bool, std::string> (false, "");
 std::pair<bool, std::string> graphics_info_t::servalcat_refine_xray = std::pair<bool, std::string> (false, "");
+coot::servalcat_refine_progress_t *graphics_info_t::servalcat_refine_progress_p = nullptr;
+std::string graphics_info_t::servalcat_refine_progress_stats_file_name;
 
 std::string graphics_info_t::current_alt_conf = "";
 
