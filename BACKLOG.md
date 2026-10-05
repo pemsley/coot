@@ -218,3 +218,24 @@ require the contributing maps to share a grid sampling. It could be speeded up
 by first checking that the grids of the contributing maps match, and if so using
 the `regen_map` route (as `regen_map_py()` in src/c-interface-maps.cc does),
 which averages in place and presumes matching grids.
+
+## Add property histograms behind the Layla QED desirability curves
+
+The Layla QED tab draws the 8 ADS desirability curves d(x) (layla/ui.cpp,
+`draw_desirability_curve()`; parameters in layla/qed.cpp). At some later stage
+we would like to draw, behind each curve, the histogram of that property over
+the reference set of 771 oral drugs from Bickerton et al. 2012 (as in Fig. 1 of
+the paper) — light-blue bars under the curve.
+
+Where the histogram data is: the paper's supplementary Excel workbook
+`NIHMS50746-supplement-QEDExampleExcel.xlsx`, sheet "Desirability Functions",
+773 rows = header + 771 drugs. Columns: A=Drug name, then the raw per-drug
+properties B=MW, C=ALOGP, D=HBA, E=HBD, F=PSA, G=ROTB, H=AROM, I=ALERTS
+(J-Q are the individual desirabilities, R/S the QED scores). This column order
+matches the `QED::QEDPropName` enum. Histogramming columns B-I reproduces the
+Fig. 1 bars. (The SuppInfo PDF and the main-text PDF do NOT contain this raw
+data — only the fitted ADS parameters in Suppl. Table 2.)
+
+To ship the bars we'd need to bake the 771-drug values (or precomputed bin
+counts per property) into the code/data, since we can't depend on the Excel
+file at runtime.
