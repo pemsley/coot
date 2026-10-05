@@ -293,8 +293,11 @@ molecule_class_info_t::mutate_internal(mmdb::Residue *residue, mmdb::Residue *st
 
    atom_sel.mol->FinishStructEdit(); // not sure if this is needed here.
 
-   if (residue_had_hydrogen_atoms)
-     add_hydrogen_atoms_to_residue(rs);
+   if (residue_had_hydrogen_atoms) {
+     graphics_info_t g;
+     const auto &geom = g.Geom_p();
+     add_hydrogen_atoms_to_residue(rs, geom);
+   }
 
    atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
    atom_sel.mol->FinishStructEdit();

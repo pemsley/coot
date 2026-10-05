@@ -5903,7 +5903,8 @@ void add_hydrogen_atoms_to_residue(int imol, std::string chain_id, int res_no, s
 
    if (is_valid_model_molecule(imol)) {
       coot::residue_spec_t rs(chain_id, res_no, ins_code);
-      graphics_info_t::molecules[imol].add_hydrogen_atoms_to_residue(rs);
+      graphics_info_t g;
+      g.molecules[imol].add_hydrogen_atoms_to_residue(rs, g.Geom_p());
       graphics_draw();
    }
 }
@@ -5914,7 +5915,8 @@ void add_hydrogen_atoms_to_residue_py(int imol, PyObject *residue_spec_py) {
 
    if (is_valid_model_molecule(imol)) {
       coot::residue_spec_t rs = residue_spec_from_py(residue_spec_py);
-      graphics_info_t::molecules[imol].add_hydrogen_atoms_to_residue(rs);
+      graphics_info_t g;
+      graphics_info_t::molecules[imol].add_hydrogen_atoms_to_residue(rs, g.Geom_p());
       graphics_draw();
    }
 }
