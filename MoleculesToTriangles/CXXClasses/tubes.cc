@@ -550,6 +550,13 @@ make_mesh_for_helical_representation(const std::vector<helix_residues_info_t> &h
       mmdb::Manager *helix_mol = new mmdb::Manager();
       helix_mol->ReadCoorFile("theor-helix-z-ori-v2.pdb");
       std::vector<clipper::Coord_orth> ref_coords = get_ref_coords(helix_mol);
+      if (ref_coords.size() != 12) {
+         // theor-helix-z-ori-v2.pdb was not found (or did not provide 3 residues
+         // worth of N,CA,C,O). Fall back to the built-in idealized z-oriented
+         // helix fragment so that the representation does not depend on an
+         // external file being present in the working directory.
+         ref_coords = get_ref_coords_simple();
+      }
 
       if (false) {
          for (unsigned int ii=0; ii<ref_coords.size(); ii++) {

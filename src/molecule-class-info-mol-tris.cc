@@ -30,6 +30,7 @@
 
 #include "graphics-info.h"
 #include "molecule-class-info.h"
+#include "MoleculesToTriangles/CXXClasses/tubes.hh"
 
 // make and add to the scene
 int
@@ -110,6 +111,31 @@ molecule_class_info_t::add_molecular_representation(const std::string &atom_sele
    material.do_specularity = true;        // 20210905-PE make these user settable. Perhaps they are? I should check.
    material.shininess = 256.0;
    material.specular_strength = 0.56;
+
+   if (style == "Bendix") {
+
+      // Bendix-style bendy-helix + coil representation (tubes.cc). This does not
+      // go through the MoleculesToTriangles machinery - it builds its own
+      // coot::simple_mesh_t which we convert to a GUI Mesh here.
+      //
+      float radius_for_coil   = 0.8;
+      int   Cn_for_coil       = 2;
+      int   accuracy_for_coil = 12;
+      unsigned int n_slices_for_coil = 12;
+      coot::simple_mesh_t sm =
+         make_tubes_representation(atom_sel.mol, atom_selection, colour_scheme,
+                                   radius_for_coil, Cn_for_coil, accuracy_for_coil,
+                                   n_slices_for_coil, secondary_structure_usage_flag);
+      Mesh mesh(name, sm);
+      meshes.push_back(mesh);
+      meshes.back().setup(material);
+      status = 1;
+
+      err = glGetError();
+      if (err)
+         std::cout << "GL ERROR:: add_molecular_representation() --- end (Tubes) --- " << err << std::endl;
+      return status;
+   }
 
    // if (colour_scheme == "Rainbow") {
    if (colour_scheme == "colorRampChainsScheme") {
