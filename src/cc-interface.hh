@@ -2012,6 +2012,18 @@ void set_logging_level(const std::string &level);//!
 void
 print_glyco_tree(int imol, const std::string &chain_id, int resno, const std::string &ins_code);
 
+//! \brief add a named glyco tree (carbohydrate building)
+//!
+//! Add N-linked glycosylation starting at the given ASN residue, fitting into
+//! the map in molecule imol_map.
+//!
+//! glycosylation_name is the type of glycosylation, one of:
+//! "NAG-NAG-BMA", "high-mannose", "hybrid", "mammalian-biantennary" or
+//! "plant-biantennary".
+void
+add_named_glyco_tree(int imol, int imol_map, const std::string &glycosylation_name,
+                     const std::string &chain_id, int res_no, const std::string &ins_code);
+
 //! \}
 
 

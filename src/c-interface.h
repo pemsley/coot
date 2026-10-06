@@ -1588,7 +1588,7 @@ int read_mtz(const char *mtz_file_name,
 
  @return -1 on error, else return imol */
 int  make_and_draw_map_with_refmac_params(const char *mtz_file_name,
-		       const char *a, const char *b, const char *weight,
+		                          const char *F_phi, const char *phi_col, const char *weight_col,
 					  int use_weights, int is_diff_map,
 					  short int have_refmac_params,
 					  const char *fobs_col,
