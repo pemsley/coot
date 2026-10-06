@@ -1,5 +1,14 @@
 --- Items---
 
+o trying to change the model material - seems not to affect the drawing of 
+  molecule2triangles objects (say, a surface)
+
+o 7k00 - get the emdb code from the cif
+
+o in Range/Pair show the selection
+
+o does coot_no_state_real_exit() flush the python buffer?
+
 o look at 23sr, 9i9k
 
 o fix add_hydrogen_atoms_to_residue(): null geom_p
