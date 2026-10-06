@@ -26,7 +26,159 @@
 #include "ligand_editor_canvas/model.hpp"
 #include "ligand_editor_canvas/tools.hpp"
 #include "utils/coot-utils.hh"
+#include "qed.hpp"
 #include <functional>
+#include <cmath>
+
+namespace {
+
+   // Per-cell state for a QED desirability-curve mini-plot: which property it
+   // shows, and the current molecule's raw value for that property (if any).
+   struct desirability_curve_cell_t {
+      coot::layla::RDKit::QED::QEDPropName prop;
+      bool has_value = false;
+      double value = 0.0;
+   };
+
+   // "Nice numbers" for axis ticks (Heckbert). round_it picks the nearest nice
+   // value; otherwise the smallest nice value >= x.
+   double nice_num(double x, bool round_it) {
+      if (x <= 0.0) return 0.0;
+      double expv = std::floor(std::log10(x));
+      double f = x / std::pow(10.0, expv);
+      double nf;
+      if (round_it) {
+         if (f < 1.5) nf = 1.0; else if (f < 3.0) nf = 2.0; else if (f < 7.0) nf = 5.0; else nf = 10.0;
+      } else {
+         if (f <= 1.0) nf = 1.0; else if (f <= 2.0) nf = 2.0; else if (f <= 5.0) nf = 5.0; else nf = 10.0;
+      }
+      return nf * std::pow(10.0, expv);
+   }
+
+   // Generate ~n_intervals "nice" tick positions spanning [lo, hi].
+   std::vector<double> nice_ticks(double lo, double hi, int n_intervals) {
+      std::vector<double> out;
+      if (hi <= lo || n_intervals < 1) return out;
+      double d = nice_num(nice_num(hi - lo, false) / n_intervals, true);
+      if (d <= 0.0) return out;
+      double graph_lo = std::floor(lo / d) * d;
+      double graph_hi = std::ceil(hi / d) * d;
+      for (double v = graph_lo; v <= graph_hi + 0.5 * d; v += d)
+         out.push_back(std::fabs(v) < 1e-9 ? 0.0 : v); // avoid "-0"
+      return out;
+   }
+
+   // GtkDrawingArea draw function: draws the property's ADS desirability curve
+   // d(x) over its Fig.1 range, filled underneath, with a marker at the current
+   // molecule's value. (Parameters live in layla/qed.cpp, from Bickerton et al.
+   // 2012, Suppl. Table 2.)
+   void draw_desirability_curve(GtkDrawingArea *area, cairo_t *cr,
+                                int width, int height, gpointer user_data) {
+
+      using QED = coot::layla::RDKit::QED;
+      auto *cell = static_cast<desirability_curve_cell_t *>(user_data);
+      if (! cell) return;
+
+      // Adapt colours to the theme: read the widget's foreground colour and use
+      // its luminance to decide light vs dark background (light text => dark bg).
+      // The paper's dark blue reads poorly on a dark background, so brighten it.
+      GdkRGBA fg = {0.0f, 0.0f, 0.0f, 1.0f}; // default: assume a light background
+#if GTK_MINOR_VERSION >= 10
+      gtk_widget_get_color(GTK_WIDGET(area), &fg);
+#endif
+      double fg_lum = 0.2126 * fg.red + 0.7152 * fg.green + 0.0722 * fg.blue;
+      bool dark_background = fg_lum > 0.5;
+      double line_r, line_g, line_b, fill_a;
+      if (dark_background) {
+         line_r = 0.45; line_g = 0.70; line_b = 1.00; fill_a = 0.22; // brighter blue
+      } else {
+         line_r = 0.169; line_g = 0.247; line_b = 0.667; fill_a = 0.25; // paper #2b3faa
+      }
+
+      const QED::ADSparameter &p = QED::get_ads_parameter(cell->prop);
+      QED::plot_range_t range = QED::get_plot_range(cell->prop);
+      double span = range.x_max - range.x_min;
+      if (span <= 0.0) return;
+
+      const double ml = 6.0, mr = 6.0, mt = 6.0, mb = 16.0; // mb leaves room for tick labels
+      double pw = width  - ml - mr;
+      double ph = height - mt - mb;
+      if (pw <= 1.0 || ph <= 1.0) return;
+
+      auto x_to_px = [&](double x){ return ml + (x - range.x_min) / span * pw; };
+      auto d_to_py = [&](double d){ return mt + (1.0 - d) * ph; };
+      auto clamp01 = [](double d){ return d < 0.0 ? 0.0 : (d > 1.0 ? 1.0 : d); };
+
+      const int N = 96;
+
+      // filled area under the curve
+      cairo_new_path(cr);
+      cairo_move_to(cr, x_to_px(range.x_min), d_to_py(0.0));
+      for (int i=0; i<=N; i++) {
+         double x = range.x_min + span * i / static_cast<double>(N);
+         cairo_line_to(cr, x_to_px(x), d_to_py(clamp01(QED::ads(x, p))));
+      }
+      cairo_line_to(cr, x_to_px(range.x_max), d_to_py(0.0));
+      cairo_close_path(cr);
+      cairo_set_source_rgba(cr, line_r, line_g, line_b, fill_a); // faint fill under curve
+      cairo_fill(cr);
+
+      // the curve line
+      cairo_new_path(cr);
+      for (int i=0; i<=N; i++) {
+         double x = range.x_min + span * i / static_cast<double>(N);
+         double px = x_to_px(x), py = d_to_py(clamp01(QED::ads(x, p)));
+         if (i == 0) cairo_move_to(cr, px, py); else cairo_line_to(cr, px, py);
+      }
+      cairo_set_line_width(cr, 1.5);
+      cairo_set_source_rgb(cr, line_r, line_g, line_b); // theme-adapted blue
+      cairo_stroke(cr);
+
+      // marker at the current molecule's value
+      if (cell->has_value) {
+         double xv = cell->value;
+         if (xv < range.x_min) xv = range.x_min;
+         if (xv > range.x_max) xv = range.x_max;
+         double d = clamp01(QED::ads(cell->value, p));
+         double px = x_to_px(xv);
+         cairo_set_line_width(cr, 1.0);
+         cairo_set_source_rgba(cr, fg.red, fg.green, fg.blue, 0.55); // dropline (theme fg)
+         cairo_move_to(cr, px, d_to_py(0.0));
+         cairo_line_to(cr, px, d_to_py(d));
+         cairo_stroke(cr);
+         cairo_arc(cr, px, d_to_py(d), 3.0, 0.0, 2.0 * M_PI);
+         cairo_set_source_rgb(cr, 0.85, 0.15, 0.15); // red dot
+         cairo_fill(cr);
+      }
+
+      // x-axis baseline and "nice" tick labels
+      double y0 = d_to_py(0.0);
+      cairo_set_line_width(cr, 1.0);
+      cairo_set_source_rgba(cr, fg.red, fg.green, fg.blue, 0.35);
+      cairo_move_to(cr, x_to_px(range.x_min), y0);
+      cairo_line_to(cr, x_to_px(range.x_max), y0);
+      cairo_stroke(cr);
+
+      cairo_set_font_size(cr, 8.0);
+      cairo_set_source_rgba(cr, fg.red, fg.green, fg.blue, 0.75);
+      for (double t : nice_ticks(range.x_min, range.x_max, 3)) {
+         if (t < range.x_min - 1e-9 || t > range.x_max + 1e-9) continue;
+         double px = x_to_px(t);
+         cairo_move_to(cr, px, y0);
+         cairo_line_to(cr, px, y0 + 3.0); // short tick mark
+         cairo_stroke(cr);
+         char lab[32];
+         g_snprintf(lab, sizeof lab, "%g", t);
+         cairo_text_extents_t ext;
+         cairo_text_extents(cr, lab, &ext);
+         double tx = px - ext.width / 2.0 - ext.x_bearing;   // centre under the tick
+         if (tx < 1.0) tx = 1.0;                              // keep end labels on-screen
+         if (tx + ext.width > width - 1.0) tx = width - 1.0 - ext.width;
+         cairo_move_to(cr, tx, height - 3.0);
+         cairo_show_text(cr, lab);
+      }
+   }
+}
 
 void setup_actions(coot::layla::LaylaState* state, GtkApplicationWindow* win, GtkBuilder* builder) {
     using namespace coot::layla;
@@ -339,22 +491,35 @@ GtkApplicationWindow* coot::layla::setup_main_window(GtkApplication* app, GtkBui
                 return ret;
             };
 
-            std::vector<std::string> label_vec = {"QED", "MW", "PSA", "cLogP", "#HBA", "#HBD", "#RotBonds", "#Arom", "#Alerts"};
-            std::map<std::string, GtkWidget *> progress_bar_info_map;
-            for (const auto &label : label_vec)
-               progress_bar_info_map[label] = build_progressbar_info_box(label);
+            // A property cell: caption label, the desirability curve (drawn with
+            // Cairo, marked at this molecule's value) and a value caption below.
+            auto build_curve_cell = [] (const std::string &label,
+                                        coot::layla::RDKit::QED::QEDPropName prop) {
+                GtkWidget* box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 3);
+                gtk_box_append(GTK_BOX(box), gtk_label_new(label.c_str()));
+                GtkWidget* area = gtk_drawing_area_new();
+                gtk_widget_set_size_request(area, 150, 96);
+                gtk_widget_set_hexpand(area, TRUE);
+                auto* cell = new desirability_curve_cell_t{prop, false, 0.0};
+                g_object_set_data_full(G_OBJECT(area), "curve-cell", cell,
+                    +[](gpointer d){ delete static_cast<desirability_curve_cell_t*>(d); });
+                gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA(area),
+                                               draw_desirability_curve, cell, nullptr);
+                gtk_box_append(GTK_BOX(box), area);
+                gtk_box_append(GTK_BOX(box), gtk_label_new("")); // value caption
+                return box;
+            };
 
-            gtk_grid_attach(GTK_GRID(qed_grid), progress_bar_info_map["QED"], 0, 0, 1, 1);
-            gtk_grid_attach(GTK_GRID(qed_grid), progress_bar_info_map["MW"],  0, 1, 1, 1);
-            gtk_grid_attach(GTK_GRID(qed_grid), progress_bar_info_map["PSA"], 1, 1, 1, 1);
-
-            gtk_grid_attach(GTK_GRID(qed_grid), progress_bar_info_map["cLogP"], 2, 1, 1, 1);
-            gtk_grid_attach(GTK_GRID(qed_grid), progress_bar_info_map["#HBA"],  3, 1, 1, 1);
-            gtk_grid_attach(GTK_GRID(qed_grid), progress_bar_info_map["#HBD"],  0, 2, 1, 1);
-
-            gtk_grid_attach(GTK_GRID(qed_grid), progress_bar_info_map["#RotBonds"], 1, 2, 1, 1);
-            gtk_grid_attach(GTK_GRID(qed_grid), progress_bar_info_map["#Arom"],     2, 2, 1, 1);
-            gtk_grid_attach(GTK_GRID(qed_grid), progress_bar_info_map["#Alerts"],   3, 2, 1, 1);
+            using QEDPropName = coot::layla::RDKit::QED::QEDPropName;
+            gtk_grid_attach(GTK_GRID(qed_grid), build_progressbar_info_box("QED"),             0, 0, 1, 1);
+            gtk_grid_attach(GTK_GRID(qed_grid), build_curve_cell("MW",        QEDPropName::MW),     0, 1, 1, 1);
+            gtk_grid_attach(GTK_GRID(qed_grid), build_curve_cell("PSA",       QEDPropName::PSA),    1, 1, 1, 1);
+            gtk_grid_attach(GTK_GRID(qed_grid), build_curve_cell("cLogP",     QEDPropName::ALOGP),  2, 1, 1, 1);
+            gtk_grid_attach(GTK_GRID(qed_grid), build_curve_cell("#HBA",      QEDPropName::HBA),    3, 1, 1, 1);
+            gtk_grid_attach(GTK_GRID(qed_grid), build_curve_cell("#HBD",      QEDPropName::HBD),    0, 2, 1, 1);
+            gtk_grid_attach(GTK_GRID(qed_grid), build_curve_cell("#RotBonds", QEDPropName::ROTB),   1, 2, 1, 1);
+            gtk_grid_attach(GTK_GRID(qed_grid), build_curve_cell("#Arom",     QEDPropName::AROM),   2, 2, 1, 1);
+            gtk_grid_attach(GTK_GRID(qed_grid), build_curve_cell("#Alerts",   QEDPropName::ALERTS), 3, 2, 1, 1);
 
             gtk_notebook_append_page(qed_notebook, qed_grid, n_label);
             return qed_grid;
@@ -376,17 +541,39 @@ GtkApplicationWindow* coot::layla::setup_main_window(GtkApplication* app, GtkBui
             gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(progress_bar), progress_bar_value);
         };
 
-        // std::cout << "debug molecular_weight " << qed_info->molecular_weight << " " << qed_info->ads_mw << std::endl;
+        // Update a curve cell: set the marker value, redraw, and show "value d=0.xx".
+        auto update_curve_cell = [] (GtkWidget *box, num_rep_t t, double value) {
+            GtkWidget* caption = gtk_widget_get_first_child(box);
+            GtkWidget* area    = gtk_widget_get_next_sibling(caption);
+            GtkWidget* vlabel  = gtk_widget_get_next_sibling(area);
+            auto* cell = static_cast<desirability_curve_cell_t*>(
+                             g_object_get_data(G_OBJECT(area), "curve-cell"));
+            if (! cell) return;
+            cell->value = value;
+            cell->has_value = true;
+            double d = coot::layla::RDKit::QED::ads(
+                          value, coot::layla::RDKit::QED::get_ads_parameter(cell->prop));
+            if (d < 0.0) d = 0.0;
+            if (d > 1.0) d = 1.0;
+            char buf[64];
+            if (t == num_rep_t::INT)
+               g_snprintf(buf, sizeof buf, "%d   d=%.2f", static_cast<int>(value), d);
+            else
+               g_snprintf(buf, sizeof buf, "%.1f   d=%.2f", value, d);
+            gtk_label_set_text(GTK_LABEL(vlabel), buf);
+            gtk_widget_queue_draw(area);
+        };
+
         // these are (carefully) accessed by grid location, not name:
-        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 0, 0), num_rep_t::FLOAT, qed_info->qed_score,                         qed_info->qed_score);
-        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 0, 1), num_rep_t::INT,   qed_info->molecular_weight,                  qed_info->ads_mw);
-        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 1, 1), num_rep_t::FLOAT, qed_info->molecular_polar_surface_area,      qed_info->ads_psa);
-        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 2, 1), num_rep_t::FLOAT, qed_info->alogp,                             qed_info->ads_alogp);
-        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 3, 1), num_rep_t::INT,   qed_info->number_of_hydrogen_bond_acceptors, qed_info->ads_hba);
-        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 0, 2), num_rep_t::INT,   qed_info->number_of_hydrogen_bond_donors,    qed_info->ads_hbd);
-        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 1, 2), num_rep_t::INT,   qed_info->number_of_rotatable_bonds,         qed_info->ads_rotb);
-        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 2, 2), num_rep_t::INT,   qed_info->number_of_aromatic_rings,          qed_info->ads_arom);
-        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 3, 2), num_rep_t::INT,   qed_info->number_of_alerts,                  qed_info->ads_alert);
+        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 0, 0), num_rep_t::FLOAT, qed_info->qed_score, qed_info->qed_score);
+        update_curve_cell(gtk_grid_get_child_at(GTK_GRID(tab), 0, 1), num_rep_t::FLOAT, qed_info->molecular_weight);
+        update_curve_cell(gtk_grid_get_child_at(GTK_GRID(tab), 1, 1), num_rep_t::FLOAT, qed_info->molecular_polar_surface_area);
+        update_curve_cell(gtk_grid_get_child_at(GTK_GRID(tab), 2, 1), num_rep_t::FLOAT, qed_info->alogp);
+        update_curve_cell(gtk_grid_get_child_at(GTK_GRID(tab), 3, 1), num_rep_t::INT,   qed_info->number_of_hydrogen_bond_acceptors);
+        update_curve_cell(gtk_grid_get_child_at(GTK_GRID(tab), 0, 2), num_rep_t::INT,   qed_info->number_of_hydrogen_bond_donors);
+        update_curve_cell(gtk_grid_get_child_at(GTK_GRID(tab), 1, 2), num_rep_t::INT,   qed_info->number_of_rotatable_bonds);
+        update_curve_cell(gtk_grid_get_child_at(GTK_GRID(tab), 2, 2), num_rep_t::INT,   qed_info->number_of_aromatic_rings);
+        update_curve_cell(gtk_grid_get_child_at(GTK_GRID(tab), 3, 2), num_rep_t::INT,   qed_info->number_of_alerts);
 
     };
     g_signal_connect(canvas, "qed-info-updated", G_CALLBACK(+qed_info_updated_handler), qed_notebook);

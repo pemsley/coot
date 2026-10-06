@@ -3438,7 +3438,8 @@ void draw_map_molecule(stereo_eye_t eye,
    bool draw_animated_ligand_interactions_flag; // tweaked by outside function
    void add_hydrogens_from_file(const std::string &reduce_pdb_out);
 
-   void add_hydrogen_atoms_to_residue(const coot::residue_spec_t &rs);
+   void add_hydrogen_atoms_to_residue(const coot::residue_spec_t &rs,
+                                      coot::protein_geometry *geom); // this is what reduce wants
 
    std::pair<bool, clipper::Coord_orth>
    residue_centre(const coot::residue_spec_t &spec) const;

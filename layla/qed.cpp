@@ -219,6 +219,40 @@ double QED::ads(double x, const ADSparameter& p) noexcept {
     return dx / p.DMAX;
 }
 
+const QED::ADSparameter& QED::get_ads_parameter(QEDPropName name) {
+    return adsParameters[static_cast<std::size_t>(name)];
+}
+
+QED::plot_range_t QED::get_plot_range(QEDPropName name) {
+    // Ranges from Fig. 1 of Bickerton et al. 2012 (the property axes there).
+    // Indexed by QEDPropName: MW, ALOGP, HBA, HBD, PSA, ROTB, AROM, ALERTS.
+    switch (name) {
+        case QEDPropName::MW:     return { 0.0, 1000.0 };
+        case QEDPropName::ALOGP:  return { -8.0,  10.0 };
+        case QEDPropName::HBA:    return { 0.0,   18.0 };
+        case QEDPropName::HBD:    return { 0.0,   12.0 };
+        case QEDPropName::PSA:    return { 0.0,  300.0 };
+        case QEDPropName::ROTB:   return { 0.0,   24.0 };
+        case QEDPropName::AROM:   return { 0.0,    7.0 };
+        case QEDPropName::ALERTS: return { 0.0,    6.0 };
+    }
+    return { 0.0, 1.0 };
+}
+
+std::string QED::get_property_label(QEDPropName name) {
+    switch (name) {
+        case QEDPropName::MW:     return "MW";
+        case QEDPropName::ALOGP:  return "cLogP";
+        case QEDPropName::HBA:    return "#HBA";
+        case QEDPropName::HBD:    return "#HBD";
+        case QEDPropName::PSA:    return "PSA";
+        case QEDPropName::ROTB:   return "#RotBonds";
+        case QEDPropName::AROM:   return "#Arom";
+        case QEDPropName::ALERTS: return "#Alerts";
+    }
+    return "";
+}
+
 QED::QEDproperties QED::properties(const ::RDKit::ROMol& mol_raw) {
     #ifdef __MOORHEN__
     std::call_once(impl::static_runtime_init_flag, [](){

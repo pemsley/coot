@@ -416,7 +416,8 @@ coot::m2t::simple_mesh_t
 make_mesh_for_helical_representation(const std::vector<helix_residues_info_t> &helices,
                                      mmdb::Manager *mol,
                                      float radius_for_helices,
-                                     unsigned int n_slices_for_helices) {
+                                     unsigned int n_slices_for_helices,
+                                     const std::string &helix_template_pdb_file_name) {
 
    auto get_ref_coords = [] (mmdb::Manager *helix_mol) {
 
@@ -561,8 +562,20 @@ make_mesh_for_helical_representation(const std::vector<helix_residues_info_t> &h
    if (! helices.empty()) {
 
       mmdb::Manager *helix_mol = new mmdb::Manager();
-      helix_mol->ReadCoorFile("theor-helix-z-ori-v2.pdb");
+      helix_mol->ReadCoorFile(helix_template_pdb_file_name.c_str());
       std::vector<clipper::Coord_orth> ref_coords = get_ref_coords(helix_mol);
+
+      if (ref_coords.empty()) {
+         // get_rtop() superposes every helix residue triplet onto this reference
+         // frame - without it every superposition silently fails (ref_coords.size()
+         // never matches coords.size()) and no helix geometry gets generated at all,
+         // so a missing/unreadable template file must not fail silently here.
+         std::cout << "WARNING:: make_mesh_for_helical_representation(): failed to read helix "
+                   << "template reference coordinates from \"" << helix_template_pdb_file_name
+                   << "\" - helices will not be drawn" << std::endl;
+         delete helix_mol;
+         return m;
+      }
 
       if (false) {
          for (unsigned int ii=0; ii<ref_coords.size(); ii++) {
@@ -772,12 +785,214 @@ make_mesh_for_helical_representation(const std::vector<helix_residues_info_t> &h
    return m;
 }
 
+// make_mesh_for_helical_representation() superposes a reference helix onto every
+// residue triplet independently, which tracks real local bending/irregularity in the
+// backbone faithfully but looks "wormy" (visibly segmented) rather than a smooth rod.
+// This instead fits one single straight axis through all of a helix's CA atoms (PCA:
+// the dominant eigenvector of the CA positions' covariance, found by power iteration
+// on the 3x3 covariance matrix - helices are usually close enough to straight that a
+// handful of iterations converges) and draws one plain capped cylinder along it, so
+// real local wobble is averaged away rather than rendered.
+coot::m2t::simple_mesh_t
+make_mesh_for_straight_helical_representation(const std::vector<helix_residues_info_t> &helices,
+                                               float radius_for_helices,
+                                               unsigned int n_slices_for_helices) {
+
+   auto hsv_to_rgb = [] (double hue, double sat, double val) {
+      double c = val * sat;
+      double x = c * (1 - fabs(fmod(hue / 60.0, 2) - 1));
+      double m = val - c;
+      double r, g, b;
+      if (hue < 60) {
+         r = c; g = x; b = 0;
+      } else if (hue < 120) {
+         r = x; g = c; b = 0;
+      } else if (hue < 180) {
+         r = 0; g = c; b = x;
+      } else if (hue < 240) {
+         r = 0; g = x; b = c;
+      } else if (hue < 300) {
+         r = x; g = 0; b = c;
+      } else {
+         r = c; g = 0; b = x;
+      }
+      return glm::vec4(r+m, g+m, b+m, 1.0f);
+   };
+
+   auto get_helix_colour = [hsv_to_rgb] (unsigned int ih) {
+      double hue = static_cast<double>(ih) * 0.2695 * 360.0 * 0.1;
+      double sat = 0.8;
+      double val = 0.5;
+      return hsv_to_rgb(hue, sat, val);
+   };
+
+   // MoleculesToTriangles can't depend on coot-utils, so coot-utils/cylinder.hh's
+   // cylinder class isn't available here - this builds the same shape (a capped
+   // cylinder from p_start to p_end) from scratch, using mesh_vertex_t/mesh_triangle_t
+   // directly. The side-wall triangle winding mirrors the ring-stitching pattern used
+   // just below in this same file (the t1(j+1,j,...)/t2(...) pattern), so it should be
+   // consistent with everything else here; the end caps are flat discs rather than the
+   // rounded hemisphere caps used elsewhere - simpler, and a reasonable place to start.
+   auto make_capped_cylinder = [] (const glm::vec3 &p_start, const glm::vec3 &p_end,
+                                   float radius, unsigned int n_slices, const glm::vec4 &col) {
+      coot::m2t::simple_mesh_t cm;
+      glm::vec3 axis_vec = p_end - p_start;
+      float height = glm::length(axis_vec);
+      if (height < 1.0e-6f) return cm;
+      glm::vec3 dir = axis_vec / height;
+
+      glm::vec3 arbitrary = (fabsf(dir.x) < 0.9f) ? glm::vec3(1,0,0) : glm::vec3(0,1,0);
+      glm::vec3 perp1 = glm::normalize(glm::cross(dir, arbitrary));
+      glm::vec3 perp2 = glm::cross(dir, perp1);
+
+      std::vector<glm::vec3> ring_dirs(n_slices);
+      for (unsigned int i=0; i<n_slices; i++) {
+         float theta = M_PI * 2.0 * static_cast<float>(i) / static_cast<float>(n_slices);
+         ring_dirs[i] = perp1 * cosf(theta) + perp2 * sinf(theta);
+      }
+
+      // side wall: two rings of radially-outward-normal vertices
+      unsigned int idx0 = static_cast<unsigned int>(cm.vertices.size()); // 0
+      for (unsigned int i=0; i<n_slices; i++)
+         cm.vertices.push_back(coot::m2t::mesh_vertex_t(p_start + ring_dirs[i] * radius, ring_dirs[i], col));
+      unsigned int idx1 = static_cast<unsigned int>(cm.vertices.size()); // n_slices
+      for (unsigned int i=0; i<n_slices; i++)
+         cm.vertices.push_back(coot::m2t::mesh_vertex_t(p_end + ring_dirs[i] * radius, ring_dirs[i], col));
+      for (unsigned int i=0; i<n_slices; i++) {
+         unsigned int i_next = (i + 1) % n_slices;
+         cm.triangles.push_back(coot::m2t::mesh_triangle_t(idx0 + i_next, idx0 + i, idx1 + i));
+         cm.triangles.push_back(coot::m2t::mesh_triangle_t(idx1 + i, idx1 + i_next, idx0 + i_next));
+      }
+
+      // flat start cap (faces -dir), fan triangulated from a centre vertex
+      unsigned int centre_start_idx = static_cast<unsigned int>(cm.vertices.size());
+      cm.vertices.push_back(coot::m2t::mesh_vertex_t(p_start, -dir, col));
+      unsigned int ring_start_cap_idx = static_cast<unsigned int>(cm.vertices.size());
+      for (unsigned int i=0; i<n_slices; i++)
+         cm.vertices.push_back(coot::m2t::mesh_vertex_t(p_start + ring_dirs[i] * radius, -dir, col));
+      for (unsigned int i=0; i<n_slices; i++) {
+         unsigned int i_next = (i + 1) % n_slices;
+         cm.triangles.push_back(coot::m2t::mesh_triangle_t(centre_start_idx, ring_start_cap_idx + i_next, ring_start_cap_idx + i));
+      }
+
+      // flat end cap (faces +dir)
+      unsigned int centre_end_idx = static_cast<unsigned int>(cm.vertices.size());
+      cm.vertices.push_back(coot::m2t::mesh_vertex_t(p_end, dir, col));
+      unsigned int ring_end_cap_idx = static_cast<unsigned int>(cm.vertices.size());
+      for (unsigned int i=0; i<n_slices; i++)
+         cm.vertices.push_back(coot::m2t::mesh_vertex_t(p_end + ring_dirs[i] * radius, dir, col));
+      for (unsigned int i=0; i<n_slices; i++) {
+         unsigned int i_next = (i + 1) % n_slices;
+         cm.triangles.push_back(coot::m2t::mesh_triangle_t(centre_end_idx, ring_end_cap_idx + i, ring_end_cap_idx + i_next));
+      }
+
+      return cm;
+   };
+
+   coot::m2t::simple_mesh_t m;
+
+   for (unsigned int ih=0; ih<helices.size(); ih++) {
+      const auto &helix = helices[ih];
+      if (helix.size() > 3) {
+
+         std::vector<clipper::Coord_orth> ca_pts;
+         for (const auto &rp : helix.residues) {
+            mmdb::Atom *ca_at = rp.first->GetAtom(" CA ");
+            if (ca_at)
+               ca_pts.push_back(clipper::Coord_orth(ca_at->x, ca_at->y, ca_at->z));
+         }
+         if (ca_pts.size() > 3) {
+
+            clipper::Coord_orth centroid(0,0,0);
+            for (const auto &p : ca_pts) centroid += p;
+            centroid = (1.0/static_cast<double>(ca_pts.size())) * centroid;
+
+            double cxx=0.0, cxy=0.0, cxz=0.0, cyy=0.0, cyz=0.0, czz=0.0;
+            for (const auto &p : ca_pts) {
+               clipper::Coord_orth d = p - centroid;
+               cxx += d.x()*d.x(); cxy += d.x()*d.y(); cxz += d.x()*d.z();
+               cyy += d.y()*d.y(); cyz += d.y()*d.z(); czz += d.z()*d.z();
+            }
+
+            // power iteration for the dominant eigenvector of the covariance matrix
+            glm::vec3 v(1.0f, 1.0f, 1.0f);
+            for (int iter=0; iter<30; iter++) {
+               glm::vec3 w(static_cast<float>(cxx*v.x + cxy*v.y + cxz*v.z),
+                          static_cast<float>(cxy*v.x + cyy*v.y + cyz*v.z),
+                          static_cast<float>(cxz*v.x + cyz*v.y + czz*v.z));
+               float len = glm::length(w);
+               if (len > 1.0e-6f) v = w / len;
+            }
+
+            double t_min =  1.0e30;
+            double t_max = -1.0e30;
+            for (const auto &p : ca_pts) {
+               clipper::Coord_orth d = p - centroid;
+               double t = d.x()*v.x + d.y()*v.y + d.z()*v.z;
+               if (t < t_min) t_min = t;
+               if (t > t_max) t_max = t;
+            }
+            clipper::Coord_orth axis_start = centroid + t_min * clipper::Coord_orth(v.x, v.y, v.z);
+            clipper::Coord_orth axis_end   = centroid + t_max * clipper::Coord_orth(v.x, v.y, v.z);
+
+            glm::vec3 p_start(axis_start.x(), axis_start.y(), axis_start.z());
+            glm::vec3 p_end(axis_end.x(), axis_end.y(), axis_end.z());
+            glm::vec4 col = get_helix_colour(ih);
+
+            coot::m2t::simple_mesh_t helix_mesh =
+               make_capped_cylinder(p_start, p_end, radius_for_helices, n_slices_for_helices, col);
+            m.add_submesh(helix_mesh);
+         }
+      }
+   }
+
+   return m;
+}
+
 
 coot::m2t::simple_mesh_t
 make_mesh_for_coil_representation(const std::vector<coil_residues_info_t> &coils,
                                   float radius,
                                   int Cn, int accuracy,
-                                  unsigned int n_slices) {
+                                  unsigned int n_slices,
+                                  const std::string &colour_scheme) {
+
+   // same hue-stepping trick as get_helix_colour() in make_mesh_for_helical_representation(),
+   // keyed on a hash of the chain id instead of a sequential helix index, so each chain
+   // gets a stable colour rather than everything being uniform grey.
+   auto hsv_to_rgb = [] (double hue, double sat, double val) {
+      double c = val * sat;
+      double x = c * (1 - fabs(fmod(hue / 60.0, 2) - 1));
+      double m = val - c;
+      double r, g, b;
+      if (hue < 60) {
+         r = c; g = x; b = 0;
+      } else if (hue < 120) {
+         r = x; g = c; b = 0;
+      } else if (hue < 180) {
+         r = 0; g = c; b = x;
+      } else if (hue < 240) {
+         r = 0; g = x; b = c;
+      } else if (hue < 300) {
+         r = x; g = 0; b = c;
+      } else {
+         r = c; g = 0; b = x;
+      }
+      return glm::vec4(r+m, g+m, b+m, 1.0f);
+   };
+
+   auto get_chain_colour = [hsv_to_rgb] (const std::string &chain_id) {
+      unsigned int idx = 0;
+      for (char c : chain_id) idx += static_cast<unsigned int>(c);
+      // hsv_to_rgb()'s if/else ladder expects hue in [0,360) - unlike a sequential
+      // helix index, a chain-id character-sum is easily >> 360 (e.g. "A" alone is
+      // 65), which without wrapping lands almost every single-letter chain in the
+      // same catch-all branch, i.e. all chains come out the same murky colour.
+      double hue = fmod(static_cast<double>(idx) * 0.2695 * 360.0 * 0.1, 360.0);
+      double sat = 0.7;
+      double val = 0.7;
+      return hsv_to_rgb(hue, sat, val);
+   };
 
    auto fcxx_to_glm = [] (const FCXXCoord &c) {
       return glm::vec3(c.x(), c.y(), c.z());
@@ -838,7 +1053,8 @@ make_mesh_for_coil_representation(const std::vector<coil_residues_info_t> &coils
    auto make_continuous_spline_mesh = [get_ring_around_mid_point, fcxx_to_glm]
       (const std::vector<FCXXCoord> &spline_points,
        float radius,
-       unsigned int n_slices) {
+       unsigned int n_slices,
+       const glm::vec4 &col) {
 
       std::vector<std::vector<std::pair<glm::vec3, glm::vec3> > > rings;
       coot::m2t::simple_mesh_t m;
@@ -853,7 +1069,6 @@ make_mesh_for_coil_representation(const std::vector<coil_residues_info_t> &coils
             rings.push_back(r);
          }
 
-         glm::vec4 col(0.6, 0.6, 0.6, 1.0);
          for (const auto &ring : rings) {
             for (const auto &point : ring) {
                coot::m2t::mesh_vertex_t v(point.first, point.second, col);
@@ -960,9 +1175,11 @@ make_mesh_for_coil_representation(const std::vector<coil_residues_info_t> &coils
          CoordSpline cs;
          int nsteps =  accuracy * (ctlPts.size() - 1);
          int iinterp = 1;
+         glm::vec4 col = (colour_scheme == "Chain") ?
+            get_chain_colour(coil.chain_id) : glm::vec4(0.6, 0.6, 0.6, 1.0);
          try {
             std::vector<FCXXCoord> v = cs.SplineCurve(ctlPts, nsteps, Cn, iinterp);
-            coot::m2t::simple_mesh_t cs = make_continuous_spline_mesh(v, radius, n_slices);
+            coot::m2t::simple_mesh_t cs = make_continuous_spline_mesh(v, radius, n_slices, col);
             if (false)
                std::cout << ":::::::::::::::: continuous_spline: " << cs.vertices.size() << " " << cs.triangles.size()
                       << std::endl;
@@ -985,7 +1202,9 @@ make_tubes_representation(mmdb::Manager *mol,
                           float radius_for_coil,
                           int Cn_for_coil, int accuracy_for_coil,
                           unsigned int n_slices_for_coil,
-                          int secondaryStructureUsageFlag) {
+                          int secondaryStructureUsageFlag,
+                          const std::string &helix_template_pdb_file_name,
+                          bool straight_helices) {
 
    std::cout << "---------------- start make_tubes_representation() " << std::endl;
 
@@ -1008,19 +1227,26 @@ make_tubes_representation(mmdb::Manager *mol,
    int sel_hnd = mol->NewSelection(); // d
    mol->Select(sel_hnd, mmdb::STYPE_RESIDUE, atom_selection_str.c_str(), mmdb::SKEY_NEW);
 
-   bool use_header = true;
+   // use_header=true makes make_coil_splines_and_helicies() read PDB HELIX/SHEET
+   // records directly, ignoring residue_p->SSE entirely - so it must stay false
+   // whenever secondaryStructureUsageFlag asked for SSE to be computed (flag 2,
+   // just above) or treated per-residue (flag 1, DONT_USE); otherwise a structure
+   // with no header records (or one whose SSE we just calculated) renders as a
+   // single coil with no helices at all.
+   bool use_header = (secondaryStructureUsageFlag == 0); // USE_HEADER_INFO in MyMolecule
    std::pair<std::vector<helix_residues_info_t>, std::vector<coil_residues_info_t> >
       helices_and_coils_pair = make_coil_splines_and_helicies(mol, sel_hnd, use_header, end_cap_style);
 
    const auto &helices = helices_and_coils_pair.first;
    const auto &coils   = helices_and_coils_pair.second;
 
-   coot::m2t::simple_mesh_t helices_mesh =
-      make_mesh_for_helical_representation(helices, mol, radius_for_helices, n_slices_for_helices);
-
+   coot::m2t::simple_mesh_t helices_mesh = straight_helices ?
+      make_mesh_for_straight_helical_representation(helices, radius_for_helices, n_slices_for_helices) :
+      make_mesh_for_helical_representation(helices, mol, radius_for_helices, n_slices_for_helices,
+                                           helix_template_pdb_file_name);
    coot::m2t::simple_mesh_t coils_mesh =
       make_mesh_for_coil_representation(coils, radius_for_coil, Cn_for_coil, accuracy_for_coil,
-                                        n_slices_for_coil);
+                                        n_slices_for_coil, colour_scheme);
 
    m.add_submesh(helices_mesh);
    m.add_submesh(coils_mesh);
@@ -1028,4 +1254,39 @@ make_tubes_representation(mmdb::Manager *mol,
    std::cout << "---------------- done make_tubes_representation() " << std::endl;
 
    return m;
+}
+
+// Used by Coot's "Tube (helices)" representation: just the straight-cylinder helix
+// geometry (see make_mesh_for_straight_helical_representation()), with none of the
+// coil/worm meshing that make_tubes_representation() also does - the caller is
+// expected to get strand/coil from the normal Ribbon representation instead (with
+// its "hideHelixGeometry" parameter set, so the two don't overlap) and merge the two.
+coot::m2t::simple_mesh_t
+make_straight_cylinder_helices_mesh(mmdb::Manager *mol,
+                                    const std::string &atom_selection_str,
+                                    float radius_for_helices,
+                                    unsigned int n_slices_for_helices,
+                                    int secondaryStructureUsageFlag) {
+
+   if (secondaryStructureUsageFlag == 2) { // CALC_SECONDARY_STRUCTURE in MyMolecule
+      int nModels = mol->GetNumberOfModels();
+      for (int iModel = 1; iModel <= nModels; iModel++){
+         mmdb::Model *model = mol->GetModel(iModel);
+         model->CalcSecStructure(true);
+      }
+   }
+
+   if (secondaryStructureUsageFlag == 0)
+      secondary_structure_header_to_residue_sse(mol);
+
+   int sel_hnd = mol->NewSelection();
+   mol->Select(sel_hnd, mmdb::STYPE_RESIDUE, atom_selection_str.c_str(), mmdb::SKEY_NEW);
+
+   bool use_header = (secondaryStructureUsageFlag == 0); // USE_HEADER_INFO in MyMolecule
+   helix_residues_info_t::end_cap_style end_cap_style = helix_residues_info_t::end_cap_style::FLAT;
+   std::pair<std::vector<helix_residues_info_t>, std::vector<coil_residues_info_t> >
+      helices_and_coils_pair = make_coil_splines_and_helicies(mol, sel_hnd, use_header, end_cap_style);
+
+   const auto &helices = helices_and_coils_pair.first;
+   return make_mesh_for_straight_helical_representation(helices, radius_for_helices, n_slices_for_helices);
 }

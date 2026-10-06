@@ -59,7 +59,7 @@ vec3 make_outline() {
    float depth_centre = texture(screenDepth, TexCoords).r;
    vec3 orig_colour   = texture(screenTexture2, TexCoords).rgb;
    vec3 result = orig_colour;
-   int size = 1;
+   int size = 2; // was 1 (3x3 kernel); bumped to try a thicker outline (make this a uniform later)
    float ts_size = 1.0f; // same as above
    vec2 tex_scale = ts_size/textureSize(screenTexture2, 0);
    int n_deep_neighbs = 0;
