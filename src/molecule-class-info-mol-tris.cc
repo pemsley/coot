@@ -28,6 +28,8 @@
 #include "Python.h"
 #endif
 
+#include <algorithm>
+
 #include "graphics-info.h"
 #include "molecule-class-info.h"
 
@@ -79,6 +81,7 @@ molecule_class_info_t::set_mol_triangles_is_displayed(int state) {
 }
 
 #include "molecular-mesh-generator.hh"
+#include "MoleculesToTriangles/CXXClasses/tubes.hh"
 int
 molecule_class_info_t::add_molecular_representation(const std::string &atom_selection,
                                                     const std::string &colour_scheme,
@@ -111,8 +114,107 @@ molecule_class_info_t::add_molecular_representation(const std::string &atom_sele
    material.shininess = 256.0;
    material.specular_strength = 0.56;
 
-   // if (colour_scheme == "Rainbow") {
-   if (colour_scheme == "colorRampChainsScheme") {
+   if (style == "Tubes" || style == "TubeHelices") {
+      // Worms, Bendix (both style "Tubes", differing only by secondary_structure_usage_flag)
+      // and Tube (helices) (style "TubeHelices") are mutually-exclusive "helix style"
+      // choices for this molecule. There's no mesh-replace-in-place mechanism here (unlike
+      // the representation_key-based one used elsewhere in Coot), so without this, switching
+      // from e.g. Bendix to Worms just added a second mesh on top of the first, leaving the
+      // old helix geometry visible underneath the new one.
+      auto ends_with = [] (const std::string &s, const std::string &suffix) {
+         return s.size() >= suffix.size() &&
+                s.compare(s.size() - suffix.size(), suffix.size(), suffix) == 0;
+      };
+      meshes.erase(std::remove_if(meshes.begin(), meshes.end(),
+         [&ends_with] (const Mesh &m) {
+            return ends_with(m.name, " Tubes") || ends_with(m.name, " TubeHelices");
+         }), meshes.end());
+   }
+
+   if (style == "Tubes") { // bendy-helix "worm" representation
+
+      // "Worms" (DONT_USE, flag 1 - no SSE computed, so the whole backbone is one
+      // uncomputed run) want a thick uniform tube; "Bendix" (flag 0 or 2 - helices
+      // drawn as cylinders) wants a thin coil to match ribbonStyleCoilThickness's
+      // default in Ribbon mode, so the coil between helices doesn't dominate.
+      float radius_for_coil = (secondary_structure_usage_flag == 1) ? 0.8f : 0.3f;
+      int Cn_for_coil = 2;
+      int accuracy_for_coil = 12;
+      unsigned int n_slices_for_coil = 12;
+      // MoleculesToTriangles can't resolve the installed data directory itself (it can't
+      // depend on coot-utils), so resolve the helix reference template's absolute path
+      // here instead - otherwise it only works when coot happens to be run from a
+      // directory that happens to contain theor-helix-z-ori-v2.pdb.
+      std::string helix_template_pdb_file_name = coot::package_data_dir() + "/theor-helix-z-ori-v2.pdb";
+      coot::simple_mesh_t tubes_mesh =
+         make_tubes_representation(atom_sel.mol, atom_selection, colour_scheme, radius_for_coil, Cn_for_coil,
+                                   accuracy_for_coil, n_slices_for_coil, secondary_structure_usage_flag,
+                                   helix_template_pdb_file_name);
+
+      // tubes_mesh.vertices are api::vnc_vertex (pos/normal/color) - convert to the
+      // s_generic_vertex that Mesh is built from everywhere else in this function;
+      // triangles are already g_triangle, no conversion needed.
+      std::vector<s_generic_vertex> vertices;
+      vertices.reserve(tubes_mesh.vertices.size());
+      for (const auto &v : tubes_mesh.vertices)
+         vertices.push_back(s_generic_vertex(v.pos, v.normal, v.color));
+
+      std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > verts_and_tris(vertices, tubes_mesh.triangles);
+      Mesh mesh(verts_and_tris);
+      mesh.set_name(name);
+      meshes.push_back(mesh);
+      meshes.back().setup(material);
+
+   } else if (style == "TubeHelices") {
+
+      // A normal Ribbon representation (strand = arrow, coil = thin tube, via the
+      // same drawRibbon() everything else uses) with its helix geometry suppressed
+      // (hideHelixGeometry), merged with a straight-cylinder helix mesh (one PCA-fit
+      // axis per helix - see make_straight_cylinder_helices_mesh()) to fill the gap -
+      // so helices come out as smooth rods instead of drawRibbon()'s native per-residue
+      // elliptical sweep, while strand/coil keep their normal cartoon look untouched.
+
+      // local copy: must not mutate the molecule's persistent M2T_int_params, or every
+      // future plain Ribbon representation on this molecule would also lose its helices.
+      std::vector<std::pair<std::string, int> > local_int_params = M2T_int_params;
+      local_int_params.push_back(std::make_pair(std::string("hideHelixGeometry"), 1));
+
+      std::vector<molecular_triangles_mesh_t> mtm =
+         mmg.get_molecular_triangles_mesh(atom_sel.mol, atom_selection, colour_scheme, "Ribbon",
+                                          secondary_structure_usage_flag,
+                                          M2T_float_params, local_int_params);
+      molecular_triangles_mesh_t meshes_together;
+      for (unsigned int i=0; i<mtm.size(); i++)
+         meshes_together.add_to_mesh(mtm[i].vertices, mtm[i].triangles);
+
+      std::vector<s_generic_vertex> vertices = meshes_together.vertices;
+      std::vector<g_triangle> triangles = meshes_together.triangles;
+
+      float radius_for_helices = 2.5;
+      unsigned int n_slices_for_helices = 16;
+      coot::simple_mesh_t helix_mesh =
+         make_straight_cylinder_helices_mesh(atom_sel.mol, atom_selection, radius_for_helices,
+                                             n_slices_for_helices, secondary_structure_usage_flag);
+
+      // offset the helix mesh's (0-based) triangle indices so they index correctly
+      // into the combined vertex buffer once appended after the ribbon's vertices.
+      unsigned int idx_base = vertices.size();
+      vertices.reserve(vertices.size() + helix_mesh.vertices.size());
+      for (const auto &v : helix_mesh.vertices)
+         vertices.push_back(s_generic_vertex(v.pos, v.normal, v.color));
+      triangles.reserve(triangles.size() + helix_mesh.triangles.size());
+      for (auto t : helix_mesh.triangles) {
+         t.rebase(idx_base);
+         triangles.push_back(t);
+      }
+
+      std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > verts_and_tris(vertices, triangles);
+      Mesh mesh(verts_and_tris);
+      mesh.set_name(name);
+      meshes.push_back(mesh);
+      meshes.back().setup(material);
+
+   } else if (colour_scheme == "colorRampChainsScheme") {
 
       std::cout << "---------------------------------------  Rainbow ----------------------" << std::endl;
       int imod = 1;

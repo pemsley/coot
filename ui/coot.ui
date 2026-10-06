@@ -807,6 +807,18 @@
             <attribute name="label">Ribbons: Sec. Struct.</attribute>
             <attribute name="action">app.ribbons_colour_by_secondary_structure_action</attribute>
           </item>
+          <item>
+            <attribute name="label">Worms</attribute>
+            <attribute name="action">app.worms_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Bendix (helices)</attribute>
+            <attribute name="action">app.bendix_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Tube (helices)</attribute>
+            <attribute name="action">app.tube_helices_action</attribute>
+          </item>
         </section>
         <section>
           <item>
