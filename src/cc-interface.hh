@@ -731,6 +731,23 @@ void servalcat_refine(int imol_model,
 int servalcat_refine_xray_with_keywords(int imol, int imol_map, const std::string &output_prefix,
                                         const std::string &keyword_pairs_json);
 
+//! Use servalcat for refinement for x-ray data (asynchronous/non-blocking version).
+//!
+//! As servalcat_refine_xray_with_keywords(), but this does not block - it returns
+//! immediately and the refined model is read in by an idle function when the
+//! refinement has completed. This is the function to use for interactive use.
+//!
+//! This presumes that the mtz for the data has already been associated with the map.
+//!
+//! This presumes that CCP4 has been setup correctly before invoking Coot.
+//!
+//! @param imol is the model molecule index
+//! @param imol is the map molecule index
+//! @param output_prefix is the prefix for the output
+//! @param keyword_pairs_json a JSON string of keyword pairs to control the refinement
+void servalcat_refine_xray_with_keywords_async(int imol, int imol_map, const std::string &output_prefix,
+                                               const std::string &keyword_pairs_json);
+
 //! run acedrg link
 void
 run_acedrg_link_generation(const std::string &acedrg_link_command);
@@ -1994,6 +2011,18 @@ void set_logging_level(const std::string &level);//!
 //! \brief print the glycosylation tree that contains the specified residue
 void
 print_glyco_tree(int imol, const std::string &chain_id, int resno, const std::string &ins_code);
+
+//! \brief add a named glyco tree (carbohydrate building)
+//!
+//! Add N-linked glycosylation starting at the given ASN residue, fitting into
+//! the map in molecule imol_map.
+//!
+//! glycosylation_name is the type of glycosylation, one of:
+//! "NAG-NAG-BMA", "high-mannose", "hybrid", "mammalian-biantennary" or
+//! "plant-biantennary".
+void
+add_named_glyco_tree(int imol, int imol_map, const std::string &glycosylation_name,
+                     const std::string &chain_id, int res_no, const std::string &ins_code);
 
 //! \}
 

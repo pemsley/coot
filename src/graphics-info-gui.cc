@@ -3701,6 +3701,33 @@ graphics_info_t::fill_bond_parameters_internals(GtkWidget *combobox_for_molecule
    //              << " to  combobox_for_molecule " << combobox_for_molecule << std::endl;
    g_object_set_data(G_OBJECT(bond_width_combobox), "bond_parameters_molecule_combobox", combobox_for_molecule);
 
+   // Atom Radius Scale (for ball-and-stick representation) - per molecule
+   GtkWidget *atom_radius_scale_hscale = widget_from_builder("bond_parameters_atom_radius_scale_hscale");
+   if (atom_radius_scale_hscale) {
+      float current_atom_radius_scale = 1.0;
+      if (imol_active >= 0 && imol_active < n_molecules())
+         if (molecules[imol_active].has_model())
+            current_atom_radius_scale = molecules[imol_active].atom_radius_scale_factor;
+      GtkAdjustment *ars_adjustment =
+         GTK_ADJUSTMENT(gtk_adjustment_new(current_atom_radius_scale, 0.5, 5.0, 0.1, 0.5, 0.0));
+      gtk_range_set_adjustment(GTK_RANGE(atom_radius_scale_hscale), ars_adjustment);
+      gtk_scale_set_draw_value(GTK_SCALE(atom_radius_scale_hscale), TRUE);
+      gtk_scale_set_digits(GTK_SCALE(atom_radius_scale_hscale), 1);
+   }
+
+   // Bond Smoothness (global, not per-molecule)
+   GtkWidget *bond_smoothness_default_radiobutton = widget_from_builder("bond_smoothness_default_radiobutton");
+   GtkWidget *bond_smoothness_smooth_radiobutton  = widget_from_builder("bond_smoothness_smooth_radiobutton");
+   GtkWidget *bond_smoothness_fine_radiobutton    = widget_from_builder("bond_smoothness_fine_radiobutton");
+   if (bond_smoothness_factor == 2) {
+      gtk_check_button_set_active(GTK_CHECK_BUTTON(bond_smoothness_smooth_radiobutton), TRUE);
+   } else {
+      if (bond_smoothness_factor == 3) {
+         gtk_check_button_set_active(GTK_CHECK_BUTTON(bond_smoothness_fine_radiobutton), TRUE);
+      } else {
+         gtk_check_button_set_active(GTK_CHECK_BUTTON(bond_smoothness_default_radiobutton), TRUE);
+      }
+   }
 
    // Draw Hydrogens?
    if (imol_active >= 0 ) {
@@ -3851,6 +3878,10 @@ graphics_info_t::fill_bond_colours_dialog_internal(GtkWidget *w) {
 	 gtk_box_append(GTK_BOX(coords_colours_vbox), frame_molecule_N);
 	 gtk_widget_set_size_request(frame_molecule_N, 171, -1);
 
+         GtkWidget *vbox_molecule_N = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
+         gtk_widget_set_visible(vbox_molecule_N, TRUE);
+         gtk_frame_set_child(GTK_FRAME(frame_molecule_N), vbox_molecule_N);
+
          GtkWidget *hbox136 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
          gtk_widget_set_hexpand(hbox136, TRUE);
 
@@ -3858,7 +3889,7 @@ graphics_info_t::fill_bond_colours_dialog_internal(GtkWidget *w) {
 	 // g_object_set_data_full (G_OBJECT (coords_colour_control_dialog), "hbox136", hbox136, NULL);
 
 	 gtk_widget_set_visible (hbox136, TRUE);
-	 gtk_frame_set_child(GTK_FRAME(frame_molecule_N), hbox136);
+	 gtk_box_append(GTK_BOX(vbox_molecule_N), hbox136);
 
 	 // g_object_set_data_full(G_OBJECT (coords_colour_control_dialog), "label269", label269, NULL);
 
@@ -3888,10 +3919,36 @@ graphics_info_t::fill_bond_colours_dialog_internal(GtkWidget *w) {
          gtk_label_set_xalign(GTK_LABEL(label270), 0.5);
          gtk_label_set_yalign(GTK_LABEL(label270), 0.56);
 
+         // Carbon Colours - grey vs coloured carbon atoms, per molecule.
+         GtkWidget *hbox_carbon_colours = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
+         gtk_widget_set_visible(hbox_carbon_colours, TRUE);
+         gtk_box_append(GTK_BOX(vbox_molecule_N), hbox_carbon_colours);
+
+         GtkWidget *grey_carbons_checkbutton = gtk_check_button_new_with_label("Grey Carbons");
+         gtk_check_button_set_active(GTK_CHECK_BUTTON(grey_carbons_checkbutton),
+                                     molecules[imol].use_bespoke_grey_colour_for_carbon_atoms);
+         g_object_set_data(G_OBJECT(grey_carbons_checkbutton), "imol", GINT_TO_POINTER(imol));
+         g_signal_connect(G_OBJECT(grey_carbons_checkbutton), "toggled",
+                          G_CALLBACK(grey_carbons_checkbutton_toggled), NULL);
+         gtk_widget_set_visible(grey_carbons_checkbutton, TRUE);
+         gtk_box_append(GTK_BOX(hbox_carbon_colours), grey_carbons_checkbutton);
+
 	 gtk_widget_set_visible(frame_molecule_N, TRUE);
       }
    }
 
+}
+
+// static
+void
+graphics_info_t::grey_carbons_checkbutton_toggled(GtkCheckButton *checkbutton, gpointer user_data) {
+
+   int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(checkbutton), "imol"));
+   if (is_valid_model_molecule(imol)) {
+      bool state = gtk_check_button_get_active(checkbutton);
+      graphics_info_t::molecules[imol].set_use_bespoke_carbon_atom_colour(state);
+      graphics_draw();
+   }
 }
 
 // static

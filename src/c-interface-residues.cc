@@ -164,9 +164,29 @@ print_glyco_tree(int imol, const std::string &chain_id, int res_no, const std::s
 	    g.Geom_p()->try_dynamic_add(types_with_no_dictionary[i], 41);
 
 	 coot::glyco_tree_t t(r, mol, g.Geom_p());
-      } 
-   } 
-} 
+      }
+   }
+}
+
+
+void
+add_named_glyco_tree(int imol, int imol_map, const std::string &glycosylation_name,
+                     const std::string &chain_id, int res_no, const std::string &ins_code) {
+
+   if (is_valid_model_molecule(imol)) {
+      if (is_valid_map_molecule(imol_map)) {
+         graphics_info_t g;
+         coot::residue_spec_t asn_res_spec(chain_id, res_no, ins_code);
+         const clipper::Xmap<float> &xmap = g.molecules[imol_map].xmap;
+         g.molecules[imol].add_named_glyco_tree(glycosylation_name, g.Geom_p(), asn_res_spec, xmap);
+         g.graphics_draw();
+      } else {
+         std::cout << "WARNING:: add_named_glyco_tree(): not a valid map molecule " << imol_map << std::endl;
+      }
+   } else {
+      std::cout << "WARNING:: add_named_glyco_tree(): not a valid model molecule " << imol << std::endl;
+   }
+}
 
 
 /* ------------------------------------------------------------------------- */

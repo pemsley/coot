@@ -49,7 +49,7 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
 	acedrg-types-for-residue.hh gl-matrix.h ortep.hh coot-align.hh grid-balls.hh dict-link-info.hh \
         dirichlet-process.hh cfc.hh cremer-pople.hh born.hh inchikey-store.hh cylinder-utils.hh gmm.hh nef-utils.hh ptm-database.hh \
 	read-amber-trajectory.hh rebox-map.hh coot-coord-utils-gemmi.hh map-cap.hh edcalc.hh crowther.hh patterson.hh surface-on-torus.hh \
-	pdbqt.hh pdbqt-charges.hh acedrg-sqlite-tables.hh acedrg-input-mmcif.hh
+	pdbqt.hh pdbqt-charges.hh acedrg-sqlite-tables.hh acedrg-input-mmcif.hh servalcat-refine-progress.hh
 
 
 pkgincludedir = $(includedir)/coot/coot-utils
@@ -94,7 +94,8 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc coot-coord-utils-mmdb-free.
 	shapes.cc cmtz-interface.cc pugixml.cpp parse-pisa.cc gltf-export.cc pae.cc \
 	gl-matrix.cc gl-matrix-eigensystem.cc coot-align.cc grid-balls.cc dict-link-info.cc \
 	cremer-pople.cc inchikey-store.cc cylinder-utils.cc nef-utils.cc gaussian-atom-map-for-mask.cc \
-	read-amber-trajectory.cc surface-on-torus.cc pdbqt.cc pdbqt-charges.cc acedrg-sqlite-tables.cc acedrg-input-mmcif.cc
+	read-amber-trajectory.cc surface-on-torus.cc pdbqt.cc pdbqt-charges.cc acedrg-sqlite-tables.cc acedrg-input-mmcif.cc \
+	servalcat-refine-progress.cc
 
 #    $(top_builddir)/mini-mol/libcoot-mini-mol.la
 #    $(top_builddir)/utils/libcoot-utils.la
@@ -190,7 +191,7 @@ check_PROGRAMS = test-h-bonds testshelxreader test-hole test-elastic \
 		 test-coot-utils test-pae servalcat-tracker test-zd test-grid-balls \
 		 test-dirichlet-process test-born test-gmm test-nef-utils test-zernike \
 		 test-zernike-params test-zernike-nxmap test-zernike-search \
-		 test-coord-utils test-coord-utils-gemmi
+		 test-coord-utils test-coord-utils-gemmi test-servalcat-refine-progress
 if MAKE_GEMMI_SQLITE
 check_PROGRAMS += test-acedrg-sqlite-tables
 endif
@@ -264,6 +265,10 @@ test_parse_pisa_LDADD = \
 
 test_pae_SOURCES = test-pae.cc
 test_pae_LDADD = \
+	./libcoot-coord-utils.la
+
+test_servalcat_refine_progress_SOURCES = test-servalcat-refine-progress.cc
+test_servalcat_refine_progress_LDADD = \
 	./libcoot-coord-utils.la
 
 test_born_SOURCES = test-born.cc

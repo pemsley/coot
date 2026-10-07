@@ -967,6 +967,48 @@ molecules_container_t::read_small_molecule_cif(const std::string &file_name) {
 }
 
 
+std::vector<int>
+molecules_container_t::read_small_molecule_cif_and_make_map(const std::string &file_name) {
+
+   std::vector<int> imols;
+
+   coot::smcif cif;
+   mmdb::Manager *mol = cif.read_sm_cif(file_name);
+   if (! mol)
+      return imols;
+
+   int imol = molecules.size();
+   atom_selection_container_t asc = make_asc(mol);
+   molecules.push_back(coot::molecule_t(asc, imol, file_name));
+   imols.push_back(imol);
+
+   // The reflections are intensities, so the maps have to be phased by the
+   // model.  Work on a copy of the atoms because the atom selection can get
+   // disturbed when the structure factors are calculated.
+   //
+   bool have_data = cif.read_data_sm_cif(file_name);
+   if (have_data) {
+      mmdb::Manager *mol_for_sfs = new mmdb::Manager;
+      mol_for_sfs->Copy(mol, mmdb::MMDBFCM_All);
+      atom_selection_container_t asc_for_sfs = make_asc(mol_for_sfs);
+      std::pair<clipper::Xmap<float>, clipper::Xmap<float> > maps =
+         cif.sigmaa_maps_by_calc_sfs(asc_for_sfs.atom_selection, asc_for_sfs.n_selected_atoms);
+      if (! maps.first.is_null()) {
+         bool is_em_map = false;
+         int imol_2fofc = molecules.size();
+         molecules.push_back(coot::molecule_t(file_name + " 2Fo-Fc", imol_2fofc, maps.first, is_em_map));
+         imols.push_back(imol_2fofc);
+         int imol_fofc = molecules.size();
+         coot::molecule_t m_diff(file_name + " Fo-Fc", imol_fofc, maps.second, is_em_map);
+         m_diff.set_map_is_difference_map(true);
+         molecules.push_back(m_diff);
+         imols.push_back(imol_fofc);
+      }
+   }
+   return imols;
+}
+
+
 int
 molecules_container_t::read_amber_trajectory(int imol_coords,
                                              const std::string &trajectory_file_name,

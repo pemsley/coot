@@ -138,7 +138,7 @@ graphics_info_t::init() {
       // the default material for models - the user can change these before
       // a model is read in (see set_default_model_material_*()).
       default_material_for_models.do_specularity = true;
-      default_material_for_models.specular_strength = 0.25; // 0.25 is new default.
+      default_material_for_models.specular_strength = 0.45; // 0.25 was the new default.
                                                             // 1.00 was too shiny it seems
 
       // moving_atoms_molecule is a static that was constructed (and copied

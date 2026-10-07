@@ -1406,6 +1406,19 @@ PyObject *get_ligand_distortion_summary_info_py(int imol, PyObject *residue_spec
 void
 show_acedrg_link_interface_overlay() {
 
+   // Warn up front if acedrg isn't available, rather than letting the user fill in
+   // the whole form and only finding out when "OK" fails.
+   gchar *acedrg_path = g_find_program_in_path("acedrg");
+   if (!acedrg_path) {
+      graphics_info_t g;
+      g.info_dialog("WARNING:: Acedrg was not found on your PATH.\n\n"
+                    "Make sure acedrg is installed and available on your PATH "
+                    "(e.g. source your CCP4 setup script) before using this interface.",
+                    false);
+   } else {
+      g_free(acedrg_path);
+   }
+
    GtkWidget *w = widget_from_builder("acedrg_link_interface_frame");
    gtk_widget_set_visible(w, TRUE);
 

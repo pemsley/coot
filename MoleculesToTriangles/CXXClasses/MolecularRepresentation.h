@@ -83,6 +83,11 @@ public:
         updateFloatParameter("surfaceStyleProbeRadius",1.4);
         updateFloatParameter("ballsStyleRadiusMultiplier",1.);
         updateBoolParameter ("smoothBetas",true);
+        // non-zero: drawRibbon() skips emitting cylinder geometry for helix-classified
+        // residues entirely (strand/coil still drawn normally) - used by Coot's "Tube
+        // (helices)" representation, which fills that gap with its own straight-cylinder
+        // helix mesh instead of drawRibbon()'s per-residue-superposed one.
+        updateIntParameter  ("hideHelixGeometry",0);
     };
     virtual ~MolecularRepresentation(){
         deletePrimitives();

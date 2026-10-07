@@ -190,7 +190,7 @@ add_library(cootmoleculestotriangles SHARED
             ${coot_src}/MoleculesToTriangles/CXXClasses/Vector3.cpp
             ${coot_src}/MoleculesToTriangles/CXXClasses/VertexColorNormalPrimitive.cpp
             ${coot_src}/MoleculesToTriangles/CXXClasses/lfit.c
-            #  ${coot_src}/MoleculesToTriangles/CXXClasses/tubes.cc - not ready yet
+            ${coot_src}/MoleculesToTriangles/CXXClasses/tubes.cc
 )
 
 
@@ -387,6 +387,7 @@ add_library(cootapi SHARED
             ${coot_src}/coot-utils/polar-atoms.cc
             ${coot_src}/coot-utils/plane-utils.cc
             ${coot_src}/coot-utils/pae.cc
+            ${coot_src}/coot-utils/servalcat-refine-progress.cc
             ${coot_src}/coot-utils/coot-tree-extras.cc
             ${coot_src}/coot-utils/coot-map-heavy.cc
             ${coot_src}/coot-utils/rebox-map.cc

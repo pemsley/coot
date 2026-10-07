@@ -1588,7 +1588,7 @@ int read_mtz(const char *mtz_file_name,
 
  @return -1 on error, else return imol */
 int  make_and_draw_map_with_refmac_params(const char *mtz_file_name,
-		       const char *a, const char *b, const char *weight,
+		                          const char *F_phi, const char *phi_col, const char *weight_col,
 					  int use_weights, int is_diff_map,
 					  short int have_refmac_params,
 					  const char *fobs_col,
@@ -4327,6 +4327,13 @@ void import_all_refmac_cifs();
 int read_small_molecule_cif(const char *file_name);
 
 int read_small_molecule_data_cif(const char *file_name);
+
+/*! \brief read a SHELX-style small-molecule cif (e.g. from the COD) and make maps
+
+   The model is read from the embedded SHELX res file and, from the embedded
+   SHELX hkl reflection list, a (model-phased) 2Fo-Fc map and an Fo-Fc
+   difference map are made.  Return the model molecule index (-1 on failure). */
+int read_small_molecule_cif_and_make_map(const char *file_name);
 
 int read_small_molecule_data_cif_and_make_map_using_coords(const char *file_name,
 							   int imol_coords);

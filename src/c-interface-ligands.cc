@@ -2284,6 +2284,17 @@ int read_small_molecule_data_cif(const char *file_name) {
    return imol;
 }
 
+// Read a SHELX-style small-molecule cif (e.g. from the COD): make the model
+// and, from the embedded reflections, model-phased 2Fo-Fc and Fo-Fc maps.
+//
+int read_small_molecule_cif_and_make_map(const char *file_name) {
+
+   int imol = read_small_molecule_cif(file_name);
+   if (is_valid_model_molecule(imol))
+      read_small_molecule_data_cif_and_make_map_using_coords(file_name, imol);
+   return imol;
+}
+
 int read_small_molecule_data_cif_and_make_map_using_coords(const char *file_name,
 							   int imol_coords) {
 

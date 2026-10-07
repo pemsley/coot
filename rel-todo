@@ -1,15 +1,45 @@
 --- Items---
 
+o trying to change the model material - seems not to affect the drawing of 
+  molecule2triangles objects (say, a surface)
+
+o 7k00 - get the emdb code from the cif
+
+o in Range/Pair show the selection
+
+o does coot_no_state_real_exit() flush the python buffer?
+
+o look at 23sr, 9i9k
+
+o fix add_hydrogen_atoms_to_residue(): null geom_p
+
+o look at carbohydrate building before release
+
+o Add a "view" that shows formal charges - on this residue - or whole molecule
+
+o configure should fail if it can't find swig
+
+o use RDKit canonical SMILES for atom order and hence atom name.
+
+o (1) the range show (`) doesn't account for large atoms. Looks strange.
+  (2) When a range is defined it should do a Range Show.
+
+o HEM ligand still tangled. Exclude HEM
+
+o add the servalcat graph progress
+
+o make default bond smoothness be "smooth" (2, I think)
+
 o make nice little svgs from bickerton et al (2012) functions
   to help with QED manipulation.
+* Done.
 
 o for agentic coot, create a function that does "validate_residue()" - combining metrics
 
 o we are looking at a ligand with a nitrogen: 6RD, it would be nice to get
   and fetch COD structures that have the same atom type (and possibly matching atom types
   of the direct neighbours too) - i.e. there should be a database query for this.
-
-o use RDKit canonical SMILES for atom order and hence atom name.
+* Done.
 
 o average maps: simple usage fails
 * Done.
@@ -26,8 +56,6 @@ o GPhL: check that pandda maps read into coot - do we need the rotation/translat
 o 5s9s FAD A 501 OA1 and O2A should have the same hydrogen bond type
    (acceptor) see ener_lib.cif for O and OP. So the RDKit output
    needs to be augmented.
-
-o HEM ligand still tangled. Exclude HEM
 
 o add to the api - add dotted/dashed line between points
   in ospray rendering
