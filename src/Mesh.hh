@@ -105,7 +105,11 @@ public:
    bool gl_lines_mode; // set by the constructor of the mesh - that know if mesh is wireframe or not
    std::vector<unsigned int> lines_vertex_indices; // for chickenwire
    Shader shader_for_draw_normals;
-   std::string name;
+   std::string name; // user-facing label, e.g. shown in the Display Manager
+   // identifies what this mesh represents (e.g. atom-selection + style) independently of
+   // "name", so that a newly-added representation can find and replace an existing one
+   // occupying the same "slot" without that bookkeeping leaking into the displayed label
+   std::string representation_key;
    unsigned int type; // from molecular triangles object type
    std::chrono::time_point<std::chrono::system_clock>  time_constructed;
    bool is_headless; // i.e. don't try to use OpenGL calls because we've been imported into python, blender or jupyter.
@@ -157,6 +161,7 @@ public:
    void setup_buffers();
    void set_draw_mesh_state(bool state) { if (this_mesh_is_closed) draw_this_mesh = false; else draw_this_mesh = state; }
    void set_name(const std::string &n) { name = n; }
+   void set_representation_key(const std::string &k) { representation_key = k; }
    void import(const std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > &indexed_vertices,
                bool fill_lines_vertex_indices=false); // adds to the mesh
    void import(const std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > &indexed_vertices,

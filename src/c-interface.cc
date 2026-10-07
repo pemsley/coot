@@ -9501,8 +9501,11 @@ void make_generic_surface(int imol, const char *selection_str, int mode) {
                                         smesh.vertices[i].normal,
                                         smesh.vertices[i].color);
       }
-      std::string object_name = type + " Surface " + std::to_string(imol) +
-         std::string(" ") + std::string(selection_string);
+      // the Display Manager already scopes this row to molecule imol, so the label
+      // itself doesn't need to repeat the molecule number or the raw selection string
+      std::string object_name = type + " Surface";
+      if (selection_string != "//" && !selection_string.empty())
+         object_name += " (" + selection_string + ")";
       int obj_mesh = new_generic_object_number(object_name);
       meshed_generic_display_object &obj = g.generic_display_objects[obj_mesh];
       obj.imol = imol;

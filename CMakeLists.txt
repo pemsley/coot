@@ -190,7 +190,7 @@ add_library(cootmoleculestotriangles SHARED
             ${coot_src}/MoleculesToTriangles/CXXClasses/Vector3.cpp
             ${coot_src}/MoleculesToTriangles/CXXClasses/VertexColorNormalPrimitive.cpp
             ${coot_src}/MoleculesToTriangles/CXXClasses/lfit.c
-            #  ${coot_src}/MoleculesToTriangles/CXXClasses/tubes.cc - not ready yet
+            ${coot_src}/MoleculesToTriangles/CXXClasses/tubes.cc
 )
 
 

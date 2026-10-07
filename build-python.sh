@@ -8,7 +8,7 @@
 # ========================= Configuration =========================
 
 # Where everything gets installed
-install_top_dir=${install_top_dir:=$HOME/test-python}
+install_top_dir=${install_top_dir:=$HOME/python3.14.7}
 
 # Where source tarballs are downloaded/cached
 sources_dir=${sources_dir:=$HOME/autobuild/sources}
@@ -18,7 +18,7 @@ log_dir=${log_dir:=$HOME/autobuild/logs}
 
 # Versions
 python_version=python3.14
-pver=3.14.2
+pver=3.14.7
 libffi_version=3.4.6
 gettext_version=0.22.5
 
@@ -159,6 +159,9 @@ if [ "$build_python" = true ] ; then
    elif [ $OS = Linux ] ; then
       python_ldflags="LDFLAGS=-Wl,--rpath=$install_top_dir/lib"
       python_libs="LIBS=-L$install_top_dir/lib64"
+   elif [ $OS = Darwin ] ; then
+      python_ldflags="LDFLAGS=-L$install_top_dir/lib"
+      python_libs="LIBS=-lintl"
    fi
 
    echo "INFO:: ./configure $generic_prefix --with-ensurepip=install --enable-shared" \

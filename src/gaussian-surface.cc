@@ -30,6 +30,7 @@
 
 #include "density-contour/gaussian-surface.hh"
 #include "c-interface-generic-objects.h"
+#include "gtk-manual.hh"
 
 //! \brief set the sigma for gaussian surface
 void set_gaussian_surface_sigma(float s) {
@@ -154,10 +155,9 @@ int gaussian_surface(int imol) {
 
       g.attach_buffers();
 
-      std::string object_name("Gaussian Surface #");
-      object_name += std::to_string(imol);
-      object_name += std::string(" Chain ");
+      std::string object_name("Gaussian Surface (Chain ");
       object_name += chain_id;
+      object_name += ")";
       int obj_mesh = new_generic_object_number(object_name);
       meshed_generic_display_object &obj = g.generic_display_objects[obj_mesh];
       obj.imol = imol;
@@ -207,10 +207,9 @@ int gaussian_surface(int imol) {
          }
          graphics_info_t g;
          g.attach_buffers();
-         std::string object_name("Gaussian Surface #");
-         object_name += std::to_string(imol);
-         object_name += std::string(" Chain ");
+         std::string object_name("Gaussian Surface (Chain ");
          object_name += chain_id;
+         object_name += ")";
          int obj_mesh = new_generic_object_number(object_name);
          meshed_generic_display_object &obj = g.generic_display_objects[obj_mesh];
          obj.imol = imol;
@@ -242,10 +241,9 @@ int gaussian_surface(int imol) {
          }
          graphics_info_t g;
          g.attach_buffers();
-         std::string object_name("Gaussian Surface #");
-         object_name += std::to_string(imol);
-         object_name += std::string(" Chain ");
+         std::string object_name("Gaussian Surface (Chain ");
          object_name += chain_id;
+         object_name += ")";
          int obj_mesh = new_generic_object_number(object_name);
          meshed_generic_display_object &obj = g.generic_display_objects[obj_mesh];
          obj.imol = imol;
@@ -283,6 +281,7 @@ int gaussian_surface(int imol) {
                make_an_ncs_chain_surface(imol, mol, chain_p, ncs_chains, sigma, contour_level, box_radius, grid_scale, b_factor);
          }
       }
+      update_display_control_mesh_toggles(imol);
       g.graphics_draw();
    }
    return status;

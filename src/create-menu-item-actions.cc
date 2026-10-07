@@ -3434,73 +3434,6 @@ bond_colours_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    graphics_info_t::graphics_grab_focus();
 }
 
-void
-grey_carbon_colours_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                           G_GNUC_UNUSED GVariant *parameter,
-                           G_GNUC_UNUSED gpointer user_data) {
-
-
-   graphics_info_t g;
-   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec();
-   if (pp.first) {
-      int imol = pp.second.first;
-      set_use_grey_carbons_for_molecule(imol, 1);
-   }
-   graphics_info_t::graphics_grab_focus();
-}
-
-void
-coloured_carbon_colours_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                               G_GNUC_UNUSED GVariant *parameter,
-                               G_GNUC_UNUSED gpointer user_data) {
-
-   graphics_info_t g;
-   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec();
-   if (pp.first) {
-      int imol = pp.second.first;
-      set_use_grey_carbons_for_molecule(imol, 0);
-   }
-   graphics_info_t::graphics_grab_focus();
-}
-
-
-void
-bond_smoothness_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                       G_GNUC_UNUSED GVariant *parameter,
-                       G_GNUC_UNUSED gpointer user_data) {
-
-   gchar* mode_cstr;
-   g_variant_get(parameter, "s", &mode_cstr);
-   std::string mode(mode_cstr);
-   if (mode == "1") set_bond_smoothness_factor(1);
-   if (mode == "2") set_bond_smoothness_factor(2);
-   if (mode == "3") set_bond_smoothness_factor(3);
-   graphics_info_t::graphics_grab_focus();
-}
-
-void
-bond_smoothness_action_1(G_GNUC_UNUSED GSimpleAction *simple_action,
-                        G_GNUC_UNUSED GVariant *parameter,
-                        G_GNUC_UNUSED gpointer user_data) {
-
-   set_bond_smoothness_factor(1);
-}
-
-void
-bond_smoothness_action_2(G_GNUC_UNUSED GSimpleAction *simple_action,
-                        G_GNUC_UNUSED GVariant *parameter,
-                        G_GNUC_UNUSED gpointer user_data) {
-
-   set_bond_smoothness_factor(2);
-}
-
-void
-bond_smoothness_action_3(G_GNUC_UNUSED GSimpleAction *simple_action,
-                        G_GNUC_UNUSED GVariant *parameter,
-                        G_GNUC_UNUSED gpointer user_data) {
-
-   set_bond_smoothness_factor(3);
-}
 
 void
 bond_parameters_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -4587,6 +4520,73 @@ ribbons_colour_by_secondary_structure_action(G_GNUC_UNUSED GSimpleAction *simple
    }
    graphics_info_t::graphics_grab_focus();
 }
+
+void
+worms_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+            G_GNUC_UNUSED GVariant *parameter,
+            G_GNUC_UNUSED gpointer user_data) {
+
+   // DONT_USE: no header/calculated SSE, so the whole backbone is one uncomputed
+   // coil run - a thick uniform worm through the molecule, no distinct helices.
+   // "Chain" colours each chain's worm by a stable hash-derived hue.
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      std::string colour_scheme = "Chain";
+      std::string atom_selection = "//";
+      std::string style = "Tubes";
+      int secondary_structure_usage_flag = DONT_USE;
+      graphics_info_t g;
+      int status = g.add_molecular_representation(imol, atom_selection, colour_scheme, style,
+                                                  secondary_structure_usage_flag);
+   }
+   graphics_info_t::graphics_grab_focus();
+}
+
+
+void
+bendix_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+             G_GNUC_UNUSED GVariant *parameter,
+             G_GNUC_UNUSED gpointer user_data) {
+
+   // CALC_SECONDARY_STRUCTURE: helices are drawn as cylinders, coil as a thin tube.
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      std::string colour_scheme = "Helix";
+      std::string atom_selection = "//";
+      std::string style = "Tubes";
+      int secondary_structure_usage_flag = CALC_SECONDARY_STRUCTURE;
+      graphics_info_t g;
+      int status = g.add_molecular_representation(imol, atom_selection, colour_scheme, style,
+                                                  secondary_structure_usage_flag);
+   }
+   graphics_info_t::graphics_grab_focus();
+}
+
+
+void
+tube_helices_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                    G_GNUC_UNUSED GVariant *parameter,
+                    G_GNUC_UNUSED gpointer user_data) {
+
+   // Like Bendix, but each helix is one straight capped cylinder (PCA-fit axis
+   // through its CA atoms) rather than the reference helix superposed onto every
+   // residue triplet independently - a smooth rod instead of a visibly segmented worm.
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      std::string colour_scheme = "Helix";
+      std::string atom_selection = "//";
+      std::string style = "TubeHelices";
+      int secondary_structure_usage_flag = CALC_SECONDARY_STRUCTURE;
+      graphics_info_t g;
+      int status = g.add_molecular_representation(imol, atom_selection, colour_scheme, style,
+                                                  secondary_structure_usage_flag);
+   }
+   graphics_info_t::graphics_grab_focus();
+}
+
 
 void
 screenshot_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -6748,9 +6748,6 @@ create_actions(GtkApplication *application) {
    add_action( "background_semi_dark_grey_action", background_semi_dark_grey_action);
    add_action(          "background_white_action",          background_white_action);
 
-   add_action(       "grey_carbon_colours_action",       grey_carbon_colours_action);
-   add_action(   "coloured_carbon_colours_action",   coloured_carbon_colours_action);
-
    add_action(    "display_only_active_action",     display_only_active_action);
    add_action(        "bond_parameters_action",         bond_parameters_action);
    add_action(           "bond_colours_action",            bond_colours_action);
@@ -6796,6 +6793,9 @@ create_actions(GtkApplication *application) {
    add_action("ribbons_colour_by_chain_action", ribbons_colour_by_chain_action);
    add_action("ribbons_colour_rainbow_action",   ribbons_colour_rainbow_action);
    add_action("ribbons_colour_by_secondary_structure_action", ribbons_colour_by_secondary_structure_action);
+   add_action(                           "worms_action",                             worms_action);
+   add_action(                          "bendix_action",                            bendix_action);
+   add_action(                     "tube_helices_action",                      tube_helices_action);
 
    add_action( "toggle_display_frames_per_second_action", toggle_display_frames_per_second_action);
 
@@ -6905,14 +6905,6 @@ create_actions(GtkApplication *application) {
    add_action("mutate_base_to_type_T", mutate_base_to_type_T);
    add_action("mutate_base_to_type_C", mutate_base_to_type_C);
    add_action("mutate_base_to_type_U", mutate_base_to_type_U);
-
-   // Draw menu
-   add_action_with_param("bond_smoothness_action", bond_smoothness_action);
-
-   // 2025-09-15 16:40 PE: hack functions
-   add_action("bond_smoothness_action_1", bond_smoothness_action_1);
-   add_action("bond_smoothness_action_2", bond_smoothness_action_2);
-   add_action("bond_smoothness_action_3", bond_smoothness_action_3);
 
    // Delete menu
    add_action_with_param("delete_item", delete_item);

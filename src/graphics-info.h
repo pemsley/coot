@@ -2736,6 +2736,8 @@ public:
    // is where the individual colour rotation steps are changed:
    static void bonds_colour_rotation_adjustment_changed(GtkAdjustment *adj,
 							GtkWidget *window);
+   // per-molecule "Grey Carbons" checkbutton in the Bond Colours dialog:
+   static void grey_carbons_checkbutton_toggled(GtkCheckButton *checkbutton, gpointer user_data);
    static int bond_parameters_molecule;
    static float bond_thickness_intermediate_atoms; // white atoms
    void set_bond_thickness_intermediate_atoms(float f);
@@ -4852,6 +4854,8 @@ string   static std::string sessionid;
 
    static std::pair<bool, std::string> acedrg_link;
    static bool acedrg_running; // not link acedrg - this is acedrg from CCD
+   static std::string acedrg_link_command_output; // acedrg's own stdout/stderr from the last
+                                                   // (possibly failed) link-generation run
 
    static bool curmudgeon_mode; // default false, particles and faces
    static bool use_sounds; // default true

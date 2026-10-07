@@ -684,31 +684,48 @@
             <attribute name="action">app.bond_parameters_action</attribute>
           </item>
 
+          <item>
+            <attribute name="label">Gaussian Surface...</attribute>
+            <attribute name="action">app.gaussian_surface_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Molecular Surface</attribute>
+            <attribute name="action">app.molecular_surface_action</attribute>
+          </item>
+              <item>
+            <attribute name="label">Worms</attribute>
+            <attribute name="action">app.worms_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Bendix (helices)</attribute>
+            <attribute name="action">app.bendix_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Tube (helices)</attribute>
+            <attribute name="action">app.tube_helices_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Map Caps</attribute>
+            <attribute name="action">app.map_caps_action</attribute>
+          </item>
+          <item>
+            <!-- this needs an atom selection overlay -->
+            <attribute name="label">Electrostatic Surface</attribute>
+            <attribute name="action">app.electrostatic_surface_action</attribute>
+          </item>
           <submenu>
-            <attribute name="label">Bond Smoothness</attribute>
+            <attribute name="label">Ribbons...</attribute>
             <item>
-              <attribute name="label">Default</attribute>
-              <attribute name="action">app.bond_smoothness_action_1</attribute>
+              <attribute name="label">By Chain</attribute>
+              <attribute name="action">app.ribbons_colour_by_chain_action</attribute>
             </item>
             <item>
-              <attribute name="label">Smooth</attribute>
-              <attribute name="action">app.bond_smoothness_action_2</attribute>
+              <attribute name="label">Rainbow</attribute>
+              <attribute name="action">app.ribbons_colour_rainbow_action</attribute>
             </item>
             <item>
-              <attribute name="label">Fine</attribute>
-              <attribute name="action">app.bond_smoothness_action_3</attribute>
-            </item>
-          </submenu>
-
-          <submenu>
-            <attribute name="label">Carbon Colours</attribute>
-            <item>
-              <attribute name="label">Grey Carbon Colours</attribute>
-              <attribute name="action">app.grey_carbon_colours_action</attribute>
-            </item>
-            <item>
-              <attribute name="label">Coloured Carbon Colours</attribute>
-              <attribute name="action">app.coloured_carbon_colours_action</attribute>
+              <attribute name="label">Sec. Struct.</attribute>
+              <attribute name="action">app.ribbons_colour_by_secondary_structure_action</attribute>
             </item>
           </submenu>
 
@@ -778,7 +795,7 @@
           </item>
         </section>
         <section>
-          <item>
+          <!-- <item>
             <attribute name="label">Gaussian Surface...</attribute>
             <attribute name="action">app.gaussian_surface_action</attribute>
           </item>
@@ -789,13 +806,12 @@
           <item>
             <attribute name="label">Map Caps</attribute>
             <attribute name="action">app.map_caps_action</attribute>
-          </item>
-          <item>
-            <!-- this needs an atom selection overlay -->
+          </item> -->
+          <!-- <item>
             <attribute name="label">Electrostatic Surface</attribute>
             <attribute name="action">app.electrostatic_surface_action</attribute>
-          </item>
-          <item>
+          </item> -->
+          <!-- <item>
             <attribute name="label">Ribbons: By Chain</attribute>
             <attribute name="action">app.ribbons_colour_by_chain_action</attribute>
           </item>
@@ -806,7 +822,8 @@
           <item>
             <attribute name="label">Ribbons: Sec. Struct.</attribute>
             <attribute name="action">app.ribbons_colour_by_secondary_structure_action</attribute>
-          </item>
+          </item> -->
+      
         </section>
         <section>
           <item>
@@ -2781,6 +2798,73 @@ Calculate a skeleton now?
                 <child type="label">
                   <object class="GtkLabel" id="label307">
                     <property name="label" translatable="yes">Molecule Bond Width:</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkFrame" id="frame_atom_radius_scale">
+                <child>
+                  <object class="GtkBox" id="hbox_atom_radius_scale">
+                    <child>
+                      <object class="GtkScale" id="bond_parameters_atom_radius_scale_hscale">
+                        <signal name="value-changed" handler="bond_parameters_atom_radius_scale_hscale_changed"/>
+                        <property name="can-focus">1</property>
+                        <property name="draw-value">true</property>
+                        <property name="round-digits">1</property>
+                        <property name="digits">1</property>
+                        <property name="value-pos">top</property>
+                        <property name="hexpand">1</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child type="label">
+                  <object class="GtkLabel" id="label_atom_radius_scale">
+                    <property name="label" translatable="yes">Atom Radius Scale (Ball and Stick):</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkFrame" id="frame_bond_smoothness">
+                <child>
+                  <object class="GtkBox" id="vbox_bond_smoothness">
+                    <property name="orientation">vertical</property>
+                    <child>
+                      <object class="GtkCheckButton" id="bond_smoothness_default_radiobutton">
+                        <property name="label" translatable="yes">Default</property>
+                        <property name="can-focus">1</property>
+                        <property name="use-underline">1</property>
+                        <property name="active">1</property>
+                        <signal name="toggled" handler="on_bond_smoothness_default_radiobutton_toggled" swapped="no"/>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkCheckButton" id="bond_smoothness_smooth_radiobutton">
+                        <property name="label" translatable="yes">Smooth</property>
+                        <property name="can-focus">1</property>
+                        <property name="use-underline">1</property>
+                        <property name="group">bond_smoothness_default_radiobutton</property>
+                        <signal name="toggled" handler="on_bond_smoothness_smooth_radiobutton_toggled" swapped="no"/>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkCheckButton" id="bond_smoothness_fine_radiobutton">
+                        <property name="label" translatable="yes">Fine</property>
+                        <property name="can-focus">1</property>
+                        <property name="use-underline">1</property>
+                        <property name="group">bond_smoothness_default_radiobutton</property>
+                        <signal name="toggled" handler="on_bond_smoothness_fine_radiobutton_toggled" swapped="no"/>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child type="label">
+                  <object class="GtkLabel" id="label_bond_smoothness">
+                    <property name="label" translatable="yes">Bond Smoothness:</property>
                   </object>
                 </child>
               </object>
@@ -9227,6 +9311,8 @@ Do you want to continue?
 				 <object class="GtkEntry" id="acedrg_link_first_residue_name_entry">
 				   <property name="can-focus">1</property>
 				   <property name="hexpand">False</property>
+				   <property name="placeholder-text">e.g. PTR, then press Enter</property>
+				   <property name="tooltip-text">Type the 3-letter code, then press Enter to load its atoms</property>
                                    <signal name="activate" handler="on_acedrg_link_first_residue_activate" />
 				 </object>
 			       </child>
@@ -9402,6 +9488,8 @@ Do you want to continue?
 				 <object class="GtkEntry" id="acedrg_link_second_residue_name_entry">
 				   <property name="can-focus">1</property>
 				   <property name="hexpand">False</property>
+				   <property name="placeholder-text">e.g. DT, then press Enter</property>
+				   <property name="tooltip-text">Type the 3-letter code, then press Enter to load its atoms</property>
                                    <signal name="activate" handler="on_acedrg_link_second_residue_activate" />
 				 </object>
 			       </child>
