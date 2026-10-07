@@ -456,6 +456,36 @@ on_go_to_atom_apply_button_clicked (GtkButton       *button,
 
 extern "C" G_MODULE_EXPORT
 void
+on_go_to_atom_chain_entry_activate(GtkEntry *entry,
+                                   gpointer  user_data)
+{
+   // same as pressing Apply
+   GtkWidget *widget = widget_from_builder("goto_atom_window");
+   apply_go_to_atom_from_widget(widget);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_go_to_atom_residue_entry_activate(GtkEntry *entry,
+                                     gpointer  user_data)
+{
+   // same as pressing Apply
+   GtkWidget *widget = widget_from_builder("goto_atom_window");
+   apply_go_to_atom_from_widget(widget);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_go_to_atom_atom_name_entry_activate(GtkEntry *entry,
+                                       gpointer  user_data)
+{
+   // same as pressing Apply
+   GtkWidget *widget = widget_from_builder("goto_atom_window");
+   apply_go_to_atom_from_widget(widget);
+}
+
+extern "C" G_MODULE_EXPORT
+void
 on_go_to_atom_cancel_button_clicked    (GtkButton       *button,
                                         gpointer         user_data)
 {

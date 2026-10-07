@@ -78,6 +78,9 @@ o 5s9s FAD A 501 OA1 and O2A should have the same hydrogen bond type
    (acceptor) see ener_lib.cif for O and OP. So the RDKit output
    needs to be augmented.
 
+o look at FAD with hydrogens added pdb5s9s.ent,
+  oxygen-to-hydrogen bond needs an end-cap
+
 o add to the api - add dotted/dashed line between points
   in ospray rendering
 * Meh. At some stage.

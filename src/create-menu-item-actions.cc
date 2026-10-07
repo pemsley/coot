@@ -1419,9 +1419,12 @@ on_run_script_filechooser_dialog_response_gtk4(GtkDialog *dialog,
 
       std::cout << "Run this script file: " << file_name << std::endl;
       run_script(file_name);
-      gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
-
+      g_free(file_name);
+      g_object_unref(file);
    }
+   // the dialog is made anew each time in run_script_action(), so destroy it
+   // for every response (Open, Cancel, or window-close)
+   gtk_window_destroy(GTK_WINDOW(dialog));
 }
 
 void
