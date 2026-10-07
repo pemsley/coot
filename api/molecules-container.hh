@@ -843,6 +843,21 @@ public:
    //! @return the new molecule index on success and -1 on failure
    int read_small_molecule_cif(const std::string &file_name);
 
+   //! Read a SHELX-style small-molecule cif (for example a structure downloaded
+   //! from the Crystallography Open Database) and make maps.
+   //!
+   //! Such files embed a SHELX .res file and a SHELX .hkl reflection list.  The
+   //! model is read from the embedded res file and, because the reflections are
+   //! intensities (there are no phases), the maps are phased by the model: a
+   //! 2Fo-Fc map and an Fo-Fc difference map.
+   //!
+   //! @param file_name is the cif file-name
+   //!
+   //! @return a vector of the new molecule indices: {model, 2Fo-Fc map, Fo-Fc
+   //!         difference map}.  On failure the vector is empty; if only the
+   //!         model could be made the vector has a single entry.
+   std::vector<int> read_small_molecule_cif_and_make_map(const std::string &file_name);
+
    //! Read an Amber NetCDF trajectory file
    //!
    //! Reads trajectory frames and creates a multi-model molecule. Requires NetCDF support

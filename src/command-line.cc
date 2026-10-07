@@ -81,6 +81,7 @@ void print_help() {
              << "            [--dictionary-with-mol cif-dictionary-file-name]\n"
              << "            [--script script-file-name]\n"
              << "            [--em]\n"
+             << "            [--code PDB-accession-code]\n"
              << "            [--title some-title]\n"
              << "            [--command command-script]\n"
              << "            [--command-terminal]\n"

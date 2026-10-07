@@ -901,12 +901,14 @@ int fetch_cod_entry(const std::string &cod_code) {
 
    std::string fn_tail = cod_code + std::string(".cif");
    std::filesystem::path fn = download_dir / fn_tail;
+   // COD cifs are SHELX-style: as well as the model, make maps from the
+   // embedded reflections (read_small_molecule_cif_and_make_map()).
    if (std::filesystem::exists(fn)) {
-      imol = read_small_molecule_cif(fn.c_str());
+      imol = read_small_molecule_cif_and_make_map(fn.c_str());
    } else {
       coot_get_url(url.c_str(), fn.c_str());
       if (coot::file_exists_and_non_tiny(fn.string())) {
-         imol = read_small_molecule_cif(fn.c_str());
+         imol = read_small_molecule_cif_and_make_map(fn.c_str());
       } else {
          std::cout << "DEBUG:: failed to download " << url << std::endl;
       }

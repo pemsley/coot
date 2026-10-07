@@ -66,6 +66,25 @@ namespace coot {
                                          const std::string &file_name) const;
       void setup_hkls(const std::string &file_name);
 
+      // SHELX-style cifs (e.g. from the Crystallography Open Database) do not
+      // store the model and data in the usual _atom_site_* and _refln_* loops.
+      // Instead they embed a SHELX .res file as an _shelx_res_file text field
+      // and the SHELX .hkl reflection list as an _shelx_hkl_file text field.
+      //
+      // return an empty string if the tag is not present.
+      std::string get_embedded_shelx_field(mmdb::mmcif::Data *data,
+                                            const std::string &tag) const;
+      // parse the embedded SHELX res text with coot::ShelxIns and set the cell
+      // and spacegroup from the cif.  Return null on failure.
+      mmdb::Manager *read_coordinates_from_shelx_res_text(const std::string &res_text,
+                                                          mmdb::mmcif::Data *data) const;
+      // fill my_fsigf (and mydata) from the embedded HKLF reflection list.
+      bool read_data_from_shelx_hklf(const std::string &file_name,
+                                     const std::string &hkl_text);
+      // resolution limit from the hkl indices in the embedded HKLF text
+      clipper::Resolution get_resolution_from_hklf(const clipper::Cell &cell,
+                                                   const std::string &hkl_text) const;
+
       // various ways in which the symmetry can be specified
       //
 

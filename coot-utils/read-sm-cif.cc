@@ -25,6 +25,9 @@
 #include <stdexcept>
 #include <algorithm> // for remove_if
 #include <string.h> // for strncpy
+#include <fstream>
+#include <sstream>
+#include <unistd.h> // for mkstemp, close, unlink (embedded SHELX res temp file)
 
 #include <mmdb2/mmdb_manager.h>
 #include <clipper/core/clipper_util.h>
@@ -44,6 +47,7 @@
 #include "geometry/residue-and-atom-specs.hh"
 
 #include "read-sm-cif.hh"
+#include "coot-shelx.hh" // for coot::ShelxIns, to parse embedded SHELX res files
 
 
 
@@ -397,7 +401,18 @@ coot::smcif::read_sm_cif(const std::string &file_name) const {
       if (!ierr)
          printf("_[local]_cod_chemical_formula_sum_orig: %s\n", S);
 
-      try { 
+      // SHELX-style cif (e.g. from the Crystallography Open Database): the model
+      // lives in an embedded _shelx_res_file text field.  Parse it with
+      // coot::ShelxIns (coot-shelx-ins.cc).
+      std::string shelx_res_text = get_embedded_shelx_field(data, "_shelx_res_file");
+      if (! shelx_res_text.empty()) {
+         mol = read_coordinates_from_shelx_res_text(shelx_res_text, data);
+         if (mol)
+            std::cout << "INFO:: made model from embedded SHELX res file" << std::endl;
+      }
+
+      if (! mol) {
+      try {
          clipper::Cell cell = get_cell(data);
          std::cout << "INFO:: got cell from cif: " << cell.format() << std::endl;
 
@@ -480,14 +495,227 @@ coot::smcif::read_sm_cif(const std::string &file_name) const {
       catch (const std::runtime_error &rte) {
          std::cout << "ERROR:: " << rte.what() << std::endl;
       }
+      } // end of if (! mol) - i.e. not already made from embedded SHELX res
    }
-      
+
    delete data;
    // delete S;
    data = NULL;
    S = NULL;
 
    return mol;
+}
+
+
+// SHELX-style cifs (e.g. from the COD) embed a SHELX .res file and a SHELX .hkl
+// reflection list as multi-line (semicolon-delimited) text fields.  mmdb's mmcif
+// parser returns the whole block as the value of the tag.
+//
+// return an empty string if the tag is not present.
+std::string
+coot::smcif::get_embedded_shelx_field(mmdb::mmcif::Data *data, const std::string &tag) const {
+
+   std::string r;
+   mmdb::pstr S = NULL;
+   int ierr = data->GetString(S, "", tag.c_str());
+   if (! ierr && S)
+      r = S;
+   return r;
+}
+
+
+// Parse the embedded SHELX res text with coot::ShelxIns.  ShelxIns reads from a
+// file, so we spill the text to a temporary file.  The cell is set by ShelxIns,
+// but its spacegroup assignment needs SYMINFO to be set, so (to be robust) we
+// set both the cell and spacegroup here from the cif - get_space_group(data)
+// understands both the _symmetry_equiv_pos_as_xyz and the (shelxl)
+// _space_group_symop_operation_xyz loops.
+//
+// return null on failure.
+mmdb::Manager *
+coot::smcif::read_coordinates_from_shelx_res_text(const std::string &res_text,
+                                                  mmdb::mmcif::Data *data) const {
+
+   mmdb::Manager *mol = NULL;
+   if (res_text.empty())
+      return mol;
+
+   std::string tmp_dir = "/tmp";
+   const char *tmpdir_env = getenv("TMPDIR");
+   if (tmpdir_env)
+      tmp_dir = tmpdir_env;
+   std::string tmpl = tmp_dir + "/coot-shelx-XXXXXX";
+   std::vector<char> tmpl_v(tmpl.begin(), tmpl.end());
+   tmpl_v.push_back('\0');
+   int fd = mkstemp(tmpl_v.data());
+   if (fd == -1) {
+      std::cout << "WARNING:: failed to make a temporary file for the embedded SHELX res"
+                << std::endl;
+      return mol;
+   }
+   std::string tmp_file_name(tmpl_v.data());
+   close(fd); // we write with an ofstream, not the fd
+
+   {
+      std::ofstream f(tmp_file_name.c_str());
+      f << res_text;
+      if (! res_text.empty() && res_text.back() != '\n')
+         f << "\n";
+   }
+
+   coot::ShelxIns shelx_ins;
+   coot::shelx_read_file_info_t srfi = shelx_ins.read_file(tmp_file_name);
+   unlink(tmp_file_name.c_str());
+
+   mol = srfi.mol;
+
+   if (mol) {
+      try {
+         clipper::Cell cell = get_cell_for_data(data);
+         std::pair<bool, clipper::Spacegroup> spg_pair = get_space_group(data);
+         if (! cell.is_null())
+            mol->SetCell(cell.a(), cell.b(), cell.c(),
+                         clipper::Util::rad2d(cell.alpha()),
+                         clipper::Util::rad2d(cell.beta()),
+                         clipper::Util::rad2d(cell.gamma()));
+         if (spg_pair.first)
+            mol->SetSpaceGroup(spg_pair.second.symbol_xhm().c_str());
+      }
+      catch (const std::runtime_error &rte) {
+         std::cout << "WARNING:: " << rte.what() << std::endl;
+      }
+   }
+   return mol;
+}
+
+
+// Resolution limit from the hkl indices in the embedded HKLF text.  Each data
+// line is "h k l Fsq sigma [batch]"; the list is terminated by the 0 0 0 line.
+clipper::Resolution
+coot::smcif::get_resolution_from_hklf(const clipper::Cell &cell,
+                                      const std::string &hkl_text) const {
+
+   clipper::ftype slim = 0.0;
+   std::istringstream iss(hkl_text);
+   std::string line;
+   while (std::getline(iss, line)) {
+      std::istringstream ls(line);
+      int h, k, l;
+      double fsq, sigma;
+      if (ls >> h >> k >> l >> fsq >> sigma) {
+         if (h == 0 && k == 0 && l == 0)
+            break; // SHELX HKLF terminator
+         clipper::HKL hkl(h, k, l);
+         double reso = hkl.invresolsq(cell);
+         slim = clipper::Util::max(slim, reso);
+      }
+   }
+   double reso_A = (slim > 0.0) ? 1.0/sqrt(slim) : 0.0;
+   return clipper::Resolution(reso_A);
+}
+
+
+// Fill my_fsigf (and mydata) from the embedded HKLF reflection list.  These are
+// HKLF 4 intensities (F squared), so there are no phases - a map must be made
+// from the model (see sigmaa_maps_by_calc_sfs()).
+//
+// The HKLF list is unmerged: a reflection (and its symmetry/Friedel equivalents)
+// is typically measured several times.  We merge those multiple observations in
+// the reciprocal-space asymmetric unit by inverse-variance weighting:
+//
+//    I_mean   = sum(w_i I_i) / sum(w_i),   w_i = 1/sigma_i^2
+//    sigma^2  = max( 1/sum(w_i),                            // from counting
+//                    sum(w_i (I_i - I_mean)^2) / ((n-1) sum(w_i)) )  // from scatter
+//
+// and then convert the merged I to F (F = sqrt(I), sigma(F) = sigma(I)/(2F)).
+//
+// return true on success.
+bool
+coot::smcif::read_data_from_shelx_hklf(const std::string &file_name,
+                                       const std::string &hkl_text) {
+
+   bool status = false;
+
+   clipper::Cell cell_local = get_cell_for_data(file_name);
+   std::pair<bool,clipper::Spacegroup> spg_pair = get_space_group(file_name);
+   clipper::Resolution reso = get_resolution_from_hklf(cell_local, hkl_text);
+
+   if (cell_local.is_null() || spg_pair.second.is_null() || reso.is_null()) {
+      std::cout << "WARNING:: read_data_from_shelx_hklf(): bad cell, spacegroup or resolution"
+                << std::endl;
+      return false;
+   }
+
+   data_spacegroup = spg_pair.second;
+   data_cell       = cell_local;
+   data_resolution = reso;
+
+   bool generate = true;
+   mydata.init(data_spacegroup, data_cell, data_resolution, generate);
+   my_fsigf.init(mydata, data_cell);
+   my_fphi.init( mydata, data_cell);
+
+   // accumulate the observations in the asymmetric unit
+   int n_refl = mydata.num_reflections();
+   std::vector<double> sum_w(   n_refl, 0.0); // sum of weights
+   std::vector<double> sum_wI(  n_refl, 0.0); // sum of weight*I
+   std::vector<double> sum_wII( n_refl, 0.0); // sum of weight*I*I (for the scatter)
+   std::vector<int>    n_obs(   n_refl, 0);
+
+   std::istringstream iss(hkl_text);
+   std::string line;
+   int n_data_lines = 0;
+   while (std::getline(iss, line)) {
+      std::istringstream ls(line);
+      int h, k, l;
+      double fsq, sigma;
+      if (ls >> h >> k >> l >> fsq >> sigma) {
+         if (h == 0 && k == 0 && l == 0)
+            break; // SHELX HKLF terminator
+         if (sigma <= 0.0)
+            continue; // can't weight an observation with no (or a bad) sigma
+         clipper::HKL hkl(h, k, l);
+         int isym;
+         bool friedel;
+         int idx = mydata.index_of(mydata.find_sym(hkl, isym, friedel));
+         if (idx < 0)
+            continue; // beyond the resolution limit (or systematically absent)
+         double w = 1.0/(sigma*sigma);
+         sum_w[idx]   += w;
+         sum_wI[idx]  += w * fsq;
+         sum_wII[idx] += w * fsq * fsq;
+         n_obs[idx]++;
+         n_data_lines++;
+      }
+   }
+
+   // write the merged amplitudes
+   int n_merged = 0;
+   clipper::HKL_info::HKL_reference_index hri;
+   for (hri = my_fsigf.first(); !hri.last(); hri.next()) {
+      int idx = hri.index();
+      if (n_obs[idx] > 0 && sum_w[idx] > 0.0) {
+         double I_mean = sum_wI[idx] / sum_w[idx];
+         double var = 1.0 / sum_w[idx]; // internal (counting) variance
+         if (n_obs[idx] > 1) {
+            double num = sum_wII[idx] - I_mean * I_mean * sum_w[idx]; // sum w (I-Imean)^2
+            if (num < 0.0) num = 0.0;
+            double var_ext = num / (double(n_obs[idx] - 1) * sum_w[idx]);
+            if (var_ext > var) var = var_ext; // take the larger of counting and scatter
+         }
+         double sigI = sqrt(var);
+         double I = (I_mean > 0.0) ? I_mean : 0.0; // F squared can be slightly negative
+         double f = sqrt(I);
+         my_fsigf[hri].f()    = f;
+         my_fsigf[hri].sigf() = (f > 0.0) ? 0.5 * sigI / f : sigI;
+         n_merged++;
+      }
+   }
+
+   status = (n_merged > 0);
+   std::cout << "INFO:: read " << n_data_lines << " observations from the embedded SHELX hkl data, "
+             << "merged to " << n_merged << " reflections" << std::endl;
+   return status;
 }
 
 
@@ -679,8 +907,23 @@ bool
 coot::smcif::read_data_sm_cif(const std::string &file_name) {
 
    bool status = false;
+
+   // SHELX-style cif (e.g. from the COD): the reflections are in an embedded
+   // _shelx_hkl_file text field rather than in _refln_* loops.
+   {
+      mmdb::mmcif::Data *data = new mmdb::mmcif::Data();
+      data->SetFlag(mmdb::mmcif::CIFFL_SuggestCategories);
+      int ierr = data->ReadMMCIFData(file_name.c_str());
+      std::string hkl_text;
+      if (! ierr)
+         hkl_text = get_embedded_shelx_field(data, "_shelx_hkl_file");
+      delete data;
+      if (! hkl_text.empty())
+         return read_data_from_shelx_hklf(file_name, hkl_text);
+   }
+
    // These functions each open and close file_name.
-   // 
+   //
    clipper::Cell cell_local = get_cell_for_data(file_name); // c.f. get_cell() from a coords file
    std::pair<bool,clipper::Spacegroup> spg_pair = get_space_group(file_name);
    clipper::Resolution reso = get_resolution(cell_local, file_name);
