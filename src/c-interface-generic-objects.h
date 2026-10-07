@@ -53,6 +53,31 @@ bool is_valid_generic_display_object_number(int obj);
   @return the index of the object */
 int new_generic_object_number_for_molecule(const std::string &obj_name, int imol);
 
+/*! \brief create a displayed axis-aligned box as a generic object
+
+   The box is centred on (centre_x, centre_y, centre_z) and has the given
+   full sizes (edge lengths) along x, y and z. colour_name is a colour name
+   such as "yellow" and edge_radius is the radius of the cylinders used to
+   draw the box edges.
+
+   @return the object number of the new box */
+int add_box(const std::string &name,
+            double centre_x, double centre_y, double centre_z,
+            double size_x, double size_y, double size_z,
+            const std::string &colour_name, float edge_radius);
+
+/*! \brief set (or reset) generic object object_number to be an axis-aligned box
+
+   Used to move or resize a box previously made with add_box(). */
+void set_generic_object_to_box(int object_number,
+                               const clipper::Coord_orth &centre,
+                               double size_x, double size_y, double size_z,
+                               const std::string &colour_name,
+                               float edge_radius);
+
+/*! \brief show the interactive dialog for controlling a 3D box */
+void show_box_dialog();
+
 /*! \brief add line to generic object object_number */
 void to_generic_object_add_line(int object_number,
                                 const char *colour,
