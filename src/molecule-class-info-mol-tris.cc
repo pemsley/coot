@@ -138,23 +138,20 @@ molecule_class_info_t::add_molecular_representation(const std::string &atom_sele
       [&representation_key] (const Mesh &m) { return m.representation_key == representation_key; }),
       meshes.end());
 
-   Material material;
+   Material material = material_for_models;
 
    err = glGetError();
    if (err)
       std::cout << "GL ERROR:: add_molecular_representation() pos-B " << err << std::endl;
 
-   material.do_specularity = true;        // 20210905-PE make these user settable. Perhaps they are? I should check.
-   material.shininess = 256.0;
-   material.specular_strength = 0.56;
-
    if (style == "Tubes") { // bendy-helix "worm" representation
 
-      // "Worms" (DONT_USE, flag 1 - no SSE computed, so the whole backbone is one
+      // "Worms" (flag 1 - no SSE computed, so the whole backbone is one
       // uncomputed run) want a thick uniform tube; "Bendix" (flag 0 or 2 - helices
       // drawn as cylinders) wants a thin coil to match ribbonStyleCoilThickness's
       // default in Ribbon mode, so the coil between helices doesn't dominate.
-      float radius_for_coil = (secondary_structure_usage_flag == 1) ? 0.8f : 0.3f;
+      float radius_for_coil = 0.3;
+      if (secondary_structure_usage_flag == 1) radius_for_coil = worm_tube_radius;
       int Cn_for_coil = 2;
       int accuracy_for_coil = 12;
       unsigned int n_slices_for_coil = 12;

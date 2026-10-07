@@ -4523,10 +4523,10 @@ ribbons_colour_by_secondary_structure_action(G_GNUC_UNUSED GSimpleAction *simple
 
 void
 worms_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-            G_GNUC_UNUSED GVariant *parameter,
-            G_GNUC_UNUSED gpointer user_data) {
+             G_GNUC_UNUSED GVariant *parameter,
+             G_GNUC_UNUSED gpointer user_data) {
 
-   // DONT_USE: no header/calculated SSE, so the whole backbone is one uncomputed
+   // no header/calculated SSE, so the whole backbone is one uncomputed
    // coil run - a thick uniform worm through the molecule, no distinct helices.
    // "Chain" colours each chain's worm by a stable hash-derived hue.
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();

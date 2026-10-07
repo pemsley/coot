@@ -113,7 +113,7 @@ molecule_class_info_t::make_fragment_chain(const std::vector<coot::residue_spec_
 	       if (at_ca)
 		  ca_pos = clipper::Coord_orth(at_ca->x, at_ca->y, at_ca->z);
 	       if (at_c)
-		  n_pos = clipper::Coord_orth( at_c->x,  at_c->y,  at_c->z);
+		  c_pos = clipper::Coord_orth( at_c->x,  at_c->y,  at_c->z);
 
 
 	       if (at_n && at_ca && at_c) { 

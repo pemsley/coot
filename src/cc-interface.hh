@@ -2465,16 +2465,26 @@ void set_model_material_diffuse(int imol, float r, float g, float b, float alpha
 //!        depends on the renderer, may be some personal choice.
 void set_model_goodselliness(float pastelization_factor);
 
+//! set the worm tube radius
+//!
+//! this needs to be set *before* the worms are calculated - it doesn't do post-processing.
+void set_worm_tube_radius(int imol, float wtr);
+
 //! \brief
+//!
+//! @param state where 1 mean turn on and 0 means turn off.
+void set_fresnel_colour(int imol, float red, float green, float blue, float opacity);
+
+//! \brief set the map fresnel lighting params
 void set_map_fresnel_settings(int imol, short int state, float bias, float scale, float power);
 
-//! \brief
+//! \brief hot reload shaders
 void reload_map_shader();
 
-//! \brief
+//! \brief hot reload model shaders
 void reload_model_shader();
 
-//! \brief
+//! \brief set the atom radius (compared to bond radius)
 void set_atom_radius_scale_factor(int imol, float scale_factor);
 
 //! \brief set use fancy rendering lighting
@@ -2488,11 +2498,6 @@ void set_use_fancy_lighting(short int state);
 //!
 //! @param state where 1 mean turn on and 0 means turn off.
 void set_use_simple_lines_for_model_molecules(short int state);
-
-//! \brief
-//!
-//! @param state where 1 mean turn on and 0 means turn off.
-void set_fresnel_colour(int imol, float red, float green, float blue, float opacity);
 
 //! \brief
 void set_focus_blur_z_depth(float z);

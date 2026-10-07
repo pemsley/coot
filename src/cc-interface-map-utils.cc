@@ -197,7 +197,7 @@ SCM map_to_model_correlation_stats_per_residue_range_scm(int imol, const std::st
       SCM spec_scm = residue_spec_to_scm(spec);
       SCM stats_scm = scm_list_2(scm_from_int(stats.n), scm_from_double(stats.correlation()));
       SCM item = scm_list_2(spec_scm, stats_scm);
-      r_0 = scm_cons(r_0, item);
+      r_0 = scm_cons(item, r_0);
    }
    for (it=m.second.begin(); it!=m.second.end(); ++it) {
       const coot::residue_spec_t &spec(it->first);
@@ -205,9 +205,9 @@ SCM map_to_model_correlation_stats_per_residue_range_scm(int imol, const std::st
       SCM spec_scm = residue_spec_to_scm(spec);
       SCM stats_scm = scm_list_2(scm_from_int(stats.n), scm_from_double(stats.correlation()));
       SCM item = scm_list_2(spec_scm, stats_scm);
-      r_1 = scm_cons(r_1, item);
+      r_1 = scm_cons(item, r_1);
    }
-   return scm_list_2(r_0, r_1);
+   return scm_list_2(scm_reverse(r_0), scm_reverse(r_1));
 }
 #endif
 

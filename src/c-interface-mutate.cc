@@ -400,6 +400,7 @@ align_to_closest_chain(std::string target_seq_in, float match_fraction_crit) {
 	       float match_frag = sum_changes/float(target.length());
 	       if (match_frag < match_fragment_best) {
 		  status = 1;
+		  match_fragment_best = match_frag;
 		  imol_best = imol;
 		  chain_id_best = r.second.first;
 	       } 
