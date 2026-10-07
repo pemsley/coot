@@ -512,7 +512,8 @@ graphics_info_t::setup_key_bindings() {
       std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
       if (pp.first) {
          int imol = pp.second.first;
-         g.update_mesh_for_outline_of_active_residue(imol, pp.second.second, n_press);
+         const coot::atom_spec_t &atom_spec = pp.second.second;
+         g.update_mesh_for_outline_of_active_residue(imol, atom_spec, n_press);
          if (! tick_function_is_active()) {
             int new_tick_id = gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
          }
