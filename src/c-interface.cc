@@ -9518,7 +9518,8 @@ void make_generic_surface(int imol, const char *selection_str, int mode) {
       obj.mesh.name = object_name;
       obj.mesh.set_draw_mesh_state(true);
       obj.mesh.import(vertices, smesh.triangles);
-      obj.mesh.set_material_specularity(0.7, 128);
+      // obj.mesh.set_material_specularity(0.7, 128); 20261007-PE
+      obj.mesh.set_material(g.molecules[imol].material_for_models);
       obj.mesh.setup_buffers();
 
       update_display_control_mesh_toggles(imol);
