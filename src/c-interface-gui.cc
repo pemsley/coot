@@ -1555,10 +1555,18 @@ coot_save_state_and_exit(int retval, int save_state_flag) {
    db_finish_up();
 #endif // USE_MYSQL_DATABASE
 
-   // #ifdef USE_PYTHON
-   // Py_Finalize();
-   // #endif
-
+#ifdef USE_PYTHON
+   if (Py_IsInitialized()) {
+      PyGILState_STATE gstate = PyGILState_Ensure();
+      PyRun_SimpleString("import sys\n"
+                         "for s in (sys.stdout, sys.stderr, sys.__stdout__, sys.__stderr__):\n"
+                         "    try:\n"
+                         "        s.flush()\n"
+                         "    except Exception:\n"
+                         "        pass\n");
+      PyGILState_Release(gstate);
+   }
+#endif
    for (int imol=0; imol<graphics_n_molecules(); imol++)
       graphics_info_t::molecules[imol].close_yourself();
 
