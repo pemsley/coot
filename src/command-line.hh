@@ -43,6 +43,7 @@ public:
    std::vector<std::string> command; // strings to to be evaluated
 				     // from the command line
    std::vector<std::string> accession_codes;
+   std::vector<std::string> cod_ids;
    std::vector<std::string> emdb_codes;
    std::vector<std::string> comp_ids;
    short int hardware_stereo_flag;
