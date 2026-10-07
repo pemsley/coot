@@ -52,20 +52,34 @@ nobase_dist_pkgpython_PYTHON = \
    coot_commands/__init__.py                  \
    coot_commands/registry.py                  \
    coot_commands/completion.py                \
+   coot_commands/ansi.py                      \
    coot_commands/types.py                     \
    coot_commands/gui.py                       \
    coot_commands/docs.py                      \
    coot_commands/speech.py                    \
+   coot_commands/tools.py                     \
+   coot_commands/retrieval.py                 \
+   coot_commands/playbooks.py                 \
+   coot_commands/scoring.py                   \
+   coot_commands/focus.py                     \
+   coot_commands/context_tools.py             \
+   coot_commands/socket_client.py             \
+   coot_commands/agent.py                     \
+   coot_commands/agent_serve.py               \
+   coot_commands/figure.py                    \
+   coot_commands/figure_serve.py              \
    coot_commands/commands/__init__.py         \
    coot_commands/commands/delete.py           \
    coot_commands/commands/display.py          \
    coot_commands/commands/fetch.py            \
    coot_commands/commands/files.py            \
+   coot_commands/commands/fix.py              \
    coot_commands/commands/view.py             \
    coot_commands/commands/maps.py             \
    coot_commands/commands/navigation.py       \
    coot_commands/commands/refine.py           \
    coot_commands/commands/representation.py   \
+   coot_commands/commands/appearance.py       \
    coot_commands/commands/labels.py           \
    coot_commands/commands/model_edit.py       \
    coot_commands/commands/ligand.py           \

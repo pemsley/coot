@@ -86,6 +86,35 @@ def hide_map(map: Optional[str] = None) -> str:
     return f"Hiding map {imol}"
 
 
+@command(r"(?:show|display) (?:the )?(?:unit[- ]?)?cell(?: (?P<model>\S+))?",
+         examples=["show cell", "show unit cell", "show cell 0"],
+         category=CATEGORY,
+         arg_types={"model": ArgType.MODEL},
+         notes="Shows the crystallographic unit cell box for the model. "
+               + ACTIVE_MODEL_NOTE)
+def show_cell(model: Optional[str] = None) -> str:
+    """Show the unit cell of a model."""
+    imol = resolve_model(model)
+    if coot is not None:
+        if coot.has_unit_cell_state(imol) == 0:
+            return f"Model {imol} has no unit cell"
+        coot.set_show_unit_cell(imol, 1)
+    return f"Showing the unit cell of model {imol}"
+
+
+@command(r"(?:hide|undisplay) (?:the )?(?:unit[- ]?)?cell(?: (?P<model>\S+))?",
+         examples=["hide cell", "hide unit cell", "hide cell 0"],
+         category=CATEGORY,
+         arg_types={"model": ArgType.MODEL},
+         notes="Hides the unit cell box for the model. " + ACTIVE_MODEL_NOTE)
+def hide_cell(model: Optional[str] = None) -> str:
+    """Hide the unit cell of a model."""
+    imol = resolve_model(model)
+    if coot is not None:
+        coot.set_show_unit_cell(imol, 0)
+    return f"Hiding the unit cell of model {imol}"
+
+
 @command(r"(?:show|display) only(?: (?:the )?)?active",
          examples=["show only active"],
          category=CATEGORY,
