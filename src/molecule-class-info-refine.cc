@@ -483,7 +483,7 @@ molecule_class_info_t::delete_extra_restraints_worse_than(const double &n_sigma)
 
       // and the same for 2:
 
-      if (! at_1) {
+      if (! at_2) {
 	 it_2 = atom_map.find(br.atom_2);
 	 if (it_2 == atom_map.end()) {
 	    at_2 = get_atom(br.atom_2);

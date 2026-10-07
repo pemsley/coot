@@ -1213,7 +1213,7 @@ make_tubes_representation(mmdb::Manager *mol,
                           const std::string &helix_template_pdb_file_name,
                           bool straight_helices) {
 
-   std::cout << "---------------- start make_tubes_representation() " << std::endl;
+   std::cout << "DEBUG:: ---------------- start make_tubes_representation() " << std::endl;
 
    coot::m2t::simple_mesh_t m;
    float radius_for_helices = 2.5;
@@ -1258,7 +1258,7 @@ make_tubes_representation(mmdb::Manager *mol,
    m.add_submesh(helices_mesh);
    m.add_submesh(coils_mesh);
 
-   std::cout << "---------------- done make_tubes_representation() " << std::endl;
+   std::cout << "DEBUG:: ---------------- done make_tubes_representation() " << std::endl;
 
    return m;
 }

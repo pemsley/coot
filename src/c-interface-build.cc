@@ -5935,7 +5935,7 @@ int handle_cns_data_file_with_cell(const char *filename, int imol, float a, floa
    clipper::Cell_descr cell_d(a, b, c,
                               clipper::Util::d2rad(alpha),
                               clipper::Util::d2rad(beta),
-                              clipper::Util::d2rad(alpha));
+                              clipper::Util::d2rad(gamma));
    clipper::Spgr_descr sg_d(spg_info);
    cell.init(cell_d);
    sg.init(sg_d);

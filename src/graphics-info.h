@@ -1916,6 +1916,7 @@ public:
    static std::vector<std::string> command_line_scripts;
    static coot::command_line_commands_t command_line_commands;
    static std::vector<std::string> command_line_accession_codes;
+   static std::vector<std::string> command_line_cod_ids;
 
    // background colour
    static glm::vec3 background_colour;

@@ -285,6 +285,8 @@ molecule_class_info_t::setup_internal() { // init
    map_mesh_first_time = true;
    model_mesh_first_time = true;
 
+   worm_tube_radius = 1.0;
+
    // material_for_maps.do_specularity = false;
    // material_for_maps.specular_strength = 0.5; // non-shiny maps by default.
 

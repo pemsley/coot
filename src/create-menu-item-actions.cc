@@ -1419,9 +1419,12 @@ on_run_script_filechooser_dialog_response_gtk4(GtkDialog *dialog,
 
       std::cout << "Run this script file: " << file_name << std::endl;
       run_script(file_name);
-      gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
-
+      g_free(file_name);
+      g_object_unref(file);
    }
+   // the dialog is made anew each time in run_script_action(), so destroy it
+   // for every response (Open, Cancel, or window-close)
+   gtk_window_destroy(GTK_WINDOW(dialog));
 }
 
 void
@@ -4523,10 +4526,10 @@ ribbons_colour_by_secondary_structure_action(G_GNUC_UNUSED GSimpleAction *simple
 
 void
 worms_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-            G_GNUC_UNUSED GVariant *parameter,
-            G_GNUC_UNUSED gpointer user_data) {
+             G_GNUC_UNUSED GVariant *parameter,
+             G_GNUC_UNUSED gpointer user_data) {
 
-   // DONT_USE: no header/calculated SSE, so the whole backbone is one uncomputed
+   // no header/calculated SSE, so the whole backbone is one uncomputed
    // coil run - a thick uniform worm through the molecule, no distinct helices.
    // "Chain" colours each chain's worm by a stable hash-derived hue.
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();

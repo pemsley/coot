@@ -456,6 +456,36 @@ on_go_to_atom_apply_button_clicked (GtkButton       *button,
 
 extern "C" G_MODULE_EXPORT
 void
+on_go_to_atom_chain_entry_activate(GtkEntry *entry,
+                                   gpointer  user_data)
+{
+   // same as pressing Apply
+   GtkWidget *widget = widget_from_builder("goto_atom_window");
+   apply_go_to_atom_from_widget(widget);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_go_to_atom_residue_entry_activate(GtkEntry *entry,
+                                     gpointer  user_data)
+{
+   // same as pressing Apply
+   GtkWidget *widget = widget_from_builder("goto_atom_window");
+   apply_go_to_atom_from_widget(widget);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_go_to_atom_atom_name_entry_activate(GtkEntry *entry,
+                                       gpointer  user_data)
+{
+   // same as pressing Apply
+   GtkWidget *widget = widget_from_builder("goto_atom_window");
+   apply_go_to_atom_from_widget(widget);
+}
+
+extern "C" G_MODULE_EXPORT
+void
 on_go_to_atom_cancel_button_clicked    (GtkButton       *button,
                                         gpointer         user_data)
 {
@@ -5059,7 +5089,7 @@ on_refine_params_use_peptide_omegas_checkbutton_toggled
                                         gpointer         user_data)
 {
   if (gtk_check_button_get_active(checkbutton)) {
-    add_omega_torsion_restriants();
+    add_omega_torsion_restraints();
   } else {
     remove_omega_torsion_restriants();
   }

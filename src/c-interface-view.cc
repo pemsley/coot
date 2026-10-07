@@ -376,6 +376,14 @@ void set_model_goodselliness(float pastelization_factor) {
    graphics_draw();
 }
 
+//! set the worm tube radius
+void set_worm_tube_radius(int imol, float wtr) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].set_worm_tube_radius(wtr);
+   }
+
+}
 
 
 

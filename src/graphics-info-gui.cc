@@ -4694,7 +4694,8 @@ graphics_info_t::add_molecular_representation(int imol,
                                               const std::string &style,
                                               int secondary_structure_usage_flag) {
 
-   std::cout << "g.add_molecular_representation(): atom_sel: \"" << atom_selection << "\" "
+   std::cout << "DEBUG:: g.add_molecular_representation(): "
+             << "atom_sel: \"" << atom_selection << "\" "
              << "colour-scheme: \"" << colour_scheme << "\" "
              << "style \"" << style << "\"" << std::endl;
 

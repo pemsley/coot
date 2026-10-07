@@ -109,6 +109,11 @@ handle_command_line_data(command_line_data cld) {
       graphics_info_t::command_line_accession_codes.push_back(cld.accession_codes[i]);
    }
 
+   // getting COD cifs
+   for (unsigned int i=0; i<cld.cod_ids.size(); i++) {
+      graphics_info_t::command_line_cod_ids.push_back(cld.cod_ids[i]);
+   }
+
    if (cld.show_ccp4i2_save_button) {
       GtkWidget *button = widget_from_builder("ccp4i2-save-button");
       if (button) {

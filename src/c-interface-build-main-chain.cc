@@ -560,7 +560,7 @@ void set_use_trans_peptide_restraints(short int on_off_state) {
 }
 
 
-void add_omega_torsion_restriants() {
+void add_omega_torsion_restraints() {
 
    graphics_info_t g;
    g.Geom_p()->add_omega_peptide_restraints();

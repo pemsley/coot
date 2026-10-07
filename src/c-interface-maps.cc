@@ -3008,8 +3008,8 @@ b_factor_from_map(int imol_map) {
       std::cout << "b_factor_from_map() with data.size() " << data.size() << std::endl;
       std::pair<bool, float> l1(true,  0.05); // 4.5A
       std::pair<bool, float> l2(false, 0.29); // 1.8A
-      float b = coot::util::b_factor(data, l1, l2);
-      std::cout << "### b-factor: " << b << std::endl;
+      b_factor = coot::util::b_factor(data, l1, l2);
+      std::cout << "### b-factor: " << b_factor << std::endl;
    }
    return b_factor;
 }
