@@ -1,6 +1,22 @@
 --- Items---
 
-o trying to change the model material - seems not to affect the drawing of 
+o make coot::molecule_t::fix_atom_selection_during_refinement(const std::string &atom_selection_cid)
+  work.
+
+o do worms on 4hhb. The colour variation per chain needs to be larger.
+
+o gaussian surfaces should be drawn with model Material
+
+o did I lose the Go To Atom dialog edits?
+
+o did I lose the "Run Script" cancel button fix?
+
+o --cod on the command line
+
+o have another try to fix the specular light in fancy mode
+  (test with 4hhb molecular surface)
+
+o trying to change the model material - seems not to affect the drawing of
   molecule2triangles objects (say, a surface)
 
 o 7k00 - get the emdb code from the cif
@@ -24,17 +40,22 @@ o use RDKit canonical SMILES for atom order and hence atom name.
 o (1) the range show (`) doesn't account for large atoms. Looks strange.
   (2) When a range is defined it should do a Range Show.
 
-o HEM ligand still tangled. Exclude HEM
+o make default bond smoothness be "smooth" (2, I think)
+
+o for agentic coot, create a function that does "validate_residue()" - combining metrics
+
+o Fatter worms by default.
+* Done. Now user-settable.
 
 o add the servalcat graph progress
-
-o make default bond smoothness be "smooth" (2, I think)
+* Done. Nice
 
 o make nice little svgs from bickerton et al (2012) functions
   to help with QED manipulation.
 * Done.
 
-o for agentic coot, create a function that does "validate_residue()" - combining metrics
+o HEM ligand still tangled. Exclude HEM
+* Done.
 
 o we are looking at a ligand with a nitrogen: 6RD, it would be nice to get
   and fetch COD structures that have the same atom type (and possibly matching atom types
