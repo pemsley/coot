@@ -173,20 +173,21 @@ SSfind::Target::Target( SSfind::SSTYPE type, int num_residues )
 
 void SSfind::prep_xmap( const clipper::Xmap<float>& xmap, const double radius )
 {
-  // make a 1-d array of gridded density values covering ASU+border
-  grid = xmap.grid_sampling();
-  grrot = xmap.operator_orth_grid().rot();
-  clipper::Grid_range gr0 = xmap.grid_asu();
-  clipper::Grid_range gr1( xmap.cell(), xmap.grid_sampling(), radius );
-  mxgr = clipper::Grid_range( gr0.min()+gr1.min(), gr0.max()+gr1.max() );
-  mapbox = std::vector<float>( mxgr.size(), 0.0 );
+   // make a 1-d array of gridded density values covering ASU+border
+   grid = xmap.grid_sampling();
+   grrot = xmap.operator_orth_grid().rot();
+   clipper::Grid_range gr0 = xmap.grid_asu();
+   clipper::Grid_range gr1( xmap.cell(), xmap.grid_sampling(), radius );
+   mxgr = clipper::Grid_range( gr0.min()+gr1.min(), gr0.max()+gr1.max() );
+   mapbox = std::vector<float>( mxgr.size(), 0.0 );
 
-  // make 1d list of densities
-  clipper::Xmap<float>::Map_reference_index ix( xmap );
-  for ( clipper::itype32 i = 0; i < mapbox.size(); i++ ) {
-    ix.set_coord( mxgr.deindex( i ) );
-    mapbox[i] = xmap[ix];
-  }
+   // make 1d list of densities
+   clipper::Xmap<float>::Map_reference_index ix( xmap );
+   long unsigned int s = mapbox.size(); // type was clipper::itype32
+   for ( long unsigned int i = 0; i < mapbox.size(); i++ ) {
+      ix.set_coord( mxgr.deindex( i ) );
+      mapbox[i] = xmap[ix];
+   }
 }
 
 
