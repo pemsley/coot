@@ -7,10 +7,6 @@ o do worms on 4hhb. The colour variation per chain needs to be larger.
 
 o gaussian surfaces should be drawn with model Material
 
-o did I lose the Go To Atom dialog edits?
-
-o did I lose the "Run Script" cancel button fix?
-
 o --cod on the command line
 
 o have another try to fix the specular light in fancy mode
@@ -43,6 +39,12 @@ o (1) the range show (`) doesn't account for large atoms. Looks strange.
 o make default bond smoothness be "smooth" (2, I think)
 
 o for agentic coot, create a function that does "validate_residue()" - combining metrics
+
+o did I lose the Go To Atom dialog edits?
+* On the stash, found and applied
+
+o did I lose the "Run Script" cancel button fix?
+* On the stash, found and applied
 
 o Fatter worms by default.
 * Done. Now user-settable.
