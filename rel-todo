@@ -1,5 +1,7 @@
 --- Items---
 
+o on completion (second pick), flash the residue range
+
 o trying to change the model material - seems not to affect the drawing of 
   molecule2triangles objects (say, a surface)
 
