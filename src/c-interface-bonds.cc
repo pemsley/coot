@@ -263,7 +263,7 @@ PyObject *split_multi_model_molecule_py(int imol) {
    PyObject *r = PyList_New(new_molecules.size());
    if (! new_molecules.empty()) {
       for (size_t i = 0; i < new_molecules.size(); i++) {
-         PyList_SetItem(r, i, PyLong_FromLong(i));
+         PyList_SetItem(r, i, PyLong_FromLong(new_molecules[i]));
       }
    }
    return r;

@@ -1310,7 +1310,7 @@ void save_previous_map_colour(int imol);
 /*! \brief restore previous colour map for molecule number imol */
 void restore_previous_map_colour(int imol);
 
-/*! \brief set the state of immediate map upate on map drag.
+/*! \brief set the state of immediate map-update-on-map-drag.
 
 By default, it is on (t=1).  On slower computers it might be better to
 set t=0. */
@@ -3551,7 +3551,7 @@ void set_use_trans_peptide_restraints(short int on_off_state);
   closer to 0 than to 180 will be refined as cis peptides (and of
   course if omega is greater than 90 then the peptide will be refined
   as a trans peptide (this is the normal case). */
-void add_omega_torsion_restriants();
+void add_omega_torsion_restraints();
 
 /*! \brief remove omega restraints on CIS and TRANS linked residues. */
 void remove_omega_torsion_restriants();
@@ -3566,7 +3566,7 @@ void set_refine_hydrogen_bonds(int state);
  * You need this (call with istate=1) if you are
  * scripting refinement/regularization
  *
- * @param istate set the state of immediate-refinemnt 
+ * @param istate set the state of immediate-refinement
  * */
 void set_refinement_immediate_replacement(int istate);
 

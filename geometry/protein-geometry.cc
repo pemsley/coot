@@ -2188,19 +2188,19 @@ coot::protein_geometry::remove_omega_peptide_restraints() {
    v.push_back("CIS");
    v.push_back("PCIS");
 
-   bool ifound = 0;
-   for (unsigned int i=0; i<dict_link_res_restraints.size(); i++) {
-      if (dict_link_res_restraints[i].link_id == v[i]) { // is TRANS, say
+   // this could use erase() remove_if()
 
-	 std::vector<coot::dict_link_torsion_restraint_t>::iterator it;
-	 for (it = dict_link_res_restraints[i].link_torsion_restraint.begin();
-	      it != dict_link_res_restraints[i].link_torsion_restraint.end(); it++) {
-	    if (it->id() == "omega") {
-	       ifound = 1;
- 	       dict_link_res_restraints[i].link_torsion_restraint.erase(it);
-	       break;
-	    }
-	 }
+   for (unsigned int i=0; i<dict_link_res_restraints.size(); i++) {
+      for (unsigned int j=0; j<v.size(); j++) {
+         if (dict_link_res_restraints[i].link_id == v[j]) { // is TRANS, say
+            std::vector<coot::dict_link_torsion_restraint_t>::iterator it;
+            for (it = dict_link_res_restraints[i].link_torsion_restraint.begin();
+                 it != dict_link_res_restraints[i].link_torsion_restraint.end(); it++) {
+               if (it->id() == "omega") {
+                  dict_link_res_restraints[i].link_torsion_restraint.erase(it);
+               }
+            }
+         }
       }
    }
 }
@@ -2209,7 +2209,7 @@ coot::protein_geometry::remove_omega_peptide_restraints() {
 
 // a list of three-letter-codes (should that be comp_ids?) that match
 // the string in the chem_comp name using the simple_monomer_descriptions
-// 
+//
 std::vector<std::pair<std::string, std::string> >
 coot::protein_geometry::matching_names(const std::string &test_string,
 				       short int allow_minimal_descriptions) const {

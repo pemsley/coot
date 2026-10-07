@@ -5059,7 +5059,7 @@ on_refine_params_use_peptide_omegas_checkbutton_toggled
                                         gpointer         user_data)
 {
   if (gtk_check_button_get_active(checkbutton)) {
-    add_omega_torsion_restriants();
+    add_omega_torsion_restraints();
   } else {
     remove_omega_torsion_restriants();
   }
