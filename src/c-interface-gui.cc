@@ -49,6 +49,11 @@
 #endif // HAVE_STRING
 
 #include <fstream>
+
+#ifdef USE_GEMMI
+#include <gemmi/cif.hpp> // for extracting the EMDB code from a downloaded mmCIF file
+#endif // USE_GEMMI
+
 #include <string.h> // strlen, strncpy
 #include <sys/types.h> // for stating
 #include <sys/stat.h>
@@ -2107,6 +2112,51 @@ void extract_and_fill_emdb_code_from_pdb_file(const std::string &pdb_filepath) {
    }
 }
 
+// Look for the EMDB code in the _database_2 table of an mmCIF file and if found,
+// put the EMDB code into the emdb_map_code_entry widget. This is the mmCIF-format
+// equivalent of extract_and_fill_emdb_code_from_pdb_file(). The _database_2 table
+// has rows such as:
+//
+//    loop_
+//    _database_2.database_id
+//    _database_2.database_code
+//    [...]
+//    PDB   7K00         [...]
+//    WWPDB D_1000250509 [...]
+//    EMDB  EMD-22586    [...]
+//
+void extract_and_fill_emdb_code_from_cif_file(const std::string &cif_filepath) {
+
+#ifdef USE_GEMMI
+   try {
+      gemmi::cif::Document doc = gemmi::cif::read_file(cif_filepath);
+      if (doc.blocks.empty()) return;
+      gemmi::cif::Block &block = doc.blocks[0];
+      for (auto row : block.find("_database_2.", {"database_id", "database_code"})) {
+         std::string db_id   = gemmi::cif::as_string(row[0]);
+         std::string db_code = gemmi::cif::as_string(row[1]); // e.g. "EMD-22586"
+         if (db_id != "EMDB") continue;
+         std::string::size_type pos_emd = db_code.find("EMD-");
+         if (pos_emd == std::string::npos) continue;
+         std::string::size_type start = pos_emd + 4; // skip "EMD-"
+         std::string::size_type end = start;
+         while (end < db_code.size() && std::isdigit(static_cast<unsigned char>(db_code[end]))) end++;
+         if (end > start) {
+            std::string emdb_code = db_code.substr(start, end - start);
+            GtkWidget *entry = widget_from_builder("emdb_map_code_entry");
+            if (entry)
+               gtk_editable_set_text(GTK_EDITABLE(entry), emdb_code.c_str());
+            break;
+         }
+      }
+   }
+   catch (const std::exception &e) {
+      std::cout << "WARNING:: extract_and_fill_emdb_code_from_cif_file(): "
+                << e.what() << std::endl;
+   }
+#endif // USE_GEMMI
+}
+
 // this is not a gui function - it is a network function
 //
 void network_get_accession_code_entity(const std::string &text, int mode) {
@@ -2176,11 +2226,13 @@ void network_get_accession_code_entity(const std::string &text, int mode) {
                } else {
                   if (coot::file_exists(cif_filepath)) {
                      read_pdb(cif_filepath);
+                     extract_and_fill_emdb_code_from_cif_file(cif_filepath);
                   } else {
                      status = coot_get_url(cif_url, cif_filepath_with_tmp);
                      if (status == 0) {
                         rename(cif_filepath_with_tmp.c_str(), cif_filepath.c_str());
                         read_pdb(cif_filepath);
+                        extract_and_fill_emdb_code_from_cif_file(cif_filepath);
                      }
                   }
                }
