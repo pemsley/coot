@@ -101,7 +101,10 @@ void CylindersPrimitive::generateArrays()
     unsigned long totalIndices = 6 * angularSampling * points.size() + 3 * capTriangles;
 
     vertexColorNormalArray = new VertexColorNormal[totalVertices];
-    atomArray = new const mmdb::Atom*[totalVertices];
+    // Value-initialised: a slot never written reads back as null rather than as whatever
+    // was on the heap, which is what lets a caller treat null as "this vertex was not
+    // attributed to an atom" instead of having to know which primitives fill it.
+    atomArray = new const mmdb::Atom*[totalVertices]();
     indexArray = new GLIndexType[totalIndices];
 
     int iGLVertex = 0;

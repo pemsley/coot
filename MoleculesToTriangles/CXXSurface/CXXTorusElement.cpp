@@ -164,6 +164,41 @@ debug(0)
 	}
 }
 
+double CXXTorusElement::weightOfNodeAtom(size_t i) const{
+	const double thetaRange = theta2 - theta1;
+	// A degenerate saddle, with the two contact points on top of one another. Nothing to
+	// blend, so the node keeps its own atom outright.
+	if (fabs(thetaRange) < 1e-9) return 1.;
+	// The ratio of sines, not the ratio of angles.
+	//
+	// A node at theta sits on the great circle between the two contact directions, and its
+	// position there is the spherical interpolation of them - so the share belonging to each
+	// goes as the sine of the angle to the other, not linearly in the angle. The two agree at
+	// the ends and at the middle and differ in between, by up to about 0.06 over a wide
+	// saddle.
+	//
+	// That would not matter, except that a re-entrant patch meets this torus along exactly
+	// this arc and describes it with spherical barycentric coordinates, which reduce to the
+	// sine ratio here. Linear angle left the two disagreeing all along their shared boundary -
+	// a small step in the field the whole length of every such arc. With the sines they agree
+	// exactly.
+	const double fromFirst = nodes[i].getTheta() - theta1;
+	const double toSecond = theta2 - nodes[i].getTheta();
+	const double a = sin(fromFirst), b = sin(toSecond);
+	// Beyond either contact point, or a saddle so wide the sines turn over: fall back to the
+	// angle, which is monotonic everywhere and right at the ends.
+	double w;
+	if (a < 0. || b < 0. || (a + b) < 1e-12) {
+		w = fromFirst / thetaRange;
+	} else {
+		w = a / (a + b);
+	}
+	// theta can step a little beyond its limits at the edges of the element.
+	if (w < 0.) w = 0.;
+	if (w > 1.) w = 1.;
+	return w;
+}
+
 size_t CXXTorusElement::addNode(CXXTorusNode &aNode){
 	CXXTorusNode newNode(aNode);
 	int debug = 0;

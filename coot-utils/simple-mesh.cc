@@ -35,6 +35,10 @@ coot::simple_mesh_t::clear() {
    name = "";
    vertices.clear();
    triangles.clear();
+   vertex_owner.clear();
+   vertex_owner_other.clear();
+   vertex_owner_weight.clear();
+   owners.clear();
 
 }
 
@@ -65,7 +69,59 @@ coot::simple_mesh_t::add_submesh(const simple_mesh_t &submesh) {
    triangles.insert(triangles.end(), submesh.triangles.begin(), submesh.triangles.end());
    for (unsigned int i=idx_base_tri; i<triangles.size(); i++)
       triangles[i].rebase(idx_base);
-   
+
+   // Vertex ownership, if either side has it.
+   //
+   // The two meshes name their owners independently, so the submesh's indices cannot simply be
+   // shifted: the same residue may already be in this mesh under a different index, and if it
+   // were added twice then lighting it would light only half of it. So the submesh's owners are
+   // matched by name and only the genuinely new ones appended.
+   //
+   // A mesh that knows nothing about its vertices contributes no_owner for each of them, which
+   // keeps vertex_owner the same length as vertices whichever way round the two are added.
+   if (!vertex_owner.empty() || !submesh.vertex_owner.empty()) {
+
+      vertex_owner.resize(idx_base, no_owner);   // in case this mesh had none
+      vertex_owner_other.resize(idx_base, no_owner);
+      vertex_owner_weight.resize(idx_base, 1.0f);
+
+      std::map<std::string, unsigned int> owner_index;
+      for (unsigned int i=0; i<owners.size(); i++)
+         owner_index[owners[i]] = i;
+
+      std::vector<unsigned int> submesh_owner_map(submesh.owners.size(), no_owner);
+      for (unsigned int i=0; i<submesh.owners.size(); i++) {
+         const std::string &name_of_owner = submesh.owners[i];
+         std::map<std::string, unsigned int>::const_iterator it = owner_index.find(name_of_owner);
+         if (it != owner_index.end()) {
+            submesh_owner_map[i] = it->second;
+         } else {
+            submesh_owner_map[i] = owners.size();
+            owner_index[name_of_owner] = owners.size();
+            owners.push_back(name_of_owner);
+         }
+      }
+
+      auto renumbered = [&submesh_owner_map] (unsigned int o) {
+         return o < submesh_owner_map.size() ? submesh_owner_map[o] : no_owner;
+      };
+
+      for (unsigned int i=0; i<submesh.vertices.size(); i++) {
+         unsigned int o = no_owner;
+         unsigned int other = no_owner;
+         float weight = 1.0f;
+         if (i < submesh.vertex_owner.size())
+            o = renumbered(submesh.vertex_owner[i]);
+         if (i < submesh.vertex_owner_other.size())
+            other = renumbered(submesh.vertex_owner_other[i]);
+         if (i < submesh.vertex_owner_weight.size())
+            weight = submesh.vertex_owner_weight[i];
+         vertex_owner.push_back(o);
+         vertex_owner_other.push_back(other);
+         vertex_owner_weight.push_back(weight);
+      }
+   }
+
 }
 
 //! if the colour map is empty then go through the vector of vertices finding colours and putting them
