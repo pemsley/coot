@@ -143,6 +143,14 @@ public:
    void set_rama_plot_scale(float rs) { rama_plot_scale = rs; }
 
    void setup_from(int imol, mmdb::Manager *mol, const std::string &residue_selection, draw_mode_t draw_mode);
+   // The caller owns angle calculation; use the same renderer/classification.
+   // Like setup_from(), call with the plot's GL context current.
+   void setup_from_phi_psis(const std::map<coot::residue_spec_t, rama_plot::phi_psi_t> &points) {
+      phi_psi_map = points;
+      update_hud_tmeshes(phi_psi_map);
+      residue_selection.clear(); // invalidate setup_from()'s molecular cache
+      have_current_residue_marker = false;
+   }
    void update_phi_psis_on_moved_atoms();
    // void background_to_type(GtkWidget *canvas, clipper::Ramachandran::TYPE); // don't change it if we are already there of course.
    void draw(Shader *shader_for_axes_and_tick,
