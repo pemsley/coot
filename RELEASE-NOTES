@@ -1,4 +1,67 @@
 
+  Release Notes for 1.3.4
+
+ o FEATURE: Protein-ligand interactions: detection and reporting of
+            pi-stacking halogen bonds, and hydrogen bonds.
+
+ o FEATURE: Read SHELX-style small-molecule cif files (from COD say)
+            and make maps from the embedded reflection data.
+
+ o FEATURE: Read Gaussian/ORCA cube files.
+
+ o FEATURE: AutoDock Vina: receptor and ligand preparation and
+            execution scripts, with flexible-receptor support.
+
+ o FEATURE: Bendix-style helices and tube representations
+
+ o FEATURE: Servalcat: X-ray refinement with user keywords and
+            ligand dictionaries, with refinement tracking graphs
+
+ o FEATURE: pyrogen: AceDRG bond and angle values from (optional)
+            SQLite AceDRG tables, with idealization of the ligand
+            coordinates against the generated dictionary
+
+ o FEATURE: Superpose Ligands from range/pair atom picks
+
+ o FEATURE: Layla: QED desirability curves; AceDRG input "via
+            mmCIF" (CCD-style export)
+
+ o FEATURE: Chapi/API additions: get_ligand_interactions_as_json(),
+            get_atom_differences(), add_named_glyco_tree(),
+            refine_regularize_with_range_picked_atoms(),
+            set_default_model_material_*(),
+            set_colour_map_for_map_colored_by_other_map(),
+            get_non_standard_residues_in_molecule();
+            residue_spec_t is now hashable and comparable.
+
+ o FEATURE: New and updated icons, and icons-only / labels-only
+            styles for the vertical toolbar; Shift-L shortcut
+
+ o CHANGE:  Coordinate mmCIF files are now written using GEMMI
+
+ o CHANGE:  Faster map contouring (marching-cubes vertex
+            de-duplication replaced by a flat array)
+
+ o CHANGE:  Default model specularity strength changed to 0.25
+
+ o CHANGE:  "Untyped" ligand interactions are now drawn grey
+
+ o CHANGE:  "Fetch Ligand Restraints" no longer creates a new
+            ligand molecule
+
+ o CHANGE:  "All Waters" moved down in the Delete menu
+
+ o BUG-FIX: AceDRG link interface: fix custom link matching for
+            DNA/RNA groups and set the charge correctly
+
+ o BUG-FIX: Fix the bonding to hydrogen atoms when no dictionary is
+            present
+
+ o BUG-FIX: Fix a Chapi/GUI inconsistency where donor-acceptor
+            pairs without hydrogens were treated as a clash
+
+-----
+
   Release Notes for 1.3.3
 
  o BUG-FIX: Fix the problem of unresponsive Left-mouse after

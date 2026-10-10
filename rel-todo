@@ -1,5 +1,8 @@
 --- Items---
 
+o in Range/Pair show the selection
+o on completion (second pick), flash the residue range
+
 o make coot::molecule_t::fix_atom_selection_during_refinement(const std::string &atom_selection_cid)
   work.
 
@@ -16,8 +19,6 @@ o trying to change the model material - seems not to affect the drawing of
   molecule2triangles objects (say, a surface)
 
 o 7k00 - get the emdb code from the cif
-
-o in Range/Pair show the selection
 
 o does coot_no_state_real_exit() flush the python buffer?
 
