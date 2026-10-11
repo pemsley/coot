@@ -1522,6 +1522,17 @@ molecules_container_t::fix_atom_selection_during_refinement(int imol, const std:
    } else {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
+}
+
+//! clear the fixed atoms
+void
+molecules_container_t::clear_fixed_atoms_during_refinement(int imol) {
+
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].clear_fixed_atoms_during_refinement();
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
 
 }
 

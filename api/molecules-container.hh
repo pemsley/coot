@@ -3015,11 +3015,19 @@ public:
 
    //! Fix atoms during refinement
    //!
-   //! Does nothing at the moment
+   //! The atoms stay fixed in subsequent refinements and minimizations of this molecule
+   //! until `clear_fixed_atoms_during_refinement()` is called. Repeated calls add to the set.
    //!
    //! @param imol is the model molecule index
    //! @param atom_selection_cid is the selection CID e.g "//A/15/OH" (atom OH of residue 15 of chain A)
    void fix_atom_selection_during_refinement(int imol, const std::string &atom_selection_cid);
+
+   //! Clear the fixed atoms
+   //!
+   //! Un-fix all the atoms that were fixed with `fix_atom_selection_during_refinement()`
+   //!
+   //! @param imol is the model molecule index
+   void clear_fixed_atoms_during_refinement(int imol);
 
    //! Add or update restraint (if it has a pull restraint already)
    //!

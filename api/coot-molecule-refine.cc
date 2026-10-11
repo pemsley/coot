@@ -376,7 +376,6 @@ coot::molecule_t::minimize(const std::string &atom_selection_cid,
       make_backup("minimize");
       mmdb::Manager *mol = atom_sel.mol;
       std::vector<mmdb::Link> links;
-      std::vector<coot::atom_spec_t> fixed_atom_specs;
       std::vector<std::pair<bool,mmdb::Residue *> > local_residues;
 
       for (const auto &r : refining_residues)
