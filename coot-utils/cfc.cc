@@ -3,7 +3,9 @@
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
 #include <fstream>
+#include <memory>
 
+#include "utils/coot-utils.hh"
 #include "geometry/protein-geometry.hh"
 #include "coot-coord-utils.hh"
 #include "dirichlet-process.hh"
@@ -18,18 +20,15 @@ extern logging logger;
 
 std::pair<std::vector<cfc::typed_cluster_t>, std::vector<std::vector<cfc::water_info_t> > >
 cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos,
-                                 const coot::protein_geometry &geom) {
+                                 const coot::protein_geometry &geom,
+                                 const cfc::clustering_options_t &options) {
 
-   // send pt_ref also
+   // the ligand is the residue called res_name. If there is more than one of them,
+   // use the one closest to pt (if use_pt), otherwise the first one.
+   auto find_ligand_residue = [] (mmdb::Manager *mol, const std::string &res_name,
+                                  bool use_pt, const clipper::Coord_orth &pt) {
 
-   auto find_residue_near_ligand_site = [] (mmdb::Manager *mol,
-                                            const clipper::Coord_orth &pt_ref) {
-
-      std::vector<std::string> boring = {"ALA", "ARG", "ASN", "ASP", "CYS", "GLN", "GLU", "GLY",
-                                         "HIS", "ILE", "LEU", "LYS", "MET", "PHE", "PRO", "SER",
-                                         "THR", "TRP", "TYR", "VAL", "HOH", "GOL", "EDO", "MES", "NA"};
-
-      double best_close = 5.0; // A = ligand need to be closer than this.
+      double best_dd = 1.0e30;
       mmdb::Residue *r = nullptr;
       for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
          mmdb::Model *model_p = mol->GetModel(imod);
@@ -42,13 +41,13 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
                   mmdb::Residue *residue_p = chain_p->GetResidue(ires);
                   if (residue_p) {
                      std::string rn = residue_p->GetResName();
-                     if (std::find(boring.begin(), boring.end(), rn) == boring.end()) {
+                     if (rn == res_name) {
+                        if (! use_pt) return residue_p;
                         auto rc = coot::util::get_residue_centre(residue_p);
                         if (rc.first) {
-                           double dd = (rc.second - pt_ref).lengthsq();
-                           double d = std::sqrt(dd);
-                           if (d < best_close) {
-                              d = best_close;
+                           double dd = (rc.second - pt).lengthsq();
+                           if (dd < best_dd) {
+                              best_dd = dd;
                               r = residue_p;
                            }
                         }
@@ -59,6 +58,29 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
          }
       }
       return r;
+   };
+
+   // main-chain LSQ matches for the protein residues of mol_ref near pt - the same
+   // residue numbers are expected in the moving molecules
+   auto make_lsq_matchers = [] (mmdb::Manager *mol_ref, const clipper::Coord_orth &pt, double radius) {
+      std::vector<coot::lsq_range_match_info_t> lsq_matchers;
+      std::vector<mmdb::Residue *> residues = coot::residues_near_position(pt, mol_ref, radius);
+      for (mmdb::Residue *residue_p : residues) {
+         std::string rn = residue_p->GetResName();
+         if (coot::util::is_standard_amino_acid_name(rn)) {
+            std::string chain_id = residue_p->GetChainID();
+            int res_no = residue_p->GetSeqNum();
+            coot::lsq_range_match_info_t m(res_no, res_no, chain_id, res_no, res_no, chain_id, coot::lsq_t::MAIN);
+            lsq_matchers.push_back(m);
+         }
+      }
+      return lsq_matchers;
+   };
+
+   auto transform_point = [] (const clipper::RTop_orth &rtop, const RDGeom::Point3D &p) {
+      clipper::Coord_orth pt(p.x, p.y, p.z);
+      clipper::Coord_orth t = rtop * pt;
+      return RDGeom::Point3D(t.x(), t.y(), t.z());
    };
 
    auto file_to_string = [] (const std::string &file_name) {
@@ -131,12 +153,28 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
       return waters;
    };
 
-   // pass the feature factory rather than reading the BaseFeatures.fdef file
-   // every time.
-   auto chemical_features = [file_to_string] (mmdb::Residue *residue_p,
-                                              int imol,
-                                              int imol_enc,
-                                              const coot::protein_geometry &geom) {
+   // Look for BaseFeatures.fdef in the current directory, then the file named by
+   // RDKIT_BASEFEATURES, then $prefix/share/RDKit/Data/BaseFeatures.fdef.
+   // Return the empty string if it was not found.
+   auto find_feature_definitions_file = [] () {
+      std::string fn = "BaseFeatures.fdef";
+      if (coot::file_exists(fn)) return fn;
+      const char *e = getenv("RDKIT_BASEFEATURES");
+      if (e) {
+         if (coot::file_exists(e)) return std::string(e);
+         logger.log(log_t::WARNING, {"RDKIT_BASEFEATURES file", std::string(e), "not found"});
+      }
+      std::string data_dir = coot::util::append_dir_dir(coot::rdkit_package_data_dir(), "Data");
+      std::string p = coot::util::append_dir_file(data_dir, fn);
+      if (coot::file_exists(p)) return p;
+      return std::string();
+   };
+
+   auto chemical_features = [] (mmdb::Residue *residue_p,
+                                int imol,
+                                int imol_enc,
+                                const coot::protein_geometry &geom,
+                                RDKit::MolChemicalFeatureFactory *factory) {
 
       std::vector<feature_info_t> feature_infos; // for this residue
       try {
@@ -168,10 +206,6 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
                   }
                }
             }
-
-            std::string feature_data_file_name = "BaseFeatures.fdef"; // from rdkit/Data/BaseFeatures.fdef
-            std::string feature_data_string = file_to_string(feature_data_file_name);
-            RDKit::MolChemicalFeatureFactory *factory = RDKit::buildFeatureFactory(feature_data_string);
 
             RDKit::FeatSPtrList features = factory->getFeaturesForMol(m);
             std::cout << "DEBUG:: Found " << features.size() << " features" << std::endl;
@@ -276,9 +310,9 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
       }
 
       // Use BIC to automatically select optimal number of clusters
-      // Test k from 1 to min(10, number of waters)
+      // Test k from 1 to min(30, number of waters)
       int k_min = 1;
-      int k_max = std::min(50, static_cast<int>(water_infos.size()));
+      int k_max = std::min(30, static_cast<int>(water_infos.size()));
       int max_iterations = 200;
 
       std::cout << "Testing GMM with BIC for optimal number of clusters..." << std::endl;
@@ -286,6 +320,9 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
 
       std::cout << "Selected " << gmm_result.optimal_k << " clusters for waters (BIC="
                 << gmm_result.best_bic << ")" << std::endl;
+      if (gmm_result.optimal_k == k_max && k_max < static_cast<int>(water_infos.size()))
+         logger.log(log_t::WARNING, logging::function_name_t("cluster_waters_gmm"),
+                    {"the BIC chose k = k_max =", k_max, "- the optimal number of water clusters may be larger"});
 
       // Convert cluster assignments to the expected output format
       std::vector<std::vector<water_info_t>> clusters(gmm_result.optimal_k);
@@ -297,10 +334,12 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
       }
 
       // Print cluster statistics
-      std::cout << "DEBUG:: cluster_waters_gmm(): Water cluster statistics:" << std::endl;
-      for (unsigned int ic = 0; ic < clusters.size(); ic++) {
-         std::cout << "  Cluster " << ic << " has " << clusters[ic].size()
-                   << " waters" << std::endl;
+      if (true) {
+         std::cout << "DEBUG:: cluster_waters_gmm(): Water cluster statistics:" << std::endl;
+         for (unsigned int ic = 0; ic < clusters.size(); ic++) {
+            std::cout << "  Cluster " << ic << " has " << clusters[ic].size()
+                      << " waters" << std::endl;
+         }
       }
 
       return clusters;
@@ -579,28 +618,20 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
 
    auto output_waters_plain = [] (const std::vector<std::vector<water_info_t> > &water_clusters) {
 
-      std::cout << "DEBUG:: output_waters_plain() " << water_clusters.size() << " water cluster"
-                << std::endl;
+      if (false)
+         std::cout << "DEBUG:: output_waters_plain() " << water_clusters.size() << " water cluster"
+                   << std::endl;
       for (unsigned int iclust=0; iclust<water_clusters.size(); iclust++) {
          const std::vector<water_info_t> &v = water_clusters.at(iclust);
-         std::cout << "debug:: water cluster iclust " << iclust << std::endl;
+         if (false)
+            std::cout << "debug:: water cluster iclust " << iclust << std::endl;
          for (unsigned int i=0; i<v.size(); i++) {
             const water_info_t &wi = v[i];
-            std::cout << "  debug:: output_waters_plain(): water iclust: " << iclust << " at "
-                      << wi.pos.x << " " << wi.pos.y << " " << wi.pos.z << std::endl;
+            if (false)
+               std::cout << "  debug:: output_waters_plain(): water iclust: " << iclust << " at "
+                         << wi.pos.x << " " << wi.pos.y << " " << wi.pos.z << std::endl;
          }
       }
-   };
-
-   auto add_lsq_superpose_match = [] (const std::string &chain_id_ref, int res_no_ref_start, int res_no_ref_end,
-                                      const std::string &chain_id_mov, int res_no_mov_start, int res_no_mov_end,
-                                      short int mode, std::vector<coot::lsq_range_match_info_t> *lsq_matchers) {
-
-      std::string ins_code = "";
-      std::string alt_conf = "";
-      coot::lsq_range_match_info_t m(res_no_ref_start, res_no_ref_end, chain_id_ref,
-                                     res_no_mov_start, res_no_mov_end, chain_id_mov, mode);
-      lsq_matchers->push_back(m);
    };
 
    auto feature_is_close_to_a_protein_atom = [] (const feature_info_t &fi,
@@ -632,69 +663,125 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
    std::vector<feature_info_t> feature_infos;
    std::vector<water_info_t> water_infos;
 
-   if (! mol_infos.empty()) {
+   // the feature factory is made once, rather than for every ligand
+   std::unique_ptr<RDKit::MolChemicalFeatureFactory> factory;
+   std::string feature_data_file_name = find_feature_definitions_file();
+   if (feature_data_file_name.empty()) {
+      logger.log(log_t::ERROR, logging::function_name_t(__FUNCTION__),
+                 "BaseFeatures.fdef not found (looked in the current directory, RDKIT_BASEFEATURES and",
+                 coot::rdkit_package_data_dir() + "/Data)");
+   } else {
+      std::string feature_data_string = file_to_string(feature_data_file_name);
+      try {
+         factory.reset(RDKit::buildFeatureFactory(feature_data_string));
+      }
+      catch (const std::exception &e) {
+         logger.log(log_t::ERROR, logging::function_name_t(__FUNCTION__),
+                    {"failed to read", feature_data_file_name, e.what()});
+      }
+   }
+
+   if (! mol_infos.empty() && factory) {
 
       int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
-      std::vector<coot::lsq_range_match_info_t> lsq_matchers;
-
-      add_lsq_superpose_match("A", 1939, 1946, "A", 1939, 1946, 1, &lsq_matchers);
-      add_lsq_superpose_match("A", 1950, 1952, "A", 1950, 1952, 1, &lsq_matchers);
-      add_lsq_superpose_match("A", 1900, 1902, "A", 1900, 1902, 1, &lsq_matchers);
-
-      // clipper::Coord_orth pt_ref(15,40,30);
-      clipper::Coord_orth pt_ref(27, 8, 1);
       int imol_ref = mol_infos[0].imol;
+      mmdb::Manager *mol_ref = mol_infos[0].mol;
+
+      // if the molecules are not superposed, they will be superposed onto the reference
+      // (the first molecule) using the residues near the centre - or, if we don't have
+      // a centre, near the ligand in the reference molecule.
+      std::vector<coot::lsq_range_match_info_t> lsq_matchers;
+      if (! options.molecules_are_superposed) {
+         if (mol_ref) {
+            bool have_pt = false;
+            clipper::Coord_orth pt = options.centre;
+            if (options.use_centre) {
+               have_pt = true;
+            } else {
+               mmdb::Residue *ligand_ref = find_ligand_residue(mol_ref, mol_infos[0].res_name, false, pt);
+               if (ligand_ref) {
+                  auto rc = coot::util::get_residue_centre(ligand_ref);
+                  if (rc.first) {
+                     pt = rc.second;
+                     have_pt = true;
+                  }
+               }
+            }
+            if (have_pt)
+               lsq_matchers = make_lsq_matchers(mol_ref, pt, options.superposition_radius);
+         }
+         if (lsq_matchers.empty())
+            logger.log(log_t::ERROR, logging::function_name_t(__FUNCTION__),
+                       "no residues for superposition onto reference", imol_ref);
+      }
+
       for (unsigned int i=0; i<mol_infos.size(); i++) {
-         bool do_it = false;
-         if (i == 0) {
-            do_it = true; // no LSQ fit needed to self
-         } else {
-            int imol_mov = mol_infos[i].imol;
-            std::cout << "info:: superposing ref: " << imol_ref << " mov: " << imol_mov << std::endl;
-            mmdb::Manager *mol_ref = mol_infos[0].mol;
-            mmdb::Manager *mol_mov = mol_infos[i].mol;
-            bool summary_to_screen = false;
-            std::pair<short int, clipper::RTop_orth> rtop_info =
-               coot::util::get_lsq_matrix(mol_ref, mol_mov, lsq_matchers, 1, summary_to_screen);
-            if (rtop_info.first)
-               do_it = true;
+
+         mmdb::Manager *mol = mol_infos[i].mol;
+         int imol = mol_infos[i].imol;
+         if (! mol) {
+            logger.log(log_t::ERROR, logging::function_name_t(__FUNCTION__),
+                       "no mol found for imol", imol);
+            continue;
          }
 
-         if (do_it) {
-            mmdb::Manager *mol = mol_infos[i].mol;
-            int imol = mol_infos[i].imol;
-            if (mol) {
-
-               // residues
-
-               mmdb::Residue *residue_p = find_residue_near_ligand_site(mol, pt_ref);
-               std::vector<mmdb::Residue *> residues_near_residue = coot::residues_near_residue(residue_p, mol, 4.3);
-               if (residue_p) {
-                  std::string rn = residue_p->GetResName();
-                  auto new_chemical_features = chemical_features(residue_p, imol, imol_enc, geom);
-                  for (const auto &fi : new_chemical_features) {
-                     float dist_crit = 4.3;
-                     // if (feature_is_close_to_a_protein_atom(fi, residues_near_residue, dist_crit)) {
-                     if (true) {
-                        feature_infos.push_back(fi);
-                     }
-                  }
-               } else {
-                  // std::cout << "ERROR:: no residue found near ligand site" << std::endl;
-                  logger.log(log_t::ERROR, logging::function_name_t(__FUNCTION__),
-                             "no residue found near ligand site", imol);
+         // rtop takes this molecule onto the reference molecule
+         clipper::RTop_orth rtop = clipper::RTop_orth::identity();
+         if (i > 0 && ! options.molecules_are_superposed) {
+            bool superposed = false;
+            if (! lsq_matchers.empty()) {
+               std::cout << "info:: superposing ref: " << imol_ref << " mov: " << imol << std::endl;
+               bool summary_to_screen = false;
+               std::pair<short int, clipper::RTop_orth> rtop_info =
+                  coot::util::get_lsq_matrix(mol_ref, mol, lsq_matchers, 1, summary_to_screen);
+               if (rtop_info.first) {
+                  rtop = rtop_info.second;
+                  superposed = true;
                }
-
-               // waters
-
-               std::vector<water_info_t> waters = waters_near_ligand_site(imol, mol, pt_ref);
-               water_infos.insert(water_infos.end(), waters.begin(), waters.end());
-
-            } else {
-               // std::cout << "ERROR:: no mol found for imol " << imol << std::endl;
-               logger.log(log_t::ERROR, logging::function_name_t(__FUNCTION__),
-                          "no mol found for imol", imol);
             }
+            if (! superposed) {
+               logger.log(log_t::WARNING, logging::function_name_t(__FUNCTION__),
+                          "failed to superpose - ignoring imol", imol);
+               continue;
+            }
+         }
+
+         // residues
+
+         clipper::Coord_orth centre_in_mol = rtop.inverse() * options.centre;
+         const std::string &res_name = mol_infos[i].res_name;
+         mmdb::Residue *residue_p = find_ligand_residue(mol, res_name, options.use_centre, centre_in_mol);
+         if (residue_p) {
+            std::vector<mmdb::Residue *> residues_near_residue = coot::residues_near_residue(residue_p, mol, 4.3);
+            auto new_chemical_features = chemical_features(residue_p, imol, imol_enc, geom, factory.get());
+            for (auto &fi : new_chemical_features) {
+               float dist_crit = 4.3;
+               // if (feature_is_close_to_a_protein_atom(fi, residues_near_residue, dist_crit)) {
+               if (true) {
+                  fi.pos = transform_point(rtop, fi.pos);
+                  feature_infos.push_back(fi);
+               }
+            }
+
+            // waters
+
+            auto rc = coot::util::get_residue_centre(residue_p);
+            if (rc.first) {
+               std::vector<water_info_t> waters = waters_near_ligand_site(imol, mol, rc.second);
+               for (auto &wi : waters) {
+                  // a molecule may be listed more than once (with different ligands)
+                  // so don't add the same water twice
+                  auto same_water = [&wi] (const water_info_t &w) {
+                     return w.imol == wi.imol && w.residue_spec == wi.residue_spec; };
+                  if (std::find_if(water_infos.begin(), water_infos.end(), same_water) != water_infos.end())
+                     continue;
+                  wi.pos = transform_point(rtop, wi.pos);
+                  water_infos.push_back(wi);
+               }
+            }
+         } else {
+            logger.log(log_t::ERROR, logging::function_name_t(__FUNCTION__),
+                       {"no ligand residue", res_name, "found in imol", imol});
          }
       }
    }
@@ -732,7 +819,7 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
       output_waters(water_clusters);
       output_waters_plain(water_clusters); // to terminal
 
-      if (true) {
+      if (false) {
          std::cout << "--------- at end of chemical_feature_clustering() --- "
                    << std::endl;
          for (unsigned int i=0; i<water_clusters.size(); i++) {
@@ -748,7 +835,9 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
          }
          std::cout << "------------" << std::endl;
       }
+
       return std::make_pair(typed_clusters, water_clusters);
+
    } else {
       logger.log(log_t::WARNING, logging::function_name_t(__FUNCTION__), "empty feature_infos");
    }

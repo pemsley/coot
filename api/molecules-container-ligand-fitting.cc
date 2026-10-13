@@ -757,7 +757,8 @@ molecules_container_t::get_svg_for_residue_type(int imol, const std::string &com
 //! Fit ligands
 //! ``multi_ligand_molecule_number_list`` is a colon-separated list of molecules, *e.g.* "2:3:4"
 std::vector<molecules_container_t::fit_ligand_info_t>
-molecules_container_t::fit_ligand_multi_ligand(int imol_protein, int imol_map, const std::string &multi_ligand_molecule_number_list,
+molecules_container_t::fit_ligand_multi_ligand(int imol_protein, int imol_map,
+                                               const std::string &multi_ligand_molecule_number_list,
                                                float n_rmsd, bool use_conformers, unsigned int n_conformers) {
 
    std::vector<fit_ligand_info_t> v;
@@ -765,4 +766,167 @@ molecules_container_t::fit_ligand_multi_ligand(int imol_protein, int imol_map, c
    std::vector<int> ligand_imols;
 
    return v;
+}
+
+
+#include "coot-utils/cfc.hh"
+
+// maybe not the right place for these functions - maybe we need a new file
+
+std::string
+molecules_container_t::chemical_feature_clustering(const std::string &mol_info_json) {
+
+   using json = nlohmann::json;
+
+   json j_results;
+   j_results["clusters"]       = json::array();
+   j_results["water_clusters"] = json::array();
+
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+
+   auto point_to_json = [] (const RDGeom::Point3D &p) {
+      return json::array({p.x, p.y, p.z});
+   };
+
+   auto residue_spec_to_json = [] (int imol, const coot::residue_spec_t &spec) {
+      json j;
+      j["imol"]     = imol;
+      j["chain_id"] = spec.chain_id;
+      j["res_no"]   = spec.res_no;
+      j["ins_code"] = spec.ins_code;
+      return j;
+   };
+
+   // the centre of a water cluster and the mean distance of its waters from that centre
+   auto get_centre_and_spread = [] (const std::vector<cfc::water_info_t> &wiv) {
+      RDGeom::Point3D centre(0,0,0);
+      double mean_dist = 0.0;
+      if (! wiv.empty()) {
+         for (const auto &wi : wiv)
+            centre += wi.pos;
+         centre /= static_cast<double>(wiv.size());
+         for (const auto &wi : wiv)
+            mean_dist += (wi.pos - centre).length();
+         mean_dist /= static_cast<double>(wiv.size());
+      }
+      return std::make_pair(centre, mean_dist);
+   };
+
+   // mol_info_json is an object like this:
+   // {"molecules": [[2, "LIG"], [3, "LIG"]],
+   //  "molecules_are_superposed": false,
+   //  "centre": [10.0, 20.0, 30.0],
+   //  "superposition_radius": 10.0}
+   // "molecules" is a list of [imol, residue-name] pairs (the same as the list that is
+   // passed to new_chemical_feature_clustering_py()). The other keys are optional.
+   std::vector<std::pair<int, std::string> > mol_info_vec;
+   cfc::clustering_options_t options;
+   try {
+      json j = json::parse(mol_info_json);
+      if (j.is_object() && j.contains("molecules") && j["molecules"].is_array()) {
+         for (const auto &item : j["molecules"]) {
+            if (item.is_array() && item.size() == 2 && item[0].is_number_integer() && item[1].is_string())
+               mol_info_vec.push_back(std::make_pair(item[0].get<int>(), item[1].get<std::string>()));
+            else
+               std::cout << "WARNING:: " << __FUNCTION__ << "(): ignoring bad mol info item " << item.dump() << std::endl;
+         }
+         if (j.contains("molecules_are_superposed"))
+            options.molecules_are_superposed = j["molecules_are_superposed"].get<bool>();
+         if (j.contains("centre")) {
+            const json &jc = j["centre"];
+            if (jc.is_array() && jc.size() == 3) {
+               options.centre = clipper::Coord_orth(jc[0].get<double>(), jc[1].get<double>(), jc[2].get<double>());
+               options.use_centre = true;
+            } else {
+               std::cout << "WARNING:: " << __FUNCTION__ << "(): ignoring bad centre " << jc.dump() << std::endl;
+            }
+         }
+         if (j.contains("superposition_radius"))
+            options.superposition_radius = j["superposition_radius"].get<float>();
+      } else {
+         std::cout << "WARNING:: " << __FUNCTION__ << "(): mol_info_json is not an object with a \"molecules\" list"
+                   << std::endl;
+      }
+   }
+   catch (const json::exception &e) {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): failed to parse mol_info_json " << e.what() << std::endl;
+      mol_info_vec.clear();
+   }
+
+   // now, like src/cfc-2025.cc chemical_feature_clustering()
+   // prep input_info and call cfc::chemical_feature_clustering()
+
+   std::vector<cfc::input_info_t> input_infos;
+   for (const auto &mol_info : mol_info_vec) {
+      int imol = mol_info.first;
+      if (is_valid_model_molecule(imol)) {
+         mmdb::Manager *mol = molecules[imol].atom_sel.mol;
+         if (mol)
+            input_infos.push_back(cfc::input_info_t(mol, imol, mol_info.second));
+      } else {
+         std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+      }
+   }
+
+   if (! input_infos.empty()) {
+      std::pair<std::vector<cfc::typed_cluster_t>, std::vector<std::vector<cfc::water_info_t> > >
+         results = cfc::chemical_feature_clustering(input_infos, geom, options);
+
+      // encode the results. The keys follow the clusters.json and waters.json files that
+      // cfc::chemical_feature_clustering() writes, with some extras.
+
+      // positions are in the frame of this molecule
+      j_results["reference_imol"] = input_infos[0].imol;
+
+      for (const auto &tc : results.first) {
+         json j_cluster;
+         j_cluster["family"] = tc.family;
+         j_cluster["type"]   = tc.type;
+         j_cluster["idx"]    = tc.idx;
+         j_cluster["name"]   = tc.make_name();
+         j_cluster["pos"]    = point_to_json(tc.pos);
+         json j_imols = json::array();
+         for (const auto &imol_with_spec : tc.imols_with_specs) {
+            int imol = imol_with_spec.first;
+            const coot::residue_spec_t &spec = imol_with_spec.second;
+            json j_imol = residue_spec_to_json(imol, spec);
+            if (is_valid_model_molecule(imol)) {
+               mmdb::Residue *residue_p = molecules[imol].get_residue(spec);
+               if (residue_p)
+                  j_imol["res_name"] = residue_p->GetResName();
+            }
+            j_imols.push_back(j_imol);
+         }
+         j_cluster["imols"] = j_imols;
+         json j_contributing_points = json::array();
+         for (const auto &p : tc.contributing_points)
+            j_contributing_points.push_back(point_to_json(p));
+         j_cluster["contributing_points"] = j_contributing_points;
+         j_results["clusters"].push_back(j_cluster);
+      }
+
+      for (unsigned int iclust=0; iclust<results.second.size(); iclust++) {
+         const std::vector<cfc::water_info_t> &wiv = results.second[iclust];
+         if (wiv.empty()) continue;
+         std::pair<RDGeom::Point3D, double> centre_and_spread = get_centre_and_spread(wiv);
+         json j_cluster;
+         j_cluster["cluster_index"] = iclust;
+         j_cluster["centre"] = point_to_json(centre_and_spread.first);
+         j_cluster["mean_distance_from_centre"] = centre_and_spread.second;
+         json j_waters = json::array();
+         for (const auto &wi : wiv) {
+            json j_water = residue_spec_to_json(wi.imol, wi.residue_spec);
+            j_water["pos"] = point_to_json(wi.pos);
+            j_waters.push_back(j_water);
+         }
+         j_cluster["waters"] = j_waters;
+         j_results["water_clusters"].push_back(j_cluster);
+      }
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): no valid molecules" << std::endl;
+   }
+
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
+
+   return j_results.dump();
 }

@@ -1571,6 +1571,33 @@ public:
    //! @return a `simple_mesh_t`
    coot::simple_mesh_t get_chemical_features_mesh(int imol, const std::string &cid) const;
 
+   //! Chemical feature clustering
+   //!
+   //! Find the chemical features (donors, acceptors, aromatic rings, ...) of the ligands
+   //! in a set of models, and cluster them. The waters near the ligands are clustered too.
+   //!
+   //! @param mol_info_json is a JSON object, e.g.
+   //! `{"molecules": [[2, "LIG"], [3, "LIG"]], "molecules_are_superposed": false, "centre": [10, 20, 30]}`
+   //! "molecules" is a list of [imol, residue-name] pairs; the ligand in each model is the residue
+   //! with that name (the one closest to the centre if there is more than one and a centre is given).
+   //! The other keys are optional:
+   //! "molecules_are_superposed" (default true): if false, the models are superposed onto the
+   //! first model (the reference) by main-chain LSQ of the reference residues near the centre,
+   //! and positions are reported in the frame of the reference. The models are not moved.
+   //! "centre" ([x,y,z], in the frame of the reference): selects the residues for the
+   //! superposition. If it is not given, the centre of the ligand in the reference is used.
+   //! "superposition_radius" (default 10.0): the residue selection radius around the centre.
+   //!
+   //! @return a JSON string: an object with keys "reference_imol", "clusters" and "water_clusters".
+   //! Each item in "clusters" has keys "family", "type", "idx", "name", "pos" ([x,y,z]),
+   //! "contributing_points" (a list of [x,y,z]) and "imols" (a list of objects with keys
+   //! "imol", "chain_id", "res_no", "ins_code", "res_name").
+   //! Each item in "water_clusters" has keys "cluster_index", "centre" ([x,y,z]),
+   //! "mean_distance_from_centre" and "waters" (a list of objects with keys "imol",
+   //! "chain_id", "res_no", "ins_code", "pos").
+   //! Both lists are empty if there are no results ("reference_imol" is missing if there were no valid models).
+   std::string chemical_feature_clustering(const std::string &mol_info_json);
+
    //! get an (mmdb-style) atom
    //!
    //! If more than one atom is selected by the selection cid, then the first

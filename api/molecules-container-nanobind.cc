@@ -401,6 +401,10 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::clear_non_drawn_bonds,
          nb::arg("imol"),
          get_docstring_from_xml("clear_non_drawn_bonds").c_str())
+    .def("chemical_feature_clustering",
+         &molecules_container_t::chemical_feature_clustering,
+         nb::arg("mol_info_json"),
+         get_docstring_from_xml("chemical_feature_clustering").c_str())
     .def("clear_fixed_atoms_during_refinement",
          &molecules_container_t::clear_fixed_atoms_during_refinement,
          nb::arg("imol"),

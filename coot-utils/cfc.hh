@@ -6,6 +6,7 @@
 
 #include <vector>
 #include <string>
+#include <clipper/core/coords.h>
 #include "geometry/protein-geometry.hh"
 #include "geometry/residue-and-atom-specs.hh"
 #include <GraphMol/MolChemicalFeatures/MolChemicalFeature.h>
@@ -58,9 +59,30 @@ namespace cfc {
       water_info_t() : imol(-1) {}
    };
 
+   //! options for chemical_feature_clustering()
+   class clustering_options_t {
+   public:
+      //! if false, each molecule is superposed onto the first molecule (by main-chain LSQ
+      //! of the residues near the centre) and the feature and water positions are
+      //! reported in the frame of the first molecule. The molecules are not moved.
+      bool molecules_are_superposed;
+      //! if true, \c centre is used to select the residues for the superposition and
+      //! to choose between ligands of the same name. If false, the centre of the ligand
+      //! in the first molecule is used for the superposition residue selection.
+      bool use_centre;
+      clipper::Coord_orth centre;
+      //! residues within this radius of the centre are used for the superposition
+      float superposition_radius;
+      clustering_options_t() : molecules_are_superposed(true), use_centre(false),
+                               centre(0,0,0), superposition_radius(10.0) {}
+   };
+
+   //! the ligand in each molecule is the residue with name \c input_info_t::res_name
+   //! (the one closest to the centre, if there is more than one and a centre is given)
    std::pair<std::vector<typed_cluster_t>, std::vector<std::vector<water_info_t> > >
    chemical_feature_clustering(const std::vector<input_info_t> &mol_infos,
-                               const coot::protein_geometry &geom);
+                               const coot::protein_geometry &geom,
+                               const clustering_options_t &options = clustering_options_t());
 
 }
 
