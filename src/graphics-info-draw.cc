@@ -1970,7 +1970,7 @@ graphics_info_t::draw_molecules_with_shadows(stereo_eye_t eye) {
                // shader_for_instanced_meshes_with_shadows.set_bool_for_uniform("do_fresnel", false); // models should not fresnel
                // 20230904-PE Let's try using the new model_molecule_as_meshes class
                m.model_molecule_meshes.draw_molecule_with_shadows(&shader_for_instanced_meshes_with_shadows, mvp, model_rotation_matrix, lights,
-                                                                  eye_position, opacity, bg_col_v4, shader_do_depth_fog_flag, light_view_mvp,
+                                                                  eye_position, get_rotation_centre(), opacity, bg_col_v4, shader_do_depth_fog_flag, light_view_mvp,
                                                                   shadow_depthMap_texture, shadow_strength, shadow_softness, show_just_shadows);
             }
 
@@ -2021,7 +2021,7 @@ graphics_info_t::draw_molecules_with_shadows(stereo_eye_t eye) {
                                         if (opacity < 1.0) m.map_as_mesh_gl_lines_version.use_blending = true;
                                         m.map_as_mesh_gl_lines_version.set_material(m.material_for_maps);
                                         m.map_as_mesh_gl_lines_version.draw_with_shadows(&shader_for_meshes_with_shadows, mvp, model_rotation_matrix, lights,
-                                                                                         eye_position, opacity, bg_col_v4, shader_do_depth_fog_flag, light_view_mvp,
+                                                                                         eye_position, get_rotation_centre(), opacity, bg_col_v4, shader_do_depth_fog_flag, light_view_mvp,
                                                                                          shadow_depthMap_texture, shadow_strength, shadow_softness, show_just_shadows);
                                      } else {
                                         if (opacity < 1.0) {
@@ -2031,7 +2031,7 @@ graphics_info_t::draw_molecules_with_shadows(stereo_eye_t eye) {
                                         }
                                         m.map_as_mesh.set_material(m.material_for_maps);
                                         m.map_as_mesh.draw_with_shadows(&shader_for_meshes_with_shadows, mvp, model_rotation_matrix, lights,
-                                                                        eye_position, opacity, bg_col_v4, shader_do_depth_fog_flag, light_view_mvp,
+                                                                        eye_position, get_rotation_centre(), opacity, bg_col_v4, shader_do_depth_fog_flag, light_view_mvp,
                                                                         shadow_depthMap_texture, shadow_strength, shadow_softness, show_just_shadows);
                                      }
                                   }
@@ -2143,7 +2143,7 @@ graphics_info_t::draw_environment_graphics_object(stereo_eye_t eye) {
       if (m.is_displayed_p()) {
          if (environment_show_distances) {
             glm::mat4 mvp = get_molecule_mvp(eye);
-            glm::vec3 eye_position = get_world_space_eye_position();
+            glm::vec3 eye_position = graphics_info_t::eye_position; // view space, Mesh::draw() converts it
             glm::mat4 model_rotation = get_model_rotation();
             glm::vec4 bg_col(background_colour, 1.0);
 
@@ -2269,7 +2269,7 @@ graphics_info_t::draw_outlined_active_residue(stereo_eye_t eye) {
    if (outline_for_active_residue_frame_count > 0) {
       glm::mat4 mvp = get_molecule_mvp(eye);
       std::map<unsigned int, lights_info_t> dummy_lights;
-      glm::vec3 eye_position = get_world_space_eye_position();
+      glm::vec3 eye_position = graphics_info_t::eye_position; // view space, Mesh::draw() converts it
       glm::mat4 model_rotation = get_model_rotation();
       glm::vec4 bg_col(background_colour, 1.0);
       Shader &shader = shader_for_outline_of_active_residue;
@@ -2393,7 +2393,7 @@ graphics_info_t::draw_meshed_generic_display_object_meshes(stereo_eye_t eye, uns
          glm::vec4 bg_col_v4(background_colour, 1.0f);
          auto ccrc = RotationCentre();
          glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
-         glm::vec3 eye_position;
+         glm::vec3 eye_position = graphics_info_t::eye_position; // view space
          float opacity = 1.0;
          bool do_depth_fog = true;
          int light_index =  0;
@@ -2402,7 +2402,7 @@ graphics_info_t::draw_meshed_generic_display_object_meshes(stereo_eye_t eye, uns
 
          for (unsigned int i=0; i<generic_display_objects.size(); i++) {
             generic_display_objects[i].mesh.draw_with_shadows(&shader_for_meshes_with_shadows,
-                                                              mvp, model_rotation, lights, eye_position, opacity,
+                                                              mvp, model_rotation, lights, eye_position, rc, opacity,
                                                               bg_col_v4, do_depth_fog, light_view_mvp,
                                                               shadow_depthMap_texture, shadow_strength, shadow_softness,
                                                               show_just_shadows);
@@ -2429,7 +2429,8 @@ graphics_info_t::draw_molecules_other_meshes(stereo_eye_t eye, unsigned int pass
    bool draw_meshes = true;
    bool draw_mesh_normals = false;
 
-   glm::vec3 eye_position = get_world_space_eye_position();
+   // view space, (0,0,40) say: Mesh::draw() converts it to molecule space via Shader::setup_eye_position()
+   glm::vec3 eye_position = graphics_info_t::eye_position;
    glm::mat4 mvp = get_molecule_mvp(eye);
    glm::mat4 mvp_orthogonal = glm::mat4(1.0f); // placeholder
    glm::mat4 model_rotation = get_model_rotation();
@@ -2487,11 +2488,13 @@ graphics_info_t::draw_molecules_other_meshes(stereo_eye_t eye, unsigned int pass
                   bool transferred_colour_is_instanced = false;
                   mesh.draw_instanced(pass_type,
                                       &shader_for_moleculestotriangles, eye, mvp,
-                                      model_rotation, lights, eye_position,
+                                      model_rotation, lights, eye_position, rc,
                                       bg_col, do_depth_fog, transferred_colour_is_instanced);
                } else {
 
                   if (pass_type == PASS_TYPE_STANDARD) {
+
+                     std::cout << "here A " << shader_for_moleculestotriangles.name << std::endl;
 
                      bool show_just_shadows = false;
                      bool wireframe_mode = false;
@@ -2524,9 +2527,8 @@ graphics_info_t::draw_molecules_other_meshes(stereo_eye_t eye, unsigned int pass
                      glm::mat4 light_view_mvp = get_light_space_mvp(light_index);
                      show_just_shadows = false;
 
-                     // we don't do eye for shadows yet.
                      m.meshes[jj].draw_with_shadows(&shader_for_moleculestotriangles_with_shadows, mvp,
-                                                    model_rotation, lights, eye_position, opacity, bg_col,
+                                                    model_rotation, lights, eye_position, rc, opacity, bg_col,
                                                     do_depth_fog, light_view_mvp,
                                                     shadow_depthMap_texture, shadow_strength,
                                                     shadow_softness, show_just_shadows);
@@ -5862,6 +5864,7 @@ void graphics_info_t::draw_bad_nbc_atom_pair_dashed_lines(stereo_eye_t eye, unsi
                                                          model_rotation,
                                                          lights,
                                                          eye_position,
+                                                         get_rotation_centre(),
                                                          bg_col,
                                                          shader_do_depth_fog_flag,
                                                          transfered_colour_is_instanced);
@@ -6291,14 +6294,15 @@ graphics_info_t::draw_hydrogen_bonds_mesh(stereo_eye_t eye) {
    if (mesh_for_hydrogen_bonds.get_draw_this_mesh()) {
 
       glm::mat4 mvp = get_molecule_mvp(eye);
-      glm::vec3 eye_position = get_world_space_eye_position();
+      glm::vec3 eye_position = graphics_info_t::eye_position; // view space, Mesh::draw_instanced() converts it
       glm::mat4 model_rotation_matrix = get_model_rotation();
       glm::vec4 bg_col(background_colour, 1.0);
 
       int pass_type = PASS_TYPE_STANDARD;
       mesh_for_hydrogen_bonds.draw_instanced(pass_type,
                                              &shader_for_instanced_objects, eye,
-                                             mvp, model_rotation_matrix, lights, eye_position, bg_col,
+                                             mvp, model_rotation_matrix, lights, eye_position,
+                                             get_rotation_centre(), bg_col,
                                              shader_do_depth_fog_flag, false, false, true, 0, 0, 0, 0.2);
    }
 

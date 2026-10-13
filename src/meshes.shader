@@ -257,7 +257,7 @@ void main() {
    // if (material.specular_strength > 0.4)  // great than 0.2, 0.3  less than 0.4
    // output_colour = vec4(1,0,1,1);
 
-   // output_colour = vec4(1,0,1,1);
+   // output_colour = vec4(0,0,1,1);
 
  
 }

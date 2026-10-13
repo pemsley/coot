@@ -125,7 +125,7 @@ graphics_info_t::draw_generic_objects(unsigned int pass_type, stereo_eye_t eye) 
 
    if (! generic_display_objects.empty()) {
 
-      glm::vec3 eye_position = get_world_space_eye_position();
+      glm::vec3 eye_position = graphics_info_t::eye_position; // view space, Mesh::draw() and draw_instanced() convert it
       glm::mat4 mvp = get_molecule_mvp(eye);
       glm::mat4 model_rotation = get_model_rotation();
       glm::vec4 bg_col(background_colour, 1.0);
@@ -184,7 +184,7 @@ graphics_info_t::draw_generic_objects(unsigned int pass_type, stereo_eye_t eye) 
                                   << " and pulsing should be on" << std::endl;
 		     // obj.mesh.debug_mode = true;
                      obj.mesh.draw_instanced(pass_type, &shader_for_instanced_objects, eye, mvp, model_rotation,
-                                             lights, eye_position, bg_col,
+                                             lights, eye_position, get_rotation_centre(), bg_col,
                                              do_depth_fog, true, true, false, 0.25f, 3.0f, 0.2f, 0.0f);
                   } else {
                      // std::cout << "   draw_generic_objects() draw() " << obj.mesh.name << std::endl;

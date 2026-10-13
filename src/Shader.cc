@@ -599,7 +599,12 @@ Shader::setup_eye_position(const glm::vec3 &eye_position, const glm::vec3 &rotat
    {
       glm::vec4 p4_eye = glm::vec4(eye_position, 1.0) * vrm;
       glm::vec3 ep_mcs = glm::vec3(p4_eye) + rotation_centre;
-      // std::cout << "sending eye_position_in_molecule_coordinates_space " << glm::to_string(ep_mcs) << std::endl;
+      if (false)
+         std::cout << "debug:: setup_eye_position() " << name
+                   << " eye-in " << glm::to_string(eye_position)
+                   << " rc " << glm::to_string(rotation_centre)
+                   << " vrm-z-row " << glm::to_string(glm::vec3(glm::vec4(0,0,1,1) * vrm))
+                   << " ep_mcs " << glm::to_string(ep_mcs) << std::endl;
       set_vec3_for_uniform("eye_position_in_molecule_coordinates_space", ep_mcs);
    }
 

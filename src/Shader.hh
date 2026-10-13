@@ -102,4 +102,12 @@ public:
    bool unset_p() const { return name == "---Unset---"; }
 };
 
+// For an orthographic projection the bottom row of the mvp (the one that makes clip-space w)
+// is (0,0,0,1) - for a perspective projection w depends on x,y,z. So we can tell from the mvp
+// and the callers don't need to pass it - use this to set the is_perspective_projection uniform.
+// (glm is column-major: m[col][row]).
+inline bool mvp_is_perspective(const glm::mat4 &mvp) {
+   return (mvp[0][3] != 0.0f || mvp[1][3] != 0.0f || mvp[2][3] != 0.0f);
+}
+
 #endif // SHADER_HH

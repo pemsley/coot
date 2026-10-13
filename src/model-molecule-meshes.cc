@@ -464,9 +464,9 @@ model_molecule_meshes_t::draw(Shader *shader_mesh,
                               bool show_just_shadows) {
 
    bool transferred_colour_is_instanced = true;
-   glm::vec3 dummy_rc(0,0,0);
-   draw_instances(shader_for_instanced_mesh, eye, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog, transferred_colour_is_instanced);
-   draw_simple(shader_mesh, eye, mvp, view_rotation_matrix, lights, eye_position, dummy_rc, opacity, background_colour, gl_lines_mode, do_depth_fog, show_just_shadows);
+   glm::vec3 rc = graphics_info_t::get_rotation_centre(); // for the eye position in molecule space (specular)
+   draw_instances(shader_for_instanced_mesh, eye, mvp, view_rotation_matrix, lights, eye_position, rc, background_colour, do_depth_fog, transferred_colour_is_instanced);
+   draw_simple(shader_mesh, eye, mvp, view_rotation_matrix, lights, eye_position, rc, opacity, background_colour, gl_lines_mode, do_depth_fog, show_just_shadows);
 
 }
 
@@ -477,6 +477,7 @@ model_molecule_meshes_t::draw_instances(Shader *shader_for_instanced_meshes_p,
                                         const glm::mat4 &view_rotation_matrix,
                                         const std::map<unsigned int, lights_info_t> &lights,
                                         const glm::vec3 &eye_position, // eye position in view space (not molecule space)
+                                        const glm::vec3 &rotation_centre,
                                         const glm::vec4 &background_colour,
                                         bool do_depth_fog,
                                         bool transferred_colour_is_instanced,
@@ -495,7 +496,7 @@ model_molecule_meshes_t::draw_instances(Shader *shader_for_instanced_meshes_p,
          std::cout << "   calling mesh.draw_instanced() \"" << mesh.name << "\" with shader "
                    << "\"" << shader_for_instanced_meshes_p->name << "\"" << std::endl;
       int pass_type = graphics_info_t::PASS_TYPE_WITH_SHADOWS; // is this right?
-      mesh.draw_instanced(pass_type, shader_for_instanced_meshes_p, eye, mvp, view_rotation_matrix, lights, eye_position, background_colour,
+      mesh.draw_instanced(pass_type, shader_for_instanced_meshes_p, eye, mvp, view_rotation_matrix, lights, eye_position, rotation_centre, background_colour,
                           do_depth_fog, transferred_colour_is_instanced,
                           do_pulse, do_rotate_z, pulsing_amplitude, pulsing_frequency,
                           pulsing_phase_distribution, z_rotation_angle);
@@ -530,6 +531,7 @@ model_molecule_meshes_t::draw_molecule_with_shadows(Shader *shader,
                                                     const glm::mat4 &model_rotation_matrix,
                                                     const std::map<unsigned int, lights_info_t> &lights,
                                                     const glm::vec3 &eye_position, // eye position in view space (not molecule space)
+                                                    const glm::vec3 &rotation_centre,
                                                     float opacity,
                                                     const glm::vec4 &background_colour,
                                                     bool do_depth_fog,
@@ -544,7 +546,7 @@ model_molecule_meshes_t::draw_molecule_with_shadows(Shader *shader,
       auto &mesh(*it);
       // std::cout << "in draw_molecule_as_meshes_with_shadows() drawing instanced_mesh \"" << mesh.name << "\"" << std::endl;
       mesh.draw_with_shadows(shader, mvp, model_rotation_matrix, lights,
-                             eye_position, opacity, background_colour, do_depth_fog, light_view_mvp,
+                             eye_position, rotation_centre, opacity, background_colour, do_depth_fog, light_view_mvp,
                              shadow_depthMap, shadow_strength, shadow_softness, show_just_shadows);
    }
 

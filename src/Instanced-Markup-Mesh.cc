@@ -373,6 +373,7 @@ Instanced_Markup_Mesh::draw(Shader *shader_p,
    shader_p->set_vec4_for_uniform("background_colour", background_colour);
 
    shader_p->set_bool_for_uniform("do_depth_fog", do_depth_fog);
+   shader_p->set_bool_for_uniform("is_perspective_projection", mvp_is_perspective(mvp));
 
    err = glGetError(); if (err) std::cout << "   error draw() pre-setting material "
                                           << err << std::endl;

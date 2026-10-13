@@ -339,6 +339,7 @@ Model::draw_with_shadows(Shader *shader_for_tmeshes_with_shadows_p,
 			 const glm::mat4 &view_rotation,
 			 const std::map<unsigned int, lights_info_t> &lights,
 			 const glm::vec3 &eye_position, // eye position in view space (not molecule space)
+			 const glm::vec3 &rotation_centre,
                          float opacity,
 			 const glm::vec4 &bg_col,
 			 bool do_depth_fog,
@@ -352,7 +353,7 @@ Model::draw_with_shadows(Shader *shader_for_tmeshes_with_shadows_p,
 
    if (shader_for_tmeshes_with_shadows_p) {
       for (unsigned int j=0; j<tmeshes.size(); j++) {
-	 draw_tmesh_with_shadows(j, shader_for_tmeshes_with_shadows_p,  mvp, view_rotation, lights, eye_position, // opacity
+	 draw_tmesh_with_shadows(j, shader_for_tmeshes_with_shadows_p,  mvp, view_rotation, lights, eye_position, rotation_centre, // opacity
 				 bg_col, do_depth_fog, light_view_mvp,
                                  depthMap_texture, shadow_strength, shadow_softness, show_just_shadows);
       }
@@ -367,7 +368,7 @@ Model::draw_with_shadows(Shader *shader_for_tmeshes_with_shadows_p,
       if (! meshes.empty()) {
 	 for (unsigned int j=0; j<meshes.size(); j++) {
 	    draw_mesh_with_shadows(j, shader_for_meshes_with_shadows_p,
-				   mvp, view_rotation, lights, eye_position, opacity, bg_col, do_depth_fog,
+				   mvp, view_rotation, lights, eye_position, rotation_centre, opacity, bg_col, do_depth_fog,
 				   light_view_mvp, depthMap_texture, shadow_strength, shadow_softness,
 				   show_just_shadows);
 	 }
@@ -383,6 +384,7 @@ Model::draw_tmeshes_with_shadows(Shader *shader_p,
 				 const glm::mat4 &view_rotation_matrix,
 				 const std::map<unsigned int, lights_info_t> &lights,
 				 const glm::vec3 &eye_position, // eye position in view space (not molecule space)
+				 const glm::vec3 &rotation_centre,
 				 const glm::vec4 &bg_col_v4,
 				 bool do_depth_fog,
 				 const glm::mat4 &light_view_mvp,
@@ -393,10 +395,9 @@ Model::draw_tmeshes_with_shadows(Shader *shader_p,
 
    if (! tmeshes.empty()) {
       for (unsigned int j=0; j<tmeshes.size(); j++) {
-         float opacity = 1.0f;
-	 draw_mesh_with_shadows(j, shader_p,  mvp, view_rotation_matrix, lights, eye_position, opacity,
-				bg_col_v4, do_depth_fog, light_view_mvp,
-                                shadow_depthMap_texture, shadow_strength, shadow_softness, show_just_shadows);
+         draw_tmesh_with_shadows(j, shader_p,  mvp, view_rotation_matrix, lights, eye_position, rotation_centre,
+                                 bg_col_v4, do_depth_fog, light_view_mvp,
+                                 shadow_depthMap_texture, shadow_strength, shadow_softness, show_just_shadows);
       }
    }
 }
@@ -409,6 +410,7 @@ Model::draw_tmesh_with_shadows(unsigned int mesh_index,
                                const glm::mat4 &view_rotation_matrix,
                                const std::map<unsigned int, lights_info_t> &lights,
                                const glm::vec3 &eye_position, // eye position in view space (not molecule space)
+                               const glm::vec3 &rotation_centre,
                                const glm::vec4 &background_colour,
                                bool do_depth_fog,
                                const glm::mat4 &light_view_mvp,
@@ -417,7 +419,7 @@ Model::draw_tmesh_with_shadows(unsigned int mesh_index,
                                unsigned int shadow_softness,
                                bool show_just_shadows) {
 
-   tmeshes[mesh_index].draw_with_shadows(shader_p, mvp, view_rotation_matrix, lights, eye_position,
+   tmeshes[mesh_index].draw_with_shadows(shader_p, mvp, view_rotation_matrix, lights, eye_position, rotation_centre,
                                          background_colour, do_depth_fog, light_view_mvp,
                                          depthMap, shadow_strength, shadow_softness,
                                          show_just_shadows);
@@ -429,6 +431,7 @@ Model::draw_mesh_with_shadows(unsigned int mesh_index, Shader *shader_p,
                               const glm::mat4 &view_rotation_matrix,
                               const std::map<unsigned int, lights_info_t> &lights,
                               const glm::vec3 &eye_position, // eye position in view space (not molecule space)
+                              const glm::vec3 &rotation_centre,
                               float opacity,
                               const glm::vec4 &background_colour,
                               bool do_depth_fog,
@@ -442,7 +445,7 @@ Model::draw_mesh_with_shadows(unsigned int mesh_index, Shader *shader_p,
    // meshes should be draw opaque, right?
    glDisable(GL_BLEND);
 
-   meshes[mesh_index].draw_with_shadows(shader_p, mvp, view_rotation_matrix, lights, eye_position, opacity,
+   meshes[mesh_index].draw_with_shadows(shader_p, mvp, view_rotation_matrix, lights, eye_position, rotation_centre, opacity,
 					background_colour, do_depth_fog, light_view_mvp,
 					shadow_depthMap, shadow_strength, shadow_softness, show_just_shadows);
 }

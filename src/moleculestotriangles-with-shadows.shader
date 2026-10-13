@@ -84,6 +84,7 @@ struct LightSource {
 
 uniform LightSource light_sources[2];
 uniform vec3 eye_position;
+uniform vec3 eye_position_in_molecule_coordinates_space; // sent by Shader::setup_eye_position()
 uniform vec4 background_colour;
 uniform bool do_depth_fog;
 uniform bool do_specular;
@@ -168,12 +169,12 @@ void main() {
    vec4 sum_col = vec4(0,0,0,0);
    outputColor = vec4(0,0,0,0);
 
-   float specular_strength = material.specular_strength;
    float shininess = material.shininess;
 
    for (int i=0; i<2; i++) {
       // if (i > 0) continue;
       if (light_sources[i].is_on) {
+         float specular_strength = material.specular_strength; // per light
          vec3 light_dir = light_sources[i].direction_in_molecule_coordinates_space;
          float dp = dot(normal_transfer, light_dir);
          // we can't have specular lights where there is no diffuse light
@@ -187,10 +188,10 @@ void main() {
          vec4 diffuse = colour_transfer * lsd * dp * material.diffuse;
 
          // specular
-         vec3 eye_pos = eye_position * transpose(model_rotation_transfer);
+         vec3 eye_pos = eye_position_in_molecule_coordinates_space;
          vec3 norm_2 = normal_transfer; // normalize(normal_transfer); // not needed, I think
          vec3 view_dir = normalize(eye_pos - frag_pos_transfer);
-         vec3 reflect_dir = reflect(light_dir, norm_2);
+         vec3 reflect_dir = reflect(-light_dir, norm_2); // reflect() wants the incident (light-to-surface) vector
          // reflect_dir = normalize(reflect_dir); // belt and braces
          float dp_view_reflect = dot(view_dir, reflect_dir);
          dp_view_reflect = clamp(dp_view_reflect, 0.0, 1.0);
@@ -214,6 +215,7 @@ void main() {
    if (do_depth_fog)
       fog_amount = get_fog_amount(gl_FragCoord.z);
    outputColor += mix(sum_col, bg_col, fog_amount);
+   outputColor.a = colour_transfer.a; // not the sum of the lights' alphas
 
    // outputColor.a = 0.1;
 

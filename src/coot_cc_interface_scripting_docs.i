@@ -92,6 +92,21 @@ y : float
 z : float
 ";
 
+%feature("docstring") set_light_direction_py "
+set the direction of a light (towards the light, in view space: +x right, +y up, +z towards the viewer)
+
+Parameters
+----------
+light_id : int
+    is 0 or 1
+x : float
+    the x component of the direction
+y : float
+    the y component of the direction
+z : float
+    the z component of the direction
+";
+
 %feature("docstring") add_key_binding_gtk3_scm "
 
 Parameters

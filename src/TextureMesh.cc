@@ -729,6 +729,7 @@ TextureMesh::draw_with_shadows(Shader *shader_p,
                                const glm::mat4 &view_rotation_matrix,
                                const std::map<unsigned int, lights_info_t> &lights,
                                const glm::vec3 &eye_position, // eye position in view space (not molecule space)
+                               const glm::vec3 &rotation_centre,
                                const glm::vec4 &background_colour,
                                bool do_depth_fog,
                                const glm::mat4 &light_space_mvp,
@@ -806,6 +807,7 @@ TextureMesh::draw_with_shadows(Shader *shader_p,
    if (err) std::cout << "GL ERROR:: TextureMesh::draw_with_shadows() " << shader_name << " pre-set eye position"
                       << " with GL err " << err << std::endl;
    shader_p->set_vec3_for_uniform("eye_position", eye_position);
+   shader_p->setup_eye_position(eye_position, rotation_centre, view_rotation_matrix);
    err = glGetError();
    if (err) std::cout << "GL ERROR:: TextureMesh::draw_with_shadows() " << shader_name << " post-set eye position"
                       << " with GL err " << err << std::endl;
@@ -1328,6 +1330,7 @@ TextureMesh::draw_fading_instances(Shader *shader_p, const glm::mat4 &mvp, const
 
    float scale = 0.3; // the shader says:  // 0.8 for happy faces, 0.2 for anchored/fixed atoms
    shader_p->set_float_for_uniform("canvas_scale", scale);
+   shader_p->set_bool_for_uniform("is_perspective_projection", mvp_is_perspective(mvp));
 
    glActiveTexture(GL_TEXTURE0);
    err = glGetError(); if (err) std::cout << "error:: TextureMesh::draw_instances() activetexture "

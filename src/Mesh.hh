@@ -212,6 +212,7 @@ public:
                           const glm::mat4 &model_rotation_matrix,
                           const std::map<unsigned int, lights_info_t> &lights,
                           const glm::vec3 &eye_position, // eye position in view space (not molecule space)
+                          const glm::vec3 &rotation_centre, // for the eye position in molecule space (specular)
                           float opacity,
                           const glm::vec4 &background_colour,
                           bool do_depth_fog,
@@ -248,6 +249,7 @@ public:
                        const glm::mat4 &view_rotation_matrix,
                        const std::map<unsigned int, lights_info_t> &lights,
                        const glm::vec3 &eye_position, // eye position in view space (not molecule space)
+                       const glm::vec3 &rotation_centre,
                        const glm::vec4 &background_colour,
                        bool do_depth_fog,
                        bool transferred_colour_is_instanced,
