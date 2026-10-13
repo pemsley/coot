@@ -1209,6 +1209,7 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh_for_active_residue(int 
                                                                             mmdb::Residue *residue_p,
                                                                             const coot::protein_geometry *geom_in,
                                                                             int bond_width,
+                                                                            float atom_radius_to_bond_width_ratio,
                                                                             molecular_mesh_generator_t::range_t range,
                                                                             int selection_mode) {
 
@@ -1293,8 +1294,6 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh_for_active_residue(int 
       return selhnd;
    };
 
-   float atom_radius_scale_factor = 1.0; // this needs to be passed
-
    coot::residue_spec_t res_spec(residue_p); // pass the spec!
    // int selhnd = mol->NewSelection(); // d
    // res_spec.select_atoms(mol, selhnd, mmdb::SKEY_NEW);
@@ -1331,26 +1330,22 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh_for_active_residue(int 
       std::cout << "Play Nothing feedback here" << std::endl;
    }
 
-   auto make_generic_vertices_for_atoms = [atom_radius_scale_factor, cartesian_to_glm, vnc_vertex_to_generic_vertex]
+   auto make_generic_vertices_for_atoms = [bond_width, atom_radius_to_bond_width_ratio, cartesian_to_glm, vnc_vertex_to_generic_vertex]
       (const graphical_bonds_container &bonds_box,
        const std::pair<std::vector<coot::api::vnc_vertex>, std::vector<g_triangle> > &octaball) {
                                              // change the vertex type later
                                              std::vector<s_generic_vertex> vertices;
                                              std::vector<g_triangle> triangles;
-                                             glm::mat4 unit_matrix(1.0f);
 
-                                             float sphere_radius = 0.085 * 1.54; // how big should atoms be?
-                                             float bond_width = 4.0; // pass this
-                                             float radius_scale = 0.2 * bond_width; // arbs
-                                             radius_scale *= atom_radius_scale_factor;
+                                             // This 0.02f is matched below for bonds.
+                                             // bond_width is an int (because it used to be in pixels).
+                                             float sphere_radius = 0.02f * static_cast<int>(bond_width) * atom_radius_to_bond_width_ratio;
                                              glm::vec3 sphere_scaling(sphere_radius, sphere_radius, sphere_radius);
 
                                              for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
                                                 for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) {
                                                    const graphical_bonds_atom_info_t &ai = bonds_box.consolidated_atom_centres[icol].points[i];
-                                                   float sphere_scale = radius_scale * ai.radius_scale * 1.18;
-                                                   if (ai.is_hydrogen_atom)
-                                                      sphere_scale *= 0.6;
+
                                                    glm::vec3 atom_position = cartesian_to_glm(ai.position);
                                                    unsigned int idx_base = vertices.size();
 
@@ -1370,8 +1365,7 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh_for_active_residue(int 
                                           };
 
 
-   auto make_generic_vertices_for_bonds = [atom_radius_scale_factor, cartesian_to_glm,
-                                           vnc_vertex_vector_to_generic_vertex_vector]
+   auto make_generic_vertices_for_bonds = [cartesian_to_glm, vnc_vertex_vector_to_generic_vertex_vector]
       (const graphical_bonds_container &bonds_box,
        float bond_width) {
                                              std::vector<s_generic_vertex> vertices;

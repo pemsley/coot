@@ -2237,9 +2237,10 @@ graphics_info_t::update_mesh_for_outline_of_active_residue(int imol, const coot:
                }
             }
 
+            float atbw_ratio = molecules[imol].atom_radius_scale_factor;
             std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > p =
                mmg.get_molecular_triangles_mesh_for_active_residue(imol, mol, model_number, residue_p, Geom_p(),
-                                                                   bond_width, range, n_press);
+                                                                   bond_width, atbw_ratio, range, n_press);
 
             // if the range was not valid, but n_press was 5, we want some visual feedback - use
             // the invalid residue pulse (maybe it needs a new name then?) It uses delete_item_pulse_centres
