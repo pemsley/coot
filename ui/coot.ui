@@ -26,6 +26,9 @@
           <attribute name="label">Import CIF dictionary...</attribute>
           <attribute name="action">app.import_cif_dictionary_action</attribute>
         </item>
+        <submenu id="open-recent-menu">
+          <attribute name="label">Open Recent</attribute>
+        </submenu>
       </section>
       <section>
         <item>

@@ -70,6 +70,7 @@
 
 
 #include "graphics-info.h"
+#include "session-info.hh"
 
 #include "widget-headers.hh"
 
@@ -5832,6 +5833,9 @@ int handle_cif_dictionary_for_molecule(const std::string &filename, int imol_enc
       if (do_new_molecule)
          if (new_molecule_from_dictionary_cif_checkbutton_state)
             get_monomer_for_molecule_by_index(rmit.monomer_idx, imol_enc);
+
+      if (! graphics_info_t::disable_state_script_writing)
+         coot::session::note_recent_dictionary(filename);
    }
 
    graphics_draw();

@@ -817,6 +817,8 @@ libcootsumo_la_SOURCES = \
 	sdf-interface.hh         \
 	sdf-internal.hh          \
 	select-atom-info.hh      \
+	session-info.cc          \
+	session-info.hh          \
 	Shader.cc Shader.hh      \
 	simple-distance-object.hh \
 	sound.cc                 \
