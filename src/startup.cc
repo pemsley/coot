@@ -1081,6 +1081,18 @@ startup_application_activate(GtkApplication *application,
          }
       }), nullptr);
 
+      // Route a window-manager close (the "X" button) through the same
+      // checked-exit path as File -> Exit, so that both save state and both
+      // raise the unsaved-changes dialog. Without this, closing via the
+      // window manager fell out of main() with no save and no prompt.
+      // coot_checked_exit() returns TRUE (veto the close) when there are
+      // unsaved changes; when there are none it does not return - it saves
+      // state and hard-exits.
+      g_signal_connect(app_window, "close-request",
+                       G_CALLBACK(+[](GtkWindow *w, gpointer user_data) -> gboolean {
+         return coot_checked_exit(0);
+      }), nullptr);
+
       // gtk_widget_set_visible(window, TRUE);
 
       GtkWidget *gl_area = startup_create_glarea_widget();
