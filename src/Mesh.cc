@@ -2137,6 +2137,8 @@ Mesh::draw(Shader *shader_p,
    shader_p->setup_eye_position(eye_position, rotation_centre, mouse_based_rotation_matrix);
 
    // add material properties, use class built-ins this time.
+   // i.e. they are drawn with *their own* material, not the material for the model
+   // (which might have been updated after the Gaussian meshes were created).
 
    // not using the built-in - hmm.
    shader_p->set_vec4_for_uniform("background_colour", background_colour);
@@ -2152,6 +2154,9 @@ Mesh::draw(Shader *shader_p,
    shader_p->set_vec4_for_uniform( "material.specular",  material.specular);
    shader_p->set_float_for_uniform("material.shininess", material.shininess);
    shader_p->set_float_for_uniform("material.specular_strength", material.specular_strength);
+
+   // std::cout << "DEBUG:: in Mesh::draw() material.ambient: " << glm::to_string(material.ambient) << std::endl;
+   // std::cout << "DEBUG:: in Mesh::draw() material.diffuse: " << glm::to_string(material.diffuse) << std::endl;
 
    if (false)
       std::cout << "DEBUG:: Mesh::draw() name: " << name << " shader-name: " << shader_p->name

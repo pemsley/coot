@@ -164,7 +164,8 @@ int gaussian_surface(int imol) {
       obj.mesh.name = object_name;
       obj.mesh.set_draw_mesh_state(true);
       obj.mesh.import(vertices, smesh.triangles);
-      obj.mesh.set_material_specularity(0.7, 128);
+      // obj.mesh.set_material_specularity(0.7, 128); 20261015-PE
+      obj.mesh.set_material(graphics_info_t::molecules[imol].material_for_models);
       obj.mesh.setup_buffers();
       g.graphics_draw();
    };
@@ -216,7 +217,8 @@ int gaussian_surface(int imol) {
          obj.mesh.name = object_name;
          obj.mesh.set_draw_mesh_state(true);
          obj.mesh.import(vertices, smesh.triangles);
-         obj.mesh.set_material_specularity(0.7, 128);
+         // obj.mesh.set_material_specularity(0.7, 128); 20261015-PE
+         obj.mesh.set_material(graphics_info_t::molecules[imol].material_for_models);
          obj.mesh.setup_buffers();
       }
    };
@@ -250,7 +252,8 @@ int gaussian_surface(int imol) {
          obj.mesh.name = object_name;
          obj.mesh.set_draw_mesh_state(true);
          obj.mesh.import(vertices, smesh.triangles);
-         obj.mesh.set_material_specularity(0.7, 128);
+         // obj.mesh.set_material_specularity(0.7, 128); 20261015-PE
+         obj.mesh.set_material(graphics_info_t::molecules[imol].material_for_models);
          obj.mesh.setup_buffers();
       }
    };

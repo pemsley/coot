@@ -2300,7 +2300,8 @@ graphics_info_t::draw_meshed_generic_display_object_meshes(stereo_eye_t eye, uns
 
    // non-instanced.
 
-   // std::cout << "draw_meshed_generic_display_object_meshes() with pass_type " << pass_type << std::endl;
+   if (false)
+      std::cout << "draw_meshed_generic_display_object_meshes() with pass_type " << pass_type << std::endl;
 
    auto have_generic_display_objects_to_draw = [] () {
       bool generic_display_objects_to_draw = false;
@@ -2329,7 +2330,7 @@ graphics_info_t::draw_meshed_generic_display_object_meshes(stereo_eye_t eye, uns
          glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
          for (unsigned int i=0; i<generic_display_objects.size(); i++) {
             if (false)
-               std::cout << "drawing i " << i << std::endl;
+               std::cout << "debug:: in draw_meshed_generic_display_meshes() drawing i " << i << std::endl;
             generic_display_objects[i].mesh.draw(&shader_for_moleculestotriangles,
                                                  eye, mvp, model_rotation, lights, eye_position, rc, opacity,
                                                  bg_col, wireframe_mode, do_depth_fog, show_just_shadows);
@@ -2494,7 +2495,8 @@ graphics_info_t::draw_molecules_other_meshes(stereo_eye_t eye, unsigned int pass
 
                   if (pass_type == PASS_TYPE_STANDARD) {
 
-                     std::cout << "here A " << shader_for_moleculestotriangles.name << std::endl;
+                     if (false)
+                        std::cout << "here A " << shader_for_moleculestotriangles.name << std::endl;
 
                      bool show_just_shadows = false;
                      bool wireframe_mode = false;
