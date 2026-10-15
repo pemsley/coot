@@ -7069,8 +7069,9 @@ molecule_class_info_t::close_yourself() {
       // delete [] diff_map_draw_vectors;
       // diff_map_draw_vectors = NULL;
 
-      std::cout << ":::::::::::::::::::::::::::: was_xmap() replacing with empty  ====================="
-                << std::endl;
+      if (false)
+         std::cout << ":::::::::::::::::::::::::::: was_xmap() replacing with empty  ====================="
+                   << std::endl;
 
       xmap = clipper::Xmap<float>(); // clear xmap
    }
