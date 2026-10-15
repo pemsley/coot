@@ -1,5 +1,12 @@
 --- Items---
 
+o remove this debugging:
+was_xmap() replacing with empty
+
+o Restart blank with session restore option in an overlay
+  modified by command line argument (--no-state-script
+  forces blank startup with no restore option).
+
 o in Range/Pair show the selection
   on completion (second pick), flash the residue range
 
