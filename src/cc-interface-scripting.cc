@@ -103,8 +103,9 @@ void add_key_binding_gtk3_scm(int key, int ctrl_key, SCM thunk, const std::strin
 
 void reload_shaders() {
 
-   std::cout << "INGO:: reload_shaders() " << std::endl;
+   std::cout << "INFO:: reload_shaders() " << std::endl;
    graphics_info_t g;
+   gtk_gl_area_make_current(GTK_GL_AREA(g.glareas[0]));
    g.screen_framebuffer.tear_down();
    g.blur_framebuffer.tear_down();
    // gtk_gl_area_attach_buffers(GTK_GL_AREA(g.glareas[0]));  // 20210912-PE added // 20210930-PE removed again
@@ -124,11 +125,27 @@ void reload_shader(const std::string &shader_name) {
 #ifdef USE_PYTHON
 void set_light_position_py(int light_id, float x, float y, float z) {
 
-   glm::vec4 pos(x,y,z,1.0);
-   graphics_info_t::lights[light_id].position = pos;
+   // The lights are directional - the shaders don't use the light position.
+   std::cout << "WARNING:: set_light_position_py() does nothing (at the moment) - "
+             << "use set_light_direction_py()" << std::endl;
+}
+
+void set_light_direction_py(int light_id, float x, float y, float z) {
+
+   auto it = graphics_info_t::lights.find(light_id);
+   if (it == graphics_info_t::lights.end()) {
+      std::cout << "WARNING:: set_light_direction_py(): no light " << light_id << std::endl;
+      return;
+   }
+   glm::vec3 dir(x,y,z);
+   if (glm::length(dir) < 0.0001f) {
+      std::cout << "WARNING:: set_light_direction_py(): zero-length direction" << std::endl;
+      return;
+   }
+   // the direction is towards the light, in view space: +x right, +y up, +z towards the viewer
+   it->second.direction = glm::normalize(dir);
    graphics_info_t g;
    g.graphics_draw();
-   glFlush();
 }
 #endif
 

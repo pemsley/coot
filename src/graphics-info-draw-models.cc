@@ -224,7 +224,7 @@ graphics_info_t::draw_models_with_shadows(stereo_eye_t eye,
 
       model.draw_with_shadows(shader_for_tmeshes_with_shadows_p,
 			      shader_for_meshes_with_shadows_p,
-			      mvp, model_rotation, lights, eye_position, opacity,
+			      mvp, model_rotation, lights, eye_position, get_rotation_centre(), opacity,
 			      bg_col_v4, do_depth_fog, light_view_mvp,
                               shadow_depthMap_texture, shadow_strength, shadow_softness,
 			      show_just_shadows);

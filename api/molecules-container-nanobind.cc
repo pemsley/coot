@@ -401,6 +401,14 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::clear_non_drawn_bonds,
          nb::arg("imol"),
          get_docstring_from_xml("clear_non_drawn_bonds").c_str())
+    .def("chemical_feature_clustering",
+         &molecules_container_t::chemical_feature_clustering,
+         nb::arg("mol_info_json"),
+         get_docstring_from_xml("chemical_feature_clustering").c_str())
+    .def("clear_fixed_atoms_during_refinement",
+         &molecules_container_t::clear_fixed_atoms_during_refinement,
+         nb::arg("imol"),
+         get_docstring_from_xml("clear_fixed_atoms_during_refinement").c_str())
     .def("clear_refinement",
          &molecules_container_t::clear_refinement,
          nb::arg("imol"),
@@ -579,6 +587,10 @@ NB_MODULE(coot_headless_api, m) {
          nb::arg("imol"), nb::arg("imol_map"), nb::arg("cid"), nb::arg("b_factor"),
          nb::arg("n_trials"), nb::arg("translation_scale_factor"),
          get_docstring_from_xml("fit_to_map_by_random_jiggle_with_blur_using_cid").c_str())
+    .def("fix_atom_selection_during_refinement",
+         &molecules_container_t::fix_atom_selection_during_refinement,
+         nb::arg("imol"), nb::arg("atom_selection_cid"),
+         get_docstring_from_xml("fix_atom_selection_during_refinement").c_str())
     .def("flip_peptide_using_cid",
          nb::overload_cast<int, const std::string&, const std::string&>(&molecules_container_t::flip_peptide_using_cid),
          get_docstring_from_xml("flip_peptide_using_cid").c_str())

@@ -127,6 +127,7 @@ struct Material {
 uniform mat4 view_rotation;
 uniform LightSource light_sources[2];
 uniform vec3 eye_position;
+uniform vec3 eye_position_in_molecule_coordinates_space; // sent by Shader::setup_eye_position()
 uniform Material material;
 uniform bool is_perspective_projection;
 uniform vec4 background_colour;
@@ -180,8 +181,8 @@ void main() {
          if (dp_raw < 0.0)
             specular_strength = 0.0; // no shiny interiors
          //
-         vec3 eye_pos_in_view = vec3(vec4(eye_position, 1.0) * view_rotation);
-         vec3 view_dir = normalize(eye_pos_in_view - frag_pos_transfer.xyz);
+         vec3 eye_pos = eye_position_in_molecule_coordinates_space; // frag_pos_transfer is in molecule space too
+         vec3 view_dir = normalize(eye_pos - frag_pos_transfer.xyz);
          vec3 light_dir_v3 = light_dir.xyz;
          vec3 reflect_dir = reflect(light_dir_v3, norm_2);
          reflect_dir = normalize(reflect_dir); // belt and braces

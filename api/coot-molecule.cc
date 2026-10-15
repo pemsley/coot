@@ -2692,7 +2692,6 @@ coot::molecule_t::refine_direct(std::vector<mmdb::Residue *> rv, const std::stri
    bool make_trans_peptide_restraints = true;
 
    int status =  0;
-   std::vector<coot::atom_spec_t> fixed_atom_specs;
    std::vector<std::pair<bool,mmdb::Residue *> > local_residues;
    for (const auto &r : rv)
       local_residues.push_back(std::make_pair(false, r));
@@ -4588,6 +4587,9 @@ coot::molecule_t::clear_refinement() {
 void
 coot::molecule_t::fix_atom_selection_during_refinement(const std::string &atom_selection_cid) {
 
+   // 20261011-PE I could add a test here that the atom spec is not already in the vector.
+   // Slows things down, prevents dupicates.
+
    // get atoms in atom selection.
    // match those with thatom in the refinement and mark them as fixed. c.f. fixed (anchored) atom
    int selHnd = atom_sel.mol->NewSelection();
@@ -4597,6 +4599,13 @@ coot::molecule_t::fix_atom_selection_during_refinement(const std::string &atom_s
    atom_sel.mol->GetSelIndex(selHnd, SelAtom, nSelAtoms);
    for (int i=0; i<nSelAtoms; i++) {
       mmdb::Atom *at = SelAtom[i];
+      if (at) {
+         if (! at->isTer()) {
+            atom_spec_t spec(at);
+            if (std::find(fixed_atom_specs.begin(), fixed_atom_specs.end(), spec) == fixed_atom_specs.end())
+               fixed_atom_specs.push_back(spec);
+         }
+      }
    }
    atom_sel.mol->DeleteSelection(selHnd);
 }
@@ -4635,7 +4644,6 @@ coot::molecule_t::init_all_molecule_refinement(int imol_ref_mol, coot::protein_g
    };
 
    std::vector<mmdb::Residue *> rv = get_all_residues_in_molecule(atom_sel.mol);
-   std::vector<coot::atom_spec_t> fixed_atom_specs;
    std::vector<std::pair<bool,mmdb::Residue *> > local_residues;
    for (const auto &r : rv)
       local_residues.push_back(std::make_pair(false, r));

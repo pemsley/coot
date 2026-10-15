@@ -42,6 +42,13 @@ SCM test_mol_triangles_scm(SCM i_scm, SCM j_scm);
 void add_key_binding_gtk4_py(PyObject *key, int ctrl_key_flag, PyObject *func,
                              const std::string &description);
 void set_light_position_py(int light_id, float x, float y, float z);
+//! \brief set the direction of a light (towards the light, in view space: +x right, +y up, +z towards the viewer)
+//!
+//! @param light_id is 0 or 1
+//! @param x the x component of the direction
+//! @param y the y component of the direction
+//! @param z the z component of the direction
+void set_light_direction_py(int light_id, float x, float y, float z);
 #endif
 
 #ifdef USE_GUILE

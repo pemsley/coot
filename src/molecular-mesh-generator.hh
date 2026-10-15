@@ -160,6 +160,7 @@ public:
                                                    mmdb::Residue *residue_p,
                                                    const coot::protein_geometry *geom_in,
                                                    int bond_width,
+                                                   float atom_radius_to_bond_width_ratio,
                                                    range_t range,
                                                    int selection_mode);
 

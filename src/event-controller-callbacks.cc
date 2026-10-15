@@ -782,7 +782,9 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
                            }
                         }
 
-                        // std::cout << "Here with in_range_define " << in_range_define << std::endl;
+                        if (false)
+                           std::cout << "Here with in_range_define " << in_range_define << std::endl;
+
                         if (! handled) {
                            if (in_range_define == 1 || in_range_define == 2) {
                               bool intermediate_atoms_only_flag = false;
@@ -799,6 +801,12 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
                                     in_range_second_picked_atom = coot::atom_spec_t(at);
                                     in_range_second_picked_atom.int_user_data = imol;
                                     molecules[imol].add_to_labelled_atom_list(naii.atom_index);
+                                    update_mesh_for_outline_of_active_residue(imol, in_range_second_picked_atom, 5);
+                                    if (! tick_function_is_active()) {
+                                       int new_tick_id = gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
+                                    }
+                                    outline_for_active_residue_frame_count = 120;
+                                    do_tick_outline_for_active_residue = true;
                                  }
                                  in_range_define = 2;
                                  graphics_draw(); // make the label appear

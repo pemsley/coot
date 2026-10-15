@@ -8322,6 +8322,89 @@ int test_gaussian_surface_to_map_molecule(molecules_container_t &mc) {
    return status;
 }
 
+int test_fixed_atoms_during_refinement(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+
+   // the atoms of PRO A61
+   std::vector<std::string> atom_names = {" N  ", " CA ", " C  ", " O  ", " CB ", " CG ", " CD "};
+
+   auto get_positions = [&mc, imol, atom_names] (int res_no) {
+      std::vector<coot::Cartesian> v;
+      for (const auto &atom_name : atom_names) {
+         coot::atom_spec_t atom_spec("A", res_no, "", atom_name, "");
+         mmdb::Atom *at = mc.get_atom(imol, atom_spec);
+         if (at)
+            v.push_back(atom_to_cartesian(at));
+      }
+      return v;
+   };
+
+   // the main chain of the neighbours, which are refined but not fixed
+   auto get_neighbour_positions = [&mc, imol] () {
+      std::vector<coot::Cartesian> v;
+      for (int res_no : {60, 62}) {
+         for (const std::string atom_name : {" N  ", " CA ", " C  ", " O  "}) {
+            coot::atom_spec_t atom_spec("A", res_no, "", atom_name, "");
+            mmdb::Atom *at = mc.get_atom(imol, atom_spec);
+            if (at)
+               v.push_back(atom_to_cartesian(at));
+         }
+      }
+      return v;
+   };
+
+   auto max_shift = [] (const std::vector<coot::Cartesian> &v1, const std::vector<coot::Cartesian> &v2) {
+      double d_max = 0.0;
+      for (unsigned int i=0; i<v1.size(); i++) {
+         double d = std::sqrt(coot::Cartesian::lengthsq(v1[i], v2[i]));
+         if (d > d_max) d_max = d;
+      }
+      return d_max;
+   };
+
+   if (mc.is_valid_model_molecule(imol)) {
+
+      mc.imol_refinement_map = imol_map;
+
+      std::vector<coot::Cartesian> pos_start = get_positions(61);
+      std::vector<coot::Cartesian> neighbours_start = get_neighbour_positions();
+
+      if (pos_start.size() == atom_names.size() && neighbours_start.size() == 8) {
+
+         // 1: fix A61 then refine A60-A62 - A61 should not move, the neighbours should
+         mc.fix_atom_selection_during_refinement(imol, "//A/61");
+         mc.fix_atom_selection_during_refinement(imol, "//A/61"); // again - should not add duplicates
+         mc.refine_residues_using_atom_cid(imol, "//A/61", "TRIPLE", 400);
+         std::vector<coot::Cartesian> pos_fixed = get_positions(61);
+         std::vector<coot::Cartesian> neighbours_fixed = get_neighbour_positions();
+         double d_fixed      = max_shift(pos_start, pos_fixed);
+         double d_neighbours = max_shift(neighbours_start, neighbours_fixed);
+
+         // 2: clear the fixed atoms and refine again - now A61 should move
+         mc.clear_fixed_atoms_during_refinement(imol);
+         mc.refine_residues_using_atom_cid(imol, "//A/61", "TRIPLE", 400);
+         std::vector<coot::Cartesian> pos_cleared = get_positions(61);
+         double d_cleared = max_shift(pos_fixed, pos_cleared);
+
+         std::cout << "test_fixed_atoms_during_refinement(): max shifts: fixed " << d_fixed
+                   << " neighbours " << d_neighbours << " after-clear " << d_cleared << std::endl;
+
+         if (d_fixed < 0.0001)
+            if (d_neighbours > 0.001)
+               if (d_cleared > 0.001)
+                  status = 1;
+      }
+   }
+   mc.close_molecule(imol);
+   mc.close_molecule(imol_map);
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -8688,6 +8771,7 @@ int main(int argc, char **argv) {
          status += run_test(test_rdkit_mol_pickle, "RDKit Mol Pickle", mc);
          status += run_test(test_delete_all_waters, "Delete all waters", mc);
          status += run_test(test_delete_all_hetgroups, "Delete all hetgroups", mc);
+         status += run_test(test_fixed_atoms_during_refinement, "Fixed atoms during refinement", mc);
          if (status == n_tests) all_tests_status = 0;
 
          print_results_summary();

@@ -328,6 +328,7 @@ class molecule_class_info_t {
 				  // color-by-molecule-number.
 
    float bond_width;
+   // are you looking for atom_radius_scale_factor?
    std::vector<float> bond_colour_internal;
    //
    int draw_hydrogens_flag;

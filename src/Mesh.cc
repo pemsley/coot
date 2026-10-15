@@ -1695,6 +1695,7 @@ Mesh::draw_instanced(int pass_type,
                      const glm::mat4 &view_rotation_matrix,
                      const std::map<unsigned int, lights_info_t> &lights,
                      const glm::vec3 &eye_position, // eye position in view space (not molecule space)
+                     const glm::vec3 &rotation_centre,
                      const glm::vec4 &background_colour,
                      bool do_depth_fog,
                      bool transferred_colour_is_instanced,
@@ -1758,11 +1759,14 @@ Mesh::draw_instanced(int pass_type,
    if (it != lights.end()) {
       shader_p->setup_light(light_idx, it->second, view_rotation_matrix);
    }
+   shader_p->setup_eye_position(eye_position, rotation_centre, view_rotation_matrix);
 
    shader_p->set_float_for_uniform("stereo_x_scale",  stereo_x_scale);
    shader_p->set_float_for_uniform("stereo_x_offset", stereo_x_offset);
    shader_p->set_vec4_for_uniform("background_colour", background_colour);
    shader_p->set_bool_for_uniform("do_depth_fog", do_depth_fog);
+
+   shader_p->set_bool_for_uniform("is_perspective_projection", mvp_is_perspective(mvp));
 
    shader_p->set_bool_for_uniform("transferred_colour_is_instanced", transferred_colour_is_instanced);
 
@@ -1903,6 +1907,7 @@ Mesh::draw_extra_distance_restraint_instances(Shader *shader_p,
 
    shader_p->set_vec4_for_uniform("background_colour", background_colour);
    shader_p->set_bool_for_uniform("do_depth_fog", do_depth_fog);
+   shader_p->set_bool_for_uniform("is_perspective_projection", mvp_is_perspective(mvp));
 
    err = glGetError();
    if (err) std::cout << "GL ERROR:: draw_instanced() pre-setting material " << err << std::endl;
@@ -2137,6 +2142,7 @@ Mesh::draw(Shader *shader_p,
    shader_p->set_vec4_for_uniform("background_colour", background_colour);
 
    shader_p->set_bool_for_uniform("do_depth_fog", do_depth_fog);
+   shader_p->set_bool_for_uniform("is_perspective_projection", mvp_is_perspective(mvp));
 
    err = glGetError(); if (err) std::cout << "   error draw() pre-setting material "
                                           << err << std::endl;
@@ -2336,6 +2342,7 @@ Mesh::draw_with_shadows(Shader *shader_p,
                         const glm::mat4 &view_rotation_matrix,
                         const std::map<unsigned int, lights_info_t> &lights,
                         const glm::vec3 &eye_position, // eye position in view space (not molecule space)
+                        const glm::vec3 &rotation_centre,
                         float opacity,
                         const glm::vec4 &background_colour,
                         bool do_depth_fog,
@@ -2415,6 +2422,7 @@ Mesh::draw_with_shadows(Shader *shader_p,
    shader_p->set_vec4_for_uniform("background_colour", background_colour);
 
    shader_p->set_bool_for_uniform("do_depth_fog", do_depth_fog);
+   shader_p->set_bool_for_uniform("is_perspective_projection", mvp_is_perspective(mvp));
 
    bool transferred_colour_is_instanced = true; // pass this?
    shader_p->set_bool_for_uniform("transferred_colour_is_instanced", transferred_colour_is_instanced);
@@ -2450,6 +2458,7 @@ Mesh::draw_with_shadows(Shader *shader_p,
    if (false)
       std::cout << "sending eye_position " << glm::to_string(eye_position) << std::endl;
    shader_p->set_vec3_for_uniform("eye_position", eye_position);
+   shader_p->setup_eye_position(eye_position, rotation_centre, view_rotation_matrix);
 
    err = glGetError();
    if (err) std::cout << "GL ERROR:: Mesh::draw_with_shadows() \"" << name << "\" \"" << shader_name << "\" post-set eye position"

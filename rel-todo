@@ -1,16 +1,16 @@
 --- Items---
 
 o in Range/Pair show the selection
-o on completion (second pick), flash the residue range
+  on completion (second pick), flash the residue range
 
 o make coot::molecule_t::fix_atom_selection_during_refinement(const std::string &atom_selection_cid)
   work.
 
+o chemical feature clustering (CFC) in chapi
+
 o do worms on 4hhb. The colour variation per chain needs to be larger.
 
 o gaussian surfaces should be drawn with model Material
-
-o --cod on the command line
 
 o have another try to fix the specular light in fancy mode
   (test with 4hhb molecular surface)
@@ -20,7 +20,6 @@ o trying to change the model material - seems not to affect the drawing of
 
 o 7k00 - get the emdb code from the cif
 
-o does coot_no_state_real_exit() flush the python buffer?
 
 o look at 23sr, 9i9k
 
@@ -34,12 +33,20 @@ o configure should fail if it can't find swig
 
 o use RDKit canonical SMILES for atom order and hence atom name.
 
-o (1) the range show (`) doesn't account for large atoms. Looks strange.
-  (2) When a range is defined it should do a Range Show.
+o the range show (`) doesn't account for for case where atom radius > bond radius. Looks strange.
 
 o make default bond smoothness be "smooth" (2, I think)
 
 o for agentic coot, create a function that does "validate_residue()" - combining metrics
+
+o does coot_no_state_real_exit() flush the python buffer?
+* It dooes now.
+
+o does coot_no_state_real_exit() flush the python buffer?
+* Done.
+
+o --cod on the command line
+* Done. Nice.
 
 o did I lose the Go To Atom dialog edits?
 * On the stash, found and applied

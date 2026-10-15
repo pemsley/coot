@@ -17,6 +17,12 @@
 // A small constant to prevent division by zero or log of zero
 const double EPSILON = 1e-6;
 
+// Added to the diagonal of each covariance matrix (in A^2, i.e. a minimum sigma of
+// 0.1A). Without a floor like this, a component can collapse onto 2 or 3 points,
+// the (float) covariance becomes too ill-conditioned to invert, the PDF overflows
+// to inf and that k is chosen by the BIC.
+const double COVARIANCE_REGULARIZATION = 0.01;
+
 // A single Gaussian component in the mixture model.
 struct Gaussian {
    double weight;
@@ -180,6 +186,10 @@ private:
             }
 
             double exponent = -0.5 * glm::dot(x - mean, inv_cov * (x - mean));
+            if (exponent > 0.0) {
+               // inv_cov is not positive definite (numerical failure)
+               return EPSILON;
+            }
             double normalization = 1.0 / (std::pow(2.0 * M_PI, 1.5) * std::sqrt(det));
 
             return normalization * std::exp(exponent);
@@ -246,7 +256,7 @@ private:
              glm::mat3 final_cov = new_cov / static_cast<float>(responsibility_sum_j);
 
              // Add regularization to the diagonal (prevents singularities)
-             final_cov += glm::mat3(EPSILON);
+             final_cov += glm::mat3(COVARIANCE_REGULARIZATION);
 
              components_[j].covariance = final_cov;
          }

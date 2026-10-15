@@ -167,6 +167,7 @@ public:
                           const glm::mat4 &view_rotation_matrix,
                           const std::map<unsigned int, lights_info_t> &lights,
                           const glm::vec3 &eye_position, // eye position in view space (not molecule space)
+                          const glm::vec3 &rotation_centre, // for the eye position in molecule space (specular)
                           const glm::vec4 &background_colour,
                           bool do_depth_fog,
                           const glm::mat4 &light_space_mvp,

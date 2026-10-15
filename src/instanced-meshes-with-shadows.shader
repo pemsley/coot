@@ -135,7 +135,7 @@ uniform Material material;
 uniform LightSource light_sources[2];
 uniform mat4 view_rotation;
 uniform vec3 eye_position;
-uniform vec3 eye_position_in_molecule_coordinates_space;
+uniform vec3 eye_position_in_molecule_coordinates_space; // sent by Shader::setup_eye_position()
 uniform vec4 background_colour;
 uniform bool is_perspective_projection;
 uniform bool do_depth_fog;
@@ -245,8 +245,8 @@ void main() {
          //    shadow_specular = 0;
 
          //
-         vec3 eye_pos_in_view = vec3(vec4(eye_position, 1.0) * view_rotation);
-         vec3 view_dir = normalize(eye_pos_in_view - frag_pos_transfer.xyz);
+         vec3 eye_pos = eye_position_in_molecule_coordinates_space; // frag_pos_transfer is in molecule space too
+         vec3 view_dir = normalize(eye_pos - frag_pos_transfer.xyz);
          vec3 light_dir_v3 = light_dir.xyz;
          vec3 reflect_dir = reflect(light_dir_v3, norm_2);
          reflect_dir = normalize(reflect_dir); // belt and braces
