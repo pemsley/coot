@@ -123,20 +123,26 @@ molecule_class_info_t::add_molecular_representation(const std::string &atom_sele
       name = style + ": " + colour_scheme_label;
    }
 
-   // identifies the "slot" that this representation occupies (independent of the
-   // display label above), so that re-requesting the exact same representation replaces
-   // itself rather than being added on top of its old self - without this, two
-   // near-identical overlapping meshes z-fight and the new colouring never becomes
-   // visible on screen. Worms and Bendix are both style "Tubes" (they differ only by
-   // secondary_structure_usage_flag) but are meant to coexist as separate, independently
-   // toggleable representations rather than replacing each other, so the flag is folded
-   // into the key for that one style to keep their slots distinct.
+   // 2026-10-15-PE For now, we don't want "Replace" mechanism - it needs more thought and testing.
+   //               We will come back to this.
+   //
+   // // identifies the "slot" that this representation occupies (independent of the
+   // // display label above), so that re-requesting the exact same representation replaces
+   // // itself rather than being added on top of its old self - without this, two
+   // // near-identical overlapping meshes z-fight and the new colouring never becomes
+   // // visible on screen. Worms and Bendix are both style "Tubes" (they differ only by
+   // // secondary_structure_usage_flag) but are meant to coexist as separate, independently
+   // // toggleable representations rather than replacing each other, so the flag is folded
+   // // into the key for that one style to keep their slots distinct.
+
    std::string style_key = style;
    if (style == "Tubes") style_key += std::to_string(secondary_structure_usage_flag);
    std::string representation_key = atom_selection + "\x1f" + style_key;
-   meshes.erase(std::remove_if(meshes.begin(), meshes.end(),
-      [&representation_key] (const Mesh &m) { return m.representation_key == representation_key; }),
-      meshes.end());
+
+   // 2026-10-15-PE For now, we don't want "Replace" mechanism - it needs more thought and testing.
+   // meshes.erase(std::remove_if(meshes.begin(), meshes.end(),
+   //    [&representation_key] (const Mesh &m) { return m.representation_key == representation_key; }),
+   //    meshes.end());
 
    Material material = material_for_models;
 
