@@ -4763,7 +4763,7 @@ graphics_info_t::set_show_molecular_representation(int imol, unsigned int mesh_i
    if (is_valid_model_molecule(imol)) {
       auto &meshes = molecules[imol].meshes;
       if (mesh_idx < meshes.size()) {
-         auto mesh = meshes[mesh_idx];
+         auto &mesh = meshes[mesh_idx];
          mesh.set_draw_mesh_state(on_off);
       }
    }
