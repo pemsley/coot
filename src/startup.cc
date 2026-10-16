@@ -788,13 +788,46 @@ handle_start_scripts() {
       }
    }
 #endif
+   // 20261016-PE Coot now starts blank. The state script is run here only
+   // with --run-state-script (status 2). For the default (status 1) the user
+   // is offered the state script with the run_state_script_frame overlay -
+   // see show_run_state_script_frame_maybe().
    if (graphics_info_t::run_startup_scripts_flag) {
-      if (graphics_info_t::run_state_file_status) {
+      if (graphics_info_t::run_state_file_status == 2) {
          std::pair<bool, std::filesystem::path> script = xdg.get_python_state_script();
          if (script.first) {
             run_python_script(script.second.string().c_str());
+            graphics_info_t::state_file_was_run_flag = true;
          }
       }
+   }
+}
+
+// Show the "Run State Script?" overlay if we are in the default mode
+// (neither --no-state-script nor --run-state-script) and there is a state
+// script in the XDG state directory. Not if the command line gave us
+// files or scripts - the user has already said what they want to work on.
+void
+show_run_state_script_frame_maybe(const command_line_data &cld) {
+
+   if (! graphics_info_t::use_graphics_interface_flag) return;
+   if (! graphics_info_t::run_startup_scripts_flag) return;
+   if (graphics_info_t::run_state_file_status != 1) return;
+
+   bool command_line_has_work = ! (cld.coords.empty()         && cld.maps.empty()            &&
+                                   cld.datasets.empty()       && cld.auto_datasets.empty()   &&
+                                   cld.script.empty()         && cld.command.empty()         &&
+                                   cld.dictionaries.empty()   && cld.dictionaries_with_mol.empty() &&
+                                   cld.accession_codes.empty() && cld.cod_ids.empty()        &&
+                                   cld.emdb_codes.empty()     && cld.comp_ids.empty());
+   if (command_line_has_work) return;
+
+   xdg_t xdg;
+   std::pair<bool, std::filesystem::path> script = xdg.get_python_state_script();
+   if (script.first) {
+      GtkWidget *frame = widget_from_builder("run_state_script_frame");
+      if (frame)
+         gtk_widget_set_visible(frame, TRUE);
    }
 }
 
@@ -1264,6 +1297,8 @@ startup_application_activate(GtkApplication *application,
 
       // now we are ready to show graphical objects made from reading files:
       handle_command_line_data(activate_data->cld);
+
+      show_run_state_script_frame_maybe(activate_data->cld);
 
 
       // 20251019-PE is this the first time Coot-1 has been started?
