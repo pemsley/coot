@@ -245,9 +245,13 @@ SurfaceParameters CXXSurface::measuredProperties()
             pMean += potential;
         }
         pMean /= vertices.size();
+        // All three used to be written to pMins, so pMins held the mean and the other two maps
+        // stayed empty - and report() reads them with operator[], which fills in a zero for a
+        // missing key rather than complaining. Any scalar property therefore printed as
+        // "Range <mean> to 0 mean 0".
         result.pMins[scalar->first] = pMin;
-        result.pMins[scalar->first] = pMax;
-        result.pMins[scalar->first] = pMean;
+        result.pMaxes[scalar->first] = pMax;
+        result.pMeans[scalar->first] = pMean;
     }
     return result;
 }
@@ -701,7 +705,6 @@ int CXXSurface::upLoadSphere(CXXSphereElement &theSphere, double probeRadius, co
     //Add atom pointers to the surface
     {
         std::vector<void*> atomBuffer(nDrawn);
-        //void* *atomBuffer = new void*[nDrawn];
         int iDraw = 0;
         for (unsigned int i=0; i< theSphere.nVertices(); i++){
             if (uniqueAndDrawn[i]){
@@ -713,10 +716,88 @@ int CXXSurface::upLoadSphere(CXXSphereElement &theSphere, double probeRadius, co
                 iDraw++;
             }
         }
+
+        //A re-entrant patch belongs to all three atoms the probe is seated on.
+        //
+        //It is cut into three sectors, one per atom, and the loop above gives each sector's
+        //vertices that atom outright - so the field steps from one residue to the next across
+        //two internal boundaries that are artefacts of the subdivision rather than features of
+        //the surface. Those steps are the facets that show on a highlighted residue.
+        //
+        //The weight is the barycentric coordinate of the vertex within the triangle of the
+        //three contact directions. Unlike theta on a torus this is a choice rather than the
+        //parametrisation the patch was built from, but it is the choice that meets the tori at
+        //the rim: a barycentric coordinate vanishes on the opposite edge, so along the arc
+        //shared with the atom I / atom J torus the third atom contributes nothing, which is
+        //what the torus says there too.
+        //
+        //Only the two heaviest are kept, which is all a vertex can carry. The third is dropped
+        //and the pair renormalised - wrong only near the centre of a patch whose three atoms
+        //lie in three different residues, and then by at most the share it drops.
+        if (theSphere.hasThreeContacts){
+            const CXXCoord<CXXCoord_ftype> &c0 = theSphere.contactDirections[0];
+            const CXXCoord<CXXCoord_ftype> &c1 = theSphere.contactDirections[1];
+            const CXXCoord<CXXCoord_ftype> &c2 = theSphere.contactDirections[2];
+            //The three edge normals, for the triple products below.
+            const CXXCoord<CXXCoord_ftype> n0 = c1 ^ c2;
+            const CXXCoord<CXXCoord_ftype> n1 = c2 ^ c0;
+            const CXXCoord<CXXCoord_ftype> n2 = c0 ^ c1;
+            std::vector<void*> atom2Buffer(nDrawn, (void *)0);
+            std::vector<double> weightBuffer(nDrawn, 1.);
+            iDraw = 0;
+            for (unsigned int i=0; i< theSphere.nVertices(); i++){
+                if (!uniqueAndDrawn[i]) continue;
+                CXXCoord<CXXCoord_ftype> direction = theSphere.vertex(i).vertex() - theSphere.centre();
+                direction.normalise();
+                //Spherical barycentric coordinates: the weight of a contact is the triple
+                //product of the direction with the other two. Not the planar coordinates of
+                //the projected point - those vanish on the chord between two contacts, and
+                //the patch is bounded by the great-circle ARC through them, so near the rim
+                //they go negative on the wrong side of the boundary. A triple product
+                //vanishes exactly on the arc, which is what makes the patch meet the
+                //neighbouring torus with no step.
+                double bary[3];
+                bary[0] = n0 * direction;
+                bary[1] = n1 * direction;
+                bary[2] = n2 * direction;
+                double total = bary[0] + bary[1] + bary[2];
+                //The three contacts can be given in either order round the probe; taking the
+                //sign from the total makes the coordinates positive inside either way.
+                if (total < 0.){
+                    for (int k=0; k<3; k++) bary[k] = -bary[k];
+                    total = -total;
+                }
+                //Three contacts on one great circle enclose nothing to be barycentric in.
+                if (total > 1e-12){
+                    for (int k=0; k<3; k++){
+                        if (bary[k] < 0.) bary[k] = 0.;   //just outside, at the rim
+                    }
+                    int heaviest = 0;
+                    if (bary[1] > bary[heaviest]) heaviest = 1;
+                    if (bary[2] > bary[heaviest]) heaviest = 2;
+                    int second = (heaviest + 1) % 3;
+                    const int third = (heaviest + 2) % 3;
+                    if (bary[third] > bary[second]) second = third;
+                    const double pair = bary[heaviest] + bary[second];
+                    if (pair > 1e-12){
+                        //The heaviest becomes the vertex's own atom, which may not be the atom
+                        //of the sector it was subdivided into - that is the point.
+                        atomBuffer[iDraw] = (void *) theSphere.contactAtoms[heaviest];
+                        atom2Buffer[iDraw] = (void *) theSphere.contactAtoms[second];
+                        weightBuffer[iDraw] = bary[heaviest] / pair;
+                    }
+                }
+                iDraw++;
+            }
+            updateWithPointerData(nDrawn, "atom2", oldVertexCount, atom2Buffer.data());
+            for (int j=0; j<nDrawn; j++){
+                setScalar("atomWeight", oldVertexCount+j, weightBuffer[j]);
+            }
+        }
+
         updateWithPointerData(nDrawn, "atom", oldVertexCount, (void **)&(atomBuffer[0]));
-        //delete [] atomBuffer;
     }
-    
+
     // Add triangles to surface
     {
         std::vector<int> triangleBuffer(theSphere.nFlatTriangles()*3);
@@ -782,6 +863,29 @@ int CXXSurface::uploadTorus(CXXTorusElement &theTorus) {
             atomBuffer[i] = (void *)theTorus.node(i).getAtom();
         }
         updateWithPointerData(theTorus.nTorusNodes(), "atom", oldVertexCount, atomBuffer.data());
+    }
+    //A saddle belongs to both of the atoms it runs between, in a proportion the geometry
+    //already knows - see CXXTorusElement::weightOfNodeAtom. Every node above was given one of
+    //them outright, which is fine for colouring, where the two are usually coloured alike, and
+    //wrong for anything that asks which atom a point of surface belongs to: the groove between
+    //two residues is exactly where their boundary runs, so attributing all of it to one side
+    //displaces that boundary to the far rim by about a probe diameter.
+    //
+    //"atom2" is the other atom and "atomWeight" is how much of the vertex belongs to "atom",
+    //the rest belonging to "atom2". A vertex that was never given these reads back as a null
+    //pointer, which is how the convex caps - where there is genuinely only one atom - are told
+    //apart from the saddles.
+    {
+        std::vector<void *>atom2Buffer(theTorus.nTorusNodes());
+        mmdb::Atom *atomJ = theTorus.getCircle().getAtomJ();
+        for (unsigned int i=0; i< theTorus.nTorusNodes(); i++){
+            atom2Buffer[i] = (void *)atomJ;
+        }
+        updateWithPointerData(theTorus.nTorusNodes(), "atom2", oldVertexCount, atom2Buffer.data());
+        for (unsigned int i=0; i< theTorus.nTorusNodes(); i++){
+            double weight = theTorus.weightOfNodeAtom(i);
+            setScalar("atomWeight", oldVertexCount+i, weight);
+        }
     }
     // Add triangles to surface
     {

@@ -435,6 +435,11 @@ namespace coot {
          refmac_r_free_flag_sensible = false;
          use_bespoke_grey_colour_for_carbon_atoms = false;
          really_do_backups = true;
+         // Backup file names are built from this stub. Left as the default
+         // "placeholder", every molecule wrote coot-backup/placeholder-<n>, so
+         // molecules overwrote each other's backups and undo() could restore a
+         // different molecule. imol_no is unique within the container.
+         modification_info.mol_name = "imol-" + std::to_string(imol_no);
 
          radial_map_colour_saturation = 0.5;
          radial_map_colour_invert_flag = false;

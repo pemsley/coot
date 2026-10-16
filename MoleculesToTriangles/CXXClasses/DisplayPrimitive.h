@@ -48,9 +48,23 @@ public:
         LinePrimitive,
         BoxSectionPrimitive,
         SurfacePrimitive,
-        BallsPrimitive
+        BallsPrimitive,
+        FlatFanPrimitive    // appended, so the values above keep their numbering
     };
-    PrimitiveType primitiveType;
+    // Initialised, because type() is used to decide what a primitive may be cast to.
+    //
+    // This was a bare member, and four classes - BondsPrimitive, LinesPrimitive,
+    // MMDBStringPrimitive and FlatFanPrimitive - never assigned it, so type() returned whatever
+    // was on the heap. A caller that admits a set of types and then casts on the strength of
+    // the answer would sooner or later admit a primitive that is not of the class it claims:
+    // the M2T mesh builder does exactly that, and threw std::bad_cast whenever the garbage in
+    // a BondsPrimitive happened to read as Balls, Cylinder, BoxSection or Surface. It looked
+    // like running out of memory, because which garbage turns up depends on what the heap has
+    // been doing.
+    //
+    // LinePrimitive as the default so that a class which still forgets is left OUT of a mesh of
+    // triangles rather than cast to something it is not.
+    PrimitiveType primitiveType = LinePrimitive;
     PrimitiveType type() {
         return primitiveType;
     };

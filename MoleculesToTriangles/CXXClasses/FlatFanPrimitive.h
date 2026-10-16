@@ -38,6 +38,10 @@ public:
     FlatFanPrimitive(const std::vector<mmdb::Atom*> &atoms_in, FCXXCoord &color_in) {
         atoms = atoms_in;
         color = color_in;
+        // Was never set, so this said whatever the heap said. The fan is real triangle
+        // geometry - the face of a dishy base - so it belongs in a mesh, but it was only
+        // getting in when the garbage happened to read as a type the builder accepts.
+        primitiveType = DisplayPrimitive::PrimitiveType::FlatFanPrimitive;
     };
     virtual ~FlatFanPrimitive(){
         emptyArrays();

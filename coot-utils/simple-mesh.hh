@@ -28,6 +28,7 @@
 
 #include <vector>
 #include <map>
+#include <string>
 #include "vertex.hh"
 #include "g_triangle.hh"
 #include "cylinder.hh"
@@ -45,6 +46,49 @@ namespace coot {
       std::vector<g_triangle> triangles;
       //! mesh name
       std::string name;
+
+      //! Which part of the model each vertex belongs to, for meshes that know.
+      //!
+      //! Several of the MoleculesToTriangles primitives already record, per vertex, the atom
+      //! that generated it - a surface patch comes from one atom's sphere or from a torus
+      //! between two, a ribbon vertex from the residue it passes through. Until now that was
+      //! dropped when the primitive was flattened into a mesh, because there was nowhere for
+      //! it to go. This is that place, one entry per vertex, indexing `owners` below.
+      //!
+      //! It lets a caller answer "which residue is under the pointer" from a triangle
+      //! intersection alone, and light exactly that residue's vertices.
+      //!
+      //! Either empty, meaning the mesh does not know, or exactly vertices.size() long. A
+      //! vertex whose owner could not be determined carries no_owner.
+      std::vector<unsigned int> vertex_owner;
+      //! A second part the same vertex also belongs to, or no_owner.
+      //!
+      //! Some vertices genuinely belong to two: the saddle a probe sweeps between a pair of
+      //! atoms is shared by both of them, and it is in exactly those grooves that one
+      //! residue's territory gives way to the next. Naming only one owner there puts the
+      //! boundary on the far rim of the groove instead of down the middle of it.
+      //!
+      //! Either empty or the same length as vertex_owner.
+      std::vector<unsigned int> vertex_owner_other;
+      //! How much of the vertex belongs to vertex_owner, the rest belonging to
+      //! vertex_owner_other. 1 where there is only one owner.
+      //!
+      //! Either empty or the same length as vertex_owner.
+      std::vector<float> vertex_owner_weight;
+      //! The parts themselves, as CID selection strings, indexed by vertex_owner.
+      //!
+      //! Strings rather than residue_spec_t so that this header, which is included very
+      //! widely and currently depends on nothing above coot-utils, does not acquire a
+      //! dependency on geometry/ for the sake of a label.
+      std::vector<std::string> owners;
+      //! The value in vertex_owner for a vertex with no known owner.
+      //! constexpr, not const: add_submesh passes it to vector::resize, which takes a reference,
+      //! and a plain static const member would then need an out-of-line definition to link.
+      static constexpr unsigned int no_owner = 0xFFFFFFFFu;
+
+      //! Does this mesh know where its vertices came from? True only if the arrays are the
+      //! right size to be trusted, so a caller can use this in place of its own checks.
+      bool has_owners() const { return !owners.empty() && vertex_owner.size() == vertices.size(); }
       //! constructor (for vectors)
       simple_mesh_t() : status(1) {}
       //! constructor with name
