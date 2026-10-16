@@ -62,7 +62,21 @@ private:
 	double theRadius;
 	double deltaRadians;
 	void init();
-public: 
+public:
+	/**
+	 * For a re-entrant patch: the three atoms the probe is seated on, and the unit directions
+	 * from the probe's centre towards them.
+	 *
+	 * Such a patch is cut into three sectors, one per atom, and each sector's vertices are
+	 * given that atom outright - so the field jumps from one residue to the next across two
+	 * internal seams that have no geometric meaning. Keeping the three contacts lets a
+	 * caller ask how much of a vertex belongs to each instead. Null and unused for the
+	 * convex patch over a single atom, which genuinely has one owner.
+	 */
+	mmdb::Atom *contactAtoms[3];
+	CXXCoord<CXXCoord_ftype> contactDirections[3];
+	bool hasThreeContacts;
+
 		CXXSphereElement();
 //	~CXXSphereElement();
 	

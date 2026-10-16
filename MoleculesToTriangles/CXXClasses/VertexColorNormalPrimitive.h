@@ -46,10 +46,15 @@ public:
         float color[4];
     } VertexColor;
 protected:
-    unsigned long _nTriangles;
+    // Zeroed, because a caller sizes its own buffers from nTriangles() and nVertices().
+    //
+    // SticksPrimitive, for one, only ever sets _nLines - it draws lines - so _nTriangles was
+    // left holding whatever was on the heap. Anything that asked it for a triangle count and
+    // believed the answer would then try to allocate a garbage number of them.
+    unsigned long _nTriangles = 0;
     GLIndexType *indexArray;
-    unsigned long _nVertices;
-    unsigned long _nLines;
+    unsigned long _nVertices = 0;
+    unsigned long _nLines = 0;
     VertexColorNormal *vertexColorNormalArray;
     VertexNormal *vertexNormalArray;
     VertexColor *vertexColorArray;

@@ -358,6 +358,15 @@ int MolecularRepresentation::drawDishyBases()
     shared_ptr<CylindersPrimitive>cylinder(new CylindersPrimitive());
     cylinder->setAngularSampling(intParameters["dishStyleAngularSampling"]);
 
+    //Each bond here is worth about 1000 vertices at the dishy sampling of 32, so a whole
+    //ribosome in one primitive asks generateArrays() for a couple of hundred megabytes in a
+    //single contiguous block - which fails, intermittently, on a heap that has been in use
+    //for a while. Batch it as drawBondsAsCylinders() above already does, but in smaller
+    //groups because the sampling here is higher. A base's bonds are whole two-point
+    //segments, so a boundary between batches never splits a cylinder.
+    const unsigned int maxBondsPerCylinder = 200;
+    unsigned int nBondsThisCylinder = 0;
+
     float cylinderRadius = floatParameters[std::string("cylindersStyleCylinderRadius")];
     float ballRadius = floatParameters[std::string("cylindersStyleBallRadius")];
 
@@ -400,6 +409,7 @@ int MolecularRepresentation::drawDishyBases()
                 auto atom2 = dishyBaseIter->ribose_atoms[bond->second];
                 FCXXCoord atom2Color =  colorScheme->colorForAtom(atom2, handles);
                 cylinder->addHalfAtomBond(atom1, atom1Color, atom2, atom2Color, cylinderRadius);
+                nBondsThisCylinder++;
             }
             // Draw a stick from ribose_atoms[1] to 1/3 of the way to
             // centre.
@@ -410,10 +420,20 @@ int MolecularRepresentation::drawDishyBases()
             cylinder->addHalfAtomBondWithCoords(atom1Coord, dishyBaseIter->ribose_atoms[1], atom1Color,
                                                 basePseudoAtomPosition, dishyBaseIter->ribose_atoms[1], atom1Color,
                                                 cylinderRadius);
+            nBondsThisCylinder++;
+
+            if (nBondsThisCylinder >= maxBondsPerCylinder){
+                displayPrimitives.push_back(cylinder);
+                cylinder = shared_ptr<CylindersPrimitive>(new CylindersPrimitive());
+                cylinder->setAngularSampling(intParameters["dishStyleAngularSampling"]);
+                nBondsThisCylinder = 0;
+            }
 
         }
     }
-    displayPrimitives.push_back(cylinder);
+    if (nBondsThisCylinder > 0){
+        displayPrimitives.push_back(cylinder);
+    }
     if (balls->getBalls().size()%100 != 0){
         displayPrimitives.push_back(balls);
     }

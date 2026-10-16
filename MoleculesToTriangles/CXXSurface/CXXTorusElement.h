@@ -104,9 +104,27 @@ public:
 	const CXXCircle &getCircle() const {
 		return theCircle;
 	};
+	double getTheta1() const {
+		return theta1;
+	};
 	double getTheta2() const {
 		return theta2;
 	};
+	/**
+	 * How strongly node i belongs to its own atom, the remainder belonging to the other atom
+	 * of the saddle - getCircle().getAtomJ().
+	 *
+	 * A torus is the track of the probe rolling along the groove between two atoms, and theta
+	 * is the angle around the probe, running from theta1 where the probe touches the second
+	 * atom to theta2 where it touches the first. So the fraction along theta is exactly how
+	 * far across the saddle the node is, and no approximation is involved: this is the
+	 * parametrisation the surface was generated from.
+	 *
+	 * 1 at the first atom's end, 0 at the second's. Every node of the element is currently
+	 * given the first atom outright, which puts a whole groove on one side of a boundary that
+	 * ought to run down the middle of it.
+	 */
+	double weightOfNodeAtom(size_t i) const;
     const CXXTorusNode &node(size_t i) const {
         return nodes[i];
     };

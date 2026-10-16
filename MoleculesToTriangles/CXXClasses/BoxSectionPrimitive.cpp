@@ -36,7 +36,10 @@ void BoxSectionPrimitive::generateArrays()
 {   
     unsigned long nPoints = 8*points.size();
     vertexColorNormalArray = new VertexColorNormal[nPoints];
-    atomArray = new const mmdb::Atom*[nPoints];
+    // Value-initialised: a slot never written reads back as null rather than as whatever
+    // was on the heap, which is what lets a caller treat null as "this vertex was not
+    // attributed to an atom" instead of having to know which primitives fill it.
+    atomArray = new const mmdb::Atom*[nPoints]();
     unsigned long nIndices = 24*points.size();
     indexArray = new GLIndexType[nIndices];    
  
