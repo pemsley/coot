@@ -1,19 +1,10 @@
 --- Items---
 
-o remove this debugging:
-was_xmap() replacing with empty
+o check that the atom in the go-to-atom icon is round
 
 o Restart blank with session restore option in an overlay
   modified by command line argument (--no-state-script
   forces blank startup with no restore option).
-
-o in Range/Pair show the selection
-  on completion (second pick), flash the residue range
-
-o make coot::molecule_t::fix_atom_selection_during_refinement(const std::string &atom_selection_cid)
-  work.
-
-o chemical feature clustering (CFC) in chapi
 
 o do worms on 4hhb. The colour variation per chain needs to be larger.
 
@@ -27,10 +18,7 @@ o trying to change the model material - seems not to affect the drawing of
 
 o 7k00 - get the emdb code from the cif
 
-
 o look at 23sr, 9i9k
-
-o fix add_hydrogen_atoms_to_residue(): null geom_p
 
 o look at carbohydrate building before release
 
@@ -45,6 +33,24 @@ o the range show (`) doesn't account for for case where atom radius > bond radiu
 o make default bond smoothness be "smooth" (2, I think)
 
 o for agentic coot, create a function that does "validate_residue()" - combining metrics
+
+o fix add_hydrogen_atoms_to_residue(): null geom_p
+* Done.
+
+o chemical feature clustering (CFC) in chapi
+* Done.
+
+o make coot::molecule_t::fix_atom_selection_during_refinement(const std::string &atom_selection_cid)
+  work.
+* Done.
+
+o in Range/Pair show the selection
+  on completion (second pick), flash the residue range
+* Done.
+
+o remove this debugging:
+  was_xmap() replacing with empty
+* Done.
 
 o does coot_no_state_real_exit() flush the python buffer?
 * It dooes now.
