@@ -38,6 +38,7 @@
 #include "geometry/residue-and-atom-specs.hh"
 #include "graphics-info.h"
 #include "c-interface.h"
+#include "session-info.hh"
 #include "c-interface-gtk-widgets.h"
 #include "coot-fileselections.h"
 #include "gtk/gtkshortcut.h"
@@ -67,6 +68,11 @@ extern logging logger;
 // int graphics_info_t::scale_up_graphics = 1;
 // int graphics_info_t::scale_down_graphics = 1;
 
+
+// Rebuild the File -> Open Recent submenu from session.json. Defined below,
+// forward-declared here so the file-open response handlers can refresh the
+// list after a successful read.
+void update_open_recent_submenu();
 
 extern "C" G_MODULE_EXPORT
 void on_coords_filechooser_dialog_response_gtk4(GtkDialog *dialog,
@@ -121,7 +127,7 @@ void on_coords_filechooser_dialog_response_gtk4(GtkDialog *dialog,
             g.set_directory_for_filechooser_string(file_dir);
          }
       }
-
+      update_open_recent_submenu();
    }
    gtk_window_close(GTK_WINDOW(dialog));
    graphics_info_t::graphics_grab_focus();
@@ -151,7 +157,7 @@ void on_dataset_filechooser_dialog_response_gtk4(GtkDialog *dialog,
       } else {
          manage_column_selector(file_name); // try read a cif (strangely)
       }
-
+      update_open_recent_submenu();
    }
    gtk_window_close(GTK_WINDOW(dialog));
    graphics_info_t::graphics_grab_focus();
@@ -182,6 +188,7 @@ void on_map_filechooser_dialog_response(GtkDialog *dialog, int response) {
             }
          }
       }
+      update_open_recent_submenu();
    }
    gtk_window_close(GTK_WINDOW(dialog));
    graphics_info_t::graphics_grab_focus();
@@ -500,6 +507,7 @@ void on_cif_dictionary_filechooser_dialog_response_gtk4(GtkDialog *dialog,
       if (create_ligand) create_ligand =  true;
       // the monomer index is returned from handle_cif_dictionary_for_molecule()
       handle_cif_dictionary_for_molecule(file_name, imol_enc, create_ligand);
+      update_open_recent_submenu();
    }
    gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
    graphics_info_t::graphics_grab_focus();
@@ -6541,6 +6549,99 @@ void delete_item_pick_water_delete(GSimpleAction *simple_action,
    add_status_bar_text("Use Ctrl-click for multi-water delete");
 }
 
+// A compact menu label for a recent-files entry: the base filename, plus
+// the MTZ columns for maps so two column selections of the same file are
+// distinguishable.
+static std::string
+recent_file_menu_label(const coot::session::recent_file_t &rf) {
+
+   std::string base = coot::util::file_name_non_directory(rf.path);
+   if (rf.is_map()) {
+      std::string label = base;
+      std::string cols = rf.f_col;
+      if (! rf.phi_col.empty())
+         cols += "/" + rf.phi_col;
+      if (! cols.empty())
+         label += " (" + cols + ")";
+      if (rf.is_diff_map)
+         label += " [diff]";
+      return label;
+   }
+   if (rf.is_ccp4_map())
+      return base + (rf.is_diff_map ? " [diff map]" : " [map]");
+   if (rf.is_dictionary())
+      return base + " [dict]";
+   return base; // coordinates
+}
+
+// Rebuild the File -> Open Recent submenu from session.json. Each item
+// carries its index in the list as a string target for the parameterised
+// "open_recent_file_action".
+void
+update_open_recent_submenu() {
+
+   GMenu *menu = G_MENU(graphics_info_t::get_gobject_from_builder("open-recent-menu"));
+   if (! menu)
+      return;
+   g_menu_remove_all(menu);
+
+   std::vector<coot::session::recent_file_t> rfs = coot::session::get_recent_files();
+   if (rfs.empty()) {
+      // an action-less (and so insensitive) placeholder
+      GMenuItem *item = g_menu_item_new("(No recent files)", nullptr);
+      g_menu_append_item(menu, item);
+      g_object_unref(item);
+      return;
+   }
+
+   for (unsigned int i=0; i<rfs.size(); i++) {
+      std::string label = recent_file_menu_label(rfs[i]);
+      std::string target = std::to_string(i);
+      GMenuItem *item = g_menu_item_new(label.c_str(), nullptr);
+      g_menu_item_set_action_and_target_value(item, "app.open_recent_file_action",
+                                              g_variant_new_string(target.c_str()));
+      g_menu_append_item(menu, item);
+      g_object_unref(item);
+   }
+}
+
+void open_recent_file_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                             GVariant *parameter,
+                             G_GNUC_UNUSED gpointer user_data) {
+
+   if (! parameter)
+      return;
+   const char *s = g_variant_get_string(parameter, nullptr);
+   if (! s)
+      return;
+   int idx = atoi(s);
+   std::vector<coot::session::recent_file_t> rfs = coot::session::get_recent_files();
+   if (idx < 0 || idx >= static_cast<int>(rfs.size()))
+      return;
+
+   const coot::session::recent_file_t &rf = rfs[idx];
+
+   if (! std::filesystem::exists(rf.path)) {
+      std::string m = "File no longer exists: " + rf.path;
+      add_status_bar_text(m.c_str());
+      update_open_recent_submenu();
+      return;
+   }
+
+   if (rf.is_coordinates()) {
+      handle_read_draw_molecule_with_recentre(rf.path, 1);
+   } else if (rf.is_map()) {
+      make_and_draw_map(rf.path.c_str(), rf.f_col.c_str(), rf.phi_col.c_str(),
+                        rf.weight_col.c_str(), rf.use_weights, rf.is_diff_map);
+   } else if (rf.is_ccp4_map()) {
+      handle_read_ccp4_map(rf.path, rf.is_diff_map);
+   } else if (rf.is_dictionary()) {
+      read_cif_dictionary(rf.path);
+   }
+
+   update_open_recent_submenu(); // the just-opened file moves to the front
+}
+
 void
 create_actions(GtkApplication *application) {
 
@@ -6592,6 +6693,8 @@ create_actions(GtkApplication *application) {
    add_action(         "open_dataset_action",          open_dataset_action);
    add_action(             "open_map_action",              open_map_action);
    add_action("import_cif_dictionary_action", import_cif_dictionary_action);
+   add_action_with_param("open_recent_file_action", open_recent_file_action);
+   update_open_recent_submenu(); // populate from session.json at startup
 
    add_action("get_monomer_action", get_monomer_action);
    add_action(     "curlew_action",      curlew_action);

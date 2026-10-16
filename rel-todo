@@ -1,20 +1,22 @@
 --- Items---
 
-o how do other diesktop applicaitons start up? In previous state?
-  Open Recent Documents
-
 o what to test for mmcif dictionaries to buster?
-
 o generate restraints for new ligands with pyrogen, check that they work and hand them over.
 
 o if esd is more than 360 (200) then ignore that torsion during refinement.
 
-o in Range/Pair show the selection
-  on completion (second pick), flash the residue range.
-  The range show (`) doesn't account for for case where atom radius > bond radius. Looks strange.
-* Done - nice.
-
 o look at carbohydrate building before release
+
+o check that the atom in the go-to-atom icon is round
+
+o Restart blank with session restore option in an overlay
+  modified by command line argument (--no-state-script
+  forces blank startup with no restore option).
+
+o do worms on 4hhb. The colour variation per chain needs to be larger.
+
+o gaussian surfaces should be drawn with model Material
+
 
 o have another try to fix the specular light in fancy mode
   (test with 4hhb molecular surface)
@@ -28,6 +30,8 @@ o trying to change the model material - seems not to affect the drawing of
 
 o look at 23sr, 9i9k
 
+o look at carbohydrate building before release
+
 o Add a "view" that shows formal charges - on this residue - or whole molecule
 
 o configure should fail if it can't find swig
@@ -37,6 +41,11 @@ o use RDKit canonical SMILES for atom order and hence atom name.
 o make default bond smoothness be "smooth" (2, I think)
 
 o for agentic coot, create a function that does "validate_residue()" - combining metrics
+
+o in Range/Pair show the selection
+  on completion (second pick), flash the residue range.
+  The range show (`) doesn't account for for case where atom radius > bond radius. Looks strange.
+* Done - nice.
 
 o fix add_hydrogen_atoms_to_residue(): null geom_p
 * Done.
@@ -48,7 +57,12 @@ o make coot::molecule_t::fix_atom_selection_during_refinement(const std::string 
   work.
 * Done.
 
-o chemical feature clustering (CFC) in chapi
+o in Range/Pair show the selection
+  on completion (second pick), flash the residue range
+* Done.
+
+o remove this debugging:
+  was_xmap() replacing with empty
 * Done.
 
 o does coot_no_state_real_exit() flush the python buffer?

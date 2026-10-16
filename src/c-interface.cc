@@ -124,6 +124,7 @@
 
 // #include "xmap-interface.h"
 #include "graphics-info.h"
+#include "session-info.hh"
 
 #include "skeleton/BuildCas.h"
 
@@ -958,6 +959,9 @@ int handle_read_draw_molecule_with_recentre(const std::string &filename,
 	 r =  -1;
       }
    }
+   if (r >= 0)
+      if (! graphics_info_t::disable_state_script_writing)
+         coot::session::note_recent_coordinates(filename);
    return r;
 }
 

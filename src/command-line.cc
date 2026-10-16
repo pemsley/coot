@@ -95,6 +95,7 @@ void print_help() {
              << "            [--show-ccp4i2-save-button]\n"
              << "            [--self-test]\n"
              << "            [--no-state-script]\n"
+             << "            [--run-state-script]\n"
              << "            [--no-startup-scripts]\n"
              << "            [--no-splash-screen]\n"
              << "            [--opengl-es]\n"

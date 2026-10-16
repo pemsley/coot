@@ -821,6 +821,21 @@ graphics_info_t::save_state() {
 
    int r = 0;
 
+   // 20261016-PE Coot starts blank now and offers to run the state script, so
+   // don't overwrite the user's previous session with an empty one - if there
+   // is nothing that can be restored from a file, don't write a state script.
+   bool have_restorable_molecules = false;
+   for (int i=0; i<n_molecules(); i++) {
+      if (molecules[i].has_xmap() || molecules[i].has_nxmap() || molecules[i].has_model()) {
+         if (! molecules[i].save_state_command_strings().empty()) {
+            have_restorable_molecules = true;
+            break;
+         }
+      }
+   }
+   if (! have_restorable_molecules)
+      return r;
+
    xdg_t xdg;
    std::filesystem::path path;
 

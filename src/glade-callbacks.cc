@@ -57,6 +57,7 @@
 #include "validation-graphs/validation-graphs.hh"
 
 #include "widget-from-builder.hh"
+#include "utils/xdg-base.hh"
 
 #include "fit-loop-gui.hh"
 #include "c-interface-refine.hh"
@@ -2538,6 +2539,38 @@ on_run_state_file_cancel_button_clicked (GtkButton       *button,
   GtkWidget *dialog = widget_from_builder("run_state_file_dialog");
   gtk_widget_set_visible(dialog, FALSE);
   gtk_widget_set_visible(dialog, FALSE);
+}
+
+// the "Run State Script?" overlay shown at startup - see show_run_state_script_frame_maybe()
+extern "C" G_MODULE_EXPORT
+void
+on_run_state_script_no_button_clicked(GtkButton *button,
+                                      gpointer   user_data) {
+
+   GtkWidget *frame = widget_from_builder("run_state_script_frame");
+   if (frame)
+      gtk_widget_set_visible(frame, FALSE);
+   graphics_info_t::graphics_grab_focus();
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_run_state_script_yes_button_clicked(GtkButton *button,
+                                       gpointer   user_data) {
+
+   GtkWidget *frame = widget_from_builder("run_state_script_frame");
+   if (frame)
+      gtk_widget_set_visible(frame, FALSE);
+
+   xdg_t xdg;
+   std::pair<bool, std::filesystem::path> script = xdg.get_python_state_script();
+   if (script.first) {
+      run_python_script(script.second.string().c_str());
+      graphics_info_t::state_file_was_run_flag = true;
+   } else {
+      add_status_bar_text("State script not found");
+   }
+   graphics_info_t::graphics_grab_focus();
 }
 
 

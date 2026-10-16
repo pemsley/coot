@@ -240,6 +240,7 @@ To ship the bars we'd need to bake the 771-drug values (or precomputed bin
 counts per property) into the code/data, since we can't depend on the Excel
 file at runtime.
 
+
 ## Use a constant view direction for specular under orthographic projection
 
 The specular term in the lit shaders (`moleculestotriangles*.shader`,
@@ -265,3 +266,70 @@ functions) can select between the two in the shader.
 
 Deferred 2026-10-13 after the specular/eye-position fixes, as the remaining
 error is small.
+
+## "Open Recent..." menu
+
+The usual desktop "Open Recent" assumes one-file-equals-one-document, which
+Coot breaks: a working session is a *set* of files (coordinates, reflection
+data or a map, often a ligand dictionary, sometimes several of each). So two
+tiers are worth having.
+
+### Tier 1 — Recent files (flat MRU)
+
+A per-file most-recently-used list, newest first, grouped or icon-tagged by
+type (coordinates / data / map / dictionary). Expected from the menu label,
+cheap to implement, and the right tool when the user just wants to pull one
+more file into an existing session. Things to get right:
+
+- **Stat before offering.** Crystallography pipelines move and delete files
+  constantly; grey out or annotate missing entries rather than failing on
+  click.
+- **Dedupe by canonical path** and show enough of the path to disambiguate —
+  people have forty `refmac.mtz` in forty directories.
+- **Remember the MTZ columns.** An `.mtz` isn't self-describing; reopening it
+  usefully means recording *which columns* were used last time (FWT/PHWT,
+  F/SIGF, …) so we don't re-prompt the column dialog every time. That column
+  choice must be part of the recent entry, not just the path. This is the
+  single biggest difference from a text editor's Open Recent.
+
+### Tier 2 — Recent sessions (file-set + view state)
+
+A "Recent Sessions" submenu where each entry restores the whole working set
+the user had. This is a nicer front-end onto the existing state-script
+machinery (`0-coot.state.*` / `state.scm`): each entry is a saved/auto-saved
+state script, clicking it replays the script. Label entries meaningfully
+(derived name — PDB id or coord filename — timestamp, maybe molecule count),
+not the opaque script path. This is the "offer to restore, don't impose"
+behaviour from the startup discussion: it restores *inputs* the user
+knowingly reopens, not an in-memory snapshot that could silently diverge from
+real modelling work.
+
+Illustrative menu shape:
+
+```
+File
+  Open Recent
+     Coordinates ▶   3pdz.pdb, 6g7k.pdb, …
+     Maps/Data   ▶   refmac.mtz (FWT/PHWT), …
+     Dictionaries▶   LIG.cif, …
+  Recent Sessions ▶  3pdz — 2 maps  (10:14 today)
+                     6g7k            (yesterday)
+```
+
+### Cross-cutting concerns
+
+- **Moved projects.** Crystallographers rsync whole directories between
+  machines, so sessions with absolute paths break. Store paths relative to a
+  project root (and remember that root) to survive the move.
+- **Where the list lives.** Per-user (`~/.coot` / preferences), capped
+  (~10–15), pruned of dead entries lazily, so it survives the blank-startup
+  model.
+- **Privacy / clutter.** Provide "Clear Recent" and ideally a way to not
+  record a given open (people demo with confidential structures).
+- **Don't double-load.** If a file/session is already open, offer to
+  raise/switch rather than loading a second copy.
+
+Minimum that delivers most of the value: Tier 1 flat MRU *with remembered MTZ
+columns* — self-contained, and it kills the re-prompting annoyance. Tier 2 is
+the bigger conceptual win but is low-risk once the Tier 1 metadata format can
+carry a "this entry is a session" variant.

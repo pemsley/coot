@@ -484,31 +484,20 @@ void display_control_molecule_combo_box(const std::string &name, int imol,
    gtk_box_append(GTK_BOX(mol_vbox), hbox);
    gtk_widget_set_visible(hbox, TRUE);
 
-   // Frame groups the representation toggles (Ribbons, Molecular Surface, etc.) visually
-   // under this molecule (initially hidden, shown when representations are added)
-   GtkWidget *mesh_frame = gtk_frame_new("Representations");
-   gtk_widget_set_margin_start(mesh_frame, 22);
-   gtk_widget_set_margin_end(mesh_frame, 8);
-   gtk_widget_set_margin_bottom(mesh_frame, 4);
-   gtk_box_append(GTK_BOX(mol_vbox), mesh_frame);
-   gtk_widget_set_visible(mesh_frame, FALSE);
-
+   // Create a scrolled window for mesh toggle buttons (initially hidden, shown when meshes are added)
    GtkWidget *mesh_scrolled_window = gtk_scrolled_window_new();
    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(mesh_scrolled_window),
                                   GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
    gtk_scrolled_window_set_max_content_height(GTK_SCROLLED_WINDOW(mesh_scrolled_window), 200);
    gtk_scrolled_window_set_propagate_natural_height(GTK_SCROLLED_WINDOW(mesh_scrolled_window), TRUE);
-   gtk_frame_set_child(GTK_FRAME(mesh_frame), mesh_scrolled_window);
-   gtk_widget_set_visible(mesh_scrolled_window, TRUE);
+   gtk_box_append(GTK_BOX(mol_vbox), mesh_scrolled_window);
+   gtk_widget_set_visible(mesh_scrolled_window, FALSE);
 
    GtkWidget *mesh_vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
-   gtk_widget_set_margin_start(mesh_vbox, 8);
-   gtk_widget_set_margin_top(mesh_vbox, 4);
-   gtk_widget_set_margin_bottom(mesh_vbox, 4);
+   gtk_widget_set_margin_start(mesh_vbox, 30);
    gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(mesh_scrolled_window), mesh_vbox);
    g_object_set_data(G_OBJECT(mol_vbox), "mesh_vbox", mesh_vbox);
    g_object_set_data(G_OBJECT(mol_vbox), "mesh_scrolled_window", mesh_scrolled_window);
-   g_object_set_data(G_OBJECT(mol_vbox), "mesh_frame", mesh_frame);
 
    // We need to add thesee items:
    // 1: molecule number label
@@ -698,36 +687,6 @@ on_display_control_generic_object_toggle_toggled(GtkCheckButton *button, gpointe
    graphics_draw();
 }
 
-static void
-on_display_control_mesh_delete_button_clicked(GtkButton *button, gpointer user_data) {
-
-   int imol     = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "imol"));
-   int mesh_idx = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "mesh_idx"));
-   if (is_valid_model_molecule(imol)) {
-      auto &m = graphics_info_t::molecules[imol];
-      if (mesh_idx >= 0 && mesh_idx < static_cast<int>(m.meshes.size()))
-         m.meshes.erase(m.meshes.begin() + mesh_idx);
-   }
-   update_display_control_mesh_toggles(imol);
-   graphics_draw();
-}
-
-static void
-on_display_control_generic_object_delete_button_clicked(GtkButton *button, gpointer user_data) {
-
-   int imol    = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "imol"));
-   int obj_idx = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "generic_object_idx"));
-   auto &gdo = graphics_info_t::generic_display_objects;
-   if (obj_idx >= 0 && obj_idx < static_cast<int>(gdo.size())) {
-      // indices into generic_display_objects are kept stable elsewhere (e.g. scripting),
-      // so clear the object in place rather than erasing it from the vector
-      gdo[obj_idx].close_yourself();
-      gdo[obj_idx].mesh.name.clear(); // so it is filtered out of the toggles list below
-   }
-   update_display_control_mesh_toggles(imol);
-   graphics_draw();
-}
-
 // Find the mol_vbox for a given molecule in the display control window
 static GtkWidget *find_display_control_mol_vbox(int imol) {
 
@@ -777,69 +736,45 @@ void update_display_control_mesh_toggles(int imol) {
          n_gdo_for_imol++;
 
    int n_total = n_mol_meshes + n_gdo_for_imol;
-   GtkWidget *mesh_frame = GTK_WIDGET(g_object_get_data(G_OBJECT(mol_vbox), "mesh_frame"));
+   GtkWidget *mesh_scrolled_window = GTK_WIDGET(g_object_get_data(G_OBJECT(mol_vbox), "mesh_scrolled_window"));
    if (n_total == 0) {
-      if (mesh_frame)
-         gtk_widget_set_visible(mesh_frame, FALSE);
+      if (mesh_scrolled_window)
+         gtk_widget_set_visible(mesh_scrolled_window, FALSE);
       return;
    }
 
-   // Add toggle+delete rows for molecule meshes
+   // Molecule meshes come first, then generic display objects.
+
+   // Add toggle buttons for molecule meshes
    for (unsigned int j = 0; j < mol.meshes.size(); j++) {
       const auto &mesh = mol.meshes[j];
-
-      GtkWidget *row = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
-      gtk_widget_set_margin_start(row, 4);
-
       GtkWidget *cb = gtk_check_button_new_with_label(mesh.name.c_str());
       gtk_check_button_set_active(GTK_CHECK_BUTTON(cb), mesh.get_draw_this_mesh());
-      gtk_widget_set_hexpand(cb, TRUE);
       g_object_set_data(G_OBJECT(cb), "imol",     GINT_TO_POINTER(imol));
       g_object_set_data(G_OBJECT(cb), "mesh_idx", GINT_TO_POINTER(j));
       g_signal_connect(G_OBJECT(cb), "toggled",
                        G_CALLBACK(on_display_control_mesh_toggle_toggled), nullptr);
-      gtk_box_append(GTK_BOX(row), cb);
-
-      GtkWidget *delete_button = gtk_button_new_with_label("Delete");
-      g_object_set_data(G_OBJECT(delete_button), "imol",     GINT_TO_POINTER(imol));
-      g_object_set_data(G_OBJECT(delete_button), "mesh_idx", GINT_TO_POINTER(j));
-      g_signal_connect(G_OBJECT(delete_button), "clicked",
-                       G_CALLBACK(on_display_control_mesh_delete_button_clicked), nullptr);
-      gtk_box_append(GTK_BOX(row), delete_button);
-
-      gtk_box_append(GTK_BOX(mesh_vbox), row);
-      gtk_widget_set_visible(row, TRUE);
+      gtk_box_append(GTK_BOX(mesh_vbox), cb);
+      gtk_widget_set_visible(cb, TRUE);
+      gtk_widget_set_margin_start(cb, 4);
    }
 
-   // Add toggle+delete rows for generic display objects belonging to this molecule
+   // Add toggle buttons for generic display objects belonging to this molecule
    for (unsigned int i = 0; i < gdo.size(); i++) {
       if (gdo[i].imol == imol && !gdo[i].mesh.name.empty()) {
-
-         GtkWidget *row = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
-         gtk_widget_set_margin_start(row, 4);
-
          GtkWidget *cb = gtk_check_button_new_with_label(gdo[i].mesh.name.c_str());
          gtk_check_button_set_active(GTK_CHECK_BUTTON(cb), gdo[i].mesh.get_draw_this_mesh());
-         gtk_widget_set_hexpand(cb, TRUE);
          g_object_set_data(G_OBJECT(cb), "imol",               GINT_TO_POINTER(imol));
          g_object_set_data(G_OBJECT(cb), "generic_object_idx", GINT_TO_POINTER(i));
          g_signal_connect(G_OBJECT(cb), "toggled",
                           G_CALLBACK(on_display_control_generic_object_toggle_toggled), nullptr);
-         gtk_box_append(GTK_BOX(row), cb);
-
-         GtkWidget *delete_button = gtk_button_new_with_label("Delete");
-         g_object_set_data(G_OBJECT(delete_button), "imol",               GINT_TO_POINTER(imol));
-         g_object_set_data(G_OBJECT(delete_button), "generic_object_idx", GINT_TO_POINTER(i));
-         g_signal_connect(G_OBJECT(delete_button), "clicked",
-                          G_CALLBACK(on_display_control_generic_object_delete_button_clicked), nullptr);
-         gtk_box_append(GTK_BOX(row), delete_button);
-
-         gtk_box_append(GTK_BOX(mesh_vbox), row);
-         gtk_widget_set_visible(row, TRUE);
+         gtk_box_append(GTK_BOX(mesh_vbox), cb);
+         gtk_widget_set_visible(cb, TRUE);
+         gtk_widget_set_margin_start(cb, 4);
       }
    }
-   if (mesh_frame)
-      gtk_widget_set_visible(mesh_frame, TRUE);
+   if (mesh_scrolled_window)
+      gtk_widget_set_visible(mesh_scrolled_window, TRUE);
 }
 
 GtkWidget *molecule_index_to_display_manager_entry(int imol) {

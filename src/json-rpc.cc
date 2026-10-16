@@ -9,9 +9,9 @@
 #include <gtk/gtk.h>
 #include <netinet/in.h>
 #include <fcntl.h>
-#include <coot-utils/json.hpp>
 
-#include <utils/coot-utils.hh>
+#include "utils/coot-utils.hh"
+#include "coot-utils/json.hpp"
 
 #include "python-3-interface.hh"
 #include "python-results-container.hh"
