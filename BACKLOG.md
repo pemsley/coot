@@ -239,3 +239,29 @@ data — only the fitted ADS parameters in Suppl. Table 2.)
 To ship the bars we'd need to bake the 771-drug values (or precomputed bin
 counts per property) into the code/data, since we can't depend on the Excel
 file at runtime.
+
+## Use a constant view direction for specular under orthographic projection
+
+The specular term in the lit shaders (`moleculestotriangles*.shader`,
+`meshes*.shader`, `instanced-objects.shader`,
+`instanced-meshes-with-shadows.shader`, `texture-meshes-with-shadows.shader`)
+computes `view_dir = normalize(eye_position_in_molecule_coordinates_space - frag_pos)`
+from a finite eye position, set by `Shader::setup_eye_position()` as
+`graphics_info_t::eye_position · view_rotation + rotation_centre`.
+
+That is right for a perspective projection, but Coot's default is orthographic
+(`perspective_projection_flag == false`), where the true view direction is the
+same for every fragment: the view-space +z axis rotated into molecule space.
+Using a finite eye there makes the highlights shift a little with zoom (the
+right-drag zoom scales `eye_position`), and a surface close to the eye gets a
+wider spread of view directions than it should.
+
+Fix: when the projection is orthographic, send a direction instead of a
+position (e.g. a `view_direction_in_molecule_coordinates_space` uniform, the
+(0,0,1) view vector times the view rotation) and use it directly as `view_dir`.
+`mvp_is_perspective()` in `Shader.hh` / the `is_perspective_projection`
+uniform (now set by the Mesh, TextureMesh and Instanced_Markup_Mesh draw
+functions) can select between the two in the shader.
+
+Deferred 2026-10-13 after the specular/eye-position fixes, as the remaining
+error is small.
