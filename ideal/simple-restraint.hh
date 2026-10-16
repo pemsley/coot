@@ -1656,6 +1656,10 @@ namespace coot {
                        const protein_geometry &geom,
                        const double &torsion_restraints_weight);
 
+      // dictionary torsions with an esd larger than this (degrees) are effectively
+      // unrestrained, so they are not used in refinement
+      static constexpr double torsion_restraint_max_esd = 200.0;
+
       bool add_torsion_internal(const coot::dict_torsion_restraint_t &torsion_restraint,
                                 mmdb::PPAtom res_selection, int i_no_res_atoms,
                                 const double &torsion_restraints_weight);

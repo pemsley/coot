@@ -1437,7 +1437,7 @@ coot::restraints_container_t::add_torsion_internal(const coot::dict_torsion_rest
       // have either s.d. or period 0
 
       if (torsion_restraint.periodicity() > 0) { // we had this test most inner
-	 if (torsion_restraint.esd() > 0.000001) { // new test
+	 if (torsion_restraint.esd() > 0.000001 && torsion_restraint.esd() <= torsion_restraint_max_esd) { // new test
 
 	    // now find the atoms
 	    for (int iat=0; iat<i_no_res_atoms; iat++) {

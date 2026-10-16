@@ -710,6 +710,7 @@ coot::restraints_container_t::add_link_torsion(std::string link_type,
                                     if (pdb_atom_name_1 == " N  " && pdb_atom_name_4 == " N  ") continue;
                                     if (pdb_atom_name_1 == " CA " && pdb_atom_name_4 == " CA ") continue;
                                     if (pdb_atom_name_1 == " C  " && pdb_atom_name_4 == " C  ") continue;
+                                    if (ltr.angle_esd() > torsion_restraint_max_esd) continue;
 
 				    if (false)
 				       std::cout << "adding link torsion "
