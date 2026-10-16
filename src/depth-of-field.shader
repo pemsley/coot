@@ -59,12 +59,13 @@ vec3 make_outline() {
    float depth_centre = texture(screenDepth, TexCoords).r;
    vec3 orig_colour   = texture(screenTexture2, TexCoords).rgb;
    vec3 result = orig_colour;
-   int size = 2; // was 1 (3x3 kernel); bumped to try a thicker outline (make this a uniform later)
+   // pass this as a uniform
+   int outline_box_radius = 1; // was 1 (3x3 kernel); bumped to try a thicker outline (make this a uniform later)
    float ts_size = 1.0f; // same as above
    vec2 tex_scale = ts_size/textureSize(screenTexture2, 0);
    int n_deep_neighbs = 0;
-      for (int ix= -size; ix<=size; ix++) {
-      for (int iy= -size; iy<=size; iy++) {
+      for (int ix= -outline_box_radius; ix<=outline_box_radius; ix++) {
+      for (int iy= -outline_box_radius; iy<=outline_box_radius; iy++) {
          vec2 offset_coords = TexCoords + vec2(tex_scale.x * ix, tex_scale.y * iy);
          float depth_ij = texture(screenDepth, offset_coords).x;
          // if ((depth_ij - depth_centre) > 0.1 * (1.0 - 0.1 * depth_centre)) {
