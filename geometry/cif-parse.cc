@@ -1025,8 +1025,9 @@ coot::protein_geometry::pdbe_chem_comp_atom_depiction(mmdb::mmcif::PLoop mmCIFLo
          int idx = get_monomer_restraints_index(comp_id, imol_enc, true);
          if (idx >= 0) {
             dict_res_restraints[idx].second.depiction = d;
-            std::cout << "debug:: pdbe_chem_comp_atom_depiction() added depiction of "
-                      << dav.size() << " atoms " << std::endl;
+            if (false)
+               std::cout << "debug:: pdbe_chem_comp_atom_depiction() added depiction of "
+                         << dav.size() << " atoms " << std::endl;
          }
       }
    }
