@@ -114,6 +114,11 @@ molecules_container_t::pyrogen_from_SMILES(const std::string &smiles_string,
       // 2. Add hydrogens
       RDKit::MolOps::addHs(*mol);
 
+      // 2b. pH-7-ish protonation states (acids, amines, phosphates, sulphates),
+      // as the pyrogen CLI does
+      std::unique_ptr<RDKit::ROMol> sane_H_mol(coot::hydrogen_transformations(*mol));
+      mol = std::make_unique<RDKit::RWMol>(*sane_H_mol);
+
       // 3. Generate 3D conformer
       int conf_id = RDKit::DGeomHelpers::EmbedMolecule(*mol);
       if (conf_id < 0) {
@@ -281,6 +286,11 @@ int molecules_container_t::pyrogen_from_rdkit_mol_pickle_base64(const std::strin
       if (!has_hydrogens) {
          RDKit::MolOps::addHs(*mol);
       }
+
+      // 2b. pH-7-ish protonation states (acids, amines, phosphates, sulphates),
+      // as the pyrogen CLI does
+      std::unique_ptr<RDKit::ROMol> sane_H_mol(coot::hydrogen_transformations(*mol));
+      mol = std::make_unique<RDKit::RWMol>(*sane_H_mol);
 
       // 3. Generate 3D conformer if not present
       if (mol->getNumConformers() == 0) {
