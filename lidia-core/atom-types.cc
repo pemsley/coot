@@ -187,7 +187,9 @@ coot::set_energy_lib_atom_types(RDKit::ROMol *mol) {
         atom_typing("NH2",  "[NX3^2][CX3^2]=[N^2;X3+]", 2), // amidinium (charged)... 
         atom_typing("NR15", "[nr5;X3;H1]",    0),
         atom_typing("NR5",  "[nr5;X3;H0]",    0),
-        atom_typing("NR5",  "[NR;X3;H0;^2]",  0), // [NR5;X3;H0;^2] fails on 14C (also at daylight)
+        atom_typing("NR5",  "[Nr5;X3;H0;^2]", 0), // (R5 would mean "in 5 rings", r5 is ring size 5)
+        atom_typing("NR6",  "[Nr6;X3;H0;^2]", 0), // e.g. the N of an N-aryl piperidine
+        atom_typing("NR5",  "[NR;X3;H0;^2]",  0), // other ring sizes
         atom_typing("NRD5", "[nr5;X2;H0]",    0), // guess from 071
         atom_typing("NRD5", "C1(=O)[C,c][C,c]C=N1", 5), // N bonded to carbonyl C in a (non-percieved?) 5 ring, 0CE (a)
         atom_typing("NR16", "[nr6;H1]",    0),

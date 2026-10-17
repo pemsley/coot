@@ -181,7 +181,9 @@ def set_monomer_library_atom_types(mol):
         ('NH2',  '[NX3^2][CX3^2]=[N^2;X3+]', (0,2)), # amidinium (charged)...
         ('NR15', '[nr5;X3;H1]',    0),
         ('NR5',  '[nr5;X3;H0]',    0),
-        ('NR5',  '[NR;X3;H0;^2]',  0), # [NR5;X3;H0;^2] fails on 14C (also at daylight)
+        ('NR5',  '[Nr5;X3;H0;^2]', 0), # (R5 would mean "in 5 rings", r5 is ring size 5)
+        ('NR6',  '[Nr6;X3;H0;^2]', 0), # e.g. the N of an N-aryl piperidine
+        ('NR5',  '[NR;X3;H0;^2]',  0), # other ring sizes
         ('NRD5', '[nr5;X2;H0]',    0), # guess from 071
         ('NRD5', 'C1(=O)[C,c][C,c]C=N1', 5), # N bonded to carbonyl C in a (non-percieved?) 5 ring, 0CE (a)
         ('NR16', '[nr6;H1]',    0),
