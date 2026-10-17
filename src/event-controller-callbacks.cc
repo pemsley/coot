@@ -590,7 +590,7 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
 
             bool handled = false;
 
-            std::cout << "DEBUG:: ########## double-click!" << std::endl;
+            // std::cout << "DEBUG:: ########## double-click!" << std::endl;
 
             if (in_moving_atoms_drag_atom_mode_flag) {
                if (last_restraints_size() > 0) {
