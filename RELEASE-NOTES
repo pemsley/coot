@@ -31,11 +31,25 @@
             refine_regularize_with_range_picked_atoms(),
             set_default_model_material_*(),
             set_colour_map_for_map_colored_by_other_map(),
-            get_non_standard_residues_in_molecule();
+            get_non_standard_residues_in_molecule(),
+            chemical_feature_clustering(),
+            clear_fixed_atoms_during_refinement();
             residue_spec_t is now hashable and comparable.
 
  o FEATURE: New and updated icons, and icons-only / labels-only
             styles for the vertical toolbar; Shift-L shortcut
+
+ o FEATURE: File -> Open Recent menu. MTZ entries remember their
+            column choices, so the map reopens without the column
+            dialog
+
+ o FEATURE: If there is a state script, Coot now asks at startup
+            whether it should be run (--no-state-script or --script
+            turn this off)
+
+ o FEATURE: --cod command-line option to fetch a COD entry
+
+ o FEATURE: set_worm_tube_radius(imol, radius)
 
  o CHANGE:  Coordinate mmCIF files are now written using GEMMI
 
@@ -49,6 +63,22 @@
  o CHANGE:  "Fetch Ligand Restraints" no longer creates a new
             ligand molecule
 
+ o CHANGE:  Gaussian surfaces, generic surfaces and tubes use the
+            model material - so set the material before the surface
+            is calculated
+
+ o CHANGE:  Dictionary torsion restraints with an esd of more than
+            200 degrees are no longer used in refinement
+
+ o CHANGE:  The EMDB map code is now also read from downloaded
+            mmCIF files (previously only from PDB files)
+
+ o CHANGE:  pyrogen: pH-7 protonation states as AceDRG does -
+            carboxylates as C=O/C-O(-) and protonated secondary and
+            tertiary amines (not sulfonamides). Formal charges are
+            written to _chem_comp_atom.charge. This applies to the
+            Chapi pyrogen functions too
+
  o CHANGE:  "All Waters" moved down in the Delete menu
 
  o BUG-FIX: AceDRG link interface: fix custom link matching for
@@ -59,6 +89,37 @@
 
  o BUG-FIX: Fix a Chapi/GUI inconsistency where donor-acceptor
             pairs without hydrogens were treated as a clash
+
+ o BUG-FIX: Fix specular highlights on surfaces and instanced
+            objects (the eye position given to the shaders was wrong)
+
+ o BUG-FIX: Fix the outline of selected atoms when the atoms are
+            wider than the bonds
+
+ o BUG-FIX: Closing the main window from the window manager now
+            saves the state and asks about unsaved changes, as
+            File -> Exit does
+
+ o BUG-FIX: Fix the Cancel button in the Run Script dialog; Return
+            in the Go To Atom entries now works
+
+ o BUG-FIX: Fix the ProteinDB fragment main-chain atom positions,
+            which degraded ProteinDB loop fitting
+
+ o BUG-FIX: align_to_closest_chain() now chooses the closest chain
+
+ o BUG-FIX: b_factor_from_map() now returns the fitted B-factor
+
+ o BUG-FIX: Chapi: fix_atom_selection_during_refinement() now works
+
+ o BUG-FIX: The ligand view no longer tries to draw haem groups
+
+ o BUG-FIX: pyrogen: X-H bonds now have the correct nuclear
+            distances (value_dist_nucleus) in the dictionary
+
+ o BUG-FIX: Fix the plane restraint gradients for planes whose atoms
+            have different esds - refinement could stop early with
+            no progress (e.g. for ligands with fused aromatic rings)
 
 -----
 
