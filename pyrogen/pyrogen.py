@@ -687,7 +687,9 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
 
             if run_mogul == False:
 
-                print('--- "no mogul" path ---')
+                # 20261017-PE We always go this way these days
+
+                # print('--- "no mogul" path ---')
 
                 # ... but that's OK if we told pyrogen to run without mogul
 
