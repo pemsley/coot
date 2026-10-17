@@ -8475,6 +8475,16 @@ Do you want to continue?
                       </object>
                     </child>
                     <child>
+                      <object class="GtkLabel" id="run_state_script_info_label">
+                        <property name="label" translatable="yes"></property>
+                        <property name="justify">left</property>
+                        <property name="margin-start">4</property>
+                        <property name="margin-end">4</property>
+                        <property name="margin-top">4</property>
+                        <property name="margin-bottom">4</property>
+                      </object>
+                    </child>
+                    <child>
                       <object class="GtkBox">
                         <property name="orientation">horizontal</property>
                         <property name="spacing">2</property>

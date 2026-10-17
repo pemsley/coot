@@ -107,8 +107,10 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
 #ifdef __APPLE__ // Retina display shenanigans.
    gxs /= 2;
    gys /= 2;
-#endif
+#else
+   // 2026-10-17-PE this gives me grief now - framebuffer related, I guess
    commands.push_back(state_command("coot", "set-graphics-window-size", gxs, gys, il));
+#endif
 
    // 20220702-PE don't save it if there are not sensible number (why are there not sensible numbers?
    //
@@ -734,6 +736,22 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
 std::vector<std::string>
 graphics_info_t::save_state_data_and_models(short int lang_flag) const {
 
+   // 20261016-PE The (absolute) directory of the file, appended to the
+   // molecule-info line as " Dir: <dir>" - so that the "Run State Script?"
+   // overlay can tell apart files with generic names, e.g. refined.pdb.
+   // Returns "" if the file can't be found (e.g. it has been moved).
+   auto dir_info_for_file = [] (const std::string &file_name) {
+      std::string s;
+      std::string fn = coot::util::intelligent_debackslash(file_name);
+      std::error_code ec;
+      if (std::filesystem::exists(fn, ec)) {
+         std::filesystem::path p = std::filesystem::weakly_canonical(std::filesystem::absolute(fn, ec), ec);
+         if (! ec)
+            s = " Dir: " + p.parent_path().string();
+      }
+      return s;
+   };
+
    std::vector<std::string> v;
    for (int i=0; i<n_molecules(); i++) {
       if (molecules[i].has_xmap() || molecules[i].has_nxmap() || molecules[i].has_model()) {
@@ -745,6 +763,10 @@ graphics_info_t::save_state_data_and_models(short int lang_flag) const {
          if (command_strings.size() > 0) {
             std::string s = ";;molecule-info: ";
             s += molecules[i].name_for_display_manager();
+            // for maps from MTZ files, name_ is "file F-col phi-col", so the file is the first word
+            std::vector<std::string> name_parts = coot::util::split_string(molecules[i].get_name(), " ");
+            if (! name_parts.empty())
+               s += dir_info_for_file(name_parts[0]);
             v.push_back(s);
          }
       }
@@ -761,6 +783,7 @@ graphics_info_t::save_state_data_and_models(short int lang_flag) const {
             s = s.substr(islash+1, s.length());
          }
 	      sd += s;
+         sd += dir_info_for_file((*cif_dictionary_filename_vec)[i]);
 	      v.push_back(sd);
       }
    }
