@@ -30,6 +30,7 @@
 
 #include <cstring>  // Fixes ::strchr complaints on 4.4.7 (hal)
 #include <queue>
+#include <memory>
 #include "utils/coot-utils.hh"
 #include "rdkit-interface.hh"
 #include <GraphMol/Chirality.h>  // for CIP ranks
@@ -3325,10 +3326,10 @@ coot::hydrogen_transformations(const RDKit::ROMol &mol) {
    // debug_rdkit_molecule(&mol);
    RDKit::RWMol *r = new RDKit::RWMol(mol);
 
-   RDKit::ROMol *query_cooh              = RDKit::SmartsToMol("[C^2](=O)O[H]");
-   RDKit::ROMol *query_primary_amine_n   = RDKit::SmartsToMol("[N^3;H2]");
-   RDKit::ROMol *query_secondary_amine_n = RDKit::SmartsToMol("[N^3;H1;+0;!$(N-S(=O)=O)]");
-   RDKit::ROMol *query_tertiary_amine_n  = RDKit::SmartsToMol("[N^3;H0;+0;!$(N-S(=O)=O)]");
+   std::unique_ptr<RDKit::ROMol> query_cooh             (RDKit::SmartsToMol("[C^2](=O)O[H]"));
+   std::unique_ptr<RDKit::ROMol> query_primary_amine_n  (RDKit::SmartsToMol("[N^3;H2]"));
+   std::unique_ptr<RDKit::ROMol> query_secondary_amine_n(RDKit::SmartsToMol("[N^3;H1;+0;!$(N-S(=O)=O)]"));
+   std::unique_ptr<RDKit::ROMol> query_tertiary_amine_n (RDKit::SmartsToMol("[N^3;H0;+0;!$(N-S(=O)=O)]"));
    std::vector<RDKit::MatchVectType>  matches_cooh;
    std::vector<RDKit::MatchVectType>  matches_primary_amine_n;
    std::vector<RDKit::MatchVectType>  matches_secondary_amine_n;

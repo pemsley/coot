@@ -26,6 +26,7 @@
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #include <cctype>
+#include <memory>
 #include "utils/coot-utils.hh"
 #include "rdkit-interface.hh"
 
@@ -260,7 +261,7 @@ coot::set_energy_lib_atom_types(RDKit::ROMol *mol) {
 
    for (std::size_t ism=0; ism<smarts_list.size(); ism++) {
       const atom_typing &smarts_type = smarts_list[ism];
-      RDKit::RWMol *query = RDKit::SmartsToMol(smarts_type.smarts_string);
+      std::unique_ptr<RDKit::RWMol> query(RDKit::SmartsToMol(smarts_type.smarts_string));
       std::vector<RDKit::MatchVectType> matches;
       bool recursionPossible = true;
       bool useChirality = true;

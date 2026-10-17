@@ -21,6 +21,7 @@
  */
 
 #include <mutex>
+#include <memory>
 
 #ifdef LIBCOOTAPI_BUILD
 #else
@@ -1221,7 +1222,7 @@ coot::add_chem_comp_aromatic_planes(const RDKit::ROMol &mol,
 
    int plane_id_idx = 1; 
    for (unsigned int ipat=0; ipat<patterns.size(); ipat++) {
-      RDKit::ROMol *query = RDKit::SmartsToMol(patterns[ipat]);
+      std::unique_ptr<RDKit::ROMol> query(RDKit::SmartsToMol(patterns[ipat]));
       std::vector<RDKit::MatchVectType>  matches;
       bool recursionPossible = true;
       bool useChirality = true;
@@ -1649,7 +1650,7 @@ coot::add_chem_comp_deloc_planes(const RDKit::ROMol &mol, coot::dictionary_resid
 
    int n_planes = 1; 
    for (unsigned int ipat=0; ipat<patterns.size(); ipat++) {
-      RDKit::ROMol *query = RDKit::SmartsToMol(patterns[ipat].first);
+      std::unique_ptr<RDKit::ROMol> query(RDKit::SmartsToMol(patterns[ipat].first));
       std::vector<RDKit::MatchVectType>  matches;
       bool recursionPossible = true;
       bool useChirality = true;
@@ -1725,7 +1726,7 @@ coot::add_chem_comp_sp2_C_planes(const RDKit::ROMol &mol, coot::dictionary_resid
 
    int n_planes = 1; // counter for output text
    for (unsigned int ipat=0; ipat<patterns.size(); ipat++) {
-      RDKit::ROMol *query = RDKit::SmartsToMol(patterns[ipat].first);
+      std::unique_ptr<RDKit::ROMol> query(RDKit::SmartsToMol(patterns[ipat].first));
       std::vector<RDKit::MatchVectType>  matches;
       bool recursionPossible = true;
       bool useChirality = true;
@@ -1777,7 +1778,7 @@ coot::add_chem_comp_sp2_N_planes(const RDKit::ROMol &mol, coot::dictionary_resid
                                                               // Should the Hs be replaced by *s?
    int n_planes = 1; // counter for output text
    for (unsigned int ipat=0; ipat<patterns.size(); ipat++) {
-      RDKit::ROMol *query = RDKit::SmartsToMol(patterns[ipat].first);
+      std::unique_ptr<RDKit::ROMol> query(RDKit::SmartsToMol(patterns[ipat].first));
       std::vector<RDKit::MatchVectType>  matches;
       bool recursionPossible = true;
       bool useChirality = true;
