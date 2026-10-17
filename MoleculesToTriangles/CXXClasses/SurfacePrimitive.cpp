@@ -22,6 +22,8 @@
  * 02110-1301, USA
  */
 
+#include <cstdint> // for SIZE_MAX
+
 #include "SurfacePrimitive.h"
 #include "Renderer.h"
 #include "MoleculesToTriangles/CXXSurface/CXXSurface.h"
