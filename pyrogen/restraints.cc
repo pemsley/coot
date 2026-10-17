@@ -1170,6 +1170,7 @@ coot::add_chem_comp_atoms(const RDKit::ROMol &mol, coot::dictionary_residue_rest
 	 at_p->getProp("_GasteigerCharge", charge);
 	 std::pair<bool, float> charge_pair(have_charge, charge);
 	 dict_atom atom(name, name, at_p->getSymbol(), atom_type, charge_pair);
+	 atom.formal_charge = std::pair<bool, int>(true, at_p->getFormalCharge());
  	 RDKit::Conformer conf = mol.getConformer(iconf);
  	 RDGeom::Point3D &r_pos = conf.getAtomPos(iat);
  	 clipper::Coord_orth pos(r_pos.x, r_pos.y, r_pos.z);
@@ -2163,10 +2164,12 @@ coot::regularize_inner(RDKit::ROMol &mol,
    mmdb::Residue *residue_p = coot::make_residue(mol, 0, res_name);
    // remove this NULL at some stage (soon)
    mmdb::Manager *cmmdbmanager = coot::util::create_mmdbmanager_from_residue(residue_p);
+   // the manager has a copy of residue_p - refine (and return) that, not residue_p
+   mmdb::Residue *first_residue_p = coot::util::get_first_residue(cmmdbmanager);
 
-   simple_refine(residue_p, cmmdbmanager, dict_restraints);
+   simple_refine(first_residue_p, cmmdbmanager, dict_restraints);
 
-   return std::pair<mmdb::Manager *, mmdb::Residue *> (cmmdbmanager, residue_p);
+   return std::pair<mmdb::Manager *, mmdb::Residue *> (cmmdbmanager, first_residue_p);
 }
 #endif
 

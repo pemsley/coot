@@ -269,6 +269,10 @@ namespace coot {
          else
             throw std::runtime_error("value_esd(): unset target-distance");
       }
+      // the nuclear (as opposed to electron-cloud/X-ray) distance, if it was set
+      bool nuclear_distance_is_set() const { return dist_nuclear_was_set; }
+      double value_dist_nuclear() const { return dist_nuclear_; }
+      double value_esd_nuclear()  const { return dist_nuclear_esd_; }
       bool matches_names(const dict_bond_restraint_t &r) const {
          if (atom_id_1() == r.atom_id_1())
             if (atom_id_2() == r.atom_id_2())

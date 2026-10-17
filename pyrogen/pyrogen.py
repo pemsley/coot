@@ -541,16 +541,16 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
         return
 
     m_H = m
-    print("DDDDDDDDDDDDDDDD HERE WITH m_H", m_H, "n_atoms:", m_H.GetNumAtoms())
+    # print("DDDDDDDDDDDDDDDD HERE WITH m_H", m_H, "n_atoms:", m_H.GetNumAtoms())
     if n_hydrogens(m) == 0:
         m_H = AllChem.AddHs(m)
 
-    print("EEEEEEEEEEE HERE WITH m_H", m_H, "n_atoms:", m_H.GetNumAtoms())
+    # print("EEEEEEEEEEE HERE WITH m_H", m_H, "n_atoms:", m_H.GetNumAtoms())
     if do_hydrogen_atoms_shift:
         # simple sane pH H-exchanges
-        print("FFFFFFFF HERE WITH m_H", m_H, "n_atoms:", m_H.GetNumAtoms())
+        # print("FFFFFFFF HERE WITH m_H", m_H, "n_atoms:", m_H.GetNumAtoms())
         sane_H_mol = pyrogen_boost.hydrogen_transformations(m_H)
-        print("GGGGGG HERE WITH sane_H_mol_H", m_H, "n_atoms:", sane_H_mol.GetNumAtoms())
+        # print("GGGGGG HERE WITH sane_H_mol_H", m_H, "n_atoms:", sane_H_mol.GetNumAtoms())
         # print >>file('sane_H.mol','w+'),Chem.MolToMolBlock(sane_H_mol)
         AllChem.AssignStereochemistry(sane_H_mol, force=True, cleanIt=True)
     else:
@@ -724,7 +724,11 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
                                                        dict_files_for_names_match)
                     pysw.write_restraints(restraints, mmcif_dict_name)
 
-                pysw.write_pdb_from_mol(sane_H_mol, comp_id, pdb_out_file_name)
+                # the minimization in mmcif_dict_from_mol() does not change sane_H_mol
+                if do_regularize:
+                    pysw.regularize_and_write_pdb(sane_H_mol, restraints, comp_id, pdb_out_file_name)
+                else:
+                    pysw.write_pdb_from_mol(sane_H_mol, comp_id, pdb_out_file_name)
 
             else:
                 # ... but not if we wanted to use mogul.
