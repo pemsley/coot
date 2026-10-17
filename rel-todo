@@ -1,7 +1,11 @@
 --- Items---
 
-o what to test for mmcif dictionaries to buster?
-o generate restraints for new ligands with pyrogen, check that they work and hand them over.
+o Impact statement for Moorhen.
+
+o Look at A1D0T ligand thumbnail - the methyls should not be wedged.
+
+o What to test for mmcif dictionaries to buster?
+  Generate restraints for new ligands with pyrogen, check that they work and hand them over.
 
 o if esd is more than 360 (200) then ignore that torsion during refinement.
 
@@ -17,20 +21,13 @@ o do worms on 4hhb. The colour variation per chain needs to be larger.
 
 o gaussian surfaces should be drawn with model Material
 
-
 o have another try to fix the specular light in fancy mode
   (test with 4hhb molecular surface)
-
-o gaussian surfaces should be drawn with model Material
-
-o do worms on 4hhb. The colour variation per chain needs to be larger.
 
 o trying to change the model material - seems not to affect the drawing of
   molecule2triangles objects (say, a surface)
 
 o look at 23sr, 9i9k
-
-o look at carbohydrate building before release
 
 o Add a "view" that shows formal charges - on this residue - or whole molecule
 
