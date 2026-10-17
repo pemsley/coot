@@ -364,7 +364,8 @@ coot::molecule_t::minimize(const std::string &atom_selection_cid,
                            int n_cycles,
                            bool do_rama_plot_restraints, float rama_plot_weight,
                            bool do_torsion_restraints, float torsion_weight, bool refinement_is_quiet,
-                           coot::protein_geometry *geom_p) {
+                           coot::protein_geometry *geom_p,
+                           bool do_numerical_gradients) {
 
    // c.f. refine_direct()
 
@@ -392,6 +393,9 @@ coot::molecule_t::minimize(const std::string &atom_selection_cid,
 
       if (refinement_is_quiet)
          restraints.set_quiet_reporting();
+
+      if (do_numerical_gradients)
+         restraints.set_do_numerical_gradients();
 
       if (do_rama_plot_restraints) {
          restraints.set_rama_type(RAMA_TYPE_ZO);

@@ -54,7 +54,6 @@ namespace coot {
    // a molecule with atoms that do not have positions.
    RDKit::ROMol *rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
                                           const std::string &comp_id);
-   RDKit::ROMol *hydrogen_transformations(const RDKit::ROMol &r);
    RDKit::ROMol *mogulify(const RDKit::ROMol &r);
 
    // fiddle with mol
@@ -173,7 +172,7 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 
    // This function should not get an mmdb::Residue, it should just use
    // rdkit_mol(const dictionary_residue_restraints_t &restraints)
-   
+
    RDKit::ROMol *mol = new RDKit::ROMol;
    coot::protein_geometry geom;
    geom.set_verbose(false);
@@ -187,7 +186,7 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
    // We use this (mmdb::Restraints-using) interface to rdkit_mol()
    // because it allows a code path fall-back when there are no
    // coordinates for the atoms of the molecule
-   
+
    mmdb::Residue *residue_p = geom.get_residue(comp_id, imol_enc, idealized, try_autoload_if_needed);
 
    int imol = 0; // dummy
@@ -202,16 +201,16 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 
 	 // 20140618: This was false - now try true so that it processes 110 (i.e. no more
 	 //           valence error).
-	 
+
 	 // 20141115: But if this is true, then 313 fails to find C-OC single or
 	 //           double bonds (it should be deloc - it's a carboxylate)
 	 //
 
 	 try {
-           
+
             // experimental value - for Friday.
 	    // bool undelocalize = false;
-            // 
+            //
 	    bool undelocalize_flag = true;
 	    int iconf = 0;
 
@@ -220,7 +219,7 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 
 	    // Let's skip this step here if we can - because the chiral centres should have been
 	    // assigned in rdkit_mol() and we don't want to wipe them out here.
-	    // 
+	    //
 	    bool clean = false;
 	    bool force = true;
 	    bool flag_stereo = true;
@@ -269,11 +268,11 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 		     std::cout << "no-error: no _CIPRank " << err.what() << std::endl;
 		  }
 		  catch (const boost::bad_any_cast &bac) {
-		     // Goodness knows why this is thrown... 
+		     // Goodness knows why this is thrown...
                      // Aha! Many years later someone else stumbles on the same issue:
                      // https://github.com/rdkit/rdkit/issues/6465
 		     std::cout << "strange - caught bad_any_cast on _CIPRank get" << std::endl;
-		  } 
+		  }
 	       }
 	    }
 
@@ -294,13 +293,13 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 	 // Are you here unexpectedly?  That's because the input cif dictionary doesn't have
 	 // _chem_comp_atom.x{yz} or model_Cartn_x{yz} or pdbx_model_Cartn_x{yz}_ideal for
 	 // the given comp_id.
-	 // 
+	 //
 	 std::cout << "INFO:: No 3d coords in dictionary : using 2d from dictionary bonds and angles."
 		   << std::endl;
 	 // makes a 2d conformer
 
-	 // Bleugh.  We deal with mol vs m badly here.  
-	 // 
+	 // Bleugh.  We deal with mol vs m badly here.
+	 //
 	 RDKit::RWMol mol_rw = coot::rdkit_mol(rest.second);
 	 RDKit::MolOps::sanitizeMol(mol_rw);
 	 RDKit::ROMol *m = new RDKit::ROMol(mol_rw);
@@ -314,165 +313,6 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 
    // this is not the normal (happy path) return
    return mol;
-}
-     
-RDKit::ROMol *
-coot::hydrogen_transformations(const RDKit::ROMol &mol) {
-
-
-   // debug_rdkit_molecule(&mol);
-   RDKit::RWMol *r = new RDKit::RWMol(mol);
-
-   RDKit::ROMol *query_cooh = RDKit::SmartsToMol("[C^2](=O)O[H]");
-   RDKit::ROMol *query_n    = RDKit::SmartsToMol("[N^3;H2]");
-   std::vector<RDKit::MatchVectType>  matches_cooh;
-   std::vector<RDKit::MatchVectType>  matches_n;
-   bool recursionPossible = true;
-   bool useChirality = true;
-   bool uniquify = true;
-
-   // Note that we get the atom indexing using mol, but we change the
-   // molecule r (I hope that the atoms are equivalently indexed).
-
-   // 20210923-PE FIXME
-   // int matched_cooh = RDKit::SubstructMatch(mol,*query_cooh,matches_cooh,uniquify,recursionPossible, useChirality);
-   // int matched_n    = RDKit::SubstructMatch(mol,*query_n,   matches_n,   uniquify,recursionPossible, useChirality);
-
-   // delete atoms after they have all been identified otherwise the indexing goes haywire.
-   // 
-   std::vector<const RDKit::Atom *> atoms_to_be_deleted;
-
-   if (true) // this is useful info (at the moment at least)
-      std::cout << "Hydrogen_transformations:"
-		<< "\n    number of COOH matches: " << matches_cooh.size()
-		<< "\n    number of NH2  matches: " << matches_n.size()
-		<< "\n";
-
-   if (true) {  // debugging
-      for (unsigned int imatch_cooh=0; imatch_cooh<matches_cooh.size(); imatch_cooh++) {
-	 std::cout << "INFO:: Removable hydrogen COOH matches: ";
-	 for (unsigned int i=0; i<matches_cooh[imatch_cooh].size(); i++) { 
-	    std::cout << " [" << matches_cooh[imatch_cooh][i].first 
-		      << ": "  << matches_cooh[imatch_cooh][i].second
-		      << "]";
-	 }
-	 std::cout << std::endl;
-      }
-   }
-	 
-   for (unsigned int imatch_cooh=0; imatch_cooh<matches_cooh.size(); imatch_cooh++) {
-      
-      const RDKit::Atom *at_c  = (*r)[matches_cooh[imatch_cooh][0].second];
-      const RDKit::Atom *at_o1 = (*r)[matches_cooh[imatch_cooh][1].second];
-      const RDKit::Atom *at_o2 = (*r)[matches_cooh[imatch_cooh][2].second];
-      const RDKit::Atom *at_h  = (*r)[matches_cooh[imatch_cooh][3].second];
-
-      std::string at_c_name, at_o1_name, at_o2_name, at_h_name;
-
-      at_c->setProp( "type_energy", "C");
-      at_o1->setProp("type_energy", "OC");
-      at_o2->setProp("type_energy", "OC");
-
-      RDKit::Bond *bond_1 = r->getBondBetweenAtoms(at_c->getIdx(), at_o1->getIdx());
-      RDKit::Bond *bond_2 = r->getBondBetweenAtoms(at_c->getIdx(), at_o2->getIdx());
-      RDKit::Bond *bond_3 = r->getBondBetweenAtoms(at_h->getIdx(), at_o2->getIdx());
-
-      if (bond_1) {
-	 if (bond_2) {
-	    
-	    // We can't make the bonds deloc in combination with a
-	    // setting of the formal charge on the at_o2 because
-	    // molecule then fails the Oxygen atom valence test in
-	    // sanitization.
-	    // 
-	    bond_1->setBondType(RDKit::Bond::ONEANDAHALF);
-	    bond_2->setBondType(RDKit::Bond::ONEANDAHALF);
-	 }
-      }
-
-      // at_o2->setFormalCharge(-1); // not if the bonds are deloc/ONEANDAHALF.
-      if (bond_3)
-	 r->removeBond(at_o2->getIdx(), at_h->getIdx());
-      else
-	 std::cout << "DEBUG:: hydrogen_transformations(): no bond_3 (O-H bond) found!" << std::endl;
-      atoms_to_be_deleted.push_back(at_h);
-   }
-
-   for (unsigned int imatch_n=0; imatch_n<matches_n.size(); imatch_n++) {
-      unsigned int n_idx = matches_n[imatch_n][0].second;
-      RDKit::Atom *at_n  = (*r)[n_idx];
-      unsigned int degree = at_n->getDegree();
-      at_n->setFormalCharge(+1);
-
-      if (false) {  // debugging
-         std::string name;
-         at_n->getProp("name", name);
-         std::cout << "debug:: N-atom idx " << n_idx << " " << name << " has degree " << degree
-                   << std::endl;
-      }
-
-      if (degree == 4) {
-         // it has its 2 hydrogens already
-         at_n->setProp("type_energy", "NT2"); // also set to NT3 by SMARTS match in pyrogen.py
-      }
-
-      if (degree == 3) {
-         at_n->setProp("type_energy", "NT3"); // also set to NT3 by SMARTS match in pyrogen.py
-         // add a hydrogen atom and a bond to the nitrogen.
-         //
-         RDKit::Atom *new_h_at = new RDKit::Atom(1);
-         // we want to find the idx of this added H, so we do that by
-         // keeping hold of the pointer (otherwise the atom gets copied
-         // on addAtom() and we lose the handle on the new H atom in the
-         // molecule).
-         bool updateLabel=true;
-         bool takeOwnership=true;
-         r->addAtom(new_h_at, updateLabel, takeOwnership);
-         unsigned int h_idx = new_h_at->getIdx();
-         if (h_idx != n_idx) {
-	    r->addBond(n_idx, h_idx, RDKit::Bond::SINGLE);
-         } else {
-	    std::cout << "OOOPs: bad indexing on adding an amine H " << h_idx << std::endl;
-         }
-      }
-   }
-
-#if 0
-   for(unsigned int idel=0; idel<atoms_to_be_deleted.size(); idel++)
-      r->removeAtom(atoms_to_be_deleted[idel]);
-#endif
-
-   std::vector<RDKit::Atom *> non_const_atoms_to_be_deleted(atoms_to_be_deleted.size(), nullptr);
-   for(unsigned int idel=0; idel<atoms_to_be_deleted.size(); idel++)
-      non_const_atoms_to_be_deleted[idel] = const_cast<RDKit::Atom *>(atoms_to_be_deleted[idel]);
-   for(unsigned int idel=0; idel<atoms_to_be_deleted.size(); idel++)
-      r->removeAtom(non_const_atoms_to_be_deleted[idel]);
-
-   // Here do_deloc_bonds should be false when we deal with PDBe input
-   //
-   bool do_deloc_bonds = false;
-   remove_phosphate_hydrogens(r, do_deloc_bonds);
-   remove_sulphate_hydrogens (r, do_deloc_bonds);
-
-   // debug
-   if (false)
-       std::cout << "DEBUG:: hydrogen_transformations calling sanitizeMol() " 
-                 << std::endl;
-   // do we neet to sanitize? Yes, we do because we go on to minimize this molecule
-   RDKit::MolOps::sanitizeMol(*r);
-   if (false)
-       std::cout << "DEBUG:: hydrogen_transformations back from sanitizeMol() " 
-                 << std::endl;
-
-   // delocalize_guanidinos(r); // not yet.
-   
-   RDKit::ROMol *ro_mol = new RDKit::ROMol(*r);
-   if (0)
-      std::cout << "hydrogen_transformations returns mol: " << RDKit::MolToSmiles(*ro_mol) 
-                << std::endl;
-   delete r;
-   return ro_mol;
-
 }
 
 void

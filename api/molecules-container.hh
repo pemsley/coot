@@ -167,6 +167,8 @@ class molecules_container_t {
    bool use_torsion_restraints;
    float torsion_restraints_weight;
 
+   bool use_numerical_gradients; // for debugging the refinement
+
    ctpl::thread_pool thread_pool;
    bool show_timings;
 
@@ -3105,6 +3107,20 @@ public:
    //!
    //! @return the Ramachandran plot restraints weight
    float get_rama_plot_restraints_weight() const { return rama_plot_restraints_weight; }
+
+   //! Turn on or off the numerical gradients check (for debugging the refinement)
+   //!
+   //! When on, minimize() calculates numerical gradients each time that the
+   //! analytical gradients are calculated and writes both to the output
+   //! (one line per coordinate) - so that they can be compared. It is slow and verbose.
+   //!
+   //! @param state is True to mean that it is enabled
+   void set_use_numerical_gradients(bool state) { use_numerical_gradients = state; }
+
+   //! Get the state of the numerical gradients check
+   //!
+   //! @return the state
+   bool get_use_numerical_gradients() const { return use_numerical_gradients; }
 
    //! Turn on or off torsion restraints in refinement
    //!

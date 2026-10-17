@@ -498,7 +498,10 @@ coot::acedrg_sqlite_tables::make_bond_and_angle_restraints(const dictionary_resi
          std::string type = "single";
          auto it = bond_type_for_pair.find(gemmi::Restraints::lexicographic_str(b.id1.atom, b.id2.atom));
          if (it != bond_type_for_pair.end()) type = it->second;
-         dict_bond_restraint_t br(b.id1.atom, b.id2.atom, type, b.value, b.esd, 0.0, 0.0, false);
+         // b.value is the electron-cloud (X-ray) distance; keep the nuclear one too
+         bool have_nucleus = ! (std::isnan(b.value_nucleus) || std::isnan(b.esd_nucleus));
+         dict_bond_restraint_t br(b.id1.atom, b.id2.atom, type, b.value, b.esd,
+                                  b.value_nucleus, b.esd_nucleus, have_nucleus);
          r.bond_restraint.push_back(br);
          n_filled++;
       }

@@ -112,6 +112,9 @@ libcoot_py_restraints_la_SOURCES = mmff-restraints.cc mmff-restraints.hh \
 
 # 20141014 Add $RDKIT_LIBS for Bill
 libcoot_py_restraints_la_LIBADD =  \
+                                $(top_builddir)/ideal/libcoot-ideal.la \
+                                $(top_builddir)/analysis/libcoot-analysis.la \
+                                $(top_builddir)/coot-utils/libcoot-coord-utils.la \
                                 $(top_builddir)/geometry/libcoot-geometry.la \
                                 $(top_builddir)/lidia-core/libcoot-lidia-core.la \
                                 $(top_builddir)/utils/libcoot-utils.la       \
@@ -130,6 +133,7 @@ pyrogen_boost_la_LIBADD = libcoot_py_restraints.la \
                                 $(top_builddir)/pli/libcoot-pli.la                 \
                                 $(top_builddir)/ideal/libcoot-ideal.la             \
                                 $(top_builddir)/coot-utils/libcoot-coord-utils.la  \
+                                $(top_builddir)/analysis/libcoot-analysis.la       \
                                 $(top_builddir)/geometry/libcoot-geometry.la       \
                                 $(top_builddir)/coords/libcoot-coords.la           \
 			        $(top_builddir)/lidia-core/libcoot-lidia-core.la   \

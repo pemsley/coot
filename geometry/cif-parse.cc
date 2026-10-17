@@ -2417,6 +2417,11 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
       if (n_atoms_with_coords == 0)
          add_coordinates = false;
 
+      // if any atom knows its formal charge, write the charge column (for the whole loop)
+      bool have_formal_charges = false;
+      for (const auto &ai : atom_info)
+         if (ai.formal_charge.first) { have_formal_charges = true; break; }
+
       if (atom_info.size()) {
          rc = mmCIFData->AddLoop("_chem_comp_atom", mmCIFLoop);
          if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
@@ -2435,6 +2440,10 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
                // std::cout << "up_type_energy: " << up_type_energy << std::endl;
                ss = up_type_energy.c_str();
                mmCIFLoop->PutString(ss, "type_energy", i);
+               if (have_formal_charges) {
+                  int fc = ai.formal_charge.first ? ai.formal_charge.second : 0;
+                  mmCIFLoop->PutInteger(fc, "charge", i);
+               }
                if (atom_info[i].partial_charge.first) {
                   float v = atom_info[i].partial_charge.second;
                   mmCIFLoop->PutReal(v, "partial_charge", i, 4);
@@ -2498,7 +2507,17 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
                }
                try {
 
-                  if (nuclear_distances_flag) {
+                  if (nuclear_distances_flag && br.nuclear_distance_is_set()) {
+
+                     // this bond has both distances (e.g. from the AceDRG tables), so
+                     // write them as they are
+
+                     mmCIFLoop->PutReal(br.value_dist(), "value_dist",     i, 5);
+                     mmCIFLoop->PutReal(br.value_esd(),  "value_dist_esd", i, 3);
+                     mmCIFLoop->PutReal(br.value_dist_nuclear(), "value_dist_nucleus",     i, 5);
+                     mmCIFLoop->PutReal(br.value_esd_nuclear(),  "value_dist_nucleus_esd", i, 3);
+
+                  } else if (nuclear_distances_flag) {
 
                      // Non-nuclear
 

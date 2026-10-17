@@ -1367,7 +1367,8 @@ namespace coot {
                    int n_cycles,
                    bool do_rama_plot_restraints, float rama_plot_weight,
                    bool do_torsion_restraints, float torsion_weight, bool refinement_is_quiet,
-                   coot::protein_geometry *geom_p);
+                   coot::protein_geometry *geom_p,
+                   bool do_numerical_gradients=false);
 
       bool shiftfield_b_factor_refinement(const clipper::HKL_data<clipper::data32::F_sigF> &F_sigF,
                                           const clipper::HKL_data<clipper::data32::Flag> &free_flag);

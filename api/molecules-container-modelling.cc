@@ -507,7 +507,7 @@ molecules_container_t::minimize_energy(int imol, const std::string &atom_selecti
       status = molecules[imol].minimize(atom_selection_cid, n_cycles,
                                         do_rama_plot_restraints, rama_plot_weight,
                                         do_torsion_restraints, torsion_weight,
-                                        refinement_is_quiet, &geom);
+                                        refinement_is_quiet, &geom, use_numerical_gradients);
       std::string mode = "COLOUR-BY-CHAIN-AND-DICTIONARY";
       bool draw_hydrogen_atoms_flag = true; // use data member as we do for draw_missing_residue_loops_flag?
       unsigned int smoothness_factor = 1;
@@ -555,7 +555,7 @@ molecules_container_t::minimize(int imol, const std::string &atom_selection_cid,
       status = molecules[imol].minimize(atom_selection_cid, n_cycles,
                                         do_rama_plot_restraints, rama_plot_weight,
                                         do_torsion_restraints, torsion_weight,
-                                        refinement_is_quiet, &geom);
+                                        refinement_is_quiet, &geom, use_numerical_gradients);
 
    } else {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;

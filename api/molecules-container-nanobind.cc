@@ -1472,6 +1472,13 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::set_use_rama_plot_restraints,
          nb::arg("state"),
          get_docstring_from_xml("set_use_rama_plot_restraints").c_str())
+    .def("set_use_numerical_gradients",
+         &molecules_container_t::set_use_numerical_gradients,
+         nb::arg("state"),
+         get_docstring_from_xml("set_use_numerical_gradients").c_str())
+    .def("get_use_numerical_gradients",
+         &molecules_container_t::get_use_numerical_gradients,
+         get_docstring_from_xml("get_use_numerical_gradients").c_str())
     .def("set_use_torsion_restraints",
          &molecules_container_t::set_use_torsion_restraints,
          nb::arg("state"),
