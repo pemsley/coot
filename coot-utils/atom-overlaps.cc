@@ -148,7 +148,7 @@ coot::atom_overlaps_container_t::init() {
             // std::cout << "testing for " << residue_name << std::endl;
             d = geom_p->get_monomer_restraints(residue_name, imol_enc);
             if (! d.first) {
-               std::cout << "WARNING:: Overlap fail. Failed to get dictionary for name "
+               std::cout << "WARNING:: atom_overlaps_container_t::init(): Overlap fail. Failed to get dictionary for name "
                          << residue_name << std::endl;
                have_dictionary = false;
                break;
