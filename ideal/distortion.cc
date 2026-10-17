@@ -2585,9 +2585,15 @@ coot::distortion_score_plane_internal(const coot::simple_restraint &plane_restra
    //
    // So, first get the centres:
    double sum_x = 0, sum_y = 0, sum_z = 0;
+   double sum_w = 0;
    int idx;
    int n_atoms = plane_restraint.plane_atom_index.size();
-   double dn_atoms = static_cast<double>(n_atoms);
+
+   // The atoms are individually weighted (1/sigma^2) in the distortion score, so the
+   // plane is fitted with those weights too: that plane minimizes the distortion score
+   // and so the derivatives (process_dfs_plane(), my_df_planes()), which treat the
+   // plane as fixed, are consistent with it. An unweighted fit is not, when the sigmas
+   // of the plane atoms differ (and then the minimizer can stop with GSL_ENOPROG).
 
    if (n_atoms > 0) {
       for (int i=0; i<n_atoms; i++) {
@@ -2598,14 +2604,18 @@ coot::distortion_score_plane_internal(const coot::simple_restraint &plane_restra
 	    std::cout << "trapped bad plane restraint! " << plane_restraint.plane_atom_index[i].first
 		      << std::endl;
 	 } else {
-	    sum_x += gsl_vector_get(v,idx);
-	    sum_y += gsl_vector_get(v,idx+1);
-	    sum_z += gsl_vector_get(v,idx+2);
+	    const double &sigma = plane_restraint.plane_atom_index[i].second;
+	    double w = 1.0/(sigma * sigma);
+	    sum_x += w * gsl_vector_get(v,idx);
+	    sum_y += w * gsl_vector_get(v,idx+1);
+	    sum_z += w * gsl_vector_get(v,idx+2);
+	    sum_w += w;
 	 }
       }
-      double x_cen = sum_x/dn_atoms;
-      double y_cen = sum_y/dn_atoms;
-      double z_cen = sum_z/dn_atoms;
+      if (sum_w == 0.0) sum_w = 1.0; // all bad atom indices
+      double x_cen = sum_x/sum_w;
+      double y_cen = sum_y/sum_w;
+      double z_cen = sum_z/sum_w;
 
       clipper::Matrix<double> mat(3,3);
 
@@ -2615,15 +2625,17 @@ coot::distortion_score_plane_internal(const coot::simple_restraint &plane_restra
 	 // << plane_restraint.atom_index[i] << std::endl;
 	 if (plane_restraint.plane_atom_index[i].first < 0) {
 	 } else {
+	    const double &sigma = plane_restraint.plane_atom_index[i].second;
+	    double w = 1.0/(sigma * sigma);
 	    double v_idx_0 = gsl_vector_get(v,idx  );
 	    double v_idx_1 = gsl_vector_get(v,idx+1);
 	    double v_idx_2 = gsl_vector_get(v,idx+2);
-	    mat(0,0) += (v_idx_0 - x_cen) * (v_idx_0 - x_cen);
-	    mat(1,1) += (v_idx_1 - y_cen) * (v_idx_1 - y_cen);
-	    mat(2,2) += (v_idx_2 - z_cen) * (v_idx_2 - z_cen);
-	    mat(0,1) += (v_idx_0 - x_cen) * (v_idx_1 - y_cen);
-	    mat(0,2) += (v_idx_0 - x_cen) * (v_idx_2 - z_cen);
-	    mat(1,2) += (v_idx_1 - y_cen) * (v_idx_2 - z_cen);
+	    mat(0,0) += w * (v_idx_0 - x_cen) * (v_idx_0 - x_cen);
+	    mat(1,1) += w * (v_idx_1 - y_cen) * (v_idx_1 - y_cen);
+	    mat(2,2) += w * (v_idx_2 - z_cen) * (v_idx_2 - z_cen);
+	    mat(0,1) += w * (v_idx_0 - x_cen) * (v_idx_1 - y_cen);
+	    mat(0,2) += w * (v_idx_0 - x_cen) * (v_idx_2 - z_cen);
+	    mat(1,2) += w * (v_idx_1 - y_cen) * (v_idx_2 - z_cen);
 	 }
       }
       mat(1,0) = mat(0,1);
