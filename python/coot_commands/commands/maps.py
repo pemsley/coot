@@ -21,8 +21,9 @@ from __future__ import annotations
 from typing import Optional
 
 from coot_commands.registry import command
-from coot_commands.types import (resolve_map, resolve_colour, as_float, ArgType,
-                                 ACTIVE_MAP_NOTE)
+from coot_commands.types import (resolve_map, require_map, resolve_colour,
+                                 as_float, ArgType, ACTIVE_MAP_NOTE,
+                                 CommandError)
 
 try:
     import coot
@@ -61,6 +62,35 @@ def contour_absolute(level: str, map: Optional[str] = None) -> str:
     if coot is not None:
         coot.set_contour_level_absolute(imol, lvl)
     return f"Contoured map {imol} at {lvl:g}"
+
+
+@command(r"(?:(?:make )?(?:a )?smoother copy(?: of)?|smooth(?:en)?)"
+         r"(?: map)?(?: (?P<map>(?!by\b|x\b)\S+))?"
+         r"(?:(?: by| x) (?P<factor>[\d.]+))?$",
+         examples=["make a smoother copy of map 1", "smooth map 1 by 2",
+                   "smooth map"],
+         category=CATEGORY,
+         arg_types={"map": ArgType.MAP},
+         notes="Interpolates the map onto a finer grid, making a new map "
+               "molecule and leaving the original alone. The factor "
+               "multiplies the existing grid sampling (the default is 1.25, "
+               "as in Calculate -> Map Tools); larger factors are smoother "
+               "and use more memory. Unlike 'set map sampling rate' this "
+               "acts on a map that is already loaded, but it interpolates "
+               "the existing grid rather than re-transforming the structure "
+               "factors, so it adds no real detail. " + ACTIVE_MAP_NOTE)
+def smooth_map(map: Optional[str] = None, factor: Optional[str] = None) -> str:
+    """Make a smoother (finer-sampled) copy of a map."""
+    imol = require_map(resolve_map(map))
+    mult = 1.25 if factor is None else as_float(factor, "smoothing factor")
+    if mult <= 1.0:
+        raise CommandError(f"the smoothing factor must be more than 1, got {mult:g}")
+    if coot is None:
+        return f"Would smooth map {imol} by a factor of {mult:g}"
+    imol_new = coot.smooth_map(imol, mult)
+    if imol_new < 0:
+        raise CommandError(f"could not make a smoother copy of map {imol}")
+    return f"Made map {imol_new}: map {imol} smoothed by a factor of {mult:g}"
 
 
 @command(r"colou?r map(?: (?P<map>\S+))? (?P<colour>\S+)",
