@@ -109,6 +109,8 @@ molecules_container_t::init() {
    use_rama_plot_restraints = false;
    rama_plot_restraints_weight = 1.0;
 
+   use_numerical_gradients = false;
+
    use_torsion_restraints = false;
    torsion_restraints_weight = 1.0;
 
