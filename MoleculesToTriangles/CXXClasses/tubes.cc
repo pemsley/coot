@@ -995,10 +995,11 @@ make_mesh_for_coil_representation(const std::vector<coil_residues_info_t> &coils
       // helix index, a chain-id character-sum is easily >> 360 (e.g. "A" alone is
       // 65), which without wrapping lands almost every single-letter chain in the
       // same catch-all branch, i.e. all chains come out the same murky colour.
-      double hue = fmod(static_cast<double>(idx) * 0.2695 * 360.0 * 0.1, 360.0);
+      double hue = fmod(static_cast<double>(idx) * 0.2695 * 360.0, 360.0);
       double sat = 0.7;
       double val = 0.7;
-      return hsv_to_rgb(hue, sat, val);
+      glm::vec4 col = hsv_to_rgb(hue, sat, val);
+      return col;
    };
 
    auto fcxx_to_glm = [] (const FCXXCoord &c) {
