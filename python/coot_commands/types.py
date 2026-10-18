@@ -231,8 +231,17 @@ def resolve_residue(chain: Optional[str] = None, resno: Optional[str] = None,
     if chain is not None and resno is not None:
         imol = resolve_model(model)
         chain_id, res = parse_res(chain, resno)
-        return imol, chain_id, res, ""
-    return active_residue()
+        resolved = (imol, chain_id, res, "")
+    else:
+        resolved = active_residue()
+    # Bring it on screen before the command acts on it. This is the one place
+    # every per-residue command says which residue it means, so it is where
+    # "the view follows the work" belongs - a new command gets the behaviour
+    # without having to ask, and there is a single switch to turn it off. See
+    # coot_commands.focus; it is a no-op when autozoom is off and never raises.
+    from coot_commands.focus import follow_residue
+    follow_residue(*resolved)
+    return resolved
 
 
 # Named colours -> (r, g, b) floats in 0..1, for map/background colour commands.
