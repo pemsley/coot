@@ -2312,6 +2312,10 @@ int read_small_molecule_data_cif_and_make_map_using_coords(const char *file_name
       int n_selected_atoms = asc.n_selected_atoms;
       coot::smcif smcif;
       bool state = smcif.read_data_sm_cif(file_name);
+      if (! state) {
+         std::cout << "INFO:: no reflection data in " << file_name << " - no map made" << std::endl;
+         return imol_map;
+      }
 
       std::pair<clipper::Xmap<float>, clipper::Xmap<float> > maps =
 	 smcif.sigmaa_maps_by_calc_sfs(atom_selection, n_selected_atoms);
