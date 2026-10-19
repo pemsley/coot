@@ -7233,6 +7233,33 @@ coot::write_coords_cif(mmdb::Manager *mol, const std::string &file_name) {
 
    util::remove_wrong_cis_peptides(mol);
    // util::correct_link_distances(mol);  // this duplicates the molecule.  Needs investigation - GetLink()?
+
+   // Both mmCIF writers take the atom name from label_atom_id, but atoms that Coot
+   // makes or renames with SetAtomName(name) have only the (auth) name set - so they
+   // would be written with blank (or old) names. Copy auth to label before writing.
+   for (int imod=1; imod<=mol->GetNumberOfModels(); imod++) {
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (! model_p) continue;
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         int n_res = chain_p->GetNumberOfResidues();
+         for (int ires=0; ires<n_res; ires++) {
+            mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+            if (! residue_p) continue;
+            int n_atoms = residue_p->GetNumberOfAtoms();
+            for (int iat=0; iat<n_atoms; iat++) {
+               mmdb::Atom *at = residue_p->GetAtom(iat);
+               if (! at) continue;
+               if (at->isTer()) continue;
+               std::string name = util::remove_leading_spaces(util::remove_trailing_whitespace(at->name));
+               strncpy(at->label_atom_id, name.c_str(), sizeof(mmdb::AtomName)-1);
+               at->label_atom_id[sizeof(mmdb::AtomName)-1] = '\0';
+            }
+         }
+      }
+   }
+
 #ifdef USE_GEMMI
    // mmdb's WriteCIFASCII() serializes TER pseudo-atoms as junk atom rows
    // (the Ter guard in mmdb::Atom::MakeCIF() is commented out) - so prefer

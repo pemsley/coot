@@ -2622,7 +2622,7 @@ molecule_class_info_t::resolve_clashing_sidechains_by_deletion(const coot::prote
 
    bool ignore_waters = true;
    mmdb::Manager *mol = atom_sel.mol;
-   coot::atom_overlaps_container_t overlaps(mol, geom_p, ignore_waters, 0.5, 0.25);
+   coot::atom_overlaps_container_t overlaps(mol, imol_no, geom_p, ignore_waters, 0.5, 0.25);
    std::vector<std::pair<mmdb::Residue *, mmdb::Residue *> > overlapping_residues;
    overlaps.make_all_atom_overlaps();
    std::vector<coot::atom_overlap_t> olv = overlaps.overlaps;
@@ -2673,7 +2673,7 @@ molecule_class_info_t::resolve_clashing_sidechains_by_rebuilding(const coot::pro
 
    bool ignore_waters = true;
    mmdb::Manager *mol = atom_sel.mol;
-   coot::atom_overlaps_container_t overlaps(mol, geom_p, ignore_waters, 0.5, 0.25);
+   coot::atom_overlaps_container_t overlaps(mol, imol_no, geom_p, ignore_waters, 0.5, 0.25);
    std::vector<std::pair<mmdb::Residue *, mmdb::Residue *> > overlapping_residues;
    overlaps.make_all_atom_overlaps();
    std::vector<coot::atom_overlap_t> olv = overlaps.overlaps;

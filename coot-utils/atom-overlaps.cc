@@ -59,12 +59,13 @@ coot::atom_overlaps_container_t::atom_overlaps_container_t(mmdb::Residue *res_ce
 coot::atom_overlaps_container_t::atom_overlaps_container_t(mmdb::Residue *res_central_in,
                                                            mmdb::Residue *neighbour,
                                                            mmdb::Manager *mol_in,
+                                                           int imol_enc_in,
                                                            const protein_geometry *geom_p_in) {
    geom_p = geom_p_in;
    res_central = res_central_in;
    neighbours.push_back(neighbour);
    mol = mol_in;
-   imol_enc = protein_geometry::IMOL_ENC_ANY; // hack
+   imol_enc = imol_enc_in;
    clash_spike_length = 0.5;
    init();
 
@@ -96,6 +97,7 @@ coot::atom_overlaps_container_t::atom_overlaps_container_t(mmdb::Residue *res_ce
 // this can throw a std::out_of_range (missing residue from dictionary)
 // /default args for clash_spike_length_in and probe_radius_in.
 coot::atom_overlaps_container_t::atom_overlaps_container_t(mmdb::Manager *mol_in,
+                                                           int imol_enc_in,
                                                            const protein_geometry *geom_p_in,
                                                            bool ignore_water_contacts_flag_in,
                                                            double clash_spike_length_in,
@@ -104,7 +106,7 @@ coot::atom_overlaps_container_t::atom_overlaps_container_t(mmdb::Manager *mol_in
    geom_p = geom_p_in;
    res_central = 0;
    mol = mol_in;
-   imol_enc = protein_geometry::IMOL_ENC_ANY; // hack
+   imol_enc = imol_enc_in;
    clash_spike_length = 0.5;
    probe_radius = probe_radius_in;
    ignore_water_contacts_flag = ignore_water_contacts_flag_in;

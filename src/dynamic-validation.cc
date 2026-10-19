@@ -185,13 +185,13 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
    GtkWidget *vbox  = widget_from_builder("dynamic_validation_outliers_vbox");
    GtkWidget *label = widget_from_builder("dynamic_validation_outliers_label");
 
-   auto make_overlap_buttons = [to_label, get_target_position, set_target_position_data,
+   auto make_overlap_buttons = [imol, to_label, get_target_position, set_target_position_data,
                                 overlap_button_callback] (mmdb::Manager *mol) {
 
       double vol_crit = 1.2;
       std::vector<std::pair<coot::residue_spec_t, GtkWidget *> > buttons;
       bool ignore_waters = false;
-      coot::atom_overlaps_container_t overlaps(mol, graphics_info_t::Geom_p(), ignore_waters, 0.5, 0.25);
+      coot::atom_overlaps_container_t overlaps(mol, imol, graphics_info_t::Geom_p(), ignore_waters, 0.5, 0.25);
       overlaps.make_all_atom_overlaps();
       std::vector<coot::atom_overlap_t> olv = overlaps.overlaps;
 

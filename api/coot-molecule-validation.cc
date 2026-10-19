@@ -237,15 +237,14 @@ coot::molecule_t::all_molecule_contact_dots(coot::protein_geometry &geom,
    bool ignore_waters_flag = false;
 
    int read_number = 50;
-   int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
    std::vector<residue_spec_t> hetgroups = get_hetgroups();
    for (const auto &hetgroup : hetgroups) {
       const std::string res_name = hetgroup.string_user_data;
-      geom.check_and_try_dynamic_add(res_name, imol_enc, read_number);
+      geom.check_and_try_dynamic_add(res_name, imol_no, read_number);
       read_number++;
    }
 
-   coot::atom_overlaps_container_t overlaps(mol, &geom, ignore_waters_flag, 0.5, 0.25);
+   coot::atom_overlaps_container_t overlaps(mol, imol_no, &geom, ignore_waters_flag, 0.5, 0.25);
 
    bool make_vdw_surface_flag = false;
    coot::atom_overlaps_dots_container_t c = overlaps.all_atom_contact_dots(cdd, make_vdw_surface_flag);
@@ -860,7 +859,7 @@ coot::molecule_t::get_atom_overlaps(protein_geometry *geom_p) {
    std::vector<coot::plain_atom_overlap_t> v;
    if (atom_sel.mol) {
       bool ignore_water_contacts_flag = false;
-      atom_overlaps_container_t aoc(atom_sel.mol, geom_p, ignore_water_contacts_flag);
+      atom_overlaps_container_t aoc(atom_sel.mol, imol_no, geom_p, ignore_water_contacts_flag);
       aoc.make_all_atom_overlaps();
       auto vv = aoc.overlaps;
       v.resize(vv.size());
@@ -881,7 +880,7 @@ coot::molecule_t::get_atom_overlap_score(protein_geometry *geom_p) const {
 
    mmdb::Manager *mol = atom_sel.mol;
    bool ignore_waters_flag = false;
-   coot::atom_overlaps_container_t ao(mol, geom_p, ignore_waters_flag);
+   coot::atom_overlaps_container_t ao(mol, imol_no, geom_p, ignore_waters_flag);
    ao.make_all_atom_overlaps();
    float s = ao.score();
    return s;
@@ -923,7 +922,7 @@ coot::molecule_t::get_overlap_dots(protein_geometry *geom_p) {
    atom_overlaps_dots_container_t aodc;
    if (atom_sel.mol) {
       bool ignore_water_contacts_flag = false;
-      atom_overlaps_container_t aoc(atom_sel.mol, geom_p, ignore_water_contacts_flag);
+      atom_overlaps_container_t aoc(atom_sel.mol, imol_no, geom_p, ignore_water_contacts_flag);
       aoc.make_all_atom_overlaps();
       aodc = aoc.all_atom_contact_dots();
    }

@@ -3935,7 +3935,7 @@ void coot_all_atom_contact_dots_old(int imol) {
       mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
       // spike-length ball-radius
       bool ignore_waters = g.all_atom_contact_dots_ignore_water_flag;
-      coot::atom_overlaps_container_t overlaps(mol, g.Geom_p(), ignore_waters, 0.5, 0.25); // spike length, ball radius
+      coot::atom_overlaps_container_t overlaps(mol, imol, g.Geom_p(), ignore_waters, 0.5, 0.25); // spike length, ball radius
       // dot density
       float dd = graphics_info_t::contact_dots_density;
       coot::atom_overlaps_dots_container_t c = overlaps.all_atom_contact_dots(dd, true);

@@ -310,7 +310,7 @@ namespace coot {
                                     const std::string &altconf,
                                     mmdb::Residue *residue_p);
       // score hypotheses and convert to the best scoring one.
-      void find_best_his_protonation_orientation(mmdb::Residue *residue_p);
+      void find_best_his_protonation_orientation(mmdb::Residue *residue_p, int imol_end);
       void delete_atom_by_name(const std::string &at_name, mmdb::Residue *residue_p);
       void hydrogen_placement_by_dictionary(mmdb::Residue *residue_p,
                                             double bl_aliph,

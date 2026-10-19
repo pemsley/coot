@@ -304,6 +304,7 @@ namespace coot {
       atom_overlaps_container_t(mmdb::Residue *res_central_in,
                                 mmdb::Residue *neighbour,
                                 mmdb::Manager *mol,
+                                int imol_enc,
                                 const protein_geometry *geom_p_in);
       // this one for contact dots (around central ligand)
       atom_overlaps_container_t(mmdb::Residue *res_central_in,
@@ -315,6 +316,7 @@ namespace coot {
                                 double probe_radius_in = 0.25);
       // all atom contact dots and atom overlaps
       atom_overlaps_container_t(mmdb::Manager *mol_in,
+                                int imol_enc_in,
                                 const protein_geometry *geom_p_in,
                                 bool ignore_water_contacts_flag,
                                 double clash_spike_length_in = 0.5,

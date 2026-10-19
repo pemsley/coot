@@ -78,7 +78,8 @@ int main(int argc, char **argv) {
 
                // spike-length probe-radius
                bool use_waters = true;
-               coot::atom_overlaps_container_t overlaps(mol, &geom, use_waters,
+               int imol = 0;
+               coot::atom_overlaps_container_t overlaps(mol, imol, &geom, use_waters,
                                                         0.5, 0.25);
                double dot_density = 0.2;
                coot::atom_overlaps_dots_container_t c = overlaps.all_atom_contact_dots(dot_density);

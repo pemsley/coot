@@ -1127,7 +1127,8 @@ coot::protein_geometry::gphl_chem_comp_info(mmdb::mmcif::PStruct structure, int 
       int idx_rest = get_monomer_restraints_index(comp_id, imol_enc, true);
       if (idx_rest >= 0) {
          dict_res_restraints[idx_rest].second.gphl_chem_comp_info = gphl_chem_comp_info;
-         std::cout << "debug:: adding a gphl info for " << comp_id << " of size " << gphl_chem_comp_info.info.size() << std::endl;
+         if (false)
+            std::cout << "DEBUG:: adding a gphl info for " << comp_id << " of size " << gphl_chem_comp_info.info.size() << std::endl;
       }
    }
 }

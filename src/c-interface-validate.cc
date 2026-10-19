@@ -2750,7 +2750,7 @@ float atom_overlap_score(int imol) {
       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       graphics_info_t g;
       bool ignore_waters_flag = false;
-      coot::atom_overlaps_container_t ao(mol, g.Geom_p(), ignore_waters_flag);
+      coot::atom_overlaps_container_t ao(mol, imol, g.Geom_p(), ignore_waters_flag);
       ao.make_all_atom_overlaps();
       s = ao.score();
    }

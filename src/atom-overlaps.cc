@@ -143,7 +143,7 @@ PyObject *ligand_atom_overlaps_py(int imol, PyObject *ligand_spec, double neighb
      Py_INCREF(r);
    }
    return r;
-} 
+}
 #endif
 
 #ifdef USE_GUILE
@@ -157,7 +157,7 @@ SCM molecule_atom_overlaps_scm(int imol) {
       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       bool ignore_waters = false;
 
-      coot::atom_overlaps_container_t overlaps(mol, graphics_info_t::Geom_p(), ignore_waters, 0.5, 0.25);
+      coot::atom_overlaps_container_t overlaps(mol, imol, graphics_info_t::Geom_p(), ignore_waters, 0.5, 0.25);
       overlaps.make_all_atom_overlaps();
       std::vector<coot::atom_overlap_t> olv = overlaps.overlaps;
       r = SCM_EOL;
@@ -200,7 +200,7 @@ PyObject *molecule_atom_overlaps_py(int imol, int n_max) {
       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       bool ignore_waters = false;
 
-      coot::atom_overlaps_container_t overlaps(mol, graphics_info_t::Geom_p(), ignore_waters, 0.5, 0.25);
+      coot::atom_overlaps_container_t overlaps(mol, imol, graphics_info_t::Geom_p(), ignore_waters, 0.5, 0.25);
       overlaps.make_all_atom_overlaps();
       std::vector<coot::atom_overlap_t> olv = overlaps.overlaps;
       int list_size = n_max;

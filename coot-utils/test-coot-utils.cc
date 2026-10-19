@@ -431,7 +431,8 @@ int test_all_atom_overlaps() {
       // spike length and probe radius (which are not used in overlaps)
 
       bool ignore_water = false;
-      coot::atom_overlaps_container_t overlaps(mol, &geom, ignore_water, 0.5, 0.25);
+      int imol = 0;
+      coot::atom_overlaps_container_t overlaps(mol, imol, &geom, ignore_water, 0.5, 0.25);
 
       overlaps.make_all_atom_overlaps();
       std::vector<coot::atom_overlap_t> olv = overlaps.overlaps;
