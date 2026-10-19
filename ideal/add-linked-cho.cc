@@ -1,24 +1,22 @@
 
 #include <fstream>
 #include <memory>
-#include <variant>
 
 #include "utils/logging.hh"
-
-#include "coot-utils/atom-selection-container.hh"
-#include "extra-restraints.hh"
+#include "utils/coot-utils.hh"
 #include "geometry/residue-and-atom-specs.hh"
+#include "coot-utils/atom-selection-container.hh"
 #include "coot-utils/coot-map-utils.hh"
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot-utils/atom-overlaps.hh"
 #include "coot-utils/glyco-tree.hh"
 #include "coot-utils/glyco-torsions.hh"
 #include "coot-utils/dict-link-info.hh"
+
+#include "extra-restraints.hh"
 #include "torsion-bonds.hh"
 #include "simple-restraint.hh"
-
 #include "add-linked-cho.hh"
-#include "utils/coot-utils.hh"
 
 extern logging logger;
 
@@ -103,8 +101,11 @@ coot::cho::traverse_tree_and_build(const coot::cho::Node& node,
     for (const auto& edge : node.edges) {
        { // debugging
           asc->user_data++;
-          // std::cout << "------------------------------------------ debug_write_pdb() " << asc->user_data << std::endl;
-          // asc->debug_write_pdb();
+
+          if (false) { // debugging
+             std::cout << "------------------------------------------ debug_write_pdb() " << asc->user_data << std::endl;
+             asc->debug_write_pdb();
+          }
        }
        // std::cout << "=============================== edge info with count " << asc->user_data << std::endl;
        printEdgeInfo(edge);
@@ -146,6 +147,59 @@ coot::cho::add_named_glyco_tree(const std::string &glycoylation_name, atom_selec
       child7->edges.push_back({child8,  "ALPHA1-6"});
       child8->edges.push_back({child9,  "ALPHA1-2"});
       child7->edges.push_back({child10, "ALPHA1-3"});
+
+      return root;
+   };
+
+   auto make_test_1 = [] () {
+      // high mannose
+
+      auto root    = std::make_shared<Node>();   root->res_type  = "ASN";   root->level = 0;
+      auto child1  = std::make_shared<Node>(); child1->res_type  = "NAG"; child1->level = 1;
+      auto child2  = std::make_shared<Node>(); child2->res_type  = "NAG"; child2->level = 2;
+      auto child3  = std::make_shared<Node>(); child3->res_type  = "BMA"; child3->level = 3;
+      auto child4  = std::make_shared<Node>(); child4->res_type  = "MAN"; child4->level = 4;
+      // auto child5  = std::make_shared<Node>(); child5->res_type  = "MAN"; child5->level = 5;
+      // auto child6  = std::make_shared<Node>(); child6->res_type  = "MAN"; child6->level = 6;
+      // auto child7  = std::make_shared<Node>(); child7->res_type  = "MAN"; child7->level = 4;
+      // auto child8  = std::make_shared<Node>(); child8->res_type  = "MAN"; child8->level = 5;
+
+      root->edges.push_back({child1,    "pyr-ASN"});
+      child1->edges.push_back({child2,  "BETA1-4"});
+      child2->edges.push_back({child3,  "BETA1-4"});
+      child3->edges.push_back({child4,  "ALPHA1-3"});
+
+      // child4->edges.push_back({child5,  "ALPHA1-2"});
+      // child5->edges.push_back({child6,  "ALPHA1-2"});
+      // child3->edges.push_back({child7,  "ALPHA1-6"});
+      // child7->edges.push_back({child8,  "ALPHA1-6"});
+
+      return root;
+   };
+
+   auto make_test_2 = [] () {
+      // high mannose
+
+      auto root    = std::make_shared<Node>();   root->res_type  = "ASN";   root->level = 0;
+      auto child1  = std::make_shared<Node>(); child1->res_type  = "NAG"; child1->level = 1;
+      auto child2  = std::make_shared<Node>(); child2->res_type  = "NAG"; child2->level = 2;
+      auto child3  = std::make_shared<Node>(); child3->res_type  = "BMA"; child3->level = 3;
+      auto child4  = std::make_shared<Node>(); child4->res_type  = "MAN"; child4->level = 4;
+      auto child5  = std::make_shared<Node>(); child5->res_type  = "MAN"; child5->level = 5;
+
+      // auto child6  = std::make_shared<Node>(); child6->res_type  = "MAN"; child6->level = 6;
+      // auto child7  = std::make_shared<Node>(); child7->res_type  = "MAN"; child7->level = 4;
+      // auto child8  = std::make_shared<Node>(); child8->res_type  = "MAN"; child8->level = 5;
+
+      root->edges.push_back({child1,    "pyr-ASN"});
+      child1->edges.push_back({child2,  "BETA1-4"});
+      child2->edges.push_back({child3,  "BETA1-4"});
+      child3->edges.push_back({child4,  "ALPHA1-3"});
+      child4->edges.push_back({child5,  "ALPHA1-2"});
+
+      // child5->edges.push_back({child6,  "ALPHA1-2"});
+      // child3->edges.push_back({child7,  "ALPHA1-6"});
+      // child7->edges.push_back({child8,  "ALPHA1-6"});
 
       return root;
    };
@@ -210,6 +264,40 @@ coot::cho::add_named_glyco_tree(const std::string &glycoylation_name, atom_selec
       return root;
    };
 
+   auto make_one_branch = [] () {
+
+      auto root   = std::make_shared<Node>();   root->res_type = "ASN";   root->level = 0;
+      auto child1 = std::make_shared<Node>(); child1->res_type = "NAG"; child1->level = 1;
+      auto child2 = std::make_shared<Node>(); child2->res_type = "NAG"; child2->level = 2;
+      auto child3 = std::make_shared<Node>(); child3->res_type = "BMA"; child3->level = 3;
+      auto child4 = std::make_shared<Node>(); child4->res_type = "MAN"; child4->level = 4;
+
+      root->edges.push_back({child1,    "pyr-ASN"});
+      child1->edges.push_back({child2,  "BETA1-4"});
+      child2->edges.push_back({child3,  "BETA1-4"});
+      child3->edges.push_back({child4,  "ALPHA1-3"});
+
+      return root;
+   };
+
+   auto make_two_branch = [] () {
+
+      auto root   = std::make_shared<Node>();   root->res_type = "ASN";   root->level = 0;
+      auto child1 = std::make_shared<Node>(); child1->res_type = "NAG"; child1->level = 1;
+      auto child2 = std::make_shared<Node>(); child2->res_type = "NAG"; child2->level = 2;
+      auto child3 = std::make_shared<Node>(); child3->res_type = "BMA"; child3->level = 3;
+      auto child4 = std::make_shared<Node>(); child4->res_type = "MAN"; child4->level = 4;
+      auto child5 = std::make_shared<Node>(); child5->res_type = "MAN"; child5->level = 4;
+
+      root->edges.push_back({child1,    "pyr-ASN"});
+      child1->edges.push_back({child2,  "BETA1-4"});
+      child2->edges.push_back({child3,  "BETA1-4"});
+      child3->edges.push_back({child4,  "ALPHA1-3"});
+      child3->edges.push_back({child5,  "ALPHA1-6"});
+
+      return root;
+   };
+
    auto make_NAG_NAG_BMA = [] () {
 
       auto root   = std::make_shared<Node>();   root->res_type = "ASN";   root->level = 0;
@@ -232,6 +320,10 @@ coot::cho::add_named_glyco_tree(const std::string &glycoylation_name, atom_selec
    if (glycoylation_name == "hybrid")                root = make_hybrid();
    if (glycoylation_name == "mammalian-biantennary") root = make_mammalian_biantennary();
    if (glycoylation_name == "plant-biantennary")     root = make_plant_biantennary();
+   if (glycoylation_name == "one-branch")            root = make_one_branch();
+   if (glycoylation_name == "two-branch")            root = make_two_branch();
+   if (glycoylation_name == "test-1")                root = make_test_1();
+   if (glycoylation_name == "test-2")                root = make_test_2();
 
    if (root) {
 
@@ -696,7 +788,6 @@ coot::cho::add_linked_residue(atom_selection_container_t *asc,
                               const clipper::Xmap<float> *xmap,
                               float map_weight) {
 
-
    auto make_refinement_residues = [](const std::vector<residue_spec_t> &residue_specs,
                                       mmdb::Manager *mol) {
 
@@ -809,10 +900,19 @@ coot::cho::add_linked_residue(atom_selection_container_t *asc,
                      // parts 6 is mod-sarle
                      if (n > 20) {
                         if (d < 0.42) {
-                           double s = 0.05;
-                           atom_pair_restraints_t apr(atom_name_1, atom_name_2, parent_spec, new_residue_spec,
-                                                      target_dist, s);
-                           extra_restraints.push_back(apr);
+                           // Use the observed spread of this distance (column 4) as the sigma,
+                           // not a fixed value. Long inter-residue distances - e.g. a sugar atom
+                           // to the ASN backbone - have a large spread (they depend on the ASN
+                           // chi angles) and must be weak restraints; a fixed tight sigma crushes
+                           // the geometry into a tangle. Only keep well-conserved distances as a
+                           // geometric prior.
+                           if (rmsd < 0.3) {
+                              double s = rmsd;
+                              if (s < 0.05) s = 0.05; // floor: don't over-restrain
+                              atom_pair_restraints_t apr(atom_name_1, atom_name_2, parent_spec, new_residue_spec,
+                                                         target_dist, s);
+                              extra_restraints.push_back(apr);
+                           }
                         }
                      }
                   }

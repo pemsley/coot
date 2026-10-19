@@ -780,6 +780,8 @@ coot::smcif::get_resolution(const clipper::Cell &cell,
       }
    }
    delete data;
+   if (slim <= 0.0)
+      return clipper::Resolution(); // no reflections: null resolution (not 1/sqrt(0) = inf)
    double reso_A = 1/sqrt(slim);
    // std::cout << "returning clipper::Resolution( " << reso_A << " A)" << std::endl;
    return clipper::Resolution(reso_A);
@@ -1314,12 +1316,12 @@ std::pair<clipper::Xmap<float>, clipper::Xmap<float> >
 coot::smcif::sigmaa_maps_by_calc_sfs(mmdb::Atom **atom_selection, int n_selected_atoms) {
 
    std::pair<clipper::Xmap<float>, clipper::Xmap<float> > p;
-   clipper::HKL_sampling hkl_sampling_local(mydata.cell(), data_resolution);
 
-   if (! my_fsigf.is_null()) { // cell is good
-      if (! my_fsigf.is_null()) { // space group is good
-         if (! data_resolution.is_null()) { // resolution is good
-   
+   if (! data_cell.is_null()) { // cell is good
+      if (! data_spacegroup.is_null()) { // space group is good
+         if (! data_resolution.is_null() && ! my_fsigf.is_null()) { // resolution and data are good
+
+            clipper::HKL_sampling hkl_sampling_local(mydata.cell(), data_resolution);
             clipper::HKL_info::HKL_reference_index ih;
 
             clipper::HKL_data< clipper::datatypes::F_phi<float> > my_fphi_local(mydata.spacegroup(),
