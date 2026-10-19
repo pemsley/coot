@@ -166,13 +166,18 @@ coot::shift_field_b_factor_refinement(const clipper::HKL_data< clipper::datatype
     clipper::TargetFn_scaleLogF1F2<clipper::data32::F_phi,clipper::data32::F_sigF> targetfn( fc, fo );
 
     clipper::ResolutionFn rfn( fo.hkl_info(), basisfn, targetfn, params);
+
+    // put Fc on the scale of Fo, so that the shifts do not depend on the scale of Fo
+    for ( HRI ih = fc.first(); !ih.last(); ih.next() )
+      if ( !fc[ih].missing() )
+        fc[ih].f() *= exp(0.5*basisfn.f(ih.hkl(),cell,rfn.params()));
+
     double r1w, f1w, r1f, f1f, Fo, Fc;
     r1w = f1w = r1f = f1f = 0.0;
     for ( HRI ih = fo_all.first(); !ih.last(); ih.next() )
       if ( !fo_all[ih].missing() ) {
-        float sfac = exp(0.5*basisfn.f(ih.hkl(),cell,rfn.params()));
         Fo = fo_all[ih].f();
-        Fc = sfac * fc[ih].f();
+        Fc = fc[ih].f();
 
         if ( free[ih].flag() == freeflag ) {
                 r1f += fabs( Fo - Fc );
