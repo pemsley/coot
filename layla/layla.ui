@@ -2184,7 +2184,7 @@ Paul Emsley</property>
         <child>
           <object class="GtkLabel">
             <property name="label">You have unsaved changes!
-Do you really want to continue?</property>
+Do you really want to close?</property>
           </object>
         </child>
         <child>
@@ -2194,15 +2194,18 @@ Do you really want to continue?</property>
             <property name="halign">end</property>
             <child>
               <object class="GtkButton">
-                <property name="label">Yes</property>
-                <signal name="clicked" handler="on_layla_unsaved_changes_dialog_yes_clicked" swapped="false" />
+                <property name="label">No</property>
+                <property name="receives-default">true</property>
+                <signal name="clicked" handler="on_layla_unsaved_changes_dialog_no_clicked" swapped="false" />
+                <style>
+                  <class name="suggested-action"/>
+                </style>
               </object>
             </child>
             <child>
               <object class="GtkButton">
-                <property name="label">No</property>
-                <property name="receives-default">true</property>
-                <signal name="clicked" handler="on_layla_unsaved_changes_dialog_no_clicked" swapped="false" />
+                <property name="label">Yes</property>
+                <signal name="clicked" handler="on_layla_unsaved_changes_dialog_yes_clicked" swapped="false" />
               </object>
             </child>
           </object>
