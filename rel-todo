@@ -1,5 +1,11 @@
 --- Items---
 
+o configure should fail if it can't find swig
+
+o Add an end-cap to worms mesh
+
+o EJD: Let me undock the validation buttons.
+
 o Impact statement for Moorhen.
 
 o Look at A1D0T ligand thumbnail - the methyls should not be wedged.
@@ -7,37 +13,47 @@ o Look at A1D0T ligand thumbnail - the methyls should not be wedged.
 o What to test for mmcif dictionaries to buster?
   Generate restraints for new ligands with pyrogen, check that they work and hand them over.
 
-o if esd is more than 360 (200) then ignore that torsion during refinement.
-
-o look at carbohydrate building before release
-
-o check that the atom in the go-to-atom icon is round
-
-o Restart blank with session restore option in an overlay
-  modified by command line argument (--no-state-script
-  forces blank startup with no restore option).
-
-o do worms on 4hhb. The colour variation per chain needs to be larger.
-
-o gaussian surfaces should be drawn with model Material
+o the A1??? monomers are not correctly downloaded/stored
+  e.g. ~/.cache/Coot/monomers/a/A1DIB.cif. What puts them there? Old/dead code now?
+  the are OK in ~/.cache/Coot/A1???.cif
 
 o have another try to fix the specular light in fancy mode
   (test with 4hhb molecular surface)
 
-o trying to change the model material - seems not to affect the drawing of
-  molecule2triangles objects (say, a surface)
-
 o look at 23sr, 9i9k
 
 o Add a "view" that shows formal charges - on this residue - or whole molecule
-
-o configure should fail if it can't find swig
 
 o use RDKit canonical SMILES for atom order and hence atom name.
 
 o make default bond smoothness be "smooth" (2, I think)
 
 o for agentic coot, create a function that does "validate_residue()" - combining metrics
+
+o Restart blank with session restore option in an overlay
+  modified by command line argument (--no-state-script
+  forces blank startup with no restore option).
+* Done.
+
+o gaussian surfaces should be drawn with model Material
+* Done. The material is copied over when the mesh is made.
+        Maybe not a good idea.
+
+o trying to change the model material - seems not to affect the drawing of
+  molecule2triangles objects (say, a surface)
+* The material are copied when the object is constructed.
+
+o check that the atom in the go-to-atom icon is round
+* Done. It is AFAICS.
+
+o do worms on 4hhb. The colour variation per chain needs to be larger.
+* Done.
+
+o if esd is more than 360 (200) then ignore that torsion during refinement.
+* Done.
+
+o look at carbohydrate building before release
+* Done.
 
 o in Range/Pair show the selection
   on completion (second pick), flash the residue range.
