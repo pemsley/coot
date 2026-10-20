@@ -25,7 +25,8 @@ find_package(PNG REQUIRED)
 find_package(GEMMI REQUIRED)
 find_package(Threads REQUIRED)
 find_package(Boost COMPONENTS iostreams regex thread serialization REQUIRED)
-find_package(glm REQUIRED)
+find_package(glm REQUIRED)  # provides the imported target glm::glm (link it to
+                            # propagate glm's include dir; glm is header-only)
 find_package(Doxygen REQUIRED)
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
@@ -323,13 +324,13 @@ target_include_directories(cootmoleculestotriangles PRIVATE
    ${CLIPPER-CORE_INCLUDE_DIR} ${coot_src} ${CLIPPER-MMDB_INCLUDE_DIR} ${CLIPPER-CCP4_INCLUDE_DIR} ${FFTW2_INCLUDE_DIRS})
 
 # use MMDB2_INCLUDE_DIR to find the RDKIT for now.
-target_include_directories(cootapi PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${coot_src}/ccp4mg-utils ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4mg-utils/pygl ${CLIPPER-CORE_INCLUDE_DIR} ${CLIPPER-MMDB_INCLUDE_DIR} ${CLIPPER-CCP4_INCLUDE_DIR} ${FFTW2_INCLUDE_DIRS} ${RDKit_INCLUDE_DIRS} ${GLM_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS} ${PNG_PNG_INCLUDE_DIR} ${RDKit_INCLUDE_DIR})
+target_include_directories(cootapi PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${coot_src}/ccp4mg-utils ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4mg-utils/pygl ${CLIPPER-CORE_INCLUDE_DIR} ${CLIPPER-MMDB_INCLUDE_DIR} ${CLIPPER-CCP4_INCLUDE_DIR} ${FFTW2_INCLUDE_DIRS} ${RDKit_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS} ${PNG_PNG_INCLUDE_DIR} ${RDKit_INCLUDE_DIR})
 
-target_link_libraries(cootmoleculestotriangles PRIVATE ${SSM_LIBRARY} ${CLIPPER-MINIMOL_LIBRARY} ${CLIPPER-MMDB_LIBRARY} ${CLIPPER-CIF_LIBRARY} ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${CLIPPER-CONTRIB_LIBRARY} ${FFTW2_LIBRARY} ${RFFTW2_LIBRARY} ${CCP4C_LIBRARY} gemmi::gemmi_cpp)
+target_link_libraries(cootmoleculestotriangles PRIVATE ${SSM_LIBRARY} ${CLIPPER-MINIMOL_LIBRARY} ${CLIPPER-MMDB_LIBRARY} ${CLIPPER-CIF_LIBRARY} ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${CLIPPER-CONTRIB_LIBRARY} ${FFTW2_LIBRARY} ${RFFTW2_LIBRARY} ${CCP4C_LIBRARY} gemmi::gemmi_cpp glm::glm)
 
 # Charles adds Boost::iostreams Boost::filesystem Boost::system. I don't know why Boost::filesystem was added - I have removed it.
 # 2025-09-20 14:15 PE: Boost::system is no longer a thing - I have removed it
-target_link_libraries(cootapi PRIVATE cootmoleculestotriangles ${SSM_LIBRARY} ${CLIPPER-MINIMOL_LIBRARY} ${CLIPPER-MMDB_LIBRARY} ${CLIPPER-CIF_LIBRARY} ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${CLIPPER-CONTRIB_LIBRARY} ${FFTW2_LIBRARY} ${RFFTW2_LIBRARY} ${CCP4C_LIBRARY} ${ZLIB_LIBRARIES} ${GSL_LIBRARIES} ${GSL_CBLAS_LIBRARY} ${RDKit_libs_for_libcootapi} ${PNG_LIBRARY} Boost::thread Boost::iostreams gemmi::gemmi_cpp ${libdwarf} ${libelf})
+target_link_libraries(cootapi PRIVATE cootmoleculestotriangles ${SSM_LIBRARY} ${CLIPPER-MINIMOL_LIBRARY} ${CLIPPER-MMDB_LIBRARY} ${CLIPPER-CIF_LIBRARY} ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${CLIPPER-CONTRIB_LIBRARY} ${FFTW2_LIBRARY} ${RFFTW2_LIBRARY} ${CCP4C_LIBRARY} ${ZLIB_LIBRARIES} ${GSL_LIBRARIES} ${GSL_CBLAS_LIBRARY} ${RDKit_libs_for_libcootapi} ${PNG_LIBRARY} Boost::thread Boost::iostreams gemmi::gemmi_cpp glm::glm ${libdwarf} ${libelf})
 
 if (OSPRAY_PREFIX)
    target_link_libraries(cootapi PRIVATE ospray::ospray)
@@ -390,7 +391,7 @@ target_link_libraries(test-gemmi-bonds PRIVATE gemmi::gemmi_cpp)
 add_executable(m2t-gemmi-to-gltf
    ${coot_src}/MoleculesToTriangles/gemmi-testing/m2t-gemmi-to-gltf.cc
    ${coot_src}/coot-utils/gltf-export.cc)
-target_include_directories(m2t-gemmi-to-gltf PRIVATE ${coot_src} ${coot_src}/coot-utils ${GLM_INCLUDE_DIRS})
+target_include_directories(m2t-gemmi-to-gltf PRIVATE ${coot_src} ${coot_src}/coot-utils)
 target_link_libraries(m2t-gemmi-to-gltf PRIVATE cootmoleculestotriangles gemmi::gemmi_cpp glm::glm)
 
 # target_compile_features(coot-mini-rsr PRIVATE cxx_std_17)
