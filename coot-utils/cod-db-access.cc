@@ -31,10 +31,11 @@
 
 #include <GraphMol/MolOps.h> // needed?
 
-#include "cod-atom-types.hh"
+#include "lidia-core/cod-atom-types.hh"
 #include "utils/coot-utils.hh"
 // #include "coot-utils/coot-coord-utils.hh" out of order now
-#include "bond-table-record-t.hh"
+#include "lidia-core/bond-table-record-t.hh"
+#include "lidia-core/get-residue.hh"
 
 class hybridization_info_t {
 public:
@@ -150,7 +151,7 @@ get_atom_index(const cod::atom_type_t &cod_1, sqlite3 *db) {
 
    if (db) {
       std::string cmd = "SELECT atom_index from COD_TYPE_4_INDICES WHERE level_4_atom_type = " +
-         coot::util::single_quote(cod_1.cod_type, "'");
+         coot::util::single_quote(cod_1.full_type, "'");
       int index = -1; // unset
       void *data_pointer = static_cast<void *>(&index);
       char *zErrMsg = 0;
@@ -163,7 +164,7 @@ get_atom_index(const cod::atom_type_t &cod_1, sqlite3 *db) {
             sqlite3_free(zErrMsg);
          }
       } else {
-         std::cout << "    " << cod_1.cod_type << " " << index << std::endl;
+         std::cout << "    " << cod_1.full_type << " " << index << std::endl;
          idx = index;
       }
    }
@@ -480,8 +481,8 @@ get_bond_record_try_type_3(const cod::atom_type_t &cod_1,
    cod::bond_table_record_t btr;
    //
    bool done_2 = false;
-   if (cod_1.cod_type == cod_1.main_type) {
-      if (cod_2.cod_type == cod_2.main_type) {
+   if (cod_1.full_type == cod_1.main_type) {
+      if (cod_2.full_type == cod_2.main_type) {
          btr = get_bond_record_try_type_2(cod_1, cod_2, idx_1, idx_2, n_count_min, db);
          done_2 = true;
       }
@@ -647,8 +648,8 @@ get_hybridization_info_string(RDKit::RWMol &rdkm, unsigned int mol_atom_idx_1, u
    //
    // SP > SP-NON > SP1 > SP2 > SP3 # perverse (or lexographical?)
 
-   const RDKit::Atom *at_1 = rdkm[mol_atom_idx_1].get();
-   const RDKit::Atom *at_2 = rdkm[mol_atom_idx_2].get();
+   const RDKit::Atom *at_1 = rdkm[mol_atom_idx_1];
+   const RDKit::Atom *at_2 = rdkm[mol_atom_idx_2];
 
    RDKit::Atom::HybridizationType h_1 = at_1->getHybridization();
    RDKit::Atom::HybridizationType h_2 = at_2->getHybridization();
@@ -679,13 +680,13 @@ get_hybridization_info_string(RDKit::RWMol &rdkm, unsigned int mol_atom_idx_1, u
    RDKit::ROMol::OEDGE_ITER current, end;
    boost::tie(current, end) = rdkm.getAtomBonds(at_1);
    while (current != end) {
-      RDKit::BOND_SPTR bond= rdkm[*current];
+      const RDKit::Bond *bond = rdkm[*current];
       current++;
       n_bonds_at_1++;
    }
    boost::tie(current, end) = rdkm.getAtomBonds(at_2);
    while (current != end) {
-      RDKit::BOND_SPTR bond= rdkm[*current];
+      const RDKit::Bond *bond = rdkm[*current];
       current++;
       n_bonds_at_2++;
    }
@@ -749,11 +750,11 @@ void debug_atom_types(const RDKit::RWMol &rdkm,
    } else {
       for (unsigned int i=0; i<v.size(); i++) {
          std::string name;
-         RDKit::Atom *at = rdkm[i].get();
+         const RDKit::Atom *at = rdkm[i];
          at->getProp("name", name);
          std::string ee_type = v[i].nb1nb2.extra_electron_type();
          std::cout << " types for " << name
-                   << " type-4 " << v[i].cod_type
+                   << " type-4 " << v[i].full_type
                    << " nee " << v[i].nb1nb2.n_extra_electrons()
                    << " std-level_2: " << std::setw(20) << v[i].nb1nb2.string()
                    << " ee: " << ee_type
@@ -812,7 +813,7 @@ void validate_bonds(mmdb::Residue *residue_p,
                   if (atom_1.second && atom_2.second) break;
                }
                if (atom_1.second && atom_2.second) {
-                  double l_sqrd = (coot::co(atom_1.second)-coot::co(atom_2.second)).lengthsq();
+                  double l_sqrd = (coot::lidia_utils::co(atom_1.second)-coot::lidia_utils::co(atom_2.second)).lengthsq();
                   double bl = sqrt(l_sqrd);
                   // std::cout << rest << " bl: " << bl << std::endl;
                   cod::atom_type_t cod_1 = v[atom_1.first];
@@ -824,8 +825,8 @@ void validate_bonds(mmdb::Residue *residue_p,
                   // cod::bond_table_record_t btr = get_bond_table_record(cod_1, cod_2, db);
 
                   std::cout << "##### " << atom_name_1 << " " << atom_name_2 << " types:  l4: "
-                            << cod_1.cod_type << "  l2: " << cod_1.nb1nb2.extra_electron_type() << " and l4: "
-                            << cod_2.cod_type << "  l2: " << cod_2.nb1nb2.extra_electron_type() << std::endl;
+                            << cod_1.full_type << "  l2: " << cod_1.nb1nb2.extra_electron_type() << " and l4: "
+                            << cod_2.full_type << "  l2: " << cod_2.nb1nb2.extra_electron_type() << std::endl;
 
                   hybridization_info_t hybridization_info =
                      get_hybridization_info_string(rdkm, atom_1.first, atom_2.first);
@@ -865,12 +866,12 @@ void validate_bonds(mmdb::Residue *residue_p,
 
                         }
                      } else {
-                        std::cout << "No db atom type index for atom type " << cod_2.cod_type << std::endl;
+                        std::cout << "No db atom type index for atom type " << cod_2.full_type << std::endl;
                         // something like:
                         // cod::bond_table_record_t btr = get_bond_record_try_type_3(cod_1, cod_2, -1, -1, n_count_min, db);
                      }
                   } else {
-                     std::cout << "No db atom type index for atom type " << cod_1.cod_type << std::endl;
+                     std::cout << "No db atom type index for atom type " << cod_1.full_type << std::endl;
                      // so... what do we do now?
                   }
 
@@ -943,7 +944,7 @@ int main(int argc, char **argv) {
                std::cout << "ERROR on reading " << pdb_file_name << std::endl;
             } else {
                coot::residue_spec_t spec(chain_id, res_no, "");
-               mmdb::Residue *residue_p = coot::util::get_residue(spec, mol);
+               mmdb::Residue *residue_p = coot::lidia_utils::get_residue(spec, mol);
                if (residue_p) {
                   // for now we will get a dictionary based on the residue
                   // for future we can read in a dictionary cif
