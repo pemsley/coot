@@ -427,6 +427,38 @@ void setup_python_scripting_entry() {
    add_python_scripting_entry_completion(entry);
 }
 
+gboolean
+on_keyboard_mutate_entry_key_pressed(GtkEventControllerKey *controller,
+                                     guint                  keyval,
+                                     guint                  keycode,
+                                     GdkModifierType        modifiers,
+                                     GtkEntry              *entry) {
+
+   // Esc hides the keyboard-mutate frame. key-pressed is a controller signal,
+   // not an entry signal, so the controller is attached in code (below) rather
+   // than wired from the .ui file.
+   if (keyval == GDK_KEY_Escape) {
+      GtkWidget *frame = widget_from_builder("keyboard_mutate_frame");
+      if (frame)
+         gtk_widget_set_visible(frame, FALSE);
+      graphics_info_t::graphics_grab_focus();
+      return TRUE;
+   }
+   return FALSE;
+}
+
+void setup_keyboard_mutate_entry() {
+
+   GtkWidget *entry = widget_from_builder("keyboard_mutate_entry");
+   if (entry == NULL) {
+      g_error("'keyboard_mutate_entry' from builder is NULL");
+      return;
+   }
+   GtkEventController *key_controller_entry = gtk_event_controller_key_new();
+   g_signal_connect(key_controller_entry, "key-pressed", G_CALLBACK(on_keyboard_mutate_entry_key_pressed), entry);
+   gtk_widget_add_controller(entry, key_controller_entry);
+}
+
 void set_vertical_toolbar_internal_alignment() {
    GtkWidget *toolbar = widget_from_builder("main_window_vbox_inner");
    for(GtkWidget* child = gtk_widget_get_first_child(toolbar); 
@@ -703,6 +735,7 @@ void setup_gui_components() {
 #else
    setup_python_scripting_entry();
 #endif
+   setup_keyboard_mutate_entry();
    setup_curlew_banner();
    setup_tomo_widgets();
    setup_preferences();
