@@ -4593,16 +4593,20 @@ int test_ligand_contact_dots(molecules_container_t &mc) {
    if (mc.is_valid_model_molecule(imol)) {
       unsigned int num_subdivisions = 1;
       coot::instanced_mesh_t im = mc.contact_dots_for_ligand(imol, "262", num_subdivisions);
-      if (im.geom.size() > 1) {
-         if (im.geom[0].instancing_data_A.size() > 10) status = 1;
-         if (im.geom[1].instancing_data_A.size() > 10) status = 1;
-      }
+      // The dots (balls) are in instancing_data_A and the clashes (cylinders) in
+      // instancing_data_B. Since 7d93c52db the dots are spread over one geom per
+      // dot type, so count across all geoms rather than peeking at fixed indices.
+      unsigned int n_balls = 0;
+      unsigned int n_clash = 0;
       for (unsigned int i=0; i<im.geom.size(); i++) {
+         n_balls += im.geom[i].instancing_data_A.size();
+         n_clash += im.geom[i].instancing_data_B.size();
          std::cout << "geom " << i
                    << " A: " << im.geom[i].instancing_data_A.size()
                    << " B: " << im.geom[i].instancing_data_B.size()
                    << std::endl;
       }
+      if (n_balls > 10 && n_clash > 0) status = 1;
    }
    return status;
 }
@@ -8768,10 +8772,11 @@ int main(int argc, char **argv) {
          // status += run_test(test_density_mesh,          "density mesh",             mc);
          // status += run_test(test_molecular_placement_pipeline_r_chain, "MR R-chain", mc);
          // status += run_test(test_molecular_placement_pipeline, "MR pipeline", mc);
-         status += run_test(test_rdkit_mol_pickle, "RDKit Mol Pickle", mc);
-         status += run_test(test_delete_all_waters, "Delete all waters", mc);
-         status += run_test(test_delete_all_hetgroups, "Delete all hetgroups", mc);
-         status += run_test(test_fixed_atoms_during_refinement, "Fixed atoms during refinement", mc);
+         // status += run_test(test_rdkit_mol_pickle, "RDKit Mol Pickle", mc);
+         // status += run_test(test_delete_all_waters, "Delete all waters", mc);
+         // status += run_test(test_delete_all_hetgroups, "Delete all hetgroups", mc);
+         // status += run_test(test_fixed_atoms_during_refinement, "Fixed atoms during refinement", mc);
+         status += run_test(test_ligand_contact_dots,   "ligand contact dots",      mc);
          if (status == n_tests) all_tests_status = 0;
 
          print_results_summary();
