@@ -817,6 +817,7 @@ libcootsumo_la_SOURCES = \
 	sdf-interface.hh         \
 	sdf-internal.hh          \
 	select-atom-info.hh      \
+	servalcat-refine-progress-gui.hh \
 	session-info.cc          \
 	session-info.hh          \
 	Shader.cc Shader.hh      \

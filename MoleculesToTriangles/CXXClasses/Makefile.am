@@ -55,7 +55,7 @@ include_HEADERS = Quaternion.hpp Vector.hpp Vector2.hpp Vector3.hpp \
    CXXMatrix.h			Light.h					SceneSetup.h                    \
    Callbacks.h			LinesPrimitive.h			SecondaryColorScheme.h          \
    Camera.h			MolecularRepresentation.h		SolidColorRule.h                \
-                                MolecularRepresentationInstance.h	SpherePrimitive.h               \
+   m2t-mesh.hh                  MolecularRepresentationInstance.h	SpherePrimitive.h               \
    ColorNamesMap.h		MyMolecule.h				SticksPrimitive.h               \
    ColorRule.h			NRStuff.h				SurfacePrimitive.h              \
    ColorScheme.h		Polyhedron.h				VertexColorNormalPrimitive.h    \
