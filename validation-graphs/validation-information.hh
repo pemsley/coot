@@ -109,7 +109,7 @@ namespace coot {
          }
       }
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
       
       validation_information_t() : min_max(validation_information_min_max_t()), type("UNSET") {}
       validation_information_t(graph_data_type gdt, const validation_information_min_max_t &min_max_in) : min_max(min_max_in), type(gdt) {}

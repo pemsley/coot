@@ -30,7 +30,7 @@ namespace coot {
       validation_information_min_max_t(const double &min_in, const double &max_in) : is_set(true), min(min_in), max(max_in) {}
    };
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 #else
    // values for type:
    enum graph_data_type { UNSET, DENSITY, DISTORTION, ENERGY, PROBABILITY, CORRELATION, LOG_PROBABILITY, TORSION_ANGLE };
@@ -42,7 +42,7 @@ namespace coot {
       validation_information_min_max_t min_max;
       std::vector<chain_validation_information_t> cviv;
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
       std::string type;
       validation_information_t() : min_max(validation_information_min_max_t()), type("UNSET") {}
       validation_information_t(const std::string  &gdt, const validation_information_min_max_t &min_max_in) : min_max(min_max_in), type(gdt) {}
