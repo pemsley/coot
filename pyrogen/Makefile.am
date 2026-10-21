@@ -32,7 +32,7 @@ pyexec_LTLIBRARIES =
 #
 # ENHANCED_LIGAND_TOOLS_CFLAGS is needed to compile with pli pi-stacking header
 AM_CPPFLAGS = $(BOOST_CPPFLAGS) $(RDKIT_CXXFLAGS) $(PYTHON_CPPFLAGS) \
-              $(ENHANCED_LIGAND_TOOLS_CPPFLAGS) -I$(top_srcdir)
+              $(ENHANCED_LIGAND_TOOLS_CPPFLAGS) $(GEMMI_CXXFLAGS) -I$(top_srcdir)
 
 # we don't want "-pthread" which comes in BOOST_CPPFLAGS now
 SWIG_CPPFLAGS = $(RDKIT_CXXFLAGS) $(PYTHON_CXXFLAGS) \
@@ -85,7 +85,7 @@ _pyrogen_swig_la_LIBADD = libcoot_py_restraints.la \
 			  $(top_builddir)/geometry/libcoot-geometry.la       \
 			  $(top_builddir)/utils/libcoot-utils.la             \
                           $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON)   \
-                          $(CLIPPER_LIBS) $(MMDB_LIBS) \
+                          $(CLIPPER_LIBS) $(GEMMI_LIBS) $(MMDB_LIBS) \
 			  $(PYTHON_LIBS) $(CAIRO_LIBS)
 
 # What does this do? If we add it, we don't get this message:
@@ -95,9 +95,9 @@ _pyrogen_swig_la_LIBADD = libcoot_py_restraints.la \
 #
 # _pyrogen_swig_la_LDFLAGS = -avoid-version -module -shared -export-dynamic
 #
-_pyrogen_swig_la_LDFLAGS = -module $(SHARED_LDFLAGS)
+_pyrogen_swig_la_LDFLAGS = -module $(SHARED_LDFLAGS) $(GEMMI_RPATH)
 
-pyrogen_boost_la_LDFLAGS = -module $(SHARED_LDFLAGS)
+pyrogen_boost_la_LDFLAGS = -module $(SHARED_LDFLAGS) $(GEMMI_RPATH)
 
 
 # These get installed in libdir.
@@ -118,13 +118,13 @@ libcoot_py_restraints_la_LIBADD =  \
                                 $(top_builddir)/geometry/libcoot-geometry.la \
                                 $(top_builddir)/lidia-core/libcoot-lidia-core.la \
                                 $(top_builddir)/utils/libcoot-utils.la       \
-                                $(CLIPPER_LIBS) $(MMDB_LIBS) \
+                                $(CLIPPER_LIBS) $(GEMMI_LIBS) $(MMDB_LIBS) \
                                 $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON) \
                                 $(PYTHON_LIBS) $(CAIRO_LIBS)
 
 # -no-undefined causes strange/interesting link errors with clang/Mac OS X 10.10.3
 # libcoot_py_restraints_la_LDFLAGS = -no-undefined 
-libcoot_py_restraints_la_LDFLAGS = $(SHARED_LDFLAGS)
+libcoot_py_restraints_la_LDFLAGS = $(SHARED_LDFLAGS) $(GEMMI_RPATH)
 
 # The name of this starts with lib so it fits with boost::python wrapper
 pyrogen_boost_la_SOURCES = restraints-boost.cc restraints.hh
@@ -137,7 +137,7 @@ pyrogen_boost_la_LIBADD = libcoot_py_restraints.la \
                                 $(top_builddir)/geometry/libcoot-geometry.la       \
                                 $(top_builddir)/coords/libcoot-coords.la           \
 			        $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
-                                $(MMDB_LIBS) $(RDKIT_LIBS) $(L_BOOST_PYTHON)
+                                $(GEMMI_LIBS) $(MMDB_LIBS) $(RDKIT_LIBS) $(L_BOOST_PYTHON)
 
 libpyrogen_boost_la_LIBDFLAGS = -no-undefined
 
