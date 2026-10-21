@@ -2,10 +2,6 @@
 
 o find arp warp persistance density for ligands
 
-o fix order of layla exit buttons
-
-o configure should fail if it can't find swig
-
 o Add an end-cap to worms mesh
 
 o EJD: Let me undock the validation buttons.
@@ -13,6 +9,7 @@ o EJD: Let me undock the validation buttons.
 o Impact statement for Moorhen.
 
 o Look at A1D0T ligand thumbnail - the methyls should not be wedged.
+* Can't reproduce.
 
 o What to test for mmcif dictionaries to buster?
   Generate restraints for new ligands with pyrogen, check that they work and hand them over.
@@ -33,6 +30,12 @@ o use RDKit canonical SMILES for atom order and hence atom name.
 o make default bond smoothness be "smooth" (2, I think)
 
 o for agentic coot, create a function that does "validate_residue()" - combining metrics
+
+o fix order of layla exit buttons
+* Done.
+
+o configure should fail if it can't find swig
+* Done.
 
 o Restart blank with session restore option in an overlay
   modified by command line argument (--no-state-script
@@ -147,8 +150,6 @@ o branching from a branch called dev, i.e. double-dev, does it branch
 * From dev.
 
 o fix installation of coot_headless_api in homebrew
-
-o what does prolif give us?
 
 o add helices as cylinders to MoleculesToTriangles
 
