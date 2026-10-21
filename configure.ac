@@ -309,6 +309,14 @@ dnl =========================== PyGObject =========================
 
 PKG_CHECK_MODULES(PyGObject, pygobject-3.0 >= 3.36)
 
+dnl =========================== SWIG =========================
+
+dnl swig generates the Python bindings (src/coot_wrap_python.cc, pyrogen).
+dnl Find it and substitute $(SWIG) for the Makefiles.
+AC_PATH_PROG([SWIG], [swig])
+AS_IF([test "x$SWIG" = x],
+  [AC_MSG_ERROR([swig not found; it is needed to build the Python bindings])])
+
 dnl =========================== Boost =========================
 
 AX_BOOST_BASE(,,[AC_MSG_ERROR([No boost found])])
