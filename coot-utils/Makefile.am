@@ -192,17 +192,11 @@ check_PROGRAMS = test-h-bonds testshelxreader test-hole test-elastic \
 		 test-dirichlet-process test-born test-gmm test-nef-utils test-zernike \
 		 test-zernike-params test-zernike-nxmap test-zernike-search \
 		 test-coord-utils test-coord-utils-gemmi test-servalcat-refine-progress
-if MAKE_GEMMI_SQLITE
-check_PROGRAMS += test-acedrg-sqlite-tables
-endif
 
 # wrong build order - delete from make check for now.
 # test-emma test-convolute test-coot-utils test-segmap
 
 bin_PROGRAMS = coot-mmrrcc
-if MAKE_GEMMI_SQLITE
-bin_PROGRAMS += coot-make-acedrg-sqlite
-endif
 
 # test_zo_chi_table_SOURCES = test-zo-chi-table.cc
 
@@ -225,20 +219,20 @@ coot_mmrrcc_LDADD = ./libcoot-map-utils.la \
 	$(top_builddir)/utils/libcoot-utils.la           \
 	$(CLIPPER_LIBS)
 
-coot_make_acedrg_sqlite_SOURCES = make-acedrg-sqlite.cc
-coot_make_acedrg_sqlite_LDADD = ./libcoot-coord-utils.la \
-	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
-	$(top_builddir)/geometry/libcoot-geometry.la     \
-	$(top_builddir)/utils/libcoot-utils.la           \
-	$(CLIPPER_LIBS) $(GEMMI_LIBS) $(SQLITE3_LIBS)
+# coot_make_acedrg_sqlite_SOURCES = make-acedrg-sqlite.cc
+# coot_make_acedrg_sqlite_LDADD = ./libcoot-coord-utils.la \
+# 	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
+# 	$(top_builddir)/geometry/libcoot-geometry.la     \
+# 	$(top_builddir)/utils/libcoot-utils.la           \
+# 	$(CLIPPER_LIBS) $(GEMMI_LIBS) $(SQLITE3_LIBS)
 
-test_acedrg_sqlite_tables_SOURCES = test-acedrg-sqlite-tables.cc
-test_acedrg_sqlite_tables_LDADD = $(GEMMI_LIBS) \
-	./libcoot-coord-utils.la \
-	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
-	$(top_builddir)/geometry/libcoot-geometry.la     \
-	$(top_builddir)/utils/libcoot-utils.la           \
-	$(CLIPPER_LIBS) $(SQLITE3_LIBS)
+# test_acedrg_sqlite_tables_SOURCES = test-acedrg-sqlite-tables.cc
+# test_acedrg_sqlite_tables_LDADD = $(GEMMI_LIBS) \
+# 	./libcoot-coord-utils.la \
+# 	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
+# 	$(top_builddir)/geometry/libcoot-geometry.la     \
+# 	$(top_builddir)/utils/libcoot-utils.la           \
+# 	$(CLIPPER_LIBS) $(SQLITE3_LIBS)
 
 make_cablam_like_stats_SOURCES = make-cablam-like-stats.cc
 
@@ -502,9 +496,4 @@ dictionary_atom_types_LDADD = \
 # cache dir (design doc 2026-08-14-acedrg-sqlite-tables-in-coot-design.md).
 # --if-missing: skips if the DB already exists and exits 0 on failure -
 # "it is OK if this run fails".
-if MAKE_GEMMI_SQLITE
-if HAVE_ACEDRG_TABLES_DIR
-all-local: coot-make-acedrg-sqlite$(EXEEXT)
-	-./coot-make-acedrg-sqlite$(EXEEXT) --if-missing $(ACEDRG_TABLES_DIR)
-endif
-endif
+# -./coot-make-acedrg-sqlite$(EXEEXT) --if-missing $(ACEDRG_TABLES_DIR)
