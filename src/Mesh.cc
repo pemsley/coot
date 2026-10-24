@@ -2264,6 +2264,7 @@ Mesh::draw(Shader *shader_p,
    if (use_blending) {
       glEnable(GL_BLEND);
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+      glDepthMask(GL_FALSE); // back-to-front transparency: blend through layers, don't occlude them
    }
 
    if (is_instanced) {
@@ -2328,6 +2329,7 @@ Mesh::draw(Shader *shader_p,
 
    if (use_blending) {
       glDisable(GL_BLEND);
+      glDepthMask(GL_TRUE); // restore depth writes
    }
    glDisableVertexAttribArray(0);
    glDisableVertexAttribArray(1);
@@ -2530,6 +2532,7 @@ Mesh::draw_with_shadows(Shader *shader_p,
    if (use_blending) {
       glEnable(GL_BLEND);
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+      glDepthMask(GL_FALSE); // back-to-front transparency: blend through layers, don't occlude them
    }
 
    // std::cout << "is_instanced " << is_instanced << " " << name << std::endl;
@@ -2588,6 +2591,7 @@ Mesh::draw_with_shadows(Shader *shader_p,
 
    if (use_blending) {
       glDisable(GL_BLEND);
+      glDepthMask(GL_TRUE); // restore depth writes
    }
    glDisableVertexAttribArray(0);
    glDisableVertexAttribArray(1);
@@ -4027,21 +4031,24 @@ Mesh::sort_map_triangles(const glm::vec3 &eye_position) {
       map_triangle_centres[i].second.back_front_projection_distance = dd;
    }
 
-   // this sign needs checking (I did, I think that it's right now).
+   // farthest-first (back-to-front) for "over" alpha compositing with depth-writes disabled.
    auto map_triangle_sorter = [] (const std::pair<int, map_triangle_t> &t1,
                                   const std::pair<int, map_triangle_t> &t2) {
-                                 return (t1.second.back_front_projection_distance < t2.second.back_front_projection_distance);
+                                 return (t1.second.back_front_projection_distance > t2.second.back_front_projection_distance);
                               };
 
    std::sort(map_triangle_centres.begin(), map_triangle_centres.end(), map_triangle_sorter);
 
    unsigned int n_triangle_centres = map_triangle_centres.size();
+   if (n_triangle_centres == 0) return;
 
-   int *indices_for_triangles = new int[3 * n_triangle_centres]; // d (hot-path mallocing! Woo!)
+   // reused scratch buffer - this is a hot path (runs every frame while rotating)
+   if (sorted_tri_indices.size() != 3 * n_triangle_centres)
+      sorted_tri_indices.resize(3 * n_triangle_centres);
    for (unsigned int i=0; i<map_triangle_centres.size(); i++) {
-      indices_for_triangles[3*i  ] = map_triangle_centres[i].second.point_id[0];
-      indices_for_triangles[3*i+1] = map_triangle_centres[i].second.point_id[1];
-      indices_for_triangles[3*i+2] = map_triangle_centres[i].second.point_id[2];
+      sorted_tri_indices[3*i  ] = map_triangle_centres[i].second.point_id[0];
+      sorted_tri_indices[3*i+1] = map_triangle_centres[i].second.point_id[1];
+      sorted_tri_indices[3*i+2] = map_triangle_centres[i].second.point_id[2];
    }
 
    // if (xmap_is_diff_map)
@@ -4054,11 +4061,9 @@ Mesh::sort_map_triangles(const glm::vec3 &eye_position) {
    err = glGetError(); if (err) std::cout << "GL error: sorting triangles: " << err << std::endl;
 
    unsigned int n_bytes = 3 * n_triangle_centres * sizeof(unsigned int);
-   glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, n_bytes, &indices_for_triangles[0]);
+   glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, n_bytes, &sorted_tri_indices[0]);
    err = glGetError(); if (err) std::cout << "GL error: sorting triangles: " << err << std::endl;
    glBindVertexArray(0);
-
-   delete [] indices_for_triangles;
 
    // for next time
    previous_eye_position = eye_position;

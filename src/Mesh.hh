@@ -483,6 +483,7 @@ public:
    std::optional<float> get_radius_of_gyration() const;
    std::vector<std::pair<int, map_triangle_t> >  map_triangle_centres;
    glm::vec3 previous_eye_position; // for testing if we need to sort the triangles
+   std::vector<unsigned int> sorted_tri_indices; // reused scratch for sort_map_triangles() (avoid per-frame alloc)
    void sort_map_triangles(const glm::vec3 &eye_position);
 
    void remove_last_subobject(unsigned int n_vertices, unsigned int n_triangles);
