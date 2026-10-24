@@ -57,6 +57,8 @@
 #include "cc-interface.hh" // for fullscreen()
 #include "rotate-translate-modes.hh"
 
+#include "coot-utils/json.hpp"
+
 #include "utils/logging.hh"
 extern logging logger;
 
@@ -6574,6 +6576,47 @@ recent_file_menu_label(const coot::session::recent_file_t &rf) {
    return base; // coordinates
 }
 
+// Encode a recent-files entry's identity (type, path and - for maps - the
+// column selection) as a JSON string, for use as the action target. The
+// identity is used rather than the list position so that a click opens
+// exactly the file named on the menu item even if session.json has been
+// reordered since the menu was built (e.g. by a file read from scripting or
+// from the MTZ column selector, which do not rebuild this menu).
+static std::string
+recent_file_action_target(const coot::session::recent_file_t &rf) {
+
+   nlohmann::json j;
+   j["type"]        = rf.type;
+   j["path"]        = rf.path;
+   j["f_col"]       = rf.f_col;
+   j["phi_col"]     = rf.phi_col;
+   j["weight_col"]  = rf.weight_col;
+   j["use_weights"] = rf.use_weights;
+   j["is_diff_map"] = rf.is_diff_map;
+   return j.dump();
+}
+
+// Decode a target string made by recent_file_action_target(). Returns false
+// (and leaves rf untouched) if the string is not parseable.
+static bool
+recent_file_from_action_target(const std::string &s, coot::session::recent_file_t &rf) {
+
+   try {
+      nlohmann::json j = nlohmann::json::parse(s);
+      rf.type        = j.value("type", "");
+      rf.path        = j.value("path", "");
+      rf.f_col       = j.value("f_col", "");
+      rf.phi_col     = j.value("phi_col", "");
+      rf.weight_col  = j.value("weight_col", "");
+      rf.use_weights = j.value("use_weights", false);
+      rf.is_diff_map = j.value("is_diff_map", false);
+      return (! rf.type.empty() && ! rf.path.empty());
+   }
+   catch (const std::exception &e) {
+      return false;
+   }
+}
+
 // Rebuild the File -> Open Recent submenu from session.json. Each item
 // carries its index in the list as a string target for the parameterised
 // "open_recent_file_action".
@@ -6596,7 +6639,10 @@ update_open_recent_submenu() {
 
    for (unsigned int i=0; i<rfs.size(); i++) {
       std::string label = recent_file_menu_label(rfs[i]);
-      std::string target = std::to_string(i);
+      // The target carries the entry's identity, not its list position, so
+      // that reordering of session.json between building this menu and the
+      // click does not open the wrong file.
+      std::string target = recent_file_action_target(rfs[i]);
       GMenuItem *item = g_menu_item_new(label.c_str(), nullptr);
       g_menu_item_set_action_and_target_value(item, "app.open_recent_file_action",
                                               g_variant_new_string(target.c_str()));
@@ -6614,12 +6660,10 @@ void open_recent_file_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    const char *s = g_variant_get_string(parameter, nullptr);
    if (! s)
       return;
-   int idx = atoi(s);
-   std::vector<coot::session::recent_file_t> rfs = coot::session::get_recent_files();
-   if (idx < 0 || idx >= static_cast<int>(rfs.size()))
-      return;
 
-   const coot::session::recent_file_t &rf = rfs[idx];
+   coot::session::recent_file_t rf;
+   if (! recent_file_from_action_target(std::string(s), rf))
+      return;
 
    if (! std::filesystem::exists(rf.path)) {
       std::string m = "File no longer exists: " + rf.path;
