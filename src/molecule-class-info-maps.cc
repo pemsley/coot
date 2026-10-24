@@ -248,7 +248,7 @@ molecule_class_info_t::draw_map_molecule( stereo_eye_t eye,
          bool do_depth_fog = graphics_info_t::shader_do_depth_fog_flag;
          bool wireframe_mode = false; // aka "standard lines" / chickenwire
          if (opacity < 1.0)
-            map_as_mesh.sort_map_triangles(eye_position);
+            map_as_mesh.sort_map_triangles(glm::vec3(ep)); // world-space eye, so the sort follows rotation
          map_as_mesh.draw(&shader, eye, mvp, view_rotation, lights, eye_position, rotation_centre, opacity, bgc,
                           wireframe_mode, do_depth_fog, show_just_shadows);
       }
@@ -1299,9 +1299,9 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
             triangles.push_back(tri);
 
             glm::vec3 sum(0.0f,0.0f,0.0f);
-            sum += vertices[tri_con.point_indices[i].pointID[0]].pos;
-            sum += vertices[tri_con.point_indices[i].pointID[1]].pos;
-            sum += vertices[tri_con.point_indices[i].pointID[2]].pos;
+            sum += vertices[tri.point_id[0]].pos; // tri is already rebased - index the combined vertices correctly
+            sum += vertices[tri.point_id[1]].pos;
+            sum += vertices[tri.point_id[2]].pos;
             glm::vec3 mid_point = 0.333333f * sum;
 
             // now map triangles (used for sorting)
@@ -1342,9 +1342,9 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
             triangles.push_back(tri);
 
             glm::vec3 sum(0.0f,0.0f,0.0f);
-            sum += vertices[tri_con.point_indices[i].pointID[0]].pos;
-            sum += vertices[tri_con.point_indices[i].pointID[1]].pos;
-            sum += vertices[tri_con.point_indices[i].pointID[2]].pos;
+            sum += vertices[tri.point_id[0]].pos; // tri is already rebased - index the combined vertices correctly
+            sum += vertices[tri.point_id[1]].pos;
+            sum += vertices[tri.point_id[2]].pos;
             glm::vec3 mid_point = 0.333333f * sum;
 
             // now map triangles (used for sorting)
