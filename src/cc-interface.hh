@@ -4830,6 +4830,11 @@ map_to_model_correlation_stats_per_residue_range_py(int imol,
                                                     unsigned int n_residue_per_residue_range,
                                                     short int exclude_mainchain_NOC_flag);
 
+
+//! an alias for the above function
+PyObject *get_mmrrcc_py(int imol, const std::string &chain_id, int imol_map,
+                        unsigned int n_residues_per_residue_range,
+                        short int exclude_mainchain_NOC_flag);
 #endif
 
 //! \}

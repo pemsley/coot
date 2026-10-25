@@ -182,6 +182,14 @@ map_to_model_correlation_stats_per_residue_range_py(int imol, const std::string 
 }
 #endif
 
+//! an alias for the above function
+PyObject *get_mmrrcc_py(int imol, const std::string &chain_id, int imol_map,
+                        unsigned int n_residues_per_residue_range,
+                        short int exclude_mainchain_NOC_flag) {
+
+   return map_to_model_correlation_stats_per_residue_range_py(imol, chain_id, imol_map, n_residues_per_residue_range, exclude_mainchain_NOC_flag);
+}
+
 #ifdef USE_GUILE
 SCM map_to_model_correlation_stats_per_residue_range_scm(int imol, const std::string &chain_id, int imol_map,
                                                          unsigned int n_residue_per_residue_range,
