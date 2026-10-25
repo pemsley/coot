@@ -1997,7 +1997,18 @@ graphics_info_t::draw_molecules_with_shadows(stereo_eye_t eye) {
                                    const glm::mat4 &mvp,
                                    const glm::mat4 &model_rotation_matrix,
                                    const glm::vec4 &bg_col_v4,
-                                   const glm::mat4 &light_view_mvp) {
+                                   const glm::mat4 &light_view_mvp,
+                                   bool draw_transparent_maps) {
+
+                                  // draw opaque maps and transparent maps in separate passes so that
+                                  // transparent maps are drawn last (after all opaque geometry). With
+                                  // depth-writes on, a transparent map drawn too early would occlude
+                                  // the opaque geometry behind it.
+                                  if (draw_transparent_maps) {
+                                     if (m.is_an_opaque_map()) return;
+                                  } else {
+                                     if (! m.is_an_opaque_map()) return;
+                                  }
 
                                   // draw_map_molecule() (the non-shadow version) is inside molecule_class_info_t - so should this function be too
                                   if (m.draw_it_for_map) {
@@ -2039,10 +2050,11 @@ graphics_info_t::draw_molecules_with_shadows(stereo_eye_t eye) {
 
 
 
+   // opaque maps now; transparent maps are drawn last (see below)
    for (int i=0; i<n_mols; i++) {
       if (is_valid_map_molecule(i)) {
          molecule_class_info_t &m = molecules[i];
-         draw_map_with_shadow(m, mvp, model_rotation_matrix, bg_col_v4, light_view_mvp);
+         draw_map_with_shadow(m, mvp, model_rotation_matrix, bg_col_v4, light_view_mvp, false);
       }
    }
 
@@ -2094,8 +2106,13 @@ graphics_info_t::draw_molecules_with_shadows(stereo_eye_t eye) {
 
    // transparent things...
 
-   // draw_map_molecules(true);
-
+   // transparent maps last, so they blend over (and don't occlude) the opaque geometry above
+   for (int i=0; i<n_mols; i++) {
+      if (is_valid_map_molecule(i)) {
+         molecule_class_info_t &m = molecules[i];
+         draw_map_with_shadow(m, mvp, model_rotation_matrix, bg_col_v4, light_view_mvp, true);
+      }
+   }
 
 }
 

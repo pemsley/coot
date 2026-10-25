@@ -2264,7 +2264,9 @@ Mesh::draw(Shader *shader_p,
    if (use_blending) {
       glEnable(GL_BLEND);
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-      glDepthMask(GL_FALSE); // back-to-front transparency: blend through layers, don't occlude them
+      // Note: depth writes are deliberately left ON. Combined with the farthest-first
+      // sort this gives back-to-front multi-layer blending while keeping the depth
+      // buffer populated, which the Fancy-mode framebuffer blur/composite depends on.
    }
 
    if (is_instanced) {
@@ -2329,7 +2331,6 @@ Mesh::draw(Shader *shader_p,
 
    if (use_blending) {
       glDisable(GL_BLEND);
-      glDepthMask(GL_TRUE); // restore depth writes
    }
    glDisableVertexAttribArray(0);
    glDisableVertexAttribArray(1);
@@ -2532,7 +2533,9 @@ Mesh::draw_with_shadows(Shader *shader_p,
    if (use_blending) {
       glEnable(GL_BLEND);
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-      glDepthMask(GL_FALSE); // back-to-front transparency: blend through layers, don't occlude them
+      // Note: depth writes are deliberately left ON. Combined with the farthest-first
+      // sort this gives back-to-front multi-layer blending while keeping the depth
+      // buffer populated, which the Fancy-mode framebuffer blur/composite depends on.
    }
 
    // std::cout << "is_instanced " << is_instanced << " " << name << std::endl;
@@ -2591,7 +2594,6 @@ Mesh::draw_with_shadows(Shader *shader_p,
 
    if (use_blending) {
       glDisable(GL_BLEND);
-      glDepthMask(GL_TRUE); // restore depth writes
    }
    glDisableVertexAttribArray(0);
    glDisableVertexAttribArray(1);
