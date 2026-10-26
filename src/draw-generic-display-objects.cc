@@ -185,7 +185,7 @@ graphics_info_t::draw_generic_objects(unsigned int pass_type, stereo_eye_t eye) 
 		     // obj.mesh.debug_mode = true;
                      obj.mesh.draw_instanced(pass_type, &shader_for_instanced_objects, eye, mvp, model_rotation,
                                              lights, eye_position, get_rotation_centre(), bg_col,
-                                             do_depth_fog, true, true, false, 0.25f, 3.0f, 0.2f, 0.0f);
+                                             do_depth_fog, obj.mesh.is_instanced_colours, true, false, 0.25f, 3.0f, 0.2f, 0.0f);
                   } else {
                      // std::cout << "   draw_generic_objects() draw() " << obj.mesh.name << std::endl;
                      bool show_just_shadows = false;

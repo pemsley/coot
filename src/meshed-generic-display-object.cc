@@ -324,7 +324,13 @@ meshed_generic_display_object::add_cylinder(const std::pair<glm::vec3, glm::vec3
          c.add_octahemisphere_end_cap();
    }
    if (do_faces) {
+      unsigned int face_vertices_start = c.vertices.size();
       c.add_sad_face();
+      // the sad-face is baked near the finish end (z~0.9); it renders ~one spike-length beyond
+      // the tip, so shift it back along the cylinder axis to seat it on the spike. One knob to tune:
+      float face_z_shift = 1.5f;
+      for (unsigned int i=face_vertices_start; i<c.vertices.size(); i++)
+         c.vertices[i].pos.z -= face_z_shift;
    }
 
    // for (unsigned int i=0; i<c.vertices.size(); i++)
@@ -336,18 +342,21 @@ meshed_generic_display_object::add_cylinder(const std::pair<glm::vec3, glm::vec3
    // caches eyelashes!
 
    if (do_faces) {
-      // std::string file_name("grey-eyelashes-many-lashes.glb");
-      // eyelash_r.load_from_glTF(file_name, false); // tries local directory first
       Mesh eyelash_r = graphics_info_t::get_mesh_for_eyelashes();
-      eyelash_r.apply_scale(0.026);
-      eyelash_r.translate_by(glm::vec3(0.07, 0, 0.93));
+      glm::vec4 dark_grey(0.2, 0.2, 0.3, 1.0);
+      for (auto &v : eyelash_r.vertices) v.color = dark_grey;
+      float z_comp = 1.1f/0.7f; // match the eyes: compensate for the z-squashed (stubby) instance scaling
+      eyelash_r.apply_transformation(glm::scale(glm::mat4(1.0f), glm::vec3(0.026f, 0.026f, 0.026f * z_comp)));
+      eyelash_r.translate_by(glm::vec3(0.065, 0, -0.6)); // match the shifted eye frame (x_base 0.065, z = 0.9 - face_z_shift)
       Mesh eyelash_l = eyelash_r;
       glm::mat4 rm(1.0f);
-      glm::mat4 mirror_y(1.0f); mirror_y[1][1] = -1.0f; // does this change the normals also?
+      glm::mat4 mirror_y(1.0f); mirror_y[1][1] = -1.0f;
       eyelash_l.apply_transformation(mirror_y);
-      eyelash_l.invert_normals();
-      glm::mat4 m_r = glm::rotate(rm,  0.5f, glm::vec3(0,0,1));
-      glm::mat4 m_l = glm::rotate(rm, -0.5f, glm::vec3(0,0,1));
+      // a y-mirror reflects the geometry: reflect the normals in y to match (apply_transformation
+      // does positions only, and invert_normals() flips all three components, which is wrong here).
+      for (auto &v : eyelash_l.vertices) v.normal.y = -v.normal.y;
+      glm::mat4 m_r = glm::rotate(rm,  0.5236f, glm::vec3(0,0,1)); // 30 degrees, matching the eyes
+      glm::mat4 m_l = glm::rotate(rm, -0.5236f, glm::vec3(0,0,1));
       eyelash_r.apply_transformation(m_r);
       eyelash_l.apply_transformation(m_l);
       mesh.import(eyelash_r.vertices, eyelash_r.triangles);

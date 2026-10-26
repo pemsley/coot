@@ -773,8 +773,8 @@ graphics_info_t::setup_cylinder_clashes(const coot::atom_overlaps_dots_container
       // instancing for capped cylinders
       meshed_generic_display_object &obj = g.generic_display_objects[clashes_obj_index];
       // std::cout << ":::::::::: in setup_cylinder_clashes() obj.get_imol() " << obj.get_imol() << std::endl;
-      float line_radius = 0.062f;
-      line_radius = tube_radius;
+      float line_radius = tube_radius;
+      if (extra_annotation) line_radius = 0.062f; // the baked-in face geometry (add_sad_face) expects this radius
       const unsigned int n_slices = 16;
       std::pair<glm::vec3, glm::vec3> pos_pair(glm::vec3(0,0,0), glm::vec3(0,0,1));
       obj.add_cylinder(pos_pair, clash_col, line_radius, n_slices, true, true,
@@ -820,6 +820,8 @@ graphics_info_t::setup_cylinder_clashes(const coot::atom_overlaps_dots_container
       unsigned int n_instances = mats.size();
       obj.mesh.setup_rtsc_instancing(nullptr, mats, cols, n_instances, material); // also does setup_buffers()
       obj.mesh.update_instancing_buffer_data(mats, cols); // is this needed?
+      if (extra_annotation)
+         obj.mesh.is_instanced_colours = false; // use per-vertex colours so the face keeps its own colours
       set_display_generic_object_simple(clashes_obj_index, 1);
 
       // add continuous updating
@@ -836,6 +838,7 @@ bool
 graphics_info_t::get_exta_annotation_state() {
 
    bool extra_annotation = false;
+   if (curmudgeon_mode) return false;
    time_t times = time(NULL);
    struct tm result;
    localtime_r(&times, &result);
