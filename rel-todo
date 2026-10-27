@@ -1,5 +1,51 @@
 --- Items---
 
+o "Worms by B-factor" - should not be difficult.
+
+o multi-residue for copy-fragment "//A/90,92" didn't work
+  Nor did "//A/90||//A/92"
+
+o look at coot-nearest-layer-runtime-api-HEAD.patch
+
+o Oli: the preference to switch off active map on dragging
+  seems to be broken - it should update the map after mouse
+  release, but instead it is only happening when update_maps
+  is called explicitly (e.g. during recontouring)
+
+o Ah, OK. I will add --no-config-script and --no-scripts which
+  will do both.
+
+o look at coot-gtk4-deferred-map-pan.patch
+
+o add mmrrcc to the src api
+
+o add (back) alpha helix restraints
+
+o let me change the moving-atoms bond thickness
+
+o let me change the moving atoms hue/lighting(?)
+
+o colour residues by atom overlap badness
+  (use user-defined colours of course)
+
+o Oli idea: search by sequence. Allow wildcard
+  and ambiguity e.g. (A/S). Consider sequon.
+
+o in "Open Recent" - show me the path (or a path
+  fragment so that I can see that I am loading
+  "refine.pdb" from the right directory)
+
+o user-defined colour in CA+sidechain mode?
+  Useful for colour-by-rotamer-probability
+
+o Search monomer library kill and reopen
+
+o likewise Environment distances
+
+o "Let me remove a module menu" - Oli
+
+o Contact dots during refinement, once added can no longer be undone (in the gui)
+
 o find arp warp persistance density for ligands
 
 o Add an end-cap to worms mesh

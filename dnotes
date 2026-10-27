@@ -12148,3 +12148,26 @@ Thu 13 Aug 11:18:22 BST 2026
    https://bioart.niaid.nih.gov
    https://bioicons.com/
 
+----
+
+   what can NCBI CCD do for us? Domain boundaries and interactions?
+
+----
+
+   for Lucrezia:
+   consider pi-bulge as well as 3-10 helices
+
+-----
+
+   Concern: the non-bonded contacts between the atoms of bases is wrong
+   and so it seems that the molecule "condenses."
+
+   look at 2pwt.
+
+   Now do a a coot.regularize_residues_py(0, coot_utils.all_residues(0)).
+   Compare the packing before and after - say the distance between the
+   atoms of the bases of the neighbouring residues.
+
+   Also look at the base paring distances.
+
+
