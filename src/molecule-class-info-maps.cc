@@ -247,10 +247,52 @@ molecule_class_info_t::draw_map_molecule( stereo_eye_t eye,
          bool show_just_shadows = false;
          bool do_depth_fog = graphics_info_t::shader_do_depth_fog_flag;
          bool wireframe_mode = false; // aka "standard lines" / chickenwire
-         if (opacity < 1.0)
-            map_as_mesh.sort_map_triangles(glm::vec3(ep)); // world-space eye, so the sort follows rotation
-         map_as_mesh.draw(&shader, eye, mvp, view_rotation, lights, eye_position, rotation_centre, opacity, bgc,
-                          wireframe_mode, do_depth_fog, show_just_shadows);
+         // Runtime-selectable nearest-layer transparency for solid density maps.
+         // Unlike alpha-blended multilayer rendering, nearest-depth selection
+         // does not require CPU triangle sorting.
+         const bool nearest_layer = opacity > 0.0f && opacity < 1.0f &&
+                                    graphics_info_t::nearest_layer_transparency;
+         if (nearest_layer) {
+            GLboolean old_colour_mask[4];
+            GLboolean old_depth_mask;
+            GLint old_depth_func;
+            GLboolean old_blend = glIsEnabled(GL_BLEND);
+            bool old_mesh_blending = map_as_mesh.use_blending;
+            glGetBooleanv(GL_COLOR_WRITEMASK, old_colour_mask);
+            glGetBooleanv(GL_DEPTH_WRITEMASK, &old_depth_mask);
+            glGetIntegerv(GL_DEPTH_FUNC, &old_depth_func);
+
+            // Pass 1: write only the nearest visible surface depth.
+            // Mesh::draw() enables blending internally when use_blending
+            // is true, so suppress that for the depth-only pass.
+            map_as_mesh.use_blending = false;
+            glDisable(GL_BLEND);
+            glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+            glDepthMask(GL_TRUE);
+            glDepthFunc(GL_LESS);
+            map_as_mesh.draw(&shader, eye, mvp, view_rotation, lights, eye_position, rotation_centre, opacity, bgc,
+                             wireframe_mode, do_depth_fog, show_just_shadows);
+
+            // Pass 2: blend only fragments at the nearest recorded depth.
+            map_as_mesh.use_blending = old_mesh_blending;
+            glColorMask(old_colour_mask[0], old_colour_mask[1], old_colour_mask[2], old_colour_mask[3]);
+            glDepthMask(GL_FALSE);
+            glDepthFunc(GL_LEQUAL);
+            map_as_mesh.draw(&shader, eye, mvp, view_rotation, lights, eye_position, rotation_centre, opacity, bgc,
+                             wireframe_mode, do_depth_fog, show_just_shadows);
+
+            // Restore caller GL state; mesh blending state is restored above.
+            glDepthFunc(old_depth_func);
+            glDepthMask(old_depth_mask);
+            glColorMask(old_colour_mask[0], old_colour_mask[1], old_colour_mask[2], old_colour_mask[3]);
+            if (old_blend) glEnable(GL_BLEND);
+            else glDisable(GL_BLEND);
+         } else {
+            if (opacity < 1.0)
+               map_as_mesh.sort_map_triangles(glm::vec3(ep)); // world-space eye, so the sort follows rotation
+            map_as_mesh.draw(&shader, eye, mvp, view_rotation, lights, eye_position, rotation_centre, opacity, bgc,
+                             wireframe_mode, do_depth_fog, show_just_shadows);
+         }
       }
    }
 }

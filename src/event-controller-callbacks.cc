@@ -34,6 +34,27 @@
 
 extern logging logger;
 
+namespace {
+// Track actual view panning, not merely a drag gesture (which may rotate,
+// zoom, or manipulate atoms). GTK4 may change modifiers during a gesture.
+bool primary_panned = false;
+bool secondary_panned = false;
+bool middle_panned = false;
+
+void finish_deferred_map_pan(bool &panned) {
+   const bool did_pan = panned;
+   panned = false;
+   if (!did_pan) return;
+   graphics_info_t g;
+   if (g.GetActiveMapDrag()) return;
+   for (int i = 0; i < g.n_molecules(); ++i) {
+      if (g.molecules[i].has_xmap())
+         g.molecules[i].update_map(graphics_info_t::auto_recontour_map_flag);
+   }
+   g.graphics_draw();
+}
+} // namespace
+
 void play_sound_left_click() {
 
    // play_sound_file("538554_3725923-lq-Sjonas88-success.ogg");
@@ -53,6 +74,8 @@ void play_sound_left_click() {
 
 void
 graphics_info_t::on_glarea_drag_begin_primary(GtkGestureDrag *gesture, double x, double y, GtkWidget *gl_area) {
+
+   primary_panned = false;
 
    SetMouseBegin(x,y);
    SetMouseClicked(x, y);
@@ -276,6 +299,7 @@ graphics_info_t::on_glarea_drag_update_primary(GtkGestureDrag *gesture,
          if (handled) {
             // rotate/translate fragment rotation (above) - done
          } else if (control_is_pressed) {
+            primary_panned = true;
             do_drag_pan_gtk3(gl_area, drag_delta_x, drag_delta_y); // 20220613-PE no redraw here currently
             // Update mouse_x/mouse_y so that if ctrl is released mid-drag,
             // the next view rotation starts from the current position
@@ -336,6 +360,7 @@ graphics_info_t::on_glarea_drag_end_primary(G_GNUC_UNUSED GtkGestureDrag *gestur
    }
 
    translation_gizmo_is_being_dragged = false;
+   finish_deferred_map_pan(primary_panned);
 
 }
 
@@ -348,6 +373,8 @@ graphics_info_t::on_glarea_drag_end_primary(G_GNUC_UNUSED GtkGestureDrag *gestur
 
 void
 graphics_info_t::on_glarea_drag_begin_secondary(G_GNUC_UNUSED GtkGestureDrag *gesture, double x, double y, GtkWidget *gl_area) {
+
+   secondary_panned = false;
 
    SetMouseBegin(x,y);
    SetMouseClicked(x, y);
@@ -412,6 +439,7 @@ graphics_info_t::on_glarea_drag_update_secondary(GtkGestureDrag *gesture,
       do_view_zoom(drag_delta_x, drag_delta_y);
    } else {
       if (control_is_pressed) {
+         secondary_panned = true;
          do_drag_pan_gtk4(gl_area, drag_delta_x, drag_delta_y);
       } else {
          // zoom with chording. Check both because currently
@@ -461,6 +489,7 @@ graphics_info_t::on_glarea_drag_update_secondary(GtkGestureDrag *gesture,
 void
 graphics_info_t::on_glarea_drag_end_secondary(GtkGestureDrag *gesture, double x, double y, GtkWidget *gl_area) {
 
+   finish_deferred_map_pan(secondary_panned);
 }
 
 
@@ -472,6 +501,8 @@ graphics_info_t::on_glarea_drag_end_secondary(GtkGestureDrag *gesture, double x,
 
 void
 graphics_info_t::on_glarea_drag_begin_middle(GtkGestureDrag *gesture, double x, double y, GtkWidget *gl_area) {
+
+   middle_panned = false;
 
    SetMouseBegin(x,y);
    SetMouseClicked(x, y);
@@ -497,6 +528,7 @@ graphics_info_t::on_glarea_drag_update_middle(GtkGestureDrag *gesture,
                                               double drag_delta_x, double drag_delta_y,
                                               GtkWidget *gl_area) {
 
+   middle_panned = true;
    do_drag_pan_gtk3(gl_area, drag_delta_x, drag_delta_y); // 20220613-PE no redraw here currently
    graphics_draw();
    double x = drag_begin_x + drag_delta_x;
@@ -507,6 +539,8 @@ graphics_info_t::on_glarea_drag_update_middle(GtkGestureDrag *gesture,
 
 void
 graphics_info_t::on_glarea_drag_end_middle(GtkGestureDrag *gesture, double drag_delta_x, double drag_delta_y, GtkWidget *gl_area) {
+
+   finish_deferred_map_pan(middle_panned);
 
    if (fabs(drag_delta_x) < 5.0) {
       if (fabs(drag_delta_y) < 5.0) {

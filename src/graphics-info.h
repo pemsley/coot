@@ -646,6 +646,10 @@ public:
    void init();
    void setup_key_bindings();
 
+   // Basic renderer: nearest visible layer of a transparent solid map.
+   // Default enabled; shared across all graphics_info_t instances.
+   inline static bool nearest_layer_transparency = true;
+
    static bool graphics_is_gl_es; // can we make a fallback coot where this is true?
 
    static bool use_gemmi;

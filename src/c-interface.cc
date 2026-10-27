@@ -2491,6 +2491,15 @@ void set_fps_flag(int flag) {
 
 // For people without PCs with fast graphics cards :)  [like me]
 //
+void set_nearest_layer_transparency(int state) {
+   graphics_info_t::nearest_layer_transparency = (state != 0);
+   graphics_info_t::graphics_draw();
+}
+
+int get_nearest_layer_transparency() {
+   return graphics_info_t::nearest_layer_transparency ? 1 : 0;
+}
+
 void set_active_map_drag_flag(int t) {
 
    graphics_info_t g;

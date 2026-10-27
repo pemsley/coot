@@ -1802,6 +1802,12 @@ void restore_previous_map_colour(int imol);
 
 By default, it is on (t=1).  On slower computers it might be better to
 set t=0. */
+/*! \brief Enable (1) or disable (0) nearest-layer solid-map transparency.
+    The setting takes effect immediately in the basic renderer. */
+void set_nearest_layer_transparency(int state);
+/*! \brief Return nearest-layer transparency state (0 or 1). */
+int get_nearest_layer_transparency();
+
 void set_active_map_drag_flag(int t);
 /*! \brief return the state of the dragged map flag  */
 short int get_active_map_drag_flag();
