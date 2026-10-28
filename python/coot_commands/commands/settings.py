@@ -167,14 +167,18 @@ def get_map_radius(**_: Optional[str]) -> str:
          examples=["set map sampling rate to 1.8", "set map sampling 2"],
          category=CATEGORY,
          notes="Finer sampling (higher rate) makes smoother maps at the cost "
-               "of memory. Applies to maps read after it is set; typical "
-               "values are 1.5-2.5.")
+               "of memory; typical values are 1.5-2.5. The rate is only read "
+               "when a map is created from structure factors, so this has no "
+               "effect on maps already loaded - to smooth one of those, use "
+               "'make a smoother copy of map N'.")
 def set_map_sampling_rate(value: str) -> str:
     """Set the map sampling rate for maps read from now on."""
     rate = as_float(value, "map sampling rate")
     if coot is not None:
         coot.set_map_sampling_rate(rate)
-    return f"Set map sampling rate to {rate:g}"
+    return (f"Set map sampling rate to {rate:g} - this applies to maps read "
+            "from now on; for a map that is already loaded, try "
+            "'make a smoother copy of map N'")
 
 
 @command(_GET + r"map sampling(?: rate)?\??",

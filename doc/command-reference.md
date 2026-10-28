@@ -39,7 +39,7 @@ follows for free.
 - [Help](#help) - 1 command
 - [Labels](#labels) - 1 command
 - [Ligand](#ligand) - 1 command
-- [Maps](#maps) - 4 commands
+- [Maps](#maps) - 5 commands
 - [Model editing](#model-editing) - 10 commands
 - [Models](#models) - 2 commands
 - [Navigation](#navigation) - 4 commands
@@ -333,6 +333,18 @@ Examples:
 
 Marks the map as a difference map (green/red, contoured either side of zero). With no map number, acts on the active map.
 
+### `make a smoother copy of map 1`
+
+Make a smoother (finer-sampled) copy of a map.
+
+Examples:
+
+- `make a smoother copy of map 1`
+- `smooth map 1 by 2`
+- `smooth map`
+
+Interpolates the map onto a finer grid, making a new map molecule and leaving the original alone. The factor multiplies the existing grid sampling (the default is 1.25, as in Calculate -> Map Tools); larger factors are smoother and use more memory. Unlike 'set map sampling rate' this acts on a map that is already loaded, but it interpolates the existing grid rather than re-transforming the structure factors, so it adds no real detail. With no map number, acts on the active map.
+
 
 ## Model editing
 
@@ -357,7 +369,7 @@ Examples:
 - `add solvent SO4 here`
 - `add ligand GOL`
 
-Fetches the named monomer from the dictionary and moves it to the screen centre. 
+Fetches the named monomer from the dictionary and moves it to the screen centre. Use "add water" for a single water atom, and "fit ligand" to search for it in the density instead.
 
 ### `add OXT to A/89`
 
@@ -869,7 +881,7 @@ Examples:
 - `set map sampling rate to 1.8`
 - `set map sampling 2`
 
-Finer sampling (higher rate) makes smoother maps at the cost of memory. Applies to maps read after it is set; typical values are 1.5-2.5.
+Finer sampling (higher rate) makes smoother maps at the cost of memory; typical values are 1.5-2.5. The rate is only read when a map is created from structure factors, so this has no effect on maps already loaded - to smooth one of those, use 'make a smoother copy of map N'.
 
 ### `set updating maps on`
 

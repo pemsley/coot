@@ -35,6 +35,7 @@ import coot_commands  # noqa: F401  - triggers command discovery/registration
 from coot_commands import types
 from coot_commands.commands import files as files_mod
 from coot_commands.commands import ligand as ligand_mod
+from coot_commands.commands import maps as maps_mod
 from coot_commands.commands import model_edit as model_edit_mod
 from coot_commands.commands import models as models_mod
 from coot_commands.commands import refine as refine_mod
@@ -654,6 +655,47 @@ def test_contour_level_on_a_model_is_rejected():
         out = cli.run_command("set contour level of map 0 to 0.3")
         assert "is a model, not a map" in out
         assert 0 not in fake.absolute
+
+
+def test_smooth_map_makes_a_new_map():
+    fake = _FakeCootFull()
+    calls = {}
+
+    def fake_smooth(imol, factor):
+        calls["args"] = (imol, factor)
+        return 7  # the new map's molecule number
+
+    fake.smooth_map = fake_smooth
+    with _use_coot(fake, maps_mod):
+        # No map named and no factor -> the active map at the GUI's default
+        # factor, and the reply names the *new* map so it can be worked on.
+        out = cli.run_command("smooth map")
+        assert calls["args"] == (3, 1.25)
+        assert "Made map 7" in out and "map 3 smoothed by a factor of 1.25" in out
+        # Explicit map and factor, in either phrasing.
+        assert "Made map 7" in cli.run_command("make a smoother copy of map 3 by 2")
+        assert calls["args"] == (3, 2.0)
+        assert "Made map 7" in cli.run_command("smooth map 3 x 1.5")
+        assert calls["args"] == (3, 1.5)
+
+
+def test_smooth_map_rejects_a_model_and_a_useless_factor():
+    fake = _FakeCootFull()
+    fake.smooth_map = lambda imol, factor: 7
+    with _use_coot(fake, maps_mod):
+        # Molecule 0 is a model, not a map.
+        assert "is a model, not a map" in cli.run_command("smooth map 0")
+        # A factor of 1 or less would copy (or coarsen) rather than smooth.
+        assert "must be more than 1" in cli.run_command("smooth map 3 by 1")
+        assert "must be more than 1" in cli.run_command("smooth map 3 by 0.5")
+
+
+def test_smooth_map_reports_a_failed_smooth():
+    fake = _FakeCootFull()
+    fake.smooth_map = lambda imol, factor: -1  # coot's failure return
+    with _use_coot(fake, maps_mod):
+        assert "could not make a smoother copy of map 3" in \
+            cli.run_command("smooth map 3 by 2")
 
 
 def test_get_setting_without_coot():
