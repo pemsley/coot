@@ -5,21 +5,10 @@ o "Worms by B-factor" - should not be difficult.
 o multi-residue for copy-fragment "//A/90,92" didn't work
   Nor did "//A/90||//A/92"
 
-o look at coot-nearest-layer-runtime-api-HEAD.patch
-
 o Oli: the preference to switch off active map on dragging
   seems to be broken - it should update the map after mouse
   release, but instead it is only happening when update_maps
   is called explicitly (e.g. during recontouring)
-
-o Ah, OK. I will add --no-config-script and --no-scripts which
-  will do both.
-
-o look at coot-gtk4-deferred-map-pan.patch
-
-o add mmrrcc to the src api
-
-o add (back) alpha helix restraints
 
 o let me change the moving-atoms bond thickness
 
@@ -53,6 +42,20 @@ o Add an end-cap to worms mesh
 o EJD: Let me undock the validation buttons.
 
 o Impact statement for Moorhen.
+
+o add (back) alpha helix restraints
+* Done.
+
+o look at coot-nearest-layer-runtime-api-HEAD.patch
+o look at coot-gtk4-deferred-map-pan.patch
+* Done.
+
+o Ah, OK. I will add --no-config-script and --no-scripts which
+  will do both.
+  --no-state-script is already a thing.
+
+o add mmrrcc to the src api
+* Done.
 
 o Look at A1D0T ligand thumbnail - the methyls should not be wedged.
 * Can't reproduce.
