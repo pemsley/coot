@@ -10604,6 +10604,7 @@ Do you want to continue?
                                 <property name="label" translatable="yes">No Secondary Structure Restraints</property>
                                 <property name="can-focus">1</property>
                                 <property name="active">1</property>
+                                <signal name="toggled" handler="on_sec_str_rest_no_rest_radiobutton_toggled" />
                               </object>
                             </child>
                             <child>
@@ -10611,6 +10612,7 @@ Do you want to continue?
                                 <property name="label" translatable="yes">Alpha Helix Restraints</property>
                                 <property name="can-focus">1</property>
                                 <property name="group">sec_str_rest_no_rest_radiobutton</property>
+                                <signal name="toggled" handler="on_sec_str_rest_helix_rest_radiobutton_toggled" />
                               </object>
                             </child>
                             <child>
@@ -10618,6 +10620,7 @@ Do you want to continue?
                                 <property name="label" translatable="yes">Beta Strand Restraints</property>
                                 <property name="can-focus">1</property>
                                 <property name="group">sec_str_rest_no_rest_radiobutton</property>
+                                <signal name="toggled" handler="on_sec_str_rest_strand_rest_radiobutton_toggled" />
                               </object>
                             </child>
                           </object>

@@ -5327,33 +5327,29 @@ on_set_undo_molecule_button_clicked    (GtkButton       *button,
 
 extern "C" G_MODULE_EXPORT
 void
-on_sec_str_rest_no_rest_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
+on_sec_str_rest_no_rest_radiobutton_toggled(GtkCheckButton *togglebutton,
+                                            gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton))
+  if (gtk_check_button_get_active(togglebutton))
     set_secondary_structure_restraints_type(0);
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
-on_sec_str_rest_helix_rest_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton))
+on_sec_str_rest_helix_rest_radiobutton_toggled(GtkCheckButton *togglebutton,
+                                               gpointer         user_data) {
+  if (gtk_check_button_get_active(togglebutton))
     set_secondary_structure_restraints_type(1);
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
-on_sec_str_rest_strand_rest_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
+on_sec_str_rest_strand_rest_radiobutton_toggled(GtkCheckButton *togglebutton,
+                                                gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton))
+  if (gtk_check_button_get_active(togglebutton))
     set_secondary_structure_restraints_type(2);
 }
 
@@ -6603,16 +6599,16 @@ on_refine_params_torsion_weight_combobox_changed(GtkComboBox     *combobox,
 
 extern "C" G_MODULE_EXPORT
 void
-on_refine_params_overall_weight_combobox_changed
-                                        (GtkComboBox     *combobox,
-                                        gpointer         user_data)
-{
+on_refine_params_overall_weight_combobox_changed(GtkComboBox     *combobox,
+                                                 gpointer         user_data) {
+
    const char *t = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(combobox));
-   if (t)
+   if (t) {
       std::cout << "in on_refine_params_overall_weight_combobox_changed() " << t << std::endl;
-   else
+      set_refinement_overall_weight_from_text(t);
+   } else {
       std::cout << "in on_refine_params_overall_weight_combobox_changed() t was null "  << std::endl;
-   set_refinement_overall_weight_from_text(t);
+   }
 }
 
 
