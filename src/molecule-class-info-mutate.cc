@@ -1180,42 +1180,11 @@ molecule_class_info_t::mutate_base(const coot::residue_spec_t &res_spec, std::st
 
    int istat=0;
 
-   bool this_residue_is_DNA = false;
-   std::string this_residue_res_name = get_residue_name(res_spec);
-   if (this_residue_res_name == "DA" || this_residue_res_name == "DG" ||
-       this_residue_res_name == "DC" || this_residue_res_name == "DT" ||
-       this_residue_res_name == "D3" || this_residue_res_name == "DI" ||
-       this_residue_res_name == "DN" || this_residue_res_name == "DU")
-      this_residue_is_DNA = true;
-
    // refmac_nuc_type is the type of the residue that we extract from
    // the standard residues molecule.
    //
-   std::string refmac_nuc_type = type;
-   // we match the requested residue type to the residue type that is
-   // in the standard residues file.
-
-   {
-      // modern names input,
-
-      if (this_residue_is_DNA) {
-         if (type == "A") refmac_nuc_type = "DA";
-         if (type == "G") refmac_nuc_type = "DG";
-         if (type == "T") refmac_nuc_type = "DT";
-         if (type == "U") refmac_nuc_type = "DU";
-         if (type == "C") refmac_nuc_type = "DC";
-      } else {
-         if (type == "A") refmac_nuc_type = "A";
-         if (type == "G") refmac_nuc_type = "G";
-         if (type == "T") refmac_nuc_type = "T";
-         if (type == "U") refmac_nuc_type = "U";
-         if (type == "C") refmac_nuc_type = "C";
-      }
-      if (type == "DA")	 refmac_nuc_type = "DA";
-      if (type == "DG")	 refmac_nuc_type = "DG";
-      if (type == "DT")	 refmac_nuc_type = "DT";
-      if (type == "DC")	 refmac_nuc_type = "DC";
-   }
+   std::string this_residue_res_name = get_residue_name(res_spec);
+   std::string refmac_nuc_type = coot::util::standard_residue_name_for_base_mutation(this_residue_res_name, type);
 
    if (atom_sel.n_selected_atoms > 0) {
 

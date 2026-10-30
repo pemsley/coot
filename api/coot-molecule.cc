@@ -2830,6 +2830,33 @@ coot::molecule_t::mutate(const coot::residue_spec_t &spec, const std::string &ne
 
 }
 
+int
+coot::molecule_t::mutate_base(const coot::residue_spec_t &spec, const std::string &new_base_type) {
+
+   int status = 0;
+   mmdb::Residue *residue_p = coot::util::get_residue(spec, atom_sel.mol);
+   if (residue_p) {
+      std::string res_name = residue_p->GetResName();
+      std::string std_name = coot::util::standard_residue_name_for_base_mutation(res_name, new_base_type);
+      mmdb::Residue *std_base = coot::util::get_standard_residue_instance(std_name); // a deep copy
+      if (std_base) {
+         make_backup("mutate_base");
+         atom_sel.delete_atom_selection();
+         status = coot::util::mutate_base(residue_p, std_base, false);
+         delete std_base;
+         atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+         atom_sel.mol->FinishStructEdit();
+         atom_sel = make_asc(atom_sel.mol); // regen the atom indices
+      } else {
+         std::cout << "WARNING:: " << __FUNCTION__ << "(): no standard residue for type \""
+                   << std_name << "\"" << std::endl;
+      }
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): residue not found " << spec << std::endl;
+   }
+   return status;
+}
+
 #include "ligand/side-chain.hh"
 
 int

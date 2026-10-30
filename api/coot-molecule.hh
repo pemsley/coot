@@ -1125,6 +1125,9 @@ namespace coot {
 
       int mutate(const residue_spec_t &spec, const std::string &new_res_type);
 
+      //! @return 1 on success, 0 on failure
+      int mutate_base(const residue_spec_t &spec, const std::string &new_base_type);
+
       void add_named_glyco_tree(const std::string &glycosylation_name, const std::string &chain_id, int res_no,
                                 const clipper::Xmap<float> &xmap, protein_geometry *geom);
 

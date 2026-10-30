@@ -1366,10 +1366,15 @@ namespace coot {
                            short int is_from_shelx_ins_flag,
                            float b_factor=20.);
 
-      void mutate_base(mmdb::Residue *residue, mmdb::Residue *std_base,
-                       bool use_old_style_naming,
-                       bool print_match_stats=false,
-                       float b_factor=20.0);
+      // return 1 on success, 0 on failure
+      int mutate_base(mmdb::Residue *residue, mmdb::Residue *std_base,
+                      bool use_old_style_naming,
+                      bool print_match_stats=false,
+                      float b_factor=20.0);
+      // Return the standard-residue name for a base mutation, e.g. "C" on a DNA residue
+      // (current_res_name "DA") becomes "DC". Explicit DNA types ("DA" etc.) are returned as is.
+      std::string standard_residue_name_for_base_mutation(const std::string &current_res_name,
+                                                          const std::string &new_base_type);
       // which calls
       std::string convert_base_name(const std::string &std_base_name, bool use_old_style_naming);
 

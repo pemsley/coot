@@ -2649,6 +2649,22 @@ molecules_container_t::mutate(int imol, const std::string &cid, const std::strin
    return status;
 }
 
+int
+molecules_container_t::mutate_base(int imol, const std::string &cid, const std::string &new_base_type) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      coot::atom_spec_t atom_spec = atom_cid_to_atom_spec(imol, cid);
+      coot::residue_spec_t residue_spec(atom_spec);
+      status = molecules[imol].mutate_base(residue_spec, new_base_type);
+      if (status == 1)
+         set_updating_maps_need_an_update(imol);
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return status;
+}
+
 #include "coot-utils/blob-line.hh"
 
 std::pair<bool, clipper::Coord_orth>
