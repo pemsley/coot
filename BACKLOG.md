@@ -333,3 +333,24 @@ Minimum that delivers most of the value: Tier 1 flat MRU *with remembered MTZ
 columns* — self-contained, and it kills the re-prompting annoyance. Tier 2 is
 the bigger conceptual win but is low-risk once the Tier 1 metadata format can
 carry a "this entry is a session" variant.
+
+## Edit Backbone Torsions Cancel button does not clear the moving atoms
+
+Low priority.
+
+`on_edit_backbone_torsion_cancel_button_clicked()` (src/glade-callbacks.cc)
+has a comment saying that `clear_moving_atoms_object()` is "done as part of
+window destroy callback", but the button only hides the dialog, so the dialog
+is never destroyed and the moving atoms are never cleared. The other call it
+makes, `destroy_edit_backbone_rama_plot()`, ends up in
+`graphics_info_t::destroy_edit_backbone_rama_plot()` (src/graphics-info.cc),
+which is an empty function.
+
+A window-manager close does clear them: since 2026-11-01 that goes through
+`on_edit_backbone_torsions_dialog_close_request()`, which calls
+`clear_moving_atoms_object()` and hides the dialog (the old `destroy` handler
+became a `close-request` handler so the builder dialog can be reopened).
+
+Fix: call `clear_moving_atoms_object()` in the Cancel callback, matching
+`on_edit_chi_angles_cancel_button_clicked()`, which calls
+`clear_up_moving_atoms()`.

@@ -1,6 +1,8 @@
 --- Items---
 
-o "Worms by B-factor" - should not be difficult.
+o Search monomer library kill and reopen
+
+o likewise Environment distances
 
 o multi-residue for copy-fragment "//A/90,92" didn't work
   Nor did "//A/90||//A/92"
@@ -10,15 +12,15 @@ o Oli: the preference to switch off active map on dragging
   release, but instead it is only happening when update_maps
   is called explicitly (e.g. during recontouring)
 
-o let me change the moving-atoms bond thickness
+o Oli: let me change the moving-atoms bond thickness
 
-o let me change the moving atoms hue/lighting(?)
+o Oli: let me change the moving atoms hue/lighting(?)
 
-o colour residues by atom overlap badness
-  (use user-defined colours of course)
+o Oli idea: search by sequence. Allow wildcard and ambiguity
+  e.g. (A/S). Consider sequon.
 
-o Oli idea: search by sequence. Allow wildcard
-  and ambiguity e.g. (A/S). Consider sequon.
+o colour residues by atom overlap badness (use user-defined
+  colours of course)
 
 o in "Open Recent" - show me the path (or a path
   fragment so that I can see that I am loading
@@ -26,10 +28,6 @@ o in "Open Recent" - show me the path (or a path
 
 o user-defined colour in CA+sidechain mode?
   Useful for colour-by-rotamer-probability
-
-o Search monomer library kill and reopen
-
-o likewise Environment distances
 
 o "Let me remove a module menu" - Oli
 
@@ -42,6 +40,9 @@ o Add an end-cap to worms mesh
 o EJD: Let me undock the validation buttons.
 
 o Impact statement for Moorhen.
+
+o "Worms by B-factor" - should not be difficult.
+* Handed over to Lucrezia
 
 o add (back) alpha helix restraints
 * Done.
