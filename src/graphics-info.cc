@@ -2217,6 +2217,13 @@ graphics_info_t::clear_up_moving_atoms() {
       update_bad_nbc_atom_pair_dashed_lines();
       update_chiral_volume_outlier_marker_positions();
 
+      // the intermediate atoms contact dots and clashes. Their draw state has to be turned off,
+      // otherwise they are drawn again (with the old positions) as soon as there are intermediate
+      // atoms again - i.e. at the start of the next refinement - even if contact dots during
+      // refinement have been turned off. They are turned back on when they are regenerated.
+      for (auto &obj : generic_display_objects)
+         if (obj.is_intermediate_atoms_object())
+            obj.mesh.set_draw_this_mesh(false);
    }
 }
 
