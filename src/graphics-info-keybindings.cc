@@ -653,17 +653,22 @@ graphics_info_t::setup_key_bindings() {
 
    auto l44 = [] () {
       graphics_info_t g;
-      if (moving_atoms_asc) {
+      bool done = false;
+      if (moving_atoms_asc) { // moving_atoms_asc is not set in init()
          if (moving_atoms_asc->mol) {
             g.backrub_rotamer_intermediate_atoms();
+            done = true;
          }
-      } else {
+      }
+      if (! done) {
          std::pair<int, mmdb::Atom *> aa = g.get_active_atom();
          int imol = aa.first;
          if (is_valid_model_molecule(imol)) {
             std::string alt_conf = aa.second->altLoc;
             coot::residue_spec_t res_spec(coot::atom_spec_t(aa.second));
             g.auto_fit_rotamer_ng(imol, res_spec, alt_conf);
+         } else {
+            g.ephemeral_overlay_label("No active molecule");
          }
       }
       return gboolean(TRUE);

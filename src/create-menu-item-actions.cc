@@ -4966,6 +4966,20 @@ void highly_coordinates_waters_action(G_GNUC_UNUSED GSimpleAction *simple_action
 
 #include "dynamic-validation.hh"
 
+void atom_overlaps_table_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                G_GNUC_UNUSED GVariant *parameter,
+                                G_GNUC_UNUSED gpointer user_data) {
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+
+      int imol = pp.second.first;
+      atom_overlaps_table_internal(imol);
+   }
+}
+
+
 void overlaps_peptides_cbeta_ramas_and_rotas_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                                     G_GNUC_UNUSED GVariant *parameter,
                                                     G_GNUC_UNUSED gpointer user_data) {
@@ -6970,6 +6984,7 @@ create_actions(GtkApplication *application) {
    add_action(               "ramachandran_plot_action",                ramachandran_plot_action);
    add_action(                "alignment_vs_pir_action",                 alignment_vs_pir_action);
    add_action(                  "atoms_overlaps_action",                   atoms_overlaps_action);
+   add_action(             "atom_overlaps_table_action",              atom_overlaps_table_action);
    add_action(             "validation_outliers_action",              validation_outliers_action);
    add_action(           "refmac_log_validation_action",            refmac_log_validation_action);
    add_action(       "highly_coordinates_waters_action",        highly_coordinates_waters_action);

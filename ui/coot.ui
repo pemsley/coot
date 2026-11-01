@@ -918,6 +918,10 @@
           <attribute name="action">app.atoms_overlaps_action</attribute>
         </item>
         <item>
+          <attribute name="label">Atom Overlaps Table</attribute>
+          <attribute name="action">app.atom_overlaps_table_action</attribute>
+        </item>
+        <item>
           <attribute name="label">Atom-Atom Contact Dots (Molprobity)</attribute>
           <attribute name="action">app.all_atom_contact_dots_molprobity_action</attribute>
         </item>
