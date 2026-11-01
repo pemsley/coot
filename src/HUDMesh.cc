@@ -465,10 +465,12 @@ HUD_button_info_t::set_scales_and_position_offset(unsigned int button_index, int
 
    set_position_offset(button_index, po);
 
+   // set from button_width/height, not scaled from the current scale_x/y, because this
+   // is called on every window resize - otherwise the scaling accumulates.
    float ww = static_cast<float>(glarea_width);
    float wh = static_cast<float>(glarea_height);
-   scale_x *= static_cast<float>(900)/ww;
-   scale_y *= static_cast<float>(900)/wh;
+   scale_x = button_width  * static_cast<float>(900)/ww;
+   scale_y = button_height * static_cast<float>(900)/wh;
 }
 
 

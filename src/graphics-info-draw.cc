@@ -3741,10 +3741,14 @@ graphics_info_t::reset_hud_buttons_size_and_position() {
    int w = allocation.width;
    int h = allocation.height;
 
+   // keep each button in its own slot (the order in hud_button_info is not the slot order)
    for (unsigned int i=0; i<hud_button_info.size(); i++) {
       auto &button = hud_button_info[i];
-      button.set_scales_and_position_offset(i, w, h);
+      button.set_scales_and_position_offset(button.position_offset_index, w, h);
    }
+   // the labels use hud_button_info directly, the button backgrounds need the instance data updated.
+   // This is called from the glarea resize callback, so the GL context is current.
+   mesh_for_hud_buttons.update_instancing_buffer_data(hud_button_info);
 }
 
 // static
