@@ -205,9 +205,7 @@ startup_realize(GtkWidget *gl_area) {
    g.setup_hud_buttons();
    g.setup_rama_balls();
    g.setup_key_bindings();
-   float double_rama_size = 0.8; // scaled by 0.5 in the gl-rama draw call.
-   g.gl_rama_plot.setup_buffers(double_rama_size); // rama relative size, put it into graphics_info_t
-   // and allow it to be set in the API
+   g.gl_rama_plot.setup_buffers(g.hud_rama_plot_scale); // set_hud_rama_plot_scale() can change this
    g.setup_draw_for_happy_face_residue_markers_init();
    g.setup_draw_for_bad_nbc_atom_pair_markers(); // angry diego
    g.setup_draw_for_bad_nbc_atom_pair_dashed_line();

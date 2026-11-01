@@ -4289,6 +4289,7 @@ string   static std::string sessionid;
    void set_do_ambient_occlusion(bool s) { shader_do_ambient_occlusion_flag = s; } // caller redraws
 
    static gl_rama_plot_t gl_rama_plot;
+   static float hud_rama_plot_scale; // used when gl_rama_plot is set up at realize
    static void draw_hud_ramachandran_plot(); // OpenGL rama plot
    void clear_gl_rama_plot();  // why not static also?
    static bool draw_gl_ramachandran_plot_flag;    // used for RSR vs translation or rotamers

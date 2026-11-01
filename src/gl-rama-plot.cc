@@ -519,6 +519,21 @@ gl_rama_plot_t::setup_buffers(float rama_plot_scale_in) {
    hud_mesh_for_axes_and_ticks.set_name("hud_mesh_for_rama_axes_and_ticks");
    hud_mesh_for_axes_and_ticks.setup_simple_camera_facing_quad();
    hud_mesh_for_axes_and_ticks.setup_instancing_buffer(30, sizeof(HUD_bar_attribs_t));
+   setup_axes_and_ticks();
+
+   // current residue marker
+   hud_tmesh_for_current_residue_p = new HUDTextureMesh("hud_tmesh_for_current_residue");
+   hud_tmesh_for_current_residue_p->setup_quad();
+   hud_tmesh_for_current_residue_p->setup_instancing_buffers(1);
+   texture_for_current_residue_p = new Texture();
+   texture_for_current_residue_p->init("current-residue-phi-psi.png");
+
+}
+
+// the axes and ticks depend on rama_plot_scale. Needs the GL context to be current.
+void
+gl_rama_plot_t::setup_axes_and_ticks() {
+
    glm::vec4 col(0.8, 0.8, 0.8, 0.8); // white background plot will be different
    std::vector<HUD_bar_attribs_t> bars;
    float    thin = 0.008;
@@ -550,14 +565,16 @@ gl_rama_plot_t::setup_buffers(float rama_plot_scale_in) {
    }
 
    hud_mesh_for_axes_and_ticks.update_instancing_buffer_data(bars);
+}
 
-   // current residue marker
-   hud_tmesh_for_current_residue_p = new HUDTextureMesh("hud_tmesh_for_current_residue");
-   hud_tmesh_for_current_residue_p->setup_quad();
-   hud_tmesh_for_current_residue_p->setup_instancing_buffers(1);
-   texture_for_current_residue_p = new Texture();
-   texture_for_current_residue_p->init("current-residue-phi-psi.png");
+// call this only after setup_buffers() and with the GL context current
+void
+gl_rama_plot_t::set_rama_plot_scale(float rs) {
 
+   rama_plot_scale = rs;
+   setup_axes_and_ticks();
+   update_hud_tmeshes(phi_psi_map); // the phi,psi marker positions depend on the scale
+   clear_current_residue(); // its position was set for the old scale
 }
 
 std::pair<glm::vec2, glm::vec2>

@@ -305,6 +305,14 @@ void set_validation_graphs_is_docked(short int state);
  */
 void set_validation_boxes_is_docked(short int state);
 
+/*! \brief set the size of the Ramachandran plot drawn over the graphics (e.g. during refinement)
+ *
+ * This can be called before or after the graphics window has been realized.
+ *
+ * @param scale the default is 0.8. It is limited to the range 0.2 to 1.6.
+ */
+void set_hud_rama_plot_scale(float scale);
+
 /*! \} */
 
 /*  -------------------------------------------------------------------- */

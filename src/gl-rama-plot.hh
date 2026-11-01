@@ -121,6 +121,7 @@ class gl_rama_plot_t {
                                 int glarea_width, int glarea_height) const;
 
    void update_hud_tmeshes(const std::map<coot::residue_spec_t, rama_plot::phi_psi_t> &phi_psi_map);
+   void setup_axes_and_ticks(); // uses rama_plot_scale
    float rama_plot_scale;
 
 public:
@@ -140,7 +141,8 @@ public:
       texture_for_current_residue_p(nullptr),
       have_current_residue_marker(false) { init(); }
    void setup_buffers(float rama_plot_scale); // setup OpenGL things - must be done after OpenGL realize()
-   void set_rama_plot_scale(float rs) { rama_plot_scale = rs; }
+   // call this only after setup_buffers() and with the GL context current
+   void set_rama_plot_scale(float rs);
 
    void setup_from(int imol, mmdb::Manager *mol, const std::string &residue_selection, draw_mode_t draw_mode);
    void update_phi_psis_on_moved_atoms();

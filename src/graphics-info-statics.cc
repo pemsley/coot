@@ -1769,6 +1769,7 @@ bool graphics_info_t::all_atom_contact_dots_do_vdw_surface = false;
 bool graphics_info_t::refinement_has_finished_moving_atoms_representation_update_needed_flag = false;
 
 gl_rama_plot_t graphics_info_t::gl_rama_plot;
+float graphics_info_t::hud_rama_plot_scale = 0.7; // scaled by 0.5 in the gl-rama draw call.
 bool graphics_info_t::draw_gl_ramachandran_plot_flag = false;
 bool graphics_info_t::draw_gl_ramachandran_plot_user_control_flag = true;
 
