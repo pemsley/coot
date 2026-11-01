@@ -1558,6 +1558,7 @@
   </menu>
 
   <object class="GtkWindow" id="about_window">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">About...</property>
     <child>
       <object class="GtkBox" id="vbox14">
@@ -1609,6 +1610,7 @@ Copyright 2023, 2024, 2025, 2026 Global Phasing Ltd.</property>
   </object>
 
   <object class="GtkWindow" id="active_map_window">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Active Map on Dragging?</property>
     <property name="deletable">0</property>
     <child>
@@ -1658,6 +1660,7 @@ Copyright 2023, 2024, 2025, 2026 Global Phasing Ltd.</property>
   </object>
 
   <object class="GtkDialog" id="glyco-lma-dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Coot: Carbohydrate Linked Monomer Addition</property>
     <property name="default-width">300</property>
     <signal name="response" handler="on_glyco_lma_dialog_response" swapped="no"/>
@@ -1748,6 +1751,7 @@ Copyright 2023, 2024, 2025, 2026 Global Phasing Ltd.</property>
 
 
   <object class="GtkDialog" id="add_OXT_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Coot: Add OXT to Chain</property>
     <property name="deletable">0</property>
     <child>
@@ -1878,6 +1882,7 @@ Copyright 2023, 2024, 2025, 2026 Global Phasing Ltd.</property>
   </object>
 
   <object class="GtkDialog" id="add_alt_conf_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Coot: Add Alternate Conformation</property>
     <child>
       <object class="GtkBox" id="dialog-vbox27">
@@ -1942,6 +1947,7 @@ Copyright 2023, 2024, 2025, 2026 Global Phasing Ltd.</property>
   </object>
 
   <object class="GtkDialog" id="add_reps_dialog">
+    <property name="hide-on-close">1</property>
     <signal name="close" handler="on_add_reps_dialog_close" swapped="no"/>
     <signal name="response" handler="on_add_reps_dialog_response" swapped="no"/>
     <child>
@@ -2175,6 +2181,7 @@ Copyright 2023, 2024, 2025, 2026 Global Phasing Ltd.</property>
     </child>
   </object>
   <object class="GtkDialog" id="add_terminal_residue_finds_none_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">No Acceptable Terminal Residue </property>
     <property name="deletable">0</property>
     <child>
@@ -2208,6 +2215,7 @@ Copyright 2023, 2024, 2025, 2026 Global Phasing Ltd.</property>
   </object>
 
   <object class="GtkDialog" id="align_and_mutate_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Align and Mutate</property>
     <property name="deletable">0</property>
     <child>
@@ -2310,6 +2318,7 @@ Copyright 2023, 2024, 2025, 2026 Global Phasing Ltd.</property>
   </object>
 
   <object class="GtkWindow" id="aniso_window">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Coot: Anisotropic Atoms</property>
     <property name="deletable">0</property>
     <child>
@@ -2486,6 +2495,7 @@ Copyright 2023, 2024, 2025, 2026 Global Phasing Ltd.</property>
        I think
   -->
   <object class="GtkDialog" id="molecular_representations_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Coot: Representations</property>
     <property name="width-request">180</property>
     <child>
@@ -2505,6 +2515,7 @@ Copyright 2023, 2024, 2025, 2026 Global Phasing Ltd.</property>
   </object>
 
   <object class="GtkDialog" id="generic_validation_box_of_buttons_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Coot: Validation</property>
     <property name="width-request">170</property>
     <child>
@@ -2539,6 +2550,7 @@ Copyright 2023, 2024, 2025, 2026 Global Phasing Ltd.</property>
   </object>
 
   <object class="GtkDialog" id="bad_chiral_volumes_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Chiral Volume Baddies:</property>
     <property name="default-width">200</property>
     <property name="default-height">200</property>
@@ -2581,6 +2593,7 @@ Copyright 2023, 2024, 2025, 2026 Global Phasing Ltd.</property>
   </object>
 
   <object class="GtkDialog" id="baton_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Baton</property>
     <property name="deletable">0</property>
     <child>
@@ -2697,6 +2710,7 @@ Copyright 2023, 2024, 2025, 2026 Global Phasing Ltd.</property>
   </object>
 
   <object class="GtkDialog" id="baton_mode_make_skeleton_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Make Skeleton?</property>
     <property name="deletable">0</property>
     <child>
@@ -2741,6 +2755,7 @@ Calculate a skeleton now?
   </object>
 
   <object class="GtkDialog" id="bond_parameters_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Coot: Bond Parameters</property>
     <child>
       <object class="GtkBox" id="dialog-vbox59">
@@ -3119,6 +3134,7 @@ Calculate a skeleton now?
     </child>
   </object>
   <object class="GtkDialog" id="centre_atom_label_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Centre Atom Label</property>
     <child>
       <object class="GtkBox" id="dialog-vbox45">
@@ -3177,6 +3193,7 @@ Calculate a skeleton now?
   </object>
 
   <object class="GtkDialog" id="change_chain_id_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Change Chain ID</property>
     <child>
       <object class="GtkBox" id="dialog-vbox86">
@@ -3366,6 +3383,7 @@ Calculate a skeleton now?
   </object>
 
   <object class="GtkDialog" id="check_chiral_volumes_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Check Chiral Volumes molecule chooser:</property>
     <child>
       <object class="GtkBox" id="dialog-vbox53">
@@ -3416,6 +3434,7 @@ Calculate a skeleton now?
   </object>
 
   <object class="GtkDialog" id="check_waters_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Coot: Check Waters</property>
     <child>
       <object class="GtkBox" id="dialog-vbox38">
@@ -3819,6 +3838,7 @@ Calculate a skeleton now?
   </object>
 
   <object class="GtkDialog" id="check_waters_diff_map_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Check waters by difference map</property>
     <child>
       <object class="GtkBox" id="dialog-vbox70">
@@ -3912,6 +3932,7 @@ WARNING:: No Models with Waters Available!
   </object>
 
   <object class="GtkDialog" id="checked_waters_baddies_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Coot: Questionable Waters</property>
     <property name="default-width">420</property>
     <child>
@@ -3958,6 +3979,7 @@ WARNING:: No Models with Waters Available!
   </object>
 
   <object class="GtkDialog" id="chi_angle_help_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Chi Angle Help</property>
     <child>
       <object class="GtkBox" id="dialog-vbox46">
@@ -4005,6 +4027,7 @@ the Ctrl key when moving the mouse.</property>
   </object>
 
   <object class="GtkDialog" id="chiral_restraints_problem_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Problem with restraints...</property>
     <child>
       <object class="GtkBox" id="dialog-vbox69">
@@ -4042,12 +4065,14 @@ the Ctrl key when moving the mouse.</property>
   </object>
 
   <object class="GtkFileChooserDialog" id="cif_dictionary_filechooser_dialog">
+    <property name="hide-on-close">1</property>
     <property name="use-header-bar">0</property>
     <property name="title" translatable="yes">Coot: Select mmCIF Dictionary Filename</property>
     <signal name="response" handler="on_cif_dictionary_filechooser_dialog_response" swapped="no"/>
   </object>
 
   <object class="GtkDialog" id="close_molecule_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Choose Molecule to Close:</property>
     <child>
       <object class="GtkBox" id="dialog-vbox13">
@@ -4092,6 +4117,7 @@ the Ctrl key when moving the mouse.</property>
   </object>
 
   <object class="GtkWindow" id="column_label_window">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Coot: Column Label Assignment</property>
     <child>
       <object class="GtkBox" id="column_label_vbox">
@@ -4414,6 +4440,7 @@ the Ctrl key when moving the mouse.</property>
   </object>
 
   <object class="GtkDialog" id="coords_colour_control_dialog">
+    <property name="hide-on-close">1</property>
     <property name="width-request">380</property>
     <property name="height-request">380</property>
     <property name="title" translatable="yes">Coot: Molecule Colours</property>
@@ -4574,6 +4601,7 @@ the Ctrl key when moving the mouse.</property>
   </object>
 
   <object class="GtkFileChooserDialog" id="coords_filechooser_dialog">
+    <property name="hide-on-close">1</property>
     <property name="width-request">600</property>
     <property name="use-header-bar">1</property>
     <property name="title" translatable="yes">Coot: Select Coordinate Filename</property>
@@ -4582,6 +4610,7 @@ the Ctrl key when moving the mouse.</property>
   </object>
 
   <object class="GtkFileChooserDialog" id="dataset_filechooser_dialog">
+    <property name="hide-on-close">1</property>
     <property name="width-request">600</property>
     <property name="use-header-bar">1</property>
     <property name="title" translatable="yes">Coot: Select Dataset Filename</property>
@@ -4591,6 +4620,7 @@ the Ctrl key when moving the mouse.</property>
 
 
   <object class="GtkDialog" id="replace_fragment_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Coot: Replace Fragment</property>
     <signal name="response" handler="on_replace_fragment_dialog_response" swapped="no"/>
     <child>
@@ -4673,6 +4703,7 @@ the Ctrl key when moving the mouse.</property>
   </object>
 
   <object class="GtkDialog" id="delete_item_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Delete item</property>
     <child>
       <object class="GtkBox" id="dialog-vbox12">
@@ -4908,6 +4939,7 @@ that you wish to delete.               </property>
     </child>
   </object>
   <object class="GtkDialog" id="doc_urls_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">On Line Documentation</property>
     <child>
       <object class="GtkBox" id="dialog-vbox87">
@@ -4932,7 +4964,7 @@ that you wish to delete.               </property>
 
   <object class="GtkDialog" id="edit_backbone_torsions_dialog">
     <property name="title" translatable="yes">Edit Backbone Torsions</property>
-    <signal name="destroy" handler="on_edit_backbone_torsions_dialog_destroy" swapped="no"/>
+    <signal name="close-request" handler="on_edit_backbone_torsions_dialog_close_request" swapped="no"/>
     <child>
       <object class="GtkBox" id="dialog-vbox30">
         <property name="orientation">vertical</property>
@@ -5010,7 +5042,7 @@ that you wish to delete.               </property>
   <object class="GtkDialog" id="edit_chi_angles_dialog">
     <property name="title" translatable="yes">Coot: Edit Chi Angles</property>
     <property name="width-request">344</property> <!-- hand-tuned -->
-    <signal name="destroy" handler="on_edit_chi_angles_dialog_destroy" swapped="no"/>
+    <signal name="close-request" handler="on_edit_chi_angles_dialog_close_request" swapped="no"/>
     <child>
       <object class="GtkBox" id="dialog-vbox37">
         <property name="orientation">vertical</property>
@@ -5124,6 +5156,7 @@ that you wish to delete.               </property>
 
   <object class="GtkDialog" id="environment_distances_dialog">
     <property name="title" translatable="yes">Coot Environment Distances</property>
+    <property name="hide-on-close">1</property>
     <child>
       <object class="GtkBox" id="dialog-vbox11">
         <property name="orientation">vertical</property>
@@ -5262,6 +5295,7 @@ that you wish to delete.               </property>
   </object>
 
   <object class="GtkDialog" id="find_ligand_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Coot: Find Ligands</property>
     <child>
       <object class="GtkBox" id="dialog-vbox2">
@@ -5693,6 +5727,7 @@ that you wish to delete.               </property>
   </object>
 
   <object class="GtkDialog" id="find_ligand_many_atoms_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Many Atoms in Ligand Check</property>
     <child>
       <object class="GtkBox" id="dialog-vbox3">
@@ -5744,6 +5779,7 @@ Do you want to continue?
   </object>
 
   <object class="GtkDialog" id="find_waters_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Coot: Find Waters</property>
     <child>
       <object class="GtkBox" id="dialog-vbox10">
@@ -5924,6 +5960,7 @@ Do you want to continue?
 
 
   <object class="GtkDialog" id="fixed_atom_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Fixed Atoms for Refinement</property>
     <signal name="close" handler="on_fixed_atom_dialog_close" swapped="no"/>
     <signal name="response" handler="on_fixed_atom_dialog_response" swapped="no"/>
@@ -5973,6 +6010,7 @@ Do you want to continue?
     </child>
   </object>
   <object class="GtkWindow" id="fps_window">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">fps_window</property>
     <child>
       <object class="GtkBox" id="vbox6">
@@ -6022,6 +6060,7 @@ Do you want to continue?
   </object>
 
   <object class="GtkDialog" id="general_coot_molecule_chooser_dialog">
+    <property name="hide-on-close">1</property>
     <signal name="close" handler="on_general_coot_molecule_chooser_dialog_close" swapped="no"/>
     <signal name="response" handler="on_general_coot_molecule_chooser_dialog_response" swapped="no"/>
     <child>
@@ -6052,6 +6091,7 @@ Do you want to continue?
   </object>
 
   <object class="GtkDialog" id="general_coot_molecule_chooser_with_entry_and_checkbutton_dialog">
+    <property name="hide-on-close">1</property>
     <signal name="close" handler="on_general_coot_molecule_chooser_with_entry_and_checkbutton_dialog_close" swapped="no"/>
     <signal name="response" handler="on_general_coot_molecule_chooser_with_entry_and_checkbutton_dialog_response" swapped="no"/>
     <child>
@@ -6100,6 +6140,7 @@ Do you want to continue?
   </object>
 
   <object class="GtkDialog" id="generate_diff_map_peaks_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Coot: Difference Map Peak Analysis</property>
     <child>
       <object class="GtkBox" id="dialog-vbox79">
@@ -6292,6 +6333,7 @@ Do you want to continue?
   </object>
 
   <object class="GtkDialog" id="generic_objects_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Coot: Generic Objects</property>
     <property name="default-width">400</property>
     <property name="default-height">360</property>
@@ -6375,6 +6417,7 @@ Do you want to continue?
   </object>
 
   <object class="GtkWindow" id="global_map_properties_window">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Coot: Global Map Properties</property>
     <child>
       <object class="GtkBox" id="map_properties_vbox">
@@ -6645,7 +6688,7 @@ Do you want to continue?
 
   <object class="GtkWindow" id="goto_atom_window">
     <property name="title" translatable="yes">Coot: Go To Atom...</property>
-    <signal name="destroy" handler="on_goto_atom_window_destroy" swapped="no"/>
+    <signal name="close-request" handler="on_goto_atom_window_close_request" swapped="no"/>
     <child>
       <object class="GtkBox" id="vbox33">
         <property name="orientation">vertical</property>
@@ -6885,6 +6928,7 @@ Do you want to continue?
     </child>
   </object>
   <object class="GtkDialog" id="hints_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Hints</property>
     <child>
       <object class="GtkBox" id="dialog-vbox15">
@@ -12180,6 +12224,7 @@ Do you want to continue?
     </child>
   </object>
   <object class="GtkDialog" id="drawing_options_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Coot Drawing Options</property>
     <child>
       <object class="GtkBox">
@@ -12199,6 +12244,7 @@ Do you want to continue?
   </object>
 
   <object class="GtkDialog" id="interesting_waters_by_difference_map_check_dialog">
+    <property name="hide-on-close">1</property>
     <property name="height-request">200</property>
     <property name="title" translatable="yes">Interesting/Strange Waters:</property>
     <child>
@@ -12235,6 +12281,7 @@ Do you want to continue?
     </child>
   </object>
   <object class="GtkWindow" id="keyboard_go_to_residue_window">
+    <property name="hide-on-close">1</property>
     <property name="decorated">0</property>
     <child>
       <object class="GtkEntry" id="keyboard_go_to_residue_entry">
@@ -12538,6 +12585,7 @@ Do you want to continue?
   </object>
 
   <object class="GtkDialog" id="ligand_big_blob_dialog">
+    <property name="hide-on-close">1</property>
     <property name="height-request">250</property>
     <property name="title" translatable="yes">Coot: Unmodelled blobs of density</property>
     <child>
@@ -12602,6 +12650,7 @@ density (too big to be waters):
   </object>
 
   <object class="GtkDialog" id="ligand_no_blobs_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Ligand - No Blobs Dialog</property>
     <child>
       <object class="GtkBox" id="dialog-vbox62">
@@ -12646,6 +12695,7 @@ density (too big to be waters):
   </object>
 
   <object class="GtkDialog" id="updating_maps_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Coot: Set Updating Maps</property>
     <child>
       <object class="GtkBox">
@@ -12795,6 +12845,7 @@ density (too big to be waters):
   </object>
 
   <object class="GtkDialog" id="mask_map_by_atom_selection_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Coot: Mask Map by Atom Selection</property>
     <child>
       <object class="GtkBox" id="mask-map-by-atom-selection-dialog-vbox">
@@ -12957,7 +13008,7 @@ density (too big to be waters):
 
   <object class="GtkDialog" id="lsq_plane_dialog">
     <property name="title" translatable="yes">LSQ Plane </property>
-    <signal name="destroy" handler="on_lsq_plane_dialog_destroy" swapped="no"/>
+    <signal name="close-request" handler="on_lsq_plane_dialog_close_request" swapped="no"/>
     <child>
       <object class="GtkBox" id="dialog-vbox92">
         <property name="orientation">vertical</property>
@@ -13030,6 +13081,7 @@ density (too big to be waters):
     </child>
   </object>
   <object class="GtkFileChooserDialog" id="map_name_filechooser_dialog">
+    <property name="hide-on-close">1</property>
     <property name="use-header-bar">1</property>
     <property name="title" translatable="yes">Coot: Select Map File Name</property>
     <property name="deletable">0</property>
@@ -13065,6 +13117,7 @@ density (too big to be waters):
   </object>
 
   <object class="GtkDialog" id="map_sharpening_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Coot: Sharpen/Blur Map</property>
     <property name="default-width">500</property>
     <signal name="response" handler="on_map_sharpening_dialog_response" swapped="no"/>
@@ -13115,6 +13168,7 @@ density (too big to be waters):
   </object>
 
   <object class="GtkDialog" id="map_partition_by_chain_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Coot: Partition Map by Chain</property>
     <property name="default-width">500</property>
     <signal name="response" handler="on_map_partition_by_chain_dialog_response" swapped="no"/>
@@ -13283,6 +13337,7 @@ density (too big to be waters):
 
   <object class="GtkDialog" id="monomer_search_dialog">
     <property name="title" translatable="yes">Coot Search Monomer Library</property>
+    <property name="hide-on-close">1</property>
     <child>
       <object class="GtkBox" id="dialog-vbox96">
         <property name="orientation">vertical</property>
@@ -13389,6 +13444,7 @@ density (too big to be waters):
   </object>
 
   <object class="GtkDialog" id="mutate_sequence_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Coot: Mutate Residue Range</property>
     <child>
       <object class="GtkBox" id="dialog-vbox58">
@@ -13618,6 +13674,7 @@ density (too big to be waters):
   </object>
 
   <object class="GtkDialog" id="ncs_control_dialog">
+    <property name="hide-on-close">1</property>
     <!-- <property name="width-request">400</property> -->
     <!-- <property name="height-request">340</property> -->
     <property name="title" translatable="yes">Coot: NCS Control</property>
@@ -13762,6 +13819,7 @@ density (too big to be waters):
   </object>
 
   <object class="GtkDialog" id="molecule_chooser_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Coot: Molecule Chooser</property>
     <child>
       <object class="GtkBox">
@@ -13824,6 +13882,7 @@ density (too big to be waters):
 
 
   <object class="GtkDialog" id="ncs_maps_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">NCS Maps Dialog</property>
     <child>
       <object class="GtkBox" id="dialog-vbox80">
@@ -13920,6 +13979,7 @@ density (too big to be waters):
   </object>
 
   <object class="GtkDialog" id="new_close_molecules_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Coot: Delete Molecules</property>
     <child>
       <object class="GtkBox" id="dialog-vbox67">
@@ -13994,6 +14054,7 @@ density (too big to be waters):
   </object>
 
   <object class="GtkDialog" id="new_ligands_info_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">New Ligands</property>
     <child>
       <object class="GtkBox" id="dialog-vbox40">
@@ -14041,6 +14102,7 @@ new molecules</property>
   </object>
 
   <object class="GtkDialog" id="no_bad_chiral_volumes_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Clean!</property>
     <child>
       <object class="GtkBox" id="dialog-vbox52">
@@ -14074,6 +14136,7 @@ in this molecule.</property>
   </object>
 
   <object class="GtkDialog" id="no_cif_dictionary_bonds_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">No Restraints in Dictionary!</property>
     <child>
       <object class="GtkBox" id="dialog-vbox35">
@@ -14106,6 +14169,7 @@ in this molecule.</property>
   </object>
 
   <object class="GtkDialog" id="no_new_ligands_info_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">No New Ligands</property>
     <child>
       <object class="GtkBox" id="dialog-vbox41">
@@ -14138,6 +14202,7 @@ density level or the acceptable fit fraction.</property>
     </child>
   </object>
   <object class="GtkDialog" id="no_restraints_info_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">No Restraints!</property>
     <child>
       <object class="GtkBox" id="dialog-vbox34">
@@ -14184,6 +14249,7 @@ PDB file match those of the restraints?
     </child>
   </object>
   <object class="GtkDialog" id="no_symmetry_warning_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">No Symmetry!</property>
     <child>
       <object class="GtkBox" id="dialog-vbox47">
@@ -14220,6 +14286,7 @@ If you need symmetry, setup ccp4 before starting coot
   </object>
 
   <object class="GtkDialog" id="download_monomers_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Coot: Download Monomers</property>
 
     <child>
@@ -14300,6 +14367,7 @@ If you need symmetry, setup ccp4 before starting coot
   </object>
 
   <object class="GtkDialog" id="nothing_bad_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Coot: Info</property>
     <child>
       <object class="GtkBox" id="nothing_bad_dialog_vbox">
@@ -14392,6 +14460,7 @@ If you need symmetry, setup ccp4 before starting coot
   </object>
 
   <object class="GtkDialog" id="nothing_to_recover_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Coot:: Nothing to Recover</property>
     <child>
       <object class="GtkBox" id="dialog-vbox48">
@@ -14429,7 +14498,7 @@ If you need symmetry, setup ccp4 before starting coot
 
   <object class="GtkDialog" id="nucleic_acid_base_chooser_dialog">
     <property name="title" translatable="yes">Base</property>
-    <signal name="destroy" handler="on_nucleic_acid_base_chooser_dialog_destroy" swapped="no"/>
+    <signal name="close-request" handler="on_nucleic_acid_base_chooser_dialog_close_request" swapped="no"/>
     <child>
       <object class="GtkBox" id="dialog-vbox85">
         <property name="orientation">vertical</property>
@@ -14500,6 +14569,7 @@ If you need symmetry, setup ccp4 before starting coot
   </object>
 
   <object class="GtkDialog" id="nucleotide_builder_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Coot: Nucleotide Builder</property>
     <child>
       <object class="GtkBox" id="dialog-vbox94">
@@ -14661,7 +14731,7 @@ If you need symmetry, setup ccp4 before starting coot
 
   <object class="GtkDialog" id="other_model_tools_dialog">
     <property name="title" translatable="yes">Other Modelling Tools</property>
-    <signal name="destroy" handler="on_other_model_tools_dialog_destroy" swapped="no"/>
+    <signal name="close-request" handler="on_other_model_tools_dialog_close_request" swapped="no"/>
     <child>
       <object class="GtkBox" id="dialog-vbox89">
         <property name="orientation">vertical</property>
@@ -14764,6 +14834,7 @@ If you need symmetry, setup ccp4 before starting coot
   </object>
 
   <object class="GtkDialog" id="pepflips_by_difference_map_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title">Coot: Pepflips by Difference Map</property>
     <signal name="close" handler="on_pepflips_by_difference_map_dialog_close" swapped="no"/>
     <signal name="response" handler="on_pepflips_by_difference_map_dialog_response" swapped="no"/>
@@ -14853,6 +14924,7 @@ If you need symmetry, setup ccp4 before starting coot
   </object>
 
   <object class="GtkWindow" id="phs_cell_choice_window">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Choose Cell for PHS file:</property>
     <child>
       <object class="GtkBox" id="vbox39">
@@ -14896,6 +14968,7 @@ If you need symmetry, setup ccp4 before starting coot
     </child>
   </object>
   <object class="GtkFileChooserDialog" id="phs_coordinates_filechooser_dialog">
+    <property name="hide-on-close">1</property>
     <property name="use-header-bar">0</property>
     <property name="title" translatable="yes">Coot: Select PHS</property>
     <child>
@@ -14913,6 +14986,7 @@ If you need symmetry, setup ccp4 before starting coot
     </child>
   </object>
   <object class="GtkWindow" id="phs_info_box">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">.phs Info</property>
     <child>
       <object class="GtkBox" id="vbox29">
@@ -14959,6 +15033,7 @@ just the cell and symmetry)
   </object>
 
   <object class="GtkDialog" id="pointer_atom_type_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Pointer atom type</property>
     <child>
       <object class="GtkBox" id="dialog-vbox21">
@@ -15113,6 +15188,7 @@ just the cell and symmetry)
 
   <object class="GtkDialog" id="pointer_distances_dialog">
     <property name="title" translatable="yes">Pointer Distances</property>
+    <property name="hide-on-close">1</property>
     <child>
       <object class="GtkBox" id="dialog-vbox81">
         <property name="orientation">vertical</property>
@@ -15223,6 +15299,7 @@ just the cell and symmetry)
     </child>
   </object>
   <object class="GtkWindow" id="popup_info_window">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">window2</property>
     <child>
       <object class="GtkFrame" id="frame147">
@@ -15239,6 +15316,7 @@ just the cell and symmetry)
   </object>
 
   <object class="GtkDialog" id="ramachandran_plot_differences_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Ramachandran Plot Differences</property>
     <child>
       <object class="GtkBox" id="dialog-vbox83">
@@ -15348,6 +15426,7 @@ just the cell and symmetry)
     </child>
   </object>
   <object class="GtkDialog" id="read_pdb_recentre_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Recentre Dialog</property>
     <child>
       <object class="GtkBox" id="dialog-vbox20">
@@ -15407,6 +15486,7 @@ just the cell and symmetry)
   </object>
 
   <object class="GtkDialog" id="recover_coordinates_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Coot: Recover Coordinates</property>
     <child>
       <object class="GtkBox" id="dialog-vbox44">
@@ -15487,6 +15567,7 @@ just the cell and symmetry)
   </object>
 
   <object class="GtkDialog" id="remarks_browser_molecule_chooser_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Coot Header Browser for Molecule</property>
     <signal name="response" handler="on_remarks_browser_molecule_chooser_dialog_response" swapped="no"/>
     <child>
@@ -15539,6 +15620,7 @@ just the cell and symmetry)
   </object>
 
   <object class="GtkDialog" id="renumber_residue_range_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Coot: Renumber Residue Range</property>
     <child>
       <object class="GtkBox" id="dialog-vbox60">
@@ -15718,6 +15800,7 @@ just the cell and symmetry)
 
   <!-- this should be an overlay, I think -->
   <object class="GtkDialog" id="residue_editor_select_monomer_type_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Coot: Select Monomer Type</property>
     <child>
       <object class="GtkBox">
@@ -15785,6 +15868,7 @@ just the cell and symmetry)
   </object>
 
   <object class="GtkDialog" id="residue_info_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Coot: Residue Info</property>
     <child>
       <object class="GtkBox" id="dialog-vbox14">
@@ -15984,6 +16068,7 @@ just the cell and symmetry)
 
   <!-- is this still a thing? needs checking -->
   <object class="GtkWindow" id="residue_type_chooser_window">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Coot: Residue Type</property>
     <child>
       <object class="GtkFrame" id="frame50">
@@ -16174,6 +16259,7 @@ just the cell and symmetry)
     </child>
   </object>
   <object class="GtkDialog" id="rigid_body_refinement_failed_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Rigid Body Refine Failed!</property>
     <child>
       <object class="GtkBox" id="dialog-vbox55">
@@ -16211,6 +16297,7 @@ Sorry.
   </object>
 
   <object class="GtkDialog" id="rotamer_selection_dialog">
+    <property name="hide-on-close">1</property>
     <property name="width-request">250</property>
     <property name="height-request">250</property>
     <property name="title" translatable="yes">Coot: Select Rotamer</property>
@@ -16286,7 +16373,7 @@ Sorry.
   <object class="GtkDialog" id="rotate_translate_obj_dialog">
     <property name="width-request">320</property>
     <property name="title" translatable="yes">Rotation &amp; Translation</property>
-    <signal name="destroy" handler="on_rotate_translate_obj_dialog_destroy" swapped="no"/>
+    <signal name="close-request" handler="on_rotate_translate_obj_dialog_close_request" swapped="no"/>
     <child>
       <object class="GtkBox" id="dialog-vbox6">
         <property name="orientation">vertical</property>
@@ -16459,6 +16546,7 @@ use Ctrl-Shift-drag to rotate them</property>
     </child>
   </object>
   <object class="GtkWindow" id="rotation_centre_cube_size_window">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">window2</property>
     <child>
       <object class="GtkBox" id="vbox38">
@@ -16506,6 +16594,7 @@ use Ctrl-Shift-drag to rotate them</property>
     </child>
   </object>
   <object class="GtkDialog" id="run_refmac_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Run Refmac</property>
     <child>
       <object class="GtkBox" id="dialog-vbox22">
@@ -16616,6 +16705,7 @@ use Ctrl-Shift-drag to rotate them</property>
     </child>
   </object>
   <object class="GtkDialog" id="run_refmac_help_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Help on Running Refmac:</property>
     <child>
       <object class="GtkBox" id="dialog-vbox33">
@@ -16655,11 +16745,13 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
   </object>
 
   <object class="GtkFileChooserDialog" id="run_script_filechooser_dialog">
+    <property name="hide-on-close">1</property>
     <property name="use-header-bar">1</property>
     <property name="title" translatable="yes">Coot: Select Script</property>
   </object>
 
   <object class="GtkDialog" id="run_state_file_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Coot Previously-Saved State</property>
     <child>
       <object class="GtkBox" id="dialog-vbox29">
@@ -16718,6 +16810,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
   </object>
 
   <object class="GtkFileChooserDialog" id="save_coordinates_filechooser_dialog">
+    <property name="hide-on-close">1</property>
     <property name="use-header-bar">0</property>
     <property name="title" translatable="yes">Coot: xxxxxx Select Filename for Saving Coordinates</property>
     <property name="action">save</property>
@@ -16738,6 +16831,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
   </object>
 
   <object class="GtkFileChooserDialog" id="save_symmetry_coords_filechooser_dialog">
+    <property name="hide-on-close">1</property>
     <property name="use-header-bar">1</property>
     <property name="action">save</property>
     <signal name="response" handler="on_save_coordinates_filechooser_dialog_response" swapped="no"/>
@@ -17756,6 +17850,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
 
 
   <object class="GtkDialog" id="simple_refmac_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Coot: Refine with Refmac</property>
     <signal name="response" handler="on_simple_refmac_dialog_response" swapped="no"/>
     <child>
@@ -17810,6 +17905,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
     </child>
   </object>
   <object class="GtkFileChooserDialog" id="simple_refmac_filechooser_dialog">
+    <property name="hide-on-close">1</property>
     <property name="use-header-bar">0</property>
     <property name="title" translatable="yes">Coot: Refmac File Chooser</property>
     <signal name="response" handler="on_simple_refmac_filechooser_dialog_response" swapped="no"/>
@@ -17828,6 +17924,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
     </child>
   </object>
   <object class="GtkDialog" id="skeleton_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Skeleton Dialog</property>
     <child>
       <object class="GtkBox" id="dialog-vbox25">
@@ -17905,6 +18002,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
     </child>
   </object>
   <object class="GtkWindow" id="skeletonization_box_radius_window">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Skeleton Box Size</property>
     <child>
       <object class="GtkBox" id="vbox36">
@@ -17968,6 +18066,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
     </child>
   </object>
   <object class="GtkWindow" id="skeletonization_level_window">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Skeletonization Level</property>
     <child>
       <object class="GtkBox" id="vbox37">
@@ -18035,6 +18134,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
     </child>
   </object>
   <object class="GtkDialog" id="skeletonize_map_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Skeletonize Map</property>
     <child>
       <object class="GtkBox" id="dialog-vbox73">
@@ -18084,6 +18184,7 @@ Which map do you want to skeletonize?
     </child>
   </object>
   <object class="GtkWindow" id="smooth_scroll_window">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">window2</property>
     <child>
       <object class="GtkBox" id="vbox23">
@@ -18194,6 +18295,7 @@ distances more than:</property>
   </object>
 
   <object class="GtkDialog" id="start_workflow_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">What do you want to do?</property>
     <child>
       <object class="GtkBox" id="dialog-vbox31">
@@ -18278,6 +18380,7 @@ distances more than:</property>
   </object>
 
   <object class="GtkDialog" id="stereo_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Stereo/Mono</property>
     <child>
       <object class="GtkBox" id="dialog-vbox76">
@@ -18359,6 +18462,7 @@ distances more than:</property>
   </object>
 
   <object class="GtkDialog" id="superpose_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Coot: SSM Superpose</property>
     <!-- <property name="default-width">400</property> -->
     <child>
@@ -18473,6 +18577,7 @@ distances more than:</property>
   </object>
 
   <object class="GtkDialog" id="superpose_nonsense_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Nonsense!</property>
     <child>
       <object class="GtkBox" id="dialog-vbox50">
@@ -18515,6 +18620,7 @@ Move a copy?</property>
     </child>
   </object>
   <object class="GtkDialog" id="symmetry_controller_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Symmetry Controller</property>
     <child>
       <object class="GtkBox" id="dialog-vbox90">
@@ -18576,6 +18682,7 @@ Move a copy?</property>
   </object>
 
   <object class="GtkDialog" id="undo_molecule_chooser_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Coot: Choose Molecule for Undoing:</property>
     <property name="width-request">200</property>
     <child>
@@ -18625,6 +18732,7 @@ Move a copy?</property>
   </object>
 
   <object class="GtkDialog" id="unmodelled_blobs_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Coot: Find Unmodelled Blobs of density</property>
     <property name="deletable">0</property>
     <child>
@@ -18769,6 +18877,7 @@ Move a copy?</property>
   </object>
 
   <object class="GtkDialog" id="unsaved_changes_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Coot: Unsaved Changes</property>
     <property name="deletable">0</property>
     <child>
@@ -18850,6 +18959,7 @@ Move a copy?</property>
   </object>
 
   <object class="GtkDialog" id="validation_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">validation dialog</property>
     <property name="deletable">0</property>
     <child>
@@ -18964,6 +19074,7 @@ Move a copy?</property>
     </child>
   </object>
   <object class="GtkDialog" id="zoom_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Zoom Control</property>
     <property name="deletable">0</property>
     <child>
@@ -19013,6 +19124,7 @@ Move a copy?</property>
   </object>
 
   <object class="GtkDialog" id="curlew_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Coot Curlew</property>
     <!-- <property name="default_width">850</property> -->
     <!-- <property name="default_height">450</property> -->
@@ -19064,6 +19176,7 @@ Move a copy?</property>
   </object>
 
   <object class="GtkDialog" id="ligand_check_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title">Coot: Ligand Validation Report</property>
     <child>
       <object class="GtkFrame" id="ligand-validation-frame">
@@ -19223,6 +19336,7 @@ Move a copy?</property>
   </object>
 
   <object class="GtkDialog" id="first-startup-dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Coot: Configure Mouse</property>
     <property name="default-width">500</property>
     <child>
@@ -19290,6 +19404,7 @@ Move a copy?</property>
 
 
   <object class="GtkDialog" id="emplacement_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Coot: EM Placement</property>
     <property name="margin-start">4</property>
     <property name="margin-end">4</property>
@@ -19424,6 +19539,7 @@ Move a copy?</property>
    </object>
 
   <object class="GtkDialog" id="hole_dialog">
+    <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Coot: HOLE</property>
     <signal name="response" handler="on_hole_dialog_response" swapped="no"/>
     <property name="margin-start">4</property>
