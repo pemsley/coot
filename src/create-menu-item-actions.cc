@@ -2135,9 +2135,34 @@ void carbohydrate_add_complex_mammal_action(G_GNUC_UNUSED GSimpleAction *simple_
 
 }
 
-void add_ccp4_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+// The module actions have a boolean state, so that the Modules menu shows them as check items.
+// The module's toolbar menubutton is stored on the action.
+//
+// return true if the module was shown (and its menubutton has now been removed).
+bool remove_module_menubutton_if_shown(GSimpleAction *simple_action) {
+
+   GtkWidget *menubutton = static_cast<GtkWidget *>(g_object_get_data(G_OBJECT(simple_action), "module-menubutton"));
+   if (menubutton) {
+      GtkWidget *toolbar_hbox = widget_from_builder("main_window_toolbar_hbox");
+      gtk_box_remove(GTK_BOX(toolbar_hbox), menubutton); // the box held the only reference
+      g_object_set_data(G_OBJECT(simple_action), "module-menubutton", nullptr);
+      g_simple_action_set_state(simple_action, g_variant_new_boolean(FALSE));
+      return true;
+   }
+   return false;
+}
+
+void set_module_menubutton(GSimpleAction *simple_action, GtkWidget *menubutton) {
+
+   g_object_set_data(G_OBJECT(simple_action), "module-menubutton", menubutton);
+   g_simple_action_set_state(simple_action, g_variant_new_boolean(TRUE));
+}
+
+void add_ccp4_module_action(GSimpleAction *simple_action,
                             G_GNUC_UNUSED GVariant *parameter,
                             G_GNUC_UNUSED gpointer user_data) {
+
+   if (remove_module_menubutton_if_shown(simple_action)) return;
 
    // Pythonic:
    //
@@ -2168,6 +2193,7 @@ void add_ccp4_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    GtkWidget *popover = gtk_popover_menu_new_from_model(model);
    gtk_menu_button_set_popover(GTK_MENU_BUTTON(ccp4_menubutton), popover);
 
+   set_module_menubutton(simple_action, ccp4_menubutton);
    graphics_info_t::graphics_grab_focus();
 }
 
@@ -2790,6 +2816,8 @@ void add_cryo_em_module_action(GSimpleAction *simple_action,
    // jiggle-fit mol with fourier filtering
    // sharpen-blur map
 
+   if (remove_module_menubutton_if_shown(simple_action)) return;
+
    GtkWidget *toolbar_hbox = widget_from_builder("main_window_toolbar_hbox");
    GtkWidget *menubutton = gtk_menu_button_new();
    gtk_menu_button_set_label(GTK_MENU_BUTTON(menubutton), "Cryo-EM");
@@ -2800,7 +2828,7 @@ void add_cryo_em_module_action(GSimpleAction *simple_action,
    GtkWidget *popover = gtk_popover_menu_new_from_model(model);
    gtk_menu_button_set_popover(GTK_MENU_BUTTON(menubutton), popover);
 
-   g_simple_action_set_enabled(simple_action,FALSE);
+   set_module_menubutton(simple_action, menubutton);
    graphics_info_t::graphics_grab_focus();
 
 }
@@ -2823,6 +2851,8 @@ void add_ligand_module_action(GSimpleAction *simple_action,
    // Show Chemical Features
    // Quick Ligand Validate
 
+   if (remove_module_menubutton_if_shown(simple_action)) return;
+
    GtkWidget *toolbar_hbox = widget_from_builder("main_window_toolbar_hbox");
    GtkWidget *menubutton = gtk_menu_button_new();
    gtk_menu_button_set_label(GTK_MENU_BUTTON(menubutton), "Ligand");
@@ -2833,7 +2863,7 @@ void add_ligand_module_action(GSimpleAction *simple_action,
    GtkWidget *popover = gtk_popover_menu_new_from_model(model);
    gtk_menu_button_set_popover(GTK_MENU_BUTTON(menubutton), popover);
 
-   g_simple_action_set_enabled(simple_action,FALSE);
+   set_module_menubutton(simple_action, menubutton);
    graphics_info_t::graphics_grab_focus();
 }
 
@@ -2862,6 +2892,8 @@ void add_restraints_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    safe_python_command("gui_prosmart.add_module_restraints()");
 #endif
 
+   if (remove_module_menubutton_if_shown(simple_action)) return;
+
    GtkWidget *toolbar_hbox = widget_from_builder("main_window_toolbar_hbox");
    GtkWidget *menubutton = gtk_menu_button_new();
    gtk_menu_button_set_label(GTK_MENU_BUTTON(menubutton), "Restraints");
@@ -2872,7 +2904,7 @@ void add_restraints_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    GtkWidget *popover = gtk_popover_menu_new_from_model(model);
    gtk_menu_button_set_popover(GTK_MENU_BUTTON(menubutton), popover);
 
-   g_simple_action_set_enabled(simple_action,FALSE);
+   set_module_menubutton(simple_action, menubutton);
    graphics_info_t::graphics_grab_focus();
 }
 
@@ -2886,11 +2918,7 @@ void add_refine_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    safe_python_command("coot_gui.add_module_refine()");
 #endif
 
-   // I only need to do this if it has not been done before
-   // so here, check if the menubutton already exists.
-   // How do I do that?
-   //
-   // 20250225-PE Ah, the menu item in the pop-up become insensitve - nice.
+   if (remove_module_menubutton_if_shown(simple_action)) return;
 
    if (true) {
       GtkWidget *toolbar_hbox = widget_from_builder("main_window_toolbar_hbox");
@@ -2995,9 +3023,9 @@ void add_refine_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
       gtk_widget_set_margin_start(box, 6);
       gtk_widget_set_margin_end(box, 6);
       gtk_widget_set_size_request(popover, 310, 150);
+      set_module_menubutton(simple_action, menubutton);
    }
 
-   g_simple_action_set_enabled(simple_action, FALSE);
    graphics_info_t::graphics_grab_focus();
 }
 
@@ -3010,9 +3038,11 @@ void add_shelx_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    graphics_info_t::graphics_grab_focus();
 }
 
-void add_views_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+void add_views_module_action(GSimpleAction *simple_action,
                              G_GNUC_UNUSED GVariant *parameter,
                              G_GNUC_UNUSED gpointer user_data) {
+
+   if (remove_module_menubutton_if_shown(simple_action)) return;
 
    // Add a button in the toolbar where we can add a ligand popupdialog
    GtkWidget *toolbar_hbox = graphics_info_t::get_widget_from_builder("main_window_toolbar_hbox"); // toolbar style hbox
@@ -3086,6 +3116,7 @@ void add_views_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    gtk_box_append(GTK_BOX(outer_box), views_hbox);
 
    gtk_box_append(GTK_BOX(toolbar_hbox), view_menubutton);
+   set_module_menubutton(simple_action, view_menubutton);
 
 }
 
@@ -6743,6 +6774,19 @@ create_actions(GtkApplication *application) {
       g_signal_connect(simple_action, "activate", G_CALLBACK(action_function), NULL);
    };
 
+   // an action with a boolean state - the menu items that use it (without a "target"
+   // attribute) are drawn as check items. The action function sets the state.
+   auto add_stateful_bool_action = [application] (const std::string &action_name,
+                                                  void (*action_function) (GSimpleAction *simple_action,
+                                                                           GVariant *parameter,
+                                                                           gpointer user_data)) {
+
+      GSimpleAction *simple_action = g_simple_action_new_stateful(action_name.c_str(), NULL,
+                                                                  g_variant_new_boolean(FALSE));
+      g_action_map_add_action(G_ACTION_MAP(application), G_ACTION(simple_action));
+      g_signal_connect(simple_action, "activate", G_CALLBACK(action_function), NULL);
+   };
+
 
    // File
 
@@ -6839,16 +6883,16 @@ create_actions(GtkApplication *application) {
 
    // Calculate -> Modules
 
-   add_action(        "add_ccp4_module_action",         add_ccp4_module_action);
-   add_action("add_carbohydrate_module_action", add_carbohydrate_module_action);
-   add_action(     "add_cryo_em_module_action",      add_cryo_em_module_action);
-   add_action(    "add_prosmart_module_action",     add_prosmart_module_action);
-   add_action(      "add_ligand_module_action",       add_ligand_module_action);
-   add_action(      "add_rcrane_module_action",       add_rcrane_module_action);
-   add_action(  "add_restraints_module_action",   add_restraints_module_action);
-   add_action(      "add_refine_module_action",       add_refine_module_action);
-   add_action(       "add_shelx_module_action",        add_shelx_module_action);
-   add_action(       "add_views_module_action",        add_views_module_action);
+   add_stateful_bool_action(        "add_ccp4_module_action",         add_ccp4_module_action);
+   add_action(              "add_carbohydrate_module_action", add_carbohydrate_module_action);
+   add_stateful_bool_action(     "add_cryo_em_module_action",      add_cryo_em_module_action);
+   add_action(                  "add_prosmart_module_action",     add_prosmart_module_action);
+   add_stateful_bool_action(      "add_ligand_module_action",       add_ligand_module_action);
+   add_action(                    "add_rcrane_module_action",       add_rcrane_module_action);
+   add_stateful_bool_action(  "add_restraints_module_action",   add_restraints_module_action);
+   add_stateful_bool_action(      "add_refine_module_action",       add_refine_module_action);
+   add_action(                     "add_shelx_module_action",        add_shelx_module_action);
+   add_stateful_bool_action(       "add_views_module_action",        add_views_module_action);
 
    // Calculate -> NCS
 
