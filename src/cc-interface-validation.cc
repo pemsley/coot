@@ -239,24 +239,13 @@ void show_interesting_positions_dialog(int imol, const std::string &title,
       }
    }
 
-   GtkWidget *mwravp  = widget_from_builder("main_window_ramachandran_and_validation_pane");
-   GtkWidget *mwgrvgp = widget_from_builder("main_window_graphics_rama_vs_graphics_pane");
-   GtkWidget* vbox_vbox = widget_from_builder("validation_boxes_vbox");
-   GtkWidget* vvf = widget_from_builder("main_window_vertical_validation_frame");
-   gtk_widget_set_visible(vbox_vbox, TRUE);
+   graphics_info_t::show_validation_boxes_vbox(200);
 
    GtkWidget *vbox_outer  = widget_from_builder("interesting_places_outer_vbox");
    GtkWidget *vbox  = widget_from_builder("interesting_places_vbox");
    GtkWidget *label = widget_from_builder("interesting_places_label");
 
-   int pos = gtk_paned_get_position(GTK_PANED(mwgrvgp));
-   if (pos < 200)
-      gtk_paned_set_position(GTK_PANED(mwgrvgp), 200);
-
    gtk_label_set_text(GTK_LABEL(label), title.c_str());
-   gtk_widget_set_visible(mwravp,     TRUE);
-   gtk_widget_set_visible(mwgrvgp,    TRUE);
-   gtk_widget_set_visible(vvf,        TRUE);
    gtk_widget_set_visible(vbox_outer, TRUE);
    gtk_widget_set_visible(vbox,       TRUE);
    gtk_widget_set_visible(label,      TRUE);

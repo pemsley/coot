@@ -2549,6 +2549,23 @@ Copyright 2023, 2024, 2025, 2026 Global Phasing Ltd.</property>
     </child>
   </object>
 
+  <!-- validation_boxes_vbox is reparented into here when the validation boxes are undocked -->
+  <object class="GtkDialog" id="validation_boxes_dialog">
+    <property name="hide-on-close">1</property>
+    <property name="title" translatable="yes">Coot: Validation</property>
+    <property name="default-width">380</property>
+    <property name="default-height">500</property>
+    <child>
+      <object class="GtkBox" id="validation_boxes_dialog_box">
+        <property name="orientation">vertical</property>
+        <property name="margin-start">4</property>
+        <property name="margin-end">4</property>
+        <property name="margin-top">4</property>
+        <property name="margin-bottom">4</property>
+      </object>
+    </child>
+  </object>
+
   <object class="GtkDialog" id="bad_chiral_volumes_dialog">
     <property name="hide-on-close">1</property>
     <property name="title" translatable="yes">Chiral Volume Baddies:</property>
@@ -14896,6 +14913,7 @@ If you need symmetry, setup ccp4 before starting coot
           <object class="GtkBox">
             <property name="orientation">horizontal</property>
             <property name="spacing">6</property>
+            <property name="halign">end</property>
             <child type="action">
               <object class="GtkButton" id="pepflips_by_difference_map_dialog_cancel_button">
                 <property name="label" translatable="yes">Cancel</property>

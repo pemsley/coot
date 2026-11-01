@@ -780,6 +780,7 @@ public:
 
    static bool validation_graphs_is_docked; // is in main window
    static GtkWidget *validation_graphs_undocked_window;
+   static bool validation_boxes_is_docked; // validation_boxes_vbox is in main window
 
    static short int do_anti_aliasing_flag; // BL feature
    void set_do_anti_aliasing(int state);
@@ -3459,6 +3460,10 @@ public:
                                                           bool do_negative_level_flag,
                                                           bool around_model_only_flag);
    static void hide_vertical_validation_frame_if_appropriate();
+   // show validation_boxes_vbox, either in the main window or in the undocked dialog
+   static void show_validation_boxes_vbox(int min_pane_position);
+   // move validation_boxes_vbox between the main window and validation_boxes_dialog
+   static void set_validation_boxes_is_docked(bool state);
    // the buttons callback for above:
    static void on_diff_map_peak_button_selection_toggled (GtkToggleButton *button,
 							  gpointer         user_data);

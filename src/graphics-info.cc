@@ -6943,10 +6943,83 @@ void graphics_info_t::hide_vertical_validation_frame_if_appropriate() {
 
    bool should_hide = !rama_plot_shown && !should_show_vbox;
 
+   if (! validation_boxes_is_docked) {
+      // the validation boxes are not in the pane, so only the rama plot matters for that
+      should_hide = !rama_plot_shown;
+      if (! should_show_vbox) {
+         GtkWidget *dialog = widget_from_builder("validation_boxes_dialog");
+         gtk_widget_set_visible(dialog, FALSE);
+      }
+   }
+
    if (should_hide) {
       GtkWidget* pane = widget_from_builder("main_window_ramachandran_and_validation_pane");
       gtk_widget_set_visible(pane, FALSE);
    }
+}
+
+// static
+void
+graphics_info_t::show_validation_boxes_vbox(int min_pane_position) {
+
+   GtkWidget *vbox = widget_from_builder("validation_boxes_vbox");
+   gtk_widget_set_visible(vbox, TRUE);
+
+   if (validation_boxes_is_docked) {
+      GtkWidget *pane_to_show = widget_from_builder("main_window_ramachandran_and_validation_pane");
+      GtkWidget *frame        = widget_from_builder("main_window_vertical_validation_frame");
+      GtkWidget *pane         = widget_from_builder("main_window_graphics_rama_vs_graphics_pane");
+      gtk_widget_set_visible(pane_to_show, TRUE);
+      gtk_widget_set_visible(frame, TRUE);
+      int pos = gtk_paned_get_position(GTK_PANED(pane));
+      if (pos < min_pane_position)
+         gtk_paned_set_position(GTK_PANED(pane), min_pane_position);
+   } else {
+      // Don't re-present a dialog that is already shown: this is called on every model
+      // change (via update_dynamic_validation_for_molecule()) and presenting a transient
+      // dialog again moves it back over the middle of the main window.
+      GtkWidget *dialog = widget_from_builder("validation_boxes_dialog");
+      if (! gtk_widget_get_visible(dialog)) {
+         set_transient_for_main_window(dialog);
+         gtk_window_present(GTK_WINDOW(dialog));
+      }
+   }
+}
+
+// static
+void
+graphics_info_t::set_validation_boxes_is_docked(bool state) {
+
+   if (state == validation_boxes_is_docked) return;
+   validation_boxes_is_docked = state;
+   if (! use_graphics_interface_flag) return;
+
+   GtkWidget *vbox       = widget_from_builder("validation_boxes_vbox");
+   GtkWidget *frame      = widget_from_builder("main_window_vertical_validation_frame");
+   GtkWidget *dialog     = widget_from_builder("validation_boxes_dialog");
+   GtkWidget *dialog_box = widget_from_builder("validation_boxes_dialog_box");
+
+   bool was_shown = gtk_widget_get_visible(vbox);
+
+   g_object_ref(vbox); // keep it alive while it has no parent
+   if (state) {
+      gtk_box_remove(GTK_BOX(dialog_box), vbox);
+      gtk_frame_set_child(GTK_FRAME(frame), vbox);
+      gtk_widget_set_visible(dialog, FALSE);
+   } else {
+      gtk_frame_set_child(GTK_FRAME(frame), nullptr);
+      gtk_box_append(GTK_BOX(dialog_box), vbox);
+   }
+   g_object_unref(vbox);
+
+   // main_window_vertical_validation_frame is itself inside an (unnamed) frame in the pane.
+   // Don't leave an empty frame under the rama plot when the boxes are undocked.
+   GtkWidget *outer_frame = gtk_widget_get_parent(frame);
+   gtk_widget_set_visible(outer_frame, state);
+
+   if (was_shown)
+      show_validation_boxes_vbox(320);
+   hide_vertical_validation_frame_if_appropriate();
 }
 
 

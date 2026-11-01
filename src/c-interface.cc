@@ -1894,6 +1894,19 @@ void set_validation_graphs_is_docked(short int state) {
    graphics_info_t::validation_graphs_is_docked = state;
 }
 
+/*! \brief set the state of the validation boxes
+ *
+ * The validation boxes are difference map peaks, interesting places,
+ * validation outliers and atoms with zero occupancy.
+ * By "docked" I mean, in the main window. The alternative
+ * is a floating dialog.
+ *
+ * @param state 0 is not docked, 1 is docked
+ */
+void set_validation_boxes_is_docked(short int state) {
+   graphics_info_t::set_validation_boxes_is_docked(state);
+}
+
 
 
 

@@ -79,13 +79,17 @@ void update_dynamic_validation_for_molecule(int imol) {
 
    gtk_widget_set_visible(vbox_2, TRUE);
    if (gtk_widget_get_visible(vbox_1)) {
-      if (gtk_widget_get_visible(pane_1)) {
+      GtkWidget *container = pane_1;
+      if (! graphics_info_t::validation_boxes_is_docked)
+         container = widget_from_builder("validation_boxes_dialog");
+      if (gtk_widget_get_visible(container)) {
          if (dynamic_validation_mode == ATOM_OVERLAPS_ONLY)
             atom_overlaps_table_internal(imol);
          else
             overlaps_peptides_cbeta_ramas_and_rotas_internal(imol);
       } else {
-         std::cout << "ERROR:: pane main_window_ramachandran_and_validation_pane not found " << std::endl;
+         if (graphics_info_t::validation_boxes_is_docked)
+            std::cout << "ERROR:: pane main_window_ramachandran_and_validation_pane not found " << std::endl;
       }
    }
 }
@@ -141,22 +145,13 @@ void atom_overlaps_table_internal(int imol) {
 
    dynamic_validation_mode = ATOM_OVERLAPS_ONLY;
 
-   GtkWidget *pane_to_show  = widget_from_builder("main_window_ramachandran_and_validation_pane");
-   gtk_widget_set_visible(pane_to_show,  TRUE);
-   GtkWidget *pane  = widget_from_builder("main_window_graphics_rama_vs_graphics_pane");
-
-   GtkWidget *vbox_2 = widget_from_builder("validation_boxes_vbox");
-   gtk_widget_set_visible(vbox_2, TRUE);
+   graphics_info_t::show_validation_boxes_vbox(320);
 
    GtkWidget *outer_vbox  = widget_from_builder("dynamic_validation_vbox");
    gtk_widget_set_visible(outer_vbox,  TRUE);
 
    GtkWidget *vbox  = widget_from_builder("dynamic_validation_outliers_vbox");
    GtkWidget *label = widget_from_builder("dynamic_validation_outliers_label");
-
-   int pos = gtk_paned_get_position(GTK_PANED(pane));
-   if (pos < 320)
-      gtk_paned_set_position(GTK_PANED(pane), 320);
 
    graphics_info_t::clear_out_container(vbox);
 
@@ -302,9 +297,7 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
 
    dynamic_validation_mode = ALL_OUTLIERS;
 
-   GtkWidget *pane_to_show  = widget_from_builder("main_window_ramachandran_and_validation_pane");
-   gtk_widget_set_visible(pane_to_show,  TRUE);
-   GtkWidget *pane  = widget_from_builder("main_window_graphics_rama_vs_graphics_pane");
+   graphics_info_t::show_validation_boxes_vbox(320);
 
    GtkWidget *outer_vbox  = widget_from_builder("dynamic_validation_vbox");
    gtk_widget_set_visible(outer_vbox,  TRUE);
@@ -704,11 +697,6 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
       return buttons;
    };
 
-   int pos = gtk_paned_get_position(GTK_PANED(pane));
-   // // std::cout << "here in overlaps_peptides_cbeta_ramas_and_rotas_internal(): with pos " << pos << std::endl;
-   if (pos < 320)
-      gtk_paned_set_position(GTK_PANED(pane), 320);
-
    graphics_info_t::clear_out_container(vbox);
 
    mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
@@ -797,22 +785,13 @@ void phenix_geo_validation_buttons(int imol,
 
    dynamic_validation_mode = ALL_OUTLIERS; // as before: an update replaces this list with all outliers
 
-   GtkWidget *pane_to_show = widget_from_builder("main_window_ramachandran_and_validation_pane");
-   gtk_widget_set_visible(pane_to_show, TRUE);
-   GtkWidget *pane = widget_from_builder("main_window_graphics_rama_vs_graphics_pane");
-
-   GtkWidget *vbox_2 = widget_from_builder("validation_boxes_vbox");
-   gtk_widget_set_visible(vbox_2, TRUE);
+   graphics_info_t::show_validation_boxes_vbox(320);
 
    GtkWidget *outer_vbox = widget_from_builder("dynamic_validation_vbox");
    gtk_widget_set_visible(outer_vbox, TRUE);
 
    GtkWidget *vbox  = widget_from_builder("dynamic_validation_outliers_vbox");
    GtkWidget *label = widget_from_builder("dynamic_validation_outliers_label");
-
-   int pos = gtk_paned_get_position(GTK_PANED(pane));
-   if (pos < 320)
-      gtk_paned_set_position(GTK_PANED(pane), 320);
 
    graphics_info_t::clear_out_container(vbox);
 
