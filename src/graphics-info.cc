@@ -2479,9 +2479,9 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
                                                                   // make_glsl_bonds_type_checked()
                                                                   // update this?
    float bond_width = molecules[imol].get_bond_thickness();
-   moving_atoms_molecule.set_bond_thickness(0.7f * bond_width); // why scaled like this is needed!?. At some
-                                                                 // stage remove this and intermediate atom
-                                                                 // radius adjustment in make_glsl_bonds_type_checked()
+   float bsf = intermediate_atoms_bond_width_scale_factor;
+   moving_atoms_molecule.set_bond_thickness(bsf * bond_width);
+
    moving_atoms_molecule.is_intermediate_atoms_molecule = true;
 
    gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0])); // needed?

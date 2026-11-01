@@ -2747,6 +2747,8 @@ public:
    static float bond_thickness_intermediate_atoms; // white atoms
    void set_bond_thickness_intermediate_atoms(float f);
 
+   // 2026-11-01-PE
+   static float intermediate_atoms_bond_width_scale_factor;
 
    // residue info
    //

@@ -2433,6 +2433,12 @@ PyObject *get_intermediate_atoms_bonds_representation();
 
 #endif // USE_PYTHON
 
+//! set the intermediate_atoms_bond_width_scale_factor
+void set_intermediate_atoms_bond_width_scale_factor(float sf);
+
+//! get the intermediate_atoms_bond_width_scale_factor
+float get_intermediate_atoms_bond_width_scale_factor();
+
 //! \brief return the continue-updating-refinement-atoms state
 //!
 //! @return 0 means off, 1 means on.

@@ -269,3 +269,13 @@ PyObject *split_multi_model_molecule_py(int imol) {
    return r;
 }
 #endif
+
+//! set the intermediate_atoms_bond_width_scale_factor
+void set_intermediate_atoms_bond_width_scale_factor(float sf) {
+   graphics_info_t::intermediate_atoms_bond_width_scale_factor = sf;
+}
+
+//! get the intermediate_atoms_bond_width_scale_factor
+float get_intermediate_atoms_bond_width_scale_factor() {
+   return graphics_info_t::intermediate_atoms_bond_width_scale_factor;
+}

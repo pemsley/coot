@@ -1270,6 +1270,7 @@ int graphics_info_t::map_line_width = 1;
 // bonding stuff
 int   graphics_info_t::bond_thickness_intermediate_value = -1;
 float graphics_info_t::bond_thickness_intermediate_atoms = 5; // (no so) thick white atom bonds
+float graphics_info_t::intermediate_atoms_bond_width_scale_factor = 0.7f; // 2026-11-01-PE
 
 // merge molecules
 int graphics_info_t::merge_molecules_master_molecule = -1;
