@@ -31,6 +31,7 @@
 #include <glm/gtx/norm.hpp>
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 #include "boids.hh"
 
@@ -39,32 +40,39 @@ glm::vec3
 fun::boid::velocity_delta_alignment(const std::vector<boid> &boids,
                                     const std::vector<unsigned int> &seeable_other_boids) const {
 
+   // steer towards the average velocity of the neighbours - i.e. the difference
+   // between their average velocity and ours (not their average velocity itself,
+   // which feeds back and makes the speed grow exponentially).
+
    glm::vec3 r(0,0,0);
 
    if (! seeable_other_boids.empty()) {
+      glm::vec3 av(0,0,0);
       for (unsigned int i=0; i<seeable_other_boids.size(); i++)
-         r += boids[seeable_other_boids[i]].velocity;
-      r *= 1.0f/static_cast<float>(seeable_other_boids.size());
+         av += boids[seeable_other_boids[i]].velocity;
+      av *= 1.0f/static_cast<float>(seeable_other_boids.size());
+      r = av - velocity;
    }
-   return 0.5f * r;
+   return 1.0f * r;
 }
 
 glm::vec3
 fun::boid::velocity_delta_cohesion(const std::vector<boid> &boids,
                                    const std::vector<unsigned int> &seeable_other_boids) const {
 
-   glm::vec3 mid(0,0,0);
-   // std::cout << "cohesion seeable others: " << seeable_other_boids.size() << std::endl;
+   // no neighbours means no pull (previously mid stayed at the origin and so
+   // a lone boid was pulled to the origin)
+   glm::vec3 r(0,0,0);
    if (! seeable_other_boids.empty()) {
+      glm::vec3 mid(0,0,0);
       float sf = 1.0f/static_cast<float>(seeable_other_boids.size());
       for (unsigned int i=0; i<seeable_other_boids.size(); i++) {
          mid += boids[seeable_other_boids[i]].position;
       }
       mid *= sf;
+      glm::vec3 delta_position = mid - position;
+      r = 0.33f * delta_position; // 2026-11-01-PE - was 0.4.
    }
-   glm::vec3 delta_position = mid - position;
-   glm::vec3 r = 2.2f * delta_position;
-   std::cout << "cohesion-delta: " << r.x << " " << r.y << " " << r.z << std::endl;
    return r;
 }
 
@@ -83,27 +91,34 @@ fun::boid::velocity_delta_no_bumps(const std::vector<boid> &boids,
          float dd = glm::distance2(delta_position, glm::vec3(0,0,0));
          // std::cout << "dd: " << dd << std::endl;
          if (dd < too_close_limit * too_close_limit) {
-            float weight = too_close_limit - sqrt(dd);
+            if (dd < 0.0001f) dd = 0.0001f;
+            float d = sqrtf(dd);
+            // push away along the unit vector, harder the closer we are
+            float weight = (too_close_limit - d) / d;
             delta_v += - weight * delta_position;
          }
       }
    }
 
-   // std::cout << "velocity_delta_no_bumps returns " << glm::to_string(delta_v) << std::endl;
-   return delta_v * 0.501f;
+   return delta_v * 6.0f;
 }
 
 glm::vec3
 fun::boid::velocity_delta_no_bumps_in_objects(float box_lim) const {
 
+   // The old version summed sf*(p-L) and sf*(p+L) = -0.2 p: a spring to the origin,
+   // not a wall. Now: only push back when within margin of a wall (or beyond it).
+
+   const float margin = 8.0f;
+   const float sf = 12.0f;
+   float inner_lim = box_lim - margin;
    glm::vec3 delta_v(0,0,0);
    for (unsigned int i=0; i<3; i++) {
       float pp = position[i]; // x y or z
-      float dp = pp - box_lim;
-      float dm = pp + box_lim;
-      float sf = -0.1;
-      delta_v[i] += sf * dp;
-      delta_v[i] += sf * dm;
+      if (pp > inner_lim)
+         delta_v[i] -= sf * (pp - inner_lim);
+      if (pp < -inner_lim)
+         delta_v[i] -= sf * (pp + inner_lim);
    }
    return delta_v;
 }
@@ -125,24 +140,10 @@ fun::boid::calc_velocity_delta(const std::vector<boid> &boids,
    glm::vec3 vd3 = velocity_delta_cohesion(boids,  seeable_other_boids);
    glm::vec3 vd4 = velocity_delta_alignment(boids, seeable_other_boids);
 
-   glm::vec3 delta_v = vd1 + vd3 + vd4;
+   // this is an acceleration (A/s^2) - it is multiplied by the time step in apply_velocity_delta()
+   glm::vec3 delta_v = vd1 + vd2 + vd3 + vd4 + 2.0f * random_v;
 
-   std::cout << "compare"
-	     << " " << vd1.x << " " << vd1.y << " " << vd1.z
-	     << " " << vd3.x << " " << vd3.y << " " << vd3.z
-	     << std::endl;
-
-   // float delta_v_dd = glm::distance2(delta_v, glm::vec3(0,0,0));
-   // float max_d = 100000.0;
-   // float max_dd = max_d * max_d;
-   // if (delta_v_dd > max_dd) {
-   //    glm::vec3 delta_v_uv = glm::normalize(delta_v);
-   //    delta_v = max_d * delta_v_uv;
-   // }
-
-   float sff = 1.1f;
-   // delta_v = glm::vec3(0.0f,0.0f,0.0f);
-   return delta_v * sff;
+   return delta_v;
 
 }
 
@@ -179,20 +180,20 @@ fun::boids_container_t::make_boids(unsigned int n_boids) {
 void
 fun::boid::apply_velocity_delta(unsigned int idx, const glm::vec3 &velocity_delta, float time_step) {
 
-   velocity += 0.01f * velocity_delta;
+   velocity += time_step * velocity_delta;
 
-   // velocity normalization
-   if (false) {
-      float speed_sqrd = glm::distance2(velocity, glm::vec3(0,0,0));
-      if (speed_sqrd < 1.0)
-         velocity = glm::normalize(velocity);
-      if (speed_sqrd > 25.0)
-         velocity = 5.0f * glm::normalize(velocity);
-   }
+   // keep the speed within limits (A/s)
+   const float min_speed =  4.0f;
+   const float max_speed = 12.0f;
+   float speed_sqrd = glm::distance2(velocity, glm::vec3(0,0,0));
+   if (speed_sqrd < 0.000001f)
+      velocity = glm::vec3(min_speed, 0.0f, 0.0f);
+   else if (speed_sqrd < min_speed * min_speed)
+      velocity = min_speed * glm::normalize(velocity);
+   else if (speed_sqrd > max_speed * max_speed)
+      velocity = max_speed * glm::normalize(velocity);
 
-   // glm::vec3 delta_position = 0.005f * velocity;
-   float sf = 0.01;
-   glm::vec3 delta_position(velocity.x * sf, velocity.y * sf, velocity.z * sf);
+   glm::vec3 delta_position = time_step * velocity;
    if (false)
       std::cout << "position-delta " << idx << " "
 		<< delta_position.x << " "
@@ -208,7 +209,7 @@ fun::boid::apply_velocity_delta(unsigned int idx, const glm::vec3 &velocity_delt
 std::vector<unsigned int>
 fun::boids_container_t::get_seeable_other_boids(unsigned int idx_this_boid) {
 
-   float max_distance_to_another_boid = 400.0;
+   float max_distance_to_another_boid = 8; // 2026-11-01-PE was 15.0;
    float dd_max = max_distance_to_another_boid * max_distance_to_another_boid;
 
    const boid &this_boid = boids[idx_this_boid];
@@ -224,21 +225,11 @@ fun::boids_container_t::get_seeable_other_boids(unsigned int idx_this_boid) {
       if (dd_distance_to_other < dd_max) {
          glm::vec3 velocity_normalized       = glm::normalize(this_boid.velocity);
          glm::vec3 delta_position_normalized = glm::normalize(delta_position);
-         float dp_vel_delta_pos = glm::dot(delta_position, velocity_normalized);
+         // cos(angle) - can't see directly behind
+         float dp_vel_delta_pos = glm::dot(delta_position_normalized, velocity_normalized);
          if (dp_vel_delta_pos > -0.5)
             others.push_back(i);
       }
-   }
-
-   //    std::cout << "for boid " << idx_this_boid
-   // << " returning seeable_other_boids size " << others.size() << std::endl;
-
-   // debugging
-   others.clear();
-   for (unsigned int i=0; i<boids.size(); i++) {
-      if (i == idx_this_boid)
-         continue;
-      others.push_back(i);
    }
 
    return others;
@@ -246,8 +237,6 @@ fun::boids_container_t::get_seeable_other_boids(unsigned int idx_this_boid) {
 
 void
 fun::boids_container_t::update() {
-
-   std::cout << "boids update()" << std::endl;
 
    float timestep = 0.02; // seconds
 
@@ -306,10 +295,11 @@ fun::boids_container_t::update() {
 glm::mat4
 fun::boid::make_mat() const {
 
+   // The shader does frag_pos = M * p, so M = T * R. The boid cone is made
+   // along the x axis with the point at +x, so rotate +x onto the velocity.
+   // (glm::rotation() handles the anti-parallel case, glm::orientation() does not.)
    glm::vec3 normalized_vel = glm::normalize(velocity);
-   glm::mat4 m = glm::transpose(glm::orientation(normalized_vel, glm::vec3(0.0, 0.0, 1.0)));
-   // m = glm::mat4(1.0f); // remove orientation
-   glm::mat4 mt = glm::translate(m, position);
-   mt = m;
+   glm::mat4 m = glm::mat4_cast(glm::rotation(glm::vec3(1.0f, 0.0f, 0.0f), normalized_vel));
+   glm::mat4 mt = glm::translate(glm::mat4(1.0f), position) * m;
    return mt;
 }

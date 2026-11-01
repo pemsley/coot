@@ -3,6 +3,7 @@
 #include "c-interface.h"
 #include "cc-interface.hh"
 #include "glib.h"
+#include "key-bindings.hh"
 #include "molecule-class-info.h"
 
 // fromm cc-interface.hh
@@ -862,7 +863,6 @@ graphics_info_t::setup_key_bindings() {
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_Escape, key_bindings_t(l19, "Reject Moving Atoms")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_l,      key_bindings_t(l21, "Label/Unlabel Active Atom")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_L,      key_bindings_t(l21b, "Remove All Atom Labels")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_b,      key_bindings_t(l23, "Murmuration")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_y,      key_bindings_t(l24, "Add Terminal Residue")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_k,      key_bindings_t(l25, "Fill Partial Residue")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_K,      key_bindings_t(l26, "Delete Sidechain")));
@@ -1103,6 +1103,7 @@ graphics_info_t::setup_key_bindings() {
    key_bindings_t ctrl_toggle_panel(lc_toggle_validation_side_panel, "Toggle Validation Panel");
    key_bindings_t ctrl_toggle_alt_conf_view(lc_toggle_alt_conf_view, "Toggle Alt Conf View");
    key_bindings_t ctrl_bond_smoothness(lc_smooth_bonds, "Smooth bonds");
+   key_bindings_t ctrl_shift_murmuration(l23, "murmuration");
 
    std::pair<keyboard_key_t, key_bindings_t>  p4(keyboard_key_t(GDK_KEY_Left,  true), ctrl_arrow_left_key_binding);
    std::pair<keyboard_key_t, key_bindings_t>  p5(keyboard_key_t(GDK_KEY_Right, true), ctrl_arrow_right_key_binding);
@@ -1113,6 +1114,7 @@ graphics_info_t::setup_key_bindings() {
    std::pair<keyboard_key_t, key_bindings_t> p10(keyboard_key_t(GDK_KEY_b,    true), ctrl_toggle_panel);
    std::pair<keyboard_key_t, key_bindings_t> p11(keyboard_key_t(GDK_KEY_a,    true), ctrl_toggle_alt_conf_view);
    std::pair<keyboard_key_t, key_bindings_t> p12(keyboard_key_t(GDK_KEY_f,    true), ctrl_bond_smoothness);
+   std::pair<keyboard_key_t, key_bindings_t> p13(keyboard_key_t(GDK_KEY_B,    true), ctrl_shift_murmuration); // move murmuration from simple B key
 
    kb_vec.push_back(p4);
    kb_vec.push_back(p5);
@@ -1123,6 +1125,7 @@ graphics_info_t::setup_key_bindings() {
    kb_vec.push_back(p10);
    kb_vec.push_back(p11);
    kb_vec.push_back(p12);
+   kb_vec.push_back(p13);
 
    // bare Left/Right: step through the models of a nearby multi-model molecule
    // (e.g. AutoDock/Vina docking poses) in single-model view.
@@ -1140,10 +1143,10 @@ graphics_info_t::setup_key_bindings() {
    };
    key_bindings_t bare_arrow_left_key_binding(l50,  "Single-model view: previous model");
    key_bindings_t bare_arrow_right_key_binding(l51, "Single-model view: next model");
-   std::pair<keyboard_key_t, key_bindings_t> p13(keyboard_key_t(GDK_KEY_Left,  false), bare_arrow_left_key_binding);
-   std::pair<keyboard_key_t, key_bindings_t> p14(keyboard_key_t(GDK_KEY_Right, false), bare_arrow_right_key_binding);
-   kb_vec.push_back(p13);
+   std::pair<keyboard_key_t, key_bindings_t> p14(keyboard_key_t(GDK_KEY_Left,  false), bare_arrow_left_key_binding);
+   std::pair<keyboard_key_t, key_bindings_t> p15(keyboard_key_t(GDK_KEY_Right, false), bare_arrow_right_key_binding);
    kb_vec.push_back(p14);
+   kb_vec.push_back(p15);
 
    std::vector<std::pair<keyboard_key_t, key_bindings_t> >::const_iterator it;
    for (it=kb_vec.begin(); it!=kb_vec.end(); ++it)

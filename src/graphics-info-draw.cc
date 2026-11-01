@@ -6150,7 +6150,7 @@ graphics_info_t::setup_draw_for_boids() {
       meshed_generic_display_object m;
       coot::colour_holder col(0.4, 0.5, 0.6);
       std::pair<glm::vec3, glm::vec3> start_end(glm::vec3(1.95,0,0), glm::vec3(-1.95,0,0));
-      m.add_cone(start_end, col, 3.0, 0.0, 24, false, true,
+      m.add_cone(start_end, col, 1.0, 0.0, 24, false, true,
                  meshed_generic_display_object::FLAT_CAP,
                  meshed_generic_display_object::FLAT_CAP);
       mesh_for_boids = m.mesh;
