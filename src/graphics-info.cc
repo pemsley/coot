@@ -3869,10 +3869,10 @@ graphics_info_t::update_things_on_move_and_redraw() {
 
 
 void
-graphics_info_t::update_things_on_move() {
+graphics_info_t::update_things_on_move(bool is_drag_pan) {
 
    for (int ii=0; ii<n_molecules(); ii++) {
-      if (GetActiveMapDrag())
+      if (!is_drag_pan || GetActiveMapDrag())
          molecules[ii].update_map(auto_recontour_map_flag);
       molecules[ii].update_clipper_skeleton();
       molecules[ii].update_symmetry();

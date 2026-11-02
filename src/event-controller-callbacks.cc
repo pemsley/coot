@@ -984,7 +984,7 @@ graphics_info_t::do_drag_pan_gtk4(GtkWidget *widget, double drag_delta_x, double
    // if (graphics_info_t::glareas.size() > 0)
    // int contour_idle_token = g_idle_add(idle_contour_function, g.glareas[0]);
 
-   g.update_things_on_move(); // 20211013-PE do I need the _and_redraw() version of this function?
+   g.update_things_on_move(true); // 20211013-PE do I need the _and_redraw() version of this function?
 
    set_mouse_previous_position(mouse_current_x, mouse_current_y); // for next round
 }
@@ -1041,7 +1041,7 @@ graphics_info_t::do_drag_pan_gtk3(GtkWidget *widget, double drag_delta_x, double
    // if (graphics_info_t::glareas.size() > 0)
    // int contour_idle_token = g_idle_add(idle_contour_function, g.glareas[0]);
 
-   g.update_things_on_move(); // 20211013-PE do I need the _and_redraw() version of this function?
+   g.update_things_on_move(true); // 20211013-PE do I need the _and_redraw() version of this function?
 
 }
 

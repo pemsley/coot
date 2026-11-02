@@ -1135,7 +1135,9 @@ public:
 
    void run_post_read_model_hook(int imol); // conditional compilation handled internally
 
-   void update_things_on_move();
+   // is_drag_pan: the move is a mouse-drag pan - if so, the maps are updated only if
+   // active_map_drag_flag is set (otherwise they are updated at the end of the drag)
+   void update_things_on_move(bool is_drag_pan=false);
    void update_things_on_move_and_redraw();
 
 #ifdef DO_RAMA_PLOT
