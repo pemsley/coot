@@ -1717,11 +1717,6 @@ graphics_info_t::accept_moving_atoms() {
    have_fixed_points_sheared_drag_flag = 0;
    in_edit_chi_mode_view_rotate_mode = 0;
 
-   // Why do I want to do this when the intermediate atoms are undisplayed?
-   // To *clear up* the interactive probe dots.
-   if (do_coot_probe_dots_during_refine_flag)
-      do_interactive_coot_probe(); // in accept_moving_atoms() to turn off the dots
-
    // Hmm... this won't work as expected because the difference map is not updated yet!
    // I need to hook into the end of a difference map update.
    // fill_difference_map_peaks_button_box(); // update the difference map peaks if the dialog is open

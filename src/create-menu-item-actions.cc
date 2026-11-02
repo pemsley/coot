@@ -2983,6 +2983,10 @@ void add_refine_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
          return static_cast<gboolean>(FALSE);
       };
 
+      if (graphics_info_t::do_coot_probe_dots_during_refine_flag)
+         gtk_switch_set_active(GTK_SWITCH(switch_contact_dots), TRUE);
+      if (graphics_info_t::draw_it_for_moving_atoms_restraints_graphics_object_user_control)
+         gtk_switch_set_active(GTK_SWITCH(switch_GM_restraints), TRUE);
       if (graphics_info_t::do_intermediate_atoms_rama_markup)
          gtk_switch_set_active(GTK_SWITCH(switch_rama), TRUE);
       if (graphics_info_t::do_intermediate_atoms_rota_markup)
