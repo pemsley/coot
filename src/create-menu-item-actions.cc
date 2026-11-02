@@ -2300,6 +2300,10 @@ void cryo_em_make_masked_maps_action(G_GNUC_UNUSED GSimpleAction *simple_action,
       int imol_map = imol_refinement_map();
       if (is_valid_map_molecule(imol_map)) {
          make_masked_maps_split_by_chain(imol, imol_map);
+      } else {
+         std::string m("Refinement Map not set");
+         add_status_bar_text(m);
+         ephemeral_overlay_label(m.c_str());
       }
    }
    graphics_info_t::graphics_grab_focus();
