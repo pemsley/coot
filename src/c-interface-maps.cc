@@ -1909,6 +1909,8 @@ int reinterp_map(int map_no, int reference_map_no) {
 	 name += coot::util::int_to_string(reference_map_no);
 	 bool is_em_flag = graphics_info_t::molecules[map_no].is_EM_map();
 	 graphics_info_t::molecules[imol].install_new_map(new_map, name, is_em_flag);
+	 if (graphics_info_t::molecules[map_no].is_difference_map_p())
+	    graphics_info_t::molecules[imol].set_map_is_difference_map(true);
 	 r = imol;
 	 graphics_draw();
       }
@@ -1934,6 +1936,8 @@ int smooth_map(int map_no, float sampling_multiplier) {
       name += coot::util::float_to_string(sampling_multiplier);
       bool is_em_flag = graphics_info_t::molecules[map_no].is_EM_map();
       graphics_info_t::molecules[imol].install_new_map(new_map, name, is_em_flag);
+      if (graphics_info_t::molecules[map_no].is_difference_map_p())
+         graphics_info_t::molecules[imol].set_map_is_difference_map(true);
       r = imol;
       graphics_draw();
    }
