@@ -1365,7 +1365,11 @@
             <attribute name="action">app.jiggle_fit_molecule_with_fourier_filtering_action</attribute>
           </item>
           <item>
-            <attribute name="label">Patmos Jiggle</attribute>
+            <attribute name="label">Patmos Jiggle Chain</attribute>
+            <attribute name="action">app.patmos_jiggle_fit_chain_with_fourier_filtering_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Patmos Jiggle Molecule</attribute>
             <attribute name="action">app.patmos_jiggle_fit_molecule_with_fourier_filtering_action</attribute>
           </item>
         </submenu>

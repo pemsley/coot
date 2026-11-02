@@ -4693,6 +4693,7 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
       }
    } else {
       std::cout << " nothing better found " << std::endl;
+      v = initial_score; // the coordinates are unchanged, so this is their fit score
    }
    return v;
 }

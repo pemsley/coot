@@ -26,6 +26,8 @@
 #include <cmath>
 #include <algorithm>
 #include <thread>
+#include <map>
+#include <cstdlib>
 
 #include <clipper/core/xmap.h>
 #include <clipper/core/map_utils.h>
@@ -44,14 +46,269 @@
 #include "coot-utils/crowther.hh"
 #include "coot-utils/patterson.hh"
 
+namespace {
+
+   // Diagnostics for testing the MR pipeline against a known answer.
+   //
+   // If the environment variable COOT_MR_DIAGNOSTIC_TRUE_MODEL names a coordinates file
+   // that contains the search model in its correct position (same chain ids, residue
+   // numbers and atom names), then each stage of the search is compared with the true
+   // rotation and translation.
+   //
+   // The MR placement convention is: placed = R * (x - model_centre) + t
+   //
+   class mr_truth_t {
+   public:
+      bool valid;
+      glm::quat rotation;
+      clipper::Coord_orth translation;
+      std::map<std::string, clipper::Coord_orth> true_positions;
+      mr_truth_t() : valid(false), rotation(1,0,0,0), translation(0,0,0) {}
+
+      static std::string atom_key(mmdb::Atom *at) {
+         return std::string(at->GetChainID()) + "/" + std::to_string(at->GetSeqNum()) +
+            std::string(at->GetInsCode()) + "/" + std::string(at->GetAtomName()) + "," +
+            std::string(at->altLoc);
+      }
+
+      static std::vector<mmdb::Atom *> model_atoms(mmdb::Manager *mol) {
+         std::vector<mmdb::Atom *> v;
+         mmdb::Model *model_p = mol->GetModel(1);
+         if (! model_p) return v;
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int n_res = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<n_res; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               int n_atoms = residue_p->GetNumberOfAtoms();
+               for (int iat=0; iat<n_atoms; iat++) {
+                  mmdb::Atom *at = residue_p->GetAtom(iat);
+                  if (! at->isTer()) v.push_back(at);
+               }
+            }
+         }
+         return v;
+      }
+
+      void init(mmdb::Manager *mol_model, const clipper::Coord_orth &model_centre) {
+         const char *fn = std::getenv("COOT_MR_DIAGNOSTIC_TRUE_MODEL");
+         if (! fn) return;
+         mmdb::Manager *mol_true = new mmdb::Manager;
+         mmdb::ERROR_CODE err = mol_true->ReadCoorFile(fn);
+         if (err) {
+            std::cout << "MR-DIAG:: failed to read true model " << fn << std::endl;
+            delete mol_true;
+            return;
+         }
+         for (mmdb::Atom *at : model_atoms(mol_true))
+            true_positions[atom_key(at)] = clipper::Coord_orth(at->x, at->y, at->z);
+         delete mol_true;
+
+         std::vector<clipper::Coord_orth> src, tgt;
+         for (mmdb::Atom *at : model_atoms(mol_model)) {
+            auto it = true_positions.find(atom_key(at));
+            if (it != true_positions.end()) {
+               src.push_back(clipper::Coord_orth(at->x, at->y, at->z));
+               tgt.push_back(it->second);
+            }
+         }
+         std::cout << "MR-DIAG:: true model " << fn << " " << true_positions.size()
+                   << " atoms, " << src.size() << " matched to search model" << std::endl;
+         if (src.size() < 3) return;
+
+         clipper::RTop_orth rtop(src, tgt);
+         double sum_sq = 0.0;
+         for (unsigned int i=0; i<src.size(); i++)
+            sum_sq += (src[i].transform(rtop) - tgt[i]).lengthsq();
+         clipper::Mat33<> r = rtop.rot();
+         glm::mat3 m;
+         for (int i=0; i<3; i++)
+            for (int j=0; j<3; j++)
+               m[j][i] = static_cast<float>(r(i,j)); // glm is column-major
+         rotation = glm::quat_cast(m);
+         translation = model_centre.transform(rtop);
+         valid = true;
+         std::cout << "MR-DIAG:: superposition rmsd " << std::fixed << std::setprecision(3)
+                   << std::sqrt(sum_sq / src.size()) << " A; true rotation is "
+                   << std::setprecision(1) << angle_to(glm::quat(1,0,0,0))
+                   << " deg from identity; true translation (" << translation.x() << ", "
+                   << translation.y() << ", " << translation.z() << ")" << std::endl;
+      }
+
+      // degrees from the nearest of identity and the 2-folds about x, y and z - i.e. how close
+      // is this rotation to one that maps an axis-aligned (orthorhombic) lattice onto itself?
+      static double angle_to_lattice_ops(const glm::quat &q) {
+         const glm::quat ops[4] = { glm::quat(1,0,0,0), glm::quat(0,1,0,0), glm::quat(0,0,1,0), glm::quat(0,0,0,1) };
+         double best = 1000.0;
+         for (const auto &op : ops) {
+            double dot = std::abs(static_cast<double>(glm::dot(glm::normalize(q), op)));
+            if (dot > 1.0) dot = 1.0;
+            double a = glm::degrees(2.0 * std::acos(dot));
+            if (a < best) best = a;
+         }
+         return best;
+      }
+
+      // degrees
+      double angle_to(const glm::quat &q) const {
+         double dot = std::abs(static_cast<double>(glm::dot(glm::normalize(q), rotation)));
+         if (dot > 1.0) dot = 1.0;
+         return glm::degrees(2.0 * std::acos(dot));
+      }
+
+      double distance_to(const clipper::Coord_orth &t) const {
+         return std::sqrt((t - translation).lengthsq());
+      }
+
+      // rmsd from the true positions (the search model atoms only)
+      double rmsd(mmdb::Manager *mol) const {
+         double sum_sq = 0.0;
+         unsigned int n = 0;
+         for (mmdb::Atom *at : model_atoms(mol)) {
+            auto it = true_positions.find(atom_key(at));
+            if (it != true_positions.end()) {
+               sum_sq += (clipper::Coord_orth(at->x, at->y, at->z) - it->second).lengthsq();
+               n++;
+            }
+         }
+         return (n > 0) ? std::sqrt(sum_sq / n) : -1.0;
+      }
+
+      double fraction_within(const clipper::Coord_orth &c, float radius) const {
+         if (true_positions.empty()) return 0.0;
+         double r_sq = radius * radius;
+         unsigned int n = 0;
+         for (const auto &tp : true_positions)
+            if ((tp.second - c).lengthsq() < r_sq) n++;
+         return static_cast<double>(n) / static_cast<double>(true_positions.size());
+      }
+   };
+
+   // ZYZ Euler angles (radians) of a rotation, matching crowther_t (Omega = Rz(a) Ry(b) Rz(g))
+   void diagnostic_quat_to_zyz(const glm::quat &q, double *alpha_p, double *beta_p, double *gamma_p) {
+      glm::mat3 R = glm::mat3_cast(q);
+      double cos_beta = std::clamp(static_cast<double>(R[2][2]), -1.0, 1.0);
+      *beta_p = std::acos(cos_beta);
+      if (std::abs(std::sin(*beta_p)) > 1e-6) {
+         *alpha_p = std::atan2(static_cast<double>(R[2][1]), static_cast<double>(R[2][0]));
+         *gamma_p = std::atan2(static_cast<double>(R[1][2]), static_cast<double>(-R[0][2]));
+      } else {
+         *alpha_p = std::atan2(static_cast<double>(R[1][0]), static_cast<double>(R[0][0]));
+         *gamma_p = 0.0;
+      }
+   }
+
+   // Run the phased translation function for the given rotation (as the main pipeline does)
+   // and report where the true translation lies in it.
+   void diagnostic_translation_at_rotation(const glm::quat &rot_q, const std::string &label,
+                                           mmdb::Manager *mol_model,
+                                           const clipper::Coord_orth &mol_centre,
+                                           const clipper::Cell &local_cell,
+                                           const clipper::Grid_sampling &local_gs,
+                                           const clipper::HKL_data<clipper::datatypes::F_phi<float>> &fphi_obs_local,
+                                           const clipper::HKL_info &local_hkls,
+                                           const clipper::Xmap<float> &local_obs_map,
+                                           const clipper::Coord_orth &local_origin_in_obs,
+                                           const mr_truth_t &truth) {
+
+      mmdb::Manager *mol_rot = new mmdb::Manager();
+      mol_rot->Copy(mol_model, mmdb::MMDBFCM_All);
+      int sel_rot = mol_rot->NewSelection();
+      mol_rot->SelectAtoms(sel_rot, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*", "*", "*", "*", "*");
+      mmdb::PPAtom atoms_rot = 0;
+      int na_rot;
+      mol_rot->GetSelIndex(sel_rot, atoms_rot, na_rot);
+      glm::mat3 rot_mat = glm::mat3_cast(rot_q);
+      for (int i=0; i<na_rot; i++) {
+         glm::vec3 pos(atoms_rot[i]->x - mol_centre.x(), atoms_rot[i]->y - mol_centre.y(),
+                       atoms_rot[i]->z - mol_centre.z());
+         glm::vec3 rotated = rot_mat * pos;
+         atoms_rot[i]->x = rotated.x;
+         atoms_rot[i]->y = rotated.y;
+         atoms_rot[i]->z = rotated.z;
+      }
+      clipper::Xmap<float> rotated_model_map =
+         coot::util::calc_atom_map(mol_rot, sel_rot, local_cell, clipper::Spacegroup::p1(), local_gs);
+      mol_rot->DeleteSelection(sel_rot);
+      delete mol_rot;
+
+      clipper::Xmap<float> tf_map;
+      std::vector<coot::translation_search_result_t> tr =
+         coot::phased_translation_search(fphi_obs_local, local_hkls, local_obs_map,
+                                         rotated_model_map, 100000, &tf_map);
+
+      double sum = 0.0, sum_sq = 0.0;
+      unsigned int count = 0;
+      clipper::Xmap_base::Map_reference_index ix;
+      for (ix = tf_map.first(); !ix.last(); ix.next()) {
+         float v = tf_map[ix];
+         sum += v; sum_sq += static_cast<double>(v) * v; count++;
+      }
+      double mean = sum / count;
+      double sd = std::sqrt(std::max(sum_sq / count - mean * mean, 1e-30));
+
+      clipper::Coord_orth true_local = truth.translation - local_origin_in_obs;
+      float v_true = 0.0f;
+      clipper::Interp_linear::interp(tf_map, true_local.coord_frac(local_cell).coord_map(local_gs), v_true);
+
+      std::cout << "MR-DIAG:: TF " << label << " rotation (" << std::fixed << std::setprecision(1)
+                << truth.angle_to(rot_q) << " deg from true): TF at true translation "
+                << std::setprecision(2) << (v_true - mean) / sd << " sigma" << std::endl;
+
+      // distinct peaks: a grid point at least 5 A from all higher-scoring retained peaks
+      std::vector<coot::translation_search_result_t> distinct;
+      for (auto &r : tr) {
+         clipper::Coord_orth obs_pos = r.position + local_origin_in_obs;
+         bool close = false;
+         for (const auto &d : distinct)
+            if ((d.position - obs_pos).lengthsq() < 25.0) { close = true; break; }
+         if (! close) distinct.push_back(coot::translation_search_result_t(obs_pos, r.score));
+         if (distinct.size() >= 8) break;
+      }
+      for (unsigned int i=0; i<distinct.size(); i++)
+         std::cout << "MR-DIAG::    TF peak " << i << " " << std::fixed << std::setprecision(2)
+                   << distinct[i].score << " sigma at (" << std::setprecision(1)
+                   << distinct[i].position.x() << ", " << distinct[i].position.y() << ", "
+                   << distinct[i].position.z() << ") " << truth.distance_to(distinct[i].position)
+                   << " A from true translation" << std::endl;
+   }
+}
+
+namespace {
+
+   // Diagnostic experiment: if both COOT_MR_DIAGNOSTIC_CALC_TARGET and COOT_MR_DIAGNOSTIC_TRUE_MODEL
+   // are set, replace the observed map by a map calculated from the true model (on the same
+   // cell and grid) - i.e. test the search with perfect data.
+   bool diagnostic_calc_target_map(const clipper::Xmap<float> &xmap_ref, clipper::Xmap<float> *xmap_calc_p) {
+      const char *fn = std::getenv("COOT_MR_DIAGNOSTIC_TRUE_MODEL");
+      if (! fn) return false;
+      if (! std::getenv("COOT_MR_DIAGNOSTIC_CALC_TARGET")) return false;
+      mmdb::Manager *mol_true = new mmdb::Manager;
+      if (mol_true->ReadCoorFile(fn)) { delete mol_true; return false; }
+      int sel = mol_true->NewSelection();
+      mol_true->SelectAtoms(sel, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*", "*", "*", "*", "*");
+      *xmap_calc_p = coot::util::calc_atom_map(mol_true, sel, xmap_ref.cell(), xmap_ref.spacegroup(),
+                                               xmap_ref.grid_sampling());
+      mol_true->DeleteSelection(sel);
+      delete mol_true;
+      std::cout << "MR-DIAG:: using a map calculated from the true model as the target map" << std::endl;
+      return true;
+   }
+}
+
 std::vector<coot::mr_solution_t>
-coot::molecular_replacement_search(const clipper::Xmap<float> &xmap_obs,
+coot::molecular_replacement_search(const clipper::Xmap<float> &xmap_obs_in,
                                    mmdb::Manager *mol_model,
                                    const clipper::Coord_orth &target_centre,
                                    int n_rotation_solutions,
                                    int n_translation_solutions) {
 
    std::vector<mr_solution_t> all_solutions;
+
+   clipper::Xmap<float> xmap_calc_diag;
+   bool use_calc = diagnostic_calc_target_map(xmap_obs_in, &xmap_calc_diag);
+   const clipper::Xmap<float> &xmap_obs = use_calc ? xmap_calc_diag : xmap_obs_in;
 
    auto t_total_start = std::chrono::high_resolution_clock::now();
 
@@ -178,6 +435,21 @@ coot::molecular_replacement_search(const clipper::Xmap<float> &xmap_obs,
       return all_solutions;
    }
 
+   mr_truth_t truth;
+   truth.init(mol_model, mol_centre.second);
+   if (truth.valid) {
+      std::cout << "MR-DIAG:: target_centre is " << std::fixed << std::setprecision(1)
+                << truth.distance_to(target_centre) << " A from the true centre; recentred is "
+                << truth.distance_to(recentred) << " A from the true centre" << std::endl;
+      std::cout << "MR-DIAG:: fraction of true-model atoms within the fragment radius "
+                << fragment_radius << " A of: true centre " << std::setprecision(2)
+                << truth.fraction_within(truth.translation, fragment_radius)
+                << ", recentred " << truth.fraction_within(recentred, fragment_radius)
+                << ", within local-box half-side " << fragment_radius + 10.0f
+                << " A of recentred " << truth.fraction_within(recentred, fragment_radius + 10.0f)
+                << std::endl;
+   }
+
    mmdb::Manager *mol = new mmdb::Manager();
    mol->Copy(mol_model, mmdb::MMDBFCM_All);
 
@@ -258,6 +530,64 @@ coot::molecular_replacement_search(const clipper::Xmap<float> &xmap_obs,
              << rot_results.size() << " results in " << std::fixed << std::setprecision(1)
              << t_rot_ms << " ms" << std::endl;
 
+   if (truth.valid && ! rot_results.empty()) {
+      auto rank_of_score = [&rot_results](double s) {
+         unsigned int n = 0;
+         for (const auto &r : rot_results) if (r.score > s) n++;
+         return n;
+      };
+      double a, b, g;
+      diagnostic_quat_to_zyz(truth.rotation, &a, &b, &g);
+      double s_true = crowther.evaluate_at_euler(a, b, g);
+      diagnostic_quat_to_zyz(glm::inverse(truth.rotation), &a, &b, &g);
+      double s_inv = crowther.evaluate_at_euler(a, b, g);
+      std::cout << "MR-DIAG:: RF top coarse score " << std::scientific << std::setprecision(3)
+                << rot_results[0].score << "; RF at true rotation " << s_true
+                << " (would rank " << rank_of_score(s_true) << " of " << rot_results.size()
+                << "); RF at inverse of true rotation " << s_inv << " (rank " << rank_of_score(s_inv)
+                << ")" << std::endl;
+      std::vector<coot::rotation_function_result_t> tv(1, coot::rotation_function_result_t(truth.rotation, s_true));
+      auto tv_r = crowther.refine_orientations(tv, 1, 2.0f);
+      tv_r = crowther.refine_orientations(tv_r, 1, 0.7f);
+      std::cout << "MR-DIAG:: RF refined from true rotation: " << tv_r[0].score << " at "
+                << std::fixed << std::setprecision(1) << truth.angle_to(tv_r[0].rotation)
+                << " deg from true" << std::endl;
+      unsigned int i_nearest = 0;
+      double best_angle = 1000.0;
+      for (unsigned int i=0; i<rot_results.size(); i++) {
+         double ang = truth.angle_to(rot_results[i].rotation);
+         if (ang < best_angle) { best_angle = ang; i_nearest = i; }
+      }
+      std::cout << "MR-DIAG:: nearest coarse grid point to true rotation: " << best_angle
+                << " deg, rank " << i_nearest << " score " << std::scientific << std::setprecision(3)
+                << rot_results[i_nearest].score << std::endl;
+      // first coarse peak within 15 degrees of the truth
+      for (unsigned int i=0; i<rot_results.size(); i++) {
+         if (truth.angle_to(rot_results[i].rotation) < 15.0) {
+            std::cout << "MR-DIAG:: first coarse result within 15 deg of true: rank " << i
+                      << " score " << rot_results[i].score << " ("
+                      << 100.0 * rot_results[i].score / rot_results[0].score << "% of top)" << std::endl;
+            break;
+         }
+      }
+      for (unsigned int i=0; i<std::min(static_cast<std::size_t>(10), rot_results.size()); i++)
+         std::cout << "MR-DIAG::    coarse " << i << " score " << std::scientific << std::setprecision(3)
+                   << rot_results[i].score << " " << std::fixed << std::setprecision(1)
+                   << truth.angle_to(rot_results[i].rotation) << " deg from true, "
+                   << mr_truth_t::angle_to_lattice_ops(rot_results[i].rotation)
+                   << " deg from identity/2-fold-about-axis" << std::endl;
+      auto print_q = [](const std::string &label, const glm::quat &q) {
+         std::cout << "MR-DIAG-Q:: " << label << " " << std::fixed << std::setprecision(6)
+                   << q.w << " " << q.x << " " << q.y << " " << q.z << std::endl;
+      };
+      print_q("true", truth.rotation);
+      for (unsigned int i=0; i<std::min(static_cast<std::size_t>(30), rot_results.size()); i++)
+         print_q("coarse-" + std::to_string(i) + " " + std::to_string(rot_results[i].score), rot_results[i].rotation);
+      std::cout << "MR-DIAG:: true rotation is " << std::fixed << std::setprecision(1)
+                << mr_truth_t::angle_to_lattice_ops(truth.rotation)
+                << " deg from identity/2-fold-about-axis" << std::endl;
+   }
+
    // Filter: keep only rotation peaks >= 70% of the top score
    if (! rot_results.empty()) {
       float top_rot = rot_results[0].score;
@@ -328,11 +658,19 @@ coot::molecular_replacement_search(const clipper::Xmap<float> &xmap_obs,
              << std::setprecision(1) << t_refine_ms << " ms (" << refined.size()
              << " solutions)" << std::endl;
 
+   if (truth.valid)
+      for (unsigned int i=0; i<refined.size(); i++)
+         std::cout << "MR-DIAG:: refined rotation " << i << " score " << std::scientific
+                   << std::setprecision(3) << refined[i].score << " " << std::fixed << std::setprecision(1)
+                   << truth.angle_to(refined[i].rotation) << " deg from true, "
+                   << mr_truth_t::angle_to_lattice_ops(refined[i].rotation)
+                   << " deg from identity/2-fold-about-axis" << std::endl;
+
    // --- Translation search for each refined rotation (parallelised) ---
    //
    // Two key optimisations:
    //
-   // 1. Extract a local P1 box from the observed map around target_centre
+   // 1. Extract a local P1 box from the observed map around the recentred position
    //    (side ~ 2*fragment_radius + border). Both the observed and model
    //    density are computed on this smaller grid, so the FFTs are much
    //    cheaper than using the full EM cell.
@@ -342,7 +680,7 @@ coot::molecular_replacement_search(const clipper::Xmap<float> &xmap_obs,
 
    auto t_trans_start = std::chrono::high_resolution_clock::now();
 
-   // Build a local P1 box centred on target_centre
+   // Build a local P1 box centred on the recentred position (not the user's target_centre)
    float local_box_radius = fragment_radius + 10.0f;
    double r_90_local = clipper::Util::d2rad(90.0);
    double local_side = 2.0 * static_cast<double>(local_box_radius);
@@ -358,9 +696,9 @@ coot::molecular_replacement_search(const clipper::Xmap<float> &xmap_obs,
       clipper::Xmap_base::Map_reference_index ix;
       for (ix = local_obs_map.first(); !ix.last(); ix.next()) {
          clipper::Coord_orth local_pos = ix.coord().coord_frac(local_gs).coord_orth(local_cell);
-         clipper::Coord_orth obs_pos(local_pos.x() - local_cell_centre.x() + target_centre.x(),
-                                    local_pos.y() - local_cell_centre.y() + target_centre.y(),
-                                    local_pos.z() - local_cell_centre.z() + target_centre.z());
+         clipper::Coord_orth obs_pos(local_pos.x() - local_cell_centre.x() + recentred.x(),
+                                    local_pos.y() - local_cell_centre.y() + recentred.y(),
+                                    local_pos.z() - local_cell_centre.z() + recentred.z());
          float val;
          clipper::Interp_linear::interp(xmap_obs, xmap_obs.coord_map(obs_pos), val);
          local_obs_map[ix] = val;
@@ -376,6 +714,19 @@ coot::molecular_replacement_search(const clipper::Xmap<float> &xmap_obs,
                                  clipper::Resolution(2.0 * coot::util::max_gridding(local_obs_map)), true);
    clipper::HKL_data<clipper::datatypes::F_phi<float>> fphi_obs_local(local_hkls);
    local_obs_map.fft_to(fphi_obs_local);
+
+   if (truth.valid) {
+      clipper::Coord_orth local_origin(recentred.x() - local_cell_centre.x(),
+                                       recentred.y() - local_cell_centre.y(),
+                                       recentred.z() - local_cell_centre.z());
+      diagnostic_translation_at_rotation(truth.rotation, "true", mol_model, mol_centre.second,
+                                         local_cell, local_gs, fphi_obs_local, local_hkls,
+                                         local_obs_map, local_origin, truth);
+      if (! refined.empty())
+         diagnostic_translation_at_rotation(refined[0].rotation, "top-refined", mol_model, mol_centre.second,
+                                            local_cell, local_gs, fphi_obs_local, local_hkls,
+                                            local_obs_map, local_origin, truth);
+   }
 
    unsigned int n_rot = refined.size();
    unsigned int n_trans_threads = coot::get_max_number_of_threads();
@@ -429,14 +780,14 @@ coot::molecular_replacement_search(const clipper::Xmap<float> &xmap_obs,
                                                rotated_model_map, n_trans_raw);
 
             // Convert local-box translations back to observed-map coordinates.
-            // The local box has its origin at (target_centre - local_cell_centre),
+            // The local box has its origin at (recentred - local_cell_centre),
             // so a peak at local position p corresponds to observed-map position
-            // p + (target_centre - local_cell_centre).
-            clipper::Coord_orth local_origin_in_obs(target_centre.x() - local_cell_centre.x(),
-                                                    target_centre.y() - local_cell_centre.y(),
-                                                    target_centre.z() - local_cell_centre.z());
+            // p + (recentred - local_cell_centre).
+            clipper::Coord_orth local_origin_in_obs(recentred.x() - local_cell_centre.x(),
+                                                    recentred.y() - local_cell_centre.y(),
+                                                    recentred.z() - local_cell_centre.z());
 
-            // Filter: keep only peaks within fragment_radius of the target centre
+            // Filter: keep only peaks within fragment_radius of the recentred position
             float max_dist = fragment_radius;
             std::vector<coot::translation_search_result_t> trans_results;
             for (auto &tr : trans_results_raw) {
@@ -446,9 +797,9 @@ coot::molecular_replacement_search(const clipper::Xmap<float> &xmap_obs,
                                            tr.position.z() + local_origin_in_obs.z());
                tr.position = obs_pos;
 
-               double dx = obs_pos.x() - target_centre.x();
-               double dy = obs_pos.y() - target_centre.y();
-               double dz = obs_pos.z() - target_centre.z();
+               double dx = obs_pos.x() - recentred.x();
+               double dy = obs_pos.y() - recentred.y();
+               double dz = obs_pos.z() - recentred.z();
                double dist = std::sqrt(dx*dx + dy*dy + dz*dz);
                if (dist < max_dist) {
                   trans_results.push_back(tr);
@@ -534,6 +885,14 @@ coot::molecular_replacement_search(const clipper::Xmap<float> &xmap_obs,
                 << " (cutoff 70% of " << std::fixed << std::setprecision(1)
                 << top_tf << " sigma)" << std::endl;
    }
+
+   if (truth.valid)
+      for (unsigned int i=0; i<all_solutions.size(); i++)
+         std::cout << "MR-DIAG:: pre-rigid-body solution " << i << " TF " << std::fixed << std::setprecision(2)
+                   << all_solutions[i].translation_score << " rot " << std::setprecision(1)
+                   << truth.angle_to(all_solutions[i].rotation) << " deg, trans "
+                   << truth.distance_to(all_solutions[i].translation) << " A from true, rmsd "
+                   << truth.rmsd(all_solutions[i].placed_mol) << " A" << std::endl;
 
    // --- Rigid-body refinement of surviving solutions (parallelised) ---
 
@@ -640,6 +999,12 @@ coot::molecular_replacement_search(const clipper::Xmap<float> &xmap_obs,
                    << " (minimum separation " << min_sep << " A)" << std::endl;
       }
       all_solutions = unique_solutions;
+
+      if (truth.valid)
+         for (unsigned int i=0; i<all_solutions.size(); i++)
+            std::cout << "MR-DIAG:: post-rigid-body solution " << i << " TF " << std::fixed
+                      << std::setprecision(2) << all_solutions[i].translation_score << " rmsd "
+                      << truth.rmsd(all_solutions[i].placed_mol) << " A from true" << std::endl;
    }
 
    auto t_rigid_end = std::chrono::high_resolution_clock::now();
@@ -655,6 +1020,8 @@ coot::molecular_replacement_search(const clipper::Xmap<float> &xmap_obs,
    std::cout << "INFO:: Molecular Replacement Results" << std::endl;
    std::cout << "INFO:: Target centre: (" << std::fixed << std::setprecision(1)
              << target_centre.x() << ", " << target_centre.y() << ", " << target_centre.z()
+             << ") search centre (recentred): ("
+             << recentred.x() << ", " << recentred.y() << ", " << recentred.z()
              << ")" << std::endl;
    std::cout << "INFO:: =================================================================" << std::endl;
    std::cout << "INFO:: " << std::setw(4) << "Rank"

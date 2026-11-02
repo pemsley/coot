@@ -11403,7 +11403,8 @@ float fit_molecule_to_map_by_random_jiggle_and_blur(int imol, int n_trials, floa
   @param chain_id the chain id
   @param n_trials the number of random trials
   @param jiggle_scale_factor scales the size of the random rotations and translations
-  @return currently always -999 (the fit score is not passed back) */
+  @return -999 if not possible (e.g. no refinement map or chain not found), else
+  return the new best fit for this chain. */
 float fit_chain_to_map_by_random_jiggle(int imol, const char *chain_id, int n_trials, float jiggle_scale_factor);
 
 /*!  \brief jiggle fit the chain to the current refinment map
@@ -11415,20 +11416,23 @@ float fit_chain_to_map_by_random_jiggle(int imol, const char *chain_id, int n_tr
  * @param n_trials the number of random trials
  * @param jiggle_scale_factor scales the size of the random rotations and translations
  * @param map_blur_factor the B-factor (Å^2) used to blur the map
- * @return currently always -100 (the fit score is not passed back) */
+ * @return -100 if not possible (e.g. no refinement map or chain not found), else return the new best fit for this chain */
 float fit_chain_to_map_by_random_jiggle_and_blur(int imol, const char *chain_id, int n_trials, float jiggle_scale_factor, float map_blur_factor);
 
 /*! \brief Patterson overlap plus phased translationn function MR-like local fitting
  *
  * Use the imol_refinement map. The search is centred on the current
- * rotation (screen) centre; the coordinates of molecule imol are replaced
- * by those of the best solution.
+ * rotation (screen) centre; the coordinates of the search model in molecule
+ * imol are replaced by those of the best solution.
  *
  * @param imol the molecule index
+ * @param chain_id the chain to be used as the search model (only this chain is moved).
+ *        If chain_id is "", the whole molecule is the search model
  * @param n_top_rotations use only the top n_top_rotations rotation solutions
  * @param n_top_translations use only the top n_top_translation translation solutions
  * */
-void molecular_replacement_fit_about_screen_centre(int imol, int n_top_rotations, int n_top_translations);
+void molecular_replacement_fit_about_screen_centre(int imol, const char *chain_id,
+                                                   int n_top_rotations, int n_top_translations);
 
 /*! \} */
 
