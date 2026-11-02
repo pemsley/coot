@@ -2,11 +2,6 @@
 
 o Impact statement for Moorhen.
 
-o Oli: the preference to switch off active map on dragging
-  seems to be broken - it should update the map after mouse
-  release, but instead it is only happening when update_maps
-  is called explicitly (e.g. during recontouring)
-
 o Oli idea: search by sequence. Allow wildcard and ambiguity
   e.g. (A/S). Consider sequon.
 
@@ -15,6 +10,20 @@ o colour residues by atom overlap badness (use user-defined
 
 o user-defined colour in CA+sidechain mode?
   Useful for colour-by-rotamer-probability
+
+o make a smoother copy of a difference map should
+  preserve the difference map status in the new map.
+* Done.
+
+o look at FAD with hydrogens added pdb5s9s.ent,
+  oxygen-to-hydrogen bond needs an end-cap
+* I don't know what I meant.
+
+o Oli: the preference to switch off active map on dragging
+  seems to be broken - it should update the map after mouse
+  release, but instead it is only happening when update_maps
+  is called explicitly (e.g. during recontouring)
+* Done.
 
 o multi-residue for copy-fragment "//A/90,92" didn't work
   Nor did "//A/90||//A/92"
@@ -191,9 +200,6 @@ o 5s9s FAD A 501 OA1 and O2A should have the same hydrogen bond type
    (acceptor) see ener_lib.cif for O and OP. So the RDKit output
    needs to be augmented.
 
-o look at FAD with hydrogens added pdb5s9s.ent,
-  oxygen-to-hydrogen bond needs an end-cap
-
 o add to the api - add dotted/dashed line between points
   in ospray rendering
 * Meh. At some stage.
@@ -284,9 +290,6 @@ o dnotes: Look at cowcat jholton github
 
 o for jordan: for each chi angle set for each residue
   type find the number of observations in that basin
-
-o make a smoother copy of a difference map should
-  preserrve the difference map status in the new map.
 
 o for chapi scripts, chapi.spec_to_cid() would be convenient.
 
