@@ -164,20 +164,20 @@ The blob-finding function identifies regions of significant density that are not
 
 ```python
 blobs = coot.find_blobs_py(
-    imol_model=0,              # your protein model
-    imol_map=1,                # the map to search (often difference map)
-    cut_off_density_level=3.0  # sigma threshold (typically 2.5-4.0)
+    imol_model=0,                    # your protein model
+    imol_map=1,                      # the map to search (often difference map)
+    cut_off_sigma_density_level=3.0  # sigma threshold (typically 2.5-4.0)
 )
 
-# Returns: list of (position, score) tuples
-# [(clipper::Coord_orth, float), ...]
+# Returns: [[[x, y, z], score], ...] - the position is a plain list of 3 floats
+# (False if imol_model or imol_map is not a valid molecule)
 ```
 
 ### Parameters
 
 - `imol_model`: The model molecule - density explained by this model will be excluded
 - `imol_map`: The map to search for blobs (usually a difference map, but can be regular map)
-- `cut_off_density_level`: Sigma threshold for blob detection
+- `cut_off_sigma_density_level`: Sigma threshold for blob detection
   - **3.0 sigma**: Standard threshold for significant features
   - **2.5 sigma**: More sensitive, finds weaker features
   - **4.0 sigma**: Conservative, only strong features
@@ -186,9 +186,7 @@ blobs = coot.find_blobs_py(
 
 ```python
 for position, score in blobs:
-    x = position.x()
-    y = position.y()
-    z = position.z()
+    x, y, z = position
     print(f"Blob at ({x:.2f}, {y:.2f}, {z:.2f}) - score: {score:.2f}")
 ```
 
@@ -246,14 +244,14 @@ if severe_clashes:
 diff_map_blobs = coot.find_blobs_py(
     imol_model=0,
     imol_map=2,  # difference map
-    cut_off_density_level=3.0
+    cut_off_sigma_density_level=3.0
 )
 
 # Find features in regular map (alternative approach)
 regular_map_blobs = coot.find_blobs_py(
     imol_model=0,
     imol_map=1,  # 2mFo-DFc map
-    cut_off_density_level=1.0  # Lower threshold for fitted map
+    cut_off_sigma_density_level=1.0  # Lower threshold for fitted map
 )
 ```
 
@@ -286,7 +284,7 @@ def comprehensive_validation(imol_model, imol_map, imol_diff_map=None):
         n_residues = coot.chain_n_residues(chain, imol_model)
         if n_residues > 0:
             stats = coot.map_to_model_correlation_stats_per_residue_range_py(
-                imol_model, chain, 1, 9999, imol_map
+                imol_model, chain, imol_map, 1, 0
             )
             results['correlation_by_chain'][chain] = stats
     
@@ -508,12 +506,13 @@ def validate_and_fix_chain(imol_model, chain_id, imol_map, imol_diff_map):
             })
     
     # 2. Check correlation for each residue
-    stats = coot.map_to_model_correlation_stats_per_residue_range_py(
-        imol_model, chain_id, 1, 9999, imol_map
+    # Returns [all_atom, sidechain]; entries are [[chain, resno, ins], [n_points, corr]]
+    all_atom, _sidechain = coot.map_to_model_correlation_stats_per_residue_range_py(
+        imol_model, chain_id, imol_map, 1, 0
     )
     
-    for residue_spec, correlation in stats:
-        if correlation < 0.7:  # Poor fit threshold
+    for residue_spec, (n_points, correlation) in all_atom:
+        if n_points > 0 and correlation < 0.7:  # Poor fit threshold
             issues.append({
                 'type': 'poor_correlation',
                 'residue': residue_spec,
@@ -527,18 +526,23 @@ def validate_and_fix_chain(imol_model, chain_id, imol_map, imol_diff_map):
     for position, score in blobs:
         issues.append({
             'type': 'unmodeled_density',
-            'position': (position.x(), position.y(), position.z()),
+            'position': tuple(position),
             'severity': 'high' if score > 50 else 'medium',
             'score': score
         })
     
     # 4. Check Ramachandran
     rama = coot.all_molecule_ramachandran_score_py(imol_model)
-    for outlier in rama:
-        if outlier[4] == 'OUTLIER':  # Ramachandran region
+    # rama[5] is the per-residue list: an entry is -1 where there was no data,
+    # otherwise [[phi, psi], residue_spec, probability, [prev, this, next]]
+    for entry in rama[5]:
+        if entry == -1:
+            continue
+        phi_psi, residue_spec, probability, _names = entry
+        if probability < 0.02:  # Ramachandran outlier
             issues.append({
                 'type': 'ramachandran_outlier',
-                'residue': outlier[0:3],  # chain, resno, inscode
+                'residue': residue_spec,  # [chain, resno, inscode]
                 'severity': 'high'
             })
     
@@ -562,8 +566,9 @@ blobs = coot.find_blobs_py(0, 2, 3.0)
 for position, score in blobs:
     if 5 < score < 30:  # Typical water blob size
         # Check if appropriate for water
-        x, y, z = position.x(), position.y(), position.z()
-        # Add water at this position
+        x, y, z = position
+        # The "pointer" is the screen centre, so move the centre to the blob first
+        coot.set_rotation_centre(x, y, z)
         coot.place_typed_atom_at_pointer("HOH")
 ```
 

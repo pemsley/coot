@@ -1,5 +1,5 @@
 ---
-name: coot-NCS-reference-guidance
+name: coot-ncs-reference-guidance
 description: "NCS Reference Guidance"
 ---
 ## Using NCS/Symmetry-Related Molecules as Reference
@@ -110,11 +110,12 @@ def build_fragment_from_ncs(imol, target_chain, ref_chain, start_resno, end_resn
     
     print(f"Reference sequence from {ref_chain}: {ref_seq}")
     
-    # Find last existing residue in target chain
+    # Find the last existing residue in the target chain: walk forward from the
+    # residue before the gap while the next residue is present
+    # (residue_name_py() returns False for a missing residue)
     last_resno = start_resno - 1
-    while coot.residue_name_py(imol, target_chain, last_resno, ""):
-        pass
-    last_resno -= 1
+    while coot.residue_name_py(imol, target_chain, last_resno + 1, ""):
+        last_resno += 1
     
     # Extend chain
     for i in range(end_resno - last_resno):

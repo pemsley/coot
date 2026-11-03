@@ -4774,7 +4774,9 @@ PyObject *map_to_model_correlation_stats_py(int imol,
 //! run of \p n_residue_per_residue_range consecutive residues, the correlation
 //! between the observed map and a map calculated from the model is computed
 //! (excluding grid points that are also covered by residues outside the run) and
-//! reported against the middle residue of the run.
+//! reported against the middle residue of the run. The grid points used are those
+//! within 2.8 Å of the atoms of the run. Runs that include waters, nucleotides or
+//! HETATM residues are skipped.
 //!
 //! @param imol Model molecule number
 //! @param chain_id Chain identifier (e.g., "A", "B")
@@ -4782,16 +4784,23 @@ PyObject *map_to_model_correlation_stats_py(int imol,
 //! @param n_residue_per_residue_range Number of residues per analysis window:
 //!        - Use 1 for per-residue statistics (most common)
 //!        - Use 3 for smoothed statistics over 3-residue windows
-//! @param exclude_mainchain_NOC_flag Whether to split off the backbone:
+//! @param exclude_mainchain_NOC_flag Whether to split off the main chain:
 //!        - 0: use all grid points; the first list has the all-atom statistics and
-//!          the second list has empty statistics (n_points = 0)
-//!        - 1: grid points within 1.8 Å of a backbone N, C, O (or H) atom go into the
-//!          first list (i.e. it is then main-chain statistics) and the rest go into the
-//!          second (side-chain) list
+//!          the second list has empty statistics (n_points = 0, correlation nan)
+//!        - 1: the split is made by atom, not by grid point: the grid points around atoms
+//!          that lie within 1.8 Å of a main-chain N, C, O or H atom (i.e. N, C, O, H and
+//!          also CA, and the CD of proline) go into the first list (which is then
+//!          main-chain statistics) and the grid points around all other atoms (CB onwards)
+//!          go into the second (side-chain) list
 //!
 //! @return a list of two lists \c [first_stats, sidechain_stats]. Each is a list of items
 //!         \c [residue_spec, [n_points, correlation]] where residue_spec is
-//!         \c [chain_id, res_no, ins_code]. Both lists are empty if \p imol or \p imol_map is not valid.
+//!         \c [chain_id, res_no, ins_code]; the items are sorted by residue spec.
+//!         Both lists are empty if \p imol or \p imol_map is not valid.
+//!
+//! n_points is the number of atom/grid-point contributions: a grid point that is within
+//! 2.8 Å of several atoms is counted once for each of them (and, with
+//! \p exclude_mainchain_NOC_flag = 1, it may be counted in both lists).
 //!
 //! If the residue does not have a side-chain then the number of grid points may be 0 and the
 //! correlation is then nan.
@@ -5011,20 +5020,26 @@ map_to_model_correlation_stats_per_residue(int imol,
 //! residues; the correlation of the model-calculated map with \p imol_map over each
 //! window is reported against the middle residue of that window. Windows that
 //! include waters, nucleotides or HETATM residues are skipped. The atom mask radius
-//! is 2.8 Å (and 1.8 Å around the main-chain N, O and C atoms when they are excluded).
+//! is 2.8 Å; a grid point within that radius of several atoms is counted once for each
+//! of them.
 //!
 //! @param imol the model molecule index
 //! @param chain_id the chain id (e.g. "A")
 //! @param imol_map the map molecule index
 //! @param n_residue_per_residue_range the number of residues per window (e.g. 1, 3 or 5)
-//! @param exclude_NOC_flag if non-zero, also calculate side-chain statistics (excluding
-//!        grid points near the main-chain N, O and C atoms)
+//! @param exclude_NOC_flag if non-zero, split the statistics into main-chain and
+//!        side-chain. The split is made by atom: the grid points around atoms that lie
+//!        within 1.8 Å of a main-chain N, C, O or H atom (i.e. N, C, O, H, CA and the
+//!        CD of proline) are main-chain, the grid points around the other atoms are
+//!        side-chain.
 //!
 //! @return a pair of maps from (middle) residue spec to
 //!         coot::util::density_correlation_stats_info_t:
-//!         - first: all-atom statistics
+//!         - first: all-atom statistics if \p exclude_NOC_flag is zero, main-chain
+//!           statistics otherwise
 //!         - second: side-chain statistics (only filled with data when
-//!           \p exclude_NOC_flag is set, otherwise the entries have \c n = 0)
+//!           \p exclude_NOC_flag is set, otherwise the entries have \c n = 0 and the
+//!           correlation is nan)
 //!
 //!         Both maps are empty if \p imol or \p imol_map is not valid.
 //!
@@ -5088,8 +5103,9 @@ map_to_model_correlation_stats_per_residue_scm(int imol,
 //!
 //! See map_to_model_correlation_stats_per_residue_range() for the parameters.
 //!
-//! @return a list of two lists (all-atom, side-chain) whose items are
-//!         (residue-spec (n correlation)), in residue-spec order.
+//! @return a list of two lists (all-atom or main-chain, side-chain) whose items are
+//!         (residue-spec (n correlation)), in residue-spec order. The first list
+//!         is main-chain statistics if \p exclude_NOC_flag is non-zero.
 SCM map_to_model_correlation_stats_per_residue_range_scm(int imol, const std::string &chain_id, int imol_map,
                                                          unsigned int n_residue_per_residue_range,
                                                          short int exclude_NOC_flag);

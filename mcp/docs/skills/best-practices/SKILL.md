@@ -198,7 +198,7 @@ After creating files in Coot's working directory, use bash tools to copy them to
 
 **CRITICAL: On every "Coot Mode" start, before doing anything else:**
 
-1. Read the `/mnt/skills/user/coot-essential-api/SKILL.md` file
+1. Load the `coot-essential-api` skill (read its `SKILL.md`; its location differs between environments)
 2. Extract all function names mentioned in that file
 3. Call `get_function_descriptions()` with the complete list of function names
 4. This loads the essential API documentation into context, providing immediate access to the ~25 core functions needed for typical validation and model-building workflows
@@ -471,22 +471,25 @@ coot.is_valid_model_molecule(0)  # Returns: 1 or 0
 ```
 
 ### Multi-line code blocks
-Multi-line blocks require explicit return or final expression:
+`run_python_multiline()` does not return the value of its last expression - it returns None.
+Use `print()` to see values (they appear in the `stdout` key), or define a function with
+`run_python_multiline()` and then call it with `run_python()` to get a return value:
 
 ```python
-# ❌ This returns None (print doesn't return a value)
+# ✅ Use print() to see output
 mols = []
 for i in range(3):
     mols.append(i)
 print(mols)
 
-# ✅ CORRECT: Return the value or use final expression
-mols = []
-for i in range(3):
-    mols.append(i)
-mols  # Final expression is returned
+# ✅ Or define a function in one call...
+def get_mols():
+    return [i for i in range(3)]
 
-# ✅ ALSO CORRECT: List comprehension (single expression)
+# ...and call it with run_python() in the next call, which returns the value
+get_mols()
+
+# ✅ A single-expression call returns its value directly with run_python()
 [i for i in range(3)]
 ```
 
@@ -561,9 +564,10 @@ results = coot.map_to_model_correlation_per_residue_py(0, residue_specs, 0, 1)
 # Returns: [(residue_spec, correlation), ...]
 
 # Main function for "which residue fits worst?"
-stats = coot.map_to_model_correlation_stats_per_residue_range_py(
-    0, "A", 1, 100, 1  # imol, chain, start, end, imol_map
+all_atom, sidechain = coot.map_to_model_correlation_stats_per_residue_range_py(
+    0, "A", 1, 1, 0  # imol, chain, imol_map, n_per_range, exclude_NOC
 )
+# Each entry is [[chain_id, resno, ins_code], [n_points, correlation]]
 ```
 
 ## Zoom and View Settings
@@ -671,6 +675,7 @@ result = []
 for i in range(5):
     result.append(i)
 result  # Returns None - this doesn't work!
+```
 
 ## API Discovery Tools
 
