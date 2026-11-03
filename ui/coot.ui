@@ -788,14 +788,6 @@
             <attribute name="label">Residues With Alt Confs...</attribute>
             <attribute name="action">app.residues_with_alt_confs_action</attribute>
           </item>
-          <item>
-            <attribute name="label">Residues With cis-Peptides...</attribute>
-            <attribute name="action">app.residues_with_cis_peptides_action</attribute>
-          </item>
-          <item>
-            <attribute name="label">Residues With Missing Atoms...</attribute>
-            <attribute name="action">app.residues_with_missing_atoms_action</attribute>
-          </item>
         </section>
         <section>
           <!-- <item>
@@ -953,6 +945,14 @@
         <item>
           <attribute name="label">Refmac Log Validation</attribute>
           <attribute name="action">app.refmac_log_validation_action</attribute>
+        </item>
+        <item>
+            <attribute name="label">Residues With cis-Peptides...</attribute>
+            <attribute name="action">app.residues_with_cis_peptides_action</attribute>
+        </item>
+        <item>
+            <attribute name="label">Residues With Missing Atoms...</attribute>
+            <attribute name="action">app.residues_with_missing_atoms_action</attribute>
         </item>
         <item>
           <attribute name="label">Unmodelled blobs...</attribute>
