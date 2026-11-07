@@ -331,7 +331,15 @@ namespace coot {
       void make_overlaps();
       void make_all_atom_overlaps();
       void contact_dots_for_overlaps() const; // old
-      atom_overlaps_dots_container_t contact_dots_for_ligand(double dot_density_in = 1.02);
+      //! \brief contact dots for the central residue (ligand) against its neighbours
+      //!
+      //! @param dot_density_in the dot density
+      //! @param only_this_atom if set (it must be an atom of the central residue), make the
+      //!        contacts and dots for only that atom - much faster, e.g. for scoring
+      //!        the position of a single (hydroxyl) hydrogen atom.
+      //! @return the contact dots
+      atom_overlaps_dots_container_t contact_dots_for_ligand(double dot_density_in = 1.02,
+                                                             mmdb::Atom *only_this_atom = nullptr);
       // this should be a vector or derived symmetry_atom class really.
       std::vector<atom_overlap_t> symmetry_contacts(float d);
       atom_overlaps_dots_container_t all_atom_contact_dots(double dot_density = 0.5,

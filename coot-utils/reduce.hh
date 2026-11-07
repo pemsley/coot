@@ -91,10 +91,20 @@ namespace coot {
 
          atom_with_attached_Hs(mmdb::Atom *at_in, hydrogen_t type_in,
                                const std::vector<mmdb::Atom *> &hydrogens_in) :
-            at(at_in), type(type_in), hydrogens(hydrogens_in) {}
+            at(at_in), type(type_in), hydrogens(hydrogens_in), axis_atom(nullptr), n_fold(3) {}
+         //! for hydroxyls and sulfhydryls: the H rotates about the axis_atom->at bond
+         atom_with_attached_Hs(mmdb::Atom *at_in, hydrogen_t type_in,
+                               mmdb::Atom *H_at, mmdb::Atom *axis_atom_in, unsigned int n_fold_in) :
+            at(at_in), type(type_in), hydrogens(std::vector<mmdb::Atom *>(1, H_at)),
+            axis_atom(axis_atom_in), n_fold(n_fold_in) {
+            if (H_at) H_ideal_pos = clipper::Coord_orth(H_at->x, H_at->y, H_at->z);
+         }
          mmdb::Atom* at;
          hydrogen_t type;
          std::vector<mmdb::Atom *> hydrogens;
+         mmdb::Atom *axis_atom; // e.g. CB for SER OG, CZ for TYR OH
+         unsigned int n_fold;   // 3 for sp3 attachment (SER, THR, CYS), 2 for sp2 (TYR, COOH)
+         clipper::Coord_orth H_ideal_pos; // where the H was placed initially (torsion 180)
       };
 
       class atoms_with_spinnable_Hs {
@@ -110,6 +120,9 @@ namespace coot {
                   const std::vector<mmdb::Atom *> &attahed_hydrogen_atoms);
          void add(mmdb::Atom* at, atom_with_attached_Hs::hydrogen_t type,
                   mmdb::Atom *attahed_hydrogen_atom);
+         //! add a rotatable xH (hydroxyl or sulfhydryl) hydrogen
+         void add(mmdb::Atom* at, atom_with_attached_Hs::hydrogen_t type,
+                  mmdb::Atom *attached_hydrogen_atom, mmdb::Atom *axis_atom, unsigned int n_fold);
          void cliquize();
          std::vector<std::vector<atom_with_attached_Hs> > get_cliques() const {
             return cliques;
@@ -214,6 +227,23 @@ namespace coot {
                                    mmdb::Residue *residue_p);
 
       atoms_with_spinnable_Hs spinables;
+
+      //! is the given atom (the one the O or S is bonded to) at a planar (sp2) centre?
+      //! (i.e. 3 non-hydrogen neighbours lying in a plane with it).
+      //! Used to choose a 2-fold (planar) or 3-fold (staggered) spin search.
+      bool is_planar_centre(mmdb::Atom *at, mmdb::Residue *residue_p) const;
+
+      //! Spin-search the hydroxyl (and sulfhydryl) hydrogens: try the 3 staggered
+      //! (or the 2 in-plane) positions, each with offsets of -10, -5, 0, 5 and 10 degrees,
+      //! and keep the one with the best contact-dot (H-bond-aware) score.
+      //! Hydroxyls in the same clique are optimized in turn, twice, so that
+      //! they can respond to each other.
+      void spin_search_hydroxyls(int imol_enc);
+
+      //! optimize the position of the H of a single hydroxyl, @return true if it was moved
+      bool spin_search_hydroxyl(const atom_with_attached_Hs &awaH,
+                                const std::vector<mmdb::Residue *> &neighbs,
+                                int imol_enc);
 
       // this will need a spin-search
       void add_OH_H(const std::string &H_name,
