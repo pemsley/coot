@@ -81,7 +81,7 @@ namespace coot {
          for (it=other.dots.begin(); it!=other.dots.end(); ++it)
             if (it->second.size())
                dots[it->first].insert(dots[it->first].end(),it->second.begin(), it->second.end());
-         if (other.clashes.positions.size())
+         if (! other.clashes.positions.empty())
             clashes.positions.insert(clashes.positions.end(),
                                      other.clashes.positions.begin(),
                                      other.clashes.positions.end());
