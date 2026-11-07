@@ -1894,6 +1894,46 @@ void set_validation_graphs_is_docked(short int state) {
    graphics_info_t::validation_graphs_is_docked = state;
 }
 
+/*! \brief set the state of the validation boxes
+ *
+ * The validation boxes are difference map peaks, interesting places,
+ * validation outliers and atoms with zero occupancy.
+ * By "docked" I mean, in the main window. The alternative
+ * is a floating dialog.
+ *
+ * @param state 0 is not docked, 1 is docked
+ */
+void set_validation_boxes_is_docked(short int state) {
+   graphics_info_t::set_validation_boxes_is_docked(state);
+}
+
+/*! \brief set the size of the Ramachandran plot drawn over the graphics (e.g. during refinement)
+ *
+ * This can be called before or after the graphics window has been realized.
+ *
+ * @param scale the default is 0.8. It is limited to the range 0.2 to 1.6.
+ */
+void set_hud_rama_plot_scale(float scale) {
+
+   // the plot is anchored at (-0.9,-0.9) so too big and it goes off the top and right of the window
+   if (scale < 0.2) scale = 0.2;
+   if (scale > 1.6) scale = 1.6;
+   graphics_info_t::hud_rama_plot_scale = scale;
+
+   // if the glarea has not been realized yet, the scale will be used when it is.
+   // Otherwise, update the plot now.
+   if (graphics_info_t::use_graphics_interface_flag) {
+      if (! graphics_info_t::glareas.empty()) {
+         GtkWidget *glarea = graphics_info_t::glareas[0];
+         if (glarea && gtk_widget_get_realized(glarea)) {
+            graphics_info_t::attach_buffers(); // GL context current
+            graphics_info_t::gl_rama_plot.set_rama_plot_scale(scale);
+            graphics_draw();
+         }
+      }
+   }
+}
+
 
 
 

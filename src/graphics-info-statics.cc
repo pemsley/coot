@@ -1270,6 +1270,7 @@ int graphics_info_t::map_line_width = 1;
 // bonding stuff
 int   graphics_info_t::bond_thickness_intermediate_value = -1;
 float graphics_info_t::bond_thickness_intermediate_atoms = 5; // (no so) thick white atom bonds
+float graphics_info_t::intermediate_atoms_bond_width_scale_factor = 0.7f; // 2026-11-01-PE
 
 // merge molecules
 int graphics_info_t::merge_molecules_master_molecule = -1;
@@ -1636,6 +1637,7 @@ bool graphics_info_t::sequence_view_is_docked_flag = true;
 
 bool graphics_info_t::validation_graphs_is_docked = true;
 GtkWidget *graphics_info_t::validation_graphs_undocked_window = nullptr;
+bool graphics_info_t::validation_boxes_is_docked = true;
 
 int graphics_info_t::tick_function_id = -1; // unset
 bool graphics_info_t::do_tick_particles = false;
@@ -1767,6 +1769,7 @@ bool graphics_info_t::all_atom_contact_dots_do_vdw_surface = false;
 bool graphics_info_t::refinement_has_finished_moving_atoms_representation_update_needed_flag = false;
 
 gl_rama_plot_t graphics_info_t::gl_rama_plot;
+float graphics_info_t::hud_rama_plot_scale = 0.7; // scaled by 0.5 in the gl-rama draw call.
 bool graphics_info_t::draw_gl_ramachandran_plot_flag = false;
 bool graphics_info_t::draw_gl_ramachandran_plot_user_control_flag = true;
 

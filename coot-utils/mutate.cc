@@ -134,8 +134,18 @@ coot::util::mutate(mmdb::Residue *res, mmdb::Residue *std_res_unoriented, const 
    // If you are looking here then you have mutated a residue with a pointer. You need
    // to use deep_copy_this_residue(residue_p) not residue_p.
 
-   int istate = 0; 
+   int istate = 0;
    std::map<std::string, clipper::RTop_orth> rtops = get_ori_to_this_res(res);
+
+   // No N, CA, C frame (e.g. a nucleotide) - there is nothing to orient the
+   // standard residue onto, so don't touch the residue.
+   std::map<std::string, clipper::RTop_orth>::const_iterator it_rtop = rtops.find(alt_conf);
+   if (it_rtop == rtops.end()) {
+      std::cout << "WARNING:: mutate(): no main-chain N, CA, C frame for residue "
+                << residue_spec_t(res) << " " << res->GetResName() << " alt-conf \"" << alt_conf << "\""
+                << std::endl;
+      return 0;
+   }
 
    mmdb::PPAtom residue_atoms;
    int nResidueAtoms;
@@ -148,14 +158,11 @@ coot::util::mutate(mmdb::Residue *res, mmdb::Residue *std_res_unoriented, const 
       for(int iat=0; iat<nResidueAtoms; iat++) {
          mmdb::Atom *at = residue_atoms[iat];
          clipper::Coord_orth co(at->x, at->y, at->z);
-         std::map<std::string, clipper::RTop_orth>::const_iterator it = rtops.find(alt_conf);
-         if (it != rtops.end()) { 
-            clipper::Coord_orth rotted = co.transform(it->second);
+         clipper::Coord_orth rotted = co.transform(it_rtop->second);
 
-            at->x = rotted.x();
-            at->y = rotted.y();
-            at->z = rotted.z();
-         }
+         at->x = rotted.x();
+         at->y = rotted.y();
+         at->z = rotted.z();
       }
 
       coot::util::mutate_internal(res, std_res_unoriented, alt_conf, shelx_flag, b_factor); // it's oriented now.
@@ -175,14 +182,17 @@ coot::util::mutate(mmdb::Residue *res, mmdb::Residue *std_res_unoriented, const 
 //
 // LSQ fit std_base onto residue, then change the atoms of residue to
 // be those of std_base.
-// 
-void
+//
+// return 1 on success, 0 on failure
+//
+int
 coot::util::mutate_base(mmdb::Residue *residue, mmdb::Residue *std_base,
                         bool use_old_style_naming,
                         bool print_match_stats_flag,
                         float b_factor) {
 
 
+   int status = 0;
    bool debug = false;
    
    std::vector<std::string> adenine;  // Pyrimidine
@@ -588,11 +598,35 @@ coot::util::mutate_base(mmdb::Residue *residue, mmdb::Residue *std_base,
                      // ... and then I don't add it.
                      residue->TrimAtomTable();
                   }
+                  status = 1;
                }
             }
          }
       }
    }
+   return status;
+}
+
+std::string
+coot::util::standard_residue_name_for_base_mutation(const std::string &current_res_name,
+                                                    const std::string &new_base_type) {
+
+   bool this_residue_is_DNA = false;
+   if (current_res_name == "DA" || current_res_name == "DG" ||
+       current_res_name == "DC" || current_res_name == "DT" ||
+       current_res_name == "D3" || current_res_name == "DI" ||
+       current_res_name == "DN" || current_res_name == "DU")
+      this_residue_is_DNA = true;
+
+   std::string r = new_base_type;
+   if (this_residue_is_DNA) {
+      if (new_base_type == "A") r = "DA";
+      if (new_base_type == "G") r = "DG";
+      if (new_base_type == "T") r = "DT";
+      if (new_base_type == "U") r = "DU";
+      if (new_base_type == "C") r = "DC";
+   }
+   return r;
 }
 
 std::string

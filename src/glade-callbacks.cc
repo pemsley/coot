@@ -1090,15 +1090,12 @@ on_refine_params_dialog_ok_button_clicked
 
 
 extern "C" G_MODULE_EXPORT
-void
-on_goto_atom_window_destroy            (GtkWidget       *object,
-                                        gpointer         user_data)
-{
-/*   printf("on_goto_atom_window_destroy is executed. unsetting the static in graphics_info\n"); */
+gboolean
+on_goto_atom_window_close_request(GtkWindow *window, gpointer user_data) {
 
-/* we can get here from a WM dialog kill (as well as the conventional
-   "Cancel" button callback. Fixes July 12 bug? */
   unset_go_to_atom_widget();
+  gtk_widget_set_visible(GTK_WIDGET(window), FALSE);
+  return TRUE; // Prevent the default close behavior (destruction)
 }
 
 
@@ -2579,13 +2576,14 @@ on_run_state_script_yes_button_clicked(GtkButton *button,
 
 
 extern "C" G_MODULE_EXPORT
-void
-on_edit_backbone_torsions_dialog_destroy(GtkWidget       *object,
-                                        gpointer         user_data) {
+gboolean
+on_edit_backbone_torsions_dialog_close_request(GtkWindow *window, gpointer user_data) {
 
    clear_moving_atoms_object();
   /* FIXME: also clear out the edib backbone ramaplot, if it exists. */
   /*   destroy_edit_backbone_rama_plot(); */
+   gtk_widget_set_visible(GTK_WIDGET(window), FALSE);
+   return TRUE; // Prevent the default close behavior (destruction)
 }
 
 
@@ -3027,12 +3025,13 @@ on_zoom_dialog_ok_button_clicked       (GtkButton       *button,
 
 
 extern "C" G_MODULE_EXPORT
-void
-on_edit_chi_angles_dialog_destroy      (GtkWidget       *object,
-                                        gpointer         user_data) {
-   /* needs to set widget */
+gboolean
+on_edit_chi_angles_dialog_close_request(GtkWindow *window, gpointer user_data) {
+
   unset_moving_atom_move_chis();
   set_show_chi_angle_bond(0);
+  gtk_widget_set_visible(GTK_WIDGET(window), FALSE);
+  return TRUE; // Prevent the default close behavior (destruction)
 }
 
 
@@ -3133,12 +3132,12 @@ on_help_chi_angles_dismiss_button_clicked (GtkButton       *button,
 
 
 extern "C" G_MODULE_EXPORT
-void
-on_rotate_translate_obj_dialog_destroy (GtkWidget       *object,
-                                                            gpointer         user_data)
-{
-   /* need to save the position coordinates of dialog */
+gboolean
+on_rotate_translate_obj_dialog_close_request(GtkWindow *window, gpointer user_data) {
+
    rot_trans_reset_previous();
+   gtk_widget_set_visible(GTK_WIDGET(window), FALSE);
+   return TRUE; // Prevent the default close behavior (destruction)
 }
 
 
@@ -4536,12 +4535,12 @@ on_base_chooser_cancel_button_clicked  (GtkButton       *button,
 
 
 extern "C" G_MODULE_EXPORT
-void
-on_nucleic_acid_base_chooser_dialog_destroy
-                                        (GtkWidget       *object,
-                                        gpointer         user_data)
-{
+gboolean
+on_nucleic_acid_base_chooser_dialog_close_request(GtkWindow *window, gpointer user_data) {
+
    clear_pending_picks();
+   gtk_widget_set_visible(GTK_WIDGET(window), FALSE);
+   return TRUE; // Prevent the default close behavior (destruction)
 }
 
 
@@ -4809,13 +4808,13 @@ on_cis_trans_conversion_toggle_button_toggled(GtkToggleButton *togglebutton,
 
 
 extern "C" G_MODULE_EXPORT
-void
-on_other_model_tools_dialog_destroy    (GtkWidget       *object,
-                                        gpointer         user_data) {
+gboolean
+on_other_model_tools_dialog_close_request(GtkWindow *window, gpointer user_data) {
 
-   std::cout << "---------------- this should not happen on_other_model_tools_dialog_destroy " << std::endl;
    do_cis_trans_conversion_setup(0);
    unset_other_modelling_tools_dialog();
+   gtk_widget_set_visible(GTK_WIDGET(window), FALSE);
+   return TRUE; // Prevent the default close behavior (destruction)
 }
 
 extern "C" G_MODULE_EXPORT
@@ -4954,12 +4953,13 @@ on_lsq_plane_ok_button_clicked         (GtkButton       *button,
 
 
 extern "C" G_MODULE_EXPORT
-void
-on_lsq_plane_dialog_destroy            (GtkWidget       *object,
-                                        gpointer         user_data)
-{
+gboolean
+on_lsq_plane_dialog_close_request(GtkWindow *window, gpointer user_data) {
+
   unset_lsq_plane_dialog();	/* which clears the plane points too */
   normal_cursor();
+  gtk_widget_set_visible(GTK_WIDGET(window), FALSE);
+  return TRUE; // Prevent the default close behavior (destruction)
 }
 
 

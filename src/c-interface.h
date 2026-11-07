@@ -294,6 +294,25 @@ void set_main_window_title(const char *s);
  */
 void set_validation_graphs_is_docked(short int state);
 
+/*! \brief set the state of the validation boxes
+ *
+ * The validation boxes are difference map peaks, interesting places,
+ * validation outliers and atoms with zero occupancy.
+ * By "docked" I mean, in the main window. The alternative
+ * is a floating dialog.
+ *
+ * @param state 0 is not docked, 1 is docked
+ */
+void set_validation_boxes_is_docked(short int state);
+
+/*! \brief set the size of the Ramachandran plot drawn over the graphics (e.g. during refinement)
+ *
+ * This can be called before or after the graphics window has been realized.
+ *
+ * @param scale the default is 0.8. It is limited to the range 0.2 to 1.6.
+ */
+void set_hud_rama_plot_scale(float scale);
+
 /*! \} */
 
 /*  -------------------------------------------------------------------- */

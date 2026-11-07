@@ -1169,6 +1169,10 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::mutate,
          nb::arg("imol"), nb::arg("cid"), nb::arg("new_residue_type"),
          get_docstring_from_xml("mutate").c_str())
+    .def("mutate_base",
+         &molecules_container_t::mutate_base,
+         nb::arg("imol"), nb::arg("cid"), nb::arg("new_base_type"),
+         get_docstring_from_xml("mutate_base").c_str())
     .def("new_positions_for_atoms_in_residues",
          &molecules_container_t::new_positions_for_atoms_in_residues,
          nb::arg("imol"), nb::arg("moved_residues"),

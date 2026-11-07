@@ -1147,6 +1147,49 @@ make_mesh_for_coil_representation(const std::vector<coil_residues_info_t> &coils
                }
             }
          }
+
+         // flat end caps: a fan from the ring centre. The cap gets its own vertices
+         // (rather than reusing the ring's) so that they have the cap normal, not the
+         // radial tube normal.
+         auto add_flat_cap = [&m, col] (const std::vector<std::pair<glm::vec3, glm::vec3> > &ring,
+                                        const glm::vec3 &outward_normal) {
+            if (ring.size() < 3) return;
+            glm::vec3 centre(0,0,0);
+            for (const auto &point : ring) centre += point.first;
+            centre /= static_cast<float>(ring.size());
+            unsigned int idx_centre = m.vertices.size();
+            m.vertices.push_back(coot::m2t::mesh_vertex_t(centre, outward_normal, col));
+            for (const auto &point : ring)
+               m.vertices.push_back(coot::m2t::mesh_vertex_t(point.first, outward_normal, col));
+            // wind the triangles so that they face outward
+            glm::vec3 cr = glm::cross(ring[0].first - centre, ring[1].first - centre);
+            bool ring_is_ccw = glm::dot(cr, outward_normal) > 0.0f;
+            unsigned int n = ring.size();
+            for (unsigned int i=0; i<n; i++) {
+               unsigned int i_next = (i + 1) % n;
+               if (ring_is_ccw)
+                  m.triangles.push_back(coot::m2t::mesh_triangle_t(idx_centre, idx_centre + 1 + i, idx_centre + 1 + i_next));
+               else
+                  m.triangles.push_back(coot::m2t::mesh_triangle_t(idx_centre, idx_centre + 1 + i_next, idx_centre + 1 + i));
+            }
+         };
+
+         // the plane of the ring is perpendicular to the sum of the unit vectors in and out
+         // of its mid point (c.f. get_ring_around_mid_point())
+         auto ring_axis = [fcxx_to_glm] (const FCXXCoord &c1, const FCXXCoord &c2, const FCXXCoord &c3) {
+            glm::vec3 p1 = fcxx_to_glm(c1);
+            glm::vec3 p2 = fcxx_to_glm(c2);
+            glm::vec3 p3 = fcxx_to_glm(c3);
+            return glm::normalize(glm::normalize(p2-p1) + glm::normalize(p3-p2));
+         };
+
+         if (! rings.empty()) {
+            std::size_t n_sp = spline_points.size();
+            glm::vec3 start_axis = ring_axis(spline_points[0], spline_points[1], spline_points[2]);
+            glm::vec3 end_axis   = ring_axis(spline_points[n_sp-3], spline_points[n_sp-2], spline_points[n_sp-1]);
+            add_flat_cap(rings.front(), -start_axis);
+            add_flat_cap(rings.back(),    end_axis);
+         }
       }
 
       if (true) { // check mesh

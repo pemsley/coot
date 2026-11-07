@@ -4391,13 +4391,7 @@ graphics_info_t::fill_difference_map_peaks_button_box() {
    };
 
 
-   GtkWidget *pane_to_show  = widget_from_builder("main_window_ramachandran_and_validation_pane");
-   gtk_widget_set_visible(pane_to_show,  TRUE);
-
-   GtkWidget *pane = widget_from_builder("main_window_graphics_rama_vs_graphics_pane");
-   int pos = gtk_paned_get_position(GTK_PANED(pane));
-   if (pos < 300)
-      gtk_paned_set_position(GTK_PANED(pane), 380);
+   show_validation_boxes_vbox(380);
 
    GtkWidget *vbox78 = widget_from_builder("dialog-vbox78");
    gtk_widget_set_visible(vbox78,   TRUE);
@@ -4406,9 +4400,6 @@ graphics_info_t::fill_difference_map_peaks_button_box() {
    gtk_widget_set_visible(outer_vbox,   TRUE);
 
    GtkWidget *buttons_vbox = widget_from_builder("diff_map_peaks_vbox");
-
-   GtkWidget *vboxes_vbox = widget_from_builder("validation_boxes_vbox");
-   gtk_widget_set_visible(vboxes_vbox,   TRUE);
 
    std::vector<std::pair<clipper::Coord_orth, float> > centres = make_diff_map_peaks(buttons_vbox);
    // std::cout << "make_diff_map_peaks() made " << centres.size() << " centres" << std::endl;
@@ -4944,16 +4935,7 @@ graphics_info_t::fill_atoms_with_zero_occupancy_box_of_buttons(const std::vector
        GtkWidget *validation_graph_vbx = widget_from_builder("main_window_validation_graph_vbox");
        gtk_widget_set_visible(validation_graph_vbx, TRUE);
 
-       GtkWidget *pane_to_show  = widget_from_builder("main_window_ramachandran_and_validation_pane");
-       gtk_widget_set_visible(pane_to_show,  TRUE);
-
-       GtkWidget *pane = widget_from_builder("main_window_graphics_rama_vs_graphics_pane");
-       int pos = gtk_paned_get_position(GTK_PANED(pane));
-       if (pos < 300)
-	  gtk_paned_set_position(GTK_PANED(pane), 380);
-
-       GtkWidget *validation_boxes_vbox = widget_from_builder("validation_boxes_vbox");
-       gtk_widget_set_visible(validation_boxes_vbox, TRUE);
+       show_validation_boxes_vbox(380);
 
        GtkWidget *outer_vbox = widget_from_builder("dialog-vbox78");
        gtk_widget_set_visible(outer_vbox,   TRUE);

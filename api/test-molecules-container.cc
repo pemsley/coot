@@ -2648,6 +2648,61 @@ int test_mutate(molecules_container_t &mc) {
    return status;
 }
 
+int test_mutate_base(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   // 124D is a DNA-RNA hybrid: chain A is DNA (1-8), chain B is RNA (9-16)
+   int imol = mc.read_pdb(reference_data("124D.pdb"));
+   if (mc.is_valid_model_molecule(imol)) {
+
+      // is the new base attached to the sugar? (the glycosidic bond)
+      auto glycosidic_bond_ok = [&mc, imol] (const std::string &chain_id, int res_no, const std::string &base_N_name) {
+         bool ok = false;
+         mmdb::Atom *at_1 = mc.get_atom(imol, coot::atom_spec_t(chain_id, res_no, "", " C1'", ""));
+         mmdb::Atom *at_2 = mc.get_atom(imol, coot::atom_spec_t(chain_id, res_no, "", base_N_name, ""));
+         if (at_1 && at_2) {
+            double d = coot::distance(at_1, at_2);
+            std::cout << "debug:: " << chain_id << " " << res_no << " C1'-" << base_N_name << " " << d << std::endl;
+            if (d > 1.3 && d < 1.7) ok = true;
+         } else {
+            std::cout << "failed to find C1' or " << base_N_name << " in " << chain_id << " " << res_no << std::endl;
+         }
+         return ok;
+      };
+
+      // DNA: DA -> "C" should give DC (not RNA C) and no O2'
+      int status_1 = mc.mutate_base(imol, "//A/4", "C");
+      std::string rn_1 = mc.get_residue_name(imol, "A", 4, "");
+      mmdb::Atom *o2_star_1 = mc.get_atom(imol, coot::atom_spec_t("A", 4, "", " O2'", ""));
+      mmdb::Atom *n9_1      = mc.get_atom(imol, coot::atom_spec_t("A", 4, "", " N9 ", ""));
+      bool test_1 = (status_1 == 1 && rn_1 == "DC" && !o2_star_1 && !n9_1 && glycosidic_bond_ok("A", 4, " N1 "));
+
+      // RNA: U -> "G" should give G and keep the O2'
+      int status_2 = mc.mutate_base(imol, "//B/11", "G");
+      std::string rn_2 = mc.get_residue_name(imol, "B", 11, "");
+      mmdb::Atom *o2_star_2 = mc.get_atom(imol, coot::atom_spec_t("B", 11, "", " O2'", ""));
+      bool test_2 = (status_2 == 1 && rn_2 == "G" && o2_star_2 && glycosidic_bond_ok("B", 11, " N9 "));
+
+      // failures: a bad base type and a missing residue
+      int status_3 = mc.mutate_base(imol, "//B/12", "X9");
+      int status_4 = mc.mutate_base(imol, "//B/99", "A");
+      bool test_3 = (status_3 == 0 && status_4 == 0 && mc.get_residue_name(imol, "B", 12, "") == "G");
+
+      // protein mutate() on a nucleotide should fail and leave the residue alone
+      int status_5 = mc.mutate(imol, "//A/5", "TYR");
+      bool test_4 = (status_5 == 0 && mc.get_residue_name(imol, "A", 5, "") == "DC");
+
+      std::cout << "debug:: test_mutate_base(): " << status_1 << " " << rn_1 << " " << status_2 << " " << rn_2
+                << " " << status_3 << " " << status_4 << " " << status_5 << " "
+                << test_1 << " " << test_2 << " " << test_3 << " " << test_4 << std::endl;
+      if (test_1 && test_2 && test_3 && test_4) status = 1;
+      mc.close_molecule(imol);
+   }
+   return status;
+}
+
 
 int test_weird_delete(molecules_container_t &mc) {
 
@@ -8777,6 +8832,7 @@ int main(int argc, char **argv) {
          // status += run_test(test_delete_all_hetgroups, "Delete all hetgroups", mc);
          // status += run_test(test_fixed_atoms_during_refinement, "Fixed atoms during refinement", mc);
          status += run_test(test_ligand_contact_dots,   "ligand contact dots",      mc);
+         status += run_test(test_mutate_base,           "mutate base",              mc);
          if (status == n_tests) all_tests_status = 0;
 
          print_results_summary();

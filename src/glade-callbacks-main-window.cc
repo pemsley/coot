@@ -826,6 +826,7 @@ on_atoms_with_zero_occupancy_close_button_clicked(GtkButton *button, gpointer da
 
    GtkWidget *outer_vbox = widget_from_builder("atoms_with_zero_occupancy_outer_vbox");
    gtk_widget_set_visible(outer_vbox, FALSE);
+   graphics_info_t::hide_vertical_validation_frame_if_appropriate();
    graphics_info_t g;
    g.graphics_grab_focus();
 }

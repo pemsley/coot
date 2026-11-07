@@ -2665,6 +2665,19 @@ public:
    //! @return 1 on a successful move, 0 on failure.
    int mutate(int imol, const std::string &cid, const std::string &new_residue_type);
 
+   //! Mutate the base of a nucleotide (DNA or RNA)
+   //!
+   //! The sugar-phosphate backbone is kept; the new base is least-squares fitted onto the ring
+   //! atoms of the current base.
+   //!
+   //! @param imol is the model molecule index
+   //! @param cid is the residue selection CID e.g "//A/15" (residue 15 of chain A)
+   //! @param new_base_type is the new base, e.g. "A", "C", "G", "T", "U" or "DA", "DC", "DG", "DT".
+   //!        If the residue is DNA then "C" (say) is converted to "DC".
+   //!
+   //! @return 1 on a successful mutation, 0 on failure.
+   int mutate_base(int imol, const std::string &cid, const std::string &new_base_type);
+
    //! Rotate last chi angle of the side chain by 180 degrees
    //!
    //! @param imol is the model molecule index

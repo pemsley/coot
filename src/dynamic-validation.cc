@@ -37,6 +37,11 @@ namespace {
    void delete_atom_spec(gpointer data) {
       delete static_cast<coot::atom_spec_t *>(data);
    }
+
+   // what is currently displayed in dynamic_validation_outliers_vbox, so that
+   // update_dynamic_validation_for_molecule() can regenerate the same list.
+   enum dynamic_validation_mode_t { ALL_OUTLIERS, ATOM_OVERLAPS_ONLY };
+   dynamic_validation_mode_t dynamic_validation_mode = ALL_OUTLIERS;
 }
 
 void dynamic_validation_internal(int imol, int imol_map) {
@@ -74,12 +79,127 @@ void update_dynamic_validation_for_molecule(int imol) {
 
    gtk_widget_set_visible(vbox_2, TRUE);
    if (gtk_widget_get_visible(vbox_1)) {
-      if (gtk_widget_get_visible(pane_1)) {
-         overlaps_peptides_cbeta_ramas_and_rotas_internal(imol);
+      GtkWidget *container = pane_1;
+      if (! graphics_info_t::validation_boxes_is_docked)
+         container = widget_from_builder("validation_boxes_dialog");
+      if (gtk_widget_get_visible(container)) {
+         if (dynamic_validation_mode == ATOM_OVERLAPS_ONLY)
+            atom_overlaps_table_internal(imol);
+         else
+            overlaps_peptides_cbeta_ramas_and_rotas_internal(imol);
       } else {
-         std::cout << "ERROR:: pane main_window_ramachandran_and_validation_pane not found " << std::endl;
+         if (graphics_info_t::validation_boxes_is_docked)
+            std::cout << "ERROR:: pane main_window_ramachandran_and_validation_pane not found " << std::endl;
       }
    }
+}
+
+void atom_overlaps_table_internal(int imol) {
+
+   // like overlaps_peptides_cbeta_ramas_and_rotas_internal() but only atom overlaps
+
+   auto to_label = [] (mmdb::Atom *at) {
+      std::string s = std::string(at->GetChainID());
+      s += std::to_string(at->GetSeqNum());
+      std::string ins_code(at->GetInsCode());
+      if (!ins_code.empty()) s += " " + ins_code;
+      s += " ";
+      s += coot::util::remove_whitespace(std::string(at->GetAtomName()));
+      std::string alt_conf(at->altLoc);
+      if (!alt_conf.empty()) s += " " + alt_conf;
+      return s;
+   };
+
+   auto overlap_button_callback = +[] (GtkToggleButton *button, G_GNUC_UNUSED gpointer user_data) {
+      if (! gtk_toggle_button_get_active(button)) return; // only act on the newly-selected button
+      std::string target_position_x_str(static_cast<const char *>(g_object_get_data(G_OBJECT(button), "target-position-x")));
+      std::string target_position_y_str(static_cast<const char *>(g_object_get_data(G_OBJECT(button), "target-position-y")));
+      std::string target_position_z_str(static_cast<const char *>(g_object_get_data(G_OBJECT(button), "target-position-z")));
+      try {
+         float x = coot::util::string_to_float(target_position_x_str);
+         float y = coot::util::string_to_float(target_position_y_str);
+         float z = coot::util::string_to_float(target_position_z_str);
+         clipper::Coord_orth p(x,y,z);
+         graphics_info_t::set_rotation_centre(p);
+      }
+      catch (const std::runtime_error &e) {
+         std::cout << "WARNING::" << e.what() << std::endl;
+      }
+      graphics_info_t g;
+      g.graphics_grab_focus();
+   };
+
+   auto set_target_position_data = [] (GtkWidget *button, const clipper::Coord_orth &p) {
+      g_object_set_data_full(G_OBJECT(button), "target-position-x", g_strdup(std::to_string(p.x()).c_str()), g_free);
+      g_object_set_data_full(G_OBJECT(button), "target-position-y", g_strdup(std::to_string(p.y()).c_str()), g_free);
+      g_object_set_data_full(G_OBJECT(button), "target-position-z", g_strdup(std::to_string(p.z()).c_str()), g_free);
+   };
+
+   auto get_target_position = [] (const coot::atom_overlap_t &ao) {
+      clipper::Coord_orth p1(ao.atom_1->x, ao.atom_1->y, ao.atom_1->z);
+      clipper::Coord_orth p2(ao.atom_2->x, ao.atom_2->y, ao.atom_2->z);
+      return 0.5 * (p1 + p2);
+   };
+
+   if (! graphics_info_t::is_valid_model_molecule(imol)) return;
+
+   dynamic_validation_mode = ATOM_OVERLAPS_ONLY;
+
+   graphics_info_t::show_validation_boxes_vbox(320);
+
+   GtkWidget *outer_vbox  = widget_from_builder("dynamic_validation_vbox");
+   gtk_widget_set_visible(outer_vbox,  TRUE);
+
+   GtkWidget *vbox  = widget_from_builder("dynamic_validation_outliers_vbox");
+   GtkWidget *label = widget_from_builder("dynamic_validation_outliers_label");
+
+   graphics_info_t::clear_out_container(vbox);
+
+   mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+
+   double vol_crit = 1.2;
+   bool ignore_waters = false;
+   coot::atom_overlaps_container_t overlaps(mol, imol, graphics_info_t::Geom_p(), ignore_waters, 0.5, 0.25);
+   overlaps.make_all_atom_overlaps();
+   std::vector<coot::atom_overlap_t> olv;
+   for (const auto &o : overlaps.overlaps)
+      if (o.overlap_volume >= vol_crit)
+         olv.push_back(o);
+
+   // worst first
+   auto overlap_volume_sorter = [] (const coot::atom_overlap_t &o1, const coot::atom_overlap_t &o2) {
+      return o1.overlap_volume > o2.overlap_volume;
+   };
+   std::sort(olv.begin(), olv.end(), overlap_volume_sorter);
+
+   if (label) {
+      std::string label_txt = "Atom Overlaps: ";
+      label_txt += std::to_string(olv.size());
+      gtk_label_set_text(GTK_LABEL(label), label_txt.c_str());
+   }
+
+   GtkWidget *group = nullptr; // grouped toggle buttons: the selected overlap stays visually pressed
+   for (const auto &o : olv) {
+      std::string lab = to_label(o.atom_1) + " - " + to_label(o.atom_2);
+      lab += " OV: " + coot::util::float_to_string_using_dec_pl(o.overlap_volume, 2);
+      lab += "Å³";
+      GtkWidget *button = gtk_toggle_button_new();
+      GtkWidget *button_label = gtk_label_new(lab.c_str());
+      gtk_widget_set_halign(button_label, GTK_ALIGN_START);
+      gtk_button_set_child(GTK_BUTTON(button), button_label);
+      gtk_widget_set_margin_start (button, 4);
+      gtk_widget_set_margin_end   (button, 4);
+      gtk_widget_set_margin_top   (button, 2);
+      gtk_widget_set_margin_bottom(button, 2);
+      set_target_position_data(button, get_target_position(o));
+      g_signal_connect(G_OBJECT(button), "toggled", G_CALLBACK(overlap_button_callback), nullptr);
+      if (group)
+         gtk_toggle_button_set_group(GTK_TOGGLE_BUTTON(button), GTK_TOGGLE_BUTTON(group));
+      else
+         group = button;
+      gtk_box_append(GTK_BOX(vbox), button);
+   }
+   gtk_widget_set_visible(vbox, TRUE);
 }
 
 
@@ -175,9 +295,9 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
       return 0.5 * (p1 + p2);
    };
 
-   GtkWidget *pane_to_show  = widget_from_builder("main_window_ramachandran_and_validation_pane");
-   gtk_widget_set_visible(pane_to_show,  TRUE);
-   GtkWidget *pane  = widget_from_builder("main_window_graphics_rama_vs_graphics_pane");
+   dynamic_validation_mode = ALL_OUTLIERS;
+
+   graphics_info_t::show_validation_boxes_vbox(320);
 
    GtkWidget *outer_vbox  = widget_from_builder("dynamic_validation_vbox");
    gtk_widget_set_visible(outer_vbox,  TRUE);
@@ -577,11 +697,6 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
       return buttons;
    };
 
-   int pos = gtk_paned_get_position(GTK_PANED(pane));
-   // // std::cout << "here in overlaps_peptides_cbeta_ramas_and_rotas_internal(): with pos " << pos << std::endl;
-   if (pos < 320)
-      gtk_paned_set_position(GTK_PANED(pane), 320);
-
    graphics_info_t::clear_out_container(vbox);
 
    mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
@@ -668,22 +783,15 @@ void phenix_geo_validation_buttons(int imol,
       return (r1.first < r2.first);
    };
 
-   GtkWidget *pane_to_show = widget_from_builder("main_window_ramachandran_and_validation_pane");
-   gtk_widget_set_visible(pane_to_show, TRUE);
-   GtkWidget *pane = widget_from_builder("main_window_graphics_rama_vs_graphics_pane");
+   dynamic_validation_mode = ALL_OUTLIERS; // as before: an update replaces this list with all outliers
 
-   GtkWidget *vbox_2 = widget_from_builder("validation_boxes_vbox");
-   gtk_widget_set_visible(vbox_2, TRUE);
+   graphics_info_t::show_validation_boxes_vbox(320);
 
    GtkWidget *outer_vbox = widget_from_builder("dynamic_validation_vbox");
    gtk_widget_set_visible(outer_vbox, TRUE);
 
    GtkWidget *vbox  = widget_from_builder("dynamic_validation_outliers_vbox");
    GtkWidget *label = widget_from_builder("dynamic_validation_outliers_label");
-
-   int pos = gtk_paned_get_position(GTK_PANED(pane));
-   if (pos < 320)
-      gtk_paned_set_position(GTK_PANED(pane), 320);
 
    graphics_info_t::clear_out_container(vbox);
 
