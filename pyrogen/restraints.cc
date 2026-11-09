@@ -44,6 +44,18 @@
 
 #include <ideal/simple-restraint.hh>
 
+#include <RDGeneral/versions.h>  // rdkitVersion
+#include <RDGeneral/RDConfig.h>  // RDK_BUILD_INCHI_SUPPORT
+// InChI only for the autotools (pyrogen) build: the CMake (chapi) build doesn't link RDInchiLib
+#if defined(RDK_BUILD_INCHI_SUPPORT) && !defined(LIBCOOTAPI_BUILD)
+#define PYROGEN_WITH_INCHI
+#include <GraphMol/inchi.h>
+#endif
+
+static bool is_spurious_stereocentre(const RDKit::ROMol &mol, const RDKit::Atom *centre);
+static void add_pdbx_chem_comp_descriptors(const RDKit::ROMol &mol,
+                                           coot::dictionary_residue_restraints_t *restraints);
+
 #ifdef LIBCOOTAPI_BUILD
 #else
 void
@@ -568,6 +580,7 @@ coot::mmcif_dict_from_mol_using_energy_lib(const std::string &comp_id,
       restraints.residue_info.description_level = "."; // default is full <smiley>
 
       coot::add_chem_comp_atoms(mol, &restraints); // alter restraints
+      add_pdbx_chem_comp_descriptors(mol, &restraints); // SMILES, InChI, InChIKey
       bool status_b = coot::fill_with_energy_lib_bonds(mol, energy_lib, &restraints); // alter restraints
       bool status_a = coot::fill_with_energy_lib_angles(mol, energy_lib, &restraints); // alter restraints
       bool status_t = coot::fill_with_energy_lib_torsions(mol, energy_lib, &restraints); // alter restraints
@@ -1150,8 +1163,110 @@ coot::update_chem_comp_atoms_from_residue(mmdb::Residue *residue_p,
 }
 
 
+// RDKit can put a chiral tag (and so a CIP label) on atoms that are not real
+// stereocentres - the CCD marks these as pdbx_stereo_config N:
+//
+//  - a centre with two terminal O (or S) neighbours, e.g. the P of R-P(=O)(O-)-OR':
+//    the =O and O- are equivalent by resonance. "Terminal" means no heavy-atom
+//    neighbour other than the centre, so P-OH counts too (tautomerism).
+//  - an N that carries an H (e.g. a protonated amine): the H exchanges.
+//
+static bool
+is_spurious_stereocentre(const RDKit::ROMol &mol, const RDKit::Atom *centre) {
+
+   if (centre->getAtomicNum() == 7)
+      for (const auto &nb : mol.atomNeighbors(centre))
+         if (nb->getAtomicNum() == 1)
+            return true;
+
+   unsigned int n_terminal_O = 0;
+   unsigned int n_terminal_S = 0;
+   for (const auto &nb : mol.atomNeighbors(centre)) {
+      int z = nb->getAtomicNum();
+      if (z != 8 && z != 16) continue;
+      unsigned int n_heavy = 0;
+      for (const auto &nb_nb : mol.atomNeighbors(nb))
+         if (nb_nb->getAtomicNum() != 1)
+            n_heavy++;
+      if (n_heavy == 1) {
+         if (z ==  8) n_terminal_O++;
+         if (z == 16) n_terminal_S++;
+      }
+   }
+   return (n_terminal_O > 1 || n_terminal_S > 1);
+}
+
+// _pdbx_chem_comp_descriptor: SMILES and SMILES_CANONICAL (the same string, as grade2
+// does) and, when we have InChI support, InChI and InChIKey. These describe the
+// molecule that the restraints are for, i.e. after the pH-dependent protonation
+// changes, so they can differ from the descriptors of the input (e.g. the CCD).
+//
+static void
+add_pdbx_chem_comp_descriptors(const RDKit::ROMol &mol,
+                               coot::dictionary_residue_restraints_t *restraints) {
+
+   const std::string program = "RDKit (pyrogen)";
+   const std::string program_version = RDKit::rdkitVersion;
+
+   // stereochemistry from the coordinates (as the chiral restraints are), but
+   // without the spurious stereocentres
+   //
+   RDKit::RWMol mol_for_descriptors(mol);
+   if (mol_for_descriptors.getNumConformers() > 0)
+      RDKit::MolOps::assignStereochemistryFrom3D(mol_for_descriptors);
+   for (auto atom : mol_for_descriptors.atoms())
+      if (atom->getChiralTag() != RDKit::Atom::CHI_UNSPECIFIED)
+         if (is_spurious_stereocentre(mol_for_descriptors, atom))
+            atom->setChiralTag(RDKit::Atom::CHI_UNSPECIFIED);
+
+   auto add = [restraints, program, program_version] (const std::string &type, const std::string &d) {
+      coot::pdbx_chem_comp_descriptor_item item(type, program, program_version, d);
+      restraints->descriptors.descriptors.push_back(item);
+   };
+
+   try {
+      bool sanitize = true;
+      RDKit::MolOps::RemoveHsParameters remove_hs_params;
+      const RDKit::ROMol &mol_ro = mol_for_descriptors; // use the copying (not the in-place RWMol) removeHs()
+      std::unique_ptr<RDKit::ROMol> mol_no_h(RDKit::MolOps::removeHs(mol_ro, remove_hs_params, sanitize));
+      std::string smiles = RDKit::MolToSmiles(*mol_no_h);
+      if (! smiles.empty()) {
+         add("SMILES", smiles);
+         add("SMILES_CANONICAL", smiles);
+      }
+   }
+   catch (const std::exception &e) {
+      std::cout << "WARNING:: add_pdbx_chem_comp_descriptors(): SMILES failed: " << e.what() << std::endl;
+   }
+
+#ifdef PYROGEN_WITH_INCHI
+   try {
+      RDKit::ExtraInchiReturnValues rv;
+      std::string inchi = RDKit::MolToInchi(mol_for_descriptors, rv);
+      if (! inchi.empty()) {
+         add("InChI", inchi);
+         std::string key = RDKit::InchiToInchiKey(inchi);
+         if (! key.empty())
+            add("InChIKey", key);
+      }
+   }
+   catch (const std::exception &e) {
+      std::cout << "WARNING:: add_pdbx_chem_comp_descriptors(): InChI failed: " << e.what() << std::endl;
+   }
+#endif
+}
+
 void
 coot::add_chem_comp_atoms(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints) {
+
+   // R/S labels for _chem_comp_atom.pdbx_stereo_config. Work on a copy so that we
+   // don't depend on whether the _CIPCode props have survived the earlier steps -
+   // the labels then follow the same chiral tags that the chiral restraints use.
+   //
+   RDKit::ROMol mol_for_cip(mol);
+   bool clean_it = true;
+   bool force = true;
+   RDKit::MolOps::assignStereochemistry(mol_for_cip, clean_it, force);
 
    int iconf = 0;
    unsigned int n_atoms = mol.getNumAtoms();
@@ -1172,6 +1287,14 @@ coot::add_chem_comp_atoms(const RDKit::ROMol &mol, coot::dictionary_residue_rest
 	 std::pair<bool, float> charge_pair(have_charge, charge);
 	 dict_atom atom(name, name, at_p->getSymbol(), atom_type, charge_pair);
 	 atom.formal_charge = std::pair<bool, int>(true, at_p->getFormalCharge());
+	 std::string cip;
+	 if (! mol_for_cip[iat]->getPropIfPresent(RDKit::common_properties::_CIPCode, cip))
+	    cip = "N";
+	 if (cip != "R" && cip != "S")
+	    cip = "N";
+	 if (is_spurious_stereocentre(mol, at_p))
+	    cip = "N";
+	 atom.pdbx_stereo_config = std::pair<bool, std::string>(true, cip);
  	 RDKit::Conformer conf = mol.getConformer(iconf);
  	 RDGeom::Point3D &r_pos = conf.getAtomPos(iat);
  	 clipper::Coord_orth pos(r_pos.x, r_pos.y, r_pos.z);
@@ -1929,6 +2052,9 @@ coot::assign_chirals_rdkit_tags(const RDKit::ROMol &mol,
       int vol_sign = coot::dict_chiral_restraint_t::CHIRAL_VOLUME_RESTRAINT_VOLUME_SIGN_UNASSIGNED;
       const RDKit::Atom *at_p = mol[iat];
       RDKit::Atom::ChiralType chiral_tag = at_p->getChiralTag();
+      if (chiral_tag != RDKit::Atom::CHI_UNSPECIFIED)
+         if (is_spurious_stereocentre(mol, at_p))
+            chiral_tag = RDKit::Atom::CHI_UNSPECIFIED;
       if (false)
 	 std::cout << "DEBUG:: in assign_chirals_rdkit_tags() atom " << iat
 		   << " chiral tag: " << chiral_tag << std::endl;

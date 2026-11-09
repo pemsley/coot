@@ -3327,7 +3327,7 @@ coot::hydrogen_transformations(const RDKit::ROMol &mol) {
    RDKit::RWMol *r = new RDKit::RWMol(mol);
 
    std::unique_ptr<RDKit::ROMol> query_cooh             (RDKit::SmartsToMol("[C^2](=O)O[H]"));
-   std::unique_ptr<RDKit::ROMol> query_primary_amine_n  (RDKit::SmartsToMol("[N^3;H2]"));
+   std::unique_ptr<RDKit::ROMol> query_primary_amine_n  (RDKit::SmartsToMol("[N^3;H2;+0;!$(N-S(=O)=O)]"));
    std::unique_ptr<RDKit::ROMol> query_secondary_amine_n(RDKit::SmartsToMol("[N^3;H1;+0;!$(N-S(=O)=O)]"));
    std::unique_ptr<RDKit::ROMol> query_tertiary_amine_n (RDKit::SmartsToMol("[N^3;H0;+0;!$(N-S(=O)=O)]"));
    std::vector<RDKit::MatchVectType>  matches_cooh;

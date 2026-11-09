@@ -2424,6 +2424,11 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
       for (const auto &ai : atom_info)
          if (ai.formal_charge.first) { have_formal_charges = true; break; }
 
+      // likewise for the R/S/N stereo config
+      bool have_stereo_configs = false;
+      for (const auto &ai : atom_info)
+         if (ai.pdbx_stereo_config.first) { have_stereo_configs = true; break; }
+
       if (atom_info.size()) {
          rc = mmCIFData->AddLoop("_chem_comp_atom", mmCIFLoop);
          if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
@@ -2449,6 +2454,10 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
                if (atom_info[i].partial_charge.first) {
                   float v = atom_info[i].partial_charge.second;
                   mmCIFLoop->PutReal(v, "partial_charge", i, 4);
+               }
+               if (have_stereo_configs) {
+                  std::string sc = ai.pdbx_stereo_config.first ? ai.pdbx_stereo_config.second : "?";
+                  mmCIFLoop->PutString(sc.c_str(), "pdbx_stereo_config", i);
                }
                if (add_coordinates) {
                   if (atom_info[i].model_Cartn.first) {
@@ -2724,6 +2733,30 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 
 void
 coot::dictionary_residue_restraints_t::write_cif_pdbx_chem_comp_descriptor(mmdb::mmcif::Data *mmCIFData) const {
+
+   // Note: mmdb only quotes a value that contains a space or a quote, so a SMILES that
+   // starts with "[" is written unquoted. mmdb and gemmi both read that back correctly.
+
+   if (descriptors.descriptors.empty()) return;
+
+   mmdb::mmcif::PLoop mmCIFLoop = nullptr;
+   int rc = mmCIFData->AddLoop("_pdbx_chem_comp_descriptor", mmCIFLoop);
+   if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
+      auto put = [mmCIFLoop] (const std::string &s, const char *tag, int i) {
+         if (s.empty())
+            mmCIFLoop->PutNoData(mmdb::mmcif::CIF_NODATA_QUESTION, tag, i);
+         else
+            mmCIFLoop->PutString(s.c_str(), tag, i);
+      };
+      for (unsigned int i=0; i<descriptors.descriptors.size(); i++) {
+         const pdbx_chem_comp_descriptor_item &d = descriptors.descriptors[i];
+         put(residue_info.comp_id, "comp_id",         i);
+         put(d.type,               "type",            i);
+         put(d.program,            "program",         i);
+         put(d.program_version,    "program_version", i);
+         put(d.descriptor,         "descriptor",      i);
+      }
+   }
 }
 
 // constructor
