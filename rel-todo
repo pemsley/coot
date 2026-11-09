@@ -7,13 +7,25 @@ o Oli: the preference to switch off active map on dragging
   release, but instead it is only happening when update_maps
   is called explicitly (e.g. during recontouring)
 
-o Oli idea: search by sequence. Allow wildcard and ambiguity
+o Oli idea: search by sequence. Allow wild-card and ambiguity
   e.g. (A/S). Consider sequon.
 
 o colour residues by atom overlap badness (use user-defined
   colours of course)
 
-o user-defined colour in CA+sidechain mode?
+o let me change the moving atoms hue/lighting(?)
+
+o colour residues by atom overlap badness
+  (use user-defined colours of course)
+
+o Oli idea: search by sequence. Allow wild-card
+  and ambiguity e.g. (A/S). Consider sequon.
+
+o in "Open Recent" - show me the path (or a path
+  fragment so that I can see that I am loading
+  "refine.pdb" from the right directory)
+
+o user-defined colour in CA+side-chain mode?
   Useful for colour-by-rotamer-probability
 
 o multi-residue for copy-fragment "//A/90,92" didn't work
@@ -50,6 +62,11 @@ o Oli: let me change the moving atoms hue/lighting(?)
 
 o "Worms by B-factor" - should not be difficult.
 * Handed over to Lucrezia
+
+o Look at hydrogen atom addition code for addition 5a90 215 A.
+
+o list for Atom Overlaps (only)
+* Done.
 
 o add (back) alpha helix restraints
 * Done.
