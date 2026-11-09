@@ -767,6 +767,7 @@ namespace coot {
 
       void write_cif_pdbx_chem_comp_descriptor(mmdb::mmcif::Data *data) const;
       void write_cif_pdbx_chem_comp_identifier(mmdb::mmcif::Data *data) const;
+      void write_cif_pdbe_chem_comp_atom_depiction(mmdb::mmcif::Data *data) const;
 
       // imol_enc can be the model molecule number or
       // -1 for all

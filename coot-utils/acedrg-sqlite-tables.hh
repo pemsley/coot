@@ -28,6 +28,10 @@ namespace coot {
       //! xdg_t::get_cache_home()/acedrg-tables
       static std::string default_data_dir();
 
+      //! @return false if this build has only the stubs (no SQLite3, or
+      //!         a gemmi without AcedrgTables::insert_bond_row())
+      static bool compiled_with_support();
+
       //! open the tables in the given data directory. Returns success.
       bool init(const std::string &acedrg_data_dir);
       //! init() on default_data_dir()

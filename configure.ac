@@ -386,20 +386,42 @@ if test x$rdkit_prefix = xfalse ; then
    if test -x $prefix/include/rdkit ; then
       echo OK, good we found RDKit in $prefix
       rdkit_install_dir=$prefix
-      RDKIT_CXXFLAGS="-I$rdkit_install_dir/include/rdkit -DRDKIT_HAS_CAIRO_SUPPORT"
+      RDKIT_CXXFLAGS="-I$rdkit_install_dir/include/rdkit"
    else
       echo Configuration error. No, bad... we do not have necessary RDKIT
       exit 1
    fi
 else
-   rdkit_install_dir="$withval"
+   rdkit_install_dir="$rdkit_prefix"
    # better RDKit linking I hope
-   RDKIT_CXXFLAGS="-I$rdkit_install_dir/include/rdkit -DRDKIT_HAS_CAIRO_SUPPORT"
+   RDKIT_CXXFLAGS="-I$rdkit_install_dir/include/rdkit"
 fi
 
 PKG_CHECK_MODULES([EIGEN3], [eigen3],
    [RDKIT_CXXFLAGS="$RDKIT_CXXFLAGS $EIGEN3_CFLAGS"],
    [AC_MSG_ERROR([eigen3 not found via pkg-config])])
+
+dnl Was the RDKit built with its Cairo drawing support (MolDraw2DCairo)?
+dnl RDKit records that in RDGeneral/RDConfig.h as RDK_BUILD_CAIRO_SUPPORT.
+dnl Coot's own flag for it is RDKIT_HAS_CAIRO_SUPPORT (PNG depictions, e.g.
+dnl molecules_container_t::write_png()).
+AC_MSG_CHECKING([whether the RDKit was built with Cairo support])
+AC_LANG_PUSH(C++)
+save_CPPFLAGS="$CPPFLAGS"
+CPPFLAGS="$CPPFLAGS $RDKIT_CXXFLAGS"
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <RDGeneral/RDConfig.h>
+#ifndef RDK_BUILD_CAIRO_SUPPORT
+#error RDKit was built without Cairo support
+#endif]], [[]])],
+   [rdkit_has_cairo=yes], [rdkit_has_cairo=no])
+CPPFLAGS="$save_CPPFLAGS"
+AC_LANG_POP
+AC_MSG_RESULT([$rdkit_has_cairo])
+if test "x$rdkit_has_cairo" = xyes ; then
+   RDKIT_CXXFLAGS="$RDKIT_CXXFLAGS -DRDKIT_HAS_CAIRO_SUPPORT"
+else
+   AC_MSG_NOTICE([RDKit has no Cairo support - PNG depictions (e.g. write_png()) are disabled])
+fi
 
 # test here for presence of coordgen in the RDKit.
 # To clarify, this is not related to how to configure Coot, it is related to how the RDKit was configured (and linked).
@@ -549,6 +571,34 @@ else
 fi
 AC_SUBST(ACEDRG_TABLES_DIR, "$acedrg_tables_dir")
 AM_CONDITIONAL(HAVE_ACEDRG_TABLES_DIR, [test "x$acedrg_tables_dir" != x])
+
+dnl pyrogen's AceDRG bond/angle values (coot-utils/acedrg-sqlite-tables.cc,
+dnl SQLite lookups into gemmi's AcedrgTables) need SQLite3 and a gemmi whose
+dnl AcedrgTables has the public insert_bond_row()/insert_angle_row() (gemmi
+dnl PR #438). Detect the gemmi part - there is no option to pass. Without
+dnl it acedrg-sqlite-tables.cc compiles to stubs.
+have_gemmi_acedrg_insert_row=no
+AC_MSG_CHECKING([for gemmi AcedrgTables::insert_bond_row()])
+if test "x$GEMMI_CXXFLAGS" != x ; then
+   AC_LANG_PUSH(C++)
+   save_CPPFLAGS="$CPPFLAGS"
+   CPPFLAGS="$CPPFLAGS $GEMMI_CXXFLAGS"
+   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <gemmi/acedrg_tables.hpp>]],
+      [[using b_t = decltype(&gemmi::AcedrgTables::insert_bond_row);
+        using a_t = decltype(&gemmi::AcedrgTables::insert_angle_row);]])],
+      [have_gemmi_acedrg_insert_row=yes])
+   CPPFLAGS="$save_CPPFLAGS"
+   AC_LANG_POP
+fi
+AC_MSG_RESULT([$have_gemmi_acedrg_insert_row])
+if test "x$have_gemmi_acedrg_insert_row" = xyes ; then
+   ACEDRG_SQLITE_CXXFLAGS="-DHAVE_GEMMI_ACEDRG_INSERT_ROW"
+else
+   ACEDRG_SQLITE_CXXFLAGS=""
+   AC_MSG_NOTICE([pyrogen will not use the AceDRG tables (needs a gemmi with AcedrgTables::insert_bond_row())])
+fi
+AC_SUBST(ACEDRG_SQLITE_CXXFLAGS)
+AM_CONDITIONAL(MAKE_ACEDRG_SQLITE, [test "x$have_gemmi_acedrg_insert_row" = xyes && test "x$SQLITE3_CFLAGS" != x])
 
 # 20090613 We need to be able to determine the build type, and embed
 # that value in to coot binary.  We need to do that for the updating

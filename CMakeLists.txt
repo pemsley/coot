@@ -91,6 +91,26 @@ add_definitions(-DANALYSE_REFINEMENT_TIMING -DPACKAGE_VERSION="1.3.4"
   -DHAVE_BOOST_THREAD -DHAVE_GSL -DLIBCOOTAPI_BUILD -DUSE_SQLITE3
   -DPKGDATADIR="${CMAKE_INSTALL_PREFIX}/share/coot" -DXDATADIR="${CMAKE_INSTALL_PREFIX}/share")
 
+# pyrogen's AceDRG bond/angle values (coot-utils/acedrg-sqlite-tables.cc,
+# SQLite lookups into gemmi's AcedrgTables) need a gemmi whose AcedrgTables
+# has the public insert_bond_row()/insert_angle_row() (gemmi PR #438).
+# Detect that - there is no option to pass. Without it
+# acedrg-sqlite-tables.cc compiles to stubs.
+include(CheckCXXSourceCompiles)
+set(CMAKE_REQUIRED_LIBRARIES gemmi::gemmi_cpp)
+check_cxx_source_compiles("
+#include <gemmi/acedrg_tables.hpp>
+using b_t = decltype(&gemmi::AcedrgTables::insert_bond_row);
+using a_t = decltype(&gemmi::AcedrgTables::insert_angle_row);
+int main() { return 0; }
+" HAVE_GEMMI_ACEDRG_INSERT_ROW)
+unset(CMAKE_REQUIRED_LIBRARIES)
+if(HAVE_GEMMI_ACEDRG_INSERT_ROW)
+   add_definitions(-DHAVE_GEMMI_ACEDRG_INSERT_ROW)
+else()
+   message("-- pyrogen will not use the AceDRG tables (needs a gemmi with AcedrgTables::insert_bond_row())")
+endif()
+
 # 20250314-PE: Charles, I guess that you will need to comment out this block
 #
 add_definitions(-DMAKE_ENHANCED_LIGAND_TOOLS="1")
@@ -103,6 +123,27 @@ if(NOT TARGET Boost::system)
 endif()
 find_package(RDKit CONFIG COMPONENTS RDGeneral REQUIRED)
 set(RDKit_libs_for_libcootapi RDKit::rdkit_base RDKit::Descriptors RDKit::DistGeomHelpers RDKit::PartialCharges RDKit::ForceFieldHelpers RDKit::ForceField RDKit::Optimizer RDKit::MolDraw2D  RDKit::MolChemicalFeatures)
+
+# Was the RDKit built with its Cairo drawing support (MolDraw2DCairo)?
+# RDKit records that in RDGeneral/RDConfig.h as RDK_BUILD_CAIRO_SUPPORT.
+# Coot's own flag for it is RDKIT_HAS_CAIRO_SUPPORT (PNG depictions, e.g.
+# molecules_container_t::write_png(), and pae_png()) - the same test as in
+# configure.ac. An RDKit without Cairo (e.g. Moorhen's) leaves it undefined.
+include(CheckCXXSourceCompiles)
+set(CMAKE_REQUIRED_INCLUDES ${RDKit_INCLUDE_DIRS})
+check_cxx_source_compiles("
+#include <RDGeneral/RDConfig.h>
+#ifndef RDK_BUILD_CAIRO_SUPPORT
+#error RDKit was built without Cairo support
+#endif
+int main() { return 0; }
+" RDKIT_HAS_CAIRO_SUPPORT)
+unset(CMAKE_REQUIRED_INCLUDES)
+if(RDKIT_HAS_CAIRO_SUPPORT)
+   add_definitions(-DRDKIT_HAS_CAIRO_SUPPORT)
+else()
+   message("-- RDKit has no Cairo support - PNG depictions (e.g. write_png()) are disabled")
+endif()
 
 # we can be on Apple, and also have access to homebrew dwarf and elf - but this typically not the case
 # should this actually be ENABLE_BACKWARD? (util/backward.cpp is not conditionally compiled).
@@ -721,6 +762,24 @@ add_executable(test-molecules-container ${coot_src}/api/test-molecules-container
 add_executable(test-docking ${coot_src}/docking/test-docking.cc)
 
 add_executable(mmcif-tests ${coot_src}/api/mmcif-tests-main.cc ${coot_src}/api/mmcif-tests.cc)
+
+if(HAVE_GEMMI_ACEDRG_INSERT_ROW)
+   add_executable(coot-make-acedrg-sqlite ${coot_src}/coot-utils/make-acedrg-sqlite.cc)
+   target_include_directories(coot-make-acedrg-sqlite PRIVATE ${coot_src})
+   target_link_libraries(coot-make-acedrg-sqlite PUBLIC cootapi SQLite::SQLite3 gemmi::gemmi_cpp)
+
+   # Optional build-time generation of the AceDRG sqlite DB into the user's
+   # XDG cache dir. Configure with -DACEDRG_TABLES_DIR=/path/to/acedrg/tables.
+   # The tool exits 0 in --if-missing mode even on failure - "it is OK if
+   # this run fails".
+   if(ACEDRG_TABLES_DIR)
+      add_custom_target(acedrg-sqlite-db ALL
+         COMMAND coot-make-acedrg-sqlite --if-missing ${ACEDRG_TABLES_DIR}
+         DEPENDS coot-make-acedrg-sqlite
+         COMMENT "Building AceDRG sqlite database from ${ACEDRG_TABLES_DIR} (skipped if present)"
+         VERBATIM)
+   endif()
+endif()
 
 target_compile_features(coot-mini-rsr PRIVATE cxx_std_17)
 

@@ -2728,6 +2728,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 
       write_cif_pdbx_chem_comp_descriptor(mmCIFData);
       write_cif_pdbx_chem_comp_identifier(mmCIFData);
+      write_cif_pdbe_chem_comp_atom_depiction(mmCIFData);
 
       // delete mmCIFLoop; // crashed when enabled?
 
@@ -2793,6 +2794,30 @@ coot::dictionary_residue_restraints_t::write_cif_pdbx_chem_comp_identifier(mmdb:
          put(id.program,           "program",         i);
          put(id.program_version,   "program_version", i);
          put(id.identifier,        "identifier",      i);
+      }
+   }
+}
+
+// 2D depiction coordinates (PDBe style: the non-hydrogen atoms, in atom-table order -
+// rdkit_mol_with_2d_depiction() matches them to the atoms by index)
+//
+void
+coot::dictionary_residue_restraints_t::write_cif_pdbe_chem_comp_atom_depiction(mmdb::mmcif::Data *mmCIFData) const {
+
+   if (depiction.empty()) return;
+
+   mmdb::mmcif::PLoop mmCIFLoop = nullptr;
+   int rc = mmCIFData->AddLoop("_pdbe_chem_comp_atom_depiction", mmCIFLoop);
+   if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
+      for (unsigned int i=0; i<depiction.atoms.size(); i++) {
+         const depiction_atom_t &da = depiction.atoms[i];
+         std::string atom_id = util::remove_whitespace(da.atom_name);
+         mmCIFLoop->PutString(residue_info.comp_id.c_str(), "comp_id", i);
+         mmCIFLoop->PutString(atom_id.c_str(),              "atom_id", i);
+         mmCIFLoop->PutString(da.element.c_str(),           "element", i);
+         mmCIFLoop->PutReal(da.x, "model_Cartn_x", i, "%.3f");
+         mmCIFLoop->PutReal(da.y, "model_Cartn_y", i, "%.3f");
+         mmCIFLoop->PutInteger(da.pdbe_ordinal, "pdbx_ordinal", i);
       }
    }
 }

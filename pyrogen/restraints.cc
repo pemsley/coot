@@ -21,6 +21,7 @@
  */
 
 #include <mutex>
+#include <limits>
 #include <memory>
 
 #ifdef LIBCOOTAPI_BUILD
@@ -45,7 +46,7 @@
 #include <ideal/simple-restraint.hh>
 
 #include <RDGeneral/versions.h>  // rdkitVersion
-#include <RDGeneral/RDConfig.h>  // RDK_BUILD_INCHI_SUPPORT
+#include <RDGeneral/RDConfig.h>  // RDK_BUILD_INCHI_SUPPORT, RDK_BUILD_COORDGEN_SUPPORT
 // InChI only for the autotools (pyrogen) build: the CMake (chapi) build doesn't link RDInchiLib
 #if defined(RDK_BUILD_INCHI_SUPPORT) && !defined(LIBCOOTAPI_BUILD)
 #define PYROGEN_WITH_INCHI
@@ -57,6 +58,8 @@ static void add_pdbx_chem_comp_descriptors(const RDKit::ROMol &mol,
                                            coot::dictionary_residue_restraints_t *restraints);
 static void add_pdbx_chem_comp_identifiers(const RDKit::ROMol &mol,
                                            coot::dictionary_residue_restraints_t *restraints);
+static void add_pdbe_chem_comp_atom_depiction(const RDKit::ROMol &mol,
+                                              coot::dictionary_residue_restraints_t *restraints);
 
 #ifdef LIBCOOTAPI_BUILD
 #else
@@ -525,6 +528,20 @@ coot::overlay_acedrg_table_restraints(dictionary_residue_restraints_t *restraint
                    << " angle restraint values from AceDRG tables" << std::endl;
          restraints->conservatively_replace_with(p.second);
       }
+   } else {
+      // say so (once), otherwise the fall-back to energy-lib values is silent
+      static bool warned = false;
+      if (! warned) {
+         warned = true;
+         if (acedrg_sqlite_tables::compiled_with_support())
+            std::cout << "WARNING:: acedrg-tables: no usable AceDRG tables in "
+                      << acedrg_sqlite_tables::default_data_dir()
+                      << " - using energy-lib bond and angle values" << std::endl;
+         else
+            std::cout << "WARNING:: acedrg-tables: this build has no AceDRG-table support"
+                      << " (needs a gemmi with AcedrgTables::insert_bond_row())"
+                      << " - using energy-lib bond and angle values" << std::endl;
+      }
    }
 }
 
@@ -584,6 +601,7 @@ coot::mmcif_dict_from_mol_using_energy_lib(const std::string &comp_id,
       coot::add_chem_comp_atoms(mol, &restraints); // alter restraints
       add_pdbx_chem_comp_descriptors(mol, &restraints); // SMILES, InChI, InChIKey
       add_pdbx_chem_comp_identifiers(mol, &restraints); // e.g. the CCD systematic names
+      add_pdbe_chem_comp_atom_depiction(mol, &restraints); // 2D coordinates
       bool status_b = coot::fill_with_energy_lib_bonds(mol, energy_lib, &restraints); // alter restraints
       bool status_a = coot::fill_with_energy_lib_angles(mol, energy_lib, &restraints); // alter restraints
       bool status_t = coot::fill_with_energy_lib_torsions(mol, energy_lib, &restraints); // alter restraints
@@ -1285,6 +1303,123 @@ add_pdbx_chem_comp_identifiers(const RDKit::ROMol &mol,
    for (unsigned int i=0; i+3<v.size(); i+=4) {
       coot::pdbx_chem_comp_identifier_item item(v[i], mark_charged(v[i+1]), v[i+2], mark_charged(v[i+3]));
       restraints->identifiers.push_back(item);
+   }
+}
+
+// smallest separation of two atoms that are not bonded to each other
+static double
+depiction_min_non_bonded_distance(const RDKit::ROMol &mol, const RDKit::Conformer &conf) {
+
+   double d_min = std::numeric_limits<double>::max();
+   unsigned int n_atoms = mol.getNumAtoms();
+   for (unsigned int i=0; i<n_atoms; i++) {
+      for (unsigned int j=i+1; j<n_atoms; j++) {
+         if (mol.getBondBetweenAtoms(i, j)) continue;
+         double d = (conf.getAtomPos(i) - conf.getAtomPos(j)).length();
+         if (d < d_min) d_min = d;
+      }
+   }
+   return d_min;
+}
+
+static double
+depiction_mean_bond_length(const RDKit::ROMol &mol, const RDKit::Conformer &conf) {
+
+   double sum = 0.0;
+   for (const auto &bond : mol.bonds())
+      sum += (conf.getAtomPos(bond->getBeginAtomIdx()) - conf.getAtomPos(bond->getEndAtomIdx())).length();
+   return mol.getNumBonds() > 0 ? sum / mol.getNumBonds() : 0.0;
+}
+
+#ifdef RDK_BUILD_COORDGEN_SUPPORT
+// CoordGen's 2D layout of mol, scaled to the given mean bond length (so that it
+// matches the scale of RDKit's layouts). Returns the conformer id.
+//
+static int
+compute_2d_coords_using_coordgen(RDKit::ROMol &mol, double mean_bond_length) {
+
+   // RDDepict::preferCoordGen is a process-wide switch: set it for this call
+   // only. The mutex serializes pyrogen's own callers.
+   static std::mutex m;
+   std::lock_guard<std::mutex> lock(m);
+   class prefer_coordgen_t {
+      bool saved;
+   public:
+      prefer_coordgen_t() : saved(RDDepict::preferCoordGen) { RDDepict::preferCoordGen = true; }
+      ~prefer_coordgen_t() { RDDepict::preferCoordGen = saved; }
+   } prefer_coordgen;
+
+   mol.clearConformers();
+   RDDepict::Compute2DCoordParameters params;
+   int iconf = RDDepict::compute2DCoords(mol, params);
+   RDKit::Conformer &conf = mol.getConformer(iconf);
+   double mbl = depiction_mean_bond_length(mol, conf);
+   if (mbl > 0.0 && mean_bond_length > 0.0) {
+      double sf = mean_bond_length / mbl;
+      for (auto &pos : conf.getPositions())
+         pos *= sf;
+   }
+   return iconf;
+}
+#endif
+
+// _pdbe_chem_comp_atom_depiction: 2D coordinates of the non-hydrogen atoms, in
+// atom-table order (removeAllHs() keeps the order of the others), which is what
+// rdkit_mol_with_2d_depiction() expects - it matches them to atoms by index.
+//
+static void
+add_pdbe_chem_comp_atom_depiction(const RDKit::ROMol &mol,
+                                  coot::dictionary_residue_restraints_t *restraints) {
+
+   try {
+      bool sanitize = true; // compute2DCoords() needs the implicit valences
+      std::unique_ptr<RDKit::ROMol> mol_2d(RDKit::MolOps::removeAllHs(mol, sanitize));
+      RDKit::ROMol mol_2d_coordgen(*mol_2d); // for the fall-back layout
+      RDDepict::Compute2DCoordParameters params;
+      params.canonOrient = true;
+      int iconf = RDDepict::compute2DCoords(*mol_2d, params);
+      const RDKit::ROMol *mol_p = mol_2d.get();
+      const RDKit::Conformer *conf_p = &mol_2d->getConformer(iconf);
+
+#ifdef RDK_BUILD_COORDGEN_SUPPORT
+      // RDKit's layout occasionally puts two atoms on top of each other (e.g. the
+      // methoxy oxygens of A1E80). Then use CoordGen's layout - if it doesn't.
+      const double overlap_limit = 0.5; // RDKit's layouts have 1.5 A bonds
+      double d_rdkit = depiction_min_non_bonded_distance(*mol_2d, *conf_p);
+      if (d_rdkit < overlap_limit) {
+         try {
+            double mbl = depiction_mean_bond_length(*mol_2d, *conf_p);
+            int iconf_cg = compute_2d_coords_using_coordgen(mol_2d_coordgen, mbl);
+            const RDKit::Conformer &conf_cg = mol_2d_coordgen.getConformer(iconf_cg);
+            double d_cg = depiction_min_non_bonded_distance(mol_2d_coordgen, conf_cg);
+            if (d_cg >= overlap_limit) {
+               std::cout << "INFO:: depiction: RDKit's layout has overlapping atoms (separation "
+                         << d_rdkit << ") - using CoordGen's (closest separation " << d_cg << ")"
+                         << std::endl;
+               mol_p = &mol_2d_coordgen;
+               conf_p = &conf_cg;
+            }
+         }
+         catch (const std::exception &e) {
+            std::cout << "WARNING:: add_pdbe_chem_comp_atom_depiction(): CoordGen: " << e.what() << std::endl;
+         }
+      }
+#endif
+
+      std::vector<coot::depiction_atom_t> atoms;
+      for (const auto &at : mol_p->atoms()) {
+         std::string name;
+         if (! at->getPropIfPresent("name", name)) return; // can't label it - no depiction then
+         const RDGeom::Point3D &pos = conf_p->getAtomPos(at->getIdx());
+         int ordinal = atoms.size() + 1;
+         atoms.push_back(coot::depiction_atom_t(coot::util::remove_whitespace(name),
+                                                at->getSymbol(), pos.x, pos.y, ordinal));
+      }
+      if (! atoms.empty())
+         restraints->depiction = coot::chem_comp_atom_depiction_t(restraints->residue_info.comp_id, atoms);
+   }
+   catch (const std::exception &e) {
+      std::cout << "WARNING:: add_pdbe_chem_comp_atom_depiction(): " << e.what() << std::endl;
    }
 }
 
