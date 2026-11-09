@@ -1,5 +1,10 @@
 --- Items---
 
+o is symmetry (SYMINFO/syminfo.lib) tested in the python tests?
+
+o experiment: molprobity on tutorial model before and after
+  doing the tutorial (chain refine with hydrogen atoms added)
+
 o Impact statement for Moorhen.
 
 o Oli idea: search by sequence. Allow wildcard and ambiguity
