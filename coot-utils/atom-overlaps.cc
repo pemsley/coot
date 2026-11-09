@@ -1277,7 +1277,8 @@ coot::atom_overlaps_container_t::is_inside_another_ligand_atom(int idx,
 
 
 coot::atom_overlaps_dots_container_t
-coot::atom_overlaps_container_t::contact_dots_for_ligand(double dot_density_in) { // or residue
+coot::atom_overlaps_container_t::contact_dots_for_ligand(double dot_density_in, // or residue
+                                                         mmdb::Atom *only_this_atom) {
 
    atom_overlaps_dots_container_t ao;
    if (!have_dictionary) {
@@ -1306,6 +1307,31 @@ coot::atom_overlaps_container_t::contact_dots_for_ligand(double dot_density_in) 
       int n_ligand_residue_atoms = 0;
       res_central->GetAtomTable(ligand_residue_atoms, n_ligand_residue_atoms);
 
+      // If only_this_atom is set, we make contacts and dots for just that atom of the
+      // central residue (iat_only is its index in ligand_residue_atoms).
+      int iat_only = -1;
+      if (only_this_atom) {
+         for (int iat=0; iat<n_ligand_residue_atoms; iat++) {
+            if (ligand_residue_atoms[iat] == only_this_atom) {
+               iat_only = iat;
+               break;
+            }
+         }
+         if (iat_only == -1) {
+            std::cout << "WARNING:: contact_dots_for_ligand() only_this_atom is not in the central residue "
+                      << atom_spec_t(only_this_atom) << std::endl;
+            return ao;
+         }
+      }
+      mmdb::Atom **contact_atoms = ligand_residue_atoms;
+      int n_contact_atoms = n_ligand_residue_atoms;
+      int id1_offset = 0; // to convert pscontact[i].id1 to an index in ligand_residue_atoms
+      if (iat_only != -1) {
+         contact_atoms = &ligand_residue_atoms[iat_only];
+         n_contact_atoms = 1;
+         id1_offset = iat_only;
+      }
+
       std::vector<residue_spec_t> env_residue_specs(neighbours.size());
       for (unsigned int i=0; i<neighbours.size(); i++)
          env_residue_specs[i] = residue_spec_t(neighbours[i]);
@@ -1319,7 +1345,7 @@ coot::atom_overlaps_container_t::contact_dots_for_ligand(double dot_density_in) 
       mol->GetSelIndex(i_sel_hnd_env_atoms, env_residue_atoms, n_env_residue_atoms);
       setup_env_residue_atoms_radii(i_sel_hnd_env_atoms);
 
-      mol->SeekContacts(ligand_residue_atoms, n_ligand_residue_atoms,
+      mol->SeekContacts(contact_atoms, n_contact_atoms,
                         env_residue_atoms, n_env_residue_atoms,
                         0, max_dist,
                         1, // 0: in same residue also?
@@ -1346,18 +1372,19 @@ coot::atom_overlaps_container_t::contact_dots_for_ligand(double dot_density_in) 
             std::map<std::string, std::vector<std::vector<std::string> > > ring_list_map;
 
             for (int i=0; i<n_contacts; i++) {
+               int id1 = pscontact[i].id1 + id1_offset;
                atom_interaction_type ait =
                   bonded_angle_or_ring_related(mol, // also check links
-                                               ligand_residue_atoms[pscontact[i].id1],
+                                               ligand_residue_atoms[id1],
                                                env_residue_atoms[pscontact[i].id2], excl_mc_flag,
                                                &bonded_neighbours,   // updatedby fn.
                                                &ring_list_map        // updatedby fn.
                                                );
                if (ait == CLASHABLE) {
-                  contact_map[pscontact[i].id1].push_back(pscontact[i].id2);
+                  contact_map[id1].push_back(pscontact[i].id2);
                } else {
                   if (ait == BONDED) {
-                     bonded_map[pscontact[i].id1].push_back(pscontact[i].id2);
+                     bonded_map[id1].push_back(pscontact[i].id2);
                   }
                }
             }
@@ -1366,18 +1393,24 @@ coot::atom_overlaps_container_t::contact_dots_for_ligand(double dot_density_in) 
 
             for (int iat=0; iat<n_ligand_residue_atoms; iat++) {
 
+               if (iat_only != -1 && iat != iat_only) continue;
+
                mmdb::Atom *cr_at = ligand_residue_atoms[iat];
                clipper::Coord_orth pt_at_1 = co(cr_at);
 
                double r_1 = get_vdw_radius_ligand_atom(cr_at);
 
-               std::vector<clipper::Coord_orth> &sphere_points_for_atom = sphere_points;
-               if (std::string(cr_at->element) == " H")
-                  sphere_points_for_atom = H_sphere_points;
+               // 20261107-PE previously this was a non-const reference to sphere_points that was
+               // then assigned H_sphere_points - which overwrote sphere_points, so that every
+               // atom after the first hydrogen got the (smaller) hydrogen dot set.
+               std::string cr_at_ele(cr_at->element);
+               bool cr_at_is_H = (cr_at_ele == " H" || cr_at_ele == " D");
+               const std::vector<clipper::Coord_orth> &sphere_points_for_atom =
+                  cr_at_is_H ? H_sphere_points : sphere_points;
 
                for (unsigned int j=0; j<sphere_points_for_atom.size(); j++) {
 
-                  const clipper::Coord_orth &pt(sphere_points[j]);
+                  const clipper::Coord_orth &pt(sphere_points_for_atom[j]);
                   clipper::Coord_orth pt_at_surface = r_1 * pt + pt_at_1;
                   bool draw_it = ! is_inside_another_ligand_atom(iat, pt_at_surface);
 
@@ -1517,6 +1550,9 @@ coot::atom_overlaps_container_t::contact_dots_for_ligand(double dot_density_in) 
             }
          }
       }
+      // 20261107-PE these were leaked (one new selection per call)
+      if (pscontact) delete [] pscontact;
+      mol->DeleteSelection(i_sel_hnd_env_atoms);
    }
    return ao;
 }
@@ -1678,14 +1714,12 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_single_thread(do
             double dot_density = dot_density_in;
             double r_1 = get_vdw_radius_neighb_atom(iat);
 
-            std::vector<clipper::Coord_orth> &sphere_points_for_atom = sphere_points;
-            if (std::string(at->element) == " H")
-               sphere_points_for_atom = H_sphere_points;
-
-            // if (std::string(at->element) == " H")
-               // dot_density *=0.66; // so that surface dots on H atoms don't appear (weirdly) more fine
-            if (std::string(at->element) == " H")
-               sphere_points_for_atom = H_sphere_points;
+            // 20261107-PE as in contact_dots_for_ligand(): don't assign through a reference
+            // to sphere_points (that overwrote it with the hydrogen dot set).
+            std::string at_ele(at->element);
+            bool at_is_H = (at_ele == " H" || at_ele == " D");
+            const std::vector<clipper::Coord_orth> &sphere_points_for_atom =
+               at_is_H ? H_sphere_points : sphere_points;
 
             for (unsigned int j=0; j<sphere_points_for_atom.size(); j++) {
                const clipper::Coord_orth &pt(sphere_points_for_atom[j]);

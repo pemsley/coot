@@ -381,6 +381,10 @@ coot::reduce::add_riding_hydrogens(double bl_aliph,
          }
       }
    }
+
+   // Now orient the OH (and SH) hydrogens (after the HIS H, so that they can
+   // see the HIS donors).
+   spin_search_hydroxyls(imol);
 }
 
 // only call this with a valid residue_p
@@ -1248,7 +1252,10 @@ coot::reduce::add_xH_H(const std::string &H_name,
          double bf = at_2->tempFactor;
          mmdb::Atom *at = add_hydrogen_atom(H_name, H_pos, bf, alt_confs[i], residue_p);
          r.push_back(at);
-         spinables.add(at_1, atom_with_attached_Hs::HYDROXYL, at); // maybe need SULFHYDRYL separate?
+         atom_with_attached_Hs::hydrogen_t type = atom_with_attached_Hs::HYDROXYL;
+         if (std::string(at_1->element) == " S") type = atom_with_attached_Hs::SULFHYDRYL;
+         unsigned int n_fold = is_planar_centre(at_2, residue_p) ? 2 : 3;
+         spinables.add(at_1, type, at, at_2, n_fold);
       } else {
          std::cout << "WARNING:: reduce::add_xH_H a lookup fail for "
                    << at_name_1 << " " << at_name_2 << " " << at_name_3 << " placing " << H_name << std::endl;
@@ -1934,6 +1941,155 @@ coot::reduce::atoms_with_spinnable_Hs::add(mmdb::Atom *at,
    v.push_back(attahed_hydrogen_atom);
    atom_with_attached_Hs awaH(at, type, v);
    typed_atoms[alt_loc].push_back(awaH);
+}
+
+void
+coot::reduce::atoms_with_spinnable_Hs::add(mmdb::Atom *at,
+                                           atom_with_attached_Hs::hydrogen_t type,
+                                           mmdb::Atom *attached_hydrogen_atom,
+                                           mmdb::Atom *axis_atom,
+                                           unsigned int n_fold) {
+
+   std::string alt_loc(at->altLoc);
+   atom_with_attached_Hs awaH(at, type, attached_hydrogen_atom, axis_atom, n_fold);
+   typed_atoms[alt_loc].push_back(awaH);
+}
+
+bool
+coot::reduce::is_planar_centre(mmdb::Atom *at, mmdb::Residue *residue_p) const {
+
+   // the non-hydrogen atoms bonded to at (by distance) in this residue
+
+   bool status = false;
+   if (at && residue_p) {
+      clipper::Coord_orth at_pos = co(at);
+      std::string alt_loc(at->altLoc);
+      std::vector<clipper::Coord_orth> neighbs;
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *n_at = residue_atoms[iat];
+         if (n_at == at) continue;
+         if (n_at->isTer()) continue;
+         std::string ele(n_at->element);
+         if (ele == " H" || ele == " D") continue;
+         std::string n_alt_loc(n_at->altLoc);
+         if (! n_alt_loc.empty() && ! alt_loc.empty() && n_alt_loc != alt_loc) continue;
+         clipper::Coord_orth pos = co(n_at);
+         if ((pos - at_pos).lengthsq() < 1.8 * 1.8)
+            neighbs.push_back(pos);
+      }
+      if (neighbs.size() == 3) {
+         // how far is at from the plane of its neighbours?
+         // ~0 for sp2, ~0.5A for sp3 (e.g. THR CB)
+         clipper::Coord_orth n(clipper::Coord_orth::cross(neighbs[1] - neighbs[0], neighbs[2] - neighbs[0]));
+         double l = std::sqrt(n.lengthsq());
+         if (l > 0.0001) {
+            double d = std::fabs(clipper::Coord_orth::dot(at_pos - neighbs[0], n)) / l;
+            if (d < 0.25)
+               status = true;
+         }
+      }
+   }
+   return status;
+}
+
+bool
+coot::reduce::spin_search_hydroxyl(const atom_with_attached_Hs &awaH,
+                                   const std::vector<mmdb::Residue *> &neighbs,
+                                   int imol_enc) {
+
+   bool moved = false;
+   if (awaH.hydrogens.size() != 1) return false;
+   mmdb::Atom *H_at = awaH.hydrogens[0];
+   if (! H_at || ! awaH.at || ! awaH.axis_atom) return false;
+   mmdb::Residue *residue_p = awaH.at->residue;
+   if (! residue_p) return false;
+
+   clipper::Coord_orth current_pos = co(H_at);
+   clipper::Coord_orth origin_shift = co(awaH.at);
+   clipper::Coord_orth direction = origin_shift - co(awaH.axis_atom);
+
+   // Scoring as in find_best_his_protonation_orientation(), but only the dots of the
+   // H atom (only the H moves, so only its dots change).
+   // Construct the container (dictionary lookups, donor/acceptor marking) just once:
+   // contact_dots_for_ligand() uses the current atom positions, and the H rotates
+   // about the axis_atom->at bond so its bonded-neighbour (2.3A) map is still valid.
+   atom_overlaps_container_t ao(residue_p, neighbs, mol, imol_enc, geom_p, 0.5);
+
+   // returns the score (and moves the H)
+   auto score_at_angle = [&] (double angle_deg, clipper::Coord_orth *pos_p) {
+      double angle = clipper::Util::d2rad(angle_deg);
+      clipper::Coord_orth pos = util::rotate_around_vector(direction, awaH.H_ideal_pos, origin_shift, angle);
+      H_at->x = pos.x(); H_at->y = pos.y(); H_at->z = pos.z();
+      *pos_p = pos;
+      return ao.contact_dots_for_ligand(0.7, H_at).score();
+   };
+
+   // The "ideal" positions (3 staggered or 2 in-plane), each with a small grid around it
+   // (-10, -5, +5, +10 degrees).
+   //
+   // Comparisons are "strictly better", so that ties go to the first-tested/ideal position.
+   const std::vector<double> offsets = { 0.0, -5.0, 5.0, -10.0, 10.0 };
+   double best_score = -1e100;
+   clipper::Coord_orth best_pos = current_pos;
+   bool first = true;
+   for (unsigned int i_fold=0; i_fold<awaH.n_fold; i_fold++) {
+      double base_angle = 360.0 * static_cast<double>(i_fold) / static_cast<double>(awaH.n_fold);
+      for (const double &offset : offsets) {
+         clipper::Coord_orth pos;
+         double s = score_at_angle(base_angle + offset, &pos);
+         if (first || s > best_score) {
+            best_score = s;
+            best_pos = pos;
+            first = false;
+         }
+      }
+   }
+
+   H_at->x = best_pos.x(); H_at->y = best_pos.y(); H_at->z = best_pos.z();
+   if ((best_pos - current_pos).lengthsq() > 0.0001)
+      moved = true;
+   return moved;
+}
+
+void
+coot::reduce::spin_search_hydroxyls(int imol_enc) {
+
+   if (! geom_p) {
+      std::cout << "WARNING:: in spin_search_hydroxyls(): No geometry" << std::endl;
+      return;
+   }
+
+   // one (all-molecule) contact search, rather than one per residue
+   std::map<mmdb::Residue *, std::set<mmdb::Residue *> > neighb_map = residues_near_residues(mol, 5.0);
+
+   for (const auto &clique : spinables.cliques) {
+      std::vector<const atom_with_attached_Hs *> xHs;
+      for (const auto &awaH : clique)
+         if (awaH.type == atom_with_attached_Hs::HYDROXYL || awaH.type == atom_with_attached_Hs::SULFHYDRYL)
+            xHs.push_back(&awaH);
+      if (xHs.empty()) continue;
+
+      // hydroxyls that are near each other may H-bond to each other, so
+      // optimize them in turn and then go round again (the second pass
+      // lets the first-optimized hydroxyls respond to the others).
+      unsigned int n_rounds = (xHs.size() > 1) ? 2 : 1;
+      for (unsigned int i_round=0; i_round<n_rounds; i_round++) {
+         bool any_moved = false;
+         for (const atom_with_attached_Hs *awaH_p : xHs) {
+            mmdb::Residue *residue_p = awaH_p->at->residue;
+            std::vector<mmdb::Residue *> neighbs;
+            auto it = neighb_map.find(residue_p);
+            if (it != neighb_map.end())
+               neighbs.assign(it->second.begin(), it->second.end());
+            bool moved = spin_search_hydroxyl(*awaH_p, neighbs, imol_enc);
+            if (moved) any_moved = true;
+         }
+         if (! any_moved) break; // nothing changed, no need to go round again
+      }
+   }
 }
 
 void

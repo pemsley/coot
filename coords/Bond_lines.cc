@@ -6737,6 +6737,26 @@ Bond_lines_container::add_residue_monomer_bonds(const std::map<std::string, std:
 
                   const std::vector<atom_string_bits_t> &atom_name_ele_vec = atom_name_ele_map[monomer_name][i];
 
+                  // The dictionary names hydrogen atoms "H*" but deuterated models
+                  // (e.g. neutron structures, 5a90) have the "H" replaced by "D"
+                  // (" HA2" -> " DA2", "HD21" -> "DD21", " H  " -> " D  ").
+                  // So allow a residue deuterium atom to match a dictionary hydrogen name.
+                  //
+                  auto atom_name_matches = [] (const atom_string_bits_t &asb, const std::string &dict_atom_name) {
+                     if (asb.atom_name == dict_atom_name) return true;
+                     if (asb.ele == " D") {
+                        std::string::size_type pos = dict_atom_name.find_first_not_of(' ');
+                        if (pos != std::string::npos) {
+                           if (dict_atom_name[pos] == 'H') {
+                              std::string d_name = dict_atom_name;
+                              d_name[pos] = 'D';
+                              if (asb.atom_name == d_name) return true;
+                           }
+                        }
+                     }
+                     return false;
+                  };
+
                   std::set<std::string>::const_iterator it;
                   for(it=residue_alt_confs.begin(); it!=residue_alt_confs.end(); ++it) {
 
@@ -6751,14 +6771,14 @@ Bond_lines_container::add_residue_monomer_bonds(const std::map<std::string, std:
                      // tuple: atom_name, ele, alt_loc
                      for (unsigned int ii=0; ii<atom_name_ele_vec.size(); ii++) {
                         if (! bond_atom_1)
-                           if (atom_name_ele_vec[ii].atom_name == dict_atom_name_1)
+                           if (atom_name_matches(atom_name_ele_vec[ii], dict_atom_name_1))
                               if (atom_name_ele_vec[ii].alt_loc == alt_loc || atom_name_ele_vec[ii].alt_loc.empty())
                                  if (! residue_atoms[ii]->isTer()) {
                                     bond_atom_1 = atom_name_ele_vec[ii].at;
                                     iat = ii;
                                  }
                         if (! bond_atom_2)
-                           if (atom_name_ele_vec[ii].atom_name == dict_atom_name_2)
+                           if (atom_name_matches(atom_name_ele_vec[ii], dict_atom_name_2))
                               if (atom_name_ele_vec[ii].alt_loc == alt_loc || atom_name_ele_vec[ii].alt_loc.empty())
                                  if (! residue_atoms[ii]->isTer()) {
                                     bond_atom_2 = atom_name_ele_vec[ii].at;
