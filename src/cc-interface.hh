@@ -2202,6 +2202,24 @@ PyObject *molecule_to_pdb_string_py(int imol);
 //! \endcode
 PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char *ins_code);
 
+//! \brief Get the atoms whose occupancy is not 1 (Python interface)
+//!
+//! Atoms in the first model whose occupancy differs from 1.0 by more than 0.001 -
+//! this includes atoms with zero occupancy and atoms with occupancy greater than 1.
+//!
+//! @param imol Model molecule index
+//! @return a list of items \c [[chain_id, res_no, ins_code, atom_name, alt_conf], occupancy],
+//!         in the order of the atoms in the molecule. The list is empty if all the
+//!         occupancies are 1. Returns False if \p imol is not a valid model molecule.
+//!
+//! Example usage:
+//! \code{.py}
+//! for spec, occ in coot.atoms_with_partial_occupancy_py(0):
+//!     chain_id, res_no, ins_code, atom_name, alt_conf = spec
+//!     print(f"{chain_id} {res_no}{ins_code} {atom_name} {alt_conf!r} occ={occ:.2f}")
+//! \endcode
+PyObject *atoms_with_partial_occupancy_py(int imol);
+
 //! \brief get the residue name
 //!
 //! @param imol Model molecule index

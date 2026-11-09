@@ -2457,6 +2457,40 @@ class TestPdbMtzFunctions(unittest.TestCase):
         self.assertFalse(bl > 1.0, "Fail: moved atom %s" %bl)
 
 
+    def test63_0(self):
+        """Atoms with partial occupancy"""
+
+        imol = coot_testing_utils.unittest_pdb("tutorial-modern.pdb")
+        self.assertTrue(coot_utils.valid_model_molecule_qm(imol))
+
+        # tutorial-modern.pdb has just the 2 alt confs of the B72 SG not at 1.0
+        atoms = coot.atoms_with_partial_occupancy_py(imol)
+        self.assertEqual([spec for spec, occ in atoms],
+                         [["B", 72, "", " SG ", "A"],
+                          ["B", 72, "", " SG ", "B"]])
+        self.assertAlmostEqual(atoms[0][1], 0.7, 3)
+        self.assertAlmostEqual(atoms[1][1], 0.3, 3)
+
+        # zero, partial and greater-than-one occupancies are all reported
+        coot.set_atom_attribute(imol, "A", 10, "", " CA ", "", "occ", 0.0)
+        coot.set_atom_attribute(imol, "A", 10, "", " CB ", "", "occ", 0.5)
+        coot.set_atom_attribute(imol, "A", 11, "", " CA ", "", "occ", 1.2)
+        atoms = coot.atoms_with_partial_occupancy_py(imol)
+        self.assertEqual(len(atoms), 5)
+        self.assertEqual([spec for spec, occ in atoms[:3]],
+                         [["A", 10, "", " CA ", ""],
+                          ["A", 10, "", " CB ", ""],
+                          ["A", 11, "", " CA ", ""]])
+        self.assertAlmostEqual(atoms[0][1], 0.0, 3)
+        self.assertAlmostEqual(atoms[1][1], 0.5, 3)
+        self.assertAlmostEqual(atoms[2][1], 1.2, 3)
+
+        # not a valid model molecule
+        self.assertFalse(coot.atoms_with_partial_occupancy_py(-1))
+
+        coot.close_molecule(imol)
+
+
     def test999_0(self):
         """Renumber residue range without overwriting coordinates."""
 

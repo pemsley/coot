@@ -456,6 +456,37 @@ int test_atoms_with_zero_occupancy() {
    return status;
 }
 
+int test_atoms_with_partial_occupancy() {
+   starting_test(__FUNCTION__);
+   int status = 0;
+   mmdb::Manager *mol = read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   if (mol) {
+      // the tutorial structure has all occupancies at 1.0
+      std::vector<mmdb::Atom *> v_before = coot::atoms_with_partial_occupancy(mol);
+      if (v_before.empty()) {
+         mmdb::Residue *residue_p = coot::util::get_residue(coot::residue_spec_t("A", 50, ""), mol);
+         if (residue_p) {
+            mmdb::Atom **residue_atoms = 0;
+            int n_residue_atoms = 0;
+            residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+            if (n_residue_atoms > 3) {
+               residue_atoms[0]->occupancy = 0.5;
+               residue_atoms[1]->occupancy = 0.0;
+               residue_atoms[2]->occupancy = 1.2;
+               std::vector<mmdb::Atom *> v_after = coot::atoms_with_partial_occupancy(mol);
+               if (v_after.size() == 3)
+                  if (v_after[0] == residue_atoms[0])
+                     if (v_after[1] == residue_atoms[1])
+                        if (v_after[2] == residue_atoms[2])
+                           status = 1;
+            }
+         }
+      }
+      delete mol;
+   }
+   return status;
+}
+
 int test_residues_with_alt_confs() {
    starting_test(__FUNCTION__);
    int status = 0;
@@ -2924,6 +2955,7 @@ int main(int argc, char **argv) {
       status += run_test(test_hetify_residue_atoms_as_needed,    "hetify_residue_atoms_as_needed");
       status += run_test(test_hetify_residues_as_needed,         "hetify_residues_as_needed");
       status += run_test(test_atoms_with_zero_occupancy,         "atoms_with_zero_occupancy");
+      status += run_test(test_atoms_with_partial_occupancy,      "atoms_with_partial_occupancy");
       status += run_test(test_residues_with_alt_confs,           "residues_with_alt_confs");
       status += run_test(test_residues_near_residue,             "residues_near_residue (spec)");
       status += run_test(test_residues_near_residue_v2,          "residues_near_residue (ptr)");

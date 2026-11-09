@@ -344,6 +344,10 @@ namespace coot {
 
    std::vector<mmdb::Atom *> atoms_with_zero_occupancy(mmdb::Manager *mol);
 
+   // atoms (in the first model) whose occupancy is not 1.0 (to within 0.001)
+   // - this includes zero-occupancy atoms and atoms with occupancy greater than 1.
+   std::vector<mmdb::Atom *> atoms_with_partial_occupancy(mmdb::Manager *mol);
+
    std::vector<mmdb::Residue *> residues_with_alt_confs(mmdb::Manager *mol);
 
    // convert atoms in residue to HETATMs.  Return the number of HET
