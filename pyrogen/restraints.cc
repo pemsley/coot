@@ -55,6 +55,8 @@
 static bool is_spurious_stereocentre(const RDKit::ROMol &mol, const RDKit::Atom *centre);
 static void add_pdbx_chem_comp_descriptors(const RDKit::ROMol &mol,
                                            coot::dictionary_residue_restraints_t *restraints);
+static void add_pdbx_chem_comp_identifiers(const RDKit::ROMol &mol,
+                                           coot::dictionary_residue_restraints_t *restraints);
 
 #ifdef LIBCOOTAPI_BUILD
 #else
@@ -581,6 +583,7 @@ coot::mmcif_dict_from_mol_using_energy_lib(const std::string &comp_id,
 
       coot::add_chem_comp_atoms(mol, &restraints); // alter restraints
       add_pdbx_chem_comp_descriptors(mol, &restraints); // SMILES, InChI, InChIKey
+      add_pdbx_chem_comp_identifiers(mol, &restraints); // e.g. the CCD systematic names
       bool status_b = coot::fill_with_energy_lib_bonds(mol, energy_lib, &restraints); // alter restraints
       bool status_a = coot::fill_with_energy_lib_angles(mol, energy_lib, &restraints); // alter restraints
       bool status_t = coot::fill_with_energy_lib_torsions(mol, energy_lib, &restraints); // alter restraints
@@ -1254,6 +1257,35 @@ add_pdbx_chem_comp_descriptors(const RDKit::ROMol &mol,
       std::cout << "WARNING:: add_pdbx_chem_comp_descriptors(): InChI failed: " << e.what() << std::endl;
    }
 #endif
+}
+
+// _pdbx_chem_comp_identifier: the input dictionary's identifiers (e.g. CCD systematic
+// names), put on the molecule by rdkit_mol_chem_comp_pdbx() as a flattened
+// type, program, program_version, identifier list. If pyrogen changed the protonation
+// state (pyrogen.py sets "pyrogen_protonation_changed"), then, as grade2 does, mark
+// the program and the identifier with " (CHARGED)" - the names describe the input form.
+//
+static void
+add_pdbx_chem_comp_identifiers(const RDKit::ROMol &mol,
+                               coot::dictionary_residue_restraints_t *restraints) {
+
+   std::vector<std::string> v;
+   if (! mol.getPropIfPresent("pdbx_chem_comp_identifiers", v)) return;
+
+   bool protonation_changed = false;
+   mol.getPropIfPresent("pyrogen_protonation_changed", protonation_changed);
+
+   auto mark_charged = [protonation_changed] (const std::string &s) {
+      const std::string c = " (CHARGED)";
+      if (! protonation_changed || s.empty()) return s;
+      if (s.size() >= c.size() && s.compare(s.size() - c.size(), c.size(), c) == 0) return s;
+      return s + c;
+   };
+
+   for (unsigned int i=0; i+3<v.size(); i+=4) {
+      coot::pdbx_chem_comp_identifier_item item(v[i], mark_charged(v[i+1]), v[i+2], mark_charged(v[i+3]));
+      restraints->identifiers.push_back(item);
+   }
 }
 
 void

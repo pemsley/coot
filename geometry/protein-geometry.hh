@@ -89,6 +89,22 @@ namespace coot {
    public:
       std::vector<pdbx_chem_comp_descriptor_item> descriptors;
    };
+
+   //! a row of _pdbx_chem_comp_identifier, e.g. type "SYSTEMATIC NAME", program "ACDLabs",
+   //! program_version "14.52", identifier "[(3-bromo-...)methyl]phosphonic acid"
+   class pdbx_chem_comp_identifier_item {
+   public:
+      std::string type;
+      std::string program;
+      std::string program_version;
+      std::string identifier;
+      pdbx_chem_comp_identifier_item(const std::string &type_in,
+                                     const std::string &program_in,
+                                     const std::string &program_version_in,
+                                     const std::string &identifier_in) :
+         type(type_in), program(program_in), program_version(program_version_in),
+         identifier(identifier_in) { }
+   };
    
    class dict_chem_comp_t {
       void setup_internal(const std::string &comp_id_in,
@@ -750,6 +766,7 @@ namespace coot {
 
 
       void write_cif_pdbx_chem_comp_descriptor(mmdb::mmcif::Data *data) const;
+      void write_cif_pdbx_chem_comp_identifier(mmdb::mmcif::Data *data) const;
 
       // imol_enc can be the model molecule number or
       // -1 for all
@@ -814,6 +831,7 @@ namespace coot {
       std::vector   <dict_plane_restraint_t>   plane_restraint;
       std::vector   <dict_improper_dihedral_restraint_t>   improper_dihedral_restraint;
       pdbx_chem_comp_descriptor_container_t descriptors;
+      std::vector<pdbx_chem_comp_identifier_item> identifiers; // e.g. systematic names
       pdbx_chem_comp_description_generator_t description_generation;
       chem_comp_atom_depiction_t depiction;
       gphl_chem_comp_info_t gphl_chem_comp_info;
@@ -1416,6 +1434,10 @@ namespace coot {
       int  link_chiral  (mmdb::mmcif::PLoop mmCIFLoop); // return number of new chirals
       void pdbx_chem_comp_synonyms(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc);
       void pdbx_chem_comp_descriptor(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc);
+      void pdbx_chem_comp_identifier(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc);
+      void pdbx_chem_comp_identifier(mmdb::mmcif::PStruct structure, int imol_enc); // single-row form
+      void add_pdbx_identifier(const std::string &comp_id, int imol_enc,
+                               const pdbx_chem_comp_identifier_item &identifier);
 
       void pdbe_chem_comp_atom_depiction(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc);
 

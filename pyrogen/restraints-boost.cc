@@ -165,6 +165,26 @@ coot::regularize_with_dict(RDKit::ROMol &mol_in, PyObject *restraints_py, const 
    return static_cast<RDKit::ROMol *>(m);
 }
 
+// Put the dictionary's _pdbx_chem_comp_identifier rows (e.g. the CCD systematic
+// names) on the molecule, so that they reach the output dictionary:
+// mmcif_dict_from_mol_using_energy_lib() reads them back. Molecule properties
+// survive the copies on the way (AddHs(), hydrogen_transformations()).
+// Flattened: type, program, program_version, identifier for each identifier.
+//
+static void
+set_pdbx_identifiers_prop(RDKit::ROMol *m, const coot::dictionary_residue_restraints_t &rest) {
+
+   if (rest.identifiers.empty()) return;
+   std::vector<std::string> v;
+   for (const auto &id : rest.identifiers) {
+      v.push_back(id.type);
+      v.push_back(id.program);
+      v.push_back(id.program_version);
+      v.push_back(id.identifier);
+   }
+   m->setProp("pdbx_chem_comp_identifiers", v);
+}
+
 
 RDKit::ROMol *
 coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
@@ -281,6 +301,7 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 
 	    // Happy Path return
 
+	    set_pdbx_identifiers_prop(m, rest.second);
 	    return m;
 	 }
 
@@ -307,6 +328,7 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 	 bool clear_confs  = false;
 	 RDDepict::compute2DCoords(*m, NULL, canon_orient, clear_confs, 10, 20);
 	 delete mol;
+	 set_pdbx_identifiers_prop(m, rest.second);
 	 return m;
       }
    }

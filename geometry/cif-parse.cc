@@ -319,6 +319,15 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
                      }
                   }
 
+                  // a CCD entry with only one identifier
+                  if (cat_name == "_pdbx_chem_comp_identifier") {
+                     mmdb::mmcif::Struct *structure = data->GetStructure(cat_name.c_str());
+                     if (structure) {
+                        pdbx_chem_comp_identifier(structure, imol_enc);
+                        handled = true;
+                     }
+                  }
+
                   if (! handled)   // this can happen if there is not an atom loop, e.g. dictionary
                                    // with one atom e.g. AM.cif (Americium ion)
                      std::cout << "WARNING:: in init_refmac_mon_lib() unhandled category \""
@@ -373,6 +382,9 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
                   // PDBx stuff
                   if (cat_name == "_pdbx_chem_comp_descriptor")
                      pdbx_chem_comp_descriptor(mmCIFLoop, imol_enc);
+
+                  if (cat_name == "_pdbx_chem_comp_identifier")
+                     pdbx_chem_comp_identifier(mmCIFLoop, imol_enc);
 
                   // PDBx model molecule
                   if (cat_name == "_pdbx_chem_comp_model_atom")
@@ -2715,6 +2727,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 
 
       write_cif_pdbx_chem_comp_descriptor(mmCIFData);
+      write_cif_pdbx_chem_comp_identifier(mmCIFData);
 
       // delete mmCIFLoop; // crashed when enabled?
 
@@ -2755,6 +2768,31 @@ coot::dictionary_residue_restraints_t::write_cif_pdbx_chem_comp_descriptor(mmdb:
          put(d.program,            "program",         i);
          put(d.program_version,    "program_version", i);
          put(d.descriptor,         "descriptor",      i);
+      }
+   }
+}
+
+void
+coot::dictionary_residue_restraints_t::write_cif_pdbx_chem_comp_identifier(mmdb::mmcif::Data *mmCIFData) const {
+
+   if (identifiers.empty()) return;
+
+   mmdb::mmcif::PLoop mmCIFLoop = nullptr;
+   int rc = mmCIFData->AddLoop("_pdbx_chem_comp_identifier", mmCIFLoop);
+   if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
+      auto put = [mmCIFLoop] (const std::string &s, const char *tag, int i) {
+         if (s.empty())
+            mmCIFLoop->PutNoData(mmdb::mmcif::CIF_NODATA_QUESTION, tag, i);
+         else
+            mmCIFLoop->PutString(s.c_str(), tag, i);
+      };
+      for (unsigned int i=0; i<identifiers.size(); i++) {
+         const pdbx_chem_comp_identifier_item &id = identifiers[i];
+         put(residue_info.comp_id, "comp_id",         i);
+         put(id.type,              "type",            i);
+         put(id.program,           "program",         i);
+         put(id.program_version,   "program_version", i);
+         put(id.identifier,        "identifier",      i);
       }
    }
 }
@@ -2822,13 +2860,14 @@ coot::simple_cif_reader::has_restraints_for(const std::string &res_type) {
 void
 coot::protein_geometry::pdbx_chem_comp_descriptor(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc) {
 
-   std::string comp_id;
-   std::string type;
-   std::string program;
-   std::string program_version;
-   std::string descriptor;
-
    for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
+      // per-row: a ? or . value (NULL from GetString() with ierr OK) must not
+      // inherit the value from the previous row
+      std::string comp_id;
+      std::string type;
+      std::string program;
+      std::string program_version;
+      std::string descriptor;
       int ierr;
       int ierr_tot = 0;
       char *s;
@@ -2846,7 +2885,7 @@ coot::protein_geometry::pdbx_chem_comp_descriptor(mmdb::mmcif::PLoop mmCIFLoop, 
       ierr_tot += ierr;
       if (s) type = s;
 
-      if (ierr_tot == 0) {
+      if (ierr_tot == 0 && ! comp_id.empty() && ! type.empty() && ! descriptor.empty()) {
          pdbx_chem_comp_descriptor_item descr(type, program, program_version, descriptor);
          add_pdbx_descriptor(comp_id, imol_enc, descr);
       }
@@ -2878,4 +2917,55 @@ coot::protein_geometry::add_pdbx_descriptor(const std::string &comp_id,
       std::pair<int, dictionary_residue_restraints_t> p(imol_enc, rest);
       dict_res_restraints.push_back(p);
    }
+}
+
+// _pdbx_chem_comp_identifier, e.g. the systematic names in a CCD entry
+//
+void
+coot::protein_geometry::pdbx_chem_comp_identifier(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc) {
+
+   for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
+      // comp_id, type and identifier are needed, program and program_version are optional
+      auto get = [mmCIFLoop, j] (const char *tag) {
+         int ierr = 0;
+         const char *s = mmCIFLoop->GetString(tag, j, ierr);
+         return std::string(s ? s : "");
+      };
+      std::string comp_id    = get("comp_id");
+      std::string type       = get("type");
+      std::string identifier = get("identifier");
+      if (! comp_id.empty() && ! type.empty() && ! identifier.empty()) {
+         pdbx_chem_comp_identifier_item item(type, get("program"), get("program_version"), identifier);
+         add_pdbx_identifier(comp_id, imol_enc, item);
+      }
+   }
+}
+
+// the single-row (non-loop) form
+void
+coot::protein_geometry::pdbx_chem_comp_identifier(mmdb::mmcif::PStruct structure, int imol_enc) {
+
+   auto get = [structure] (const char *tag) {
+      int ierr = 0;
+      const char *s = structure->GetString(tag, ierr);
+      return std::string(s ? s : "");
+   };
+   std::string comp_id    = get("comp_id");
+   std::string type       = get("type");
+   std::string identifier = get("identifier");
+   if (! comp_id.empty() && ! type.empty() && ! identifier.empty()) {
+      pdbx_chem_comp_identifier_item item(type, get("program"), get("program_version"), identifier);
+      add_pdbx_identifier(comp_id, imol_enc, item);
+   }
+}
+
+void
+coot::protein_geometry::add_pdbx_identifier(const std::string &comp_id, int imol_enc,
+                                            const pdbx_chem_comp_identifier_item &identifier) {
+
+   // _chem_comp (CCD) or data_comp_list (monomer library) comes first, so the
+   // dictionary entry is there by now
+   int idx = get_monomer_restraints_index(comp_id, imol_enc, true);
+   if (idx >= 0)
+      dict_res_restraints[idx].second.identifiers.push_back(identifier);
 }

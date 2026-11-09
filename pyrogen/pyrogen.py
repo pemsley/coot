@@ -645,6 +645,8 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
         if compound_name not in ('', '.') and not compound_name.endswith('(CHARGED)'):
             compound_name += ' (CHARGED)'
         print('INFO:: protonation state changed from the input: compound name:', compound_name)
+        # the C++ side marks the input's identifiers (systematic names) "(CHARGED)" too
+        sane_H_mol.SetBoolProp('pyrogen_protonation_changed', True)
 
     AllChem.AssignStereochemistry(sane_H_mol);
 
