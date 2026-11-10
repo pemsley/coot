@@ -1,5 +1,19 @@
 --- Items---
 
+o what happened to HexaPro?
+  https://www.science.org/doi/10.1126/science.abd0826
+
+o add helix here: renumber helix so that it always starts at 1.
+
+o add helix here for the tutorial. Fails when map is masked.
+  straight: works, blur: works, blur and mask: fail
+
+o save state should save unwritten masked maps
+
+o 4n6f and bendix helices - look at the loops
+
+o check coenzyme A cation-pi stacking
+
 o is symmetry (SYMINFO/syminfo.lib) tested in the python tests?
 
 o experiment: molprobity on tutorial model before and after
