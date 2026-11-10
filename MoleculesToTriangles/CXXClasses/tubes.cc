@@ -217,6 +217,26 @@ split_very_bent_helices(const std::vector<helix_residues_info_t> &hriv_in) {
    return hriv;
 }
 
+// Are these two residues (adjacent in the chain's residue list) actually linked?
+// Adjacent in the list does not mean adjacent in the chain: there can be missing
+// residues, or fragments that were merged into the same chain - and the coil splines
+// and helix triplets must not be built across such gaps. A peptide CA-CA is 3.8A
+// (2.9A for cis). Residues without a CA (waters, ligands) are not linked to anything.
+static bool
+residues_are_linked(mmdb::Residue *residue_1_p, mmdb::Residue *residue_2_p) {
+
+   // PDBv3 FIXME
+   mmdb::Atom *at_1 = residue_1_p->GetAtom(" CA ");
+   mmdb::Atom *at_2 = residue_2_p->GetAtom(" CA ");
+   if (! at_1) return false;
+   if (! at_2) return false;
+   double dx = at_2->x - at_1->x;
+   double dy = at_2->y - at_1->y;
+   double dz = at_2->z - at_1->z;
+   const double d_crit = 4.5;
+   return (dx * dx + dy * dy + dz * dz) < (d_crit * d_crit);
+}
+
 // getting the coil to match up with the helices is tricky.
 // Let's try doing them both at the same time.
 std::pair<std::vector<helix_residues_info_t>, std::vector<coil_residues_info_t> >
@@ -299,6 +319,15 @@ make_coil_splines_and_helicies(mmdb::Manager *mol, int atom_selection_handle, bo
                   mmdb::Residue *residue_p = chain_p->GetResidue(ires);
                   int res_no = residue_p->GetSeqNum();
 
+                  if (residue_prev_p) {
+                     if (! residues_are_linked(residue_prev_p, residue_p)) {
+                        // chain break: finish the coil here, don't join across the gap
+                        if (! running_coil.is_empty()) coil_runs_of_residues.push_back(running_coil);
+                        running_coil = coil_residues_info_t(chain_id);
+                        residue_prev_p = nullptr;
+                     }
+                  }
+
                   // Is this residue in any of the helices?
                   // If not, then add it to the running coil
                   // (or start a new one using residue_prev_p)
@@ -362,6 +391,16 @@ make_coil_splines_and_helicies(mmdb::Manager *mol, int atom_selection_handle, bo
                mmdb::Residue *residue_prev_p = nullptr;
                for (int ires=0; ires<n_res; ires++) {
                   mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                  if (residue_prev_p) {
+                     if (! residues_are_linked(residue_prev_p, residue_p)) {
+                        // chain break: finish the helix and coil here, don't join across the gap
+                        if (! running_helix.is_empty()) hriv.push_back(running_helix);
+                        if (! running_coil.is_empty()) coil_runs_of_residues.push_back(running_coil);
+                        running_helix.clear();
+                        running_coil.clear();
+                        residue_prev_p = nullptr;
+                     }
+                  }
                   if (residue_p->SSE == mmdb::SSE_Helix) {
                      if (running_helix.is_empty()) {
                         running_helix = helix_residues_info_t(chain_p->GetChainID());
