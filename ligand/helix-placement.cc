@@ -328,6 +328,8 @@ coot::helix_placement::place_alpha_helix_near_kc_version(const clipper::Coord_or
    // initializse the score holder to bad (helix rejected)
    cbeta_score_holder[0] = std::pair<float, float> (-1.0, -1.0);
    cbeta_score_holder[1] = std::pair<float, float> (-1.0, -1.0);
+   // did the helix in each orientation pass the density tests?
+   std::vector<bool> passed(2, false);
 
    if (m.mol[0].fragments.size() > 0 ) {
 
@@ -339,6 +341,24 @@ coot::helix_placement::place_alpha_helix_near_kc_version(const clipper::Coord_or
       // ------------- elided ----------------
 
       float max_density_limit = high_density_turning_point;
+
+      // The tube score penalises density above the turning point, so the turning point
+      // must not be below the density of the helix itself - otherwise the best tube
+      // orientation is across the helix. This happens when the caller estimates the
+      // turning point from a masked map (the masked-out protein removes the upper part
+      // of the density distribution). So set a floor from the density near the helix
+      // centre: the 90th percentile in a 5A sphere.
+      std::vector<float> dv_local = util::density_map_points_in_sphere(ptc, 5.0, xmap);
+      if (! dv_local.empty()) {
+         std::sort(dv_local.begin(), dv_local.end());
+         float local_level = dv_local[static_cast<unsigned int>(0.9 * static_cast<float>(dv_local.size() - 1))];
+         if (local_level > max_density_limit) {
+            std::cout << "INFO:: tube search turning point raised from " << max_density_limit
+                      << " to local helix density level " << local_level << std::endl;
+            max_density_limit = local_level;
+         }
+      }
+
       clipper::RTop_orth ops_resultops =
 	 find_best_tube_orientation(ptc, cyl_len, cyl_rad, max_density_limit);
 
@@ -397,12 +417,10 @@ coot::helix_placement::place_alpha_helix_near_kc_version(const clipper::Coord_or
 	    coot::rigid_body_fit(&mr[iofm], xmap, map_rmsd);
 	    // restore the occupancies of CBetas
 	    mr[iofm].set_atom_occ(" CB ", 1.0);
-	    success = 1;
 	    trim_and_grow(&mr[iofm], min_density_limit, b_factor); // modify mr
 	    float final_score = score_helix_position(mr[iofm]);
 	    std::cout << "INFO:: Helix position score: " << final_score << "\n";
-	    if (final_score < 0) { 
-	       success = 0;
+	    if (final_score < 0) {
 	       failure_message = "Low density for fitted helix.  Rejected.";
 	    } else { 
 	       // pair(other atoms, c-betas)
@@ -423,25 +441,29 @@ coot::helix_placement::place_alpha_helix_near_kc_version(const clipper::Coord_or
 		  // helix through.
 		  float mean_over_stddev = mv0.first/sqrt(mv0.second);
 		  if (mean_over_stddev > descrimination_ratio) {
-		     success = 1;
+		     passed[iofm] = true;
 		  } else {
 		     std::cout << "Failed CB density test" << std::endl;
 		     failure_message = "Failed CB density test - rejected";
-		     success = 1; // debugging
-		  } 
+		  }
 	       } else {
 		  std::cout      << "WARNING:: Bad fit for CBs - helix rejected\n" ;
 		  failure_message = "WARNING:: Bad fit for CBs - helix rejected";
 		  std::cout << "INFO:: --------------- density_stats_info_t ds mean and var "
 			    << mv0.first << " " << mv0.second << std::endl;
 		  std::cout << "INFO:: --------------- n " << ds.n << std::endl;
-		  success = 0;
 	       }
 	    }
 	 }
       }
+      success = passed[0] || passed[1];
    }
-   if (success) {
+   if (success && (passed[0] != passed[1])) {
+      // only one orientation passed the density tests - return just that one
+      if (passed[1])
+         mr[0] = mr[1];
+      mr.resize(1);
+   } else if (success) {
       // If there was at least one helix that fitted tolerably well,
       // turn the helices in the vector if the score for the second
       // was beter.  Also filter the molecule vector if the poorer
@@ -459,12 +481,13 @@ coot::helix_placement::place_alpha_helix_near_kc_version(const clipper::Coord_or
 	 cbeta_score_holder[1] = tmp;
       }
       // trim out "Reverse" helices with really bad scores...
+      double sd = std::sqrt(cbeta_score_holder[1].second);
       if ((cbeta_score_holder[1].first < 0.0) ||
-	  (cbeta_score_holder[1].first*2.0 < cbeta_score_holder[1].second) ||
+	  (cbeta_score_holder[1].first*2.0 < sd) ||
 	  (cbeta_score_holder[1].first*2.5 < cbeta_score_holder[0].first)) {
 	 mr.resize(1);
       } 
-   } 
+   }
    return coot::helix_placement_info_t(mr, success, failure_message);
 }
 

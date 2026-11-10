@@ -50,6 +50,31 @@ coot::rigid_body_fit(coot::minimol::molecule *m,
 
    // std::cout << "gradient scale is " << gradient_scale << " with map_rmsd " << map_rmsd << std::endl;
 
+   // The step size scales with 1/map_rmsd, but the density gradients depend on the local
+   // density, so when map_rmsd is low compared to the local density (e.g. for a masked map)
+   // the steps overshoot and the fit doesn't converge. So check each step: if it lowers
+   // the score, undo it and halve the step size (the step size recovers when steps succeed,
+   // up to the original size).
+   double step_factor = 1.0;
+
+   // the function whose gradient we follow: the occupancy and atomic-number weighted density
+   auto weighted_density_score = [&xmap] (const std::vector<minimol::atom *> &atoms,
+                                          const std::vector<double> &atom_z_weights) {
+      double score = 0.0;
+      for (unsigned int i=0; i<atoms.size(); i++) {
+         if (fabs(atoms[i]->occupancy) > 0.001) {
+            float occ_fac = atoms[i]->occupancy;
+            if (occ_fac > 10.0 || occ_fac < 0.0)
+               occ_fac = 1.0;
+            clipper::Coord_map cm = atoms[i]->pos.coord_frac(xmap.cell()).coord_map(xmap.grid_sampling());
+            float dv;
+            clipper::Interp_cubic::interp(xmap, cm, dv);
+            score += dv * occ_fac * atom_z_weights[i];
+         }
+      }
+      return score;
+   };
+
    while ( (iround < round_max) && (move_by_length > 0.0002) ) {
       clipper::Coord_orth midpoint(0,0,0);
 
@@ -131,14 +156,20 @@ coot::rigid_body_fit(coot::minimol::molecule *m,
 					   sum_dy * datfrac,
 					   sum_dz * datfrac);
 	 
+	 double score_pre_step = weighted_density_score(atoms, atom_z_weights);
+	 std::vector<clipper::Coord_orth> pre_step_positions(atoms.size());
+	 for (unsigned int i=0; i<atoms.size(); i++)
+	    pre_step_positions[i] = atoms[i]->pos;
+
+	 double step_scale = step_factor * gradient_scale;
 	 clipper::Coord_orth moved_by =
-	    clipper::Coord_orth(gradient_scale*av_grad.dx(),
-				gradient_scale*av_grad.dy(),
-				gradient_scale*av_grad.dz());
+	    clipper::Coord_orth(step_scale*av_grad.dx(),
+				step_scale*av_grad.dy(),
+				step_scale*av_grad.dz());
 	 clipper::Vec3<double> angles; 
 	 if (n_atoms > 1)
 	    angles = get_rigid_body_angle_components(atoms, mean_pos,
-						     grad_vec, gradient_scale);
+						     grad_vec, step_scale);
 	 
 	 move_by_length = sqrt(moved_by.lengthsq());
 	 // std::cout << "move_by_length " << move_by_length << std::endl;
@@ -155,6 +186,15 @@ coot::rigid_body_fit(coot::minimol::molecule *m,
 	 }
 	 
 	 apply_angles_to_molecule(angles, &atoms, mean_pos); // modify atoms
+
+	 if (weighted_density_score(atoms, atom_z_weights) < score_pre_step) {
+	    // overshot - undo the step and try a smaller one
+	    for (unsigned int i=0; i<atoms.size(); i++)
+	       atoms[i]->pos = pre_step_positions[i];
+	    step_factor *= 0.5;
+	 } else {
+	    step_factor = std::min(1.0, 2.0 * step_factor);
+	 }
 	 
 	 iround++;
       }
