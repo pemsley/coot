@@ -15,7 +15,7 @@ Now it's time to build the parathyroid hormone (or at least, the part of it that
 
    - Centre on the middle of the helix that is the part of the map for the parathyroid hormone. You should be able to eyeball this, but if not:
    - **Calculate** &rarr; **Scripting** &rarr; **Python**
-   - `set_rotation_centre(121, 71, 102)`
+   - `coot.set_rotation_centre(52, 92, 50)`
    - Press "Enter" to execute.
    - **Calculate** &rarr; **Other Modelling Tools** &rarr; **Place Helix Here**
    - _{Coot creates a helix}_
