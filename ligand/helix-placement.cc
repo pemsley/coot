@@ -488,6 +488,29 @@ coot::helix_placement::place_alpha_helix_near_kc_version(const clipper::Coord_or
 	 mr.resize(1);
       } 
    }
+
+   // Building on the N-terminus numbers the new residues 0, -1, ... and trimming leaves empty
+   // residues, so renumber each fragment so that its first residue with atoms is residue 1.
+   auto renumber_from_1 = [] (minimol::molecule *m_p) {
+      for (unsigned int ifrag=0; ifrag<m_p->fragments.size(); ifrag++) {
+         const minimol::fragment &frag = m_p->fragments[ifrag];
+         if (frag.first_residue() != 1) {
+            minimol::fragment frag_new(frag.fragment_id);
+            int res_no = 1;
+            for (int ires=frag.min_res_no(); ires<=frag.max_residue_number(); ires++) {
+               if (! frag[ires].atoms.empty()) {
+                  minimol::residue r = frag[ires];
+                  r.seqnum = res_no++;
+                  frag_new.addresidue(r, false);
+               }
+            }
+            m_p->fragments[ifrag] = frag_new;
+         }
+      }
+   };
+   for (unsigned int i=0; i<mr.size(); i++)
+      renumber_from_1(&mr[i]);
+
    return coot::helix_placement_info_t(mr, success, failure_message);
 }
 
@@ -1230,7 +1253,7 @@ coot::helix_placement::build_on_C_end(coot::minimol::fragment *f,
 	    r.addatom(" CB ", " C", cbeta_info.second, "", 1.0, 30.0);
 	 try { 
 	    f->addresidue(r, 0);
-	    std::cout << "INFO build of N terminal residue " << ires_current_last-1
+	    std::cout << "INFO build of C terminal residue " << ires_current_last+1
 		      << " success" << std::endl;
 	    build_on_C_end(f, min_density_limit, b_factor);
 	 }
@@ -1238,7 +1261,7 @@ coot::helix_placement::build_on_C_end(coot::minimol::fragment *f,
 	    std::cout << "ERROR:: build_on_C_end() " << rte.what() << std::endl;
 	 } 
       } else {
-	 std::cout << "INFO build of C terminal residue " << ires_current_last-1
+	 std::cout << "INFO build of C terminal residue " << ires_current_last+1
 		   << " failed (bad density fit)" << std::endl;
       }
    } else {
