@@ -516,7 +516,7 @@ make_mesh_for_helical_representation(const std::vector<helix_residues_info_t> &h
    };
 
    auto get_helix_colour = [hsv_to_rgb] (unsigned int ih) {
-      double hue = static_cast<double>(ih) * 0.2695 *  360.0 *  0.1;
+      double hue = fmod(static_cast<double>(ih) * 137.508, 360.0); // golden angle
       double sat = 0.8;
       double val = 0.5;
       glm::vec4 col = hsv_to_rgb(hue, sat, val);
@@ -866,7 +866,7 @@ make_mesh_for_straight_helical_representation(const std::vector<helix_residues_i
    };
 
    auto get_helix_colour = [hsv_to_rgb] (unsigned int ih) {
-      double hue = static_cast<double>(ih) * 0.2695 * 360.0 * 0.1;
+      double hue = fmod(static_cast<double>(ih) * 137.508, 360.0); // golden angle
       double sat = 0.8;
       double val = 0.5;
       return hsv_to_rgb(hue, sat, val);
