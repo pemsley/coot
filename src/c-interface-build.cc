@@ -4534,6 +4534,13 @@ int place_helix_here() {
       }
 
       std::vector<float> dv = coot::util::density_map_points_in_sphere(pt, 20, xmap);
+      // exclude masked-out grid points (exactly zero) from the density distribution
+      std::vector<float> dv_non_zero;
+      for (const auto &d : dv)
+         if (d != 0.0f)
+            dv_non_zero.push_back(d);
+      if (! dv_non_zero.empty())
+         dv = dv_non_zero;
       float f_iqr = coot::util::interquartile_range(dv);
       float iqr_2 = 0.5*f_iqr;
 

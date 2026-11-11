@@ -32,6 +32,7 @@ coot.set_imol_refinement_map(imol_map)
 
 ## Safe Refinement Workflow
 
+```python
 # 1. Enable immediate replacement
 coot.set_refinement_immediate_replacement(1)
 
@@ -46,10 +47,10 @@ result = coot.refine_residues_py(imol, residue_specs)
 # 4. so-called "sphere refine" is often useful because it allows movement/improvement
 # of residues that are close in space but distant in sequence.
 central_residue_spec = ['A', 12, '']
-neigbs = coot.residues_near_residue_py(imol, central_residue_spec)
-residue_spec = neigbs
-residue_specs.append(central_residue_spec)
+neighbours = coot.residues_near_residue_py(imol, central_residue_spec, 4.5)  # radius in Angstroms
+residue_specs = neighbours + [central_residue_spec]
 result = coot.refine_residues_py(imol, residue_specs)
+```
 
 ### Hard-Mode-Soft-Mode-Hard-Mode
 
@@ -90,13 +91,24 @@ coot.refine_zone(
 ### Check Residue Quality
 
 ```python
-# Get density correlation for specific residue
-correlation = coot.density_correlation_analysis_scm(imol, chain_id, resno, ins_code)
-# Returns dict with 'all-atom' and 'side-chain' correlations
+# Per-residue density correlation for a chain (1 residue per range, all atoms)
+all_atom, _sidechain = coot.map_to_model_correlation_stats_per_residue_range_py(
+    imol, chain_id, imol_map, 1, 0)
+# Each entry is [[chain_id, resno, ins_code], [n_points, correlation]]
 
-# Get worst residues
-worst = coot.get_n_residues_with_worst_density_fit(imol, n_residues)
-# Returns list of [chain_id, resno, inscode, correlation]
+# Worst-fitting residues: lowest all-atom correlation
+# (GLY correlations are unreliable - see the coot-correlations skill)
+def worst_residues(imol, imol_map, chain_id, n):
+    """Return the n residues with the lowest all-atom density correlation."""
+    all_atom, _sidechain = coot.map_to_model_correlation_stats_per_residue_range_py(
+        imol, chain_id, imol_map, 1, 0)
+    # drop empty entries (no grid points) and NaN
+    scored = [(spec, corr) for spec, (n_points, corr) in all_atom
+              if n_points > 0 and corr == corr]
+    return sorted(scored, key=lambda sc: sc[1])[:n]
+
+# Returns a list of ([chain_id, resno, ins_code], correlation), worst first
+worst = worst_residues(imol, imol_map, chain_id, n_residues)
 ```
 
 ### Correlation Targets
@@ -167,30 +179,44 @@ calculate()  # Returns 15
 
 ## Systematic Residue Fixing Workflow
 
-```python
-# 1. Enable immediate replacement
-coot.set_refinement_immediate_replacement(1)
+This uses `worst_residues()` from the "Check Residue Quality" section above.
 
-# 2. Find worst residues
-worst = coot.get_n_residues_with_worst_density_fit(0, 10)
+```python
+def residue_correlation(imol, imol_map, residue_spec):
+    """All-atom correlation of one residue (from the per-residue statistics)."""
+    chain_id, resno, ins_code = residue_spec
+    all_atom, _sidechain = coot.map_to_model_correlation_stats_per_residue_range_py(
+        imol, chain_id, imol_map, 1, 0)
+    for spec, (n_points, corr) in all_atom:
+        if spec == [chain_id, resno, ins_code]:
+            return corr
+    return None
+
+# 1. Enable immediate replacement and set the refinement map
+coot.set_refinement_immediate_replacement(1)
+coot.set_imol_refinement_map(imol_map)
+
+# 2. Checkpoint (restore_to_backup_checkpoint(imol, checkpoint) if it gets worse),
+#    then find the worst residues
+checkpoint = coot.make_backup_checkpoint(imol, "before fixing worst residues")
+worst = worst_residues(imol, imol_map, "A", 10)
 
 # 3. For each poor residue:
-for residue in worst:
-    chain_id, resno, inscode, corr = residue
+for residue_spec, corr in worst:
+    chain_id, resno, ins_code = residue_spec
 
-    # Build CID
-    cid = f"//{chain_id}/{resno}"
+    # Try a rotamer fix
+    coot.auto_fit_best_rotamer(imol, chain_id, resno, ins_code, "", imol_map, 1, 0.01)
 
-    # Try rotamer fix
-    coot.auto_fit_best_rotamer(cid, "", 0, 1, 1, 0.1)
+    # Refine in context (sphere refinement)
+    neighbours = coot.residues_near_residue_py(imol, residue_spec, 4.5)
+    coot.refine_residues_py(imol, neighbours + [residue_spec])
 
-    # Refine in context
-    coot.refine_residues_using_atom_cid(0, cid, "SPHERE", 4000)
-
-    # Check improvement
-    new_corr = coot.density_correlation_analysis_scm(0, chain_id, resno, inscode)
-    print(f"{cid}: {corr:.3f} → {new_corr['all-atom']:.3f}")
+    # Check improvement (same measure as before)
+    new_corr = residue_correlation(imol, imol_map, residue_spec)
+    print(f"{chain_id}/{resno}: {corr:.3f} → {new_corr:.3f}")
 ```
+
 ## Refining with Secondary Structure Restraints
 
 When adding residues in a known secondary structure conformation (e.g. a helix
@@ -235,14 +261,13 @@ maintained during refinement.
 ## Common Functions
 
 ### Refinement
-- `auto_fit_best_rotamer(cid, alt_conf, imol, imol_map, use_rama, rama_weight)` - Fix rotamer
-- `refine_residues_using_atom_cid(imol, cid, mode, radius)` - Sphere/zone refinement
-- `refine_zone(imol, chain, start, end, alt_conf)` - Refine residue range
+- `auto_fit_best_rotamer(imol, chain_id, resno, ins_code, alt_conf, imol_map, clash_flag, lowest_probability)` - Fix rotamer
+- `refine_residues_py(imol, residue_specs)` - Refine a list of residue specs (add `residues_near_residue_py(imol, spec, radius)` for "sphere" refinement)
+- `refine_zone(imol, chain_id, start_resno, end_resno, alt_conf)` - Refine residue range
 - `set_refinement_immediate_replacement(istate)` - Enable synchronous refinement
 
 ### Validation
-- `density_correlation_analysis_scm(imol, chain, resno, inscode)` - Get correlation
-- `get_n_residues_with_worst_density_fit(imol, n)` - Find problem residues
+- `map_to_model_correlation_stats_per_residue_range_py(imol, chain_id, imol_map, n_per_range, exclude_NOC)` - Per-residue density correlation for a chain
 
 ### Other
-- `pepflip(imol, atom_cid, alt_conf)` - Flip peptide
+- `pepflip(imol, chain_id, resno, ins_code, alt_conf)` - Flip peptide

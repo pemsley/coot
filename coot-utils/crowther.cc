@@ -292,7 +292,7 @@ crowther_t::precompute_ylm(const std::vector<reflection_data_t> &refs) const {
    for (size_t i=0; i<refs.size(); i++) {
       double th = refs[i].theta;
       double ph = refs[i].phi;
-      for (int l=0; l<=ell_max_; l++) {
+      for (int l=0; l<=ell_max_; l+=2) { // even l only - odd l are not used
          for (int m=-l; m<=l; m++) {
             int idx = l * (l + 1) + m;
             ylm[i][idx] = spherical_harmonic(l, m, th, ph);
@@ -311,6 +311,9 @@ crowther_t::compute_alm_at_r(const std::vector<reflection_data_t> &refs,
                               const std::vector<std::vector<std::complex<double>>> &ylm_cache,
                               double r) const {
 
+   // Only even l are computed (the odd-l coefficients are left at zero): the rotation
+   // function uses only even l - see the comment in compute().
+
    int n_lm = (ell_max_ + 1) * (ell_max_ + 1);
    std::vector<std::complex<double>> alm(n_lm, 0.0);
 
@@ -318,12 +321,12 @@ crowther_t::compute_alm_at_r(const std::vector<reflection_data_t> &refs,
       double e_sq = refs[i].e_sq;
       double x = 2.0 * M_PI * refs[i].s * r;
 
-      // Compute j_l(x) for all l
-      std::vector<double> jl(ell_max_ + 1);
-      for (int l=0; l<=ell_max_; l++)
+      // Compute j_l(x) for even l
+      std::vector<double> jl(ell_max_ + 1, 0.0);
+      for (int l=0; l<=ell_max_; l+=2)
          jl[l] = spherical_bessel_j(l, x);
 
-      for (int l=0; l<=ell_max_; l++) {
+      for (int l=0; l<=ell_max_; l+=2) {
          double coeff = e_sq * jl[l];
          for (int m=-l; m<=l; m++) {
             int idx = l * (l + 1) + m;
@@ -383,7 +386,7 @@ void crowther_t::print_diagnostics() const {
    auto ylm_target = precompute_ylm(target_refs_);
    auto ylm_search = precompute_ylm(search_refs_);
 
-   std::cout << "\n--- a_lm magnitudes by ell (summed |a_lm|^2 over m) ---" << std::endl;
+   std::cout << "\n--- a_lm magnitudes by ell (summed |a_lm|^2 over m; odd l are not computed) ---" << std::endl;
    std::cout << std::setw(6) << "r(A)";
    for (int l=0; l<=std::min(ell_max_, 10); l++)
       std::cout << std::setw(14) << ("l=" + std::to_string(l));
@@ -499,7 +502,8 @@ void crowther_t::precompute_c_coefficients() {
          auto alm = compute_alm_at_r(target_refs_, ylm_target, r);
          auto blm = compute_alm_at_r(search_refs_, ylm_search, r);
 
-         for (int l=0; l<=ell_max_; l++) {
+         // even l only (odd-l c_{lmm'} stay zero)
+         for (int l=0; l<=ell_max_; l+=2) {
             for (int m=-l; m<=l; m++) {
                int idx_m = l * (l + 1) + m;
                for (int mp=-l; mp<=l; mp++) {
@@ -553,8 +557,9 @@ double crowther_t::evaluate_at_euler(double alpha, double beta, double gamma) co
    // C_{m,m'}(beta) = sum_l c_{lmm'} d^l_{mm'}(beta)
    // R(alpha,beta,gamma) = sum_{m,m'} C_{mm'} exp(-i*m*alpha) exp(-i*m'*gamma)
 
+   // Only even l: see the comment in compute().
    std::complex<double> val(0.0, 0.0);
-   for (int l=2; l<=ell_max_; l++) {
+   for (int l=2; l<=ell_max_; l+=2) {
       for (int m=-l; m<=l; m++) {
          std::complex<double> exp_ma = std::polar(1.0, -m * alpha);
          for (int mp=-l; mp<=l; mp++) {
@@ -698,8 +703,16 @@ crowther_t::compute(int n_beta) {
          std::vector<std::vector<std::complex<double>>> C(N,
             std::vector<std::complex<double>>(N, 0.0));
 
-         // Start from l=2: l=0 is constant, l=1 is dipole
-         for (int l=2; l<=ell_max_; l++) {
+         // Start from l=2: l=0 is constant, l=1 is dipole.
+         //
+         // Only even l: a Patterson is centrosymmetric, so its odd-l coefficients are zero.
+         // But the reflections come from a P1 reciprocal asymmetric unit, i.e. a hemisphere
+         // fixed in the lab frame, so the odd-l a_lm computed from them are not zero - they
+         // describe the hemisphere cut, which does not rotate with the molecule. Including
+         // them adds a spurious term that can outscore the true orientation (seen with an
+         // elongated GPCR in a cryo-EM map: the top peaks were the true orientation flipped
+         // by 180 degrees about the molecule's short axis).
+         for (int l=2; l<=ell_max_; l+=2) {
             for (int m=-l; m<=l; m++) {
                for (int mp=-l; mp<=l; mp++) {
                   double d = wigner_d(l, m, mp, beta);

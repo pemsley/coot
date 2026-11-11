@@ -78,7 +78,8 @@ namespace coot {
    // n_results:     number of top peaks to return
    // tf_map_p:      if non-null, the translation function map is copied here
    //
-   // Returns results sorted by descending score.
+   // Returns the local maxima above mean + 2 sigma, sorted by descending score
+   // (in sigma units).
    std::vector<translation_search_result_t>
    phased_translation_search(const clipper::Xmap<float> &observed_map,
                              const clipper::Xmap<float> &model_map,

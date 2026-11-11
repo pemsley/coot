@@ -4845,7 +4845,8 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
       gtk_widget_get_allocation(GTK_WIDGET(gl_area), &allocation);
       int w = allocation.width;
       int h = allocation.height;
-      unsigned int sf = framebuffer_scale;
+      // include the display scale factor (2 on Retina) so that the screendump is at device-pixel resolution
+      unsigned int sf = framebuffer_scale * gtk_widget_get_scale_factor(GTK_WIDGET(gl_area));
 
       bool show_basic_scene_state = (displayed_image_type == SHOW_BASIC_SCENE);
 

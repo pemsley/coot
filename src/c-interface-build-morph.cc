@@ -279,9 +279,15 @@ float fit_chain_to_map_by_random_jiggle(int imol, const char *chain_id, int n_tr
       if (! is_valid_map_molecule(imol_map)) {
          info_dialog("WARNING:: Refinement map is not set");
       } else {
-         float map_sigma = g.molecules[imol_map].map_sigma();
-         const clipper::Xmap<float> &xmap = g.molecules[imol_map].xmap;
-         g.molecules[imol].fit_chain_to_map_by_random_jiggle(chain_id, xmap, map_sigma, n_trials, jiggle_scale_factor);
+         if (g.molecules[imol].get_chain(chain_id)) {
+            float map_sigma = g.molecules[imol_map].map_sigma();
+            const clipper::Xmap<float> &xmap = g.molecules[imol_map].xmap;
+            val = g.molecules[imol].fit_chain_to_map_by_random_jiggle(chain_id, xmap, map_sigma, n_trials,
+                                                                      jiggle_scale_factor);
+         } else {
+            std::cout << "WARNING:: fit_chain_to_map_by_random_jiggle(): no chain " << chain_id
+                      << " in molecule " << imol << std::endl;
+         }
       }
    } else {
       add_status_bar_text("Jiggle Fit: No molecule");
@@ -347,7 +353,8 @@ float fit_molecule_to_map_by_random_jiggle_and_blur(int imol, int n_trials, floa
    return r;
 }
 
-void molecular_replacement_fit_about_screen_centre(int imol, int n_top_rotations, int n_top_translations) {
+void molecular_replacement_fit_about_screen_centre(int imol, const char *chain_id,
+                                                   int n_top_rotations, int n_top_translations) {
 
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
@@ -358,14 +365,39 @@ void molecular_replacement_fit_about_screen_centre(int imol, int n_top_rotations
       }
 
       mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+
+      // The search model is the given chain - or the whole molecule if chain_id is empty.
+      // Only the atoms of the search model are moved (replace_coords() matches by atom spec).
+      mmdb::Manager *search_mol = mol;
+      std::string chain_id_str(chain_id);
+      if (! chain_id_str.empty()) {
+         int SelHnd = mol->NewSelection();
+         mol->SelectAtoms(SelHnd, 0, chain_id_str.c_str(), mmdb::ANY_RES, "*", mmdb::ANY_RES, "*",
+                          "*", "*", "*", "*");
+         mmdb::PPAtom sel_atoms = 0;
+         int n_sel_atoms = 0;
+         mol->GetSelIndex(SelHnd, sel_atoms, n_sel_atoms);
+         if (n_sel_atoms > 0)
+            search_mol = coot::util::create_mmdbmanager_from_atom_selection(mol, SelHnd);
+         mol->DeleteSelection(SelHnd);
+         if (n_sel_atoms == 0 || ! search_mol) {
+            std::string m = "WARNING:: No atoms in chain " + chain_id_str;
+            info_dialog_and_text(m.c_str());
+            return;
+         }
+      }
+
       const clipper::Xmap<float> &xmap = g.molecules[imol_map].xmap;
       clipper::Coord_orth target_centre(graphics_info_t::RotationCentre_x(),
                                         graphics_info_t::RotationCentre_y(),
                                         graphics_info_t::RotationCentre_z());
 
       std::vector<coot::mr_solution_t> solutions =
-         coot::molecular_replacement_search(xmap, mol, target_centre,
+         coot::molecular_replacement_search(xmap, search_mol, target_centre,
                                             n_top_rotations, n_top_translations);
+
+      if (search_mol != mol)
+         delete search_mol;
 
       if (solutions.empty()) {
          info_dialog("INFO:: No solutions");
@@ -404,12 +436,18 @@ float fit_chain_to_map_by_random_jiggle_and_blur(int imol, const char *chain_id,
       mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
       if (! is_valid_map_molecule(imol_map)) {
          info_dialog("WARNING:: Refinement map is not set");
+      } else if (! g.molecules[imol].get_chain(chain_id)) {
+         std::cout << "WARNING:: fit_chain_to_map_by_random_jiggle_and_blur(): no chain " << chain_id
+                   << " in molecule " << imol << std::endl;
       } else {
          // happy path
          const clipper::Xmap<float> &xmap = g.molecules[imol_map].xmap;
          clipper::Xmap<float> xmap_blur = coot::util::sharpen_blur_map(xmap, map_blur_factor);
          float map_sigma = g.molecules[imol_map].map_sigma(); // is that the right map?
          g.molecules[imol].fit_chain_to_map_by_random_jiggle(chain_id, xmap_blur, map_sigma, n_trials, jiggle_scale_factor);
+         // now fit to the original map (as fit_molecule_to_map_by_random_jiggle_and_blur() does),
+         // just a few trials with small jiggles will do
+         r = g.molecules[imol].fit_chain_to_map_by_random_jiggle(chain_id, xmap, map_sigma, 12, 0.4);
       }
    }
    graphics_draw();

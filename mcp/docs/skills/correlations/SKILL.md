@@ -25,7 +25,7 @@ PyObject *map_to_model_correlation_stats_per_residue_range_py(
     const std::string &chain_id,               # Chain identifier
     int imol_map,                              # Map molecule number  
     unsigned int n_residue_per_residue_range,  # Number of residues per range (typically 1)
-    short int exclude_NOC_flag                 # Exclude N, O, C atoms (1=yes, 0=no)
+    short int exclude_mainchain_NOC_flag       # Split into main-chain and side-chain (1=yes, 0=no)
 )
 ```
 
@@ -34,32 +34,38 @@ PyObject *map_to_model_correlation_stats_per_residue_range_py(
 - `chain_id`: The chain identifier (e.g., "A", "B")
 - `imol_map`: The map molecule index to correlate against
 - `n_residue_per_residue_range`: Window size for averaging (use 1 for per-residue stats)
-- `exclude_NOC_flag`: Whether to exclude backbone N, O, C atoms (1 to exclude, 0 to include)
+- `exclude_mainchain_NOC_flag`: Whether to split the statistics into main-chain and side-chain:
+  - `0`: all grid points go into the first list (all-atom statistics); the second list is not used
+  - `1`: the grid points around the main-chain atoms (N, C, O, H, and also CA and the CD of proline -
+    any atom within 1.8 Å of N, C, O or H) go into the first list and the grid points around the other
+    atoms (CB onwards) go into the second list
 
-**IMPORTANT BUG**: When `exclude_NOC_flag=0`, the side-chain correlation array (stats[1]) returns all zeros/NaN values. To get valid side-chain correlations, you must use `exclude_NOC_flag=1`.
+The arguments are positional - keyword arguments are not accepted.
 
 **Returns**: 
-A list with two elements:
-- `stats[0]`: All-atom correlations - `[[chain, resno, ins_code], [n_points, correlation]]`
-- `stats[1]`: Side-chain correlations (only valid when `exclude_NOC_flag=1`)
+A list with two elements, each a list of `[[chain, resno, ins_code], [n_points, correlation]]` items,
+sorted by residue spec:
+- `stats[0]`: All-atom correlations when the flag is `0`; main-chain correlations when the flag is `1`
+- `stats[1]`: Side-chain correlations when the flag is `1`. When the flag is `0` every entry
+  has `n_points = 0` and correlation `nan` - this is by design, not a bug.
+
+Both lists are empty if `imol` or `imol_map` is not valid. Residues with no side-chain atoms
+(e.g. GLY) have `n_points = 0` and correlation `nan` in the side-chain list, so filter on `n_points > 0`.
+
+`n_points` counts atom/grid-point contributions: a grid point within 2.8 Å of several atoms is counted
+once for each of them, so it is not the number of distinct grid points.
 
 **Example Usage**:
 ```python
-# Get per-residue correlation stats for chain A
-# Use exclude_NOC_flag=1 to get valid side-chain correlations
-stats = map_to_model_correlation_stats_per_residue_range_py(
-    imol=0,           # Model molecule
-    chain_id="A",     # Chain A
-    imol_map=1,       # Map molecule
-    n_residue_per_residue_range=1,  # Per-residue statistics
-    exclude_NOC_flag=1  # MUST be 1 for valid side-chain correlations
-)
+# Get per-residue main-chain and side-chain correlation stats for chain A
+# args: imol, chain_id, imol_map, n_residue_per_residue_range, exclude_mainchain_NOC_flag
+stats = map_to_model_correlation_stats_per_residue_range_py(0, "A", 1, 1, 1)
 
-all_atom = stats[0]      # All-atom correlations
+mainchain = stats[0]     # Main-chain correlations (because the flag is 1)
 sidechain = stats[1]     # Side-chain correlations
 
-# Find residues with poor all-atom correlation
-for res in all_atom:
+# Find residues with poor main-chain correlation
+for res in mainchain:
     resno = res[0][1]
     n_points = res[1][0]
     corr = res[1][1]
@@ -436,6 +442,7 @@ When users ask questions like:
    
    ```python
    # Example: Filter out GLY when finding problem residues
+   # (flag 0, so stats[0] is all-atom correlations)
    stats = coot.map_to_model_correlation_stats_per_residue_range_py(0, "A", 1, 1, 0)
    poor_residues = []
    for res in stats[0]:

@@ -62,10 +62,25 @@ Coot's user-defined color system allows custom coloring of specific selections. 
 - Indices 60+: Available for user-defined colors
 - Convention: Start at 60 and increment (60, 61, 62, etc.)
 
+### Secondary Structure Usage Flag
+
+`add_ribbon_representation_with_user_defined_colours()` and
+`add_molecular_representation_py()` take a `secondary_structure_usage_flag`:
+
+- `0` (USE_HEADER) - use the secondary structure in the file header (HELIX/SHEET records)
+- `1` (DONT_USE) - ignore secondary structure; gives a worm-like backbone
+- `2` (CALC_SECONDARY_STRUCTURE) - calculate the secondary structure
+
+Rule of thumb: use `2` when the input file has no HELIX/SHEET records, otherwise `0`.
+Use `1` only if the user asks for a worm-like representation.
+
+The example functions below take it as a parameter (default `0`). In your own code,
+define it (or pass it) before calling the ribbon and representation functions.
+
 ### Basic Pattern
 
 ```python
-def setup_colors():
+def setup_colors(imol, secondary_structure_usage_flag=0):
     # Step 1: Define colors (RGB values 0.0-1.0)
     blue = [0.3, 0.6, 1.0]
     orange = [1.0, 0.5, 0.0]
@@ -102,7 +117,7 @@ def setup_colors():
 The most reliable way to color by secondary structure is to use the annotations in the PDB header.
 
 ```python
-def color_by_secondary_structure(imol):
+def color_by_secondary_structure(imol, secondary_structure_usage_flag=0):
     # Get secondary structure from PDB header
     ss_info = coot.get_header_secondary_structure_info(imol)
     strands = ss_info['strands']
@@ -153,7 +168,7 @@ def color_by_secondary_structure(imol):
 Sometimes secondary structure elements aren't annotated in the PDB header. You can add them manually:
 
 ```python
-def add_missing_helix(imol):
+def add_missing_helix(imol, secondary_structure_usage_flag=0):
     # Get existing colors
     ss_info = coot.get_header_secondary_structure_info(imol)
     strands = ss_info['strands']
@@ -198,7 +213,7 @@ coot.add_ribbon_representation_with_user_defined_colours(imol, "New", secondary_
 To highlight specific residues (like active site residues, ligands, chromophores), extract them to a new molecule:
 
 ```python
-def highlight_feature(imol, selection, color_rgb, bond_thickness=10.0):
+def highlight_feature(imol, selection, color_rgb, bond_thickness=10.0, secondary_structure_usage_flag=0):
     # Extract to new molecule
     feature_imol = coot.new_molecule_by_atom_selection(imol, selection)
     
@@ -224,7 +239,7 @@ def highlight_feature(imol, selection, color_rgb, bond_thickness=10.0):
         feature_imol,
         selection,
         "userDefined",  # Use user-defined colors
-        "Bonds"
+        "Bonds",
         secondary_structure_usage_flag
     )
     
@@ -278,6 +293,7 @@ def make_gfp_figure():
     - Orange chromophore with thick bonds
     """
     imol = 0  # GFP molecule
+    secondary_structure_usage_flag = 0  # use the HELIX/SHEET records in the header
     
     # Get secondary structure
     ss_info = coot.get_header_secondary_structure_info(imol)

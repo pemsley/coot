@@ -291,7 +291,9 @@ graphics_info_t::render_scene_sans_depth_blur(stereo_eye_t eye,
             {
 
                // std::cout << "   framebuffer_scale: " << framebuffer_scale << std::endl;
-               glViewport(0,0, width * framebuffer_scale, height * framebuffer_scale);
+               // 2026-11-11-PE Remove the framebuffer_scale
+               // glViewport(0,0, width * framebuffer_scale, height * framebuffer_scale);
+               glViewport(0,0, width, height);
                di.framebuffer_for_effects.bind();
 
                // are these needed if the background image is drawn?

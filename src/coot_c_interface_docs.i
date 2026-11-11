@@ -10860,7 +10860,7 @@ map_blur_factor : float
 ";
 
 %feature("docstring") fit_chain_to_map_by_random_jiggle "
-jiggle fit the chain to the current refinment map. return < -100 if not possible, else return the new best fit for this chain.
+jiggle fit the chain to the current refinment map. return -999 if not possible (e.g. no refinement map or chain not found), else return the new best fit for this chain.
 
 Parameters
 ----------
@@ -10875,7 +10875,7 @@ jiggle fit the chain to the current refinment map
 
 Use a map that is blurred by the give factor for fitting.
 
-< -100 if not possible, else return the new best fit for this chain.
+-100 if not possible (e.g. no refinement map or chain not found), else return the new best fit for this chain.
 
 Parameters
 ----------
@@ -10891,12 +10891,14 @@ Patterson overlap plus phased translationn function MR-like local fitting.
 
 Use the imol_refinement map
 
-  imol  the molecule index   n_top_rotations  use only the top n_top_rotations rotation solutions   n_top_translations  use only the top n_top_translation translation solutions
+  imol  the molecule index   chain_id  the chain to be used as the search model (only this chain is moved). If chain_id is "", the whole molecule is the search model   n_top_rotations  use only the top n_top_rotations rotation solutions   n_top_translations  use only the top n_top_translation translation solutions
 
 Parameters
 ----------
 imol : int
     the molecule index
+chain_id : str
+    the chain to be used as the search model (only this chain is moved). If chain_id is "", the whole molecule is the search model
 n_top_rotations : int
     use only the top n_top_rotations rotation solutions
 n_top_translations : int

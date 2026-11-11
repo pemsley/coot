@@ -1383,6 +1383,36 @@ PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char 
 
 }
 
+PyObject *atoms_with_partial_occupancy_py(int imol) {
+
+   PyObject *r = Py_False;
+
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      std::vector<mmdb::Atom *> atoms = coot::atoms_with_partial_occupancy(mol);
+      r = PyList_New(atoms.size());
+      for (std::size_t i=0; i<atoms.size(); i++) {
+         mmdb::Atom *at = atoms[i];
+         PyObject *spec_py = PyList_New(5);
+         PyList_SetItem(spec_py, 0, myPyString_FromString(at->GetChainID()));
+         PyList_SetItem(spec_py, 1, PyLong_FromLong(at->GetSeqNum()));
+         PyList_SetItem(spec_py, 2, myPyString_FromString(at->GetInsCode()));
+         PyList_SetItem(spec_py, 3, myPyString_FromString(at->GetAtomName()));
+         PyList_SetItem(spec_py, 4, myPyString_FromString(at->altLoc));
+         PyObject *item_py = PyList_New(2);
+         PyList_SetItem(item_py, 0, spec_py);
+         PyList_SetItem(item_py, 1, PyFloat_FromDouble(at->occupancy));
+         PyList_SetItem(r, i, item_py);
+      }
+   }
+
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
+
+   return r;
+}
+
 #endif //PYTHON
 
 std::string residue_name(int imol, const std::string &chain_id, int resno,

@@ -190,13 +190,29 @@ coot::phased_translation_search(const clipper::HKL_data<clipper::datatypes::F_ph
    std::cout << "INFO:: phased_translation_search() TF map: mean=" << mean
              << " sd=" << sd << " n_grid=" << count << std::endl;
 
-   // Second pass: collect points above a threshold (mean + 2*sigma),
-   // or just collect all if the map is small
+   // Second pass: collect the local maxima above a threshold (mean + 2*sigma).
+   // (If we took all the points above the threshold, the top results would be
+   // neighbouring grid points of the same peak.) A local maximum is a point whose
+   // value is not less than any of its 26 neighbours (the map is periodic).
    float threshold = static_cast<float>(mean + 2.0 * sd);
    for (ix = tf_map.first(); !ix.last(); ix.next()) {
       float v = tf_map[ix];
       if (v > threshold) {
-         peaks.push_back({ix.coord(), v});
+         clipper::Coord_grid cg = ix.coord();
+         bool is_max = true;
+         for (int du=-1; du<=1 && is_max; du++) {
+            for (int dv=-1; dv<=1 && is_max; dv++) {
+               for (int dw=-1; dw<=1; dw++) {
+                  if (du == 0 && dv == 0 && dw == 0) continue;
+                  if (tf_map.get_data(cg + clipper::Coord_grid(du, dv, dw)) > v) {
+                     is_max = false;
+                     break;
+                  }
+               }
+            }
+         }
+         if (is_max)
+            peaks.push_back({cg, v});
       }
    }
 
