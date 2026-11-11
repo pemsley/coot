@@ -593,8 +593,8 @@ void set_draw_gl_ramachandran_plot_during_refinement(short int state) {
 void reset_framebuffers() {
 
    graphics_info_t g;
-   GtkAllocation allocation = g.get_glarea_allocation();
-   g.reset_frame_buffers(allocation.width, allocation.height);
+   // use the device-pixel size (as on_glarea_resize() does), not the allocation (which is in logical points)
+   g.reset_frame_buffers(g.graphics_x_size, g.graphics_y_size);
    g.graphics_draw();
 
 }

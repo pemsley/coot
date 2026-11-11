@@ -47,10 +47,8 @@ void set_framebuffer_scale_factor(unsigned int sf) {
    gtk_gl_area_attach_buffers(GTK_GL_AREA(g.glareas[0]));
    gtk_gl_area_make_current(GTK_GL_AREA(g.glareas[0]));
    g.framebuffer_scale = sf;
-   GtkAllocation allocation = g.get_glarea_allocation();
-   unsigned int w = allocation.width;
-   unsigned int h = allocation.height;
-   g.reset_frame_buffers(w,h);
+   // use the device-pixel size (as on_glarea_resize() does), not the allocation (which is in logical points)
+   g.reset_frame_buffers(g.graphics_x_size, g.graphics_y_size);
    g.graphics_draw();
 }
 
