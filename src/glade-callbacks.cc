@@ -2579,7 +2579,7 @@ extern "C" G_MODULE_EXPORT
 gboolean
 on_edit_backbone_torsions_dialog_close_request(GtkWindow *window, gpointer user_data) {
 
-   clear_moving_atoms_object();
+   clear_up_moving_atoms();
   /* FIXME: also clear out the edib backbone ramaplot, if it exists. */
   /*   destroy_edit_backbone_rama_plot(); */
    gtk_widget_set_visible(GTK_WIDGET(window), FALSE);
@@ -2608,10 +2608,8 @@ on_edit_backbone_torsion_cancel_button_clicked
                                         gpointer         user_data)
 {
    GtkWidget *window = widget_from_builder("edit_backbone_torsions_dialog");
-   /*   clear_moving_atoms_object(); done as part of window destroy
-        callback */
+   clear_up_moving_atoms();
    destroy_edit_backbone_rama_plot(); // 20211006-PE this function name should be changed
-   //gtk_widget_set_visible(window, FALSE);
    gtk_widget_set_visible(window, FALSE);
 
 }
