@@ -35,6 +35,7 @@
 #include "superpose-results.hh"
 #include "lsq-results.hh"
 #include "coot-utils/simple-mesh.hh"
+#include "coot-utils/textured-mesh.hh"
 #include "coot-utils/texture-as-floats.hh"
 #include "phi-psi-prob.hh"
 #include "instancing.hh"
@@ -4144,6 +4145,17 @@ public:
    //!
    //! @return a `simple_mesh_t` from the given file.
    coot::simple_mesh_t make_mesh_from_gltf_file(const std::string &file_name);
+
+   //! Read a mesh with a texture from a glTF file
+   //!
+   //! The vertex colours of the mesh tint (multiply) the texture.
+   //! If the file does not exist, it is looked for in the glTF directory of Coot's package data,
+   //! so "lemon.glb" will read the lemon.
+   //!
+   //! @param file_name is the glTF file name (.gltf or .glb)
+   //!
+   //! @return a `textured_mesh_t` from the given file. On failure, the mesh has no vertices.
+   coot::textured_mesh_t make_textured_mesh_from_gltf_file(const std::string &file_name);
 
    //! Get octahemisphere
    //!

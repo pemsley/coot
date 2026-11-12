@@ -499,3 +499,11 @@ molecules_container_t::make_mesh_from_gltf_file(const std::string &file_name_in)
 
    return sm;
 }
+
+coot::textured_mesh_t
+molecules_container_t::make_textured_mesh_from_gltf_file(const std::string &file_name) {
+
+   coot::textured_mesh_t tm;
+   tm.read_gltf(file_name);
+   return tm;
+}
