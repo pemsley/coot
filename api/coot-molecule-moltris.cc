@@ -40,6 +40,8 @@
 #include <MoleculesToTriangles/CXXClasses/SurfacePrimitive.h>
 
 #include "MoleculesToTriangles/CXXClasses/tubes.hh"
+#include "utils/coot-utils.hh"
+#include <filesystem>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
@@ -635,10 +637,28 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
       float Cn_for_coil = 2;
       int accuracy_for_coil = 12;
       unsigned int n_slices_for_coil = 12;
+      // MoleculesToTriangles can't resolve the installed data directory itself (it can't
+      // depend on coot-utils), so resolve the helix reference template's absolute path
+      // here. The autotools build installs it in the package data directory, the CMake
+      // build installs it in the data/pdb-templates sub-directory.
+      std::string helix_template_pdb_file_name = "theor-helix-z-ori-v2.pdb";
+      {
+         std::filesystem::path pdd(coot::package_data_dir());
+         std::vector<std::filesystem::path> candidates = {
+            pdd / helix_template_pdb_file_name,
+            pdd / "data" / "pdb-templates" / helix_template_pdb_file_name };
+         for (const auto &candidate : candidates) {
+            std::error_code ec;
+            if (std::filesystem::exists(candidate, ec)) {
+               helix_template_pdb_file_name = candidate.string();
+               break;
+            }
+         }
+      }
       coot::m2t::simple_mesh_t tubes_mesh =
          make_tubes_representation(mol, atom_selection, colour_scheme, radius_for_coil, Cn_for_coil,
                                    accuracy_for_coil, n_slices_for_coil, secondaryStructureUsageFlag,
-                                   "theor-helix-z-ori-v2.pdb", false, radius_for_helices);
+                                   helix_template_pdb_file_name, false, radius_for_helices);
 
       // MoleculesToTriangles can't depend on coot-utils (it's low in the link
       // order), so make_tubes_representation() returns a coot::m2t::simple_mesh_t.
