@@ -21,6 +21,7 @@
  */
 
 #include <mutex>
+#include <ctime>
 #include <limits>
 #include <memory>
 
@@ -58,6 +59,11 @@ static void add_pdbx_chem_comp_descriptors(const RDKit::ROMol &mol,
                                            coot::dictionary_residue_restraints_t *restraints);
 static void add_pdbx_chem_comp_identifiers(const RDKit::ROMol &mol,
                                            coot::dictionary_residue_restraints_t *restraints);
+static void add_chem_comp_pdbx_extras(const RDKit::ROMol &mol,
+                                      coot::dictionary_residue_restraints_t *restraints);
+static void add_pdbx_chem_comp_audit(const RDKit::ROMol &mol,
+                                     coot::dictionary_residue_restraints_t *restraints);
+static void add_software(coot::dictionary_residue_restraints_t *restraints);
 static void add_pdbe_chem_comp_atom_depiction(const RDKit::ROMol &mol,
                                               coot::dictionary_residue_restraints_t *restraints);
 
@@ -499,6 +505,8 @@ coot::mmcif_dict_from_mol_using_energy_lib(const std::string &comp_id,
 
 // controlled by set_use_acedrg_tables() (pyrogen's --no-acedrg-tables)
 static bool use_acedrg_tables_flag = true;
+// did the AceDRG tables provide bond and angle values? (for _software)
+static bool acedrg_tables_were_used = false;
 
 void
 coot::set_use_acedrg_tables(bool state) {
@@ -523,6 +531,7 @@ coot::overlay_acedrg_table_restraints(dictionary_residue_restraints_t *restraint
       std::pair<bool, dictionary_residue_restraints_t> p =
          acedrg_tables.make_bond_and_angle_restraints(*restraints);
       if (p.first) {
+         acedrg_tables_were_used = true;
          std::cout << "INFO:: acedrg-tables: " << p.second.bond_restraint.size()
                    << " bond and " << p.second.angle_restraint.size()
                    << " angle restraint values from AceDRG tables" << std::endl;
@@ -601,12 +610,15 @@ coot::mmcif_dict_from_mol_using_energy_lib(const std::string &comp_id,
       coot::add_chem_comp_atoms(mol, &restraints); // alter restraints
       add_pdbx_chem_comp_descriptors(mol, &restraints); // SMILES, InChI, InChIKey
       add_pdbx_chem_comp_identifiers(mol, &restraints); // e.g. the CCD systematic names
-      add_pdbe_chem_comp_atom_depiction(mol, &restraints); // 2D coordinates
+      add_pdbe_chem_comp_atom_depiction(mol, &restraints); // 2D coordinates and wedges
+      add_chem_comp_pdbx_extras(mol, &restraints); // formula, formula weight, charge, type, synonyms
+      add_pdbx_chem_comp_audit(mol, &restraints); // the input's history and this run
       bool status_b = coot::fill_with_energy_lib_bonds(mol, energy_lib, &restraints); // alter restraints
       bool status_a = coot::fill_with_energy_lib_angles(mol, energy_lib, &restraints); // alter restraints
       bool status_t = coot::fill_with_energy_lib_torsions(mol, energy_lib, &restraints); // alter restraints
 
       coot::overlay_acedrg_table_restraints(&restraints); // acedrg-first, energy-lib fallback
+      add_software(&restraints); // after the overlay: it says if the AceDRG tables were used
 
       int n_chirals = coot::assign_chirals(mol, &restraints); // alter restraints
       if (n_chirals) 
@@ -1229,6 +1241,19 @@ add_pdbx_chem_comp_descriptors(const RDKit::ROMol &mol,
    const std::string program = "RDKit (pyrogen)";
    const std::string program_version = RDKit::rdkitVersion;
 
+   // The descriptors of the input dictionary (e.g. the CCD) describe the input molecule,
+   // so carry them only if pyrogen didn't change the protonation state. (Not those that
+   // an earlier pyrogen run made - they are made afresh below.)
+   //
+   bool protonation_changed = false;
+   mol.getPropIfPresent("pyrogen_protonation_changed", protonation_changed);
+   std::vector<std::string> v;
+   if (! protonation_changed)
+      if (mol.getPropIfPresent("pdbx_chem_comp_descriptors", v))
+         for (unsigned int i=0; i+3<v.size(); i+=4)
+            if (v[i+1] != program)
+               restraints->descriptors.descriptors.push_back(coot::pdbx_chem_comp_descriptor_item(v[i], v[i+1], v[i+2], v[i+3]));
+
    // stereochemistry from the coordinates (as the chiral restraints are), but
    // without the spurious stereocentres
    //
@@ -1406,6 +1431,44 @@ add_pdbe_chem_comp_atom_depiction(const RDKit::ROMol &mol,
       }
 #endif
 
+      // The bonds - which is where the wedges are. Kekulize, because the PDBe has
+      // SINGLE and DOUBLE for the bonds of aromatic rings. WedgeMolBonds() makes the
+      // stereocentre the begin atom of the bond that it wedges.
+      std::vector<coot::depiction_bond_t> bonds;
+      try {
+         RDKit::RWMol mol_w(*mol_p);
+         const RDKit::Conformer &conf_w = mol_w.getConformer(conf_p->getId());
+         for (auto atom : mol_w.atoms()) // no wedges for the spurious stereocentres
+            if (atom->getChiralTag() != RDKit::Atom::CHI_UNSPECIFIED)
+               if (is_spurious_stereocentre(mol_w, atom))
+                  atom->setChiralTag(RDKit::Atom::CHI_UNSPECIFIED);
+         RDKit::MolOps::Kekulize(mol_w);
+         RDKit::WedgeMolBonds(mol_w, &conf_w);
+         for (const auto &bond : mol_w.bonds()) {
+            std::string name_1, name_2;
+            if (! bond->getBeginAtom()->getPropIfPresent("name", name_1)) continue;
+            if (! bond->getEndAtom()->getPropIfPresent("name", name_2)) continue;
+            std::string order = "SINGLE";
+            switch (bond->getBondType()) {
+            case RDKit::Bond::DOUBLE:   order = "DOUBLE";   break;
+            case RDKit::Bond::TRIPLE:   order = "TRIPLE";   break;
+            case RDKit::Bond::AROMATIC: order = "AROMATIC"; break;
+            default: break;
+            }
+            std::string dir = "NONE";
+            if (bond->getBondDir() == RDKit::Bond::BEGINWEDGE) dir = "BEGINWEDGE";
+            if (bond->getBondDir() == RDKit::Bond::BEGINDASH)  dir = "BEGINDASH";
+            int ordinal = bonds.size() + 1;
+            bonds.push_back(coot::depiction_bond_t(coot::util::remove_whitespace(name_1),
+                                                   coot::util::remove_whitespace(name_2),
+                                                   order, dir, ordinal));
+         }
+      }
+      catch (const std::exception &e) {
+         std::cout << "WARNING:: add_pdbe_chem_comp_atom_depiction(): bonds: " << e.what() << std::endl;
+         bonds.clear();
+      }
+
       std::vector<coot::depiction_atom_t> atoms;
       for (const auto &at : mol_p->atoms()) {
          std::string name;
@@ -1415,12 +1478,108 @@ add_pdbe_chem_comp_atom_depiction(const RDKit::ROMol &mol,
          atoms.push_back(coot::depiction_atom_t(coot::util::remove_whitespace(name),
                                                 at->getSymbol(), pos.x, pos.y, ordinal));
       }
-      if (! atoms.empty())
+      if (! atoms.empty()) {
          restraints->depiction = coot::chem_comp_atom_depiction_t(restraints->residue_info.comp_id, atoms);
+         restraints->depiction.bonds = bonds;
+      }
    }
    catch (const std::exception &e) {
       std::cout << "WARNING:: add_pdbe_chem_comp_atom_depiction(): " << e.what() << std::endl;
    }
+}
+
+// The pdbx extras of _chem_comp. The formula (CCD style: Hill order, e.g. "C18 H23 Cl N2 O2"),
+// the formula weight and the formal charge are those of this molecule - which can have a
+// different protonation state to the input. The type and the synonyms are the input's.
+//
+static void
+add_chem_comp_pdbx_extras(const RDKit::ROMol &mol,
+                          coot::dictionary_residue_restraints_t *restraints) {
+
+   try {
+      std::map<std::string, unsigned int> counts;
+      int formal_charge = 0;
+      for (const auto &at : mol.atoms()) {
+         counts[at->getSymbol()]++;
+         counts["H"] += at->getTotalNumHs(); // those that are not atoms of the graph (usually none)
+         formal_charge += at->getFormalCharge();
+      }
+      if (counts["H"] == 0) counts.erase("H");
+      std::vector<std::string> elements; // Hill order
+      bool have_carbon = (counts.find("C") != counts.end());
+      if (have_carbon) {
+         elements.push_back("C");
+         if (counts.find("H") != counts.end()) elements.push_back("H");
+      }
+      for (const auto &c : counts) // a std::map, so alphabetical
+         if (! have_carbon || (c.first != "C" && c.first != "H"))
+            elements.push_back(c.first);
+      std::string formula;
+      for (const auto &ele : elements) {
+         if (! formula.empty()) formula += " ";
+         formula += ele;
+         if (counts[ele] > 1) formula += std::to_string(counts[ele]);
+      }
+      coot::dict_chem_comp_t &ri = restraints->residue_info;
+      ri.formula = formula;
+      char buf[64];
+      snprintf(buf, sizeof(buf), "%.3f", RDKit::Descriptors::calcAMW(mol));
+      ri.formula_weight = buf;
+      ri.pdb_formal_charge = formal_charge;
+      ri.have_pdb_formal_charge = true;
+      std::string s;
+      if (mol.getPropIfPresent("chem_comp_type", s))          ri.type = s;
+      if (mol.getPropIfPresent("chem_comp_pdbx_synonyms", s)) ri.pdbx_synonyms = s;
+   }
+   catch (const std::exception &e) {
+      std::cout << "WARNING:: add_chem_comp_pdbx_extras(): " << e.what() << std::endl;
+   }
+}
+
+// _pdbx_chem_comp_audit: the audit records of the input dictionary (set on the molecule
+// by rdkit_mol_chem_comp_pdbx()) and then a record for this run.
+//
+static void
+add_pdbx_chem_comp_audit(const RDKit::ROMol &mol,
+                         coot::dictionary_residue_restraints_t *restraints) {
+
+   std::vector<std::string> v;
+   if (mol.getPropIfPresent("pdbx_chem_comp_audit", v))
+      for (unsigned int i=0; (i+2)<v.size(); i+=3)
+         restraints->audits.push_back(coot::pdbx_chem_comp_audit_item(v[i], v[i+1], v[i+2]));
+
+   std::string date;
+   std::time_t t = std::time(nullptr);
+   char buf[32];
+   const struct tm *tm_p = std::localtime(&t);
+   if (tm_p)
+      if (strftime(buf, sizeof(buf), "%Y-%m-%d", tm_p) > 0)
+         date = buf;
+   restraints->audits.push_back(coot::pdbx_chem_comp_audit_item("Create restraints", date, "pyrogen"));
+
+   // and the categories of the input that are carried to the output as they are
+   std::vector<std::string> ptc;
+   if (mol.getPropIfPresent("pass_through_categories", ptc))
+      restraints->pass_through_categories = coot::dict_pass_through_category_t::unflatten(ptc);
+}
+
+// _software: what made this dictionary
+//
+static void
+add_software(coot::dictionary_residue_restraints_t *restraints) {
+
+   std::string coot_version = "?";
+#ifdef PACKAGE_VERSION
+   coot_version = PACKAGE_VERSION;
+#endif
+   restraints->software.clear();
+   restraints->software.push_back(coot::dict_software_item("pyrogen", coot_version,
+                                                           "Coot's restraints generator"));
+   restraints->software.push_back(coot::dict_software_item("RDKit", RDKit::rdkitVersion,
+                                                           "Chemistry perception, descriptors and 2D depiction"));
+   if (acedrg_tables_were_used)
+      restraints->software.push_back(coot::dict_software_item("AceDRG tables", "",
+                                                              "Bond and angle target values"));
 }
 
 void
@@ -1462,6 +1621,11 @@ coot::add_chem_comp_atoms(const RDKit::ROMol &mol, coot::dictionary_residue_rest
 	 if (is_spurious_stereocentre(mol, at_p))
 	    cip = "N";
 	 atom.pdbx_stereo_config = std::pair<bool, std::string>(true, cip);
+	 // the leaving atom flag of the input dictionary (if it had them). Atoms that
+	 // pyrogen added (hydrogen atoms) don't have one.
+	 std::string leaving_flag;
+	 if (at_p->getPropIfPresent("pdbx_leaving_atom_flag", leaving_flag))
+	    atom.pdbx_leaving_atom_flag = std::pair<bool, std::string>(true, leaving_flag);
  	 RDKit::Conformer conf = mol.getConformer(iconf);
  	 RDGeom::Point3D &r_pos = conf.getAtomPos(iat);
  	 clipper::Coord_orth pos(r_pos.x, r_pos.y, r_pos.z);

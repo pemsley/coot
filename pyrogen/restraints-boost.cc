@@ -174,6 +174,37 @@ coot::regularize_with_dict(RDKit::ROMol &mol_in, PyObject *restraints_py, const 
 static void
 set_pdbx_identifiers_prop(RDKit::ROMol *m, const coot::dictionary_residue_restraints_t &rest) {
 
+   // likewise the audit records (flattened: action_type, date, processing_site) and
+   // the _chem_comp type and synonyms.
+   if (! rest.audits.empty()) {
+      std::vector<std::string> a;
+      for (const auto &audit : rest.audits) {
+         a.push_back(audit.action_type);
+         a.push_back(audit.date);
+         a.push_back(audit.processing_site);
+      }
+      m->setProp("pdbx_chem_comp_audit", a);
+   }
+   // and the descriptors (flattened: type, program, program_version, descriptor)
+   if (! rest.descriptors.descriptors.empty()) {
+      std::vector<std::string> d;
+      for (const auto &descr : rest.descriptors.descriptors) {
+         d.push_back(descr.type);
+         d.push_back(descr.program);
+         d.push_back(descr.program_version);
+         d.push_back(descr.descriptor);
+      }
+      m->setProp("pdbx_chem_comp_descriptors", d);
+   }
+   // and the categories that go to the output as they are (e.g. the PDBe DrugBank blocks)
+   if (! rest.pass_through_categories.empty())
+      m->setProp("pass_through_categories",
+                 coot::dict_pass_through_category_t::flatten(rest.pass_through_categories));
+   if (! rest.residue_info.type.empty())
+      m->setProp("chem_comp_type", rest.residue_info.type);
+   if (! rest.residue_info.pdbx_synonyms.empty())
+      m->setProp("chem_comp_pdbx_synonyms", rest.residue_info.pdbx_synonyms);
+
    if (rest.identifiers.empty()) return;
    std::vector<std::string> v;
    for (const auto &id : rest.identifiers) {

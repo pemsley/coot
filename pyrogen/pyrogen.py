@@ -43,7 +43,7 @@ from optparse import OptionParser
 
 import tautomer
 
-import urllib
+import urllib.request
 
 from jay_util import *
 
@@ -284,13 +284,13 @@ def get_pdbe_cif_for_comp_id(comp_id):
             else:
                 url = 'ftp://ftp.ebi.ac.uk/pub/databases/msd/pdbechem/files/mmcif/' + comp_id + '.cif'
                 url = 'https://www.ebi.ac.uk/pdbe/static/files/pdbechem_v2/'        + comp_id + '.cif'
-                status = urllib.urlretrieve(url, file_name)
-                print('urllib.urllib returned with status', status)
+                urllib.request.urlretrieve(url, file_name)
+                print('Downloaded', url, 'to', file_name)
                 return file_name
 
         except OSError as e:
             print(e)
-            print("Failed: Can't ftp from", url, "and write file", file_name)
+            print("Failed: Can't download", url, "and write file", file_name)
 
     except IOError as e:
         print(e)
@@ -1166,6 +1166,13 @@ if __name__ == "__main__":
     comp_id = options.comp_id
     if options.comp_id == 'default':
         comp_id = 'LIG'
+        if options.wwPDB:
+            # "pyrogen -w VIA": the positional argument is the comp-id to fetch
+            if len(args) > 0:
+                comp_id = args[0]
+            else:
+                print("Usage: pyrogen -w comp-id")
+                exit(2)
     if options.mmcif_file_name != None:
         if options.comp_id == 'default':
             comp_id = 'TRY_ALL_COMP_IDS'
@@ -1229,7 +1236,7 @@ if __name__ == "__main__":
         # shall we go get the dictionary?
         if options.wwPDB:
             mmcif_file_name = get_pdbe_cif_for_comp_id(comp_id)
-            if os.path.isfile(mmcif_file_name):
+            if mmcif_file_name and os.path.isfile(mmcif_file_name):
                 pass # good
             else:
                 print("Missing downloaded file for comp-id:",  comp_id)
