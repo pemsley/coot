@@ -711,7 +711,8 @@ make_mesh_for_helical_representation(const std::vector<helix_residues_info_t> &h
             clipper::RTop_orth rtop_for_end_end_cap(clipper::RTop_orth::null());
 
             unsigned int n_rings_in_helix = 0;
-            for (unsigned int ihres=0; ihres<helix.residues.size(); ihres++) {
+            // the last 2 residues of the helix can't be the first residue of a triplet
+            for (unsigned int ihres=0; (ihres+2)<helix.residues.size(); ihres++) {
                std::pair<bool, clipper::RTop_orth> rtop_pair = get_rtop(ihres, helix, ref_coords);
                if (rtop_pair.first) {
                   const clipper::RTop_orth &rtop = rtop_pair.second;
@@ -1077,15 +1078,34 @@ make_mesh_for_coil_representation(const std::vector<coil_residues_info_t> &coils
                                                             const glm::vec3 &p2,
                                                             const glm::vec3 &p3,
                                                             unsigned int n_slices,
-                                                            float radius) {
+                                                            float radius,
+                                                            const glm::vec3 &previous_ring_start_normal) {
 
       std::vector<std::pair<glm::vec3, glm::vec3> > v;
       glm::vec3 v1 = glm::normalize(p2-p1);
       glm::vec3 v2 = glm::normalize(p3-p2);
       glm::vec3 delta = (v2 - v1) * 0.5f;
-      glm::vec3 delta_uv = glm::normalize(delta);
-      glm::vec3 pos_start = p2 + radius *  delta_uv;
       glm::vec3 rotation_ori = v1 + v2;
+      glm::vec3 delta_uv;
+      // The start direction of the ring is the direction of the bend at p2. Where the
+      // path is straight (e.g. the spline through a coil of just 2 residues) there is
+      // no bend: delta is either rounding noise (so the ring gets a random orientation)
+      // or exactly zero (so normalizing it gives NaNs). In that case, carry over the
+      // start direction of the previous ring, or failing that, use any direction
+      // perpendicular to the path.
+      const float no_bend_limit = 1.0e-4f;
+      if (glm::length(delta) > no_bend_limit) {
+         delta_uv = glm::normalize(delta);
+      } else {
+         glm::vec3 axis = glm::normalize(rotation_ori);
+         glm::vec3 perp = previous_ring_start_normal - glm::dot(previous_ring_start_normal, axis) * axis;
+         if (glm::length(perp) < 0.1f) {
+            glm::vec3 arb = (fabsf(axis.x) < 0.9f) ? glm::vec3(1,0,0) : glm::vec3(0,1,0);
+            perp = glm::cross(axis, arb);
+         }
+         delta_uv = glm::normalize(perp);
+      }
+      glm::vec3 pos_start = p2 + radius *  delta_uv;
       glm::vec3 origin(0,0,0);
       // this is the vector to spin around the point on the circle
       for (unsigned int i_slice=0; i_slice<n_slices; i_slice++) {
@@ -1111,8 +1131,12 @@ make_mesh_for_coil_representation(const std::vector<coil_residues_info_t> &coils
             glm::vec3 start_point = fcxx_to_glm(spline_points[i-1]);
             glm::vec3 mid_point   = fcxx_to_glm(spline_points[i]);
             glm::vec3 next_point  = fcxx_to_glm(spline_points[i+1]);
+            // the normal of the first point in a ring is the start direction of that ring
+            glm::vec3 previous_ring_start_normal(0,0,0);
+            if (! rings.empty()) previous_ring_start_normal = rings.back()[0].second;
             std::vector<std::pair<glm::vec3, glm::vec3> > r =
-               get_ring_around_mid_point(start_point, mid_point, next_point, n_slices, radius);
+               get_ring_around_mid_point(start_point, mid_point, next_point, n_slices, radius,
+                                         previous_ring_start_normal);
             rings.push_back(r);
          }
 
