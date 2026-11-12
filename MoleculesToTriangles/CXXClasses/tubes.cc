@@ -1294,12 +1294,12 @@ make_tubes_representation(mmdb::Manager *mol,
                           unsigned int n_slices_for_coil,
                           int secondaryStructureUsageFlag,
                           const std::string &helix_template_pdb_file_name,
-                          bool straight_helices) {
+                          bool straight_helices,
+                          float radius_for_helices) {
 
    std::cout << "DEBUG:: ---------------- start make_tubes_representation() " << std::endl;
 
    coot::m2t::simple_mesh_t m;
-   float radius_for_helices = 2.5;
    unsigned int n_slices_for_helices = 16;
    helix_residues_info_t::end_cap_style end_cap_style = helix_residues_info_t::end_cap_style::FLAT;
 

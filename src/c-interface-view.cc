@@ -385,6 +385,16 @@ void set_worm_tube_radius(int imol, float wtr) {
 
 }
 
+//! set the tube helix radius
+void set_tube_helix_radius(int imol, float thr) {
+
+   if (is_valid_model_molecule(imol)) {
+      if (thr > 0.0f)
+         graphics_info_t::molecules[imol].set_tube_helix_radius(thr);
+   }
+
+}
+
 
 
 

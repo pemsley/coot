@@ -3873,6 +3873,20 @@ void set_model_goodselliness(float pastelization_factor);
 //! @param wtr the worm tube radius in Angstroms (the molecule default is 1.0)
 void set_worm_tube_radius(int imol, float wtr);
 
+//! \brief set the tube helix radius
+//!
+//! Sets the radius of the helix cylinders used for the "Bendix" and
+//! "Tube (helices)" representations of the given model molecule. Does
+//! nothing if \c imol is not a valid model molecule or if \c thr is not
+//! positive.
+//!
+//! This needs to be set \e before the representation is calculated - it
+//! doesn't do post-processing.
+//!
+//! @param imol the model molecule index
+//! @param thr the helix cylinder radius in Angstroms (the molecule default is 2.5)
+void set_tube_helix_radius(int imol, float thr);
+
 //! \brief set the fresnel colour for a map
 //!
 //! Does nothing if \p imol is not a valid map molecule. The fresnel effect
