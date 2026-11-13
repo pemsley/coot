@@ -80,6 +80,7 @@
                   <object class="GtkBox">
                     <property name="margin-start">4</property>
                     <property name="margin-end">4</property>
+                    <property name="orientation">vertical</property>
                     <child>
                       <object class="GtkLabel">
                         <property name="label" translatable="yes">Opacity (%):  </property>
@@ -96,6 +97,34 @@
                         <property name="fill_level">100</property>
                         <property name="round_digits">1</property>
                         <signal name="value-changed" handler="on_map_opacity_hscale_value_changed" swapped="no"/>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="margin-start">4</property>
+                        <property name="margin-end">4</property>
+                        <property name="orientation">horizontal</property>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="label" translatable="yes">Angle-Dependent Transparency:      Off</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkSwitch" id="map_use_view_dependent_transparency">
+                            <property name="active">False</property>
+                            <property name="width-request">40</property>
+                            <property name="margin-top">2</property>
+                            <property name="margin-bottom">2</property>
+                            <property name="margin-start">4</property>
+                            <property name="margin-end">4</property>
+                            <signal name="state-set" handler="map_use_view_dependent_transparency_state_set"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="label" translatable="yes">On</property>
+                          </object>
+                        </child>
                       </object>
                     </child>
                   </object>

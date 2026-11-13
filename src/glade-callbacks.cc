@@ -6101,6 +6101,20 @@ on_map_opacity_hscale_value_changed(GtkRange        *range,
   set_solid_density_surface_opacity(imol, fvalue);
 }
 
+extern "C" G_MODULE_EXPORT
+gboolean
+map_use_view_dependent_transparency_state_set(GtkSwitch *switch_widget,
+                                              gboolean   state,
+                                              gpointer   user_data) {
+
+   int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(switch_widget), "imol"));
+   if (is_valid_map_molecule(imol)) {
+      graphics_info_t::molecules[imol].do_map_view_dependent_map_transparancy = state;
+      graphics_draw();
+   }
+   return FALSE; // let the default handler update the switch state
+}
+
 
 
 extern "C" G_MODULE_EXPORT

@@ -97,6 +97,7 @@ uniform Material material;
 uniform bool is_perspective_projection;
 uniform vec4 background_colour;
 uniform float opacity; // was map_opacity
+uniform bool do_view_dependent_transparancy;
 uniform bool do_specular;
 uniform bool do_depth_fog;
 uniform bool do_fresnel;
@@ -248,6 +249,16 @@ void main() {
       }
    }
 
+   if (do_view_dependent_transparancy) {
+      if (opacity < 1.0f) {
+         float dp_this = dot(normalize(normal_transfer), normalize(eye_position_in_molecule_coordinates_space - frag_pos_transfer));
+         float a = 1.0 - pow(max(1.0 - opacity, 0.0), 1.0 / max(abs(dp_this), 0.01));
+         output_colour.a = a * a * a * a * a;
+         // output_colour.b = a;
+      }
+
+   }
+
 
    // testing hacks:
 
@@ -259,6 +270,5 @@ void main() {
 
    // output_colour = vec4(0,0,1,1);
 
- 
 }
 

@@ -541,6 +541,10 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::export_map_molecule_as_gltf,
          nb::arg("imol"), nb::arg("pos_x"), nb::arg("pos_y"), nb::arg("pos_z"), nb::arg("radius"), nb::arg("contour_level"), nb::arg("file_name"),
          get_docstring_from_xml("export_map_molecule_as_gltf").c_str())
+    .def("make_textured_mesh_from_gltf_file",
+         &molecules_container_t::make_textured_mesh_from_gltf_file,
+         nb::arg("file_name"),
+         get_docstring_from_xml("make_textured_mesh_from_gltf_file").c_str())
     .def("find_water_baddies",
          &molecules_container_t::find_water_baddies,
          nb::arg("imol_model"), nb::arg("imol_map"), nb::arg("b_factor_lim"), nb::arg("outlier_sigma_level"), nb::arg("min_dist"), nb::arg("max_dist"), nb::arg("ignore_part_occ_contact_flag"), nb::arg("ignore_zero_occ_flag"),
@@ -2032,6 +2036,31 @@ NB_MODULE(coot_headless_api, m) {
     .def("__repr__", [](const coot::simple_mesh_t &sm) {
        std::string r = "simple_mesh_t(name=\"" + sm.name + "\", vertices=" + std::to_string(sm.vertices.size()) +
                        ", triangles=" + std::to_string(sm.triangles.size()) + ", status=" + std::to_string(sm.status) + ")";
+       return r;
+    })
+    ;
+    nb::class_<coot::texture_rgba_t>(m,"texture_rgba_t")
+    .def_ro("width",  &coot::texture_rgba_t::width)
+    .def_ro("height", &coot::texture_rgba_t::height)
+    .def_prop_ro("data", [](const coot::texture_rgba_t &t) {
+       return nb::bytes(reinterpret_cast<const char *>(t.data.data()), t.data.size());
+    })
+    .def("empty", &coot::texture_rgba_t::empty)
+    ;
+    nb::class_<coot::textured_mesh_t>(m,"textured_mesh_t")
+    .def_ro("mesh",    &coot::textured_mesh_t::mesh)
+    .def_ro("texture", &coot::textured_mesh_t::texture)
+    .def_prop_ro("uvs", [](const coot::textured_mesh_t &tm) {
+       std::vector<std::array<float, 2> > uvs(tm.uvs.size());
+       for (unsigned int i=0; i<tm.uvs.size(); i++)
+          uvs[i] = {tm.uvs[i].x, tm.uvs[i].y};
+       return uvs;
+    })
+    .def("has_texture", &coot::textured_mesh_t::has_texture)
+    .def("__repr__", [](const coot::textured_mesh_t &tm) {
+       std::string r = "textured_mesh_t(name=\"" + tm.mesh.name + "\", vertices=" + std::to_string(tm.mesh.vertices.size()) +
+                       ", triangles=" + std::to_string(tm.mesh.triangles.size()) + ", texture=" +
+                       std::to_string(tm.texture.width) + "x" + std::to_string(tm.texture.height) + ")";
        return r;
     })
     ;

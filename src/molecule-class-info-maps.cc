@@ -227,6 +227,8 @@ molecule_class_info_t::draw_map_molecule( stereo_eye_t eye,
       shader.set_float_for_uniform("fresnel_power", fresnel_settings.power);
       shader.set_vec4_for_uniform("fresnel_colour", fresnel_settings.colour);
 
+      shader.set_bool_for_uniform("do_view_dependent_transparancy", do_map_view_dependent_map_transparancy);
+
       float opacity = density_surface_opacity;
       if (opacity < 1.0) {
          map_as_mesh.use_blending = true;
