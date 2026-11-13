@@ -1028,10 +1028,10 @@ coot::helix_placement::score_helix_position(const coot::minimol::molecule &m) co
 
    float score = 0.0;
    for (unsigned int ifrag=0; ifrag<m.fragments.size(); ifrag++) {
-      for (int ires=m[ifrag].min_res_no(); ires<m[ifrag].max_residue_number();
+      for (int ires=m[ifrag].min_res_no(); ires<=m[ifrag].max_residue_number();
 	   ires++) {
 	 for (unsigned int iat=0; iat<m[ifrag][ires].atoms.size(); iat++) {
-	    score += coot::util::density_at_point(xmap, m[ifrag][ires][iat].pos) *
+	    score += coot::util::density_at_point_by_linear_interpolation(xmap, m[ifrag][ires][iat].pos) *
 	       m[ifrag][ires][iat].occupancy;
 	 }
       }
@@ -1058,7 +1058,7 @@ coot::helix_placement::decompose_helix_by_cbeta(coot::minimol::molecule &m) cons
    std::vector<clipper::Coord_orth> other_atoms;
    std::vector<clipper::Coord_orth> c_betas;
    for (unsigned int ifrag=0; ifrag<m.fragments.size(); ifrag++) {
-      for (int ires=m[ifrag].min_res_no(); ires<m[ifrag].max_residue_number();
+      for (int ires=m[ifrag].min_res_no(); ires<=m[ifrag].max_residue_number();
 	   ires++) {
 	 for (unsigned int iat=0; iat<m[ifrag][ires].atoms.size(); iat++) {
 	    if (m[ifrag][ires][iat].name == " CB ") {
