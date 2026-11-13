@@ -316,6 +316,8 @@ molecule_class_info_t::setup_internal() { // init
    // gaussian opacity
    gaussian_surface_opacity = 1.0f;
 
+   do_map_view_dependent_map_transparancy = false;
+
    // don't show strict ncs unless it's turned on.
    show_strict_ncs_flag = 1;
 

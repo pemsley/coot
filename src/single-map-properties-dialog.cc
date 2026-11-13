@@ -176,6 +176,10 @@ void fill_single_map_properties_dialog_gtk3(std::pair<GtkWidget *, GtkBuilder *>
    float op = m.density_surface_opacity;
    gtk_adjustment_set_value(adjustment, 100.0*op);
 
+   GtkWidget *view_dependent_transparency_switch = widget_from_builder("map_use_view_dependent_transparency");
+   g_object_set_data(G_OBJECT(view_dependent_transparency_switch), "imol", GINT_TO_POINTER(imol));
+   gtk_switch_set_active(GTK_SWITCH(view_dependent_transparency_switch), m.do_map_view_dependent_map_transparancy);
+
 
    // resurect this one day
    // GtkWidget *map_contour_frame = widget_from_builder("single_map_properties_map_histogram_frame");

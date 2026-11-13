@@ -35,9 +35,6 @@
 #include <string>
 #endif // HAVE_STRING
 
-#include <deque>
-#include <iomanip>
-
 #include "compat/coot-sysdep.h"
 
 enum {CONTOUR_UP, CONTOUR_DOWN};
@@ -3941,6 +3938,8 @@ public:        //                      public
    std::vector<glm::vec3> unhappy_atom_marker_positions;
 
    bool read_nef(const std::string &file_name);
+
+   bool do_map_view_dependent_map_transparancy;
 
    float gaussian_surface_opacity;
 
