@@ -1,16 +1,47 @@
 --- Items---
 
+o what kind of density sampling does fit-helix do?
+* Linear now.
+
+o make baton-building work again.
+
+o Simple/RDKit-based restraints API in chapi
+
+o links display for cho in mmcif?
+
+o get glycoblocks from Stuart?
+
+o simple screendump on MacBook pro seems to write at half resolution?
+* Done.
+
+o user-defined cylindrical helix width
+* Done.
+
+o draw side-chain of a beta-strand (in particular) with a
+  bond to the "CA"
+
+o full screen, edit restraints -> atom table gone?
+
+o see bug.txt from Jordan
+
+o Can we have a uniform bond colour that is different to the
+  atom colours?
+
+o add hydrogen atoms to just this residue - gui item please
+
 o what happened to HexaPro?
   https://www.science.org/doi/10.1126/science.abd0826
 
 o add helix here: renumber helix so that it always starts at 1.
+* Done.
 
 o add helix here for the tutorial. Fails when map is masked.
   straight: works, blur: works, blur and mask: fail
-
-o save state should save unwritten masked maps
+* Done.
 
 o 4n6f and bendix helices - look at the loops
+
+o save state should save unwritten masked maps
 
 o check coenzyme A cation-pi stacking
 

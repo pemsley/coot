@@ -354,3 +354,42 @@ became a `close-request` handler so the builder dialog can be reopened).
 Fix: call `clear_moving_atoms_object()` in the Cancel callback, matching
 `on_edit_chi_angles_cancel_button_clicked()`, which calls
 `clear_up_moving_atoms()`.
+
+## Helix placement scoring (ligand/helix-placement.cc)
+
+Found 2026-11-13 while reading
+`coot::helix_placement::place_alpha_helix_near_kc_version()`, the function
+behind `place_helix_here()`.
+
+### Changed 2026-11-13, not yet compiled or tested
+
+- `score_helix_position()` and `decompose_helix_by_cbeta()` looped with
+  `ires < max_residue_number()`, which skipped the last residue
+  (`max_residue_number()` is inclusive, see mini-mol/mini-mol.hh). Both now use
+  `<=`.
+- `score_helix_position()` now samples with
+  `coot::util::density_at_point_by_linear_interpolation()` instead of the cubic
+  `density_at_point()`.
+
+Both changes shift the scores a little, and the cut-offs that use them were
+tuned with the old behaviour: the `final_score < 0` rejection, the CB
+mean/stddev test (`descrimination_ratio` 0.5), and the "Reverse" helix
+trimming (the 2.0 and 2.5 factors). `score_helix_position()` is also the
+scorer in `optimize_rotation_fit()`, `place_alpha_helix_near()`, `fit_strand()`
+and `find_strand_candidates_by_shift_sampling()`, so helix and strand placement
+both need re-testing.
+
+### Still open
+
+- **The score is a sum, not a mean.** `score_helix_position()` adds up
+  occupancy-weighted density over all atoms, so it scales with the number of
+  residues. Scores for the 20-residue and 9-residue attempts in
+  `place_helix_here()` are not comparable, and neither are scores before and
+  after `trim_and_grow()`. Dividing by the summed occupancy would fix that, but
+  the callers that compare against absolute values need checking first.
+- **Mixed interpolation.** `score_atoms()` (the CB test) and `score_residue()`
+  (the end trimming in `trim_end()`) still use cubic interpolation, while
+  `score_helix_position()` is now linear. Decide whether they should follow.
+- **Comment disagrees with the code.** In
+  `place_alpha_helix_near_kc_version()` the comment says the centre movement is
+  limited to 1.5A, but `max_allowed_move` is 1.0.
