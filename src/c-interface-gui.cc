@@ -4829,7 +4829,6 @@ void show_restraints_editor(std::string monomer_type) {
 	    r.fill_dialog(restraints);
             GtkWidget *dialog = r.get_dialog();
             std::cout << "DEBUG:: show_restraints_editor(): here with dialog " << dialog << std::endl;
-	    set_transient_and_position(COOT_EDIT_RESTRAINTS_DIALOG, dialog);
 	    g.restraints_editors.push_back(r);
 	 }
       }
