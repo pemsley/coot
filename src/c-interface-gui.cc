@@ -4146,32 +4146,16 @@ GtkWidget *wrapped_create_goto_atom_window() {
    GtkWidget *widget = graphics_info_t::go_to_atom_window;
    if (widget) {
 
-#if (GTK_MAJOR_VERSION == 4)
+      set_transient_for_main_window(widget);
       gtk_widget_set_visible(widget, TRUE);
       gtk_window_unminimize(GTK_WINDOW(widget));
       gtk_window_present(GTK_WINDOW(widget));
-#else
-      if (!gtk_widget_get_mapped(widget))
-         gtk_widget_set_visible(widget, TRUE);
-      else
-         gdk_window_raise(GDK_WINDOW(gtk_widget_get_window(widget))); // can I just cast it like this?
-      // std::cout << "GTK-FIXME no raise wrapped_create_goto_atom_window()" << std::endl;
-#endif
 
    } else {
-      // widget = create_goto_atom_window();
+
       widget = widget_from_builder("goto_atom_window");
       graphics_info_t::go_to_atom_window = widget;
-      if (graphics_info_t::go_to_atom_window_x_position > -1) {
-         if (false) // 20220315-PE too much noise - I should fix this later
-            std::cout << "GTK-FIXME no gtk_widget_set_uposition F2" << std::endl;
-
-         // GTK3 - you can't set widget/window positions.
-         // 	 gtk_widget_set_uposition(widget,
-         // 				  graphics_info_t::go_to_atom_window_x_position,
-         // 				  graphics_info_t::go_to_atom_window_y_position);
-
-      }
+      set_transient_for_main_window(widget); // before the callers show it
       graphics_info_t g;
       g.fill_go_to_atom_window_gtk3(widget);
    }
