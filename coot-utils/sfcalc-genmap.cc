@@ -355,11 +355,14 @@ coot::util::sfcalc_genmaps_using_bulk_solvent(mmdb::Manager *mol,
    r1f /= clipper::Util::max(f1f, 0.1);
    r1w /= clipper::Util::max(f1w, 0.1);
    sfcalc_genmap_stats_t::loc_table_t loct;
+   // SFweight_spline chooses its own number of spline params (often fewer than n_param),
+   // so the basis function used to evaluate them must be sized to match - otherwise
+   // f_s() reads beyond the end of the params vectors.
+   clipper::BasisFn_spline basisfn_table(hkls, sfw.params_scale().size(), 1.0);
    for (int i = 0; i <= 20; i++) {
       double s = hkls.resolution().invresolsq_limit()*double(i)/20.0;
-      // printf("%6.3f %12.3f %12.3f\n", s, basisfn.f_s(s,sfw.params_scale()), basisfn.f_s(s,sfw.params_error()));
-      sfcalc_genmap_stats_t::loc_table_t::loc_table_item_t item(s, basisfn.f_s(s,sfw.params_scale()),
-                                                                basisfn.f_s(s,sfw.params_error()));
+      sfcalc_genmap_stats_t::loc_table_t::loc_table_item_t item(s, basisfn_table.f_s(s,sfw.params_scale()),
+                                                                basisfn_table.f_s(s,sfw.params_error()));
       loct.add(item);
    }
 
