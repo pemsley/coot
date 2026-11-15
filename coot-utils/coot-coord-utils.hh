@@ -386,6 +386,25 @@ namespace coot {
                                                   mmdb::Manager *mol,
                                                   double radius);
 
+   //! \brief test if a residue sits on top of atoms that are already in a molecule
+   //!
+   //! Typically used to test a residue (from a different molecule) before it is
+   //! merged into `mol`. `residue_p` need not be in `mol`, but if it is, its own
+   //! atoms are not tested against.
+   //!
+   //! Hydrogen atoms are ignored. Waters in `mol` are ignored unless `residue_p`
+   //! is itself a water. Only the first model of `mol` is tested and symmetry
+   //! is not considered.
+   //!
+   //! @param residue_p the residue to test
+   //! @param mol the molecule that may already have atoms at this position
+   //! @param dist_crit the overlap distance in Angstroms
+   //! @return true if any atom of `residue_p` is closer than `dist_crit`
+   //!         to an atom in `mol`
+   bool residue_overlaps_atoms_in_molecule(mmdb::Residue *residue_p,
+                                           mmdb::Manager *mol,
+                                           float dist_crit = 1.0f);
+
 
    // Don't include residues that are HOH residues that are not bonded to
    // the protein (if bonding to res_ref but not protein, then reject.

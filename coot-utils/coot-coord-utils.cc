@@ -650,6 +650,82 @@ coot::residues_near_position(const clipper::Coord_orth &pt,
    return v;
 }
 
+// Is there something here already? residue_p need not be in mol.
+//
+bool
+coot::residue_overlaps_atoms_in_molecule(mmdb::Residue *residue_p,
+                                         mmdb::Manager *mol,
+                                         float dist_crit) {
+
+   auto is_water = [] (mmdb::Residue *r) {
+      std::string rn(r->GetResName());
+      return (rn == "HOH" || rn == "WAT" || rn == "DOD");
+   };
+
+   if (! residue_p) return false;
+   if (! mol) return false;
+
+   // the positions of the non-hydrogen atoms of the test residue, and their extents
+   std::vector<clipper::Coord_orth> test_positions;
+   mmdb::Atom **residue_atoms = 0;
+   int n_residue_atoms = 0;
+   residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+   double min_x =  1.0e30, min_y =  1.0e30, min_z =  1.0e30;
+   double max_x = -1.0e30, max_y = -1.0e30, max_z = -1.0e30;
+   for (int iat=0; iat<n_residue_atoms; iat++) {
+      mmdb::Atom *at = residue_atoms[iat];
+      if (! at) continue;
+      if (at->isTer()) continue;
+      if (is_hydrogen_atom(at)) continue;
+      test_positions.push_back(clipper::Coord_orth(at->x, at->y, at->z));
+      if (at->x < min_x) min_x = at->x;
+      if (at->y < min_y) min_y = at->y;
+      if (at->z < min_z) min_z = at->z;
+      if (at->x > max_x) max_x = at->x;
+      if (at->y > max_y) max_y = at->y;
+      if (at->z > max_z) max_z = at->z;
+   }
+   if (test_positions.empty()) return false;
+
+   min_x -= dist_crit; min_y -= dist_crit; min_z -= dist_crit;
+   max_x += dist_crit; max_y += dist_crit; max_z += dist_crit;
+
+   const bool test_residue_is_water = is_water(residue_p);
+   const double dist_crit_sqrd = static_cast<double>(dist_crit) * static_cast<double>(dist_crit);
+
+   int imod = 1;
+   mmdb::Model *model_p = mol->GetModel(imod);
+   if (! model_p) return false;
+   int n_chains = model_p->GetNumberOfChains();
+   for (int ichain=0; ichain<n_chains; ichain++) {
+      mmdb::Chain *chain_p = model_p->GetChain(ichain);
+      if (! chain_p) continue;
+      int n_res = chain_p->GetNumberOfResidues();
+      for (int ires=0; ires<n_res; ires++) {
+         mmdb::Residue *r = chain_p->GetResidue(ires);
+         if (! r) continue;
+         if (r == residue_p) continue;
+         if (! test_residue_is_water)
+            if (is_water(r)) continue;
+         int n_atoms = r->GetNumberOfAtoms();
+         for (int iat=0; iat<n_atoms; iat++) {
+            mmdb::Atom *at = r->GetAtom(iat);
+            if (! at) continue;
+            if (at->isTer()) continue;
+            if (at->x < min_x || at->x > max_x) continue;
+            if (at->y < min_y || at->y > max_y) continue;
+            if (at->z < min_z || at->z > max_z) continue;
+            if (is_hydrogen_atom(at)) continue;
+            clipper::Coord_orth pt(at->x, at->y, at->z);
+            for (const auto &tp : test_positions)
+               if ((tp - pt).lengthsq() < dist_crit_sqrd)
+                  return true;
+         }
+      }
+   }
+   return false;
+}
+
 // Don't include residues that are HOH residues that are not bonded to
 // the protein (if bonding to res_ref but not protein, then reject.
 // Reject waters that are not within water_dist_max to any atom in

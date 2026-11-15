@@ -30,6 +30,7 @@
 #include "geometry/residue-and-atom-specs.hh"
 #include "stereo-eye.hh"
 #include <ctime>
+#include <deque>
 #ifndef HAVE_STRING
 #define HAVE_STRING
 #include <string>

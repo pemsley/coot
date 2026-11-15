@@ -3570,6 +3570,64 @@ void add_an_atom_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
 #include "get-monomer.hh"
 
+// Make a molecule of the given residue type, fit it to the map at the screen centre and
+// merge it into the molecule that is (now) selected in the "Add Other Solvent Molecules"
+// dialog - unless there is something there already.
+//
+// Used by the residue-type buttons and the new-residue-type entry of that dialog.
+//
+void add_other_solvent_molecule_of_type(const std::string &type) {
+
+   graphics_info_t g;
+
+   // the target molecule is that of the combobox now, not when the buttons were made.
+   GtkWidget *combobox = widget_from_builder("add_other_solvent_molecules_comboboxtext");
+   if (! combobox) return;
+   int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+   if (! g.is_valid_model_molecule(imol)) {
+      logger.log(log_t::WARNING, logging::function_name_t(__FUNCTION__),
+                 "no valid model molecule to which to add", type);
+      return;
+   }
+
+   int imol_ligand = get_monomer(type);
+   if (! g.is_valid_model_molecule(imol_ligand)) return;
+
+   fit_to_map_by_random_jiggle(imol_ligand, "A", 1, "", 100, 2.0);
+   coot::residue_spec_t rspec("A", 1, "");
+   mmdb::Residue *residue_p = g.molecules[imol_ligand].get_residue(rspec);
+   if (residue_p) {
+      mmdb::Manager *mol = g.molecules[imol_ligand].atom_sel.mol;
+      std::vector<mmdb::Residue *> v;
+      std::string alt_conf;
+      v.push_back(residue_p);
+      short int save_state = g.refinement_immediate_replacement_flag;
+      g.refinement_immediate_replacement_flag = 1;
+      g.refine_residues_vec(imol_ligand, v, alt_conf, mol);
+      g.refinement_immediate_replacement_flag = save_state;
+      c_accept_moving_atoms();
+      delete_hydrogen_atoms(imol_ligand);
+
+      // deleting the hydrogen atoms may have remade the residues, so look it up again
+      residue_p = g.molecules[imol_ligand].get_residue(rspec);
+      bool something_here_already = false;
+      if (residue_p)
+         something_here_already =
+            coot::residue_overlaps_atoms_in_molecule(residue_p, g.molecules[imol].atom_sel.mol, 1.0f);
+
+      if (something_here_already) {
+         std::string m = "There is something here already - " + type + " was not added";
+         logger.log(log_t::INFO, logging::function_name_t(__FUNCTION__), m);
+         g.add_status_bar_text(m);
+      } else {
+         std::vector<atom_selection_container_t> add_molecules_at_sels;
+         add_molecules_at_sels.push_back(g.molecules[imol_ligand].atom_sel);
+         g.molecules[imol].merge_molecules(add_molecules_at_sels);
+      }
+   }
+   close_molecule(imol_ligand);
+}
+
 void add_other_solvent_molecules_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                         G_GNUC_UNUSED GVariant *parameter,
                                         G_GNUC_UNUSED gpointer user_data) {
@@ -3587,36 +3645,9 @@ void add_other_solvent_molecules_action(G_GNUC_UNUSED GSimpleAction *simple_acti
                                        return vec;
                                     };
 
-   auto type_button_callback = +[] (GtkButton *b, gpointer data) {
-
-      graphics_info_t g;
+   auto type_button_callback = +[] (G_GNUC_UNUSED GtkButton *b, gpointer data) {
       std::string *s = static_cast<std::string *>(data);
-      std::string type = *s;
-      int imol_ligand = get_monomer(type);
-      fit_to_map_by_random_jiggle(imol_ligand, "A", 1, "", 100, 2.0);
-      if (g.is_valid_model_molecule(imol_ligand)) {
-	 coot::residue_spec_t rspec("A", 1, "");
-	 mmdb::Residue *residue_p = g.molecules[imol_ligand].get_residue(rspec);
-	 if (residue_p) {
-	    mmdb::Manager *mol = g.molecules[imol_ligand].atom_sel.mol;
-	    std::vector<mmdb::Residue *> v;
-	    std::string alt_conf;
-	    v.push_back(residue_p);
-	    short int save_state = g.refinement_immediate_replacement_flag;
-	    g.refinement_immediate_replacement_flag = 1;
-	    coot::refinement_results_t rr = g.refine_residues_vec(imol_ligand, v, alt_conf, mol);
-	    g.refinement_immediate_replacement_flag = save_state;
-	    c_accept_moving_atoms();
-	    delete_hydrogen_atoms(imol_ligand);
-	    int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(b), "imol"));
-	    if (g.is_valid_model_molecule(imol)) {
-	       std::vector<atom_selection_container_t> add_molecules_at_sels;
-	       add_molecules_at_sels.push_back(g.molecules[imol_ligand].atom_sel);
-	       g.molecules[imol].merge_molecules(add_molecules_at_sels);
-	       close_molecule(imol_ligand);
-	    }
-	 }
-      }
+      add_other_solvent_molecule_of_type(*s);
    };
 
    GtkWidget *dialog = widget_from_builder("add_other_solvent_molecules_dialog");
@@ -3647,13 +3678,10 @@ void add_other_solvent_molecules_action(G_GNUC_UNUSED GSimpleAction *simple_acti
 		  if (new_idx >= 0) {
 		     auto p = g.Geom_p()->get_monomer_name(type, imol_enc);
 		     if (p.first) {
-			GtkWidget *combobox = widget_from_builder("add_other_solvent_molecules_comboboxtext");
-			int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
 			std::string l = type + " " + p.second;
 			GtkWidget *button = gtk_button_new_with_label(l.c_str());
 			gtk_box_append(GTK_BOX(box), button);
 			std::string *t = new std::string(type);
-			g_object_set_data(G_OBJECT(button), "imol", GINT_TO_POINTER(imol));
 			g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(type_button_callback), t);
 		     } else {
 			logger.log(log_t::WARNING, logging::function_name_t(__FUNCTION__),
