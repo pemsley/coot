@@ -25,6 +25,7 @@ This is not an asynchronous function.
 
 Parameters
 ----------
-code : str
+pdb_accession_code : str
+    is the PDB accession code to fetch
 ";
 

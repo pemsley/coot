@@ -113,13 +113,14 @@ filename : str
 %feature("docstring") read_coordinates_as_string "
 read coordinates from a string
 
-  file_as_string  a string which is the contents of a file the new molecule index. Return -1 on failure
+  file_as_string  a string which is the contents of a file   molecule_name  the name of the new molecule the new molecule index. Return -1 on failure
 
 Parameters
 ----------
 file_as_string : str
     a string which is the contents of a file
 molecule_name : str
+    the name of the new molecule
 ";
 
 %feature("docstring") read_amber_trajectory "
