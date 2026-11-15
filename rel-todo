@@ -1,7 +1,18 @@
 --- Items---
 
+o fix the agentic coot checkpoint error. Needs to be tracked down.
+
+o Clement: libcootapi: sanity check of molecule at save time?
+
+o see bug.txt from Jordan
+
+o look at chi-5 in tutorial model and data in molprobity next
+
+o when adding a ligand, stop adding another ligand on top
+* Done.
 
 o allow me to change the cylinder thickness for Tube representation.
+* Done
 
 o Make bendy helices - 2nd order or third order?
 
@@ -29,8 +40,7 @@ o draw side-chain of a beta-strand (in particular) with a
   bond to the "CA"
 
 o full screen, edit restraints -> atom table gone?
-
-o see bug.txt from Jordan
+* Done.
 
 o Can we have a uniform bond colour that is different to the
   atom colours?
