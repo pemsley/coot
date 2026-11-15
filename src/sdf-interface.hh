@@ -33,7 +33,15 @@ bool residue_to_mdl_file_for_mogul(int imol, const char *chain_id,
 				   int res_no, const char *ins_code, 
 				   const char *mdl_file_name);
 
-bool show_feats(int imol, const char *chain_id, int resno, const char *ins_code);
+//! show chemical features for the specified residue
+//!
+//! hydrogen bond donors, acceptors, aromaticity, charged atoms, etc.
+//!
+//! @param imol the molecule index
+//! @param chain_id the chain-id
+//! @param res_no the residue number
+//! @param ins_code the insertion code
+bool show_feats(int imol, const char *chain_id, int res_no, const char *ins_code);
 
 #ifndef SWIG
 #include <mmdb2/mmdb_manager.h>

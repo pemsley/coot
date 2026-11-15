@@ -134,15 +134,30 @@ PyObject *kullback_liebler_py(PyObject *l1, PyObject *l2);
 double
 print_residue_distortions(int imol, std::string chain_id, int res_no, std::string ins_code);
 void
+//! display residue distortions for the specified residue
+//!
+//! @param imol the molecule index
+//! @param chain_id the chain-id
+//! @param res_no the residue number
+//! @param ins_code the insertion code
 display_residue_distortions(int imol, std::string chain_id, int res_no, std::string ins_code);
 
 void display_residue_hydrogen_bond_atom_status_using_dictionary(int imol, std::string chain_id, int res_no,
 								std::string ins_code);
 void
 write_dictionary_from_residue(int imol, std::string chain_id, int res_no, std::string ins_code, std::string cif_file_name);
-void 
+void
 add_dictionary_from_residue(int imol, std::string chain_id, int res_no, std::string ins_code);
 
+//! invert chiral centre
+//!
+//! create a new dictionary and a new molecule
+//!
+//! @param imol the molecule index
+//! @param chain_id the chain-id
+//! @param res_no the residue number
+//! @param ins_code the insertion code
+//! @param atom_name the atom whose chiral centre will be inverted
 void
 invert_chiral_centre(int imol, std::string chain_id, int res_no, std::string ins_code, std::string atom_name);
 
@@ -190,6 +205,10 @@ void set_all_atom_contact_dots_ignore_water(short int state);
 void set_all_atom_contact_dots_do_vdw_surface(short int state);
 
 #ifdef USE_PYTHON
+//! show contact dots for ligand
+//!
+//! @param imol the molecule index
+//! @param ligand_spec the ligand specifier
 void coot_contact_dots_for_ligand_py(int imol, PyObject *ligand_spec);
 // change HE2 to HD1 and vice versa
 void switch_HIS_protonation_py(int imol, PyObject *residue_spec);

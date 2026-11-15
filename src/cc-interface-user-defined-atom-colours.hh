@@ -51,6 +51,7 @@ void set_user_defined_atom_colour_by_selection_py(int imol, PyObject *residue_sp
 //!        and the second being the colour index (an int).
 //!
 //! @param imol the molecule index
+//! @param atom_specs_colour_index_tuple_list_py the atom-specs colour index list, e.g. '[("//A", 66)]'
 void set_user_defined_atom_colour_py(int imol, PyObject *atom_specs_colour_index_tuple_list_py);
 #endif // USE_PYTHON
 

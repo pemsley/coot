@@ -45,6 +45,7 @@
 #include "widget-from-builder.hh"
 #include "c-interface-gui.hh" // set transient for main window
 #include "cc-interface-scripting.hh"  // move this up
+#include "command-palette.hh"
 #include "cc-interface.hh"
 #include "fit-loop-gui.hh"
 #include "read-molecule.hh" // 20230621-PE now with std::string args
@@ -5167,6 +5168,20 @@ coot_shortcuts_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    }
 }
 
+void
+command_palette_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                       G_GNUC_UNUSED GVariant *parameter,
+                       G_GNUC_UNUSED gpointer user_data) {
+
+   // Show the palette in an idle callback: when the menu closes, it gives the focus back to the
+   // graphics, and the palette hides itself when it loses the focus.
+   auto show_cb = +[] (G_GNUC_UNUSED gpointer data) {
+      show_command_palette();
+      return gboolean(G_SOURCE_REMOVE);
+   };
+   g_idle_add(show_cb, nullptr);
+}
+
 
 void
 orthographic_view_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -7078,6 +7093,7 @@ create_actions(GtkApplication *application) {
    add_action("remarks_browser_action", remarks_browser_action);
    add_action("about_coot_action", about_coot_action);
    add_action("coot_shortcuts_action", coot_shortcuts_action);
+   add_action("command_palette_action", command_palette_action);
 
    // Refine menu
 

@@ -14,6 +14,7 @@ void set_bond_smoothness_factor(unsigned int fac);
 #include "ligand/richardson-rotamer.hh"  // for coot::richardson_rotamer (Rotamer Name key-binding)
 #include "graphics-info.h"
 #include "vte.hh"   // for show_command_vte_terminal() (Tab -> command line)
+#include "command-palette.hh"
 
 // can't be a lambda funtion because of capture issues
 
@@ -791,6 +792,11 @@ graphics_info_t::setup_key_bindings() {
       return gboolean(TRUE);
    };
 
+   auto l_command_palette = [] () {
+      show_command_palette();
+      return gboolean(TRUE);
+   };
+
    auto l_rotamer_name = [] () {
       graphics_info_t g;
       std::pair<int, mmdb::Atom *> aa = g.get_active_atom();
@@ -861,6 +867,7 @@ graphics_info_t::setup_key_bindings() {
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_c,      key_bindings_t(l_edit_chi_angles, "Edit Chi Angles")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_X,      key_bindings_t(l_rotamer_selection, "Rotamer Selection")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_asciitilde, key_bindings_t(l_rotamer_name, "Rotamer Name to Status Bar")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_slash,  key_bindings_t(l_command_palette, "Command Palette")));
    // kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_o,      key_bindings_t(l14, "NCS Skip forward")));
    // kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_O,      key_bindings_t(l15, "NCS Skip backward")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_u,      key_bindings_t(l16, "Undo Move")));

@@ -67,6 +67,7 @@ int read_coordinates(const std::string &filename);
 /*! \brief read coordinates from a string
  *
  * @param file_as_string a string which is the contents of a file
+ * @param molecule_name the name of the new molecule
  * @return the new molecule index. Return -1 on failure
  *
  */
