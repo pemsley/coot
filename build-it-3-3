@@ -2613,7 +2613,7 @@ if test -n "$build_clipper" ; then
 	--enable-ccp4    \
 	--enable-minimol \
 	--enable-cns     \
-       CXXFLAGS="-g -O2 -fno-strict-aliasing"
+       CXXFLAGS="-g -O2 -fno-strict-aliasing -Wno-narrowing -D_GLIBCXX_ASSERTIONS"
 
     ./configure --prefix=$install_top_dir \
 	--enable-mmdb=$install_top_dir \
@@ -2624,7 +2624,7 @@ if test -n "$build_clipper" ; then
 	--enable-ccp4    \
 	--enable-minimol \
 	--enable-cns     \
-       CXXFLAGS="-g -O2 -fno-strict-aliasing -Wno-narrowing"
+       CXXFLAGS="-g -O2 -fno-strict-aliasing -Wno-narrowing -D_GLIBCXX_ASSERTIONS"
     export LIBS="$save_libs"
     # 20110921 I don't think we need these flags any longer
     #        CCP4_CXXFLAGS=-I$install_top_dir/include CCP4_LIBS=$install_top_dir/lib/libccp4c.la
@@ -5127,6 +5127,7 @@ echo BUILDING: coot >&2
 #     $architecture is not set for Mac OS X.
 coot_optim_args=
 export CXXFLAGS="-g -O "
+export CPPFLAGS="$CPPFLAGS -D_GLIBCXX_ASSERTIONS"
 
 cbis_d=$(date +'%a %d %b %H%M.%S %Z %Y')
 coot_build_info_string="build-host: $HOST on: $cbis_d"
