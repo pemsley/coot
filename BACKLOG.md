@@ -393,3 +393,121 @@ both need re-testing.
 - **Comment disagrees with the code.** In
   `place_alpha_helix_near_kc_version()` the comment says the centre movement is
   limited to 1.5A, but `max_allowed_move` is 1.0.
+
+## Dialogs shown without a transient parent (macOS full-screen bug)
+
+On macOS, when the main window is full-screen, a dialog that is mapped before
+it has been made transient for the main window is itself made full-screen, and
+its top row of widgets is off the top of the screen. Seen with the Restraints
+Editor and with Go To Atom (both now fixed); Display Manager, which is made
+transient before it is shown, was fine.
+
+The fix is per-dialog: call `set_transient_for_main_window(dialog)` before the
+`gtk_widget_set_visible(dialog, TRUE)` / `gtk_window_present()`. Where all the
+show paths go through one `wrapped_create_*()` function, put the call there (as
+was done in `wrapped_create_goto_atom_window()`). Also make sure that the
+top-level in the `.ui` file does not have `visible` set to `True` (it is shown
+at builder-load time otherwise) - the Restraints Editor was the only one.
+
+The lists below are from a script pass over `ui/*.ui` and `src/*.cc` (14 Nov
+2026), with the show call for each hit then read by hand. Line numbers are as
+of that date. Only Go To Atom and the Restraints Editor have been confirmed by
+running Coot.
+
+### Shown with no transient parent
+
+Navigation / display:
+
+- `global_map_properties_window` - `create-menu-item-actions.cc:4502`
+- `display_control_window_glade` - `c-interface.cc:6233` (the scripting path,
+  `post_display_control_window()`, only; the button path is fine)
+
+Model building:
+
+- `add_alt_conf_dialog` - `c-interface-build-gui.cc:610`
+- `align_and_mutate_dialog` - `create-menu-item-actions.cc:1368`
+- `change_chain_id_dialog` - `create-menu-item-actions.cc:945`
+- `merge_molecules_dialog` - `c-interface-build-gui.cc:800`
+- `replace_fragment_dialog` - `create-menu-item-actions.cc:1100`
+- `other_model_tools_dialog` - `create-menu-item-actions.cc:3286`
+- `fixed_atom_dialog` - `glade-callbacks-main-window.cc:105`,
+  `glade-callbacks.cc:1026,5805`
+- `pointer_atom_type_dialog` - `c-interface-build-gui.cc:329`
+- `edit_backbone_torsions_dialog` - `graphics-info-gui.cc:2820`
+- `chi_angle_help_dialog` - `glade-callbacks.cc:3120`
+- `residue_type_chooser_window` - `graphics-info-defines.cc:1557,1590`,
+  `c-interface-build-side-chain.cc:661`
+- `nucleic_acid_base_chooser_dialog` - `graphics-info-defines.cc:1554`
+- `undo_molecule_chooser_dialog` - `graphics-info.cc:4519,4586`
+- `recover_coordinates_dialog`, `nothing_to_recover_dialog` -
+  `c-interface-build-gui.cc:645,653`
+
+Baton / skeleton:
+
+- `baton_dialog` - `graphics-info-gui.cc:765`
+- `baton_mode_make_skeleton_dialog` - `graphics-info.cc:3912`
+- `skeleton_dialog` - `graphics-info.cc:3901`
+
+Ligands / waters:
+
+- `find_ligand_many_atoms_dialog` - `c-interface-ligands-gui.cc:680`
+- `new_ligands_info_dialog`, `no_new_ligands_info_dialog` -
+  `c-interface-ligands.cc:1081,1085`
+- `ligand_check_dialog` - `c-interface-ligands-gui.cc:1168`
+- `monomer_search_dialog` - `create-menu-item-actions.cc:559`
+- `find_waters_dialog` - `c-interface-waters-gui.cc:261`
+- `interesting_waters_by_difference_map_check_dialog` -
+  `graphics-info-gui.cc:3437`
+
+Validation / refinement:
+
+- `bad_chiral_volumes_dialog`, `no_bad_chiral_volumes_dialog` -
+  `graphics-info-gui.cc:3619`, `graphics-info.cc:5919`
+- `chiral_restraints_problem_dialog` - `graphics-info.cc:5922`
+- `no_restraints_info_dialog` - `graphics-info-modelling.cc:1513`,
+  `graphics-info-graphs.cc:1442`
+- `download_monomers_dialog` - `graphics-info-modelling.cc:399`
+- `no_cif_dictionary_bonds_dialog` - `graphics-info.cc:514`
+- `rigid_body_refinement_failed_dialog` - `graphics-info-modelling.cc:3213`
+- `add_terminal_residue_finds_none_dialog` - `graphics-info-modelling.cc:3495`
+- `nothing_bad_dialog` - `glade-callbacks.cc:3978`
+- `simple_refmac_dialog` - `simple-refmac.cc:67`
+- `simple_refmac_filechooser_dialog` - `glade-callbacks.cc:6835`
+
+Maps / other:
+
+- `map_partition_by_chain_dialog` - `cc-interface-map-utils.cc:709`
+- `hole_dialog` - `create-menu-item-actions.cc:2034`
+- `phs_info_box` - `cmtz-interface.cc:678`
+- `run_state_file_dialog` - `c-interface.cc:8155`
+
+File choosers:
+
+- `cif_dictionary_filechooser_dialog` - `c-interface-gui.cc:193`
+- `export_map_file_chooser_dialog` - `glade-callbacks.cc:6367`
+- `save_symmetry_coords_filechooser_dialog` - `graphics-info-defines.cc:1974`
+- `save_restraint_chooserdialog` (Restraints Editor "Save") -
+  `restraints-editor.cc:1379`
+
+### Not yet traced
+
+The script found no show call for these, so they need checking by hand:
+`active_map_window`, `aniso_window`, `centre_atom_label_dialog`,
+`check_chiral_volumes_dialog`, `check_waters_diff_map_dialog`,
+`close_molecule_dialog`, `delete_item_dialog`, `doc_urls_dialog`, `fps_window`,
+`hints_dialog`, `lsq_plane_dialog`, `no_symmetry_warning_dialog`,
+`popup_info_window`, `ramachandran_plot_differences_dialog`,
+`read_pdb_recentre_dialog`, `rotation_centre_cube_size_window`,
+`run_refmac_dialog`, `run_refmac_help_dialog`, `run_script_filechooser_dialog`,
+`save_coordinates_filechooser_dialog`, `skeletonization_box_radius_window`,
+`skeletonization_level_window`, `smooth_scroll_window`, `stereo_dialog`,
+`superpose_nonsense_dialog`, `symmetry_controller_dialog`, `zoom_dialog`,
+`single_map_properties_dialog` (own `.ui` file).
+
+### Also unchecked
+
+- The ~42 dialogs that the script passed: it only tested that there is a
+  transient call somewhere in the same function as the show call, not that the
+  call is for that dialog or that it comes before the show.
+- Windows made in code (`gtk_dialog_new()`, `gtk_window_new()`) and dialogs
+  made from Python.
