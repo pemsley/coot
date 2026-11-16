@@ -125,6 +125,14 @@ coot::simple_mesh_t::export_to_gltf(const std::string &file_name,
    buffer.uri = "";
    int buffer_index = 0;
 
+   // Append the raw bytes of a vector's elements to buffer.data.
+   // (Casting a std::vector<T>* to std::vector<unsigned char>* and copying begin()..end()
+   // is undefined behaviour: with LLVM 23's libc++ it copies one byte per element.)
+   auto append_bytes = [&buffer] (const void *data, size_t n_bytes) {
+      const unsigned char *p = static_cast<const unsigned char *>(data);
+      buffer.data.insert(buffer.data.end(), p, p + n_bytes);
+   };
+
    std::cout << "debug:: buffer.data.size() is now " << buffer.data.size() << std::endl;
 
    {  // ---- positions ----
@@ -151,9 +159,7 @@ coot::simple_mesh_t::export_to_gltf(const std::string &file_name,
       // let's make a unsigned char vector for these postions and append them to
       // buffer
 
-      std::vector<glm::vec3> *vec3_data = &ebi.positions;
-      std::vector<unsigned char> *uchar_data = reinterpret_cast<std::vector<unsigned char> *> (vec3_data);
-      buffer.data.insert(buffer.data.end(), uchar_data->begin(), uchar_data->end());
+      append_bytes(ebi.positions.data(), n_bytes);
 
       buffer_view.target = TINYGLTF_TARGET_ARRAY_BUFFER;
 
@@ -202,9 +208,7 @@ coot::simple_mesh_t::export_to_gltf(const std::string &file_name,
       buffer_view.target = TINYGLTF_TARGET_ARRAY_BUFFER;
 
       model.bufferViews.push_back(buffer_view);
-      std::vector<glm::vec3> *vec3_data = &ebi.normals;
-      std::vector<unsigned char> *uchar_data = reinterpret_cast<std::vector<unsigned char> *> (vec3_data);
-      buffer.data.insert(buffer.data.end(), uchar_data->begin(), uchar_data->end());
+      append_bytes(ebi.normals.data(), n_bytes);
       model.accessors.push_back(accessor_for_normals);
    }
    std::cout << "debug:: buffer.data.size() is now " << buffer.data.size() << std::endl;
@@ -234,9 +238,7 @@ coot::simple_mesh_t::export_to_gltf(const std::string &file_name,
       buffer_view.target = TINYGLTF_TARGET_ARRAY_BUFFER;
 
       model.bufferViews.push_back(buffer_view);
-      std::vector<glm::vec4> *vec4_data = &ebi.vertex_colours;
-      std::vector<unsigned char> *uchar_data = reinterpret_cast<std::vector<unsigned char> *> (vec4_data);
-      buffer.data.insert(buffer.data.end(), uchar_data->begin(), uchar_data->end());
+      append_bytes(ebi.vertex_colours.data(), n_bytes);
       model.accessors.push_back(accessor_for_colours);
    }
    std::cout << "debug:: buffer.data.size() is now " << buffer.data.size() << std::endl;
@@ -262,9 +264,7 @@ coot::simple_mesh_t::export_to_gltf(const std::string &file_name,
       buffer_view.byteLength = n_bytes;
       buffer_view.byteStride = 0; // tightly packed
       buffer_view.target = TINYGLTF_TARGET_ELEMENT_ARRAY_BUFFER;
-      std::vector<g_triangle> *index_data = &ebi.triangles;
-      std::vector<unsigned char> *uchar_data = reinterpret_cast<std::vector<unsigned char> *> (index_data);
-      buffer.data.insert(buffer.data.end(), uchar_data->begin(), uchar_data->end());
+      append_bytes(ebi.triangles.data(), n_bytes);
 
       std::cout << "DEBUG:: buffer_view for triangles triangles.size " << triangles.size() << std::endl;
       std::cout << "DEBUG:: buffer_view for triangles: n_bytes " << n_bytes << std::endl;
