@@ -2148,6 +2148,9 @@ public:        //                      public
 			bool save_conect_records=0);
    int quick_save(); // save to default file name if has unsaved changes.  Return non-zero on problem.
    std::string stripped_save_name_suggestion(); // sets coot_save_index maybe
+   std::string save_map_name_suggestion() const; // for a map that was created in this session
+   int save_map(const std::string &file_name); // write a CCP4 map and update the save state commands.
+                                               // Return 0 on success.
    int Have_unsaved_changes_p() const;
    bool Have_modifications_p() const { return history_index > 0 ? 1 : 0;}
    bool Have_redoable_modifications_p() const ;
