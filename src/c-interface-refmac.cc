@@ -40,7 +40,7 @@
 void set_refmac_counter(int imol, int refmac_count) {
 
    graphics_info_t g;
-   if (imol < g.n_molecules()) {
+   if (is_valid_model_molecule(imol)) {
       g.molecules[imol].set_refmac_counter(refmac_count);
       std::cout << "INFO:: refmac counter of molecule number " << imol
                << " incremented to " << refmac_count << std::endl;
@@ -62,6 +62,7 @@ std::string refmac_name(int imol) {
    std::vector<coot::command_arg_t> args;
    args.push_back(imol);
    add_to_history_typed(cmd, args);
+   if (! is_valid_model_molecule(imol)) return std::string();
    return g.molecules[imol].Refmac_in_name();
 }
 

@@ -3892,6 +3892,9 @@ string   static std::string sessionid;
 
    // all molecule rotamer score, (depends on private rotamer probability tables)
    coot::rotamer_score_t all_molecule_rotamer_score(int imol) const;
+   // composition, geometry (rmsd bonds and angles) and validation statistics.
+   // A value of -1 means that the statistic could not be calculated.
+   coot::model_composition_stats_t get_model_composition_statistics(int imol);
 
    // update self?
    static bool update_self;

@@ -180,9 +180,12 @@ std::pair<bool, std::vector<coot::residue_spec_t> > molecule_class_info_t::compa
  */
 coot::backup_file_info_t molecule_class_info_t::get_backup_info(int backup_index) {
 
+   // backup_index is the value returned by make_backup_checkpoint(), so, as in
+   // restore_to_backup_checkpoint(), the info is at history_filename_vec[backup_index - 1].
    coot::backup_file_info_t bfi;
-   if (backup_index < int(history_filename_vec.size()) && backup_index >= 0) {
-      coot::backup_file_info_t bfi = history_filename_vec[backup_index];
+   int vec_index = backup_index - 1;
+   if (vec_index < int(history_filename_vec.size()) && vec_index >= 0) {
+      bfi = history_filename_vec[vec_index];
    }
    return bfi;
 }

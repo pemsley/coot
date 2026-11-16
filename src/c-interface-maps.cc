@@ -221,13 +221,13 @@ PyObject *calculate_maps_and_stats_py(int imol_model,
    // construct return value
    //
    PyObject *r = Py_False;
-   if (is_valid_model_molecule(imol_model)) {
+   if (is_valid_model_molecule(imol_model) && is_valid_map_molecule(imol_map_with_data_attached)) {
       graphics_info_t g;
       if (is_valid_map_molecule(imol_map_2fofc)) {
          if (is_valid_map_molecule(imol_map_fofc)) {
             clipper::Xmap<float> &xmap_2fofc = g.molecules[imol_map_2fofc].xmap;
             clipper::Xmap<float> &xmap_fofc  = g.molecules[imol_map_fofc].xmap;
-            stats = g.sfcalc_genmaps_using_bulk_solvent(imol_model, imol_map_2fofc, &xmap_2fofc, &xmap_fofc);
+            stats = g.sfcalc_genmaps_using_bulk_solvent(imol_model, imol_map_with_data_attached, &xmap_2fofc, &xmap_fofc);
             g.molecules[imol_map_2fofc].set_mean_and_sigma(false, g.ignore_pseudo_zeros_for_map_stats);
             g.molecules[imol_map_fofc ].set_mean_and_sigma(false, g.ignore_pseudo_zeros_for_map_stats);
             float cls_2fofc = g.molecules[imol_map_2fofc].get_contour_level_by_sigma();
@@ -237,13 +237,11 @@ PyObject *calculate_maps_and_stats_py(int imol_model,
             std::string sbt = make_status_bar_text(stats);
             add_status_bar_text(sbt.c_str());
             r = pythonize_stats(stats);
+            updating_model_molecule_parameters_t ummp(imol_model, imol_map_with_data_attached, imol_map_2fofc, imol_map_fofc);
+            g.calculate_new_rail_points(ummp);
          }
       }
    }
-
-   graphics_info_t g;
-   updating_model_molecule_parameters_t ummp(imol_model, imol_map_2fofc, imol_map_2fofc, imol_map_fofc);
-   g.calculate_new_rail_points(ummp);
 
    graphics_draw();
    std::vector<coot::command_arg_t> commands;
@@ -629,7 +627,7 @@ int make_and_draw_map_with_reso_with_refmac_params(const char *mtz_file_name,
          sensible_r_free_col = 0;
       } else {
          fobs_col_str    = single_quote(fobs_col);
-         sigfobs_col_str = single_quote(sigfobs_col_str);
+         sigfobs_col_str = single_quote(sigfobs_col);
          r_free_col_str  = single_quote(r_free_col);
       }
 
@@ -660,7 +658,6 @@ int make_updating_map(const char *mtz_file_name,
 		      const char *weight_col,
 		      int use_weights, int is_diff_map) {
 
-   int status = 1;
    int imol = make_and_draw_map(mtz_file_name, f_col, phi_col, weight_col, use_weights, is_diff_map);
 
    if (is_valid_map_molecule(imol)) {
@@ -674,7 +671,7 @@ int make_updating_map(const char *mtz_file_name,
       guint updating_map_timeout_idx = g_timeout_add(500, f, ump);
    }
 
-   return status;
+   return imol;
 }
 
 
@@ -1079,7 +1076,7 @@ int swap_difference_map_colours_state() {
 int set_map_is_difference_map(int imol, short int  bool_flag) {
 
    int istatus = 0;
-   if (imol< graphics_n_molecules()) {
+   if (imol >= 0 && imol < graphics_n_molecules()) {
       if (graphics_info_t::molecules[imol].has_xmap()) {
 	 graphics_info_t::molecules[imol].set_map_is_difference_map(bool_flag);
 	 istatus = 1;
@@ -1398,7 +1395,10 @@ void change_contour_level(short int is_increment) { // else is decrement.
    if (is_valid_map_molecule(s)) {
 
       if (g.molecules[s].is_difference_map_p()) {
-    g.molecules[s].contour_level += g.diff_map_iso_level_increment;
+         if (is_increment)
+            g.molecules[s].contour_level += g.diff_map_iso_level_increment;
+         else
+            g.molecules[s].contour_level -= g.diff_map_iso_level_increment;
       } else {
     // normal case
     if (is_increment) {
@@ -2244,8 +2244,9 @@ int make_variance_map(const std::vector<int> &map_molecule_number_vec) {
    std::vector<std::pair<clipper::Xmap<float>, float> > xmaps;
    for (unsigned int i=0; i<map_molecule_number_vec.size(); i++) {
       int imol = map_molecule_number_vec[i];
-      is_em_flag = graphics_info_t::molecules[imol].is_EM_map();
       if (is_valid_map_molecule(imol)) {
+         if (graphics_info_t::molecules[imol].is_EM_map())
+            is_em_flag = true;
          float scale = 1.0;
          xmaps.push_back(std::pair<clipper::Xmap<float>, float> (graphics_info_t::molecules[imol].xmap, scale));
       }
@@ -3118,7 +3119,7 @@ void set_auto_updating_sfcalc_genmaps(int imol_model, int imol_map_with_data_att
       if (is_valid_map_molecule(imol_map_with_data_attached)) {
          if (is_valid_map_molecule(imol_updating_fofc_map)) {
             if (map_is_difference_map(imol_updating_fofc_map)) {
-               if (is_valid_map_molecule(imol_updating_fofc_map)) {
+               if (is_valid_map_molecule(imol_updating_2fofc_map)) {
 
                   updating_model_molecule_parameters_t ummp(imol_model, imol_map_with_data_attached,
                                                             imol_updating_2fofc_map, imol_updating_fofc_map);
@@ -3165,24 +3166,28 @@ void set_radial_map_colouring_enabled(int imol, int state) {
 void set_radial_map_colouring_centre(int imol, float x, float y, float z) {
    if (is_valid_map_molecule(imol))
       graphics_info_t::molecules[imol].set_radial_map_colouring_centre(x,y,z);
+   graphics_draw();
 }
 
 //! \brief radial map colouring min
 void set_radial_map_colouring_min_radius(int imol, float r) {
    if (is_valid_map_molecule(imol))
       graphics_info_t::molecules[imol].set_radial_map_colouring_min_radius(r);
+   graphics_draw();
 }
 
 //! \brief radial map colouring max
 void set_radial_map_colouring_max_radius(int imol, float r) {
    if (is_valid_map_molecule(imol))
       graphics_info_t::molecules[imol].set_radial_map_colouring_max_radius(r);
+   graphics_draw();
 }
 
 //! \brief radial map colouring inverted colour map
 void set_radial_map_colouring_invert(int imol, int invert_state) {
    if (is_valid_map_molecule(imol))
       graphics_info_t::molecules[imol].set_radial_map_colouring_invert(invert_state);
+   graphics_draw();
 }
 
 //! \brief radial map colouring saturation
@@ -3191,6 +3196,7 @@ void set_radial_map_colouring_invert(int imol, int invert_state) {
 void set_radial_map_colouring_saturation(int imol, float saturation) {
    if (is_valid_map_molecule(imol))
       graphics_info_t::molecules[imol].set_radial_map_colouring_saturation(saturation);
+   graphics_draw();
 }
 
 int flip_hand(int imol) {
@@ -3291,6 +3297,10 @@ int analyse_map_point_density_change(const std::vector<int> &map_number_list, in
    clipper::Xmap<float> xmap_for_mask;
    if (is_valid_map_molecule(imol_map_mask)) {
       xmap_for_mask = graphics_info_t::molecules[imol_map_mask].xmap;
+   } else {
+      std::cout << "WARNING:: analyse_map_point_density_change(): " << imol_map_mask
+                << " is not a valid map molecule (for the mask)" << std::endl;
+      return -1;
    }
 
    std::cout << "DEBUG:: in analyse_map_point_density_change() with xmaps size " << xmaps.size() << std::endl;

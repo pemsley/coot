@@ -590,8 +590,10 @@ molecule_class_info_t::generate_local_self_restraints(int selHnd, float local_di
       std::cout << "DEBUG:: here we are in mci::generate_local_self_restraints()! " << local_dist_max
                 << std::endl;
 
-   // clear what's already there - if anything
-   extra_restraints.bond_restraints.clear();
+   // 20191120-PE self restraints are GM restraints, not bond restraints, so
+   // the (user-defined) extra bond restraints should not be cleared here.
+   // Note: the GM restraints are not cleared either, because this function can
+   // be called once per chain/selection.
 
    int nSelAtoms;
    mmdb::PPAtom SelAtom;

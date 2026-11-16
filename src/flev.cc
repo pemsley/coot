@@ -570,7 +570,9 @@ void fle_view(int imol, const char *chain_id, int res_no, const char *ins_code, 
          mmdb::Residue *residue_p = graphics_info_t::molecules[imol].get_residue(chain_id, res_no, ins_code);
          if (residue_p) {
             svg_container_t svgc = pli::fle_view_with_rdkit_internal(mol, imol, graphics_info_t::Geom_p(),
-                                                                     chain_id, res_no, ins_code, dist_max, add_key);
+                                                                     chain_id, res_no, ins_code, dist_max, add_key,
+                                                                     graphics_info_t::fle_water_dist_max,
+                                                                     graphics_info_t::fle_h_bond_dist_max);
             std::string s = svgc.compose(true);
             if (! s.empty()) {
                std::string rn = residue_p->GetResName();

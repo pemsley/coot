@@ -67,6 +67,8 @@
 #include "guile-fixups.h"
 #endif // USE_GUILE
 
+#include "utils/xdg-base.hh"
+
 #ifdef USE_GUILE
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wvolatile"
@@ -1841,7 +1843,7 @@ void info_dialog_with_markup(const char *txt) {
 
    graphics_info_t g;
    g.info_dialog_and_text(txt, true);
-   std::string cmd = "info-dialog-and-text";
+   std::string cmd = "info-dialog-with-markup";
    std::vector<coot::command_arg_t> args;
    args.push_back(single_quote(txt));
    add_to_history_typed(cmd, args);
@@ -3038,6 +3040,7 @@ get_symmetry_bonds_colour(int idummy) {
    colour[0] = graphics_info_t::symmetry_colour[0];
    colour[1] = graphics_info_t::symmetry_colour[1];
    colour[2] = graphics_info_t::symmetry_colour[2];
+   colour[3] = 1.0;
    return colour;
 }
 
@@ -3218,6 +3221,8 @@ void
 set_symmetry_colour_merge(float v) {
 
    graphics_info_t::symmetry_colour_merge_weight = v;
+   // as with the symmetry colour, the merge weight is baked into the mesh
+   graphics_info_t::update_symmetry();
    graphics_draw();
 
    std::string cmd = "set-symmetry-colour-merge";
@@ -3402,6 +3407,7 @@ void set_colour_by_ncs_chain(int imol, short int goodsell_mode) {
    std::string cmd = "set-colour-by-ncs-chain";
    std::vector<coot::command_arg_t> args;
    args.push_back(imol);
+   args.push_back(goodsell_mode);
    add_to_history_typed(cmd, args);
 }
 
@@ -3416,7 +3422,7 @@ void set_colour_by_chain_goodsell_mode(int imol) {
       graphics_info_t::molecules[imol].make_colour_by_chain_bonds(s,f,g, force_rebonding);
       graphics_draw();
    }
-   std::string cmd = "set-colour-by-chain";
+   std::string cmd = "set-colour-by-chain-goodsell-mode";
    std::vector<coot::command_arg_t> args;
    args.push_back(imol);
    add_to_history_typed(cmd, args);
@@ -3474,6 +3480,7 @@ get_show_unit_cell(int imol) {
    std::vector<coot::command_arg_t> args;
    args.push_back(imol);
    add_to_history_typed(cmd, args);
+   if (imol < 0 || imol >= graphics_info_t::n_molecules()) return 0;
    return graphics_info_t::molecules[imol].show_unit_cell_flag;
 }
 
@@ -3620,6 +3627,12 @@ void
 set_aniso_probability(float f) {
 
    graphics_info_t::show_aniso_atoms_probability = f;
+   // the probability is used when the meshes are made, so remake them
+   // for the molecules that are showing aniso atoms
+   for (int imol=0; imol<graphics_info_t::n_molecules(); imol++)
+      if (is_valid_model_molecule(imol))
+         if (graphics_info_t::molecules[imol].show_atoms_as_aniso_flag)
+            graphics_info_t::molecules[imol].make_bonds_type_checked(__FUNCTION__);
    graphics_draw();
 }
 
@@ -3930,28 +3943,7 @@ PyObject *additional_representation_info_py(int imol) {
 	    is_show_flag_py = Py_True;
 	 float bw = graphics_info_t::molecules[imol].add_reps[ir].bond_width;
 	 PyObject *bond_width_py = PyFloat_FromDouble(bw);
-	 PyObject *atom_spec_py = Py_False;
-	 // lines too long, make a rep
-	 coot::additional_representations_t rep =
-	    graphics_info_t::molecules[imol].add_reps[ir];
-	 int type = rep.atom_sel_info.type;
-	 if (type == coot::atom_selection_info_t::BY_STRING)
-	    atom_spec_py
-	       = myPyString_FromString(rep.atom_sel_info.atom_selection_str.c_str());
-	 else
-	    if (type == coot::atom_selection_info_t::BY_ATTRIBUTES) {
-	       atom_spec_py = PyList_New(4);
-	       PyObject *chain_id_py    = myPyString_FromString(rep.atom_sel_info.chain_id.c_str());
-	       PyObject *resno_start_py = PyLong_FromLong(rep.atom_sel_info.resno_start);
-	       PyObject *resno_end_py   = PyLong_FromLong(rep.atom_sel_info.resno_end);
-	       PyObject *ins_code_py    = myPyString_FromString(rep.atom_sel_info.ins_code.c_str());
-	       PyList_SetItem(atom_spec_py, 0, chain_id_py);
-	       PyList_SetItem(atom_spec_py, 1, resno_start_py);
-	       PyList_SetItem(atom_spec_py, 2, resno_end_py);
-	       PyList_SetItem(atom_spec_py, 3, ins_code_py);
-	    }
-	 // we dont use the atom_spec_py!? -> decref
-	 Py_XDECREF(atom_spec_py);
+	 // the atom selection is not (yet) part of the result (it is already in the info string)
 
      Py_XINCREF(is_show_flag_py);
 	 PyList_SetItem(l, 0, PyLong_FromLong(ir));
@@ -4435,7 +4427,7 @@ float average_temperature_factor(int imol) {
    short int high_cut_flag = 0;
 
    float av = -1.0;
-   if (imol < graphics_info_t::n_molecules()) {
+   if (imol >= 0 && imol < graphics_info_t::n_molecules()) {
       if (graphics_info_t::molecules[imol].has_model()) {
 	 av = coot::util::average_temperature_factor(graphics_info_t::molecules[imol].atom_sel.atom_selection,
 						     graphics_info_t::molecules[imol].atom_sel.n_selected_atoms,
@@ -4776,6 +4768,7 @@ int reset_view() {
 	 graphics_info_t::molecules[ii].update_symmetry();
       }
       graphics_draw();
+      istat = 1; // we moved to a molecule centre
 
    }
 
@@ -5008,6 +5001,7 @@ void make_image_povray_py(const char *filename) {
    pov_name += ".pov";
    povray(pov_name.c_str());
    GtkAllocation allocation;
+   if (graphics_info_t::glareas.empty()) return;
    gtk_widget_get_allocation(graphics_info_t::glareas[0], &allocation);
    int x_size = allocation.width;
    int y_size = allocation.height;
@@ -5102,10 +5096,10 @@ int vt_surface_status() {
 /*  ----------------------------------------------------------------------- */
 
 
-// return status 1 is good, 0 is fail.
+// return status 0 is good, non-zero is fail.
 int save_coordinates(int imol, const char *filename) {
 
-   int ierr = 0;
+   int ierr = 1;
    if (is_valid_model_molecule(imol)) {
       ierr = graphics_info_t::molecules[imol].save_coordinates(filename);
    }
@@ -5223,6 +5217,8 @@ read_phs_and_make_map_with_reso_limits(int imol_ref, const char* phs_filename,
    if (is_valid_model_molecule(imol_ref) || is_valid_map_molecule(imol_ref)) {
       if (g.molecules[imol_ref].have_unit_cell) {
 	 try {
+	    if (! g.molecules[imol_ref].has_model()) // e.g. imol_ref is a map
+	       throw std::runtime_error("no model");
 	    std::pair<clipper::Cell,clipper::Spacegroup> xtal =
 	       coot::util::get_cell_symm( g.molecules[imol_ref].atom_sel.mol );
 	    cell = xtal.first;
@@ -5301,6 +5297,8 @@ read_phs_and_make_map_using_cell_symm_from_mol(const char *phs_filename_str, int
    if (is_valid_model_molecule(imol_ref) || is_valid_map_molecule(imol_ref)) {
       if (g.molecules[imol_ref].have_unit_cell) {
 	 try {
+	    if (! g.molecules[imol_ref].has_model()) // e.g. imol_ref is a map
+	       throw std::runtime_error("no model");
 	    std::pair<clipper::Cell,clipper::Spacegroup> xtal =
 	       coot::util::get_cell_symm( g.molecules[imol_ref].atom_sel.mol );
 	    cell = xtal.first;
@@ -5322,9 +5320,14 @@ read_phs_and_make_map_using_cell_symm_from_mol(const char *phs_filename_str, int
 	 std::string phs_filename(phs_filename_str);
 
 	 imol = g.create_molecule();
-	 g.molecules[imol].make_map_from_phs(spacegroup, cell, phs_filename);
-	 g.scroll_wheel_map = imol;
-	 graphics_draw();
+	 int istat = g.molecules[imol].make_map_from_phs(spacegroup, cell, phs_filename);
+	 if (istat != -1) {
+	    g.scroll_wheel_map = imol;
+	    graphics_draw();
+	 } else {
+	    g.erase_last_molecule();
+	    imol = -1;
+	 }
       }
    }
 
@@ -5353,6 +5356,8 @@ read_phs_and_make_map_using_cell_symm_from_mol_using_implicit_phs_filename(int i
    if (is_valid_model_molecule(imol_ref) || is_valid_map_molecule(imol_ref)) {
       if (g.molecules[imol_ref].have_unit_cell) {
 	 try {
+	    if (! g.molecules[imol_ref].has_model()) // e.g. imol_ref is a map
+	       throw std::runtime_error("no model");
 	    std::pair<clipper::Cell,clipper::Spacegroup> xtal =
 	       coot::util::get_cell_symm( g.molecules[imol_ref].atom_sel.mol );
 	    cell = xtal.first;
@@ -5432,9 +5437,11 @@ gchar *get_text_for_phs_cell_chooser(int imol, const char *field) {
    graphics_info_t g;
    gchar *retval = NULL;
    retval = (gchar *) malloc(12);
+   strcpy(retval, "  -  "); // the answer when there is no cell or the field is unknown
    int ihave_cell = 0;
    mmdb::realtype cell[6];
    const char *spgrp = NULL;
+   std::string spgrp_str; // owns the space group symbol when it comes from a map
 
    if (imol >= 0) {
       if (imol < graphics_info_t::n_molecules()) {
@@ -5464,7 +5471,8 @@ gchar *get_text_for_phs_cell_chooser(int imol, const char *field) {
 	       cell[4] = g.molecules[imol].xmap.cell().beta()  * RADTODEG;
 	       cell[5] = g.molecules[imol].xmap.cell().gamma() * RADTODEG;
 
-	       spgrp = spacegroup.descr().symbol_hm().c_str();
+	       spgrp_str = spacegroup.descr().symbol_hm();
+	       spgrp = spgrp_str.c_str();
 	    }
 
 
@@ -5489,11 +5497,6 @@ gchar *get_text_for_phs_cell_chooser(int imol, const char *field) {
 	       }
 	       if ( ! (strcmp(field, "gamma") ) ) {
 		  snprintf(retval, 11, "%6.2f",   cell[5]);
-	       }
-
-
-	       if (! ihave_cell) {
-		  strcpy(retval, "  -  ");
 	       }
 	    }
 	 }
@@ -6508,6 +6511,7 @@ void set_mol_active(int imol, int state) {
 int mol_is_displayed(int imol) {
 
    graphics_info_t g;
+   if (! is_valid_model_molecule(imol) && ! is_valid_map_molecule(imol)) return 0;
    return g.molecules[imol].draw_it;
 }
 
@@ -7659,6 +7663,10 @@ PyObject *residue_spec_make_triple_py(PyObject *res_spec_py) {
       PyObject *chain_id_py = PyList_GetItem(res_spec_py, offset);
       PyObject *res_no_py   = PyList_GetItem(res_spec_py, offset+1);
       PyObject *ins_code_py = PyList_GetItem(res_spec_py, offset+2);
+      // PyList_GetItem() returns borrowed references and PyList_SetItem() steals
+      Py_XINCREF(chain_id_py);
+      Py_XINCREF(res_no_py);
+      Py_XINCREF(ins_code_py);
       PyList_SetItem(r, 0, chain_id_py);
       PyList_SetItem(r, 1, res_no_py);
       PyList_SetItem(r, 2, ins_code_py);
@@ -8018,7 +8026,7 @@ void set_found_coot_python_gui() {
 // return an atom index
 int atom_spec_to_atom_index(int imol, const char *chain, int resno, const char *atom_name) {
    graphics_info_t g;
-   if (imol < graphics_n_molecules())
+   if (is_valid_model_molecule(imol))
       return g.molecules[imol].atom_spec_to_atom_index(chain, resno, atom_name);
    else
       return -1;
@@ -8028,7 +8036,7 @@ int full_atom_spec_to_atom_index(int imol, const char *chain, int resno,
 				 const char *inscode, const char *atom_name,
 				 const char *altloc) {
 
-   if (imol < graphics_n_molecules())
+   if (is_valid_model_molecule(imol))
       return graphics_info_t::molecules[imol].full_atom_spec_to_atom_index(std::string(chain), resno, std::string(inscode), std::string(atom_name), std::string(altloc));
    else
       return -1;
@@ -8071,9 +8079,9 @@ run_script(const char *filename) {
 //
 void
 run_state_file() {
-   std::string filename;
 #ifdef USE_GUILE
-   filename = "0-coot.state.scm";
+   xdg_t xdg;
+   std::string filename = xdg.get_state_home().append("0-coot.state.scm");
    struct stat buf;
    int status = stat(filename.c_str(), &buf);
    if (status == 0) {
@@ -8082,7 +8090,8 @@ run_state_file() {
    }
 #else
 #ifdef USE_PYTHON
-   filename = "0-coot.state.py";
+   xdg_t xdg;
+   std::string filename = xdg.get_state_home().append("0-coot.state.py");
    struct stat buf;
    int status = stat(filename.c_str(), &buf);
    if (status == 0) {
@@ -8096,8 +8105,8 @@ run_state_file() {
 #ifdef USE_PYTHON
 void
 run_state_file_py() {
-   std::string filename;
-   filename = "0-coot.state.py";
+   xdg_t xdg;
+   std::string filename = xdg.get_state_home().append("0-coot.state.py");
    struct stat buf;
    int status = stat(filename.c_str(), &buf);
    if (status == 0) {
@@ -8127,10 +8136,13 @@ void pre_load_rotamer_tables() {
 void
 run_state_file_maybe() {
 
-   std::string filename("0-coot.state.scm");
+   // this is only called from scm-boot-guile.cc:90
+
+   xdg_t xdg;
+   std::string filename = xdg.get_state_home().append("0-coot.state.scm");
 #ifdef USE_PYTHON
 #ifndef USE_GUILE
-   filename = "0-coot.state.py";
+   filename = xdg.get_state_home().append("0-coot.state.py");
 #endif
 #endif
    graphics_info_t g;
@@ -8163,29 +8175,25 @@ run_state_file_maybe() {
 
 GtkWidget *wrapped_create_run_state_file_dialog() {
 
+   xdg_t xdg;
+   std::string filename;
+
 #ifdef USE_GUILE
-   std::string filename("0-coot.state.scm");
-#else
-// BL says:: we might want to have it in python too
+   filename = xdg.get_state_home().append("0-coot.state.scm");
+#endif
+
 #ifdef USE_PYTHON
-   std::string filename("0-coot.state.py");
-#else
-   std::string filename("0-coot.state.scm"); // unusual
-#endif // python
-#endif // USE_GUILE
+   filename = xdg.get_state_home().append("0-coot.state.py");
+#endif // USE_PYTHON
+
    short int il = 1;
    graphics_info_t g;
-   // GtkWidget *w = create_run_state_file_dialog();
-   // GtkWidget *vbox_mols = lookup_widget(w, "mols_vbox");
 
    GtkWidget *w = NULL;
    GtkWidget *vbox_mols = NULL;
 
    w = widget_from_builder("run_state_file_dialog");
    vbox_mols = widget_from_builder("mols_vbox");
-
-   // std::cout << "########333333333333333 debug:: w " << w << std::endl;
-   // std::cout << "########333333333333333 debug:: vbox_mols " << vbox_mols << std::endl;
 
    if (w) {
       // std::cout << "wrapped_create_run_state_file_dialog():: got widget w " << w << std::endl;
@@ -8201,12 +8209,7 @@ GtkWidget *wrapped_create_run_state_file_dialog() {
       // gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
 
       gtk_label_set_xalign(GTK_LABEL(label), 0.0);
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
       gtk_box_append(GTK_BOX(vbox_mols), label);
-#else
-      gtk_box_pack_start(GTK_BOX(vbox_mols), label, FALSE, FALSE, 2);
-#endif
-
       gtk_widget_set_visible(label, TRUE);
    }
    return w;
@@ -8215,28 +8218,22 @@ GtkWidget *wrapped_create_run_state_file_dialog() {
 #ifdef USE_PYTHON
 GtkWidget *wrapped_create_run_state_file_dialog_py() {
 
-   std::string filename("0-coot.state.py");
+   xdg_t xdg;
+   std::string filename = xdg.get_state_home().append("0-coot.state.py");
    short int il = 1;
-   // GtkWidget *w = create_run_state_file_dialog();
    GtkWidget *w = widget_from_builder("run_state_file_dialog");
 
-   // GtkWidget *vbox_mols = lookup_widget(w, "mols_vbox");
    GtkWidget *vbox_mols = widget_from_builder("mols_vbox");
 
    graphics_info_t g;
    std::vector<std::string> v = g.save_state_data_and_models(filename, il);
    for (unsigned int i=0; i<v.size(); i++) {
-      //       std::cout << "Got molecule: " << v[i] << std::endl;
       std::string s = "    ";
       s += v[i];
       GtkWidget *label = gtk_label_new(s.c_str());
       std::cout << "fix the alignment wrapped_create_run_state_file_dialog_py()" << std::endl;
       // gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
       gtk_box_append(GTK_BOX(vbox_mols), label);
-#else
-      gtk_box_pack_start(GTK_BOX(vbox_mols), label, FALSE, FALSE, 2);
-#endif
       gtk_widget_set_visible(label, TRUE);
    }
    return w;
@@ -8772,7 +8769,7 @@ int read_cif_data_fofc_map(const char *filename, int imol_coordinates) {
    //
    if (status != 0 || !S_ISREG (s.st_mode)) {
       std::cout << "Error reading " << filename << std::endl;
-      if (S_ISDIR(s.st_mode)) {
+      if (status == 0 && S_ISDIR(s.st_mode)) {
 	 std::cout << filename << " is a directory." << std::endl;
       }
       return -1; // which is status in an error
@@ -8791,6 +8788,7 @@ int read_cif_data_fofc_map(const char *filename, int imol_coordinates) {
 	 graphics_draw();
 	 return imol;
       }
+      g.erase_last_molecule();
       return -1; // an error
    }
 }
@@ -8989,6 +8987,7 @@ int add_atom_label(int imol, const char *chain_id, int iresno, const char *atom_
 
 int remove_atom_label(int imol, const char *chain_id, int iresno, const char *atom_id) {
    graphics_info_t g;
+   if (! is_valid_model_molecule(imol)) return 0;
    return g.molecules[imol].remove_atom_label(chain_id, iresno, atom_id);
 }
 
@@ -10135,8 +10134,8 @@ void set_views_play_speed(float f) {
 }
 
 float views_play_speed() {
-   return graphics_info_t::views_play_speed;
    add_to_history_simple("views-play-speed");
+   return graphics_info_t::views_play_speed;
 }
 
 
@@ -10329,7 +10328,20 @@ void load_tutorial_model_and_data() {
 // is the probe executable available?
 // 1 for yes, 0 for no.
 //
+// The PATH is searched for molprobity.probe on the first call and the
+// result is cached.
+//
 int probe_available_p() {
+
+   if (graphics_info_t::probe_available == -1) {
+      gchar *exe = g_find_program_in_path("molprobity.probe");
+      if (exe) {
+         graphics_info_t::probe_available = 1;
+         g_free(exe);
+      } else {
+         graphics_info_t::probe_available = 0;
+      }
+   }
    int r = graphics_info_t::probe_available;
    return r;
 }
@@ -10339,8 +10351,7 @@ int probe_available_p() {
 // 1 for yes, 0 for no.
 //
 int probe_available_p_py() {
-   int r = graphics_info_t::probe_available;
-   return r;
+   return probe_available_p();
 }
 #endif // USE_PYTHON
 

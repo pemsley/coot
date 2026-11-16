@@ -255,6 +255,7 @@ int add_terminal_residue(int imol,
    command_strings.push_back(graphics_info_t::int_to_string(imol));
    command_strings.push_back(single_quote(chain_id));
    command_strings.push_back(graphics_info_t::int_to_string(residue_number));
+   command_strings.push_back(single_quote(residue_type_string));
    command_strings.push_back(graphics_info_t::int_to_string(immediate_add));
    add_to_history(command_strings);
    return istate;
@@ -329,13 +330,13 @@ void accept_baton_position() { 	/* put an atom at the tip and move baton */
 void baton_tip_try_another() {
    graphics_info_t g;
    g.baton_tip_try_another();
-   add_to_history_simple("baton-try-another");
+   add_to_history_simple("baton-tip-try-another");
 }
 
 void baton_tip_previous() {
    graphics_info_t g;
    g.baton_tip_previous();
-   add_to_history_simple("baton-try-another");
+   add_to_history_simple("baton-tip-previous");
 }
 
 void shorten_baton() {
@@ -567,7 +568,7 @@ void add_omega_torsion_restraints() {
 } 
 
 /*! \brief remove omega restraints on CIS and TRANS linked residues. */
-void remove_omega_torsion_restriants() {
+void remove_omega_torsion_restraints() {
 
    graphics_info_t g;
    g.Geom_p()->remove_omega_peptide_restraints();

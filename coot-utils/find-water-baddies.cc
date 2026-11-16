@@ -137,6 +137,7 @@ coot::find_water_baddies_OR(atom_selection_container_t atom_sel,
                               // B factor check:
                               if (! this_is_marked) {
                                  if (at->tempFactor > b_factor_lim && use_b_factor_limit_test) {
+                                    this_is_marked = true;
                                     marked_for_display.push_back(std::pair<mmdb::Atom *, float>(at, den));
                                  }
                               }
@@ -145,53 +146,64 @@ coot::find_water_baddies_OR(atom_selection_container_t atom_sel,
                               // distance check
                               if (! this_is_marked) {
 
-                                 // (ignoring things means less marked atoms)
-                                 if (ignore_part_occ_contact_flag == 0) {
+                                 // (close contacts to atoms with partial occupancy are not considered if
+                                 // ignore_part_occ_contact_flag is set)
+                                 if (ignore_zero_occ_flag == false || at->occupancy > 0.01) {
 
-                                    if (ignore_zero_occ_flag == false || at->occupancy > 0.01) {
+                                    double dist_to_atoms_min = 99999;
+                                    double dc_sqrd = dist_to_atoms_min * dist_to_atoms_min;
+                                    double d_sqrd_min = 999999999;
+                                    double d_sqrd_min_for_close_contact = 999999999; // sans part-occ atoms, maybe
+                                    clipper::Coord_orth a(at->x, at->y, at->z);
+                                    for (int j=0; j<atom_sel.n_selected_atoms; j++) {
+                                       if (at != atom_sel.atom_selection[j]) {
+                                          bool is_H = false;
+                                          // PDB v3 FIXME?
+                                          if (! strncmp(atom_sel.atom_selection[j]->element, " H", 2))
+                                             is_H = true;
 
-                                       double dist_to_atoms_min = 99999;
-                                       double dc_sqrd = dist_to_atoms_min * dist_to_atoms_min;
-                                       double d_sqrd_min = 999999999;
-                                       clipper::Coord_orth a(at->x, at->y, at->z);
-                                       for (int j=0; j<atom_sel.n_selected_atoms; j++) {
-                                          if (at != atom_sel.atom_selection[j]) {
-                                             bool is_H = false;
-                                             // PDB v3 FIXME?
-                                             if (! strncmp(atom_sel.atom_selection[j]->element, " H", 2))
-                                                is_H = true;
+                                          // a close contact to an atom with partial occupancy (e.g. an alt conf)
+                                          // should not make this water a baddie (such atoms still count
+                                          // for the "too far from anything" test)
+                                          bool is_ignored_part_occ = false;
+                                          if (ignore_part_occ_contact_flag)
+                                             if (atom_sel.atom_selection[j]->occupancy < 0.99)
+                                                is_ignored_part_occ = true;
 
-                                             if (! is_H) {
-                                                clipper::Coord_orth p(atom_sel.atom_selection[j]->x,
-                                                                      atom_sel.atom_selection[j]->y,
-                                                                      atom_sel.atom_selection[j]->z);
-                                                double d_sqrd = (p-a).lengthsq();
-                                                if (d_sqrd < d_sqrd_min) {
-                                                   d_sqrd_min = d_sqrd;
-                                                }
+                                          if (! is_H) {
+                                             clipper::Coord_orth p(atom_sel.atom_selection[j]->x,
+                                                                   atom_sel.atom_selection[j]->y,
+                                                                   atom_sel.atom_selection[j]->z);
+                                             double d_sqrd = (p-a).lengthsq();
+                                             if (d_sqrd < d_sqrd_min) {
+                                                d_sqrd_min = d_sqrd;
                                              }
+                                             if (! is_ignored_part_occ)
+                                                if (d_sqrd < d_sqrd_min_for_close_contact)
+                                                   d_sqrd_min_for_close_contact = d_sqrd;
                                           }
                                        }
-                                       bool dist_to_atoms_min_is_set = false;
-                                       if (d_sqrd_min < 999999998) {
-                                          // should be!
-                                          dist_to_atoms_min_is_set = true;
-                                          dist_to_atoms_min = sqrt(d_sqrd_min);
-                                       }
-                                       bool failed_min_dist_test = false;
-                                       bool failed_max_dist_test = false;
+                                    }
+                                    bool dist_to_atoms_min_is_set = false;
+                                    if (d_sqrd_min < 999999998) {
+                                       // should be!
+                                       dist_to_atoms_min_is_set = true;
+                                       dist_to_atoms_min = sqrt(d_sqrd_min);
+                                    }
+                                    bool failed_min_dist_test = false;
+                                    bool failed_max_dist_test = false;
 
-                                       if (dist_to_atoms_min_is_set && (dist_to_atoms_min < min_dist) && use_min_dist_test)
+                                    if (d_sqrd_min_for_close_contact < 999999998)
+                                       if (sqrt(d_sqrd_min_for_close_contact) < min_dist && use_min_dist_test)
                                           failed_min_dist_test = true;
 
-                                       if (dist_to_atoms_min_is_set && (dist_to_atoms_min > max_dist) && use_max_dist_test)
-                                          failed_max_dist_test = true;
+                                    if (dist_to_atoms_min_is_set && (dist_to_atoms_min > max_dist) && use_max_dist_test)
+                                       failed_max_dist_test = true;
 
-                                       if (failed_min_dist_test || failed_max_dist_test) {
+                                    if (failed_min_dist_test || failed_max_dist_test) {
 
-                                          // std::cout << "mark for display " << coot::atom_spec_t(at) << std::endl;
-                                          marked_for_display.push_back(std::pair<mmdb::Atom *, float>(at, den));
-                                       }
+                                       // std::cout << "mark for display " << coot::atom_spec_t(at) << std::endl;
+                                       marked_for_display.push_back(std::pair<mmdb::Atom *, float>(at, den));
                                     }
                                  }
                               }

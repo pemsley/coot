@@ -287,9 +287,10 @@ residue_info_dialog(int imol, const char *chain_id, int resno, const char *ins_c
    if (is_valid_model_molecule(imol)) {
       int atom_index = -1;
       mmdb::Residue *res = graphics_info_t::molecules[imol].residue_from_external(resno, ins_code, chain_id);
-      mmdb::PPAtom residue_atoms;
-      int n_residue_atoms;
-      res->GetAtomTable(residue_atoms, n_residue_atoms);
+      mmdb::PPAtom residue_atoms = 0;
+      int n_residue_atoms = 0;
+      if (res)
+         res->GetAtomTable(residue_atoms, n_residue_atoms);
       if (n_residue_atoms > 0) {
          mmdb::Atom *at = residue_atoms[0];
          int handle = graphics_info_t::molecules[imol].atom_sel.UDDAtomIndexHandle;
@@ -331,6 +332,10 @@ output_atom_info_as_text(int imol, const char *chain_id, int resno,
                                                         std::string(atname),
                                                         std::string(altconf));
 
+      if (index < 0) {
+         std::cout << "WARNING:: output_atom_info_as_text(): atom not found" << std::endl;
+         return;
+      }
       mmdb::Atom *atom = graphics_info_t::molecules[imol].atom_sel.atom_selection[index];
       std::cout << "(" << imol << ") "
                 << atom->name << "/"
@@ -437,7 +442,9 @@ atom_info_as_text_for_statusbar(int atom_index, int imol,
 
   std::string ai;
   ai = "";
-  if (is_valid_model_molecule(imol)) {
+  if (is_valid_model_molecule(imol) &&
+      atom_index >= 0 &&
+      atom_index < graphics_info_t::molecules[imol].atom_sel.n_selected_atoms) {
     mmdb::Atom *at = graphics_info_t::molecules[imol].atom_sel.atom_selection[atom_index];
     std::string alt_conf_bit("");
     if (strncmp(at->altLoc, "", 1))
@@ -803,7 +810,7 @@ PyObject *residues_near_residues_py(int imol, PyObject *residues_in, float radiu
       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       if (PyList_Check(residues_in)) {
          int l = PyList_Size(residues_in);
-         r = PyList_New(l);
+         r = PyList_New(0); // not every input spec need match a residue
          std::vector<std::pair<bool, mmdb::Residue *> > res_vec;
          for (int i=0; i<l; i++) {
             PyObject *item_py = PyList_GetItem(residues_in, i);
@@ -817,7 +824,6 @@ PyObject *residues_near_residues_py(int imol, PyObject *residues_in, float radiu
          std::map<mmdb::Residue *, std::set<mmdb::Residue *> > rnrs =
             coot::residues_near_residues(res_vec, mol, radius);
          std::map<mmdb::Residue *, std::set<mmdb::Residue *> >::const_iterator it;
-         int map_idx = 0;
          for(it=rnrs.begin(); it!=rnrs.end(); it++) {
             mmdb::Residue *res_key = it->first;
             const std::set<mmdb::Residue *> &s = it->second;
@@ -826,6 +832,7 @@ PyObject *residues_near_residues_py(int imol, PyObject *residues_in, float radiu
             // for historical reasons - get rid of that one day.
             PyObject *res_spec_py = residue_spec_to_py(coot::residue_spec_t(res_key));
             PyObject *key_py = residue_spec_make_triple_py(res_spec_py);
+            Py_DECREF(res_spec_py);
             PyObject *val_py = PyList_New(s.size());
             std::set<mmdb::Residue *>::const_iterator it_s;
             int idx = 0;
@@ -835,14 +842,15 @@ PyObject *residues_near_residues_py(int imol, PyObject *residues_in, float radiu
                // like above, fiddle with the residue spec
                PyObject *r_4_py = residue_spec_to_py(r_spec);
                PyObject *r_3_py = residue_spec_make_triple_py(r_4_py);
+               Py_DECREF(r_4_py);
                PyList_SetItem(val_py, idx, r_3_py);
                idx++;
             }
             PyObject *item_pair_py = PyList_New(2);
             PyList_SetItem(item_pair_py, 0, key_py);
             PyList_SetItem(item_pair_py, 1, val_py);
-            PyList_SetItem(r, map_idx, item_pair_py);
-            map_idx++;
+            PyList_Append(r, item_pair_py);
+            Py_DECREF(item_pair_py);
          }
       }
    }
@@ -878,7 +886,8 @@ PyObject *residues_near_residue_py(int imol, PyObject *residue_spec_in, float ra
                PyObject *res_spec_py = residue_spec_to_py(v[i]);
                PyObject *res_spec_triple_py = residue_spec_make_triple_py(res_spec_py);
                PyList_Append(r, res_spec_triple_py);
-               // Py_XDECREF(res_spec); - what did this do before I removed it?
+               Py_DECREF(res_spec_triple_py); // PyList_Append() took its own reference
+               Py_DECREF(res_spec_py);
             }
          } else {
             std::cout << "ERROR:: residues_near_residue_py() failed to construct "
@@ -1496,6 +1505,18 @@ SCM chain_fragments_scm(int imol, short int screen_output_also) {
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       std::vector<coot::fragment_info_t> f = g.molecules[imol].get_fragment_info(screen_output_also);
+      // a list of (chain-id (list-of (start-residue-spec end-residue-spec)))
+      r = SCM_EOL;
+      for (int i=int(f.size())-1; i>=0; i--) {
+         SCM ranges_scm = SCM_EOL;
+         for (int j=int(f[i].ranges.size())-1; j>=0; j--) {
+            SCM range_scm = scm_list_2(residue_spec_to_scm(f[i].ranges[j].start_res),
+                                       residue_spec_to_scm(f[i].ranges[j].end_res));
+            ranges_scm = scm_cons(range_scm, ranges_scm);
+         }
+         SCM item_scm = scm_list_2(scm_from_locale_string(f[i].chain_id.c_str()), ranges_scm);
+         r = scm_cons(item_scm, r);
+      }
    }
    return r;
 }
@@ -1508,6 +1529,21 @@ PyObject *chain_fragments_py(int imol, short int screen_output_also) {
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       std::vector<coot::fragment_info_t> f = g.molecules[imol].get_fragment_info(screen_output_also);
+      // a list of [chain-id, [[start-residue-spec, end-residue-spec], ...]]
+      r = PyList_New(f.size());
+      for (unsigned int i=0; i<f.size(); i++) {
+         PyObject *ranges_py = PyList_New(f[i].ranges.size());
+         for (unsigned int j=0; j<f[i].ranges.size(); j++) {
+            PyObject *range_py = PyList_New(2);
+            PyList_SetItem(range_py, 0, residue_spec_to_py(f[i].ranges[j].start_res));
+            PyList_SetItem(range_py, 1, residue_spec_to_py(f[i].ranges[j].end_res));
+            PyList_SetItem(ranges_py, j, range_py);
+         }
+         PyObject *item_py = PyList_New(2);
+         PyList_SetItem(item_py, 0, myPyString_FromString(f[i].chain_id.c_str()));
+         PyList_SetItem(item_py, 1, ranges_py);
+         PyList_SetItem(r, i, item_py);
+      }
    }
 
    if (PyBool_Check(r)) {
@@ -2373,7 +2409,7 @@ int undo_symmetry_view() {
          // so we have a set of matrices and origins shifts, find the
          // one that brings us closest to an atom in imol
          //
-         g.unapply_symmetry_to_view(imol, symm_mat_and_pre_shift_vec);
+         r = g.unapply_symmetry_to_view(imol, symm_mat_and_pre_shift_vec);
       }
    } else {
       std::cout << "WARNING:: No molecule found that was displaying symmetry"
@@ -2910,7 +2946,7 @@ set_axis_orientation_matrix(float m11, float m12, float m13,
    std::vector<coot::command_arg_t> args;
    args.push_back(m11);
    args.push_back(m12);
-   args.push_back(m12);
+   args.push_back(m13);
    args.push_back(m21);
    args.push_back(m22);
    args.push_back(m23);
@@ -3449,6 +3485,8 @@ PyObject *save_coords_name_suggestion_py(int imol) {
       r = myPyString_FromString(s.c_str());
    }
 
+   if (PyBool_Check(r))
+      Py_INCREF(r);
    return r;
 }
 #endif /*  USE_PYTHON */
@@ -3712,7 +3750,12 @@ PyObject *cell_py(int imol) {
 // use should be given access to colour and size.
 int place_text(const char *text, float x, float y, float z, int size) {
 
-   int handle = graphics_info_t::generic_texts.size();
+   // the handle must be unique (and stay so after a remove_text()), so
+   // it can't be the size of the vector.
+   int handle = 0;
+   for (const auto &gt : graphics_info_t::generic_texts)
+      if (gt.handle >= handle)
+         handle = gt.handle + 1;
    std::string s(text);
    coot::generic_text_object_t o(s, handle, x, y, z);
    graphics_info_t::generic_texts.push_back(o);
@@ -3756,10 +3799,11 @@ void edit_text(int text_handle, const char *str) {
 
    graphics_info_t g;
    if (str) {
-      if (text_handle >= 0) {
-         unsigned int ui_text_handle = text_handle;
-         if (ui_text_handle < g.generic_texts.size()) {
-            g.generic_texts[ui_text_handle].s = str;
+      // find the text by its handle (not its position, see remove_text())
+      for (auto &gt : g.generic_texts) {
+         if (gt.handle == text_handle) {
+            gt.s = str;
+            break;
          }
       }
    }

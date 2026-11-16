@@ -3662,7 +3662,9 @@ public:
    //! @param outlier_sigma_level typical value is 0.8
    //! @param min_dist typical value is 2.3
    //! @param max_dist typical value is 3.5
-   //! @param ignore_part_occ_contact_flag typical value is False
+   //! @param ignore_part_occ_contact_flag if True, atoms with partial occupancy
+   //!        are ignored in the min_dist (close contact) test.
+   //!        Typical value is False
    //! @param ignore_zero_occ_flag typical value is False
    //!
    //! @return a vector/list of atom specifiers

@@ -1091,8 +1091,21 @@ void set_debug_refinement(int state) {
 #pragma GCC diagnostic ignored "-Wvolatile"
 SCM get_residue_alt_confs_scm(int imol, const char *chain_id, int res_no, const char *ins_code) {
 
-   SCM r = SCM_EOL;
-   std::cout << "get_residue_alt_confs_scm(): Needs to be implemented" << std::endl;
+   // as get_residue_alt_confs_py()
+   SCM r = SCM_BOOL_F;
+
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Residue *residue_p = graphics_info_t::molecules[imol].get_residue(chain_id, res_no, ins_code);
+      if (residue_p) {
+         std::vector<std::string> ac = graphics_info_t::molecules[imol].get_residue_alt_confs(residue_p);
+         if (! ac.empty()) {
+            r = SCM_EOL;
+            for (unsigned int i=0; i<ac.size(); i++)
+               r = scm_cons(scm_from_locale_string(ac[i].c_str()), r);
+            r = scm_reverse(r);
+         }
+      }
+   }
    return r;
 
 }
@@ -2061,7 +2074,7 @@ void set_delete_chain_mode() {
    g.delete_item_sidechain_range = 0;
    g.delete_item_chain = 1;
    pick_cursor_maybe();
-   add_to_history_simple("set-delete-sidechain-mode");
+   add_to_history_simple("set-delete-chain-mode");
 
 }
 
@@ -2420,7 +2433,7 @@ short int progressive_residues_in_chain_check(const char *chain_id, int imol) {
    add_to_history_typed(cmd, args);
 
    graphics_info_t g;
-   if (imol < graphics_n_molecules()) {
+   if (is_valid_model_molecule(imol)) {
       return g.molecules[imol].progressive_residues_in_chain_check_by_chain(chain_id);
    } else {
       std::cout << "no such molecule number in progressive_residues_in_chain_check\n";
@@ -2541,7 +2554,7 @@ char *insertion_code_from_serial_number(int imol, const char *chain_id, int seri
          std::string mol_chain_id(chain_p->GetChainID());
          if (mol_chain_id == std::string(chain_id)) {
             int nres = chain_p->GetNumberOfResidues();
-            if (serial_num < nres) {
+            if (serial_num >= 0 && serial_num < nres) {
                int ch_n_res;
                mmdb::PResidue *residues;
                chain_p->GetResidueTable(residues, ch_n_res);
@@ -2955,7 +2968,7 @@ int renumber_residue_range(int imol, const char *chain_id,
 
    int i=0;
    if (imol >= 0) {
-      if (imol <= graphics_info_t::n_molecules()) {
+      if (imol < graphics_info_t::n_molecules()) {
          if (graphics_info_t::molecules[imol].has_model()) {
             i = graphics_info_t::molecules[imol].renumber_residue_range(chain_id,
                                                                         start_res,
@@ -3084,7 +3097,7 @@ int
 write_pdb_file(int imol, const char *file_name) {
 
    graphics_info_t g;
-   int istat = 0;
+   int istat = 1; // fail (e.g. not a valid model molecule)
    if (is_valid_model_molecule(imol)) {
       istat = g.molecules[imol].write_pdb_file(std::string(file_name));
    }
@@ -3101,7 +3114,7 @@ int
 write_cif_file(int imol, const char *file_name) {
 
    graphics_info_t g;
-   int istat = 0;
+   int istat = 1; // fail (e.g. not a valid model molecule)
    if (is_valid_model_molecule(imol)) {
       istat = g.molecules[imol].write_cif_file(std::string(file_name));
    }
@@ -3150,7 +3163,7 @@ write_residue_range_to_pdb_file(int imol, const char *chain_id,
 
 int write_chain_to_pdb_file(int imol, const char *chain_id, const char *filename) {
 
-   int istat = 0;
+   int istat = 1; // fail (e.g. not a valid model molecule)
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
@@ -3439,7 +3452,7 @@ void set_b_factor_residues_scm(int imol, SCM residue_specs_b_value_tuple_list_sc
             std::vector<std::pair<coot::residue_spec_t, double> > rbs;
             for (unsigned int i=0; i<l; i++) {
                SCM item_scm = scm_list_ref(residue_specs_b_value_tuple_list_scm,
-                                           scm_from_int(l));
+                                           scm_from_int(i));
                if (scm_is_true(scm_list_p(item_scm))) {
                   SCM l2_scm = scm_length(item_scm);
                   unsigned int l2 = scm_to_int(l2_scm);
@@ -4316,6 +4329,8 @@ PyObject *change_chain_id_with_result_py(int imol, const char *from_chain_id, co
       PyList_SetItem(v, 0, PyLong_FromLong(r.first));
       PyList_SetItem(v, 1, myPyString_FromString(r.second.c_str()));
    }
+   if (PyBool_Check(v))
+      Py_INCREF(v);
    return v;
 }
 #endif // USE_PYTHON
@@ -4760,7 +4775,7 @@ int find_secondary_structure_local(
       if ( use_strand )
         tgtvec.push_back( SSfind::Target(tb[strand_target%4],strand_length) );
       coot::fast_secondary_structure_search ssfind;
-      ssfind( graphics_info_t::molecules[imol_map].xmap, pt, 0.0, tgtvec );
+      ssfind( graphics_info_t::molecules[imol_map].xmap, pt, radius, tgtvec );
       if (ssfind.success) {
          atom_selection_container_t asc = make_asc(ssfind.mol.pcmmdbmanager());
          imol = g.create_molecule();
@@ -4947,7 +4962,7 @@ void rigid_body_refine_zone(int imol, const char *chain_id, int resno_start, int
    // need to set graphics_info's residue_range_atom_index_1,
    // residue_range_atom_index_2, imol_rigid_body_refine
 
-   if (imol < g.n_molecules()) {
+   if (imol >= 0 && imol < g.n_molecules()) {
       if (g.molecules[imol].has_model()) {
          g.imol_rigid_body_refine = imol;
 
@@ -6219,6 +6234,7 @@ int add_linked_residue(int imol, const char *chain_id, int resno, const char *in
                                                                link_type, g.Geom_p(), new_b);
 
       if (! new_res_spec.unset_p()) {
+         status = 1;
          if (is_valid_map_molecule(imol_refinement_map())) {
             const clipper::Xmap<float> &xmap = g.molecules[imol_refinement_map()].xmap;
             std::vector<coot::residue_spec_t> residue_specs;
@@ -6342,9 +6358,12 @@ PyObject *add_linked_residue_py(int imol, const char *chain_id, int resno, const
       //
       graphics_info_t::molecules[imol].delete_extra_restraints_for_residue(new_res_spec);
 
+      // return the spec of the new residue whether or not we fit and refine
+      if (! new_res_spec.unset_p())
+         r = residue_spec_to_py(new_res_spec);
+
       if (do_fit_and_refine) {
          if (! new_res_spec.unset_p()) {
-            r = residue_spec_to_py(new_res_spec);
             if (is_valid_map_molecule(imol_refinement_map())) {
                const clipper::Xmap<float> &xmap =
                   g.molecules[imol_refinement_map()].xmap;

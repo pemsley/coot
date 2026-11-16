@@ -84,7 +84,7 @@ SCM pucker_info_scm(int imol, SCM residue_spec_scm, int do_pukka_pucker_check) {
    if (is_valid_model_molecule(imol)) {
       coot::residue_spec_t residue_spec = residue_spec_from_scm(residue_spec_scm);
       mmdb::Residue *res_p = graphics_info_t::molecules[imol].get_residue(residue_spec);
-      if (is_a_protein_residue(res_p)) {
+      if (res_p && is_a_protein_residue(res_p)) {
       } else {
          if (res_p) {
             try {
@@ -163,7 +163,7 @@ PyObject *pucker_info_py(int imol, PyObject *residue_spec_py, int do_pukka_pucke
    if (is_valid_model_molecule(imol)) {
       coot::residue_spec_t residue_spec = residue_spec_from_py(residue_spec_py);
       mmdb::Residue *res_p = graphics_info_t::molecules[imol].get_residue(residue_spec);
-      if (is_a_protein_residue(res_p)) {
+      if (res_p && is_a_protein_residue(res_p)) {
       } else {
          if (res_p) {
             try {
@@ -344,6 +344,7 @@ int watson_crick_pair(int imol, const char *chain_id, int resno) {
 	       int imol_new = g.create_molecule();
 	       atom_selection_container_t asc_wc = make_asc(mol);
 	       g.molecules[imol_new].install_model(imol_new, asc_wc, g.Geom_p(), "WC partner", 1);
+	       imol_return = imol_new;
 	       graphics_draw();
 	    }
 	 }

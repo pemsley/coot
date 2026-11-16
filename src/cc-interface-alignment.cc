@@ -50,9 +50,8 @@
 std::string get_sequence_as_fasta_for_chain(int imol, const std::string &chain_id) {
 
    std::string r;
-   if (is_valid_model_molecule(imol)) {
-      r = graphics_info_t::molecules[imol].get_sequence_as_block(chain_id);
-   }
+   if (! is_valid_model_molecule(imol)) return r;
+   r = graphics_info_t::molecules[imol].get_sequence_as_block(chain_id);
    std::string n = graphics_info_t::molecules[imol].name_sans_extension(0);
    std::string  full_seq;
    full_seq = "> ";

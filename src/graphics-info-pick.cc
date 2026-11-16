@@ -1253,6 +1253,7 @@ int graphics_info_t::move_reference_chain_to_symm_chain_position() {
          if (is_valid_model_molecule(naii.imol)) {
             graphics_info_t::molecules[naii.imol].move_reference_chain_to_symm_chain_position(naii);
             graphics_draw();
+            r = 1;
          } else {
             std::cout << "not valid mol" << std::endl;
          }

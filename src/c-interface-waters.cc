@@ -147,8 +147,7 @@ void renumber_waters(int imol) {
 int blob_under_pointer_to_screen_centre() {
 
    graphics_info_t g;
-   g.blob_under_pointer_to_screen_centre();
-   return 0;
+   return g.blob_under_pointer_to_screen_centre();
 }
 
 #ifdef USE_GUILE
@@ -477,7 +476,7 @@ PyObject *highly_coordinated_waters_py(int imol, int coordination_number, float 
       }
       std::vector<coot::util::contact_atoms_info_t> water_contacts =
          wc.get_highly_coordinated_waters(coordination_number, dist_max);
-      PyObject *r = PyList_New(water_contacts.size()); // a list (at least) because we didn't fail.
+      PyObject *r = PyList_New(0); // a list (at least) because we didn't fail.
       for (unsigned int j=0; j<water_contacts.size(); j++) {
          const coot::util::contact_atoms_info_t &water_contact = water_contacts[j];
          mmdb::Atom *central_atom = water_contact.central_atom();
@@ -491,16 +490,19 @@ PyObject *highly_coordinated_waters_py(int imol, int coordination_number, float 
                if (at.dist < dist_max) {
                   PyObject *contactor_py = atom_spec_to_py(coot::atom_spec_t(at.at));
                   PyList_Append(neighbours, contactor_py);
+                  Py_XDECREF(contactor_py);
                }
             }
             PyList_SetItem(atom_and_neighbours, 0, atom_spec_central_py);
             PyList_SetItem(atom_and_neighbours, 1, neighbours);
-            PyList_SetItem(r, j, atom_and_neighbours);
+            PyList_Append(r, atom_and_neighbours);
+            Py_XDECREF(atom_and_neighbours);
          }
-         ret = PyList_New(2);
-         PyList_SetItem(ret, 0, metal_results);
-         PyList_SetItem(ret, 1, r);
       }
+      // the result is made once, whether or not there were highly coordinated waters
+      ret = PyList_New(2);
+      PyList_SetItem(ret, 0, metal_results);
+      PyList_SetItem(ret, 1, r);
 
       if (mol_has_symmetry)
          delete mol; // it was a copy

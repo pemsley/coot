@@ -69,6 +69,14 @@ atom_spec_from_scm_expression(SCM expr) {
 
    SCM len_expr = scm_length(expr);
    int len_view = scm_to_int(len_expr);
+
+   // atom_spec_to_scm() makes a 6 item list (the first is the int-user-data),
+   // skip over that if it's there
+   if (len_view == 6) {
+      expr = scm_cdr(expr);
+      len_view = 5;
+   }
+
    if (len_view == 5) {
 
       SCM idx_scm = scm_from_int(0);

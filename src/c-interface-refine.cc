@@ -339,7 +339,7 @@ SCM refine_zone_with_full_residue_spec_scm(int imol, const char *chain_id,
 	 std::string resname_2(res_2->GetResName());
 	 bool is_water_like_flag = g.check_for_no_restraints_object(resname_1, resname_2);
 	 coot::refinement_results_t rr = 
-	    g.refine_residue_range(imol, chain_id, chain_id, resno1, "", resno2, "", altconf,
+	    g.refine_residue_range(imol, chain_id, chain_id, resno1, inscode_1, resno2, inscode_2, altconf,
 				   is_water_like_flag);
 	 r = g.refinement_results_to_scm(rr);
       }
@@ -378,7 +378,7 @@ PyObject *refine_zone_with_full_residue_spec_py(int imol, const char *chain_id,
 	 std::string resname_2(res_2->GetResName());
 	 bool is_water_like_flag = g.check_for_no_restraints_object(resname_1, resname_2);
 	 coot::refinement_results_t rr = 
-	    g.refine_residue_range(imol, chain_id, chain_id, resno1, "", resno2, "", altconf,
+	    g.refine_residue_range(imol, chain_id, chain_id, resno1, inscode_1, resno2, inscode_2, altconf,
 				   is_water_like_flag);
 	 r = g.refinement_results_to_py(rr);
       }

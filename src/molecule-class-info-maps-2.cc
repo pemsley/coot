@@ -162,27 +162,32 @@ void
 molecule_class_info_t::set_radial_map_colouring_centre(float x, float y, float z) {
    clipper::Coord_orth c(x,y,z);
    radial_map_colour_centre = c;
+   if (radial_map_colouring_do_radial_colouring) update_map(true); // recolour
 }
 
 void
 molecule_class_info_t::set_radial_map_colouring_min_radius(float r) {
    radial_map_colour_radius_min = r;
+   if (radial_map_colouring_do_radial_colouring) update_map(true); // recolour
 }
 
 void
 molecule_class_info_t::set_radial_map_colouring_max_radius(float r) {
    radial_map_colour_radius_max = r;
+   if (radial_map_colouring_do_radial_colouring) update_map(true); // recolour
 
 }
 
 void
 molecule_class_info_t::set_radial_map_colouring_invert(bool invert_state) {
    radial_map_colour_invert_flag = invert_state;
+   if (radial_map_colouring_do_radial_colouring) update_map(true); // recolour
 }
 
 void
 molecule_class_info_t::set_radial_map_colouring_saturation(float saturation) {
    radial_map_colour_saturation = saturation;
+   if (radial_map_colouring_do_radial_colouring) update_map(true); // recolour
 }
 
 // we don't want to have triangles for MS_NO_CROSSING, but we want 2 triangles (a quad that fills

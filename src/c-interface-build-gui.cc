@@ -1484,19 +1484,16 @@ show_fix_nomenclature_errors_gui(int imol,
 
          if (box) {
             // fill box
-            std::cout << "Fix box with " << nomenclature_errors.size() << " nomenclature_errors " << std::endl;
+            std::cout << "DEBUG:: Fix box with " << nomenclature_errors.size()
+                      << " nomenclature_errors " << std::endl;
 
             for (unsigned int i=0; i<nomenclature_errors.size(); i++) {
                s = nomenclature_errors[i].first; // the residue type
                s += " ";
                s += nomenclature_errors[i].second.format();
                GtkWidget *l = gtk_label_new(s.c_str());
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-               // 20220528-PE-FIXME box packing
-#else
-               gtk_box_pack_start(GTK_BOX(box), GTK_WIDGET(l), FALSE, FALSE, 2);
-#endif
-               gtk_widget_set_visible(GTK_WIDGET(l), TRUE);
+               gtk_box_append(GTK_BOX(box), l);
+               gtk_widget_set_visible(l, TRUE);
             }
          }
          gtk_widget_set_visible(w, TRUE);

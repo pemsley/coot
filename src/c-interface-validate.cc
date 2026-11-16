@@ -370,6 +370,10 @@ check_waters_baddies(int imol, float b_factor_lim, float map_sigma_lim, float mi
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       int imol_for_map = g.Imol_Refinement_Map();
+      if (! is_valid_map_molecule(imol_for_map)) {
+         std::cout << "WARNING:: check_waters_baddies(): no refinement map" << std::endl;
+         return v;
+      }
       v = g.molecules[imol].find_water_baddies(b_factor_lim, g.molecules[imol_for_map].xmap, g.molecules[imol_for_map].map_sigma(), map_sigma_lim, min_dist, max_dist, part_occ_contact_flag, zero_occ_flag, logical_operator_and_or_flag);
       if (graphics_info_t::use_graphics_interface_flag) {
 	 GtkWidget *w = wrapped_checked_waters_baddies_dialog(imol,
@@ -526,7 +530,7 @@ void delete_checked_waters_baddies(int imol, float b_factor_lim, float map_sigma
 
 void check_chiral_volumes(int imol) {
    graphics_info_t g;
-   if (imol < graphics_info_t::n_molecules()) {
+   if (imol >= 0 && imol < graphics_info_t::n_molecules()) {
       if (graphics_info_t::molecules[imol].has_model()) {
 	 g.check_chiral_volumes(imol);
       } else {
@@ -603,6 +607,7 @@ void check_waters_by_difference_map(int imol_waters, int imol_diff_map,
 
 }
 
+// 20261116-PE Deletable for Coot 2 - it does nothing useful.
 void deviant_geometry(int imol) {
 
    if (is_valid_model_molecule(imol)) {
@@ -1805,63 +1810,60 @@ PyObject *alignment_mismatches_py(int imol) {
 	    deletions.push_back(d);
 	 }
       }
-   }
 
-   if ((mutations.size() > 0) || (insertions.size() > 0) || (deletions.size() > 0)) {
-     PyObject *insertions_py = PyList_New(0);
-     PyObject *deletions_py = PyList_New(0);
-     PyObject * mutations_py = PyList_New(0);
-     for (unsigned int i=0; i<mutations.size(); i++) {
-	 PyObject *rs_py = residue_spec_to_py(mutations[i].first);
-	 PyObject *str = myPyString_FromString(mutations[i].second.c_str());
-	 PyList_Insert(rs_py, 0, str);
-	 PyList_Append(mutations_py, rs_py);
-	 Py_XDECREF(str);
-	 Py_XDECREF(rs_py);
-      }
-      for (unsigned int i=0; i<insertions.size(); i++) {
-	 PyObject *rs_py = residue_spec_to_py(insertions[i].first);
-	 PyObject *str = myPyString_FromString(insertions[i].second.c_str());
-	 PyList_Insert(rs_py, 0, str);
-	 PyList_Append(insertions_py, rs_py);
-	 Py_XDECREF(str);
-	 Py_XDECREF(rs_py);
-      }
-      for (unsigned int i=0; i<deletions.size(); i++) {
-	 PyObject *rs_py = residue_spec_to_py(deletions[i].first);
-	 PyObject *str = myPyString_FromString(deletions[i].second.c_str());
-	 PyList_Insert(rs_py, 0, str);
-	 PyList_Append(deletions_py, rs_py);
-	 Py_XDECREF(str);
-	 Py_XDECREF(rs_py);
-      }
+      if ((mutations.size() > 0) || (insertions.size() > 0) || (deletions.size() > 0)) {
+         PyObject *insertions_py = PyList_New(0);
+         PyObject  *deletions_py = PyList_New(0);
+         PyObject  *mutations_py = PyList_New(0);
+         for (unsigned int i=0; i<mutations.size(); i++) {
+            PyObject *rs_py = residue_spec_to_py(mutations[i].first);
+            PyObject *str = myPyString_FromString(mutations[i].second.c_str());
+            PyList_Insert(rs_py, 0, str);
+            PyList_Append(mutations_py, rs_py);
+            Py_XDECREF(str);
+            Py_XDECREF(rs_py);
+         }
+         for (unsigned int i=0; i<insertions.size(); i++) {
+            PyObject *rs_py = residue_spec_to_py(insertions[i].first);
+            PyObject *str = myPyString_FromString(insertions[i].second.c_str());
+            PyList_Insert(rs_py, 0, str);
+            PyList_Append(insertions_py, rs_py);
+            Py_XDECREF(str);
+            Py_XDECREF(rs_py);
+         }
+         for (unsigned int i=0; i<deletions.size(); i++) {
+            PyObject *rs_py = residue_spec_to_py(deletions[i].first);
+            PyObject *str = myPyString_FromString(deletions[i].second.c_str());
+            PyList_Insert(rs_py, 0, str);
+            PyList_Append(deletions_py, rs_py);
+            Py_XDECREF(str);
+            Py_XDECREF(rs_py);
+         }
 
-      // 20220228-PE merge resolution - I think I want this block but it uses old style python API
-      // fix it later.
-#if 0
-      r = PyList_New(4);
-      // These are reversed so that the residue numbers come out in
-      // numerical order (not backwards) and the returned list is
-      // [mutations, deletions, insertions].
-      PyList_SetItem(r, 0, mutations_py);
-      PyList_SetItem(r, 1, deletions_py);
-      PyList_SetItem(r, 2, insertions_py);
-      
-      PyObject *list_of_alignments_as_text = PyList_New(0);
-      for (std::size_t i=0; i<ar.second.size(); i++) {
-         
-         // and the dialog text
-         
-         const coot::chain_mutation_info_container_t &mic = ar.second[i];
-         
-         PyObject *alignment_as_text_py = PyString_FromString(mic.alignment_string.c_str());
-         PyList_Append(list_of_alignments_as_text, alignment_as_text_py);
-      }
-      
-      // Put list_of_alignments_as_text at the end of r
-      PyList_SetItem(r, 3, list_of_alignments_as_text);
-#endif
+         if (PyList_Check(r))
+            Py_DECREF(r); // the empty list made above
+         r = PyList_New(4);
 
+         // [mutations, deletions, insertions].
+         PyList_SetItem(r, 0, mutations_py);
+         PyList_SetItem(r, 1, deletions_py);
+         PyList_SetItem(r, 2, insertions_py);
+
+         PyObject *list_of_alignments_as_text = PyList_New(0);
+         for (std::size_t i=0; i<ar.second.size(); i++) {
+
+            // and the dialog text
+
+            const coot::chain_mutation_info_container_t &mic = ar.second[i];
+
+            PyObject *alignment_as_text_py = myPyString_FromString(mic.alignment_string.c_str());
+            PyList_Append(list_of_alignments_as_text, alignment_as_text_py);
+            Py_XDECREF(alignment_as_text_py); // PyList_Append() does not steal the reference
+         }
+
+         // Put list_of_alignments_as_text at the end of r
+         PyList_SetItem(r, 3, list_of_alignments_as_text);
+      }
    }
    if (PyBool_Check(r)) {
       Py_INCREF(r);

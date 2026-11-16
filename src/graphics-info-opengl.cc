@@ -416,6 +416,7 @@ graphics_info_t::blob_under_pointer_to_screen_centre() {
                }
                g.make_pointer_distance_objects();
                graphics_draw();
+               r = 1; // found a blob and moved to it
             }
             catch (const std::runtime_error &mess) {
                // 20220202-PE deprecated copy constexpr coot::Cartesian... I wonder what that means.
@@ -608,7 +609,7 @@ graphics_info_t::decrease_clipping_back() {
       float v = screen_z_far_perspective * 0.98;
       if (v > eye_position.z) {
          screen_z_far_perspective = v;
-         std::cout << "decrease_clipping_back() was " << szfp << " now " << screen_z_near_perspective << std::endl;
+         std::cout << "decrease_clipping_back() was " << szfp << " now " << screen_z_far_perspective << std::endl;
       } else {
          std::cout << "Not moving screen_z_far_perspective_limit " << std::endl;
       }

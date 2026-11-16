@@ -921,25 +921,34 @@ char *unmangle_hydrogen_name(const char *pdb_hydrogen_name) {
 	    new_atom_name = atom_name.substr(1,3) + atom_name[0];
 	 }
       }
-   } else { 
-      if (atom_name[3] != ' ') { 
-	 if (atom_name[3] == ' ') {
-	    new_atom_name = atom_name.substr(1,2) + atom_name[0];
-	    new_atom_name += ' ';
-	 }
-	 if (atom_name[2] == ' ') {
-	    new_atom_name = atom_name.substr(1,1) + atom_name[0];
-	 new_atom_name += ' ';
-	 new_atom_name += ' ';
-	 }
-      } else {
-	 // atom_name length is 3 presumably
-	 new_atom_name = ' ';
-	 new_atom_name += atom_name.substr(1,2) + atom_name[0];
+   } else {
+      // shorter names - only those that lead with a digit (or *) need to be switched
+      bool leading_digit = false;
+      if (! atom_name.empty())
+         if (atom_name[0] == '1' || atom_name[0] == '2' || atom_name[0] == '3' ||
+             atom_name[0] == '4' || atom_name[0] == '*')
+            leading_digit = true;
+      if (leading_digit) {
+         if (atom_name.length() == 3) {
+            if (atom_name[2] == ' ') {
+               // e.g. "1H "
+               new_atom_name = atom_name.substr(1,1) + atom_name[0];
+               new_atom_name += "  ";
+            } else {
+               // e.g. "1HB"
+               new_atom_name = ' ';
+               new_atom_name += atom_name.substr(1,2) + atom_name[0];
+            }
+         }
+         if (atom_name.length() == 2) {
+            // e.g. "1H"
+            new_atom_name = atom_name.substr(1,1) + atom_name[0];
+         }
       }
    }
 
-   int new_length = strlen(pdb_hydrogen_name) + 1;
+   // the new name can be longer than the old one (e.g. "1HB" -> " HB1")
+   int new_length = new_atom_name.length() + 1;
    char *s = new char[new_length];
    for (int i=0; i<new_length; i++) s[i] = 0;
    strncpy(s, new_atom_name.c_str(), new_length);
@@ -1262,7 +1271,7 @@ void try_load_scheme_extras_dir() {
 		     } else {
 			std::string sub_part(std::string(dir_ent->d_name));
 			struct stat buf2;
-			std::string fp = s;
+			std::string fp = dirs[i];
 			fp += "/";
 			fp += sub_part;
 			int status2 = stat(fp.c_str(), &buf2);
@@ -1325,7 +1334,7 @@ void try_load_python_extras_dir() {
 		     } else {
 			std::string sub_part(std::string(dir_ent->d_name));
 			struct stat buf2;
-			std::string fp = s;
+			std::string fp = dirs[i];
 			fp += "/";
 			fp += sub_part;
 			int status2 = stat(fp.c_str(), &buf2);

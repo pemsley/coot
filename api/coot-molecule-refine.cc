@@ -122,7 +122,7 @@ coot::molecule_t::generate_local_self_restraints(int selHnd, float local_dist_ma
                                                  const coot::protein_geometry &geom) {
 
    // clear what's already there - if anything
-   extra_restraints.bond_restraints.clear();
+   // extra_restraints.bond_restraints.clear();
 
    int nSelAtoms = 0;
    mmdb::PPAtom SelAtom = 0;

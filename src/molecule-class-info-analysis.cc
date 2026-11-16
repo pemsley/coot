@@ -25,13 +25,80 @@
  */
 
 
+#include <set>
+#include <string>
+
 #include "molecule-class-info.h"
 
 
 coot::model_composition_stats_t
 molecule_class_info_t::get_model_composition_statistics() const {
 
+   // This fills the composition (the counts). The geometry and validation
+   // statistics need the dictionary and the rotamer tables, so they are
+   // filled by the caller (see model_composition_statistics_py()).
+
    coot::model_composition_stats_t m;
+
+   if (! atom_sel.mol) return m;
+   mmdb::Model *model_p = atom_sel.mol->GetModel(1);
+   if (! model_p) return m;
+
+   const std::set<std::string> metals = {
+      "LI", "BE", "NA", "MG", "AL", "K",  "CA", "SC", "TI", "V",  "CR", "MN", "FE", "CO",
+      "NI", "CU", "ZN", "GA", "RB", "SR", "Y",  "ZR", "NB", "MO", "TC", "RU", "RH", "PD",
+      "AG", "CD", "IN", "SN", "CS", "BA", "LA", "CE", "PR", "ND", "SM", "EU", "GD", "TB",
+      "DY", "HO", "ER", "TM", "YB", "LU", "HF", "TA", "W",  "RE", "OS", "IR", "PT", "AU",
+      "HG", "TL", "PB", "BI", "U"};
+
+   m.n_atoms = 0;
+   m.n_non_hydrogen_atoms = 0;
+   m.n_protein_residues = 0;
+   m.n_rna_residues = 0;
+   m.n_dna_residues = 0;
+   m.n_hetgroups = 0;
+   m.n_metal_atoms = 0;
+
+   int n_chains = model_p->GetNumberOfChains();
+   for (int ichain=0; ichain<n_chains; ichain++) {
+      mmdb::Chain *chain_p = model_p->GetChain(ichain);
+      int n_res = chain_p->GetNumberOfResidues();
+      for (int ires=0; ires<n_res; ires++) {
+         mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+         if (! residue_p) continue;
+         std::string res_name = residue_p->GetResName();
+         bool is_water = (res_name == "HOH" || res_name == "WAT" || res_name == "DOD");
+         if (coot::util::is_standard_amino_acid_name(res_name) || res_name == "MSE") {
+            m.n_protein_residues++;
+         } else {
+            // "Ar" etc. are the old-style (refmac) nucleotide names
+            if (res_name == "A"  || res_name == "C"  || res_name == "G"  || res_name == "U" ||
+                res_name == "Ar" || res_name == "Cr" || res_name == "Gr" || res_name == "Ur") {
+               m.n_rna_residues++;
+            } else {
+               if (res_name == "DA" || res_name == "DC" || res_name == "DG" || res_name == "DT" ||
+                   res_name == "Ad" || res_name == "Cd" || res_name == "Gd" || res_name == "Td") {
+                  m.n_dna_residues++;
+               } else {
+                  if (! is_water)
+                     m.n_hetgroups++;
+               }
+            }
+         }
+         int n_atoms = residue_p->GetNumberOfAtoms();
+         for (int iat=0; iat<n_atoms; iat++) {
+            mmdb::Atom *at = residue_p->GetAtom(iat);
+            if (! at) continue;
+            if (at->isTer()) continue;
+            m.n_atoms++;
+            std::string ele = coot::util::Upper(coot::util::remove_whitespace(at->element));
+            if (ele != "H" && ele != "D")
+               m.n_non_hydrogen_atoms++;
+            if (metals.find(ele) != metals.end())
+               m.n_metal_atoms++;
+         }
+      }
+   }
 
    return m;
 

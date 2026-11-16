@@ -2534,7 +2534,7 @@ molecule_class_info_t::local_b_factor_display(bool state,
 int molecule_class_info_t::remove_atom_label(const char *chain_id, int iresno, const char *atom_id) {
 
    int i = atom_index(chain_id, iresno, atom_id);
-   if (i > 0)
+   if (i >= 0)
       unlabel_atom(i);
    return i;
 }
@@ -9200,7 +9200,9 @@ molecule_class_info_t::write_pdb_file(const std::string &filename) {
    if (atom_sel.n_selected_atoms > 0) {
       std::string ext = coot::util::file_name_extension(filename);
       if (coot::util::extension_is_for_shelx_coords(ext)) {
-         write_shelx_ins_file(filename);
+         std::pair<int, std::string> p = write_shelx_ins_file(filename);
+         if (p.first) // 1 is success
+            err = 0;
       } else {
          mmdb::byte bz = mmdb::io::GZM_NONE;
          // err = write_atom_selection_file(atom_sel, filename, bz);

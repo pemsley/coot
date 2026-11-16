@@ -2826,7 +2826,7 @@ graphics_info_t::draw_rotation_centre_crosshairs(stereo_eye_t eye, GtkGLArea *gl
       if (! is_bb)
          line_colour = glm::vec4(1.0f - rotation_centre_cross_hairs_colour[0],
                                  1.0f - rotation_centre_cross_hairs_colour[1],
-                                 1.0f - rotation_centre_cross_hairs_colour[0],
+                                 1.0f - rotation_centre_cross_hairs_colour[2],
                                  1.0f);
 
       GLuint line_colour_uniform_location = shader_for_central_cube.line_colour_uniform_location;

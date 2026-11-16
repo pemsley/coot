@@ -4368,7 +4368,6 @@ graphics_info_t::fill_difference_map_peaks_button_box() {
       do_positive_level_flag = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(peaks_vbox), "do_positive_level_flag"));
       do_negative_level_flag = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(peaks_vbox), "do_negative_level_flag"));
       around_model_only_flag = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(peaks_vbox), "around_model_only_flag"));
-      around_model_only_flag = false; // 20231228-PE this gets ignored currently
       char *n_sigma_cs = static_cast<char *>  (g_object_get_data(G_OBJECT(peaks_vbox), "n_sigma_str"));
       imol_map    = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(peaks_vbox), "imol_map"));
       imol_coords = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(peaks_vbox), "imol_model"));

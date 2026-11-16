@@ -155,7 +155,7 @@ print_glyco_tree(int imol, const std::string &chain_id, int res_no, const std::s
       graphics_info_t g;
       mmdb::Residue *r = g.molecules[imol].get_residue(chain_id, res_no, ins_code);
       mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
-	 
+
       if (r) {
 
 	 std::vector<std::string> types_with_no_dictionary =
@@ -164,6 +164,7 @@ print_glyco_tree(int imol, const std::string &chain_id, int res_no, const std::s
 	    g.Geom_p()->try_dynamic_add(types_with_no_dictionary[i], 41);
 
 	 coot::glyco_tree_t t(r, mol, g.Geom_p());
+	 t.print();
       }
    }
 }
@@ -208,8 +209,8 @@ void register_interesting_positions_list_scm(SCM pos_list) {
 	    // pos, label pair
 	    unsigned int item_length = scm_to_int(scm_length(item));
 	    if (item_length == 2) {
-	       SCM item_item_0 = scm_list_ref(item, 0);
-	       SCM item_item_1 = scm_list_ref(item, 0);
+	       SCM item_item_0 = scm_list_ref(item, scm_from_int(0));
+	       SCM item_item_1 = scm_list_ref(item, scm_from_int(1));
 
 	       if (scm_is_true(scm_list_p(item_item_0))) {
 		  unsigned int l_p = scm_to_int(scm_length(item_item_0));
@@ -267,14 +268,16 @@ void register_interesting_positions_list_py(PyObject *pos_list) {
 			PyObject *y = PyList_GetItem(item_item_0, 1);
 			PyObject *z = PyList_GetItem(item_item_0, 2);
 
-			if (PyFloat_Check(x)) { 
-			   if (PyFloat_Check(y)) { 
-			      if (PyFloat_Check(z)) {
+			if (PyFloat_Check(x) || PyLong_Check(x)) {
+			   if (PyFloat_Check(y) || PyLong_Check(y)) {
+			      if (PyFloat_Check(z) || PyLong_Check(z)) {
 
 				 clipper::Coord_orth pos(PyFloat_AsDouble(x),
 							 PyFloat_AsDouble(y),
 							 PyFloat_AsDouble(z));
-				 std::string s = PyBytes_AS_STRING(PyUnicode_AsUTF8String(item_item_1));
+				 PyObject *bytes_py = PyUnicode_AsUTF8String(item_item_1);
+				 std::string s = PyBytes_AS_STRING(bytes_py);
+				 Py_XDECREF(bytes_py);
 				 std::pair<clipper::Coord_orth, std::string> p(pos,s);
 				 v.push_back(p);
 			      }
@@ -295,6 +298,31 @@ void register_interesting_positions_list_py(PyObject *pos_list) {
 
 
 #ifdef USE_GUILE
+// Make an association list for this node of the glyco tree (and, by
+// recursion, its children):
+// (("residue-spec" . spec) ("residue-name" . name) ("link-type" . link) ("children" . list-of-nodes))
+static SCM
+glyco_tree_node_to_scm(const tree<coot::linked_residue_t> &tr,
+                       const tree<coot::linked_residue_t>::iterator &it) {
+
+   SCM children_scm = SCM_EOL;
+   tree<coot::linked_residue_t>::sibling_iterator it_child;
+   for (it_child=tr.begin(it); it_child!=tr.end(it); ++it_child)
+      children_scm = scm_cons(glyco_tree_node_to_scm(tr, it_child), children_scm);
+   children_scm = scm_reverse(children_scm);
+
+   SCM spec_scm = SCM_BOOL_F;
+   if (it->residue)
+      spec_scm = residue_spec_to_scm(coot::residue_spec_t(it->residue));
+
+   SCM r = SCM_EOL;
+   r = scm_cons(scm_cons(scm_from_locale_string("children"),     children_scm), r);
+   r = scm_cons(scm_cons(scm_from_locale_string("link-type"),    scm_from_locale_string(it->link_type.c_str())), r);
+   r = scm_cons(scm_cons(scm_from_locale_string("residue-name"), scm_from_locale_string(it->res_name().c_str())), r);
+   r = scm_cons(scm_cons(scm_from_locale_string("residue-spec"), spec_scm), r);
+   return r;
+}
+
 SCM glyco_tree_scm(int imol, SCM active_residue_scm) {
 
    SCM r = SCM_BOOL_F;
@@ -309,7 +337,12 @@ SCM glyco_tree_scm(int imol, SCM active_residue_scm) {
 	 g.molecules[imol].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
       for (unsigned int i=0; i<types_with_no_dictionary.size(); i++)
 	 g.Geom_p()->try_dynamic_add(types_with_no_dictionary[i], 41);
-      coot::glyco_tree_t t(residue_p, mol, g.Geom_p());
+      if (residue_p) {
+         coot::glyco_tree_t t(residue_p, mol, g.Geom_p());
+         tree<coot::linked_residue_t> tr = t.get_glyco_tree();
+         if (! tr.empty())
+            r = glyco_tree_node_to_scm(tr, tr.begin());
+      }
    }
    return r;
 }
@@ -485,10 +518,44 @@ SCM glyco_tree_matched_residue_pairs_scm(int imol_1, SCM res_spec_1_scm, int imo
 
 
 #ifdef USE_PYTHON
-PyObject *glyco_tree_py(int imol, PyObject *active_residue_py) {
+// Make a dictionary for this node of the glyco tree (and, by recursion,
+// its children). The keys are "residue_spec", "residue_name", "link_type"
+// (the link to the parent, "" for the root) and "children" (a list of nodes).
+static PyObject *
+glyco_tree_node_to_py(const tree<coot::linked_residue_t> &tr,
+                      const tree<coot::linked_residue_t>::iterator &it) {
 
-   // incomplete, doesn't work.
-   // BL says:: should now
+   PyObject *children_py = PyList_New(0);
+   tree<coot::linked_residue_t>::sibling_iterator it_child;
+   for (it_child=tr.begin(it); it_child!=tr.end(it); ++it_child) {
+      PyObject *child_py = glyco_tree_node_to_py(tr, it_child);
+      PyList_Append(children_py, child_py);
+      Py_DECREF(child_py);
+   }
+
+   PyObject *spec_py = 0;
+   if (it->residue) {
+      spec_py = residue_spec_to_py(coot::residue_spec_t(it->residue));
+   } else {
+      spec_py = Py_False;
+      Py_INCREF(spec_py);
+   }
+   PyObject *name_py = myPyString_FromString(it->res_name().c_str());
+   PyObject *link_py = myPyString_FromString(it->link_type.c_str());
+
+   PyObject *r = PyDict_New();
+   PyDict_SetItemString(r, "residue_spec", spec_py);
+   PyDict_SetItemString(r, "residue_name", name_py);
+   PyDict_SetItemString(r, "link_type",    link_py);
+   PyDict_SetItemString(r, "children",     children_py);
+   Py_DECREF(spec_py);
+   Py_DECREF(name_py);
+   Py_DECREF(link_py);
+   Py_DECREF(children_py);
+   return r;
+}
+
+PyObject *glyco_tree_py(int imol, PyObject *active_residue_py) {
 
    PyObject *r = Py_False;
    if (is_valid_model_molecule(imol)) {
@@ -501,8 +568,12 @@ PyObject *glyco_tree_py(int imol, PyObject *active_residue_py) {
             g.molecules[imol].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
       for (unsigned int i=0; i<types_with_no_dictionary.size(); i++)
          g.Geom_p()->try_dynamic_add(types_with_no_dictionary[i], 41);
-      coot::glyco_tree_t t(residue_p, mol, g.Geom_p());
-
+      if (residue_p) {
+         coot::glyco_tree_t t(residue_p, mol, g.Geom_p());
+         tree<coot::linked_residue_t> tr = t.get_glyco_tree();
+         if (! tr.empty())
+            r = glyco_tree_node_to_py(tr, tr.begin());
+      }
    }
 
    if (PyBool_Check(r))
@@ -657,6 +728,12 @@ PyObject *glyco_tree_matched_residue_pairs_py(int imol_1, PyObject *res_spec_1_p
          for (unsigned int i=0; i<types_with_no_dictionary.size(); i++)
             g.Geom_p()->try_dynamic_add(types_with_no_dictionary[i], 41);
 
+         if (! residue_1_p || ! residue_2_p) {
+            std::cout << "WARNING:: glyco_tree_matched_residue_pairs_py(): residue not found" << std::endl;
+            Py_INCREF(r);
+            return r;
+         }
+
          coot::glyco_tree_t t_1(residue_1_p, mol_1, g.Geom_p());
          coot::glyco_tree_t t_2(residue_2_p, mol_2, g.Geom_p());
 
@@ -670,6 +747,7 @@ PyObject *glyco_tree_matched_residue_pairs_py(int imol_1, PyObject *res_spec_1_p
                PyList_SetItem(list_py, 0, r_1_py);
                PyList_SetItem(list_py, 1, r_2_py);
                PyList_Append(rt, list_py);
+               Py_XDECREF(list_py);
             }
             r = rt;
          }
@@ -717,6 +795,8 @@ PyObject *glyco_tree_internal_distances_fn_py(int imol, PyObject *base_residue_s
             std::cout << "WARNING:: Failed to make residue spec "  << std::endl;
       }
    }
+   if (PyBool_Check(r))
+      Py_INCREF(r);
    return r;
 }
 

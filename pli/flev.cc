@@ -779,7 +779,9 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
                                   coot::protein_geometry *geom_p,
                                   const std::string &chain_id, int res_no, const std::string &ins_code,
                                   float residues_near_radius,
-                                  bool add_key) {
+                                  bool add_key,
+                                  float water_dist_max,
+                                  float h_bond_dist_max) {
 
    auto write_string_to_file = [] (const std::string &s, const std::string &fn) {
 
@@ -907,6 +909,8 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
                   lig_build::molfile_molecule_t m = coot::make_molfile_molecule(rdkm, mol_2d_depict_conformer);
 
                   flev_t flev;
+                  flev.fle_water_dist_max  = water_dist_max;
+                  flev.fle_h_bond_dist_max = h_bond_dist_max;
 
                   flev.mol.import_rdkit_mol(&rdkm, mol_2d_depict_conformer);
                   // these coordinates are in molecule coordinates based around the middle of the residue

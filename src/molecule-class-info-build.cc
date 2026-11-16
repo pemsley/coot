@@ -690,6 +690,8 @@ molecule_class_info_t::add_residue_with_atoms(const coot::residue_spec_t &residu
    std::cout << "start add_residue_with_atoms()" << std::endl;
    int r_added = 0;
 
+   make_backup(__FUNCTION__);
+
    mmdb::Residue *residue_p = get_residue(residue_spec);
    if (! residue_p) {
       // make one then
@@ -722,8 +724,10 @@ molecule_class_info_t::add_residue_with_atoms(const coot::residue_spec_t &residu
          mmdb::Atom *at = atom.make_atom();
          if (at) {
             residue_p->AddAtom(at);
+            r_added++; // count the atoms added
          }
       }
+      atom_sel.mol->FinishStructEdit();
       atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle); // correct?
       atom_sel = make_asc(atom_sel.mol);
       have_unsaved_changes_flag = 1;

@@ -52,7 +52,7 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
 bool graphics_info_t::pepflip_intermediate_atoms_other_peptide() {
 
    bool status = false;
-   if (moving_atoms_asc->mol) {
+   if (moving_atoms_asc && moving_atoms_asc->mol) {
 
       mmdb::Atom *at_close = NULL;
       float min_dist_sqrd = 4.0;
@@ -94,7 +94,7 @@ bool graphics_info_t::pepflip_intermediate_atoms_other_peptide() {
 bool graphics_info_t::pepflip_intermediate_atoms() {
 
    bool status = false;
-   if (moving_atoms_asc->mol) {
+   if (moving_atoms_asc && moving_atoms_asc->mol) {
 
       mmdb::Atom *at_close = NULL;
       float min_dist_sqrd = 4.0;
@@ -203,7 +203,7 @@ bool
 graphics_info_t::backrub_rotamer_intermediate_atoms() {
 
    bool state = false;
-   if (moving_atoms_asc->mol) {
+   if (moving_atoms_asc && moving_atoms_asc->mol) {
 
       mmdb::Atom *at_close = NULL;
       float min_dist_sqrd = 4.0;
@@ -319,11 +319,12 @@ graphics_info_t::cis_trans_conversion_intermediate_atoms() {
                                                                  } else {
                                                                     // they are both not cis, so choose pair depending on
                                                                     // the closest atom
-                                                                    std::string name_of_closest_atom(closest_atom->GetResName());
+                                                                    // (the N is in the peptide with the previous residue)
+                                                                    std::string name_of_closest_atom(closest_atom->GetAtomName());
                                                                     if (name_of_closest_atom == " N  ") {
-                                                                       return std::make_pair(res_this, res_next);
-                                                                    } else {
                                                                        return std::make_pair(res_prev, res_this);
+                                                                    } else {
+                                                                       return std::make_pair(res_this, res_next);
                                                                     }
                                                                  }
                                                               } else {
@@ -339,7 +340,7 @@ graphics_info_t::cis_trans_conversion_intermediate_atoms() {
                                                      };
 
    bool state = false;
-   if (moving_atoms_asc->mol) {
+   if (moving_atoms_asc && moving_atoms_asc->mol) {
 
       mmdb::Atom *at_close = NULL;
       float min_dist_sqrd = 4.0;
@@ -385,6 +386,7 @@ graphics_info_t::cis_trans_conversion_intermediate_atoms() {
 
                   //  now we can manipulate the coordinates
                   coot::util::cis_trans_conversion(res_1, res_2, mol, standard_residues_mol);
+                  state = true;
 
                   if (is_currently_cis) { // well, before the conversion, I mean
                      last_restraints->add_trans_peptide_restraint(res_1, res_2);
@@ -472,7 +474,7 @@ graphics_info_t::update_moving_atoms_from_molecule_atoms(const coot::minimol::mo
 #ifdef USE_PYTHON
 void graphics_info_t::register_post_intermediate_atoms_moved_hook(PyObject *function) {
 
-   std::cout << "::::::::::: set post_intermediate_atoms_moved_hook to " << function << std::endl;
+   std::cout << "DEBUG:: set post_intermediate_atoms_moved_hook to " << function << std::endl;
    post_intermediate_atoms_moved_hook = function;
 
 }
@@ -487,8 +489,8 @@ void graphics_info_t::run_post_intermediate_atoms_moved_hook_maybe() {
 
       graphics_info_t g;
       PyObject *o = g.get_intermediate_atoms_bonds_representation();
-
       // do something with python
+
 
    }
 }

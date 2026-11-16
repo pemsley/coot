@@ -851,8 +851,11 @@ int mutate_and_autofit_residue_range(int imol, const char *chain_id, int start_r
      int target_sequence_length = std::string(target_sequence).length();
      if (target_sequence_length == delta_residue_range) {
         int backup_mode = backup_state(imol);
-        if (backup_mode)
+        if (backup_mode) {
+           // one backup for the whole operation (so that it can be undone)
+           graphics_info_t::molecules[imol].make_backup_from_outside();
            turn_off_backup(imol);
+        }
         mutate_residue_range(imol, chain_id, start_res_no, stop_res_no, std::string(target_sequence));
         int clash_flag = true;
         float lowest_probability = 0.3; // changed from 0.5
@@ -865,6 +868,7 @@ int mutate_and_autofit_residue_range(int imol, const char *chain_id, int start_r
         }
         if (backup_mode)
            turn_on_backup(imol);
+        status = 1;
      }
   }
   return status;
@@ -1087,7 +1091,7 @@ void do_base_mutation(const char *type) {
       // save a residue spec in graphics-info-defines.cc not generate it here.
       // 
       int idx = g.mutate_residue_atom_index;
-      if (idx > 0 && idx < g.molecules[imol].atom_sel.n_selected_atoms) {
+      if (idx >= 0 && idx < g.molecules[imol].atom_sel.n_selected_atoms) {
 	 mmdb::Atom *at = graphics_info_t::molecules[imol].atom_sel.atom_selection[idx];
 	 mmdb::Residue *r = at->residue;
 	 if (r) {
@@ -1269,7 +1273,7 @@ void simple_fill_partial_residues(int imol) {
 
 std::string sequence_from_map(int imol, const std::string &chain_id, int resno_start, int resno_end, int imol_map) {
 
-   auto backrub_chain = [] (int imol, const std::string &chain_id, int imol_map) {
+   auto backrub_chain = [] (int imol, const std::string &chain_id, int resno_start, int resno_end, int imol_map) {
 
       int n = 0;
       graphics_info_t g;
@@ -1281,6 +1285,8 @@ std::string sequence_from_map(int imol, const std::string &chain_id, int resno_s
                std::string res_name = resname_from_serial_number(imol, chain_id.c_str(), iserial);
                int res_no = seqnum_from_serial_number(imol, chain_id.c_str(), iserial);
                std::string ins_code = insertion_code_from_serial_number(imol, chain_id.c_str(), iserial);
+               if (res_no < resno_start) continue; // only fit the residues that were mutated
+               if (res_no > resno_end)   continue;
                if (res_name != "HOH") {
                   std::string alt_loc;
                   int clash_flag = 1;
@@ -1305,8 +1311,7 @@ std::string sequence_from_map(int imol, const std::string &chain_id, int resno_s
                     "guessed_sequence", guessed_sequence);
          if (guessed_sequence.size() > 0) {
             mutate_residue_range(imol, chain_id, resno_start, resno_end, guessed_sequence);
-            int imol_map = imol_refinement_map();
-            backrub_chain(imol, chain_id, imol_map);
+            backrub_chain(imol, chain_id, resno_start, resno_end, imol_map);
          } else {
             std::cout << "DEBUG:: guessed_sequence is zero length" << std::endl;
          }

@@ -3040,8 +3040,8 @@ molecule_class_info_t::make_map_from_cif_2fofc(int imol_no_in,
    graphics_info_t g;
    int r = -1;
    if (g.is_valid_model_molecule(imol_coords))
-      r =  make_map_from_cif(imol_no_in, cif_file_name,
-			     g.molecules[imol_coords].atom_sel);
+      r =  make_map_from_cif_2fofc(imol_no_in, cif_file_name,
+				   g.molecules[imol_coords].atom_sel);
    else
       std::cout << "WARNING:: " << imol_coords << " is not a valid model molecule" << std::endl;
    return r;
@@ -5315,7 +5315,9 @@ molecule_class_info_t::export_model_molecule_as_obj(const std::string &file_name
    make_bonds_type_checked();
    write_model_vertices_and_triangles_to_file_mode = false;
 
-   return false;
+   // the writing of the file is a side-effect of make_bonds_type_checked() and
+   // its status is not passed back, so test for the file
+   return coot::file_exists(file_name);
 }
 
 bool

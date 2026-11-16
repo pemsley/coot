@@ -179,6 +179,7 @@ molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
 
    make_backup(__FUNCTION__);
    mmdb::Residue *residue_p = get_residue(chain_id, res_no, ins_code);
+   if (! residue_p) return r;
    std::vector<coot::atom_spec_t> fixed_atoms;
    mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
@@ -594,9 +595,20 @@ molecule_class_info_t::get_all_molecule_rama_score() const {
    r_all.init(clipper::Ramachandran::All2);
    r_all.set_thresholds(level_prefered, level_allowed);
 
+   // as in coot::rama_plot::rama_position_t
+   const int REGION_OUTLIER = 0;
+   const int REGION_ALLOWED = 1;
+   const int REGION_PREFERRED = 2;
+   const double zero_cut_off = 1e-6;
+   double log_p_sum = 0.0;
+   double log_p_non_sec_str_sum = 0.0;
+
    int n_models = atom_sel.mol->GetNumberOfModels();
    for (int imod=1; imod<=n_models; imod++) {
 
+      mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+      if (model_p)
+         model_p->CalcSecStructure(); // sets residue_p->SSE
       coot::phi_psis_for_model_t pp(atom_sel.mol, imod);
       std::map<coot::residue_spec_t, coot::util::phi_psi_with_residues_t>::const_iterator it;
       for (it=pp.phi_psi.begin(); it!=pp.phi_psi.end(); ++it) {
@@ -618,6 +630,27 @@ molecule_class_info_t::get_all_molecule_rama_score() const {
             coot::rama_score_t::scored_phi_psi_t scored_phi_psi(residue_spec, p, ppr);
             scored_phi_psi.set_residues(it->second);
             rs.scores.push_back(scored_phi_psi);
+
+            // the summary values
+            double phi_r = clipper::Util::d2rad(phi);
+            double psi_r = clipper::Util::d2rad(psi);
+            int region = REGION_OUTLIER;
+            if (rama_p->allowed(phi_r, psi_r)) {
+               region = REGION_ALLOWED;
+               if (rama_p->favored(phi_r, psi_r))
+                  region = REGION_PREFERRED;
+            }
+            rs.region.push_back(std::make_pair(residue_spec, region));
+            bool in_sec_str = (residue_p->SSE == mmdb::SSE_Strand || residue_p->SSE == mmdb::SSE_Helix);
+            if (p < zero_cut_off) {
+               rs.n_zeros++;
+            } else {
+               log_p_sum += log(p);
+               if (! in_sec_str) {
+                  rs.scores_non_sec_str.push_back(scored_phi_psi);
+                  log_p_non_sec_str_sum += log(p);
+               }
+            }
             if (false)
                std::cout << "debug:: get_all_molecule_rama_score() added " << residue_spec
                          << " phi " << phi << " psi " << psi << " "
@@ -626,6 +659,8 @@ molecule_class_info_t::get_all_molecule_rama_score() const {
       }
    }
 
+   rs.score = log_p_sum;
+   rs.score_non_sec_str = log_p_non_sec_str_sum;
    return rs;
 }
 
@@ -2205,6 +2240,10 @@ molecule_class_info_t::delete_sidechains_for_chain(const std::string &chain_id) 
 		  for (int ires=0; ires<nres; ires++) {
 		     mmdb::PResidue residue_p = chain_p->GetResidue(ires);
 		     if (residue_p) {
+			// only amino acid residues have side chains - don't strip
+			// the atoms from ligands (or the hydrogen atoms from waters).
+			if (! residue_p->GetAtom(" CA ")) continue;
+			if (! residue_p->GetAtom(" N  ")) continue;
 			mmdb::PPAtom atoms = 0;
 			int n_atoms = 0;
 			bool was_deleted = false;

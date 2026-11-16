@@ -393,3 +393,160 @@ both need re-testing.
 - **Comment disagrees with the code.** In
   `place_alpha_helix_near_kc_version()` the comment says the centre movement is
   limited to 1.5A, but `max_allowed_move` is 1.0.
+
+## Implement the post-intermediate-atoms-moved hook
+
+`register_post_intermediate_atoms_moved_hook()` (`src/c-interface-refine.cc`,
+declared in `src/cc-interface.hh`) stores a Python function that is meant to be
+run when the intermediate (moving) atoms have moved. It has never worked, and
+the header doc now says that it is not implemented. Nothing in `python/` or
+`scheme/` registers a hook.
+
+What is missing, all in `src/graphics-info-intermediate.cc`:
+
+- **The call site.** The call in `drag_refine_refine_intermediate_atoms()` is commented out with "put this somewhere else (after the refinement has finished)". That dates from the "Threaded refinement works" commit (0d87edebe).
+- **The runner.** `run_post_intermediate_atoms_moved_hook_maybe()` builds the intermediate-atoms bonds representation and stops at "do something with python". It never calls the stored function.
+- **Reference counting.** `graphics_info_t::register_post_intermediate_atoms_moved_hook()` stores the `PyObject *` without `Py_INCREF` (and does not `Py_XDECREF` a previous hook), so a lambda passed in can be freed while Coot still holds the pointer. It should also check `PyCallable_Check()` and drop its debug print.
+
+To decide before implementing:
+
+- **What the function is called with:** no arguments, or the bonds representation that the runner already builds.
+- **When it is called:** after each refinement step is drawn, or once when the refinement finishes.
+
+The call must be made on the main thread (with the GIL), so the place for it is
+where the intermediate atoms are redrawn after a refinement step, not inside
+the refinement thread. Check the result of the call for a Python error and
+print it, so that a broken hook does not fail silently.
+
+## Draw molecular symmetry
+
+`add_molecular_symmetry()`, `add_molecular_symmetry_from_mtrix_from_file()` and
+`add_molecular_symmetry_from_mtrix_from_self_file()` (`src/cc-interface.hh`),
+and the `REMARK 350 BIOMT` reader that runs when a model is read
+(`molecule_class_info_t::add_molecular_symmetry_matrices()`,
+`src/molecule-class-info-ncs.cc`), all fill
+`molecule_class_info_t::molecular_symmetry_matrices`. Nothing reads it, so
+nothing is drawn. The header docs now say so.
+
+- **Drawing.** The only drawing code is the `display_molecular_symmetry` lambda in `molecule_class_info_t::display_symmetry_bonds()` (`src/molecule-class-info.cc`). That is immediate-mode OpenGL (`glBegin(GL_LINES)`), its call is commented out, and `display_symmetry_bonds()` itself is never called. The current renderer draws crystal symmetry with `molecule_class_info_t::draw_symmetry()` and `Mesh::draw_symmetry()` and has no molecular-symmetry path. It needs one: a mesh per operator, or instanced drawing of the molecule's bonds mesh with one transformation per operator. The old code gave each copy its own colour.
+- **The MTRIX origin.** `add_molecular_symmetry_from_mtrix_from_file()` (`src/molecule-class-info-molecular-symmetry.cc`) stores half of the MTRIX translation as the origin. For an operator `x' = Rx + t` the fixed point `o` satisfies `(I - R) o = t`, and `o = t/2` holds only for a 2-fold. The general case needs a least-squares solve, because `I - R` is singular along the rotation axis. A screw component cannot be expressed as a rotation about a point at all, so storing the full `clipper::RTop_orth` for each operator (as MTRIX and BIOMT give it) would be simpler and more general than matrix-plus-origin.
+- **Remove the old code** (`display_symmetry_bonds()`) when the new drawing is in place.
+
+## Review the nomenclature-errors prompt on reading a model
+
+`show_fix_nomenclature_errors_gui()` (`src/c-interface-build-gui.cc`) returns at
+once ("this function crashes, I don't know why - fix later", from the GTK3 port
+in 2019). The dialog that it would show, `fix_nomenclature_errors_dialog` with
+`nomenclature_errors_vbox`, exists only in `coot-gtk2.glade`; no GTK4 `.ui`
+file has it, so removing the `return` would not bring it back.
+
+The consequence: `set_nomenclature_errors_on_read()` defaults to "prompt", and
+the prompt is this function. So by default, when a model with nomenclature
+errors is read, nothing is shown and nothing is corrected. Only "auto-correct"
+does anything. The menu item "Fix Nomenclature Errors..." still works.
+
+First decide whether the dialog is still useful. Then one of:
+
+- **Rebuild it** in `ui/coot.ui`. The OK and Cancel handlers (`on_fix_nomenclature_errors_ok_button_clicked` and `on_fix_nomenclature_errors_cancel_button_clicked` in `src/glade-callbacks.cc`) are still there and would serve it as they are.
+- **Replace it** with a message that gives the number of errors and points to the menu item.
+- **Remove it:** delete the function, the two handlers and the "prompt" mode, and choose what the default mode should then be ("ignore" is what happens now).
+
+## Tidy up the API for Coot 2
+
+The API is not to change for the current release. Coot 2 can change it, and
+these are the things to tidy up then. They were found in the API documentation
+review (November 2026), and each is documented in its header as it behaves now.
+
+### Parameters that are accepted and never used
+
+Either make the parameter do something or remove it.
+
+- `make_link`: `link_name`, `length`.
+- `hole`: `n_runs`, `show_probe_radius_graph_flag`.
+- `map_contours_as_triangles`: `contour_level`.
+- `sharpen_with_gompertz_scaling`: `gompertz_factor`.
+- `handle_read_draw_probe_dots_unformatted`: `show_clash_gui_flag`.
+- `lsq_improve`: `n_res`, `dist_crit`. This one is cheap: `coot::lsq_improve` has `set_n_res_for_frag()` and `set_crit_close()`, and `molecule_class_info_t::lsq_improve()` does not call them. The built-in values are 6 residues and 6 A.
+- `regularize_zone_with_score_py` and `regularize_zone_with_score_scm`: `altconf`.
+- `add_terminal_residue_using_phi_psi`: `residue_type` (an ALA is always built).
+- `make_dots`: `atom_radius_scale`.
+- `monomer_lib_3_letter_codes_matching`: `allow_minimal_descriptions_flag`.
+- `get_symmetry_bonds_colour`: `imol`.
+- `display_pae_from_file_in_a_dialog`: `imol`.
+- `servalcat_refine`: `mask_map` (the `--mask` argument is commented out of the command line in `src/cc-interface-map-utils.cc`).
+
+### Stubs: implement or remove
+
+- `alignment_results_scm` and `alignment_results_py`: return False and nothing else. `molecule_class_info_t::align_on_chain()` could supply the result.
+- `qq_plot_map_and_model_scm/_py`: the body is inside `HAVE_GOOCANVAS`, which a GTK4 build never defines. The calculation (`coot::util::qq_plot_for_map_over_model()`) is still there; it needs somewhere to plot, or it could return the points.
+- `global_phasing_screen`: does its work as a side effect and always returns False.
+- `spherical_density_overlap` (Scheme only): returns `#f` and writes `map-fragment-at-origin.map` into the current directory.
+
+### Functions that do nothing useful
+
+- `deviant_geometry()` and `molecule_class_info_t::find_deviant_geometry()`: marked "Deletable for Coot 2" in the source.
+- The multi-refine toolbar functions (`toolbar_multi_refine_continue()` and the six others in the same block of `src/c-interface.h`): documented as not functional in GTK4 Coot.
+- Setters whose value is never read, each documented as having no effect: `set_cryo_em_refinement`, `set_save_coordinates_in_original_directory`, `set_add_terminal_residue_do_rigid_body_refine`, `set_button_label_for_external_refinement`, `set_add_ccp4i_projects_to_file_dialogs`, `set_file_chooser_overwrite`, `set_filter_fileselection_filenames`, `set_unpathed_backup_file_names`, `set_python_draw_function`, `set_limit_aniso`, `set_show_aniso`, `set_use_stroke_characters`, `set_model_display_radius`.
+
+## Sequence mismatches: chains without a sequence, and repeated assignment
+
+Seen on 2026-11-16 when testing `alignment_mismatches_py()` on
+`tutorial-modern.pdb`. Both come from
+`molecule_class_info_t::residue_mismatches()` or the sequence assignment, not
+from the Python wrapper.
+
+- **A chain with no assigned sequence is reported.** A sequence was assigned to chain A only, with `assign_sequence_from_string()`. The result also had entries for chain B, including "Delete B 94, 95, 96" when the sequence of chain A matched exactly. Find out which sequence chain B is aligned against, and whether that is intended.
+- **Assigning a sequence twice doubles the results.** After a second `assign_sequence_from_string()` for chain A there were four alignments, not two, and the chain B deletions were listed twice. The second sequence seems to be added to the first, not to replace it.
+
+## Implement topological_equivalence_chiral_centres()
+
+`topological_equivalence_chiral_centres(residue_type)` (`src/cc-interface.hh`,
+body in `src/c-interface-ligands.cc`) is a stub: it returns an empty vector, and
+the header doc says so. Nothing calls it.
+
+It is meant to return the atom ids of the chiral centres of a residue type,
+found by topological equivalence analysis of the dictionary: the bonds and the
+elements only, not the chiral restraints that the dictionary lists. An atom is a
+centre if it has four neighbours (or three and an implicit hydrogen) that are
+all topologically different.
+
+- **Where it goes.** The comment on the stub says that a better design would put this in `coot::protein_geometry`, with the API function a thin wrapper.
+- **What is there to build on.** `protein_geometry::filter_chiral_centres()` already removes dictionary chiral restraints that are not real centres (those with more than one hydrogen). With RDKit (enhanced-ligand builds) the dictionary can be made into an RDKit molecule and the centres found from the canonical atom ranks.
+- **A use for it.** Checking the chiral restraints of a dictionary: a centre found here with no chiral restraint, or a restraint on an atom that is not a centre, points to a bad dictionary.
+
+## API documentation bug review: what was not covered
+
+The bugs found while writing the API documentation were fixed on branch
+`fix-api-docs-bugs` (November 2026). `api-docs-bug-list.md` has the entry-by-entry
+record. This is what that work left undone. The larger items have their own
+sections in this file: the post-intermediate-atoms-moved hook, drawing
+molecular symmetry, the nomenclature-errors prompt, the Coot 2 API tidy-up, the
+sequence mismatches and `topological_equivalence_chiral_centres()`.
+
+### Not decided
+
+- `overlap_ligands`: it graph-matches every residue in `imol_ligand`, moves the best one, and deletes all the other residues of `imol_ligand`. Is the deletion intended?
+- `execute_refmac_real`: the Guile branches are guarded by `USE_GUILE_XXX`, which nothing defines, so it always takes the Python path and a build without Python would silently do nothing.
+
+### Fixed but not tested
+
+All of it compiles and installs in the `build-arch-for-claude` sandbox. The tests were headless Python scripts, so these were not run:
+
+- **Anything in the GUI.** In particular the difference-map-peaks dialog with "around the model only" (`only_around_protein_flag`), and the run-state-file dialog.
+- **The Scheme functions.** `model_composition_statistics_scm`, `glyco_tree_scm`, `get_residue_alt_confs_scm`, the Guile branches of `run_state_file()` and `run_state_file_maybe()`, and the 6-item spec in `atom_spec_from_scm_expression`.
+- **The view matrix of `raster3d()`, `povray()` and `renderman()`.** The numbers in the `.r3d` header look right for a 90 degree rotation, but nothing was rendered. It may need transposing.
+- **The FLEV distances.** `fle_view_set_water_dist_max()` and `fle_view_set_h_bond_dist_max()` are now passed to `pli::fle_view_with_rdkit_internal()`, but `fle_view()` opens a dialog and was not run.
+- **`probe_available_p()`** with a real `molprobity.probe` (a dummy executable on the `PATH` was used).
+- **`servalcat_refine`** and anything else that needs an external program.
+- **The chapi build.** `build-chapi-arch-for-claude` was not rebuilt. `pli::fle_view_with_rdkit_internal()` has two new arguments with defaults, so the chapi caller should compile unchanged.
+- **Glycan trees on a real glycoprotein.** `print_glyco_tree()` and `glyco_tree_py()` were run only on a two-residue tree (FUC, NAG), so branches and ASN-rooted trees are untested.
+
+### Known and left
+
+- **`generate_local_self_restraints()` in chapi** (`coot::molecule_t`, `api/coot-molecule-refine.cc`) still clears the extra bond restraints on entry. The desktop version no longer does.
+- **Self restraints accumulate.** A second call of `generate_local_self_restraints()` for the same chain duplicates the Geman-McClure restraints. Accepted for now: clear them first (`delete_all_extra_restraints()`, or `clear_extra_restraints()` in chapi). The fix would be to remove the restraints between atoms of the selection before adding the new ones.
+- **`check_waters_baddies` in AND mode** (`molecule_class_info_t::find_water_baddies_AND()`) still ignores `part_occ_contact_flag`. OR mode uses it.
+- **The run-state-file dialog** (`run_state_file_dialog`) previews the Python state file, but in a build with Guile and Python its OK button runs the Scheme one. It is only reached from `src/scm-boot-guile.cc`.
+- **The desktop `clear_extra_restraints(int imol)`** (`src/c-interface-kk.cc`) is not declared in any header.
+- **`model_composition_statistics_py()`:** the atom overlap score was 0.0 for two of the four test models (those with a residue type that has no dictionary). It is the value that `atom_overlap_score()` gives; find out why. The "good rotamer" cut-off (a probability of 0.3% or more) is a first choice, and C-beta deviation outliers are not counted.
+- **`glyco_tree_t::print()`** indents the root the most and the children less, which reads backwards.

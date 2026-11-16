@@ -337,6 +337,7 @@ molecule_class_info_t::set_atom_attribute(std::string chain_id, int resno, std::
       mmdb::PPAtom SelAtoms = NULL;
       atom_sel.mol->GetSelIndex(SelectionHandle, SelAtoms, nSelAtoms);
       if (nSelAtoms > 0) {
+         istate = 1;
          mmdb::Atom *at = SelAtoms[0];
          if (attribute_name == "x")
             at->x = val;
@@ -364,6 +365,7 @@ int molecule_class_info_t::swap_atom_alt_conf(std::string chain_id, int res_no, 
 
   int istate = 0;
    if (atom_sel.n_selected_atoms > 0) {
+      make_backup(__FUNCTION__);
       int SelectionHandle = atom_sel.mol->NewSelection();
       atom_sel.mol->SelectAtoms(SelectionHandle, 0,
                                 chain_id.c_str(),
@@ -385,9 +387,11 @@ int molecule_class_info_t::swap_atom_alt_conf(std::string chain_id, int res_no, 
             if (alt_conf_1.length() <= 8){
                strncpy(at_0->altLoc, alt_conf_1.c_str(), alt_conf_1.length()+1);
                strncpy(at_1->altLoc, alt_conf_0.c_str(), alt_conf_0.length()+1);
+               istate = 1;
             }
          }
       }
+      atom_sel.mol->DeleteSelection(SelectionHandle);
    }
    have_unsaved_changes_flag = 1;
    atom_sel.mol->FinishStructEdit();
@@ -454,6 +458,7 @@ molecule_class_info_t::set_atom_string_attribute(std::string chain_id, int resno
       mmdb::PPAtom SelAtoms;
       atom_sel.mol->GetSelIndex(SelectionHandle, SelAtoms, nSelAtoms);
       if (nSelAtoms > 0) {
+         istate = 1;
          mmdb::Atom *at = SelAtoms[0];
          if (attribute_name == "atom-name")
             at->SetAtomName((char *)val_str.c_str());
@@ -467,6 +472,7 @@ molecule_class_info_t::set_atom_string_attribute(std::string chain_id, int resno
             strncpy(at->segID, val_str.c_str(), 4);
          }
       }
+      atom_sel.mol->DeleteSelection(SelectionHandle);
       have_unsaved_changes_flag = 1;
       atom_sel.mol->FinishStructEdit();
       make_bonds_type_checked(__FUNCTION__); // calls update_ghosts()
@@ -496,6 +502,7 @@ molecule_class_info_t::set_atom_attributes(const std::vector<coot::atom_attribut
             atom_sel.mol->GetSelIndex(SelectionHandle, SelAtoms, nSelAtoms);
 
             if (nSelAtoms > 0) {
+               istate = 1;
                mmdb::Atom *at = SelAtoms[0];
 //                std::cout << "DEBUG:: "
 //                          << v[iv].attribute_value.type << " " << v[iv].attribute_name << " :"
@@ -512,7 +519,7 @@ molecule_class_info_t::set_atom_attributes(const std::vector<coot::atom_attribut
                   }
                   if (v[iv].attribute_name == "segid") {
                      for (int ii=0; ii<20; ii++) // 20 is magic number - for char[20] SegID
-                        at->segID[ii] = '\n';
+                        at->segID[ii] = '\0';
                      strncpy(at->segID, v[iv].attribute_value.s.c_str(), 19);
                   }
                }
@@ -1998,6 +2005,8 @@ molecule_class_info_t::delete_hydrogens(){  // return status of atoms deleted (0
 int
 molecule_class_info_t::delete_waters() {
 
+   make_backup(__FUNCTION__);
+   int n_waters = 0;
    std::vector<mmdb::Atom *> waters_to_be_deleted;
   for(int imod = 1; imod<=atom_sel.mol->GetNumberOfModels(); imod++) {
       mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
@@ -2011,7 +2020,8 @@ molecule_class_info_t::delete_waters() {
          for (int ires=0; ires<nres; ires++) {
             residue_p = chain_p->GetResidue(ires);
             std::string res_name(residue_p->GetResName());
-            if (res_name == "HOH") {
+            if (res_name == "HOH" || res_name == "WAT" || res_name == "DOD") {
+               n_waters++;
                mmdb::PPAtom residue_atoms = 0;
                int n_residue_atoms;
                residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
@@ -2035,7 +2045,7 @@ molecule_class_info_t::delete_waters() {
       have_unsaved_changes_flag = 1;
       make_bonds_type_checked(__FUNCTION__);
    }
-   return waters_to_be_deleted.size();
+   return n_waters;
 }
 
 
@@ -4857,6 +4867,9 @@ molecule_class_info_t::trim_by_map(const clipper::Xmap<float> &xmap_in,
    // "Trim off the bits we don't need":
    // 20050610: I laugh at that.
 
+   // the backup has to be made before the atoms are removed (or it's no use for undo)
+   make_backup(__FUNCTION__);
+
    short int waters_only_flag = 0;
    int i = coot::util::trim_molecule_by_map(atom_sel.mol, xmap_in, map_level,
                                             delete_or_zero_occ_flag,
@@ -4865,7 +4878,6 @@ molecule_class_info_t::trim_by_map(const clipper::Xmap<float> &xmap_in,
    // std::cout << "INFO:: " << i << " atoms were trimmed\n";
    logger.log(log_t::INFO, i, "atoms were trimmed");
    if (i > 0) {
-      make_backup(__FUNCTION__);
       update_molecule_after_additions(); // sets have_unsaved_changes_flag
    }
    return i;
@@ -6798,6 +6810,9 @@ molecule_class_info_t::last_residue_in_chain(mmdb::Chain *chain_p) const {
 
 // validation
 
+// 20261116-PE Deletable for Coot 2 (along with deviant_geometry(), its only caller).
+// This builds a restraints container for each chain and discards it, so
+// it reports nothing. It also leaks residues_mol, once per chain.
 void
 molecule_class_info_t::find_deviant_geometry(float strictness) {
 
@@ -6883,7 +6898,9 @@ molecule_class_info_t::find_deviant_geometry(float strictness) {
 		  //               &dummy_xmap);
 
 		  coot::restraints_container_t restraints(SelResidues, nSelResidues, chain_id, residues_mol, &dummy_xmap);
+                  delete residues_mol;
 	       }
+	       atom_sel.mol->DeleteSelection(selHnd);
 	    }
 	 }
       }
@@ -7000,7 +7017,8 @@ molecule_class_info_t::find_water_baddies_AND(float b_factor_lim, const clipper:
                                      atom_sel.atom_selection[i]->z);
                den = coot::util::density_at_point(xmap_in, a);
 
-               if (den > outlier_sigma_level*map_sigma || map_sigma < 0 || outlier_sigma_level < 0) {
+               // a "bad" water is one with density lower than the limit (as in the OR mode)
+               if (den < outlier_sigma_level*map_sigma || map_sigma < 0 || outlier_sigma_level < 0) {
                   if( min_dist < 0 && max_dist < 0) {
                      idx.push_back(std::make_pair(i, den));
                   } else {
@@ -7020,10 +7038,13 @@ molecule_class_info_t::find_water_baddies_AND(float b_factor_lim, const clipper:
                                           mmdb::SKEY_NEW // selection key
                                           );
 
-                     if (min_dist < 0)
-                        min_dist = 0.0;
-                     if (max_dist < 0)
-                        max_dist = 10.0; // should be enough?!
+                     // don't change min_dist and max_dist - they are needed for the next water
+                     float min_dist_local = min_dist;
+                     float max_dist_local = max_dist;
+                     if (min_dist_local < 0)
+                        min_dist_local = 0.0;
+                     if (max_dist_local < 0)
+                        max_dist_local = 10.0; // should be enough?!
                      int nSelAtoms_wat;
                      mmdb::PPAtom SelAtom_wat;
                      atom_sel.mol->GetSelIndex(SelHnd_wat, SelAtom_wat, nSelAtoms_wat);
@@ -7031,7 +7052,7 @@ molecule_class_info_t::find_water_baddies_AND(float b_factor_lim, const clipper:
                                                     mmdb::STYPE_ATOM,
                                                     SelAtom_wat,
                                                     nSelAtoms_wat,
-                                                    min_dist, max_dist,
+                                                    min_dist_local, max_dist_local,
                                                     mmdb::SKEY_OR);
 
                      atom_sel.mol->GetSelIndex(SelHnd_wat, SelAtom_wat, nSelAtoms_wat);
@@ -7043,6 +7064,7 @@ molecule_class_info_t::find_water_baddies_AND(float b_factor_lim, const clipper:
                         // be outside the range.
                         idx.push_back(std::make_pair(i, den));
                      }
+                     atom_sel.mol->DeleteSelection(SelHnd_wat);
                   }
                }
             }
@@ -7056,8 +7078,12 @@ molecule_class_info_t::find_water_baddies_AND(float b_factor_lim, const clipper:
       std::string s = "B fac: ";
       s += coot::util::float_to_string(atom_sel.atom_selection[idx[i].first]->tempFactor);
       s += "   ED: ";
-      s += coot::util::float_to_string(idx[i].second);
-      s += " rmsd";
+      if (map_sigma > 0) {
+         s += coot::util::float_to_string(idx[i].second/map_sigma);
+         s += " rmsd";
+      } else {
+         s += coot::util::float_to_string(idx[i].second);
+      }
 
       coot::atom_spec_t atom_spec(atom_sel.atom_selection[idx[i].first], s);
       atom_spec.float_user_data = atom_sel.atom_selection[idx[i].first]->occupancy;
@@ -9417,6 +9443,7 @@ molecule_class_info_t::scale_cell(float fac_u, float fac_v, float fac_w) {
       }
       xmap = new_map;
       update_map(true);
+      retval = 1;
    }
    return retval;
 }

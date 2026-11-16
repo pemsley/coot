@@ -102,7 +102,7 @@ def raytrace(image_type, source_file_name, image_file_name, x_size, y_size):
        #we have to check filenames for spaces for dodgy windows path
        image_file_name_mod, source_file_name_mod, space_flag = \
        check_file_names_for_space_and_move(image_file_name, source_file_name)
-       r3d_call = r3d_exe + image_format + " -labels" + image_file_name_mod + " < " + source_file_name_mod
+       r3d_call = r3d_exe + image_format + " -labels " + image_file_name_mod + " < " + source_file_name_mod
        print("DEBUG:: r3d_call is ", r3d_call)
        print("calling render...")
 
@@ -141,7 +141,7 @@ def raytrace(image_type, source_file_name, image_file_name, x_size, y_size):
       if (os.name == 'nt'):
           args = ["/EXIT", "/RENDER"]
       else:
-          args = " "
+          args = []
       args += [source_file_name_mod] + povray_args() + ["-UV" , "+W" + str(x_size) , "+H" + str(y_size)]
       print("BL INFO:: run povray with args: ", args)
       povray_call = [povray_exe] +  args + ["+o" + image_file_name_mod]

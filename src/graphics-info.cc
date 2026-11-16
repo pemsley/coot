@@ -1546,7 +1546,7 @@ graphics_info_t::unskeletonize_map(int imol) {
 
    graphics_info_t g;
 
-   if (imol >= 0) {
+   if (is_valid_map_molecule(imol)) {
       g.molecules[imol].unskeletonize_map();
       graphics_draw();
    } else {
@@ -5859,55 +5859,37 @@ graphics_info_t::add_dictionary_glob_extension(const std::string &extension) {
 void
 graphics_info_t::remove_coordinates_glob_extension(const std::string &extension) {
 
-  std::vector<std::string>::iterator it;
-  for (it = coordinates_glob_extensions->begin(); it<coordinates_glob_extensions->end(); ++it) {
-    if (*it == extension) {
-      coordinates_glob_extensions->erase(it);
-      // could put in break here!?
-      // avoid since it could happen that you have multiples of same entry
-    }
-  }
+   std::vector<std::string> &v = *coordinates_glob_extensions;
+   v.erase(std::remove(v.begin(), v.end(), extension), v.end());
 }
 
 
 void
 graphics_info_t::remove_data_glob_extension(const std::string &extension) {
 
-  std::vector<std::string>::iterator it;
-  for (it = data_glob_extensions->begin(); it<data_glob_extensions->end(); it++) {
-    if (*it == extension) {
-      data_glob_extensions->erase(it);
-    }
-  }
+   std::vector<std::string> &v = *data_glob_extensions;
+   v.erase(std::remove(v.begin(), v.end(), extension), v.end());
 }
 
 void
 graphics_info_t::remove_map_glob_extension(const std::string &extension) {
 
-  std::vector<std::string>::iterator it;
-  for (it = map_glob_extensions->begin(); it<map_glob_extensions->end(); it++) {
-    if (*it == extension) {
-      map_glob_extensions->erase(it);
-    }
-  }
+   std::vector<std::string> &v = *map_glob_extensions;
+   v.erase(std::remove(v.begin(), v.end(), extension), v.end());
 }
 
 void
 graphics_info_t::remove_dictionary_glob_extension(const std::string &extension) {
 
-  std::vector<std::string>::iterator it;
-  for (it = dictionary_glob_extensions->begin(); it<dictionary_glob_extensions->end(); it++) {
-    if (*it == extension) {
-      dictionary_glob_extensions->erase(it);
-    }
-  }
+   std::vector<std::string> &v = *dictionary_glob_extensions;
+   v.erase(std::remove(v.begin(), v.end(), extension), v.end());
 }
 
 
 void
 graphics_info_t::check_chiral_volumes(int imol) {
 
-   if (imol < n_molecules()) {
+   if (imol >= 0 && imol < n_molecules()) {
       if (molecules[imol].has_model()) {
          // return a pair: first is the residues for which no
          // restraints were found second is a vector of atom specs
@@ -6515,11 +6497,13 @@ graphics_info_t::add_lsq_plane_atom(int imol, int atom_index) {
 int
 graphics_info_t::remove_last_lsq_plane_atom() {
 
-   if (lsq_plane_atom_positions->size() > 1) {
-      lsq_plane_atom_positions->resize(lsq_plane_atom_positions->size()-1);
+   int status = 0;
+   if (! lsq_plane_atom_positions->empty()) {
+      lsq_plane_atom_positions->pop_back();
       graphics_draw();
+      status = 1;
    }
-   return 0;
+   return status;
 }
 
 

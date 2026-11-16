@@ -32,8 +32,8 @@
 extern logging logger;
 
 
-coot::peak_search::peak_search(const clipper::Xmap<float> &xmap) { 
-   //                                float n_sigma_in) { 
+coot::peak_search::peak_search(const clipper::Xmap<float> &xmap) {
+   //                                float n_sigma_in) {
 
     max_closeness = 2.0; // don't allow "smaller" peaks that are
                          // within max_closeness of a larger one.
@@ -49,14 +49,14 @@ coot::peak_search::peak_search(const clipper::Xmap<float> &xmap) {
       sumsq += v*v;
       n += 1.0;
    }
-   
+
    float mean = sum/n;
    map_rms = sqrt(sumsq/n - mean*mean);
-   // n_sigma = n_sigma_in; 
+   // n_sigma = n_sigma_in;
 }
 
 
-std::vector<clipper::Coord_orth> 
+std::vector<clipper::Coord_orth>
 coot::peak_search::get_peaks(const clipper::Xmap<float> &xmap,
                              float n_sigma) {
 
@@ -545,8 +545,6 @@ coot::peak_search::get_peaks(const clipper::Xmap<float> &xmap,
                               return coords;
                            };
 
-   only_around_protein_flag = false;
-
    if (true) {
       // std::cout << "in get_peaks do_positive_levels_flag   " << do_positive_levels_flag << std::endl;
       // std::cout << "in get_peaks also_negative_levels_flag " << also_negative_levels_flag << std::endl;
@@ -568,41 +566,7 @@ coot::peak_search::get_peaks(const clipper::Xmap<float> &xmap,
       std::cout << "DEBUG:: xin get_peaks() sampled_protein_coords size " << sampled_protein_coords.size()
                 << std::endl;
 
-   if (only_around_protein_flag) {
-
-      sampled_protein_coords = sample_all_atoms();
-      if (false)
-         std::cout << "DEBUG:: sampled_protein_coords size is " << sampled_protein_coords.size() << std::endl;
-
-      double max_dist_close_enough = 3.8; // 4.0 maybe a bit too much, actually!
-      double max_dist = 4.0; // 20231004-PE for 1bl8
-      double max_dist_sqrd = max_dist * max_dist;
-      unsigned int n_outside = 0;
-      unsigned int n_inside = 0;
-      for (const auto &peak : peaks) {
-         bool within_dist = false;
-         for (const auto &atom_pos : sampled_protein_coords) {
-            double dd = (atom_pos-peak.first).lengthsq();
-            if (dd < max_dist_sqrd) {
-               within_dist = true;
-               if (dd < max_dist_close_enough * max_dist_close_enough)
-                  break;
-            }
-         }
-         if (within_dist) {
-            n_inside++;
-            r.push_back(peak);
-         } else {
-            n_outside++;
-         }
-      }
-
-      // std::cout << "INFO:: n_peaks outside of contact with protein (and thus ignored): "
-      // << n_outside << " and " << n_inside << " inside " << std::endl;
-      logger.log(log_t::INFO, {"n_peaks outside of contact with protein (and thus ignored):",
-                               std::to_string(n_outside), "and", std::to_string(n_inside), "inside"});
-
-   } else {
+   {
 
       // The protein could be somewhere away from the origin.  In that
       // case, (indeed, the general case) we should find what the
@@ -649,6 +613,37 @@ coot::peak_search::get_peaks(const clipper::Xmap<float> &xmap,
                                                               xmap);
          r.push_back(std::pair<clipper::Coord_orth, float> (pt, peaks[i].second));
       }
+   }
+
+   if (only_around_protein_flag != 0) {
+
+      // Now that the peaks have been moved (by symmetry) to be close to the protein,
+      // keep only those that are in contact with it.
+      //
+      // (Testing the peaks before they are moved rejects real peaks: they come
+      // from the asymmetric unit of the map, which need not be where the model is.)
+
+      std::vector<clipper::Coord_orth> all_atom_coords = sample_all_atoms();
+      double max_dist = 4.0; // 20231004-PE for 1bl8
+      double max_dist_sqrd = max_dist * max_dist;
+      std::vector<std::pair<clipper::Coord_orth, float> > r_close;
+      for (const auto &peak : r) {
+         bool within_dist = false;
+         for (const auto &atom_pos : all_atom_coords) {
+            double dd = (atom_pos-peak.first).lengthsq();
+            if (dd < max_dist_sqrd) {
+               within_dist = true;
+               break;
+            }
+         }
+         if (within_dist)
+            r_close.push_back(peak);
+      }
+      unsigned int n_inside = r_close.size();
+      unsigned int n_outside = r.size() - n_inside;
+      logger.log(log_t::INFO, {"n_peaks outside of contact with protein (and thus ignored):",
+                               std::to_string(n_outside), "and", std::to_string(n_inside), "inside"});
+      r = r_close;
    }
 
    return r;

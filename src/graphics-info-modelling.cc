@@ -2638,6 +2638,8 @@ graphics_info_t::refinement_results_to_py(const coot::refinement_results_t &rr) 
 	PyList_SetItem(lights_py, il, light_py);
       }
       r = PyList_New(3);
+      if (PyBool_Check(lights_py))
+         Py_INCREF(lights_py); // PyList_SetItem() steals a reference
       PyList_SetItem(r, 0, info_py);
       PyList_SetItem(r, 1, progress_py);
       PyList_SetItem(r, 2, lights_py);
@@ -2964,6 +2966,7 @@ graphics_info_t::execute_rigid_body_refine(short int auto_range_flag) {
       ires2 = p.second;
       atom1 = molecules[imol_rigid_body_refine].atom_sel.atom_selection[residue_range_atom_index_1];
       chain_id_1 =  atom1->residue->GetChainID();
+      chain_id_2 =  chain_id_1; // the auto-range is in one chain
    } else {
 
       // make sure that the atom indices are in the right order:
@@ -2996,7 +2999,7 @@ graphics_info_t::execute_rigid_body_refine(short int auto_range_flag) {
    }
 
    // duck out now if the chains were not the same!
-   if (chain_id_1 != chain_id_2) {
+   if (std::string(chain_id_1) != std::string(chain_id_2)) {
       std::string info_string("Atoms must be in the same chain");
       add_status_bar_text(info_string);
       return;

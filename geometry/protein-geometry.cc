@@ -2188,18 +2188,13 @@ coot::protein_geometry::remove_omega_peptide_restraints() {
    v.push_back("CIS");
    v.push_back("PCIS");
 
-   // this could use erase() remove_if()
+   auto is_omega = [] (const coot::dict_link_torsion_restraint_t &tr) { return tr.id() == "omega"; };
 
    for (unsigned int i=0; i<dict_link_res_restraints.size(); i++) {
       for (unsigned int j=0; j<v.size(); j++) {
          if (dict_link_res_restraints[i].link_id == v[j]) { // is TRANS, say
-            std::vector<coot::dict_link_torsion_restraint_t>::iterator it;
-            for (it = dict_link_res_restraints[i].link_torsion_restraint.begin();
-                 it != dict_link_res_restraints[i].link_torsion_restraint.end(); it++) {
-               if (it->id() == "omega") {
-                  dict_link_res_restraints[i].link_torsion_restraint.erase(it);
-               }
-            }
+            std::vector<coot::dict_link_torsion_restraint_t> &ltr = dict_link_res_restraints[i].link_torsion_restraint;
+            ltr.erase(std::remove_if(ltr.begin(), ltr.end(), is_omega), ltr.end());
          }
       }
    }

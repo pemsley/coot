@@ -167,10 +167,10 @@ int morph_fit_residues(int imol, const std::vector<coot::residue_spec_t> &residu
 							transformation_averaging_radius);
 	 graphics_draw();
       } else {
-	 std::cout << "WARNING:: no valid map. Stopping now" << std::endl;
+	 std::cout << "WARNING:: " << imol << " is not a valid model molecule " << std::endl;
       }
    } else {
-      std::cout << "WARNING:: " << imol << " is not a valid map molecule " << std::endl;
+      std::cout << "WARNING:: no valid refinement map. Stopping now" << std::endl;
    }
    return success;
 }
@@ -188,10 +188,10 @@ int morph_fit_by_secondary_structure_elements(int imol, const std::string &chain
 	 success = g.molecules[imol].morph_fit_by_secondary_structure_elements(chain_id, xmap, map_rmsd);
 	 graphics_draw();
       } else {
-	 std::cout << "WARNING:: no valid map. Stopping now" << std::endl;
+	 std::cout << "WARNING:: " << imol << " is not a valid model molecule " << std::endl;
       }
    } else {
-      std::cout << "WARNING:: " << imol << " is not a valid map molecule " << std::endl;
+      std::cout << "WARNING:: no valid refinement map. Stopping now" << std::endl;
    }
    return success;
 }

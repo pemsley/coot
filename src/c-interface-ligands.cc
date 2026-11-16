@@ -1005,7 +1005,7 @@ execute_ligand_search_internal(coot::wligand *wlig_p) {
       // that we should consider as solutions. 0.5 is generous, I
       // think.
       float frac_lim = g.find_ligand_score_by_correl_frac_limit; // 0.7;
-      float correl_frac_lim = 0.9;
+      float correl_frac_lim = g.find_ligand_score_correl_frac_interesting_limit; // 0.9 by default
       // nino-mode
       unsigned int nlc = wlig_p->n_ligands_for_cluster(iclust, frac_lim);
       wlig_p->score_and_resort_using_correlation(iclust, nlc);
@@ -1186,7 +1186,10 @@ std::string get_rdkit_mol_base64_from_molecule(int imol, PyObject *residue_spec_
       int imol_enc = imol;
       std::pair<bool, coot::dictionary_residue_restraints_t> rp = g.Geom_p()->get_monomer_restraints(residue_name, imol_enc);
       // std::cout << "DEBUG:: in get_rdkit_mol_pickle_base64_from_molecule() B " << r << std::endl;
-      if (r) {
+      if (! rp.first) {
+         std::cout << "WARNING:: get_rdkit_mol_base64_from_molecule(): no dictionary for "
+                   << residue_name << std::endl;
+      } else {
          const auto &dict = rp.second;
          RDKIT_GRAPHMOL_EXPORT RDKit::MolPickler mp;
          RDKit::RWMol mol = coot::rdkit_mol(r, dict);
@@ -1239,7 +1242,6 @@ int restraints_from_rdkit_mol_base64(const std::string &rdkit_mol_binary_base64,
    if (restraints) {
       int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
       graphics_info_t::Geom_p()->add(imol_enc, restraints.value());
-      restraints.value().write_cif("test.cif");
       status = 1;
    }
    return status;
@@ -1448,12 +1450,12 @@ int mask_map_by_molecule(int map_mol_no, int coord_mol_no, short int invert_flag
    // Where should the bulk of this function be?  Let's put it here for now.
    coot::ligand lig;
    graphics_info_t g;
-   if (map_mol_no >= g.n_molecules()) {
+   if (map_mol_no < 0 || map_mol_no >= g.n_molecules()) {
       std::cout << "No such molecule (no map) at molecule number " << map_mol_no << std::endl;
    } else {
 
-      if (coord_mol_no >= g.n_molecules()) {
-	 std::cout << "No such molecule (no coords) at molecule number " << map_mol_no << std::endl;
+      if (coord_mol_no < 0 || coord_mol_no >= g.n_molecules()) {
+	 std::cout << "No such molecule (no coords) at molecule number " << coord_mol_no << std::endl;
       } else {
 
 	 if (!g.molecules[map_mol_no].has_xmap()) {
@@ -1461,7 +1463,7 @@ int mask_map_by_molecule(int map_mol_no, int coord_mol_no, short int invert_flag
 	 } else {
 
 	    if (! g.molecules[coord_mol_no].has_model()) {
-	       std::cout << "No model in molecule number " << map_mol_no << std::endl;
+	       std::cout << "No model in molecule number " << coord_mol_no << std::endl;
 	    } else {
 	       short int mask_waters_flag; // treat the waters like protein atoms?
 	       mask_waters_flag = g.find_ligand_mask_waters_flag;
@@ -4159,7 +4161,7 @@ int make_masked_maps_split_by_chain(int imol, int imol_map) {
                    << std::endl;
       }
    } else {
-      std::cout << "WARNING:: molecule " << imol_map << " is not a valid model molecule"
+      std::cout << "WARNING:: molecule " << imol << " is not a valid model molecule"
                 << std::endl;
    }
    return 0;
@@ -4197,6 +4199,7 @@ int get_pdbe_cif_for_comp_id(const std::string &comp_id) {
    if (std::filesystem::exists(cif_file_path)) {
       // std::cout << "INFO:: found " << cif_file_path << std::endl;
       logger.log(log_t::INFO, "found " + cif_file_path.string());
+      status = CURLE_OK; // we have the file already, no need to download it
    } else {
       std::string url = "https://www.ebi.ac.uk/pdbe/static/files/pdbechem_v2/" + comp_id + ".cif";
       // std::cout << "INFO:: downloading " << url << " "  << cif_file_path << std::endl;

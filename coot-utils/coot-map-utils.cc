@@ -2238,9 +2238,10 @@ coot::util::map_to_model_correlation_stats(mmdb::Manager *mol,
 
                // PDBv3 FIXME
                //
-               if (atom_mask_mode == ATOM_MASK_MAINCHAIN)
+               // modes 4 and 5 are as 1 and 2 for standard residues (they differ for the others)
+               if (atom_mask_mode == ATOM_MASK_MAINCHAIN || atom_mask_mode == 4)
                   atom_name_selection = " N  , H  , HA , CA , C  , O  ";
-               if (atom_mask_mode == ATOM_MASK_NOT_MAINCHAIN)
+               if (atom_mask_mode == ATOM_MASK_NOT_MAINCHAIN || atom_mask_mode == 5)
                   atom_name_selection = "!( N  , H  , HA , CA , C  , O  )";
                if (atom_mask_mode == ATOM_MASK_NOT_MAINCHAIN_OR_CB)
                   atom_name_selection = "!( N  , H  , HA , CA , C  , O  , CB )";

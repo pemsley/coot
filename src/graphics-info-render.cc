@@ -117,6 +117,28 @@ coot::raytrace_info_t::add_geometry_objects(const std::vector<coot::simple_dista
 }
 
 
+// The view rotation for the raster3d, povray and renderman writers.
+//
+// These writers used to be given a GL_matrix made from the (trackball) quat
+// by GL_matrix::from_quaternion(), which was the rotation part of the OpenGL
+// modelview matrix (column-major). The view rotation is now the model
+// rotation matrix made from view_quaternion (see get_model_rotation()), so the
+// same 9 floats are copied across in the same (column-major) order.
+//
+// 20261116 Caution: this has been compiled but the output has not been
+// rendered and compared with the screen (no Raster3D or POV-Ray to hand). If
+// the picture is rotated the wrong way, then the matrix needs to be
+// transposed here.
+//
+static GL_matrix
+view_rotation_as_GL_matrix() {
+
+   glm::mat4 mr = graphics_info_t::get_model_rotation();
+   return GL_matrix(mr[0][0], mr[0][1], mr[0][2],
+                    mr[1][0], mr[1][1], mr[1][2],
+                    mr[2][0], mr[2][1], mr[2][2]);
+}
+
 // raster3d
 short int
 graphics_info_t::raster3d(std::string filename) {
@@ -141,9 +163,7 @@ graphics_info_t::raster3d(std::string filename) {
                             raster3d_bone_thickness,
                             raster3d_atom_radius,
                             raster3d_density_thickness);
-   GL_matrix m;
-   // m.from_quaternion(quat);
-   std::cout << "in raster3d fixme - use glm_quat"  << std::endl;
+   GL_matrix m = view_rotation_as_GL_matrix();
    rt.set_view_matrix(m);
 
    rt.add_generic_display_objects(generic_display_objects);
@@ -210,9 +230,7 @@ graphics_info_t::povray(std::string filename) {
 			    raster3d_bone_thickness,
 			    raster3d_atom_radius,
 			    raster3d_density_thickness);
-   GL_matrix m;
-   std::cout << "FIXME:: in povray() - use glm_quat"  << std::endl;
-   //    m.from_quaternion(quat);
+   GL_matrix m = view_rotation_as_GL_matrix();
    rt.set_view_matrix(m);
 
    rt.add_generic_display_objects(generic_display_objects);
@@ -294,9 +312,7 @@ graphics_info_t::renderman(std::string filename) {
                             raster3d_bone_thickness,
                             raster3d_atom_radius,
                             raster3d_density_thickness);
-   GL_matrix m;
-   std::cout << "in renderman fixme - use glm_quat"  << std::endl;
-   // m.from_quaternion(quat);
+   GL_matrix m = view_rotation_as_GL_matrix();
    rt.set_view_matrix(m);
    // rt.set_quaternion(quat);
 

@@ -222,6 +222,10 @@ void unset_sticky_sort_by_date();
 
 set to 1 to pre-filter, 0 for no pre-filtering. The default is 1 (on).
 
+Note: this is a relic of the GTK2 file selection. The flag is stored
+(and returned by \c filter_fileselection_filenames_state()) but has no
+effect on the current file choosers.
+
 @param istate 1 for on, 0 for off */
 void set_filter_fileselection_filenames(int istate);
 
@@ -256,6 +260,9 @@ void set_file_chooser_selector(int istate);
 @return 1 for the file chooser, 0 for the old-style file selector */
 int file_chooser_selector_state();
 /*! \brief set the file chooser overwrite flag
+
+Note: this is a relic of the GTK2 file chooser. The flag is stored (and
+returned by \c file_chooser_overwrite_state()) but has no effect.
 
 @param istate 1 (the default) for overwrite-protect, 0 for overwrite */
 void set_file_chooser_overwrite(int istate);
@@ -557,17 +564,36 @@ PyObject *residue_centre_py(int imol, const char *chain_id, int resno, const cha
 
 #ifdef __cplusplus
 #ifdef USE_GUILE
-/*! \brief model composition statistics - not yet implemented
+/*! \brief model composition, geometry and validation statistics
 
-  The statistics are calculated but not returned: this currently
-  always returns an empty list. */
+  The Scheme version of \c model_composition_statistics_py(): the
+  same statistics as an association list, with the keys as strings
+  that use hyphens instead of underscores (e.g. "n-atoms").
+
+  @param imol the model molecule index
+  @return an association list, or \c \#f if imol is not a valid model molecule */
 SCM model_composition_statistics_scm(int imol);
 #endif
 
-/*! \brief model composition statistics - not yet implemented
+/*! \brief model composition, geometry and validation statistics
 
-  The statistics are calculated but not returned: this currently
-  always returns False. */
+  The statistics are for the first model of the molecule. A value of
+  -1 means that the statistic could not be calculated.
+
+  The keys of the returned dictionary are:
+  - \c n_atoms, \c n_non_hydrogen_atoms
+  - \c n_protein_residues, \c n_rna_residues, \c n_dna_residues
+  - \c n_hetgroups: the residues that are not protein, nucleic acid or water
+  - \c n_metal_atoms
+  - \c rmsd_bonds (Å) and \c rmsd_angles (degrees): the RMS deviations
+    from the dictionary values
+  - \c atom_overlap_score: as returned by \c atom_overlap_score()
+  - \c fraction_good_rotamers: the fraction of the side chains with a
+    rotamer probability of 0.3% or more
+  - \c fraction_ramachandran_favoured, \c fraction_ramachandran_outliers
+
+  @param imol the model molecule index
+  @return a dictionary, or False if imol is not a valid model molecule */
 PyObject *model_composition_statistics_py(int imol);
 #endif
 
@@ -901,7 +927,8 @@ short int python_at_prompt_at_startup_state();
   model molecule (wrapping around to the first). The zoom is not
   changed and nothing happens if there are no displayed model molecules.
 
-  @return 0 (the current implementation always returns 0). */
+  @return 1 if the view was moved to a molecule centre, 0 if there was
+  no molecule to centre on. */
 int reset_view();
 
 /*! \brief set the view rotation scale factor
@@ -1449,7 +1476,7 @@ are not (or may not be) on the same scale).
 
 Not useful for MCP. For interactive use only.
 
-   @return currently always 0 (the result of the search is not passed back).
+   @return 1 if a blob was found (and the view was moved to it), 0 otherwise.
 */
 int blob_under_pointer_to_screen_centre();
 
@@ -2136,9 +2163,8 @@ if is_increment=1 the contour level is increased.  If is_increment=0
 the map contour level is decreased.
 
 The step is the absolute iso-level increment (see
-set_iso_level_increment()). Note that for difference maps the level is
-currently always increased (by the difference-map increment),
-whatever the value of is_increment.
+set_iso_level_increment()). For difference maps the difference-map
+increment is used.
  */
 void change_contour_level(short int is_increment); /* else is decrement.  */
 
@@ -2283,7 +2309,7 @@ int make_and_draw_map_with_reso_with_refmac_params(const char *mtz_file_name,
  If the file updates, then the map will be updated (the file is checked every 0.5 s).
  Use stop_updating_molecule() to stop.
 
- @return currently always 1 (not the molecule number) */
+ @return the new map molecule number, or -1 on failure */
 int make_updating_map(const char *mtz_file_name,
 		      const char *f_col, const char *phi_col,
 		      const char *weight,
@@ -2591,13 +2617,12 @@ PyObject *cell_py(int imol);
 /*! \brief write molecule number imol as a PDB to file file_name
 
   If the file name has a SHELX extension (.ins, .res or .hat) a SHELX
-  ins file is written instead (and the return value is then 1).
+  ins file is written instead.
 
   @param imol the model molecule index
   @param file_name the output file name
-  @return 0 on success, non-zero on error. Note that 0 is also
-  returned if \c imol is not a valid model molecule (nothing is
-  written). */
+  @return 0 on success, non-zero on error (including when \c imol is
+  not a valid model molecule). */
 /*  return 0 on success, 1 on error. */
 int write_pdb_file(int imol, const char *file_name);
 
@@ -2605,9 +2630,8 @@ int write_pdb_file(int imol, const char *file_name);
 
   @param imol the model molecule index
   @param file_name the output file name
-  @return 0 on success, non-zero on error. Note that 0 is also
-  returned if \c imol is not a valid model molecule (nothing is
-  written). */
+  @return 0 on success, non-zero on error (including when \c imol is
+  not a valid model molecule). */
 /*  return 0 on success, 1 on error. */
 int write_cif_file(int imol, const char *file_name);
 
@@ -2636,9 +2660,8 @@ int write_residue_range_to_pdb_file(int imol, const char *chainid,
   @param imol the model molecule index
   @param chainid the chain id
   @param filename the output file name
-  @return 0 on success, non-zero (an mmdb error code) on write
-  failure. Note that 0 is also returned if \c imol is not a valid
-  model molecule (nothing is written). */
+  @return 0 on success, non-zero on failure (an mmdb error code on
+  write failure, 1 if \c imol is not a valid model molecule). */
 /*  return 0 on success, -1 on error. */
 int write_chain_to_pdb_file(int imol, const char *chainid, const char *filename);
 
@@ -2873,7 +2896,7 @@ void add_symmetry_on_to_preferences_and_apply();
   Uses the first molecule with symmetry displayed (see
   \c first_molecule_with_symmetry_displayed()).
 
-  @return 0 (always) */
+  @return 1 if a symmetry operator was found and the view was moved, 0 otherwise */
 int undo_symmetry_view();
 
 /*! \brief return the molecule number of the first model molecule
@@ -3002,7 +3025,7 @@ int n_symops(int imol);
   symmetry-related position. Only works when the graphics interface
   is in use.
 
-  @return 0 (always) */
+  @return 1 if a chain was moved, 0 otherwise */
 /* This function works by active symm atom. */
 int move_reference_chain_to_symm_chain_position();
 
@@ -3191,11 +3214,12 @@ void set_run_state_file_status(short int istat);
 /*! \brief run the state file (reading from default filenname)
 
   Runs 0-coot.state.scm (Guile-enabled builds) or 0-coot.state.py
-  from the current directory, if it exists. */
+  from the XDG state directory (typically ~/.local/state/Coot, which is
+  where save_state() writes it), if it exists. */
 void run_state_file();		/* just do it */
 #ifdef USE_PYTHON
-/*! \brief run the Python state file 0-coot.state.py from the current
-  directory, if it exists */
+/*! \brief run the Python state file 0-coot.state.py from the XDG state
+  directory (typically ~/.local/state/Coot), if it exists */
 void run_state_file_py();		/* just do it */
 #endif /* USE_PYTHON */
 /*! \brief run the state file depending on the state variables
@@ -3553,6 +3577,9 @@ float hardware_stereo_angle_factor_state();
 
 /*! \brief set the model display radius limit
 
+  Note: the values are stored but they have no effect with the current
+  renderer.
+
   @param state 1 to limit the display of the model to within
   \c radius of the screen centre, 0 for no limit (the default)
   @param radius the radius in Angstroms (default 15) */
@@ -3905,7 +3932,7 @@ void set_temperature_factors_for_atoms_in_residue_scm(int imol, SCM residue_spec
 
 #ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
 #ifdef USE_GUILE
-/*! \brief not yet implemented in the Scheme API - currently always returns an empty list */
+/*! \brief Return either \c \#f (on failure) or a list of alt-conf strings (might be (list "")) */
 SCM get_residue_alt_confs_scm(int imol, const char *chain_id, int res_no, const char *ins_code);
 #endif
 #endif
@@ -3924,9 +3951,9 @@ PyObject *get_residue_alt_confs_py(int imol, const char *chain_id, int res_no, c
   Swap the alt conf labels of the first two atoms with the name atom_name
   in the specified residue. The molecule is redrawn.
 
-  Note: the alt_conf argument is currently not used.
+  A backup is made. Note: the alt_conf argument is currently not used.
 
-  @return currently always 0 */
+  @return 1 if the alt confs were swapped, 0 otherwise */
 int swap_atom_alt_conf(int imol, const char *chain_id, int res_no, const char *ins_code,
                        const char *atom_name, const char*alt_conf);
 
@@ -3945,7 +3972,7 @@ Attributes can be "x", "y", "z" (in Angstroms), "B" (or "b") and "occ"
 and the attribute val is a floating point number. Only the first matching atom
 is changed. The molecule is redrawn.
 
-@return currently always 0 */
+@return 1 if the atom was found, 0 otherwise */
 int set_atom_attribute(int imol, const char *chain_id, int resno, const char *ins_code, const char *atom_name, const char*alt_conf, const char *attribute_name, float val);
 
 /*! \brief set a string attribute of the atom with the given specifier.
@@ -3953,7 +3980,7 @@ int set_atom_attribute(int imol, const char *chain_id, int resno, const char *in
 Attributes can be "atom-name", "alt-conf", "element" or "segid".
 Only the first matching atom is changed. The molecule is redrawn.
 
-@return currently always 0 */
+@return 1 if the atom was found, 0 otherwise */
 int set_atom_string_attribute(int imol, const char *chain_id, int resno, const char *ins_code, const char *atom_name, const char*alt_conf, const char *attribute_name, const char *attribute_value);
 
 /*! \brief set lots of atom attributes at once by-passing the rebonding and redrawing of the above 2 functions
@@ -4096,8 +4123,8 @@ void set_skeleton_box_size(float f);
 
   @param imol the model molecule index
   @param filename the output file name
-  @return 0 on success, non-zero on failure. Note that 0 is also returned
-  if imol is not a valid model molecule (nothing is written). */
+  @return 0 on success, non-zero on failure (including when imol is not
+  a valid model molecule). */
 int save_coordinates(int imol, const char *filename);
 
 /*! \brief set save coordinates in the starting directory
@@ -4450,7 +4477,14 @@ void glyco_tree_test();
 
 #ifdef __cplusplus
 #ifdef USE_GUILE
-/*! \brief Scheme version of glyco_tree_py() */
+/*! \brief Scheme version of glyco_tree_py()
+
+  Each node is an association list with the (string) keys "residue-spec",
+  "residue-name", "link-type" and "children".
+
+  @param imol the model molecule index
+  @param active_residue_scm the residue spec of a residue in the tree
+  @return the root node, or \c \#f */
 SCM glyco_tree_scm(int imol, SCM active_residue_scm);
 /*! \brief Scheme version of glyco_tree_residues_py() */
 SCM glyco_tree_residues_scm(int imol, SCM active_residue_scm);
@@ -4464,9 +4498,21 @@ SCM glyco_tree_compare_trees_scm(int imol_1, SCM res_spec_1, int imol_2, SCM res
 SCM glyco_tree_matched_residue_pairs_scm(int imol_1, SCM res_spec_1, int imol_2, SCM res_spec_2);
 #endif
 #ifdef USE_PYTHON
-/*! \brief build the glyco tree from the given residue (incomplete)
+/*! \brief the glycosylation tree that contains the given residue
 
-  @return currently always False */
+  The tree (rooted at an ASN, if there is one) is made from the pyranose
+  and ASN residues linked to the given residue. Each node of the tree is
+  a dictionary with the keys:
+  - \c residue_spec: [chain_id, res_no, ins_code]
+  - \c residue_name
+  - \c link_type: the type of the link to the parent, e.g. "BETA1-4"
+    ("" for the root)
+  - \c children: a list of nodes
+
+  @param imol the model molecule index
+  @param active_residue_py the residue spec of a residue in the tree
+  @return the root node, or False if the molecule, the residue or
+          a tree is not found */
 PyObject *glyco_tree_py(int imol, PyObject *active_residue_py);
 /*! \brief return the residue specs of the residues in the glyco tree
   that contains the given residue
@@ -4815,11 +4861,12 @@ PyObject *change_chain_id_with_result_py(int imol, const char *from_chain_id, co
 /*! \name Scripting Interface */
 /*! \{ */
 
-/*! \brief Can we run probe (was the executable variable set
-  properly?) (predicate).
+/*! \brief Can we run probe? (predicate)
 
-@return 1 for yes, 0 for no, -1 for not yet known. Note that nothing
-currently sets this state, so -1 is returned. */
+The PATH is searched for the executable molprobity.probe on the first
+call, and the result is kept for later calls.
+
+@return 1 for yes, 0 for no */
 int probe_available_p();
 #ifdef USE_PYTHON
 /*! \brief Python version of probe_available_p() */
@@ -5020,7 +5067,7 @@ void set_use_trans_peptide_restraints(short int on_off_state);
 void add_omega_torsion_restraints();
 
 /*! \brief remove omega restraints on CIS and TRANS linked residues. */
-void remove_omega_torsion_restriants();
+void remove_omega_torsion_restraints();
 
 /*! \brief add or remove auto H-bond restraints
 
@@ -5829,8 +5876,10 @@ void set_extra_restraints_prosmart_sigma_limits(int imol, double limit_high, dou
   Geman-McClure distance restraints (esd 0.05 Å) are generated between
   all non-hydrogen atom pairs in the given chain that are within
   local_dist_max of each other (excluding bonded and angle-related
-  pairs), with the current distances as targets. Existing extra bond
-  restraints are cleared.
+  pairs), with the current distances as targets. Nothing is cleared:
+  the new restraints are added to the existing extra restraints, so
+  calling this function twice for the same chain duplicates them.
+  Use delete_all_extra_restraints() first to start afresh.
 
   @param imol the model molecule index
   @param chain_id the chain id
@@ -6327,8 +6376,6 @@ a, b,c are in Angstroems.  alpha, beta, gamma are in degrees.  spg is
 the space group info, either ;-delimited symmetry operators or the
 space group name. imol is not used.
 
-Note: the gamma argument is currently ignored (alpha is used in its place).
-
 @return the new map molecule index */
 int handle_cns_data_file_with_cell(const char *filename, int imol, float a, float b, float c, float alpha, float beta, float gamma, const char *spg_info);
 /*! \} */
@@ -6364,7 +6411,6 @@ int read_cif_data(const char *filename, int imol_coords);
 /*! \brief read a reflection mmCIF file (Fobs) and make a 2Fo-Fc map
 
   Structure factors are calculated from the model molecule imol_coords.
-  Note: currently this makes the same (sigmaA) map as read_cif_data().
 
   @return the new map molecule index, or -1 on failure */
 int read_cif_data_2fofc_map(const char *filename, int imol_coords);
@@ -6401,7 +6447,8 @@ int read_cif_data_with_phases_fo_alpha_calc(const char *filename);
 /*! \brief write a connectivity file for the given monomer
 
   The file (a "RESIDUE"/"CONECT" style listing of the bonded atoms of
-  each atom) is made from the bonds in the monomer's dictionary.
+  each atom, in the format of the reduce het dictionary) is made from
+  the bonds in the monomer's dictionary.
 
   @param monomer_name the residue type (comp_id)
   @param filename the output file name
@@ -6472,6 +6519,8 @@ int read_small_molecule_data_cif_and_make_map_using_coords(const char *file_name
   Currently this has no visible effect: it builds restraints for each
   chain of the molecule but reports nothing.
 
+  Deletable for Coot 2.
+
   @param imol the model molecule index */
 void deviant_geometry(int imol);
 /*! \brief is imol a valid model molecule?
@@ -6497,8 +6546,8 @@ is shown); the peaks are also written to the log.
 If imol_coords is a valid model molecule, peaks are moved (by symmetry)
 to be close to the model.
 
-Note: around_model_only_flag is currently ignored - the underlying peak
-search forces it off.
+If around_model_only_flag is set, then, after that move, peaks that are
+more than 4 A from every atom of the model are not listed.
 
 @param imol the difference map molecule index
 @param imol_coords the model molecule index (may be invalid, e.g. -1)
@@ -6506,8 +6555,8 @@ search forces it off.
 @param max_closeness the minimum separation (in A) between listed peaks
 @param do_positive_level_flag 1 to find positive peaks
 @param do_negative_level_flag 1 to find negative peaks
-@param around_model_only_flag (currently ignored) intended to limit peaks
-       to those within 4A of the model
+@param around_model_only_flag 1 to list only the peaks that are within
+       4 A of an atom of the model (needs a valid imol_coords)
 */
 void difference_map_peaks(int imol, int imol_coords, float level, float max_closeness, int do_positive_level_flag, int do_negative_level_flag, int around_model_only_flag);
 
@@ -6714,10 +6763,12 @@ float atom_overlap_score(int imol);
   @param state 1 for on, 0 for off */
 void set_show_chiral_volume_outliers(int imol, int state);
 
-/* Note: this is a duplicate declaration of set_show_chiral_volume_outliers().
-   (The function for non-bonded contact markers is
-   set_show_non_bonded_contact_baddies_markers(imol, state)). */
-void set_show_chiral_volume_outliers(int imol, int state);
+/*! \brief set the state of showing non-bonded contact markers - of a model molecule that is,
+   not the intermediate atoms (derived from restraints)
+
+  @param imol the model molecule index
+  @param state 1 for on, 0 for off */
+void set_show_non_bonded_contact_baddies_markers(int imol, int state);
 
 /*! \} */
 
@@ -8309,7 +8360,7 @@ PyObject *find_terminal_residue_type_py(int imol, const char *chain_id, int resn
          (the same form as an item of \c residue_info_py(), with an
          isotropic B-factor; an optional 4th item is ignored). Atoms not
          in this form are skipped.
-  @return intended to be the number of atoms added, but currently always 0
+  @return the number of atoms added
 */
 #ifdef USE_PYTHON
 int add_residue_with_atoms_py(int imol, PyObject *residue_spec, const std::string &res_name, PyObject *list_of_atoms);
@@ -8436,11 +8487,10 @@ int delete_hydrogens(int imol);
 
 /*! \brief delete all waters in molecule,
 
-   All residues named HOH are deleted. Note that no backup (undo point)
-   is made.
+   The atoms of all residues named HOH, WAT or DOD are deleted. A backup
+   (undo point) is made first.
 
-   @return number of water atoms deleted (the same as the number of waters
-           when they have no hydrogen atoms). */
+   @return the number of waters deleted. */
 int delete_waters(int imol);
 
 /*! \brief (no longer does anything) */
@@ -8560,7 +8610,7 @@ PyObject *twisted_trans_peptides_py(int imol);
     a neighbouring peptide that is cis is preferred. The trans-peptide
     restraint is added or removed as appropriate.
 
-    @return currently always 0 */
+    @return 1 if a peptide was converted, 0 otherwise */
 int cis_trans_convert_intermediate_atoms();
 
 
@@ -9051,7 +9101,8 @@ residue range.
   @param start_res_no the first residue number of the range
   @param stop_res_no the last residue number of the range
   @param sequence the target sequence as single-letter codes, one per residue
-  @return currently always 0
+  @return 1 if the range was mutated and fitted, 0 otherwise (e.g. the
+          sequence length did not match the residue range)
  */
 int mutate_and_autofit_residue_range(int imol, const char *chain_id, int start_res_no, int stop_res_no,
                                      const char *sequence);
@@ -9554,7 +9605,9 @@ void set_check_waters_max_dist_limit(float f);
   @param map_sigma_lim waters in density below this level (in map rmsd) are flagged
   @param min_dist waters closer than this (in Å) to their nearest (non-hydrogen) atom are flagged
   @param max_dist waters further than this (in Å) from their nearest (non-hydrogen) atom are flagged
-  @param part_occ_contact_flag if non-zero, the distance tests are skipped
+  @param part_occ_contact_flag if non-zero, atoms with partial occupancy
+         (e.g. alternate conformations) are ignored in the min_dist
+         (close contact) test (OR mode only)
   @param zero_occ_flag if non-zero, the distance tests are skipped for waters with zero occupancy
   @param logical_operator_and_or_flag 0 for AND (a water must fail all the
          criteria), 1 for OR (a water failing any criterion is deleted).
@@ -9619,8 +9672,7 @@ SCM metal_coordination_scm(int imol, float dist_max);
   @param coordination_number the minimum number of contacts
   @param dist_max the maximum contact distance in Å
   @return [metals, waters], or False if imol is not a valid molecule.
-  Note that False is also returned when no highly coordinated waters
-  are found. */
+  The waters list is empty when no highly coordinated waters are found. */
 PyObject *highly_coordinated_waters_py(int imol, int coordination_number, float dist_max);
 /*! \brief print the metal coordination distances of molecule imol to the console
 
@@ -9721,7 +9773,7 @@ void setup_lsq_plane_define(int state);
 void unset_lsq_plane_dialog(); /* callback from destroy of widget */
 /*! \brief remove the most recently added atom of the LSQ plane
 
-  Does nothing if there is only one atom (or none). */
+  Does nothing if there are no atoms. */
 void remove_last_lsq_plane_atom();
 
 /*! \} */
@@ -9765,11 +9817,23 @@ void pLDDT_to_b_factor(int imol);
 /*! \name External Ray-Tracing */
 /*! \{ */
 
-/*! \brief create a r3d file for the current view */
+/*! \brief create a r3d file for the current view
+
+  Note: this is old and little-used code. The view orientation is taken
+  from the current view, but (20261116) the output has not been rendered
+  and compared with the screen, so the orientation may not be right. */
 void raster3d(const char *rd3_filename);
-/*! \brief create a povray (.pov) file for the current view */
+/*! \brief create a povray (.pov) file for the current view
+
+  Note: this is old and little-used code. The view orientation is taken
+  from the current view, but (20261116) the output has not been rendered
+  and compared with the screen, so the orientation may not be right. */
 void povray(const char *filename);
-/*! \brief create a RenderMan (RIB) file for the current view */
+/*! \brief create a RenderMan (RIB) file for the current view
+
+  Note: this is old and little-used code. The view orientation is taken
+  from the current view, but (20261116) the output has not been rendered
+  and compared with the screen, so the orientation may not be right. */
 void renderman(const char *rib_filename);
 /* a wrapper for the (scheme) function that makes the image, callable
    from callbacks.c  */
@@ -9965,7 +10029,7 @@ int add_strict_ncs_matrix(int imol,
 /*! \brief add strict NCS matrices from the MTRIX records of molecule imol's
   own coordinates file
 
-  @return 0 (always) */
+  @return 1 if imol is a valid model molecule, 0 otherwise */
 int add_strict_ncs_from_mtrix_from_self_file(int imol);
 
 /*! \brief return the state of NCS ghost molecules for molecule number imol
@@ -10231,8 +10295,8 @@ int find_secondary_structure(
 /*! \brief autobuild secondary structure
 
    Find secondary structure in the refinement map. Parameters as for
-   \c find_secondary_structure(). Note that the radius is currently
-   ignored: the whole map is searched.
+   \c find_secondary_structure(). A radius of 0 means that the whole
+   map is searched.
    A new molecule called "SecStruc" is created (drawn as a CA trace).
 
    @return the index of the new molecule, -1 on failure.*/
@@ -10413,7 +10477,7 @@ PyObject *pucker_info_py(int imol, PyObject *residue_spec, int do_pukka_pucker_c
 
    A new molecule called "WC partner" is created.
 
-   @return -1 (currently always - the new molecule index is not returned) */
+   @return the index of the new molecule, -1 on failure */
 int watson_crick_pair(int imol, const char * chain_id, int resno);
 /*! \brief add base pairs for the given residue range, modify molecule imol by creating a new chain
 
@@ -10520,10 +10584,14 @@ PyObject *sequence_info_py(int imol);
   return a list of mismatches that need to be made to model number
   imol to match the input sequence.
 
-Return  False on failure to align (e.g. not assigned sequence).
-Note: the construction of the list of mutations, deletions and
-insertions is currently disabled, so on a successful alignment an
-empty list is returned.*/
+Return False on failure to align (e.g. no assigned sequence) and an
+empty list if the model matches the sequence. Otherwise return a
+4-member list: [mutations, deletions, insertions, alignments]. Each
+mutation, deletion or insertion is [label, chain_id, res_no, ins_code]
+(the label of a deletion is "Delete") and alignments is a list of the
+alignment of each chain as text.
+
+@param imol the model molecule index */
 PyObject *alignment_mismatches_py(int imol);
 #endif /* USE_PYTHON */
 #endif /* C++ */
@@ -11010,8 +11078,7 @@ void show_partial_charge_info(int imol, const char *chain_id, int resno, const c
    @param fac_u the scale factor for a
    @param fac_v the scale factor for b
    @param fac_w the scale factor for c
-   @return 0 (currently the success status is not set, so 0 is returned
-   whether or not the cell was scaled) */
+   @return 1 if the cell was scaled, 0 if imol_map is not a valid map molecule */
 int scale_cell(int imol_map, float fac_u, float fac_v, float fac_w);
 
 /*! \brief create a number of maps by segmenting the given map
@@ -11489,7 +11556,7 @@ int get_sbase_monomer(const char *comp_id);
    @param new_residue_comp_id the residue type of the new residue, e.g. "NAG"
    @param link_type the dictionary link type (chem_link id), e.g. "pyr-ASN"
    @param n_trials the number of trials in the torsion fit
-   @return currently always 0 (the success status is not set)
+   @return 1 if the residue was added, 0 otherwise
 */
 int add_linked_residue(int imol, const char *chain_id, int resno, const char *ins_code,
 		       const char *new_residue_comp_id, const char *link_type, int n_trials);
@@ -11567,13 +11634,15 @@ void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, co
 
 /*! \brief set the maximum considered distance to water
 
-default 3.25 A. (Note that the current \c fle_view() uses its own
-internal value and does not consult this setting.) */
+default 3.25 A. This is used by \c fle_view().
+
+@param dist_max the maximum ligand-to-water distance (in A) */
 void fle_view_set_water_dist_max(float dist_max);
 /*! \brief set the maximum considered hydrogen bond distance
 
-default 3.9 A. (Note that the current \c fle_view() uses its own
-internal value and does not consult this setting.) */
+default 3.9 A. This is used by \c fle_view().
+
+@param h_bond_dist_max the maximum hydrogen bond distance (in A) */
 void fle_view_set_h_bond_dist_max(float h_bond_dist_max);
 
 /*! \brief Add hydrogens to specificied residue
@@ -11625,24 +11694,44 @@ void lsq_improve(int imol_ref, const char *ref_selection,
 /* Multirefine interface (because in guile-gtk there is no way to
    insert toolbuttons into the toolbar) so this
    rather kludgy interface.  It should go when we
-   move to guile-gnome, I think.                                            */
+   move to guile-gnome, I think.
+
+   20261116: Not functional in the GTK4 Coot: the three toolbar buttons
+   (toolbar_multi_refine_stop_button, _continue_button, _cancel_button)
+   are not in the ui file, so the show/hide and sensitivity functions
+   do nothing, and toolbar_multi_refine_continue() uses the PyGTK /
+   guile-gtk idle-add functions, which no longer exist. These functions
+   are kept so that scheme/fitting.scm still loads.                        */
 /*  ----------------------------------------------------------------------- */
 /*! \brief stop the scripted multi-residue refinement
 
   Sets the scripting-layer continue flag to false and makes the "continue"
-  and "cancel" buttons available. */
+  and "cancel" buttons available.
+
+  Not functional in GTK4 Coot: the toolbar buttons do not exist. Only the
+  scripting-layer flag is set. */
 void toolbar_multi_refine_stop();
 /*! \brief continue the scripted multi-residue refinement
 
   Sets the scripting-layer continue flag to true and re-adds the
-  multi-refine idle function. */
+  multi-refine idle function.
+
+  Not functional in GTK4 Coot: re-adding the idle function uses
+  gobject.idle_add (PyGTK) or gtk-idle-add (guile-gtk), neither of which
+  exists now, so the refinement is not restarted. */
 void toolbar_multi_refine_continue();
 /*! \brief cancel the scripted multi-residue refinement
 
   Sets the scripting-layer continue flag to false and hides the
-  multi-refine toolbar buttons. */
+  multi-refine toolbar buttons.
+
+  Not functional in GTK4 Coot: the toolbar buttons do not exist. Only the
+  scripting-layer flag is set. */
 void toolbar_multi_refine_cancel();
 /*! \brief show or hide the multi-refine "stop" toolbar button
+
+  Not functional in GTK4 Coot: the button does not exist, so this does
+  nothing.
 
   @param state 1 to show, 0 to hide */
 void set_visible_toolbar_multi_refine_stop_button(short int state);
@@ -11650,13 +11739,22 @@ void set_visible_toolbar_multi_refine_stop_button(short int state);
 
   This also makes the "cancel" button insensitive.
 
+  Not functional in GTK4 Coot: the button does not exist, so this does
+  nothing.
+
   @param state 1 to show, 0 to hide */
 void set_visible_toolbar_multi_refine_continue_button(short int state);
 /*! \brief show or hide the multi-refine "cancel" toolbar button
 
+  Not functional in GTK4 Coot: the button does not exist, so this does
+  nothing.
+
   @param state 1 to show, 0 to hide */
 void set_visible_toolbar_multi_refine_cancel_button(short int state);
 /*! \brief set the sensitivity of a multi-refine toolbar button
+
+  Not functional in GTK4 Coot: the buttons do not exist, so this does
+  nothing.
 
   @param button_type one of "stop", "continue", "cancel"
   @param state 1 for sensitive, 0 for insensitive */

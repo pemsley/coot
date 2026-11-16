@@ -129,6 +129,7 @@ int add_strict_ncs_from_mtrix_from_self_file(int imol) {
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       g.molecules[imol].add_strict_ncs_from_mtrix_from_self_file();
+      istat = 1;
    }
    return istat;
 }
@@ -625,9 +626,13 @@ PyObject *ncs_chain_differences_py(int imol, const char *master_chain_id) {
 						  cd.residue_info[iresinf].target_inscode);
 		  // according to Paul's documentation we should have resno and inscode
 		  // for both residues here too
-		  PyObject *thisr = PyList_GetSlice(residue_spec_to_py(this_res), 2, 4);
-		  
-		  PyObject *masta = PyList_GetSlice(residue_spec_to_py(target_res), 2, 4);
+		  // residue_spec_to_py() returns [chain-id, res-no, ins-code]
+		  PyObject *this_res_py   = residue_spec_to_py(this_res);
+		  PyObject *target_res_py = residue_spec_to_py(target_res);
+		  PyObject *thisr = PyList_GetSlice(this_res_py,   1, 3);
+		  PyObject *masta = PyList_GetSlice(target_res_py, 1, 3);
+		  Py_XDECREF(this_res_py);
+		  Py_XDECREF(target_res_py);
 
 		  // res_l list seems only to have one element in Paul's scm code
 		  // currently?! Correct?!
@@ -638,11 +643,15 @@ PyObject *ncs_chain_differences_py(int imol, const char *master_chain_id) {
 		  PyList_Append(l_residue_data, res_l);
 		  Py_XDECREF(res_l);
 	       }
-	       PyList_Append(r, myPyString_FromString(cd.peer_chain_id.c_str()));
-	       PyList_Append(r, myPyString_FromString(diffs.target_chain_id.c_str()));
+	       PyObject *peer_chain_id_py   = myPyString_FromString(cd.peer_chain_id.c_str());
+	       PyObject *target_chain_id_py = myPyString_FromString(diffs.target_chain_id.c_str());
+	       PyList_Append(r, peer_chain_id_py);
+	       PyList_Append(r, target_chain_id_py);
 	       PyList_Append(r, l_residue_data);
-	       Py_XDECREF(l_residue_data);
+	       Py_XDECREF(peer_chain_id_py);
+	       Py_XDECREF(target_chain_id_py);
 	    }
+	    Py_XDECREF(l_residue_data);
 	 }
       }
    }
@@ -771,6 +780,10 @@ PyObject *ncs_ghosts_py(int imol) {
        PyList_SetItem(ghost_py, 0, name_py);
        PyList_SetItem(ghost_py, 1, chain_id_py);
        PyList_SetItem(ghost_py, 2, target_chain_id_py);
+       // PyList_SetItem() steals a reference
+       if (PyBool_Check(rtop_py))
+	  Py_INCREF(rtop_py);
+       Py_INCREF(display_it_flag_py);
        PyList_SetItem(ghost_py, 3, rtop_py);
        PyList_SetItem(ghost_py, 4, display_it_flag_py);
        PyList_Append(r, ghost_py);

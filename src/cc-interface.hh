@@ -515,8 +515,10 @@ int clashes_with_symmetry(int imol, const char *chain_id, int res_no, const char
 //! to a set of 3x3 matrices. Call this function for every matrix.
 //! The matrix and origin are appended to the molecule's list of molecular
 //! symmetry matrices and the graphics are redrawn. The coordinates are not
-//! changed. (Note: the drawing of the molecular symmetry copies is currently
-//! disabled in the molecule's drawing code.)
+//! changed.
+//!
+//! Not implemented: the matrices are stored but the molecular symmetry copies
+//! are not drawn, so this function has no visible effect.
 //!
 //! @param imol the model molecule index
 //! @param r_00 rotation matrix element (row 0, column 0)
@@ -544,11 +546,15 @@ void add_molecular_symmetry(int imol,
 //! Often molecular symmetry is described using MTRIX cards in a PDB file header.
 //! Use this function to extract and apply such molecular symmetry: each
 //! MTRIX operator is added as for add_molecular_symmetry(), with the
-//! origin set to half of the MTRIX translation.
+//! origin set to half of the MTRIX translation (which is the position of
+//! the rotation axis only for a 2-fold).
+//!
+//! Not implemented: the operators are stored but the molecular symmetry
+//! copies are not drawn, so this function has no visible effect.
 //!
 //! @param imol the model molecule index
 //! @param file_name the PDB file containing the MTRIX records
-//! @return currently always 0
+//! @return 1 if imol is a valid model molecule, 0 otherwise
 int add_molecular_symmetry_from_mtrix_from_file(int imol, const std::string &file_name);
 
 //! \brief Add molecular symmetry from the MTRIX records of the molecule's own file
@@ -557,8 +563,11 @@ int add_molecular_symmetry_from_mtrix_from_file(int imol, const std::string &fil
 //! specify the PDB file name: the file from which molecule \c imol was read
 //! is used (if it still exists).
 //!
+//! Not implemented: the operators are stored but the molecular symmetry
+//! copies are not drawn, so this function has no visible effect.
+//!
 //! @param imol the model molecule index
-//! @return currently always 0
+//! @return 1 if imol is a valid model molecule, 0 otherwise
 int add_molecular_symmetry_from_mtrix_from_self_file(int imol);
 
 //! \}
@@ -833,7 +842,7 @@ void show_map_partition_by_chain_dialog();
 //! \brief partition a map by the chains of a model - use this function for scripting
 //!
 //! The map is split into one new map for each chain of the model
-//! (labelled "Partioned map Chain <chain-id>"). The original map is then undisplayed.
+//! (labelled "Partitioned map Chain <chain-id>"). The original map is then undisplayed.
 //! This blocks until the partitioning is complete.
 //!
 //! @param imol_map the map molecule index
@@ -948,8 +957,7 @@ PyObject *export_molecule_as_x3d(int imol);
 //!
 //! @param imol the map or model molecule index
 //! @param file_name the output file name
-//! @return true on success for a map molecule; false on failure (note: the
-//!         model-molecule export currently always returns false)
+//! @return true on success, false on failure
 bool export_molecule_as_obj(int imol, const std::string &file_name);
 
 //! \brief export a molecule as a glTF file
@@ -1259,7 +1267,8 @@ void delete_chain(int imol, const std::string  &chain_id);
 //! \brief delete the side chains in the chain
 //!
 //! All atoms other than the main-chain atoms and CB are deleted from every
-//! residue in the chain (in all models). A backup is made first.
+//! amino acid residue in the chain (in all models). Residues without N and
+//! CA atoms (e.g. ligands and waters) are left alone. A backup is made first.
 //!
 //! @param imol the model molecule index
 //! @param chain_id the chain id
@@ -1971,8 +1980,9 @@ SCM residue_name_scm(int imol, const char* chain_id, int resno, const char *ins_
 //! Calculates the fragment info of the chains of imol (and, if
 //! screen_output_also is non-zero, writes it to the terminal).
 //!
-//! @return currently this always returns scheme false (\#f) - the
-//!         fragment info is not converted to a scheme value.
+//! @return a list of (chain-id fragment-ranges) where fragment-ranges
+//!         is a list of (start-residue-spec end-residue-spec), or
+//!         scheme false (\#f) if imol is not a valid model molecule.
 SCM chain_fragments_scm(int imol, short int screen_output_also);
 
 //! \brief generate a molecule from an s-expression
@@ -2245,8 +2255,9 @@ PyObject *residue_centre_from_spec_py(int imol,
 //! Calculates the fragment info of the chains of imol (and, if
 //! screen_output_also is non-zero, writes it to the terminal).
 //!
-//! @return currently this always returns False - the fragment info is
-//!         not converted to a Python value.
+//! @return a list of [chain_id, fragment_ranges] where fragment_ranges
+//!         is a list of [start_residue_spec, end_residue_spec], or
+//!         False if imol is not a valid model molecule.
 PyObject *chain_fragments_py(int imol, short int screen_output_also);
 
 #ifdef USE_PYTHON
@@ -2656,7 +2667,10 @@ PyObject *accept_moving_atoms_py();
 #ifdef USE_PYTHON
 //! \brief register a Python function to be run after the intermediate atoms have moved
 //!
-//! Note: currently the function is stored but not called.
+//! Not implemented: the function is stored but it is never called, so
+//! registering a hook has no effect.
+//!
+//! @param function_name the Python function (a callable, not the name of one)
 void register_post_intermediate_atoms_moved_hook(PyObject *function_name);
 #endif
 
@@ -2764,7 +2778,9 @@ int morph_fit_by_secondary_structure_elements(int imol, const std::string &chain
 //!        (non-hydrogen) atom are flagged. A negative value disables this test.
 //! @param max_dist waters further than this (in Å) from their nearest
 //!        (non-hydrogen) atom are flagged. A negative value disables this test.
-//! @param part_occ_contact_flag if non-zero, the distance tests are skipped
+//! @param part_occ_contact_flag if non-zero, atoms with partial occupancy
+//!        (e.g. alternate conformations) are ignored in the min_dist
+//!        (close contact) test (OR mode only)
 //! @param zero_occ_flag if non-zero, waters with zero occupancy are excluded
 //!        from the distance tests
 //! @param logical_operator_and_or_flag 0 means combine the criteria with
@@ -2934,7 +2950,8 @@ void set_logging_level(const std::string &level);//!
 //!
 //! The tree (rooted at an ASN, if there is one) is constructed from the
 //! pyranose and ASN residues linked to the given residue.
-//! Note: currently the tree is constructed, but not actually printed.
+//! The tree is written to standard output, one residue per line with the
+//! type of its link to its parent. The root is the most indented.
 //!
 //! @param imol the model molecule index
 //! @param chain_id the chain id
@@ -3377,8 +3394,8 @@ int cootaneer_py(int imol_map, int imol_model, PyObject *atom_in_fragment_atom_s
 //! Use the map to estimate the sequence - you will need a decent map
 //!
 //! If a sequence is found, the residues in the range are mutated to that
-//! sequence and then the rotamers of the residues in the chain are
-//! auto-fitted (using the refinement map).
+//! sequence and then the rotamers of the residues in the range are
+//! auto-fitted (using imol_map).
 //!
 //! @param imol the model molecule index
 //! @param chain_id the chain id
@@ -3952,11 +3969,6 @@ void set_use_simple_lines_for_model_molecules(short int state);
 //!
 //! @param z the in-focus depth in depth-buffer units (0 to 1, default 0.15)
 void set_focus_blur_z_depth(float z);
-
-//! \brief set use depth blur
-//!
-//! @param state 1 to turn on depth-of-field blur, 0 to turn off
-void set_use_depth_blur(short int state);
 
 //! \brief set focus blur strength
 //!

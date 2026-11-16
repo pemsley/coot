@@ -671,11 +671,10 @@ fetch_alphafold_model_for_uniprot_id(const std::string &uniprot_id) {
       if (coot::file_exists_and_non_tiny(fn_pdb, 500)) needs_downloading = false;
       if (needs_downloading) {
          coot_get_url(url.c_str(), fn_pdb.c_str());
-         if (coot::file_exists_and_non_tiny(fn_pdb, 500)) {
-            imol = handle_read_draw_molecule_and_move_molecule_here(fn_pdb);
-         } else {
+         if (! coot::file_exists_and_non_tiny(fn_pdb, 500)) {
             std::string m = "WARNING:: UniProt ID " + uniprot_id + std::string(" not found");
             info_dialog(m.c_str());
+            return imol; // nothing to read
          }
       }
 

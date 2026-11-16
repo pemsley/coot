@@ -1559,6 +1559,7 @@ molecule_class_info_t::copy_residue_range(mmdb::Chain *from_chain, mmdb::Chain *
                   to_residue_atoms[iat]->y = a_tr.y();
                   to_residue_atoms[iat]->z = a_tr.z();
                }
+               done_copy = 1;
             } else {
                std::cout << "ERROR:: Null to_residue!!!!" << std::endl;
             }

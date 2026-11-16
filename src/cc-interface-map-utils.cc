@@ -141,7 +141,7 @@ map_to_model_correlation_stats_per_residue_range_py(int imol, const std::string 
       map_to_model_correlation_stats_per_residue_range(imol, chain_id, imol_map, n_residue_per_residue_range, exclude_NOC_flag);
 
    unsigned int  n_aa_items = m.first.size();  // all atom and side chain
-   unsigned int  n_sc_items = m.first.size();
+   unsigned int  n_sc_items = m.second.size();
    PyObject *o = PyList_New(2);
    PyObject *o_0 = PyList_New(n_aa_items);
    PyObject *o_1 = PyList_New(n_sc_items);
@@ -519,9 +519,9 @@ void add_toolbar_subprocess_button(const std::string &button_label,
             // std::cout << "check_it: " << pt->termination_condtion << std::endl;
             if (pt->termination_condtion) {
                PyObject *return_val = nullptr;
-#if 0 // check version of python here - less than 3.13 is my guess
-               return_val = PyEval_CallObject(pt->on_completion_function, pt->on_completion_args);
-#endif
+               // PyEval_CallObject() was removed in Python 3.13, PyObject_CallObject() does the same job
+               if (pt->on_completion_function)
+                  return_val = PyObject_CallObject(pt->on_completion_function, pt->on_completion_args);
                std::cout << "DEBUG:: return_val " << return_val << std::endl;
                PyObject *error_thing = PyErr_Occurred();
                if (! error_thing) {
@@ -789,7 +789,7 @@ std::vector<int> map_partition_by_chain(int imol_map, int imol_model) {
             for (const auto &mi : maps_info) {
                std::string chain_id = mi.first;
                int imol_for_map = g.create_molecule();
-               std::string label = "Partioned map Chain " + chain_id;
+               std::string label = "Partitioned map Chain " + chain_id;
                bool is_em_map = g.molecules[imol_map].is_EM_map();
                g.molecules[imol_for_map].install_new_map(mi.second, label, is_em_map);
                v.push_back(imol_for_map);

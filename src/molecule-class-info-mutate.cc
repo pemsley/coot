@@ -1313,8 +1313,14 @@ molecule_class_info_t::exchange_chain_ids_for_seg_ids() {
 	    }
 	 }
 	 if (running_atom_vec.size() > 0) {
-	    atom_chain_vec.push_back(std::pair<std::vector<mmdb::Atom *>, std::string>(running_atom_vec, current_seg_id));
+	    // as above, for the last run of atoms
+	    std::string constructed_seg_id = current_chain_id;
+	    constructed_seg_id += ":";
+	    constructed_seg_id += current_seg_id;
+	    atom_chain_vec.push_back(std::pair<std::vector<mmdb::Atom *>, std::string>(running_atom_vec, constructed_seg_id));
 	 }
+	 if (! atom_chain_vec.empty())
+	    changed_flag = 1;
 
 	 // OK, so we have vector of vectors of atoms.  We need to make
 	 // new atoms and residues to put them in.
@@ -1375,7 +1381,7 @@ molecule_class_info_t::spin_search(clipper::Xmap<float> &xmap,
 
    mmdb::Residue *res = get_residue(chain_id, resno, ins_code);
 
-   if (res) {
+   if (res && ! moving_atoms_list.empty()) {
       // the first atom spec is not used in spin_search, so just bodge one in.
       coot::atom_spec_t atom_spec_tor_1(chain_id, resno, ins_code, direction_atoms.first, "");
       coot::atom_spec_t atom_spec_tor_2(chain_id, resno, ins_code, direction_atoms.first, "");

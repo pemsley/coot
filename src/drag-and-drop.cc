@@ -84,7 +84,7 @@ int handle_drag_and_drop_string(const std::string &uri_in) {
                if (ext == ".png") {
                   // special rule - convert the url of the png to that
                   // of an accession code.
-                  if (url.find("/PDBimages/")) {
+                  if (url.find("/PDBimages/") != std::string::npos) {
                      std::pair<std::string, std::string> s   = coot::util::split_string_on_last_slash(url);
                      std::pair<std::string, std::string> ss  = coot::util::split_string_on_last_slash(s.first);
                      std::pair<std::string, std::string> sss = coot::util::split_string_on_last_slash(ss.first);

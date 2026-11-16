@@ -378,7 +378,7 @@ int new_molecule_by_symmetry(int imol,
 	 atom_selection_container_t asc = make_asc(mol_symm);
 	 graphics_info_t g;
 	 g.molecules[imol_new].install_model(imol_new, asc, g.Geom_p(), name, 1);
-	 g.molecules[imol].set_have_unsaved_changes_from_outside();
+	 g.molecules[imol_new].set_have_unsaved_changes_from_outside(); // the new molecule, not the source
 	 update_go_to_atom_window_on_new_mol();
 	 graphics_draw();
 	 istate = imol_new;
@@ -492,7 +492,7 @@ new_molecule_by_symmetry_with_atom_selection(int imol,
 	 atom_selection_container_t asc = make_asc(new_mol);
 	 graphics_info_t g;
 	 g.molecules[imol_new].install_model(imol_new, asc, g.Geom_p(), name, 1);
-	 g.molecules[imol].set_have_unsaved_changes_from_outside();
+	 g.molecules[imol_new].set_have_unsaved_changes_from_outside(); // the new molecule, not the source
 	 update_go_to_atom_window_on_new_mol();
 	 graphics_draw();
       }

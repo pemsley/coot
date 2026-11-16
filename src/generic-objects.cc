@@ -1017,7 +1017,7 @@ void handle_read_draw_probe_dots(const char *dots_file) {
             for (unsigned int d=0; d<deletable_names.size(); d++) {
                if (graphics_info_t::generic_display_objects[i].mesh.name == deletable_names[d]) {
                   // close_generic_object(i); // empty it, really
-                  graphics_info_t::generic_display_objects.clear();
+                  graphics_info_t::generic_display_objects[i].clear();
                }
             }
          }

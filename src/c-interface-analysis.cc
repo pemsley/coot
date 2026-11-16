@@ -194,29 +194,32 @@ void probe_radius_graph_close_callback( GtkWidget *button,
 #ifdef USE_GUILE
 SCM model_composition_statistics_scm(int imol) {
 
-   SCM r = SCM_EOL;
-
-   /*
-Model composition
-   Non-hydrogen atoms
-   Protein residues
-   Zinc ions (or other ligands)
-
-RMS deviations
-   Bonds
-   Angles
-
-Validation
-   Number of C-beta deviation outliers
-   Atom overlap score [Clash score]
-   Good rotamers (%)
-   Ramachandran plot
-       Favoured
-       Outliers
-   */
+   SCM r = SCM_BOOL_F;
 
    if (is_valid_model_molecule(imol)) {
-      coot::model_composition_stats_t s = graphics_info_t::molecules[imol].get_model_composition_statistics();
+      graphics_info_t g;
+      coot::model_composition_stats_t s = g.get_model_composition_statistics(imol);
+      r = SCM_EOL;
+      auto add_int = [&r] (const char *key, int v) {
+         r = scm_cons(scm_cons(scm_from_locale_string(key), scm_from_int(v)), r);
+      };
+      auto add_float = [&r] (const char *key, float v) {
+         r = scm_cons(scm_cons(scm_from_locale_string(key), scm_from_double(v)), r);
+      };
+      add_int("n-atoms",                s.n_atoms);
+      add_int("n-non-hydrogen-atoms",   s.n_non_hydrogen_atoms);
+      add_int("n-protein-residues",     s.n_protein_residues);
+      add_int("n-rna-residues",         s.n_rna_residues);
+      add_int("n-dna-residues",         s.n_dna_residues);
+      add_int("n-hetgroups",            s.n_hetgroups);
+      add_int("n-metal-atoms",          s.n_metal_atoms);
+      add_float("rmsd-bonds",           s.rmsd_bonds);
+      add_float("rmsd-angles",          s.rmsd_angles);
+      add_float("atom-overlap-score",   s.overall_atom_overlap_volume);
+      add_float("fraction-good-rotamers",          s.fraction_good_rotamers);
+      add_float("fraction-ramachandran-favoured",  s.fraction_ramachandran_favoured);
+      add_float("fraction-ramachandran-outliers",  s.fraction_ramachandran_outliers);
+      r = scm_reverse(r);
    }
 
    return r;
@@ -229,7 +232,32 @@ PyObject *model_composition_statistics_py(int imol) {
    PyObject *r = Py_False;
 
    if (is_valid_model_molecule(imol)) {
-      coot::model_composition_stats_t s = graphics_info_t::molecules[imol].get_model_composition_statistics();
+      graphics_info_t g;
+      coot::model_composition_stats_t s = g.get_model_composition_statistics(imol);
+      r = PyDict_New();
+      auto add_int = [r] (const char *key, int v) {
+         PyObject *o = PyLong_FromLong(v);
+         PyDict_SetItemString(r, key, o);
+         Py_DECREF(o);
+      };
+      auto add_float = [r] (const char *key, float v) {
+         PyObject *o = PyFloat_FromDouble(v);
+         PyDict_SetItemString(r, key, o);
+         Py_DECREF(o);
+      };
+      add_int("n_atoms",                s.n_atoms);
+      add_int("n_non_hydrogen_atoms",   s.n_non_hydrogen_atoms);
+      add_int("n_protein_residues",     s.n_protein_residues);
+      add_int("n_rna_residues",         s.n_rna_residues);
+      add_int("n_dna_residues",         s.n_dna_residues);
+      add_int("n_hetgroups",            s.n_hetgroups);
+      add_int("n_metal_atoms",          s.n_metal_atoms);
+      add_float("rmsd_bonds",           s.rmsd_bonds);
+      add_float("rmsd_angles",          s.rmsd_angles);
+      add_float("atom_overlap_score",   s.overall_atom_overlap_volume);
+      add_float("fraction_good_rotamers",          s.fraction_good_rotamers);
+      add_float("fraction_ramachandran_favoured",  s.fraction_ramachandran_favoured);
+      add_float("fraction_ramachandran_outliers",  s.fraction_ramachandran_outliers);
    }
 
    if (PyBool_Check(r))

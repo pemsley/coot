@@ -1267,6 +1267,87 @@ graphics_info_t::geometric_distortions(int imol, mmdb::Residue *residue_p, bool 
    return gdc;
 }
 
+#include "coot-utils/atom-overlaps.hh"
+
+// Fill the composition, geometry and validation statistics for molecule imol.
+//
+// A value of -1 means that the statistic could not be calculated.
+//
+coot::model_composition_stats_t
+graphics_info_t::get_model_composition_statistics(int imol) {
+
+   coot::model_composition_stats_t s;
+   if (! is_valid_model_molecule(imol)) return s;
+
+   s = molecules[imol].get_model_composition_statistics();
+
+   // RMS deviations of bonds (A) and angles (degrees) from the dictionary values.
+   //
+   // The distortion score of a bond or angle restraint is (deviation/sigma)^2.
+   //
+   bool with_nbcs = false;
+   std::vector<coot::geometry_distortion_info_container_t> dcv =
+      geometric_distortions_from_mol(imol, molecules[imol].atom_sel, with_nbcs);
+   double sum_sq_bonds  = 0.0;
+   double sum_sq_angles = 0.0;
+   unsigned int n_bonds  = 0;
+   unsigned int n_angles = 0;
+   for (unsigned int ich=0; ich<dcv.size(); ich++) {
+      for (unsigned int i=0; i<dcv[ich].geometry_distortion.size(); i++) {
+         const coot::geometry_distortion_info_t &gdi = dcv[ich].geometry_distortion[i];
+         const coot::simple_restraint &rest = gdi.restraint;
+         if (rest.restraint_type == coot::BOND_RESTRAINT) {
+            sum_sq_bonds += gdi.distortion_score * rest.sigma * rest.sigma;
+            n_bonds++;
+         }
+         if (rest.restraint_type == coot::ANGLE_RESTRAINT) {
+            sum_sq_angles += gdi.distortion_score * rest.sigma * rest.sigma;
+            n_angles++;
+         }
+      }
+   }
+   if (n_bonds > 0)
+      s.rmsd_bonds = sqrt(sum_sq_bonds/static_cast<double>(n_bonds));
+   if (n_angles > 0)
+      s.rmsd_angles = sqrt(sum_sq_angles/static_cast<double>(n_angles));
+
+   // Atom overlaps
+   {
+      bool ignore_waters_flag = false;
+      coot::atom_overlaps_container_t ao(molecules[imol].atom_sel.mol, imol, Geom_p(), ignore_waters_flag);
+      ao.make_all_atom_overlaps();
+      s.overall_atom_overlap_volume = ao.score();
+   }
+
+   // Rotamers: a good rotamer is one that is not an outlier, i.e. it has a
+   // probability of 0.3% or more.
+   const double rotamer_outlier_probability_limit = 0.3; // percent
+   coot::rotamer_score_t rot = all_molecule_rotamer_score(imol);
+   if (! rot.scores.empty()) {
+      unsigned int n_good = 0;
+      for (unsigned int i=0; i<rot.scores.size(); i++)
+         if (rot.scores[i].second >= rotamer_outlier_probability_limit)
+            n_good++;
+      s.fraction_good_rotamers = static_cast<float>(n_good)/static_cast<float>(rot.scores.size());
+   }
+
+   // Ramachandran plot: regions are 0: outlier, 1: allowed, 2: favoured
+   coot::rama_score_t rama = molecules[imol].get_all_molecule_rama_score();
+   if (! rama.region.empty()) {
+      unsigned int n_favoured = 0;
+      unsigned int n_outliers = 0;
+      for (unsigned int i=0; i<rama.region.size(); i++) {
+         if (rama.region[i].second == 2) n_favoured++;
+         if (rama.region[i].second == 0) n_outliers++;
+      }
+      float n = static_cast<float>(rama.region.size());
+      s.fraction_ramachandran_favoured = static_cast<float>(n_favoured)/n;
+      s.fraction_ramachandran_outliers = static_cast<float>(n_outliers)/n;
+   }
+
+   return s;
+}
+
 std::vector<coot::geometry_distortion_info_container_t>
 graphics_info_t::geometric_distortions_from_mol(int imol, const atom_selection_container_t &asc,
 						bool with_nbcs) {

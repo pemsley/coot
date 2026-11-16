@@ -234,14 +234,19 @@ int superpose_with_atom_selection(int imol1, int imol2,
 	 asc_ref.mol->DeleteSelection(asc_ref.SelectionHandle);
 	 asc_mov.mol->DeleteSelection(asc_mov.SelectionHandle);
 
-	 // now move the cryst of mol2 to be the same as the cryst of mol1.
-	 mmdb::realtype a[6];
-	 mmdb::realtype vol;
-	 int orthcode;
-	 mmdb::Manager *m1 = graphics_info_t::molecules[imol1].atom_sel.mol;
-	 mmdb::Manager *m2 = graphics_info_t::molecules[imol2].atom_sel.mol;
-
-	 bool success = coot::util::copy_cell_and_symm_headers(m1, m2);
+	 // now move the cryst of the moved molecule to be the same as the cryst of mol1.
+	 // The moved molecule is the copy (if we moved a copy), not imol2.
+	 int imol_moved = imol2;
+	 if (move_copy_of_imol2_flag)
+	    imol_moved = imodel_return;
+	 if (is_valid_model_molecule(imol_moved)) {
+	    mmdb::Manager *m1 = graphics_info_t::molecules[imol1].atom_sel.mol;
+	    mmdb::Manager *m2 = graphics_info_t::molecules[imol_moved].atom_sel.mol;
+	    bool success = coot::util::copy_cell_and_symm_headers(m1, m2);
+	    if (! success)
+	       std::cout << "WARNING:: superpose_with_atom_selection(): failed to copy the cell and symmetry"
+			 << std::endl;
+	 }
       }
    }
 #endif // HAVE_SSMLIB
@@ -511,10 +516,10 @@ apply_lsq_matches(int imol_reference, int imol_moving) {
 	 }
 	    
       } else {
-	 std::cout << "INFO:: Invalid reference molecule number " << imol_reference << std::endl;
+	 std::cout << "INFO:: Invalid moving molecule number " << imol_moving << std::endl;
       } 
    } else {
-      std::cout << "INFO:: Invalid moving molecule number " << imol_moving << std::endl;
+      std::cout << "INFO:: Invalid reference molecule number " << imol_reference << std::endl;
    }
    return scm_status;
 }
@@ -539,10 +544,10 @@ get_lsq_matrix_scm(int imol_reference, int imol_moving) {
 	 }
 	    
       } else {
-	 std::cout << "INFO:: Invalid reference molecule number " << imol_reference << std::endl;
+	 std::cout << "INFO:: Invalid moving molecule number " << imol_moving << std::endl;
       } 
    } else {
-      std::cout << "INFO:: Invalid moving molecule number " << imol_moving << std::endl;
+      std::cout << "INFO:: Invalid reference molecule number " << imol_reference << std::endl;
    }
    return scm_status;
 }
@@ -567,10 +572,10 @@ PyObject *apply_lsq_matches_py(int imol_reference, int imol_moving) {
          }
 
       } else {
-         std::cout << "INFO:: Invalid reference molecule number " << imol_reference << std::endl;
+         std::cout << "INFO:: Invalid moving molecule number " << imol_moving << std::endl;
       }
    } else {
-      std::cout << "INFO:: Invalid moving molecule number " << imol_moving << std::endl;
+      std::cout << "INFO:: Invalid reference molecule number " << imol_reference << std::endl;
    }
    if (PyBool_Check(python_status)) {
      Py_INCREF(python_status);
@@ -597,10 +602,10 @@ PyObject *get_lsq_matrix_py(int imol_reference, int imol_moving) {
        }
 	    
      } else {
-       std::cout << "INFO:: Invalid reference molecule number " << imol_reference << std::endl;
+       std::cout << "INFO:: Invalid moving molecule number " << imol_moving << std::endl;
      } 
    } else {
-     std::cout << "INFO:: Invalid moving molecule number " << imol_moving << std::endl;
+     std::cout << "INFO:: Invalid reference molecule number " << imol_reference << std::endl;
    }
 
    if (PyBool_Check(py_status)) {
@@ -624,10 +629,10 @@ apply_lsq_matches_simple(int imol_reference, int imol_moving) {
 								     *graphics_info_t::lsq_matchers);
 	 status = statuspair.first;
       } else {
-	 std::cout << "INFO:: Invalid reference molecule number " << imol_reference << std::endl;
+	 std::cout << "INFO:: Invalid moving molecule number " << imol_moving << std::endl;
       } 
    } else {
-      std::cout << "INFO:: Invalid moving molecule number " << imol_moving << std::endl;
+      std::cout << "INFO:: Invalid reference molecule number " << imol_reference << std::endl;
    }
 
    return status;
