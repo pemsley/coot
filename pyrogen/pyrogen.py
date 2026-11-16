@@ -43,7 +43,7 @@ from optparse import OptionParser
 
 import tautomer
 
-import urllib
+import urllib.request
 
 from jay_util import *
 
@@ -96,7 +96,58 @@ def atom_name_from_atomic_number_and_count(element, count, inc):
     name += str(count+inc)
     return name
 
+# Name for a hydrogen atom that has been added to an atom that came with a name
+# (e.g. from a CCD entry, then protonated). Follow grade2: HN25 for an H on an N25
+# that had no H; H22B on an N4 that already had H22; H28 on an N5 that already had
+# H26 and H27. Return None if there is no good (unused, <= 4 chars) parent-based name.
+#
+def hydrogen_name_from_parent(h_atom, parent, used_names):
+
+    def split_trailing_number(s):
+        i = len(s)
+        while i > 0 and s[i-1].isdigit():
+            i -= 1
+        if i == len(s):
+            return None
+        return s[:i], int(s[i:])
+
+    parent_name = parent.GetProp('name').strip()
+    siblings = []
+    for nb in parent.GetNeighbors():
+        if nb.GetAtomicNum() == 1 and nb.GetIdx() != h_atom.GetIdx() and nb.HasProp('name'):
+            siblings.append(nb.GetProp('name').strip())
+
+    candidates = []
+    for s in siblings:
+        if len(s) > 1 and s[-1].isalpha() and s[-2].isdigit():  # H22A -> H22B, H22C, ...
+            candidates += [s[:-1] + c for c in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' if c > s[-1]]
+    if len(siblings) == 1 and siblings[0][-1].isdigit():       # H22 -> H22B
+        candidates += [siblings[0] + c for c in 'BCD']
+    if len(siblings) > 1:                                      # H26, H27 -> H28
+        numbered = [split_trailing_number(s) for s in siblings]
+        numbered = [p for p in numbered if p]
+        if numbered:
+            prefix, num = max(numbered, key=lambda p: p[1])
+            candidates += [prefix + str(num + i) for i in range(1, 4)]
+    candidates.append('H' + parent_name)                       # HN25
+
+    for c in candidates:
+        if len(c) <= 4 and c not in used_names:
+            return c
+    return None
+
 def add_atom_names(mol):
+
+    # names (stripped) of the atoms that came with names, so that generated names
+    # don't clash with any of them (not just those of the atoms before this one)
+    #
+    input_named_atom_indices = set()
+    used_names = set()
+    for atom in mol.GetAtoms():
+        if atom.HasProp('name'):
+            input_named_atom_indices.add(atom.GetIdx())
+            used_names.add(atom.GetProp('name').strip())
+
     nz = {}
     atom_names = []
     for atom in mol.GetAtoms():
@@ -105,7 +156,22 @@ def add_atom_names(mol):
             atom_names.append(n)
         except KeyError:
 
-            # we want to generate a name that is not already in the atom_names list
+            # A hydrogen added to a named atom gets a name based on that atom's name
+            #
+            if atom.GetAtomicNum() == 1:
+                heavy_neighbours = [nb for nb in atom.GetNeighbors() if nb.GetAtomicNum() != 1]
+                if len(heavy_neighbours) == 1:
+                    parent = heavy_neighbours[0]
+                    if parent.GetIdx() in input_named_atom_indices:
+                        name = hydrogen_name_from_parent(atom, parent, used_names)
+                        if name:
+                            p_name = pad_atom_name(name, 'H')
+                            atom.SetProp("name", p_name)
+                            atom_names.append(p_name)
+                            used_names.add(name)
+                            continue
+
+            # we want to generate a name that is not already used
 
             z = atom.GetAtomicNum()
             if z in nz:
@@ -121,7 +187,7 @@ def add_atom_names(mol):
             name = atom_name_from_atomic_number_and_count(ele, nz[z], inc)
             p_name = pad_atom_name(name, ele)
             # print('c.f.', name, " atom names", atom_names)
-            while p_name in atom_names :
+            while name in used_names:
                 inc += 1
                 name = atom_name_from_atomic_number_and_count(ele, nz[z], inc)
                 p_name = pad_atom_name(name, ele)
@@ -129,6 +195,7 @@ def add_atom_names(mol):
 
             atom.SetProp("name", p_name)
             atom_names.append(p_name)
+            used_names.add(name)
     return atom_names
 
 def convert_to_coot_bond_type(rdkit_type):
@@ -217,13 +284,13 @@ def get_pdbe_cif_for_comp_id(comp_id):
             else:
                 url = 'ftp://ftp.ebi.ac.uk/pub/databases/msd/pdbechem/files/mmcif/' + comp_id + '.cif'
                 url = 'https://www.ebi.ac.uk/pdbe/static/files/pdbechem_v2/'        + comp_id + '.cif'
-                status = urllib.urlretrieve(url, file_name)
-                print('urllib.urllib returned with status', status)
+                urllib.request.urlretrieve(url, file_name)
+                print('Downloaded', url, 'to', file_name)
                 return file_name
 
         except OSError as e:
             print(e)
-            print("Failed: Can't ftp from", url, "and write file", file_name)
+            print("Failed: Can't download", url, "and write file", file_name)
 
     except IOError as e:
         print(e)
@@ -501,6 +568,21 @@ def n_hydrogens(mol):
             n_H += 1
     return n_H
 
+# (formal charge, number of hydrogens) for each non-hydrogen atom, in atom order.
+# hydrogen_transformations() only removes and appends H atoms, so the non-hydrogen
+# atoms keep their order and the signatures before and after can be compared.
+#
+def protonation_signature(mol):
+    sig = []
+    for atom in mol.GetAtoms():
+        if atom.GetAtomicNum() != 1:
+            n_H = atom.GetNumExplicitHs()
+            for nb in atom.GetNeighbors():
+                if nb.GetAtomicNum() == 1:
+                    n_H += 1
+            sig.append((atom.GetFormalCharge(), n_H))
+    return sig
+
 def checked_mkdir(dirname):
     if not os.path.exists(dirname):
         os.makedirs(dirname)
@@ -556,6 +638,16 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
     else:
         sane_H_mol = m_H
 
+    # As grade2 does, mark in the compound name that these restraints are for a
+    # different protonation state than the input (e.g. the CCD entry)
+    #
+    if protonation_signature(sane_H_mol) != protonation_signature(m_H):
+        if compound_name not in ('', '.') and not compound_name.endswith('(CHARGED)'):
+            compound_name += ' (CHARGED)'
+        print('INFO:: protonation state changed from the input: compound name:', compound_name)
+        # the C++ side marks the input's identifiers (systematic names) "(CHARGED)" too
+        sane_H_mol.SetBoolProp('pyrogen_protonation_changed', True)
+
     AllChem.AssignStereochemistry(sane_H_mol);
 
     n_confs = sane_H_mol.GetNumConformers()
@@ -594,7 +686,7 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
     all_set = atom_types.set_monomer_library_atom_types(sane_H_mol)  # has deloc bonds now, potentially
 
     # debug sane_H_mol
-    if True:
+    if False:
         molblock = Chem.MolToMolBlock(sane_H_mol)
         # print >> file("sane_H_mol.mol",'w'), molblock
         print(molblock, file=open("sane_H_mol.mol",'w'))
@@ -1074,6 +1166,13 @@ if __name__ == "__main__":
     comp_id = options.comp_id
     if options.comp_id == 'default':
         comp_id = 'LIG'
+        if options.wwPDB:
+            # "pyrogen -w VIA": the positional argument is the comp-id to fetch
+            if len(args) > 0:
+                comp_id = args[0]
+            else:
+                print("Usage: pyrogen -w comp-id")
+                exit(2)
     if options.mmcif_file_name != None:
         if options.comp_id == 'default':
             comp_id = 'TRY_ALL_COMP_IDS'
@@ -1137,7 +1236,7 @@ if __name__ == "__main__":
         # shall we go get the dictionary?
         if options.wwPDB:
             mmcif_file_name = get_pdbe_cif_for_comp_id(comp_id)
-            if os.path.isfile(mmcif_file_name):
+            if mmcif_file_name and os.path.isfile(mmcif_file_name):
                 pass # good
             else:
                 print("Missing downloaded file for comp-id:",  comp_id)

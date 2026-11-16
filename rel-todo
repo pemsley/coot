@@ -1,5 +1,13 @@
 --- Items---
 
+
+o allow me to change the cylinder thickness for Tube representation.
+
+o Make bendy helices - 2nd order or third order?
+
+o check these dictionaries for Oliver:
+  VIA 468 NAD and SD1
+
 o what kind of density sampling does fit-helix do?
 * Linear now.
 
@@ -52,13 +60,25 @@ o experiment: molprobity on tutorial model before and after
 
 o Impact statement for Moorhen.
 
-o Oli idea: search by sequence. Allow wildcard and ambiguity
+o Oli idea: search by sequence. Allow wild-card and ambiguity
   e.g. (A/S). Consider sequon.
 
 o colour residues by atom overlap badness (use user-defined
   colours of course)
 
-o user-defined colour in CA+sidechain mode?
+o let me change the moving atoms hue/lighting(?)
+
+o colour residues by atom overlap badness
+  (use user-defined colours of course)
+
+o Oli idea: search by sequence. Allow wild-card
+  and ambiguity e.g. (A/S). Consider sequon.
+
+o in "Open Recent" - show me the path (or a path
+  fragment so that I can see that I am loading
+  "refine.pdb" from the right directory)
+
+o user-defined colour in CA+side-chain mode?
   Useful for colour-by-rotamer-probability
 
 o make a smoother copy of a difference map should
@@ -109,6 +129,11 @@ o Oli: let me change the moving atoms hue/lighting(?)
 
 o "Worms by B-factor" - should not be difficult.
 * Handed over to Lucrezia
+
+o Look at hydrogen atom addition code for addition 5a90 215 A.
+
+o list for Atom Overlaps (only)
+* Done.
 
 o add (back) alpha helix restraints
 * Done.

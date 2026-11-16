@@ -266,6 +266,9 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
                }
                if (atom_info.formal_charge.first)
                   rdkit_at->setFormalCharge(atom_info.formal_charge.second);
+               // carry the leaving atom flag (pyrogen writes it to its output dictionary)
+               if (atom_info.pdbx_leaving_atom_flag.first)
+                  rdkit_at->setProp("pdbx_leaving_atom_flag", atom_info.pdbx_leaving_atom_flag.second);
 
                // set the valence from they type energy.  Abstract?
                //
@@ -949,8 +952,6 @@ coot::rdkit_mol_with_2d_depiction(const dictionary_residue_restraints_t &restrai
       // happy path
       RDKit::MolOps::removeHs(mol);
       // Do we want a call to "PrepreMolForDrawing()" here?
-      std::cout << "atom number compare " << mol.getNumAtoms() << " " << restraints.depiction.atoms.size()
-                << std::endl;
       if (mol.getNumAtoms() == restraints.depiction.atoms.size()) {
          RDKit::Conformer *conf = new RDKit::Conformer(mol.getNumAtoms());
          conf->set3D(false);
@@ -960,7 +961,34 @@ coot::rdkit_mol_with_2d_depiction(const dictionary_residue_restraints_t &restrai
             conf->setAtomPos(i, pos);
          }
          int iconf = mol.addConformer(conf, true);
-         std::cout << "debug:: Happy return iconf: " << iconf << std::endl;
+
+         // Use the wedges of the depiction, if it has them. For a wedged bond the first
+         // atom is the narrow end of the wedge, so make that the begin atom of the bond.
+         //
+         if (! restraints.depiction.bonds.empty()) {
+            std::map<std::string, unsigned int> name_to_idx;
+            for (const auto &at : mol.atoms()) {
+               std::string name;
+               if (at->getPropIfPresent("name", name))
+                  name_to_idx[util::remove_whitespace(name)] = at->getIdx();
+            }
+            for (const auto &db : restraints.depiction.bonds) {
+               RDKit::Bond::BondDir dir = RDKit::Bond::NONE;
+               if (db.bond_dir == "BEGINWEDGE") dir = RDKit::Bond::BEGINWEDGE;
+               if (db.bond_dir == "BEGINDASH")  dir = RDKit::Bond::BEGINDASH;
+               if (dir == RDKit::Bond::NONE) continue;
+               auto it_1 = name_to_idx.find(util::remove_whitespace(db.atom_name_1));
+               auto it_2 = name_to_idx.find(util::remove_whitespace(db.atom_name_2));
+               if (it_1 == name_to_idx.end() || it_2 == name_to_idx.end()) continue;
+               RDKit::Bond *bond = mol.getBondBetweenAtoms(it_1->second, it_2->second);
+               if (! bond) continue;
+               if (bond->getBeginAtomIdx() != it_1->second) {
+                  bond->setBeginAtomIdx(it_1->second);
+                  bond->setEndAtomIdx(it_2->second);
+               }
+               bond->setBondDir(dir);
+            }
+         }
          return std::make_pair(iconf, mol);
       } else {
          return std::make_pair(-1, mol);
@@ -1210,6 +1238,8 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
          // at->setMass(tbl->getAtomicWeight(atomic_number));
          at->setIsotope(0);
          at->setProp("name", atom_name);
+         if (r.atom_info[iat].pdbx_leaving_atom_flag.first)
+            at->setProp("pdbx_leaving_atom_flag", r.atom_info[iat].pdbx_leaving_atom_flag.second);
 
          if (false)
             std::cout << "debug:: in rdkit_mol(restraints) iat " << iat << " name: " << atom_name
@@ -3327,7 +3357,7 @@ coot::hydrogen_transformations(const RDKit::ROMol &mol) {
    RDKit::RWMol *r = new RDKit::RWMol(mol);
 
    std::unique_ptr<RDKit::ROMol> query_cooh             (RDKit::SmartsToMol("[C^2](=O)O[H]"));
-   std::unique_ptr<RDKit::ROMol> query_primary_amine_n  (RDKit::SmartsToMol("[N^3;H2]"));
+   std::unique_ptr<RDKit::ROMol> query_primary_amine_n  (RDKit::SmartsToMol("[N^3;H2;+0;!$(N-S(=O)=O)]"));
    std::unique_ptr<RDKit::ROMol> query_secondary_amine_n(RDKit::SmartsToMol("[N^3;H1;+0;!$(N-S(=O)=O)]"));
    std::unique_ptr<RDKit::ROMol> query_tertiary_amine_n (RDKit::SmartsToMol("[N^3;H0;+0;!$(N-S(=O)=O)]"));
    std::vector<RDKit::MatchVectType>  matches_cooh;

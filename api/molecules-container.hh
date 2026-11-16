@@ -1456,6 +1456,14 @@ public:
    void set_bespoke_carbon_atom_colour(int imol, const coot::colour_t &col);
 
    //! Update float parameter for MoleculesToTriangles molecular mesh
+   //!
+   //! As well as the MoleculesToTriangles parameters (e.g. "ribbonStyleHelixWidth"),
+   //! "tubesStyleHelixRadius" sets the radius (in Angstroms, default 2.5) of the helix
+   //! cylinders in the "Tubes" style of get_molecular_representation_mesh().
+   //!
+   //! @param imol is the model molecule index
+   //! @param param_name is the name of the parameter
+   //! @param value is the new value
    void M2T_updateFloatParameter(int imol, const std::string &param_name, float value);
 
    //! Update int parameter for MoleculesToTriangles molecular mesh

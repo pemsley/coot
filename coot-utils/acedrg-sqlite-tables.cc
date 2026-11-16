@@ -60,17 +60,17 @@
 #include <sqlite3.h>
 #endif
 
-// The active implementation needs both libsqlite3 and a gemmi that has the
-// public insert_bond_row()/insert_angle_row() seam (gemmi PR #438), which
-// is not yet in any gemmi release - so this is an explicit opt-in:
-// --with-gemmi-sqlite (autotools) / -DGEMMI_SQLITE=ON (CMake), both of
-// which define USE_GEMMI_SQLITE. Without it every entry point compiles to
-// a stub, is_usable() is false and pyrogen keeps its energy-lib values.
-#if defined(USE_SQLITE3) && defined(USE_GEMMI_SQLITE)
-#define COOT_GEMMI_SQLITE_ACTIVE
+// The active implementation needs libsqlite3 (USE_SQLITE3) and a gemmi whose
+// AcedrgTables has the public insert_bond_row()/insert_angle_row() (gemmi
+// PR #438). configure and CMake detect the latter and then define
+// HAVE_GEMMI_ACEDRG_INSERT_ROW - there is no option to pass. Without both,
+// every entry point compiles to a stub, compiled_with_support() and
+// is_usable() are false and pyrogen keeps its energy-lib values.
+#if defined(USE_SQLITE3) && defined(HAVE_GEMMI_ACEDRG_INSERT_ROW)
+#define COOT_ACEDRG_SQLITE_ACTIVE
 #endif
 
-#ifdef COOT_GEMMI_SQLITE_ACTIVE
+#ifdef COOT_ACEDRG_SQLITE_ACTIVE
 #include <gemmi/acedrg_tables.hpp>
 #include <gemmi/chemcomp.hpp>
 #endif
@@ -81,17 +81,17 @@
 
 class coot::acedrg_sqlite_tables::impl {
 public:
-#ifdef COOT_GEMMI_SQLITE_ACTIVE
+#ifdef COOT_ACEDRG_SQLITE_ACTIVE
    gemmi::AcedrgTables tables;
    sqlite3 *db = nullptr;
 #endif
    bool usable = false;
    ~impl() {
-#ifdef COOT_GEMMI_SQLITE_ACTIVE
+#ifdef COOT_ACEDRG_SQLITE_ACTIVE
       if (db) sqlite3_close(db);
 #endif
    }
-#ifdef COOT_GEMMI_SQLITE_ACTIVE
+#ifdef COOT_ACEDRG_SQLITE_ACTIVE
    // Fetch this molecule's bond/angle rows from acedrg.sqlite into
    // tables' on-demand caches. Direct port of gemmi's (fork branch
    // drg-tables-sqlite) AcedrgTables::prefetch_for_molecule().
@@ -113,7 +113,17 @@ coot::acedrg_sqlite_tables::default_data_dir() {
    return p.string();
 }
 
-#ifdef COOT_GEMMI_SQLITE_ACTIVE
+bool
+coot::acedrg_sqlite_tables::compiled_with_support() {
+
+#ifdef COOT_ACEDRG_SQLITE_ACTIVE
+   return true;
+#else
+   return false;
+#endif
+}
+
+#ifdef COOT_ACEDRG_SQLITE_ACTIVE
 
 bool
 coot::acedrg_sqlite_tables::init(const std::string &acedrg_data_dir) {
@@ -523,7 +533,7 @@ coot::acedrg_sqlite_tables::make_bond_and_angle_restraints(const dictionary_resi
 // build()
 // ------------------------------------------------------------------------
 
-#else // !COOT_GEMMI_SQLITE_ACTIVE
+#else // !COOT_ACEDRG_SQLITE_ACTIVE
 
 bool
 coot::acedrg_sqlite_tables::init(const std::string &acedrg_data_dir) {
@@ -556,13 +566,13 @@ coot::acedrg_sqlite_tables::make_bond_and_angle_restraints(const dictionary_resi
    return std::make_pair(false, r);
 }
 
-#endif // COOT_GEMMI_SQLITE_ACTIVE
+#endif // COOT_ACEDRG_SQLITE_ACTIVE
 
 // ------------------------------------------------------------------------
 // builder
 // ------------------------------------------------------------------------
 
-#ifdef COOT_GEMMI_SQLITE_ACTIVE
+#ifdef COOT_ACEDRG_SQLITE_ACTIVE
 
 namespace {
 
@@ -984,14 +994,16 @@ coot::acedrg_sqlite_tables::build(const std::string &acedrg_ascii_tables_dir,
    }
 }
 
-#else // !COOT_GEMMI_SQLITE_ACTIVE
+#else // !COOT_ACEDRG_SQLITE_ACTIVE
 
 bool
 coot::acedrg_sqlite_tables::build(const std::string &acedrg_ascii_tables_dir,
                                   const std::string &output_data_dir) {
 
-   std::cout << "coot-make-acedrg-sqlite: compiled without gemmi-sqlite support (configure --with-gemmi-sqlite / -DGEMMI_SQLITE=ON)" << std::endl;
+   std::cout << "coot-make-acedrg-sqlite: compiled without AceDRG-table support"
+             << " (needs SQLite3 and a gemmi with AcedrgTables::insert_bond_row(), gemmi PR #438)"
+             << std::endl;
    return false;
 }
 
-#endif // COOT_GEMMI_SQLITE_ACTIVE
+#endif // COOT_ACEDRG_SQLITE_ACTIVE

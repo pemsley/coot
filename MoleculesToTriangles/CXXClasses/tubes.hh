@@ -24,6 +24,8 @@
 //! through the whole helix's CA atoms instead and draws one plain capped cylinder
 //! along it (make_mesh_for_straight_helical_representation()), smoothing away that
 //! local wobble.
+//!
+//! radius_for_helices is the radius (in Angstroms) of the helix cylinders.
 coot::m2t::simple_mesh_t
 make_tubes_representation(mmdb::Manager *mol,
                           const std::string &atom_selection_str,
@@ -33,7 +35,8 @@ make_tubes_representation(mmdb::Manager *mol,
                           unsigned int n_slices_for_coil,
                           int secondaryStructureUsageFlag,
                           const std::string &helix_template_pdb_file_name = "theor-helix-z-ori-v2.pdb",
-                          bool straight_helices = false);
+                          bool straight_helices = false,
+                          float radius_for_helices = 2.5f);
 
 //! Typically we might call this function for every chain.
 //! For a bendy-helix representation, we would we don't want a

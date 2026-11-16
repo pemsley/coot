@@ -165,6 +165,57 @@ coot::regularize_with_dict(RDKit::ROMol &mol_in, PyObject *restraints_py, const 
    return static_cast<RDKit::ROMol *>(m);
 }
 
+// Put the dictionary's _pdbx_chem_comp_identifier rows (e.g. the CCD systematic
+// names) on the molecule, so that they reach the output dictionary:
+// mmcif_dict_from_mol_using_energy_lib() reads them back. Molecule properties
+// survive the copies on the way (AddHs(), hydrogen_transformations()).
+// Flattened: type, program, program_version, identifier for each identifier.
+//
+static void
+set_pdbx_identifiers_prop(RDKit::ROMol *m, const coot::dictionary_residue_restraints_t &rest) {
+
+   // likewise the audit records (flattened: action_type, date, processing_site) and
+   // the _chem_comp type and synonyms.
+   if (! rest.audits.empty()) {
+      std::vector<std::string> a;
+      for (const auto &audit : rest.audits) {
+         a.push_back(audit.action_type);
+         a.push_back(audit.date);
+         a.push_back(audit.processing_site);
+      }
+      m->setProp("pdbx_chem_comp_audit", a);
+   }
+   // and the descriptors (flattened: type, program, program_version, descriptor)
+   if (! rest.descriptors.descriptors.empty()) {
+      std::vector<std::string> d;
+      for (const auto &descr : rest.descriptors.descriptors) {
+         d.push_back(descr.type);
+         d.push_back(descr.program);
+         d.push_back(descr.program_version);
+         d.push_back(descr.descriptor);
+      }
+      m->setProp("pdbx_chem_comp_descriptors", d);
+   }
+   // and the categories that go to the output as they are (e.g. the PDBe DrugBank blocks)
+   if (! rest.pass_through_categories.empty())
+      m->setProp("pass_through_categories",
+                 coot::dict_pass_through_category_t::flatten(rest.pass_through_categories));
+   if (! rest.residue_info.type.empty())
+      m->setProp("chem_comp_type", rest.residue_info.type);
+   if (! rest.residue_info.pdbx_synonyms.empty())
+      m->setProp("chem_comp_pdbx_synonyms", rest.residue_info.pdbx_synonyms);
+
+   if (rest.identifiers.empty()) return;
+   std::vector<std::string> v;
+   for (const auto &id : rest.identifiers) {
+      v.push_back(id.type);
+      v.push_back(id.program);
+      v.push_back(id.program_version);
+      v.push_back(id.identifier);
+   }
+   m->setProp("pdbx_chem_comp_identifiers", v);
+}
+
 
 RDKit::ROMol *
 coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
@@ -281,6 +332,7 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 
 	    // Happy Path return
 
+	    set_pdbx_identifiers_prop(m, rest.second);
 	    return m;
 	 }
 
@@ -307,6 +359,7 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 	 bool clear_confs  = false;
 	 RDDepict::compute2DCoords(*m, NULL, canon_orient, clear_confs, 10, 20);
 	 delete mol;
+	 set_pdbx_identifiers_prop(m, rest.second);
 	 return m;
       }
    }

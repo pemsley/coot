@@ -319,6 +319,32 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
                      }
                   }
 
+                  // a CCD entry with only one identifier
+                  if (cat_name == "_pdbx_chem_comp_identifier") {
+                     mmdb::mmcif::Struct *structure = data->GetStructure(cat_name.c_str());
+                     if (structure) {
+                        pdbx_chem_comp_identifier(structure, imol_enc);
+                        handled = true;
+                     }
+                  }
+
+                  // a CCD entry with only one audit record
+                  if (cat_name == "_pdbx_chem_comp_audit") {
+                     mmdb::mmcif::Struct *structure = data->GetStructure(cat_name.c_str());
+                     if (structure) {
+                        pdbx_chem_comp_audit(structure, imol_enc);
+                        handled = true;
+                     }
+                  }
+
+                  if (dict_pass_through_category_t::is_pass_through_category(cat_name)) {
+                     mmdb::mmcif::Struct *structure = data->GetStructure(cat_name.c_str());
+                     if (structure) {
+                        pass_through_category(cat_name, structure, imol_enc);
+                        handled = true;
+                     }
+                  }
+
                   if (! handled)   // this can happen if there is not an atom loop, e.g. dictionary
                                    // with one atom e.g. AM.cif (Americium ion)
                      std::cout << "WARNING:: in init_refmac_mon_lib() unhandled category \""
@@ -374,15 +400,26 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
                   if (cat_name == "_pdbx_chem_comp_descriptor")
                      pdbx_chem_comp_descriptor(mmCIFLoop, imol_enc);
 
+                  if (cat_name == "_pdbx_chem_comp_identifier")
+                     pdbx_chem_comp_identifier(mmCIFLoop, imol_enc);
+
                   // PDBx model molecule
                   if (cat_name == "_pdbx_chem_comp_model_atom")
                      rmit.n_atoms += comp_atom(mmCIFLoop, imol_enc, true);
                   if (cat_name == "_pdbx_chem_comp_model_bond")
                      rmit.n_atoms += comp_bond(mmCIFLoop, imol_enc, true);
 
-                  // PDBe depiction -  needs _pdbe_chem_comp_bond_depiction parser also
+                  if (cat_name == "_pdbx_chem_comp_audit")
+                     pdbx_chem_comp_audit(mmCIFLoop, imol_enc);
+
+                  // PDBe depiction: the 2D positions and the bonds (with the wedges)
                   if (cat_name == "_pdbe_chem_comp_atom_depiction")
                      pdbe_chem_comp_atom_depiction(mmCIFLoop, imol_enc);
+                  if (cat_name == "_pdbe_chem_comp_bond_depiction")
+                     pdbe_chem_comp_bond_depiction(mmCIFLoop, imol_enc);
+
+                  if (dict_pass_through_category_t::is_pass_through_category(cat_name))
+                     pass_through_category(cat_name, mmCIFLoop, imol_enc);
 
                   if (cat_name == "_pdbx_chem_comp_description_generator")
                      pdbx_chem_comp_description_generator(mmCIFLoop, imol_enc);
@@ -477,6 +514,7 @@ coot::protein_geometry::chem_comp_component(mmdb::mmcif::PStruct structure, int 
    int number_of_atoms_all = coot::protein_geometry::UNSET_NUMBER;
    int number_of_atoms_nh  = coot::protein_geometry::UNSET_NUMBER;
    std::pair<bool, std::string> description_level(0, "");
+   std::string formula, formula_weight, pdbx_formal_charge, pdbx_synonyms; // pdbx extras
 
    for (int itag=0; itag<n_tags; itag++) {
       std::string tag = structure->GetTag(itag);
@@ -491,6 +529,10 @@ coot::protein_geometry::chem_comp_component(mmdb::mmcif::PStruct structure, int 
          name = std::pair<bool, std::string> (1,field);
       if (tag == "type")
          type = std::pair<bool, std::string> (1,field);
+      if (tag == "formula")            formula            = field;
+      if (tag == "formula_weight")     formula_weight     = field;
+      if (tag == "pdbx_formal_charge") pdbx_formal_charge = field;
+      if (tag == "pdbx_synonyms")      pdbx_synonyms      = field;
       if (tag == "desc_level") // not descr_level
          description_level = std::pair<bool, std::string> (1,field);
       if (tag == "description_level")
@@ -533,6 +575,8 @@ coot::protein_geometry::chem_comp_component(mmdb::mmcif::PStruct structure, int 
                             name.second, type.second,
                             number_of_atoms_all, number_of_atoms_nh,
                             description_level.second);
+      set_chem_comp_pdbx_extras(comp_id.second, imol_enc, type.second, formula, formula_weight,
+                                pdbx_formal_charge, pdbx_synonyms);
    } else {
       // std::cout << "oooppps - something missing, not adding that" << std::endl;
    }
@@ -911,6 +955,14 @@ coot::protein_geometry::chem_comp(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc) {
                                three_letter_code, name,
                                group, number_atoms_all, number_atoms_nh,
                                description_level);
+         // the pdbx extras (pyrogen writes these)
+         auto get = [mmCIFLoop, j] (const char *tag) {
+            int ierr_local = 0;
+            const char *ss = mmCIFLoop->GetString(tag, j, ierr_local);
+            return std::string(ss ? ss : "");
+         };
+         set_chem_comp_pdbx_extras(id, imol_enc, get("type"), get("formula"), get("formula_weight"),
+                                   get("pdbx_formal_charge"), get("pdbx_synonyms"));
          returned_chem_comp = id;
       }
    }
@@ -1024,11 +1076,268 @@ coot::protein_geometry::pdbe_chem_comp_atom_depiction(mmdb::mmcif::PLoop mmCIFLo
          chem_comp_atom_depiction_t d(comp_id, dav);
          int idx = get_monomer_restraints_index(comp_id, imol_enc, true);
          if (idx >= 0) {
+            d.bonds = dict_res_restraints[idx].second.depiction.bonds; // if they were read first
             dict_res_restraints[idx].second.depiction = d;
             if (false)
                std::cout << "debug:: pdbe_chem_comp_atom_depiction() added depiction of "
                          << dav.size() << " atoms " << std::endl;
          }
+      }
+   }
+}
+
+// The bonds of the 2D depiction - which is where the wedges are.
+//
+void
+coot::protein_geometry::pdbe_chem_comp_bond_depiction(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc) {
+
+   std::vector<depiction_bond_t> bonds;
+   std::set<std::string> comp_id_set;
+   for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
+      auto get = [mmCIFLoop, j] (const char *tag) {
+         int ierr = 0;
+         const char *s = mmCIFLoop->GetString(tag, j, ierr);
+         return std::string(s ? s : "");
+      };
+      std::string comp_id   = get("comp_id");
+      std::string atom_id_1 = get("atom_id_1");
+      std::string atom_id_2 = get("atom_id_2");
+      std::string bond_dir  = get("bond_dir");
+      if (bond_dir.empty()) bond_dir = "NONE";
+      int pdbx_ordinal = j + 1;
+      mmCIFLoop->GetInteger(pdbx_ordinal, "pdbx_ordinal", j); // unchanged on failure
+      if (! comp_id.empty() && ! atom_id_1.empty() && ! atom_id_2.empty()) {
+         comp_id_set.insert(comp_id);
+         bonds.push_back(depiction_bond_t(atom_id_1, atom_id_2, get("value_order"), bond_dir, pdbx_ordinal));
+      }
+   }
+   if (! bonds.empty()) {
+      if (comp_id_set.size() == 1) {
+         int idx = get_monomer_restraints_index(*comp_id_set.begin(), imol_enc, true);
+         if (idx >= 0)
+            dict_res_restraints[idx].second.depiction.bonds = bonds;
+      }
+   }
+}
+
+// _pdbx_chem_comp_audit: the history of the dictionary
+//
+void
+coot::protein_geometry::pdbx_chem_comp_audit(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc) {
+
+   for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
+      auto get = [mmCIFLoop, j] (const char *tag) {
+         int ierr = 0;
+         const char *s = mmCIFLoop->GetString(tag, j, ierr);
+         return std::string(s ? s : "");
+      };
+      std::string comp_id     = get("comp_id");
+      std::string action_type = get("action_type");
+      if (! comp_id.empty() && ! action_type.empty()) {
+         int idx = get_monomer_restraints_index(comp_id, imol_enc, true);
+         if (idx >= 0)
+            dict_res_restraints[idx].second.audits.push_back(pdbx_chem_comp_audit_item(action_type, get("date"),
+                                                                                       get("processing_site")));
+      }
+   }
+}
+
+// the single-row (non-loop) form
+void
+coot::protein_geometry::pdbx_chem_comp_audit(mmdb::mmcif::PStruct structure, int imol_enc) {
+
+   auto get = [structure] (const char *tag) {
+      int ierr = 0;
+      const char *s = structure->GetString(tag, ierr);
+      return std::string(s ? s : "");
+   };
+   std::string comp_id     = get("comp_id");
+   std::string action_type = get("action_type");
+   if (! comp_id.empty() && ! action_type.empty()) {
+      int idx = get_monomer_restraints_index(comp_id, imol_enc, true);
+      if (idx >= 0)
+         dict_res_restraints[idx].second.audits.push_back(pdbx_chem_comp_audit_item(action_type, get("date"),
+                                                                                    get("processing_site")));
+   }
+}
+
+// ------------------------------------------------------------------------------------
+// categories that are carried from the input to the output as they are
+// ------------------------------------------------------------------------------------
+
+bool
+coot::dict_pass_through_category_t::is_pass_through_category(const std::string &cat_name) {
+
+   static const char *names[] = {
+      "_pdbe_chem_comp_synonyms",
+      "_pdbe_chem_comp_external_mappings",
+      "_pdbe_chem_comp_drugbank_details",
+      "_pdbe_chem_comp_drugbank_classification",
+      "_pdbe_chem_comp_drugbank_targets",
+      "_pdbe_chem_comp_substructure",
+      "_pdbe_chem_comp_substructure_mapping"
+   };
+   for (const char *n : names)
+      if (cat_name == n) return true;
+   return false;
+}
+
+// name, n-tags, tags, n-rows, values (row by row) for each category
+std::vector<std::string>
+coot::dict_pass_through_category_t::flatten(const std::vector<dict_pass_through_category_t> &cats) {
+
+   std::vector<std::string> v;
+   for (const auto &cat : cats) {
+      v.push_back(cat.name);
+      v.push_back(std::to_string(cat.tags.size()));
+      v.insert(v.end(), cat.tags.begin(), cat.tags.end());
+      v.push_back(std::to_string(cat.rows.size()));
+      for (const auto &row : cat.rows)
+         v.insert(v.end(), row.begin(), row.end());
+   }
+   return v;
+}
+
+std::vector<coot::dict_pass_through_category_t>
+coot::dict_pass_through_category_t::unflatten(const std::vector<std::string> &v) {
+
+   std::vector<dict_pass_through_category_t> cats;
+   std::size_t i = 0;
+   try {
+      while (i < v.size()) {
+         dict_pass_through_category_t cat(v.at(i++));
+         std::size_t n_tags = std::stoul(v.at(i++));
+         for (std::size_t j=0; j<n_tags; j++)
+            cat.tags.push_back(v.at(i++));
+         std::size_t n_rows = std::stoul(v.at(i++));
+         for (std::size_t j=0; j<n_rows; j++) {
+            std::vector<std::string> row;
+            for (std::size_t k=0; k<n_tags; k++)
+               row.push_back(v.at(i++));
+            cat.rows.push_back(row);
+         }
+         cats.push_back(cat);
+      }
+   }
+   catch (const std::exception &e) {
+      std::cout << "WARNING:: dict_pass_through_category_t::unflatten() " << e.what() << std::endl;
+   }
+   return cats;
+}
+
+// mmdb marks the no-data fields with a leading control character
+static std::string
+pass_through_field_to_string(const char *s) {
+   if (! s) return "?";
+   if (static_cast<unsigned char>(s[0]) < 32)
+      return (s[1] == '.') ? "." : "?";
+   if (s[0] == '\0') return "?";
+   std::string ss(s);
+   // see pass_through_value_for_mmdb()
+   while (ss.size() > 1 && ss.back() == ' ')
+      ss.pop_back();
+   return ss;
+}
+
+void
+coot::protein_geometry::pass_through_category(const std::string &cat_name,
+                                              mmdb::mmcif::PLoop mmCIFLoop, int imol_enc) {
+
+   dict_pass_through_category_t cat(cat_name);
+   int n_tags = mmCIFLoop->GetNofTags();
+   for (int i=0; i<n_tags; i++)
+      cat.tags.push_back(mmCIFLoop->GetTag(i));
+   for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
+      std::vector<std::string> row;
+      for (int i=0; i<n_tags; i++)
+         row.push_back(pass_through_field_to_string(mmCIFLoop->GetField(j, i)));
+      cat.rows.push_back(row);
+   }
+   store_pass_through_category(cat, imol_enc);
+}
+
+// the single-row (non-loop) form
+void
+coot::protein_geometry::pass_through_category(const std::string &cat_name,
+                                              mmdb::mmcif::PStruct structure, int imol_enc) {
+
+   dict_pass_through_category_t cat(cat_name);
+   int n_tags = structure->GetNofTags();
+   std::vector<std::string> row;
+   for (int i=0; i<n_tags; i++) {
+      cat.tags.push_back(structure->GetTag(i));
+      row.push_back(pass_through_field_to_string(structure->GetField(i)));
+   }
+   cat.rows.push_back(row);
+   store_pass_through_category(cat, imol_enc);
+}
+
+// The rows are stored with the dictionary of their comp_id. A category without a comp_id
+// tag is not stored.
+void
+coot::protein_geometry::store_pass_through_category(const dict_pass_through_category_t &cat,
+                                                    int imol_enc) {
+
+   int idx_comp_id = cat.tag_index("comp_id");
+   if (idx_comp_id < 0) return;
+
+   std::map<std::string, dict_pass_through_category_t> m; // usually just one comp_id
+   for (const auto &row : cat.rows) {
+      const std::string &comp_id = row[idx_comp_id];
+      if (comp_id.empty() || comp_id == "?" || comp_id == ".") continue;
+      auto it = m.find(comp_id);
+      if (it == m.end()) {
+         dict_pass_through_category_t c(cat.name);
+         c.tags = cat.tags;
+         it = m.insert(std::make_pair(comp_id, c)).first;
+      }
+      it->second.rows.push_back(row);
+   }
+   for (const auto &item : m) {
+      int idx = get_monomer_restraints_index(item.first, imol_enc, true);
+      if (idx >= 0) {
+         auto &ptc = dict_res_restraints[idx].second.pass_through_categories;
+         bool replaced = false;
+         for (auto &c : ptc) { // a re-read of the dictionary replaces
+            if (c.name == item.second.name) {
+               c = item.second;
+               replaced = true;
+            }
+         }
+         if (! replaced)
+            ptc.push_back(item.second);
+      }
+   }
+}
+
+void
+coot::protein_geometry::set_chem_comp_pdbx_extras(const std::string &comp_id, int imol_enc,
+                                                  const std::string &type,
+                                                  const std::string &formula,
+                                                  const std::string &formula_weight,
+                                                  const std::string &pdbx_formal_charge,
+                                                  const std::string &pdbx_synonyms) {
+
+   // mmdb marks its "no data" fields ("?" and ".") with a leading control character
+   auto is_set = [] (const std::string &s) {
+      if (s.empty()) return false;
+      if (static_cast<unsigned char>(s[0]) < 32) return false;
+      return (s != "?" && s != ".");
+   };
+
+   int idx = get_monomer_restraints_index(comp_id, imol_enc, true);
+   if (idx >= 0) {
+      dict_chem_comp_t &ri = dict_res_restraints[idx].second.residue_info;
+      if (is_set(type))           ri.type           = type;
+      if (is_set(formula))        ri.formula        = formula;
+      if (is_set(formula_weight)) ri.formula_weight = formula_weight;
+      if (is_set(pdbx_synonyms))  ri.pdbx_synonyms  = pdbx_synonyms;
+      if (is_set(pdbx_formal_charge)) {
+         try {
+            ri.pdb_formal_charge = util::string_to_int(pdbx_formal_charge);
+            ri.have_pdb_formal_charge = true;
+         }
+         catch (const std::runtime_error &rte) { }
       }
    }
 }
@@ -1356,6 +1665,7 @@ coot::protein_geometry::comp_atom(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc,
             atom.aromaticity = aromaticity;
             atom.formal_charge = formal_charge;
             atom.pdbx_stereo_config = pdbx_stereo_config_flag;
+            atom.pdbx_leaving_atom_flag = pdbx_leaving_atom_flag;
             if (model_Cartn.first)
                atom.add_pos(dict_atom::REAL_MODEL_POS, model_Cartn);
 
@@ -2396,6 +2706,17 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
       mmCIFLoop->PutInteger(nat, "number_atoms_nh", i);
       s = residue_info.description_level.c_str();
       mmCIFLoop->PutString(s, "desc_level", i);
+      // the pdbx extras, when we have them
+      if (! residue_info.type.empty())
+         mmCIFLoop->PutString(residue_info.type.c_str(), "type", i);
+      if (! residue_info.formula.empty())
+         mmCIFLoop->PutString(residue_info.formula.c_str(), "formula", i);
+      if (! residue_info.formula_weight.empty())
+         mmCIFLoop->PutString(residue_info.formula_weight.c_str(), "formula_weight", i);
+      if (residue_info.have_pdb_formal_charge)
+         mmCIFLoop->PutInteger(residue_info.pdb_formal_charge, "pdbx_formal_charge", i);
+      if (! residue_info.pdbx_synonyms.empty())
+         mmCIFLoop->PutString(residue_info.pdbx_synonyms.c_str(), "pdbx_synonyms", i);
 
       std::string comp_record = "comp_list";
       mmCIFData->PutDataName(comp_record.c_str()); // 'data_' record
@@ -2424,6 +2745,16 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
       for (const auto &ai : atom_info)
          if (ai.formal_charge.first) { have_formal_charges = true; break; }
 
+      // likewise for the R/S/N stereo config
+      bool have_stereo_configs = false;
+      for (const auto &ai : atom_info)
+         if (ai.pdbx_stereo_config.first) { have_stereo_configs = true; break; }
+
+      // and the leaving atom flag
+      bool have_leaving_atom_flags = false;
+      for (const auto &ai : atom_info)
+         if (ai.pdbx_leaving_atom_flag.first) { have_leaving_atom_flags = true; break; }
+
       if (atom_info.size()) {
          rc = mmCIFData->AddLoop("_chem_comp_atom", mmCIFLoop);
          if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
@@ -2449,6 +2780,14 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
                if (atom_info[i].partial_charge.first) {
                   float v = atom_info[i].partial_charge.second;
                   mmCIFLoop->PutReal(v, "partial_charge", i, 4);
+               }
+               if (have_stereo_configs) {
+                  std::string sc = ai.pdbx_stereo_config.first ? ai.pdbx_stereo_config.second : "?";
+                  mmCIFLoop->PutString(sc.c_str(), "pdbx_stereo_config", i);
+               }
+               if (have_leaving_atom_flags) {
+                  std::string lf = ai.pdbx_leaving_atom_flag.first ? ai.pdbx_leaving_atom_flag.second : "N";
+                  mmCIFLoop->PutString(lf.c_str(), "pdbx_leaving_atom_flag", i);
                }
                if (add_coordinates) {
                   if (atom_info[i].model_Cartn.first) {
@@ -2706,6 +3045,12 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 
 
       write_cif_pdbx_chem_comp_descriptor(mmCIFData);
+      write_cif_pdbx_chem_comp_identifier(mmCIFData);
+      write_cif_pdbx_chem_comp_audit(mmCIFData);
+      write_cif_software(mmCIFData);
+      write_cif_pdbe_chem_comp_atom_depiction(mmCIFData);
+      write_cif_pdbe_chem_comp_bond_depiction(mmCIFData);
+      write_cif_pass_through_categories(mmCIFData);
 
       // delete mmCIFLoop; // crashed when enabled?
 
@@ -2724,6 +3069,223 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 
 void
 coot::dictionary_residue_restraints_t::write_cif_pdbx_chem_comp_descriptor(mmdb::mmcif::Data *mmCIFData) const {
+
+   // Note: mmdb only quotes a value that contains a space or a quote, so a SMILES that
+   // starts with "[" is written unquoted. mmdb and gemmi both read that back correctly.
+
+   if (descriptors.descriptors.empty()) return;
+
+   mmdb::mmcif::PLoop mmCIFLoop = nullptr;
+   int rc = mmCIFData->AddLoop("_pdbx_chem_comp_descriptor", mmCIFLoop);
+   if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
+      auto put = [mmCIFLoop] (const std::string &s, const char *tag, int i) {
+         if (s.empty())
+            mmCIFLoop->PutNoData(mmdb::mmcif::CIF_NODATA_QUESTION, tag, i);
+         else
+            mmCIFLoop->PutString(s.c_str(), tag, i);
+      };
+      for (unsigned int i=0; i<descriptors.descriptors.size(); i++) {
+         const pdbx_chem_comp_descriptor_item &d = descriptors.descriptors[i];
+         put(residue_info.comp_id, "comp_id",         i);
+         put(d.type,               "type",            i);
+         put(d.program,            "program",         i);
+         put(d.program_version,    "program_version", i);
+         put(d.descriptor,         "descriptor",      i);
+      }
+   }
+}
+
+void
+coot::dictionary_residue_restraints_t::write_cif_pdbx_chem_comp_identifier(mmdb::mmcif::Data *mmCIFData) const {
+
+   if (identifiers.empty()) return;
+
+   mmdb::mmcif::PLoop mmCIFLoop = nullptr;
+   int rc = mmCIFData->AddLoop("_pdbx_chem_comp_identifier", mmCIFLoop);
+   if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
+      auto put = [mmCIFLoop] (const std::string &s, const char *tag, int i) {
+         if (s.empty())
+            mmCIFLoop->PutNoData(mmdb::mmcif::CIF_NODATA_QUESTION, tag, i);
+         else
+            mmCIFLoop->PutString(s.c_str(), tag, i);
+      };
+      for (unsigned int i=0; i<identifiers.size(); i++) {
+         const pdbx_chem_comp_identifier_item &id = identifiers[i];
+         put(residue_info.comp_id, "comp_id",         i);
+         put(id.type,              "type",            i);
+         put(id.program,           "program",         i);
+         put(id.program_version,   "program_version", i);
+         put(id.identifier,        "identifier",      i);
+      }
+   }
+}
+
+// 2D depiction coordinates (PDBe style: the non-hydrogen atoms, in atom-table order -
+// rdkit_mol_with_2d_depiction() matches them to the atoms by index)
+//
+void
+coot::dictionary_residue_restraints_t::write_cif_pdbe_chem_comp_atom_depiction(mmdb::mmcif::Data *mmCIFData) const {
+
+   if (depiction.empty()) return;
+
+   mmdb::mmcif::PLoop mmCIFLoop = nullptr;
+   int rc = mmCIFData->AddLoop("_pdbe_chem_comp_atom_depiction", mmCIFLoop);
+   if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
+      for (unsigned int i=0; i<depiction.atoms.size(); i++) {
+         const depiction_atom_t &da = depiction.atoms[i];
+         std::string atom_id = util::remove_whitespace(da.atom_name);
+         mmCIFLoop->PutString(residue_info.comp_id.c_str(), "comp_id", i);
+         mmCIFLoop->PutString(atom_id.c_str(),              "atom_id", i);
+         mmCIFLoop->PutString(da.element.c_str(),           "element", i);
+         mmCIFLoop->PutReal(da.x, "model_Cartn_x", i, "%.3f");
+         mmCIFLoop->PutReal(da.y, "model_Cartn_y", i, "%.3f");
+         mmCIFLoop->PutInteger(da.pdbe_ordinal, "pdbx_ordinal", i);
+      }
+   }
+}
+
+// The bonds of the 2D depiction. Only written with the atoms that they refer to.
+//
+void
+coot::dictionary_residue_restraints_t::write_cif_pdbe_chem_comp_bond_depiction(mmdb::mmcif::Data *mmCIFData) const {
+
+   if (depiction.empty()) return;
+   if (depiction.bonds.empty()) return;
+
+   mmdb::mmcif::PLoop mmCIFLoop = nullptr;
+   int rc = mmCIFData->AddLoop("_pdbe_chem_comp_bond_depiction", mmCIFLoop);
+   if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
+      for (unsigned int i=0; i<depiction.bonds.size(); i++) {
+         const depiction_bond_t &db = depiction.bonds[i];
+         std::string atom_id_1 = util::remove_whitespace(db.atom_name_1);
+         std::string atom_id_2 = util::remove_whitespace(db.atom_name_2);
+         mmCIFLoop->PutString(residue_info.comp_id.c_str(), "comp_id",     i);
+         mmCIFLoop->PutString(atom_id_1.c_str(),            "atom_id_1",   i);
+         mmCIFLoop->PutString(atom_id_2.c_str(),            "atom_id_2",   i);
+         mmCIFLoop->PutString(db.value_order.c_str(),       "value_order", i);
+         mmCIFLoop->PutString(db.bond_dir.c_str(),          "bond_dir",    i);
+         mmCIFLoop->PutInteger(db.pdbe_ordinal, "pdbx_ordinal", i);
+      }
+   }
+}
+
+void
+coot::dictionary_residue_restraints_t::write_cif_pdbx_chem_comp_audit(mmdb::mmcif::Data *mmCIFData) const {
+
+   if (audits.empty()) return;
+
+   mmdb::mmcif::PLoop mmCIFLoop = nullptr;
+   int rc = mmCIFData->AddLoop("_pdbx_chem_comp_audit", mmCIFLoop);
+   if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
+      auto put = [mmCIFLoop] (const std::string &s, const char *tag, int i) {
+         if (s.empty())
+            mmCIFLoop->PutNoData(mmdb::mmcif::CIF_NODATA_QUESTION, tag, i);
+         else
+            mmCIFLoop->PutString(s.c_str(), tag, i);
+      };
+      for (unsigned int i=0; i<audits.size(); i++) {
+         const pdbx_chem_comp_audit_item &a = audits[i];
+         put(residue_info.comp_id, "comp_id",         i);
+         put(a.action_type,        "action_type",     i);
+         put(a.date,               "date",            i);
+         put(a.processing_site,    "processing_site", i);
+      }
+   }
+}
+
+// mmdb quotes a value only if it contains a space or a quote, so a value with non-ASCII
+// characters (e.g. a synonym with a Greek letter) or one that begins with a character
+// that is special in CIF would be written bare - and other CIF readers (gemmi) reject
+// that. mmdb can't be told to quote a value, so add a trailing space to such a value -
+// then it is quoted. (The reader removes trailing spaces.)
+//
+static std::string
+pass_through_value_for_mmdb(const std::string &s) {
+
+   if (s.empty()) return s;
+   if (s.find('\n') != std::string::npos) return s; // mmdb writes a text field
+   if (s.find(' ')  != std::string::npos) return s; // mmdb quotes it
+   if (s.find('"')  != std::string::npos) return s;
+   if (s.find('\'') != std::string::npos) return s;
+   bool needs_quotes = false;
+   for (char c : s)
+      if (static_cast<unsigned char>(c) >= 128 || c == '\t')
+         needs_quotes = true;
+   if (std::string("_#$[];").find(s[0]) != std::string::npos)
+      needs_quotes = true;
+   std::string lc = coot::util::downcase(s);
+   for (const char *kw : {"data_", "loop_", "save_", "global_", "stop_"})
+      if (lc.compare(0, strlen(kw), kw) == 0)
+         needs_quotes = true;
+   if (! needs_quotes) return s;
+   return s + " ";
+}
+
+// The categories that were carried from the input. The comp_id is that of this dictionary
+// and, for the categories that refer to atoms by name (atom_id), the rows for atoms that
+// this dictionary does not have are not written.
+//
+void
+coot::dictionary_residue_restraints_t::write_cif_pass_through_categories(mmdb::mmcif::Data *mmCIFData) const {
+
+   std::set<std::string> atom_names;
+   for (const auto &atom : atom_info)
+      atom_names.insert(util::remove_whitespace(atom.atom_id));
+
+   for (const auto &cat : pass_through_categories) {
+      if (cat.tags.empty()) continue;
+      int idx_comp_id = cat.tag_index("comp_id");
+      int idx_atom_id = cat.tag_index("atom_id");
+      std::vector<std::vector<std::string> > rows;
+      for (const auto &row : cat.rows) {
+         if (row.size() != cat.tags.size()) continue;
+         if (idx_atom_id >= 0)
+            if (atom_names.find(util::remove_whitespace(row[idx_atom_id])) == atom_names.end())
+               continue;
+         rows.push_back(row);
+      }
+      if (rows.empty()) continue;
+
+      mmdb::mmcif::PLoop mmCIFLoop = nullptr;
+      int rc = mmCIFData->AddLoop(cat.name.c_str(), mmCIFLoop);
+      if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
+         for (unsigned int i=0; i<rows.size(); i++) {
+            for (unsigned int j=0; j<cat.tags.size(); j++) {
+               const char *tag = cat.tags[j].c_str();
+               const std::string &s = (static_cast<int>(j) == idx_comp_id) ? residue_info.comp_id : rows[i][j];
+               if (s == ".")
+                  mmCIFLoop->PutNoData(mmdb::mmcif::CIF_NODATA_DOT, tag, i);
+               else if (s.empty() || s == "?")
+                  mmCIFLoop->PutNoData(mmdb::mmcif::CIF_NODATA_QUESTION, tag, i);
+               else
+                  mmCIFLoop->PutString(pass_through_value_for_mmdb(s).c_str(), tag, i);
+            }
+         }
+      }
+   }
+}
+
+void
+coot::dictionary_residue_restraints_t::write_cif_software(mmdb::mmcif::Data *mmCIFData) const {
+
+   if (software.empty()) return;
+
+   mmdb::mmcif::PLoop mmCIFLoop = nullptr;
+   int rc = mmCIFData->AddLoop("_software", mmCIFLoop);
+   if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
+      auto put = [mmCIFLoop] (const std::string &s, const char *tag, int i) {
+         if (s.empty())
+            mmCIFLoop->PutNoData(mmdb::mmcif::CIF_NODATA_QUESTION, tag, i);
+         else
+            mmCIFLoop->PutString(s.c_str(), tag, i);
+      };
+      for (unsigned int i=0; i<software.size(); i++) {
+         const dict_software_item &sw = software[i];
+         put(sw.name,        "name",        i);
+         put(sw.version,     "version",     i);
+         put(sw.description, "description", i);
+      }
+   }
 }
 
 // constructor
@@ -2789,13 +3351,14 @@ coot::simple_cif_reader::has_restraints_for(const std::string &res_type) {
 void
 coot::protein_geometry::pdbx_chem_comp_descriptor(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc) {
 
-   std::string comp_id;
-   std::string type;
-   std::string program;
-   std::string program_version;
-   std::string descriptor;
-
    for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
+      // per-row: a ? or . value (NULL from GetString() with ierr OK) must not
+      // inherit the value from the previous row
+      std::string comp_id;
+      std::string type;
+      std::string program;
+      std::string program_version;
+      std::string descriptor;
       int ierr;
       int ierr_tot = 0;
       char *s;
@@ -2813,7 +3376,7 @@ coot::protein_geometry::pdbx_chem_comp_descriptor(mmdb::mmcif::PLoop mmCIFLoop, 
       ierr_tot += ierr;
       if (s) type = s;
 
-      if (ierr_tot == 0) {
+      if (ierr_tot == 0 && ! comp_id.empty() && ! type.empty() && ! descriptor.empty()) {
          pdbx_chem_comp_descriptor_item descr(type, program, program_version, descriptor);
          add_pdbx_descriptor(comp_id, imol_enc, descr);
       }
@@ -2845,4 +3408,55 @@ coot::protein_geometry::add_pdbx_descriptor(const std::string &comp_id,
       std::pair<int, dictionary_residue_restraints_t> p(imol_enc, rest);
       dict_res_restraints.push_back(p);
    }
+}
+
+// _pdbx_chem_comp_identifier, e.g. the systematic names in a CCD entry
+//
+void
+coot::protein_geometry::pdbx_chem_comp_identifier(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc) {
+
+   for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
+      // comp_id, type and identifier are needed, program and program_version are optional
+      auto get = [mmCIFLoop, j] (const char *tag) {
+         int ierr = 0;
+         const char *s = mmCIFLoop->GetString(tag, j, ierr);
+         return std::string(s ? s : "");
+      };
+      std::string comp_id    = get("comp_id");
+      std::string type       = get("type");
+      std::string identifier = get("identifier");
+      if (! comp_id.empty() && ! type.empty() && ! identifier.empty()) {
+         pdbx_chem_comp_identifier_item item(type, get("program"), get("program_version"), identifier);
+         add_pdbx_identifier(comp_id, imol_enc, item);
+      }
+   }
+}
+
+// the single-row (non-loop) form
+void
+coot::protein_geometry::pdbx_chem_comp_identifier(mmdb::mmcif::PStruct structure, int imol_enc) {
+
+   auto get = [structure] (const char *tag) {
+      int ierr = 0;
+      const char *s = structure->GetString(tag, ierr);
+      return std::string(s ? s : "");
+   };
+   std::string comp_id    = get("comp_id");
+   std::string type       = get("type");
+   std::string identifier = get("identifier");
+   if (! comp_id.empty() && ! type.empty() && ! identifier.empty()) {
+      pdbx_chem_comp_identifier_item item(type, get("program"), get("program_version"), identifier);
+      add_pdbx_identifier(comp_id, imol_enc, item);
+   }
+}
+
+void
+coot::protein_geometry::add_pdbx_identifier(const std::string &comp_id, int imol_enc,
+                                            const pdbx_chem_comp_identifier_item &identifier) {
+
+   // _chem_comp (CCD) or data_comp_list (monomer library) comes first, so the
+   // dictionary entry is there by now
+   int idx = get_monomer_restraints_index(comp_id, imol_enc, true);
+   if (idx >= 0)
+      dict_res_restraints[idx].second.identifiers.push_back(identifier);
 }

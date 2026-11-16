@@ -41,6 +41,21 @@ namespace coot {
       int pdbe_ordinal;
    };
 
+   //! a row of _pdbe_chem_comp_bond_depiction. For a wedged bond, atom_name_1 is the atom
+   //! at the narrow end of the wedge (the stereocentre).
+   class depiction_bond_t {
+   public:
+      depiction_bond_t(const std::string &atom_name_1, const std::string &atom_name_2,
+                       const std::string &value_order, const std::string &bond_dir, int idx) :
+         atom_name_1(atom_name_1), atom_name_2(atom_name_2),
+         value_order(value_order), bond_dir(bond_dir), pdbe_ordinal(idx) {}
+      std::string atom_name_1;
+      std::string atom_name_2;
+      std::string value_order; // RDKit bond type name: SINGLE, DOUBLE, TRIPLE, AROMATIC
+      std::string bond_dir;    // RDKit bond direction name: NONE, BEGINWEDGE, BEGINDASH...
+      int pdbe_ordinal;
+   };
+
    class chem_comp_atom_depiction_t {
       std::string comp_id;
    public:
@@ -48,6 +63,7 @@ namespace coot {
       chem_comp_atom_depiction_t(const std::string &comp_id_in, const std::vector<depiction_atom_t> &atoms_in) :
          comp_id(comp_id_in), atoms(atoms_in) {}
       std::vector<depiction_atom_t> atoms;
+      std::vector<depiction_bond_t> bonds; // can be empty (then there is no wedge information)
       bool empty() const { return atoms.empty(); }
    };
 

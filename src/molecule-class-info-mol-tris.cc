@@ -170,7 +170,7 @@ molecule_class_info_t::add_molecular_representation(const std::string &atom_sele
       coot::m2t::simple_mesh_t tubes_mesh =
          make_tubes_representation(atom_sel.mol, atom_selection, colour_scheme, radius_for_coil, Cn_for_coil,
                                    accuracy_for_coil, n_slices_for_coil, secondary_structure_usage_flag,
-                                   helix_template_pdb_file_name);
+                                   helix_template_pdb_file_name, false, tube_helix_radius);
 
       // tubes_mesh is coot::m2t::simple_mesh_t (MoleculesToTriangles can't depend on
       // coot-utils, so it uses its own mesh_vertex_t/mesh_triangle_t) - convert to the
@@ -216,7 +216,7 @@ molecule_class_info_t::add_molecular_representation(const std::string &atom_sele
       std::vector<s_generic_vertex> vertices = meshes_together.vertices;
       std::vector<g_triangle> triangles = meshes_together.triangles;
 
-      float radius_for_helices = 2.5;
+      float radius_for_helices = tube_helix_radius;
       unsigned int n_slices_for_helices = 16;
       coot::m2t::simple_mesh_t helix_mesh =
          make_straight_cylinder_helices_mesh(atom_sel.mol, atom_selection, radius_for_helices,

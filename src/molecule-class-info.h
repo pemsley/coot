@@ -3291,6 +3291,10 @@ public:        //                      public
    float worm_tube_radius; // default 1.0
    float get_worm_tube_radius() const { return worm_tube_radius; }
    void set_worm_tube_radius(float wtr) { worm_tube_radius = wtr; }
+   // radius of the helix cylinders in the "Bendix" and "Tube (helices)" representations
+   float tube_helix_radius; // default 2.5
+   float get_tube_helix_radius() const { return tube_helix_radius; }
+   void set_tube_helix_radius(float thr) { tube_helix_radius = thr; }
 
    Material material_for_maps;
    Material material_for_models;

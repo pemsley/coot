@@ -75,7 +75,8 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
 		<< std::endl;
       residue_info_matches = false;
    }
-   if (r.residue_info.group != residue_info.group) {
+   // case-insensitive: "NON-POLYMER" (grade2) vs "non-polymer" is not a mismatch
+   if (util::upcase(r.residue_info.group) != util::upcase(residue_info.group)) {
       std::cout << "Residue-Info:: " << comp_id_s << " mismatch group "
 		<< residue_info.group << " vs " << r.residue_info.group << std::endl;
       residue_info_matches = false;

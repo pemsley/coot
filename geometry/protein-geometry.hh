@@ -89,6 +89,69 @@ namespace coot {
    public:
       std::vector<pdbx_chem_comp_descriptor_item> descriptors;
    };
+
+   //! a row of _pdbx_chem_comp_audit, e.g. action_type "Create component", date "2006-06-16",
+   //! processing_site "RCSB"
+   class pdbx_chem_comp_audit_item {
+   public:
+      std::string action_type;
+      std::string date;
+      std::string processing_site;
+      pdbx_chem_comp_audit_item(const std::string &action_type_in,
+                                const std::string &date_in,
+                                const std::string &processing_site_in) :
+         action_type(action_type_in), date(date_in), processing_site(processing_site_in) {}
+   };
+
+   //! a category of the input dictionary that is carried to the output as it is,
+   //! e.g. _pdbe_chem_comp_drugbank_targets. The values "?" and "." mean no-data.
+   class dict_pass_through_category_t {
+   public:
+      std::string name;                             // with the leading underscore
+      std::vector<std::string> tags;
+      std::vector<std::vector<std::string> > rows;  // each row has tags.size() values
+      dict_pass_through_category_t() {}
+      explicit dict_pass_through_category_t(const std::string &name_in) : name(name_in) {}
+      //! the index of the tag, -1 if not found
+      int tag_index(const std::string &tag) const {
+         for (unsigned int i=0; i<tags.size(); i++)
+            if (tags[i] == tag) return i;
+         return -1;
+      }
+      //! is this one of the categories that should be carried through?
+      static bool is_pass_through_category(const std::string &cat_name);
+      //! flatten for transport (as an RDKit molecule property)
+      static std::vector<std::string> flatten(const std::vector<dict_pass_through_category_t> &cats);
+      static std::vector<dict_pass_through_category_t> unflatten(const std::vector<std::string> &v);
+   };
+
+   //! a row of _software: the programs that made this dictionary
+   class dict_software_item {
+   public:
+      std::string name;
+      std::string version;
+      std::string description;
+      dict_software_item(const std::string &name_in,
+                         const std::string &version_in,
+                         const std::string &description_in) :
+         name(name_in), version(version_in), description(description_in) {}
+   };
+
+   //! a row of _pdbx_chem_comp_identifier, e.g. type "SYSTEMATIC NAME", program "ACDLabs",
+   //! program_version "14.52", identifier "[(3-bromo-...)methyl]phosphonic acid"
+   class pdbx_chem_comp_identifier_item {
+   public:
+      std::string type;
+      std::string program;
+      std::string program_version;
+      std::string identifier;
+      pdbx_chem_comp_identifier_item(const std::string &type_in,
+                                     const std::string &program_in,
+                                     const std::string &program_version_in,
+                                     const std::string &identifier_in) :
+         type(type_in), program(program_in), program_version(program_version_in),
+         identifier(identifier_in) { }
+   };
    
    class dict_chem_comp_t {
       void setup_internal(const std::string &comp_id_in,
@@ -111,6 +174,7 @@ namespace coot {
       std::string three_letter_code;
       std::string name;
       std::string group; // e.g. "L-peptide" (pdbx calls this "type")
+      std::string type;  // the pdbx/CCD type, e.g. "NON-POLYMER", "L-PEPTIDE LINKING"
       std::string pdbx_type; // e.g. HETAIN
       std::string formula;
       std::string mon_nstd_parent_comp_id;
@@ -133,6 +197,7 @@ namespace coot {
       int number_atoms_nh;
       std::string description_level;
       int pdb_formal_charge;
+      bool have_pdb_formal_charge; // was pdb_formal_charge set?
       dict_chem_comp_t(const std::string &comp_id_in,
                        const std::string &three_letter_code_in,
                        const std::string &name_in,
@@ -141,20 +206,16 @@ namespace coot {
                        int number_atoms_nh_in,
                        const std::string &description_level_in) :
          comp_id(""), three_letter_code(three_letter_code_in), name(name_in), group(group_in),
-         pdb_formal_charge(0) {
+         pdb_formal_charge(0), have_pdb_formal_charge(false) {
          setup_internal(comp_id_in,
                         three_letter_code_in, name_in, group_in,
                         number_atoms_all_in, number_atoms_nh_in,
                         description_level_in);
       }
-      dict_chem_comp_t() : pdb_formal_charge(0) {
+      dict_chem_comp_t() : pdb_formal_charge(0), have_pdb_formal_charge(false) {
           setup_internal("", "", "", "", 0, 0, "");
       }
-      dict_chem_comp_t(const dict_chem_comp_t &din) : pdb_formal_charge(0) {
-         setup_internal(din.comp_id, din.three_letter_code, din.name,
-                        din.group, din.number_atoms_all, din.number_atoms_nh,
-                        din.description_level);
-      }
+      // (the default copy constructor copies all the members, including formula, type etc.)
       friend std::ostream& operator<<(std::ostream &s, const dict_chem_comp_t &rest);
    };
    std::ostream& operator<<(std::ostream &s, const dict_chem_comp_t &rest);
@@ -605,6 +666,7 @@ namespace coot {
       std::pair<bool, float> partial_charge;
       std::pair<bool, int> formal_charge;
       std::pair<bool, std::string> pdbx_stereo_config;
+      std::pair<bool, std::string> pdbx_leaving_atom_flag; // "Y" or "N"
       std::pair<bool, clipper::Coord_orth> pdbx_model_Cartn_ideal;
       std::pair<bool, clipper::Coord_orth> model_Cartn;
       int ordinal_id;
@@ -750,6 +812,12 @@ namespace coot {
 
 
       void write_cif_pdbx_chem_comp_descriptor(mmdb::mmcif::Data *data) const;
+      void write_cif_pdbx_chem_comp_identifier(mmdb::mmcif::Data *data) const;
+      void write_cif_pdbe_chem_comp_atom_depiction(mmdb::mmcif::Data *data) const;
+      void write_cif_pdbe_chem_comp_bond_depiction(mmdb::mmcif::Data *data) const;
+      void write_cif_pdbx_chem_comp_audit(mmdb::mmcif::Data *data) const;
+      void write_cif_pass_through_categories(mmdb::mmcif::Data *data) const;
+      void write_cif_software(mmdb::mmcif::Data *data) const;
 
       // imol_enc can be the model molecule number or
       // -1 for all
@@ -814,6 +882,10 @@ namespace coot {
       std::vector   <dict_plane_restraint_t>   plane_restraint;
       std::vector   <dict_improper_dihedral_restraint_t>   improper_dihedral_restraint;
       pdbx_chem_comp_descriptor_container_t descriptors;
+      std::vector<pdbx_chem_comp_identifier_item> identifiers; // e.g. systematic names
+      std::vector<pdbx_chem_comp_audit_item> audits; // the history of this dictionary
+      std::vector<dict_software_item> software; // the programs that made this dictionary
+      std::vector<dict_pass_through_category_t> pass_through_categories; // e.g. the PDBe DrugBank blocks
       pdbx_chem_comp_description_generator_t description_generation;
       chem_comp_atom_depiction_t depiction;
       gphl_chem_comp_info_t gphl_chem_comp_info;
@@ -1416,8 +1488,27 @@ namespace coot {
       int  link_chiral  (mmdb::mmcif::PLoop mmCIFLoop); // return number of new chirals
       void pdbx_chem_comp_synonyms(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc);
       void pdbx_chem_comp_descriptor(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc);
+      void pdbx_chem_comp_identifier(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc);
+      void pdbx_chem_comp_identifier(mmdb::mmcif::PStruct structure, int imol_enc); // single-row form
+      void add_pdbx_identifier(const std::string &comp_id, int imol_enc,
+                               const pdbx_chem_comp_identifier_item &identifier);
 
       void pdbe_chem_comp_atom_depiction(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc);
+      void pdbe_chem_comp_bond_depiction(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc);
+      void pdbx_chem_comp_audit(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc);
+      void pdbx_chem_comp_audit(mmdb::mmcif::PStruct structure, int imol_enc); // single-row form
+      // categories that are stored as they are (see dict_pass_through_category_t)
+      void pass_through_category(const std::string &cat_name, mmdb::mmcif::PLoop mmCIFLoop, int imol_enc);
+      void pass_through_category(const std::string &cat_name, mmdb::mmcif::PStruct structure, int imol_enc);
+      void store_pass_through_category(const dict_pass_through_category_t &cat, int imol_enc);
+      //! set the pdbx extras of _chem_comp (type, formula, formula_weight, pdbx_formal_charge,
+      //! pdbx_synonyms). An empty string or "?" means "not set".
+      void set_chem_comp_pdbx_extras(const std::string &comp_id, int imol_enc,
+                                     const std::string &type,
+                                     const std::string &formula,
+                                     const std::string &formula_weight,
+                                     const std::string &pdbx_formal_charge,
+                                     const std::string &pdbx_synonyms);
 
       void pdbx_chem_comp_description_generator(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc);
 
