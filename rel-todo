@@ -1,5 +1,9 @@
 --- Items---
 
+o Look at the molecular symmetry problem from Lucrezia
+
+o use the raytracer to make images - check the debug output
+
 o fix the agentic coot checkpoint error. Needs to be tracked down.
 
 o Clement: libcootapi: sanity check of molecule at save time?
