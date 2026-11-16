@@ -17,4 +17,4 @@ void network_get_accession_code_entity(const std::string &pdb_accession_code, in
 //!
 //! @param pdb_accession_code is the PDB accession code to fetch
 //! @return the molecule index of the coordinates molecule or -1 on failure
-int fetch_pdb_redo(const std::string &code);
+int fetch_pdb_redo(const std::string &pdb_accession_code);

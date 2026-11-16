@@ -3311,20 +3311,35 @@ graphics_info_t::execute_add_terminal_residue(int imol,
    std::string res_type = res_type_in; // const
    int imol_map = Imol_Refinement_Map();
    if (imol_map == -1) {
-      // just shove it on without a map
-      if (molecules[imol].has_model()) {
-	 // float phi = graphics_info_t::terminal_residue_addition_direct_phi;
-	 // float psi = graphics_info_t::terminal_residue_addition_direct_psi;
-	 mmdb::Manager *orig_mol = graphics_info_t::molecules[imol].atom_sel.mol;
-	 //	    mmdb::Residue *res_new = add_terminal_residue_directly(terminus_type, res_p,
-	 // chain_id, res_type, phi, psi);
-	 mmdb::Residue *res_new = 0;
-	 mmdb::Manager *new_mol = coot::util::create_mmdbmanager_from_residue(res_new);
-	 if (new_mol) {
-	    atom_selection_container_t extra_residue_asc = make_asc(new_mol);
-	    graphics_info_t::molecules[imol].add_coords(extra_residue_asc);
-	 }
+
+      // 2026-11-16-PE ---- What did I want to do here?
+      //            As it standds this is the wrong thing to do.
+      //            Yes, it might be a good idea to add a residue without
+      //            needing a map, but doing do when the map is not set
+      //            (because we have 2 maps) is not the right thing to
+      //            do. It needs a different path?
+      //
+      //            So, remove this code block for now.
+      if (false) {
+         // just shove it on without a map
+         if (molecules[imol].has_model()) {
+            // float phi = graphics_info_t::terminal_residue_addition_direct_phi;
+            // float psi = graphics_info_t::terminal_residue_addition_direct_psi;
+            mmdb::Manager *orig_mol = graphics_info_t::molecules[imol].atom_sel.mol;
+            //	    mmdb::Residue *res_new = add_terminal_residue_directly(terminus_type, res_p,
+            // chain_id, res_type, phi, psi);
+            mmdb::Residue *res_new = 0;
+            mmdb::Manager *new_mol = coot::util::create_mmdbmanager_from_residue(res_new);
+            if (new_mol) {
+               std::cout << "DEBUG:: CCCCCC" << std::endl;
+               atom_selection_container_t extra_residue_asc = make_asc(new_mol);
+               graphics_info_t::molecules[imol].add_coords(extra_residue_asc);
+            }
+         }
       }
+
+      ephemeral_overlay_label("Map not set!");
+
    } else {
 
       int resno_added = -1; // was unset

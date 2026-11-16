@@ -6960,11 +6960,20 @@ molecule_class_info_t::add_coords(const atom_selection_container_t &asc) {
 int
 molecule_class_info_t::quick_save() {
 
+   int status = 0;
    if (Have_unsaved_changes_p()) {
       std::string s = stripped_save_name_suggestion();
       save_coordinates(s);
    }
-   return 0;
+   // A map that was created in this session (e.g. by masking) has no file from which
+   // it can be restored - its save state commands are blank.
+   if (has_xmap()) {
+      if (save_state_command_strings_.empty()) {
+         std::string s = save_map_name_suggestion();
+         status = save_map(s);
+      }
+   }
+   return status;
 }
 
 

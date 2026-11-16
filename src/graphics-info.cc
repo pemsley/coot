@@ -6727,7 +6727,7 @@ void graphics_info_t::ephemeral_overlay_label(const std::string &overlay_label_t
 void
 graphics_info_t::quick_save() {
 
-   std::cout << "Quick Save!" << std::endl;
+   std::cout << "INFO:: Quick Save!" << std::endl;
 
    for (int imol=0; imol<n_molecules(); imol++)
       molecules[imol].quick_save();

@@ -3,7 +3,7 @@
   <object class="GtkDialog" id="restraints_editor_dialog">
     <property name="width_request">400</property>
     <property name="height_request">460</property>
-    <property name="visible">True</property>
+    <property name="visible">False</property>
     <property name="title" translatable="yes">Coot: Restraints Editor</property>
     <property name="modal">False</property>
     <property name="resizable">True</property>

@@ -2878,6 +2878,56 @@ molecule_class_info_t::set_name(std::string name) {
 
 }
 
+// The default file name for a map that was created in this session.
+// e.g. for molecule 3: "Masked Map from /a/b/c.map" -> "Masked-Map-from-c.map-coot-3.map"
+std::string
+molecule_class_info_t::save_map_name_suggestion() const {
+
+   std::string s;
+   std::vector<std::string> parts = coot::util::split_string(name_, " ");
+   for (unsigned int i=0; i<parts.size(); i++) {
+      std::string part = coot::util::file_name_non_directory(coot::util::intelligent_debackslash(parts[i]));
+      if (part.empty()) continue;
+      if (! s.empty()) s += "-";
+      s += part;
+   }
+   if (s.empty()) s = "map";
+   s += "-coot-";
+   s += graphics_info_t::int_to_string(imol_no);
+   s += ".map";
+   return s;
+}
+
+// Write the map as a CCP4 map and make that file be the means by which this
+// map is restored from the state script. Return 0 on success.
+int
+molecule_class_info_t::save_map(const std::string &file_name) {
+
+   int ierr = 0;
+   try {
+      clipper::CCP4MAPfile mapout;
+      mapout.open_write(file_name);
+      mapout.export_xmap(xmap);
+      mapout.close_write();
+   }
+   catch (const clipper::Message_base &exc) {
+      ierr = 1;
+   }
+
+   if (ierr) {
+      std::cout << "WARNING:: Map write to " << file_name << " failed!" << std::endl;
+   } else {
+      logger.log(log_t::INFO, "saved map", file_name);
+      // c.f. read_ccp4_map()
+      save_state_command_strings_.push_back("coot");
+      save_state_command_strings_.push_back("handle-read-ccp4-map");
+      save_state_command_strings_.push_back(single_quote(coot::util::intelligent_debackslash(file_name)));
+      save_state_command_strings_.push_back(graphics_info_t::int_to_string(xmap_is_diff_map));
+      set_name(file_name);
+   }
+   return ierr;
+}
+
 
 int
 molecule_class_info_t::make_map_from_phs(std::string pdb_filename,

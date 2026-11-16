@@ -17,13 +17,14 @@ set the user-defined colours for use by add_molecular_representation_py()
 
 for the given molecule imol, pass a list of tuples of items with the first parameter being the atom spec and the second being the colour index (an int).
 
-  imol  the molecule index
+  imol  the molecule index   atom_specs_colour_index_tuple_list_py  the atom-specs colour index list, e.g. '[(\"//A\", 66)]'
 
 Parameters
 ----------
 imol : int
     the molecule index
 atom_specs_colour_index_tuple_list_py : object
+    the atom-specs colour index list, e.g. '[(\"//A\", 66)]'
 ";
 
 %feature("docstring") set_user_defined_atom_colour_scm "

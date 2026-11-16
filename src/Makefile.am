@@ -702,6 +702,8 @@ libcootsumo_la_SOURCES = \
         idles.hh                 \
 	interface.h              \
 	json-rpc.cc              \
+	command-palette.cc       \
+	command-palette.hh       \
 	key-bindings.cc	         \
 	key-bindings.hh	         \
 	manipulation-modes.hh    \

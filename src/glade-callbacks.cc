@@ -3244,13 +3244,13 @@ extern "C" G_MODULE_EXPORT
 void
 handle_map_properties_fresnel_change(int imol, GtkWidget *checkbutton) {
 
-   std::cout << "Here 0 in handle_map_properties_fresnel_change() " << checkbutton << std::endl;
+   // std::cout << "Here 0 in handle_map_properties_fresnel_change() " << checkbutton << std::endl;
    if (! graphics_info_t::is_valid_map_molecule(imol)) return;
-   std::cout << "Here A in handle_map_properties_fresnel_change() " << checkbutton << std::endl;
+   // std::cout << "Here A in handle_map_properties_fresnel_change() " << checkbutton << std::endl;
 
    molecule_class_info_t &m = graphics_info_t::molecules[imol];
    if (gtk_check_button_get_active(GTK_CHECK_BUTTON(checkbutton))) {
-      std::cout << "Here B in handle_map_properties_fresnel_change() " << checkbutton << std::endl;
+      // std::cout << "Here B in handle_map_properties_fresnel_change() " << checkbutton << std::endl;
       GtkWidget *bias_entry  = GTK_WIDGET(g_object_get_data(G_OBJECT(checkbutton),  "bias_entry"));
       GtkWidget *scale_entry  = GTK_WIDGET(g_object_get_data(G_OBJECT(checkbutton), "scale_entry"));
       GtkWidget *power_entry  = GTK_WIDGET(g_object_get_data(G_OBJECT(checkbutton), "power_entry"));
@@ -3261,7 +3261,7 @@ handle_map_properties_fresnel_change(int imol, GtkWidget *checkbutton) {
          float bias  = coot::util::string_to_float(bias_entry_text);
          float scale = coot::util::string_to_float(scale_entry_text);
          float power = coot::util::string_to_float(power_entry_text);
-         std::cout << "Here C in handle_map_properties_fresnel_change() " << bias << " " << scale << " " << power << std::endl;
+         // std::cout << "Here C in handle_map_properties_fresnel_change() " << bias << " " << scale << " " << power << std::endl;
          m.fresnel_settings.update_settings(true, bias, scale, power);
       }
       catch (const std::runtime_error &rte) {

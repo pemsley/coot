@@ -9,22 +9,27 @@
         <item>
           <attribute name="label">Open Coordinates...</attribute>
           <attribute name="action">app.open_coordinates_action</attribute>
+          <attribute name="api-function">handle_read_draw_molecule_with_recentre</attribute>
         </item>
         <item>
           <attribute name="label">Auto Open MTZ...</attribute>
           <attribute name="action">app.auto_open_mtz_action</attribute>
+          <attribute name="api-function">auto_read_make_and_draw_maps</attribute>
         </item>
         <item>
           <attribute name="label">Open MTZ, mmCIF, fcf or phs...</attribute>
           <attribute name="action">app.open_dataset_action</attribute>
+          <attribute name="api-function">make_and_draw_map_with_reso_with_refmac_params</attribute>
         </item>
         <item>
           <attribute name="label">Open Map...</attribute>
           <attribute name="action">app.open_map_action</attribute>
+          <attribute name="api-function">handle_read_ccp4_map</attribute>
         </item>
         <item>
           <attribute name="label">Import CIF dictionary...</attribute>
           <attribute name="action">app.import_cif_dictionary_action</attribute>
+          <attribute name="api-function">handle_cif_dictionary_for_molecule</attribute>
         </item>
         <submenu id="open-recent-menu">
           <attribute name="label">Open Recent</attribute>
@@ -34,30 +39,37 @@
         <item>
           <attribute name="label">Get Monomer...</attribute>
           <attribute name="action">app.get_monomer_action</attribute>
+          <attribute name="api-function">get_monomer</attribute>
         </item>
         <item>
           <attribute name="label">Search Monomer Library...</attribute>
           <attribute name="action">app.search_monomer_library_action</attribute>
+          <attribute name="api-function">monomer_lib_3_letter_codes_matching</attribute>
         </item>
         <item>
           <attribute name="label">Fetch PDB using Accession Code...</attribute>
           <attribute name="action">app.show_accession_code_fetch_frame_oca</attribute>
+          <attribute name="api-function">network_get_accession_code_entity</attribute>
         </item>
         <item>
           <attribute name="label">Fetch PDB &amp; Map using EDS...</attribute>
           <attribute name="action">app.show_accession_code_fetch_frame_eds</attribute>
+          <attribute name="api-function">network_get_accession_code_entity</attribute>
         </item>
         <item>
           <attribute name="label">Fetch PDB and Map Using PDB-REDO...</attribute>
           <attribute name="action">app.show_accession_code_fetch_frame_pdb_redo</attribute>
+          <attribute name="api-function">fetch_pdb_redo</attribute>
         </item>
         <item>
          <attribute name="label">Fetch Corresponding AlphaFold Model &amp; Superpose</attribute>
           <attribute name="action">app.fetch_and_superpose_alphafold_models_action</attribute>
+          <attribute name="api-function">fetch_and_superpose_alphafold_models</attribute>
         </item>
          <item>
          <attribute name="label">Fetch AlphaFold Model using Uniprot ID...</attribute>
           <attribute name="action">app.show_accession_code_fetch_frame_uniprot_id</attribute>
+          <attribute name="api-function">fetch_alphafold_model_for_uniprot_id</attribute>
         </item>
         <item>
           <attribute name="label">Fetch PDBe Ligand Description</attribute>
@@ -70,60 +82,72 @@
         <item>
           <attribute name="label">Fetch COD Entry...</attribute>
           <attribute name="action">app.show_accession_code_fetch_frame_cod</attribute>
+          <attribute name="api-function">fetch_cod_entry</attribute>
         </item>
         <item>
           <attribute name="label">Fetch Map from EMDB...</attribute>
           <attribute name="action">app.fetch_map_from_emdb_action</attribute>
+          <attribute name="api-function">fetch_emdb_map</attribute>
         </item>
       </section>
       <section>
         <item>
           <attribute name="label">Save Coordinates...</attribute>
           <attribute name="action">app.save_coordinates_action</attribute>
+          <attribute name="api-function">save_coordinates</attribute>
         </item>
         <item>
           <attribute name="label">Save Symmetry Coordinates...</attribute>
           <attribute name="action">app.save_symmetry_coordinates_action</attribute>
+          <attribute name="api-function">save_symmetry_coords</attribute>
         </item>
         <item>
           <attribute name="label">Save State...</attribute>
           <attribute name="action">app.save_state_action</attribute>
+          <attribute name="api-function">save_state_file</attribute>
         </item>
         <item>
           <attribute name="label">Recover Session...</attribute>
           <attribute name="action">app.recover_session_action</attribute>
+          <attribute name="api-function">recover_session</attribute>
         </item>
         <item>
           <attribute name="label">Export Map...</attribute>
           <attribute name="action">app.file_export_map_action</attribute>
+          <attribute name="api-function">export_map</attribute>
         </item>
         <item>
           <attribute name="label">Export Map Fragment...</attribute>
           <attribute name="action">app.file_export_map_fragment_action</attribute>
+          <attribute name="api-function">export_map_fragment</attribute>
         </item>
       </section>
       <section>
         <item>
           <attribute name="label">Delete Molecules and Maps...</attribute>
           <attribute name="action">app.close_molecule_action</attribute>
+          <attribute name="api-function">close_molecule</attribute>
         </item>
       </section>
       <section>
         <item>
           <attribute name="label">Curlew...</attribute>
           <attribute name="action">app.curlew_action</attribute>
+          <attribute name="api-function">curlew</attribute>
         </item>
       </section>
       <section>
         <item>
           <attribute name="label">Start RPC Server...</attribute>
           <attribute name="action">app.start_rpc_server_action</attribute>
+          <attribute name="api-function">make_socket_listener_maybe</attribute>
         </item>
       </section>
       <section>
         <item>
           <attribute name="label">Exit</attribute>
           <attribute name="action">app.exit_action</attribute>
+          <attribute name="api-function">coot_checked_exit</attribute>
         </item>
       </section>
     </submenu>
@@ -133,34 +157,42 @@
         <item>
           <attribute name="label">Add Header Link...</attribute>
           <attribute name="action">app.make_link_action</attribute>
+          <attribute name="api-function">make_link</attribute>
         </item>
         <item>
           <attribute name="label">Change Chain IDs...</attribute>
           <attribute name="action">app.change_chain_ids_action</attribute>
+          <attribute name="api-function">change_chain_id</attribute>
         </item>
         <item>
           <attribute name="label">Copy Molecule...</attribute>
           <attribute name="action">app.copy_molecule_action</attribute>
+          <attribute name="api-function">copy_molecule</attribute>
         </item>
         <item>
           <attribute name="label">Copy Fragment...</attribute>
           <attribute name="action">app.copy_molecule_fragment_action</attribute>
+          <attribute name="api-function">new_molecule_by_atom_selection</attribute>
         </item>
         <item>
           <attribute name="label">Exchange Chain-IDs for Seg-IDs</attribute>
           <attribute name="action">app.exchange_chain_ids_for_seg_ids_action</attribute>
+          <attribute name="api-function">exchange_chain_ids_for_seg_ids</attribute>
         </item>
         <item>
           <attribute name="label">Fix Nomenclature Errors...</attribute>
           <attribute name="action">app.fix_nomenclature_errors_action</attribute>
+          <attribute name="api-function">fix_nomenclature_errors</attribute>
         </item>
         <item>
           <attribute name="label">Invert this Chiral Centre</attribute>
           <attribute name="action">app.invert_this_chiral_centre_action</attribute>
+          <attribute name="api-function">invert_chiral_centre</attribute>
         </item>
         <item>
           <attribute name="label">Merge Molecules...</attribute>
           <attribute name="action">app.merge_molecules_action</attribute>
+          <attribute name="api-function">merge_molecules_py</attribute>
         </item>
         <item>
           <attribute name="label">Merge Water Chains...</attribute>
@@ -173,44 +205,54 @@
         <item>
           <attribute name="label">Mutate Residue Range...</attribute>
           <attribute name="action">app.mutate_molecule_action</attribute>
+          <attribute name="api-function">mutate_residue_range</attribute>
         </item>
         <item>
           <attribute name="label">Replace Fragment...</attribute>
           <attribute name="action">app.edit_replace_fragment_action</attribute>
+          <attribute name="api-function">replace_fragment</attribute>
         </item>
         <item>
           <attribute name="label">Replace Residue...</attribute>
           <attribute name="action">app.edit_replace_residue_action</attribute>
+          <attribute name="api-function">mutate_by_overlap</attribute>
         </item>
         <item>
           <attribute name="label">Renumber Residues...</attribute>
           <attribute name="action">app.renumber_residues_action</attribute>
+          <attribute name="api-function">renumber_residue_range</attribute>
         </item>
         <item>
           <attribute name="label">Renumber Waters</attribute>
           <attribute name="action">app.renumber_waters_action</attribute>
+          <attribute name="api-function">renumber_waters</attribute>
         </item>
         <item>
           <attribute name="label">Residue Info</attribute>
           <attribute name="action">app.residue_info_action</attribute>
+          <attribute name="api-function">residue_info_dialog</attribute>
         </item>
         <item>
           <attribute name="label">Restraints...</attribute>
           <attribute name="action">app.edit_restraints_action</attribute>
+          <attribute name="api-function">show_restraints_editor</attribute>
         </item>
         <item>
           <attribute name="label" translatable="no">Sort Chains...</attribute>
           <attribute name="action">app.edit_sort_chains_action</attribute>
+          <attribute name="api-function">sort_chains</attribute>
         </item>
         <item>
           <attribute name="label">Undo Molecule Chooser...</attribute>
           <attribute name="action">app.undo_molecule_chooser_action</attribute>
+          <attribute name="api-function">set_undo_molecule</attribute>
         </item>
       </section>
       <section>
         <item>
           <attribute name="label">Preferences...</attribute>
           <attribute name="action">app.show_preferences_action</attribute>
+          <attribute name="api-function">show_preferences</attribute>
         </item>
         <submenu>
           <attribute name="label">Settings...</attribute>
@@ -253,16 +295,19 @@
         <item>
           <attribute name="label">Align and Mutate...</attribute>
           <attribute name="action">app.align_and_mutate_action</attribute>
+          <attribute name="api-function">align_and_mutate</attribute>
         </item>
         <submenu>
           <attribute name="label">Assign Sequence...</attribute>
           <item>
             <attribute name="label">1: Associate Sequence File...</attribute>
             <attribute name="action">app.associate_sequence_file_action</attribute>
+            <attribute name="api-function">associate_sequence_from_file</attribute>
           </item>
           <item>
             <attribute name="label">2: Assign Sequence</attribute>
             <attribute name="action">app.assign_sequence_action</attribute>
+            <attribute name="api-function">assign_sequence_to_active_fragment</attribute>
           </item>
         </submenu>
         <submenu>
@@ -270,19 +315,23 @@
           <item>
             <attribute name="label">Fit Loop by Database Search...</attribute>
             <attribute name="action">app.fit_loop_by_database_search</attribute>
+            <attribute name="api-function">protein_db_loops_py</attribute>
           </item>
           <item>
             <attribute name="label">Fit Loop by Ramachandran Search...</attribute>
             <attribute name="action">app.fit_loop_by_ramachandran_search</attribute>
+            <attribute name="api-function">gap.fit_gap</attribute>
           </item>
         </submenu>
         <item>
           <attribute name="label">Hydrogen Bonds</attribute>
           <attribute name="action">app.calculate_hydrogen_bonds_action</attribute>
+          <attribute name="api-function">calculate_hydrogen_bonds</attribute>
         </item>
         <item>
           <attribute name="label">Load Tutorial Model &amp; Data</attribute>
           <attribute name="action">app.load_tutorial_model_and_data_action</attribute>
+          <attribute name="api-function">load_tutorial_model_and_data</attribute>
         </item>
         <item>
           <attribute name="label">Ligand → 2D</attribute>
@@ -291,10 +340,12 @@
         <item>
           <attribute name="label">Ligand Builder...</attribute>
           <attribute name="action">app.ligand_builder_action</attribute>
+          <attribute name="api-function">start_ligand_builder_gui</attribute>
         </item>
         <item>
           <attribute name="label">LSQ Superpose...</attribute>
           <attribute name="action">app.lsq_superpose_action</attribute>
+          <attribute name="api-function">apply_lsq_matches_simple</attribute>
         </item>
 
         <submenu>
@@ -303,26 +354,32 @@
             <item>
               <attribute name="label">Mask Map by Atom Selection...</attribute>
               <attribute name="action">app.mask_map_by_atom_selection_action</attribute>
+              <attribute name="api-function">mask_map_by_atom_selection</attribute>
             </item>
             <item>
               <attribute name="label">Copy Map...</attribute>
               <attribute name="action">app.copy_map_action</attribute>
+              <attribute name="api-function">copy_molecule</attribute>
             </item>
             <item>
               <attribute name="label">Make a Smoother Copy...</attribute>
               <attribute name="action">app.make_a_smoother_copy_of_a_map_action</attribute>
+              <attribute name="api-function">smooth_map</attribute>
             </item>
             <item>
               <attribute name="label">Make a Difference Map...</attribute>
               <attribute name="action">app.make_a_difference_map_action</attribute>
+              <attribute name="api-function">difference_map</attribute>
             </item>
             <item>
               <attribute name="label">Transform Map by LSQ Model Fit...</attribute>
               <attribute name="action">app.transform_map_by_lsq_model_fit_action</attribute>
+              <attribute name="api-function">transform_map_raw</attribute>
             </item>
             <item>
               <attribute name="label">Average Maps...</attribute>
               <attribute name="action">app.average_maps_action</attribute>
+              <attribute name="api-function">average_map_py</attribute>
             </item>
             <!-- Placeholder
             <item>
@@ -332,18 +389,22 @@
             <item>
               <attribute name="label">Brighten Maps</attribute>
               <attribute name="action">app.brighten_maps_action</attribute>
+              <attribute name="api-function">brighten_maps</attribute>
             </item>
             <item>
               <attribute name="label">Set Map is Difference Map...</attribute>
               <attribute name="action">app.set_map_is_difference_map_action</attribute>
+              <attribute name="api-function">set_map_is_difference_map</attribute>
             </item>
             <item>
               <attribute name="label">Another Contour Level</attribute>
               <attribute name="action">app.another_contour_level_action</attribute>
+              <attribute name="api-function">another_level</attribute>
             </item>
             <item>
               <attribute name="label">Multi-Chicken</attribute>
               <attribute name="action">app.multichicken_action</attribute>
+              <attribute name="api-function">coot_utils.multi_chicken</attribute>
             </item>
           </section>
         </submenu>
@@ -351,6 +412,7 @@
         <item>
           <attribute name="label">x-ray Map Sharpening/Blurring...</attribute>
           <attribute name="action">app.sharpen_blur_for_xray_action</attribute>
+          <attribute name="api-function">sharpen</attribute>
         </item>
 
         <!-- remove skeleton for now -->
@@ -361,6 +423,7 @@
         <item>
           <attribute name="label">Run Script...</attribute>
           <attribute name="action">app.run_script_action</attribute>
+          <attribute name="api-function">run_script</attribute>
         </item>
 
         <submenu>
@@ -377,14 +440,17 @@
         <item>
           <attribute name="label">SSM Superpose...</attribute>
           <attribute name="action">app.ssm_superposition_action</attribute>
+          <attribute name="api-function">superpose_with_chain_selection</attribute>
         </item>
         <item>
           <attribute name="label">Superpose Ligands...</attribute>
           <attribute name="action">app.superpose_ligands_action</attribute>
+          <attribute name="api-function">coot_utils.overlay_my_ligands</attribute>
         </item>
         <item>
           <attribute name="label">Updating Maps...</attribute>
           <attribute name="action">app.calculate_updating_maps_action</attribute>
+          <attribute name="api-function">set_auto_updating_sfcalc_genmap</attribute>
         </item>
         <item>
           <attribute name="label">Use ClustalW for Alignment then Mutate</attribute>
@@ -399,14 +465,17 @@
         <item>
           <attribute name="label">Add An Atom</attribute>
           <attribute name="action">app.add_an_atom_action</attribute>
+          <attribute name="api-function">add_an_atom</attribute>
         </item>
         <item>
           <attribute name="label">Add Hydrogen Atoms</attribute>
           <attribute name="action">app.add_hydrogen_atoms_action</attribute>
+          <attribute name="api-function">coot_add_hydrogen_atoms</attribute>
         </item>
         <item>
           <attribute name="label">Add Hydrogen Atoms Using REFMAC</attribute>
           <attribute name="action">app.add_hydrogen_atoms_using_refmac_action</attribute>
+          <attribute name="api-function">coot_utils.add_hydrogens_using_refmac</attribute>
         </item>
         <item>
           <attribute name="label">Add Other Solvent Molecules...</attribute>
@@ -415,42 +484,52 @@
         <item>
           <attribute name="label">Add OXT to residue...</attribute>
           <attribute name="action">app.add_OXT_to_residue_action</attribute>
+          <attribute name="api-function">add_OXT_to_residue</attribute>
         </item>
         <item>
           <attribute name="label">Add PTM to residue...</attribute>
           <attribute name="action">app.add_PTM_to_residue_action</attribute>
+          <attribute name="api-function">mutate_by_overlap</attribute>
         </item>
         <item>
           <attribute name="label">Arrange Waters Around Protein</attribute>
           <attribute name="action">app.arrange_waters_around_protein_action</attribute>
+          <attribute name="api-function">move_waters_to_around_protein</attribute>
         </item>
         <item>
           <attribute name="label">Assign (Force) HETATMs for this Residue</attribute>
           <attribute name="action">app.assign_hetatms_for_this_residue_action</attribute>
+          <attribute name="api-function">hetify_residue</attribute>
         </item>
         <item>
           <attribute name="label">Assign HETATMs to Molecule...</attribute>
           <attribute name="action">app.assign_hetatoms_to_molecule_action</attribute>
+          <attribute name="api-function">assign_hetatms</attribute>
         </item>
         <item>
           <attribute name="label">Backrub Rotamers for Chain</attribute>
           <attribute name="action">app.backrub_rotamers_for_chain_action</attribute>
+          <attribute name="api-function">coot_fitting.backrub_rotamers_for_chain</attribute>
         </item>
         <item>
           <attribute name="label">cis ↔ trans</attribute>
           <attribute name="action">app.cis_trans_convert_action</attribute>
+          <attribute name="api-function">cis_trans_convert</attribute>
         </item>
         <item>
           <attribute name="label">DNA/RNA Models...</attribute>
           <attribute name="action">app.dna_rna_models_action</attribute>
+          <attribute name="api-function">ideal_nucleic_acid</attribute>
         </item>
         <item>
           <attribute name="label">Find Ligands...</attribute>
           <attribute name="action">app.find_ligands_action</attribute>
+          <attribute name="api-function">execute_ligand_search</attribute>
         </item>
         <item>
           <attribute name="label">Find Waters...</attribute>
           <attribute name="action">app.find_waters_action</attribute>
+          <attribute name="api-function">execute_find_waters_real</attribute>
         </item>
         <submenu>
           <attribute name="label">Find Secondary Structure in Map...</attribute>
@@ -466,6 +545,7 @@
         <item>
           <attribute name="label">Fill Partial Residues</attribute>
           <attribute name="action">app.fill_partial_residues_action</attribute>
+          <attribute name="api-function">fill_partial_residues</attribute>
         </item>
 
         <submenu>
@@ -473,14 +553,17 @@
           <item>
             <attribute name="label">Copy NCS Residue Range...</attribute>
             <attribute name="action">app.copy_ncs_residue_range_action</attribute>
+            <attribute name="api-function">copy_residue_range_from_ncs_master_to_others</attribute>
           </item>
           <item>
             <attribute name="label">Copy NCS Chain...</attribute>
             <attribute name="action">app.copy_ncs_chain_action</attribute>
+            <attribute name="api-function">copy_from_ncs_master_to_others</attribute>
           </item>
           <item>
             <attribute name="label">Find NCS Ligands...</attribute>
             <attribute name="action">app.ncs_ligands_action</attribute>
+            <attribute name="api-function">ncs_ligand</attribute>
           </item>
           <!-- <item> -->
           <!--   <attribute name="label">Copy NCS Ghosts by Residue Range...</attribute> -->
@@ -500,18 +583,22 @@
         <item>
           <attribute name="label">N-linked Glycan WTA...</attribute>
           <attribute name="action">app.glyco_wta_action</attribute>
+          <attribute name="api-function">add_named_glyco_tree</attribute>
         </item>
         <item>
           <attribute name="label">N-linked Glycan LMA...</attribute>
           <attribute name="action">app.glyco_lma_action</attribute>
+          <attribute name="api-function">add_linked_residue</attribute>
         </item>
         <item>
           <attribute name="label">Phosphorylate This Residue</attribute>
           <attribute name="action">app.phosphorylate_this_residue_action</attribute>
+          <attribute name="api-function">mutate_by_overlap</attribute>
         </item>
         <item>
           <attribute name="label">Place Helix Here</attribute>
           <attribute name="action">app.place_helix_here_action</attribute>
+          <attribute name="api-function">place_helix_here</attribute>
         </item>
         <item>
           <attribute name="label">Rebuild Fragment using DBLoop (Small)</attribute>
@@ -524,30 +611,37 @@
         <item>
           <attribute name="label">Replace Residue...</attribute>
           <attribute name="action">app.replace_residue_action</attribute>
+          <attribute name="api-function">mutate_by_overlap</attribute>
         </item>
         <item>
           <attribute name="label">Reverse Chain Direction</attribute>
           <attribute name="action">app.reverse_chain_direction_action</attribute>
+          <attribute name="api-function">reverse_direction_of_fragment</attribute>
         </item>
         <item>
           <attribute name="label">Rigid-Body Fit Residue Ranges</attribute>
           <attribute name="action">app.rigid_body_fit_residue_ranges_action</attribute>
+          <attribute name="api-function">rigid_body_refine_by_residue_ranges_py</attribute>
         </item>
         <item>
           <attribute name="label">Rigid-Body Fit Molecule</attribute>
           <attribute name="action">app.rigid_body_fit_molecule_action</attribute>
+          <attribute name="api-function">rigid_body_refine_by_atom_selection</attribute>
         </item>
         <item>
           <attribute name="label">Superpose Ligand</attribute>
           <attribute name="action">app.superpose_ligands_action</attribute>
+          <attribute name="api-function">coot_utils.overlay_my_ligands</attribute>
         </item>
         <item>
           <attribute name="label">Split Water</attribute>
           <attribute name="action">app.split_water_action</attribute>
+          <attribute name="api-function">split_water</attribute>
         </item>
         <item>
           <attribute name="label">Symm Shift Reference Chain Here</attribute>
           <attribute name="action">app.symm_shift_reference_chain_here_action</attribute>
+          <attribute name="api-function">move_reference_chain_to_symm_chain_position</attribute>
         </item>
         <item>
           <attribute name="label">What's This?</attribute>
@@ -575,44 +669,54 @@
             <item>
               <attribute name="label">Black</attribute>
               <attribute name="action">app.background_black_action</attribute>
+              <attribute name="api-function">set_background_colour</attribute>
             </item>
             <item>
               <attribute name="label">Nearly Black</attribute>
               <attribute name="action">app.background_nearly_black_action</attribute>
+              <attribute name="api-function">set_background_colour</attribute>
             </item>
             <item>
               <attribute name="label">Dark Grey</attribute>
               <attribute name="action">app.background_dark_grey_action</attribute>
+              <attribute name="api-function">set_background_colour</attribute>
             </item>
             <item>
               <attribute name="label">Semi-Dark Grey</attribute>
               <attribute name="action">app.background_semi_dark_grey_action</attribute>
+              <attribute name="api-function">set_background_colour</attribute>
             </item>
             <item>
               <attribute name="label">Light Grey</attribute>
               <attribute name="action">app.background_light_grey_action</attribute>
+              <attribute name="api-function">set_background_colour</attribute>
             </item>
             <item>
               <attribute name="label">White</attribute>
               <attribute name="action">app.background_white_action</attribute>
+              <attribute name="api-function">set_background_colour</attribute>
             </item>
           </submenu>
 
           <item>
             <attribute name="label">Display Only Active</attribute>
             <attribute name="action">app.display_only_active_action</attribute>
+            <attribute name="api-function">display_only_active</attribute>
           </item>
           <item>
             <attribute name="label">Frames/Sec...</attribute>
             <attribute name="action">app.toggle_display_frames_per_second_action</attribute>
+            <attribute name="api-function">set_show_fps</attribute>
           </item>
           <item>
             <attribute name="label">Fullscreen</attribute>
             <attribute name="action">app.fullscreen_action</attribute>
+            <attribute name="api-function">fullscreen</attribute>
           </item>
           <item>
             <attribute name="label">Generic Display Objects...</attribute>
             <attribute name="action">app.generic_objects_action</attribute>
+            <attribute name="api-function">generic_objects_gui_wrapper</attribute>
           </item>
           <section>
             <submenu>
@@ -620,16 +724,19 @@
               <item>
                 <attribute name="label">Orthographic</attribute>
                 <attribute name="action">app.orthographic_view_action</attribute>
+                <attribute name="api-function">set_use_perspective_projection</attribute>
               </item>
               <item>
                 <attribute name="label">Perspective</attribute>
                 <attribute name="action">app.perspective_view_action</attribute>
+                <attribute name="api-function">set_use_perspective_projection</attribute>
               </item>
             </submenu>
           </section>
           <item>
             <attribute name="label">Screenshot</attribute>
             <attribute name="action">app.screenshot_action</attribute>
+            <attribute name="api-function">screendump_tga</attribute>
           </item>
           <section>
             <submenu>
@@ -637,40 +744,49 @@
               <item>
                 <attribute name="label">Mono</attribute>
                 <attribute name="action">app.side_by_side_stereo_mono_action</attribute>
+                <attribute name="api-function">mono_mode</attribute>
               </item>
               <item>
                 <attribute name="label">Cross-Eyed</attribute>
                 <attribute name="action">app.side_by_side_stereo_cross_eyed_action</attribute>
+                <attribute name="api-function">side_by_side_stereo_mode</attribute>
               </item>
               <item>
                 <attribute name="label">Wall-Eyed</attribute>
                 <attribute name="action">app.side_by_side_stereo_wall_eyed_action</attribute>
+                <attribute name="api-function">side_by_side_stereo_mode</attribute>
               </item>
             </submenu>
           </section>
           <item>
             <attribute name="label">Spin View</attribute>
             <attribute name="action">app.spin_view_action</attribute>
+            <attribute name="api-function">toggle_idle_spin_function</attribute>
           </item>
           <item>
             <attribute name="label">Rock View</attribute>
             <attribute name="action">app.rock_view_action</attribute>
+            <attribute name="api-function">toggle_idle_rock_function</attribute>
           </item>
           <item>
             <attribute name="label">Undo Last Navigation</attribute>
             <attribute name="action">app.undo_last_navigation_action</attribute>
+            <attribute name="api-function">undo_last_move</attribute>
           </item>
           <item>
             <attribute name="label">Undo Symmetry View</attribute>
             <attribute name="action">app.undo_symmetry_view_action</attribute>
+            <attribute name="api-function">undo_symmetry_view</attribute>
           </item>
           <item>
             <attribute name="label">Scale Up Graphics</attribute>
             <attribute name="action">app.scale_up_graphics_action</attribute>
+            <attribute name="api-function">scale_up_graphics</attribute>
           </item>
           <item>
             <attribute name="label">Scale Down Graphics</attribute>
             <attribute name="action">app.scale_down_graphics_action</attribute>
+            <attribute name="api-function">scale_down_graphics</attribute>
           </item>
         </section>
       </submenu>
@@ -690,45 +806,55 @@
           <item>
             <attribute name="label">Gaussian Surface...</attribute>
             <attribute name="action">app.gaussian_surface_action</attribute>
+            <attribute name="api-function">gaussian_surface</attribute>
           </item>
           <item>
             <attribute name="label">Molecular Surface</attribute>
             <attribute name="action">app.molecular_surface_action</attribute>
+            <attribute name="api-function">make_molecular_surface</attribute>
           </item>
               <item>
             <attribute name="label">Worms</attribute>
             <attribute name="action">app.worms_action</attribute>
+            <attribute name="api-function">add_molecular_representation_py</attribute>
           </item>
           <item>
             <attribute name="label">Bendix (helices)</attribute>
             <attribute name="action">app.bendix_action</attribute>
+            <attribute name="api-function">add_molecular_representation_py</attribute>
           </item>
           <item>
             <attribute name="label">Tube (helices)</attribute>
             <attribute name="action">app.tube_helices_action</attribute>
+            <attribute name="api-function">add_molecular_representation_py</attribute>
           </item>
           <item>
             <attribute name="label">Map Caps</attribute>
             <attribute name="action">app.map_caps_action</attribute>
+            <attribute name="api-function">add_density_map_cap</attribute>
           </item>
           <item>
             <!-- this needs an atom selection overlay -->
             <attribute name="label">Electrostatic Surface</attribute>
             <attribute name="action">app.electrostatic_surface_action</attribute>
+            <attribute name="api-function">make_electrostatic_surface</attribute>
           </item>
           <submenu>
             <attribute name="label">Ribbons...</attribute>
             <item>
               <attribute name="label">By Chain</attribute>
               <attribute name="action">app.ribbons_colour_by_chain_action</attribute>
+              <attribute name="api-function">add_molecular_representation_py</attribute>
             </item>
             <item>
               <attribute name="label">Rainbow</attribute>
               <attribute name="action">app.ribbons_colour_rainbow_action</attribute>
+              <attribute name="api-function">add_molecular_representation_py</attribute>
             </item>
             <item>
               <attribute name="label">Sec. Struct.</attribute>
               <attribute name="action">app.ribbons_colour_by_secondary_structure_action</attribute>
+              <attribute name="api-function">add_molecular_representation_py</attribute>
             </item>
           </submenu>
 
@@ -749,6 +875,7 @@
           <item>
             <attribute name="label">Go To Atom...</attribute>
             <attribute name="action">app.go_to_atom_action</attribute>
+            <attribute name="api-function">set_go_to_atom_chain_residue_atom_name</attribute>
           </item>
           <item>
             <attribute name="label">Map Parameters...</attribute>
@@ -764,18 +891,22 @@
           <item>
             <attribute name="label">Label Atoms in Residue</attribute>
             <attribute name="action">app.label_atoms_in_residue_action</attribute>
+            <attribute name="api-function">label_atoms_in_residue</attribute>
           </item>
           <item>
             <attribute name="label">Label CAs</attribute>
             <attribute name="action">app.label_CA_atoms_action</attribute>
+            <attribute name="api-function">coot_utils.label_all_CAs</attribute>
           </item>
           <item>
             <attribute name="label">Label Neighbours</attribute>
             <attribute name="action">app.label_neighbours_action</attribute>
+            <attribute name="api-function">label_neighbours</attribute>
           </item>
           <item>
             <attribute name="label">Clear Atom Labels</attribute>
             <attribute name="action">app.clear_atom_labels_action</attribute>
+            <attribute name="api-function">remove_all_atom_labels</attribute>
           </item>
         </section>
 
@@ -783,10 +914,12 @@
           <item>
             <attribute name="label">Residue Type Selection</attribute>
             <attribute name="action">app.residue_type_selection_action</attribute>
+            <attribute name="api-function">new_molecule_by_atom_selection</attribute>
           </item>
           <item>
             <attribute name="label">Residues With Alt Confs...</attribute>
             <attribute name="action">app.residues_with_alt_confs_action</attribute>
+            <attribute name="api-function">coot_utils.residues_with_alt_confs</attribute>
           </item>
         </section>
         <section>
@@ -824,6 +957,7 @@
           <item>
             <attribute name="label">Sequence View</attribute>
             <attribute name="action">app.sequence_view_action</attribute>
+            <attribute name="api-function">sequence_view</attribute>
           </item>
           <!-- reactivate this one day hopefully -->
           <!-- <item> -->
@@ -861,10 +995,12 @@
         <item>
           <attribute name="label">Environment Distances...</attribute>
           <attribute name="action">app.environment_distances_action</attribute>
+          <attribute name="api-function">set_show_environment_distances</attribute>
         </item>
         <item>
           <attribute name="label">Residue Info...</attribute>
           <attribute name="action">app.residue_info_action</attribute>
+          <attribute name="api-function">residue_info_dialog</attribute>
         </item>
         <!-- reactivate this one day -->
         <!-- <item> -->
@@ -874,14 +1010,17 @@
         <item>
           <attribute name="label">Pointer Distances...</attribute>
           <attribute name="action">app.pointer_distances_action</attribute>
+          <attribute name="api-function">set_show_pointer_distances</attribute>
         </item>
         <item>
           <attribute name="label">HOLE...</attribute>
           <attribute name="action">app.HOLE_action</attribute>
+          <attribute name="api-function">hole</attribute>
         </item>
         <item>
           <attribute name="label">Local B-factors</attribute>
           <attribute name="action">app.local_b_factors_action</attribute>
+          <attribute name="api-function">set_show_local_b_factors</attribute>
         </item>
       </section>
     </submenu>
@@ -904,30 +1043,37 @@
         <item>
           <attribute name="label">Atoms with Zero Occupancies...</attribute>
           <attribute name="action">app.atoms_with_zero_occupancies_action</attribute>
+          <attribute name="api-function">coot_utils.atoms_with_zero_occ</attribute>
         </item>
         <item>
           <attribute name="label">Atom Overlaps</attribute>
           <attribute name="action">app.atoms_overlaps_action</attribute>
+          <attribute name="api-function">coot_all_atom_contact_dots</attribute>
         </item>
         <item>
           <attribute name="label">Atom Overlaps Table</attribute>
           <attribute name="action">app.atom_overlaps_table_action</attribute>
+          <attribute name="api-function">molecule_atom_overlaps_py</attribute>
         </item>
         <item>
           <attribute name="label">Atom-Atom Contact Dots (Molprobity)</attribute>
           <attribute name="action">app.all_atom_contact_dots_molprobity_action</attribute>
+          <attribute name="api-function">generic_objects.probe</attribute>
         </item>
         <item>
           <attribute name="label">Check/Delete Waters...</attribute>
           <attribute name="action">app.check_delete_waters_action</attribute>
+          <attribute name="api-function">check_waters_baddies</attribute>
         </item>
         <item>
           <attribute name="label">Difference Map Peaks...</attribute>
           <attribute name="action">app.difference_map_peaks_action</attribute>
+          <attribute name="api-function">difference_map_peaks</attribute>
         </item>
         <item>
           <attribute name="label">Highly Coordinated Waters</attribute>
           <attribute name="action">app.highly_coordinates_waters_action</attribute>
+          <attribute name="api-function">highly_coordinated_waters_py</attribute>
         </item>
         <!-- restore this one day -->
         <!-- <item> -->
@@ -941,6 +1087,7 @@
         <item>
           <attribute name="label">Pepflips from Difference Map...</attribute>
           <attribute name="action">app.pepflips_from_difference_map_action</attribute>
+          <attribute name="api-function">pepflip_using_difference_map_py</attribute>
         </item>
         <item>
           <attribute name="label">Refmac Log Validation</attribute>
@@ -949,14 +1096,17 @@
         <item>
             <attribute name="label">Residues With cis-Peptides...</attribute>
             <attribute name="action">app.residues_with_cis_peptides_action</attribute>
+            <attribute name="api-function">cis_peptides_py</attribute>
         </item>
         <item>
             <attribute name="label">Residues With Missing Atoms...</attribute>
             <attribute name="action">app.residues_with_missing_atoms_action</attribute>
+            <attribute name="api-function">missing_atom_info_py</attribute>
         </item>
         <item>
           <attribute name="label">Unmodelled blobs...</attribute>
           <attribute name="action">app.unmodelled_blobs_action</attribute>
+          <attribute name="api-function">find_blobs_py</attribute>
         </item>
         <item>
           <attribute name="label">Validation Outliers</attribute>
@@ -972,12 +1122,17 @@
           <attribute name="action">app.about_coot_action</attribute>
         </item>
         <item>
+          <attribute name="label">Search Menus...</attribute>
+          <attribute name="action">app.command_palette_action</attribute>
+        </item>
+        <item>
           <attribute name="label">Shortcuts...</attribute>
           <attribute name="action">app.coot_shortcuts_action</attribute>
         </item>
         <item>
           <attribute name="label">Header/Remarks Browser...</attribute>
           <attribute name="action">app.remarks_browser_action</attribute>
+          <attribute name="api-function">show_remarks_browswer</attribute>
         </item>
       </section>
     </submenu>
@@ -988,68 +1143,84 @@
       <item>
         <attribute name="label" translatable="yes">RSR Sphere</attribute>
         <attribute name="action">app.refine_sphere</attribute>
+        <attribute name="api-function">rsr_sphere_refine</attribute>
       </item>
       <item>
         <attribute name="label" translatable="yes">RSR Big Sphere</attribute>
         <attribute name="action">app.refine_sphere_big</attribute>
+        <attribute name="api-function">rsr_sphere_refine_plus</attribute>
       </item>
       <item>
         <attribute name="label" translatable="yes">RSR Tandem ± 3</attribute>
         <attribute name="action">app.refine_tandem_3</attribute>
+        <attribute name="api-function">rsr_refine_tandem_3</attribute>
       </item>
       <item>
         <attribute name="label" translatable="yes">RSR Tandem ± 5</attribute>
         <attribute name="action">app.refine_tandem_5</attribute>
+        <attribute name="api-function">rsr_refine_tandem_5</attribute>
       </item>
       <item>
         <attribute name="label" translatable="yes">RSR Single Residue</attribute>
         <attribute name="action">app.refine_single_residue</attribute>
+        <attribute name="api-function">rsr_refine_residue</attribute>
       </item>
       <item>
         <attribute name="label" translatable="yes">RSR Chain</attribute>
         <attribute name="action">app.refine_chain</attribute>
+        <attribute name="api-function">rsr_refine_chain</attribute>
       </item>
       <item>
         <attribute name="label" translatable="yes">RSR All Atoms</attribute>
         <attribute name="action">app.refine_all_atoms</attribute>
+        <attribute name="api-function">rsr_refine_all_atoms</attribute>
       </item>
       <item>
         <attribute name="label" translatable="yes">RSR Range Refine</attribute>
         <attribute name="action">app.refine_range</attribute>
+        <attribute name="api-function">refine_zone</attribute>
       </item>
       <item>
         <attribute name="label" translatable="yes">RSR Repeat Range Refine</attribute>
         <attribute name="action">app.repeat_refine_range</attribute>
+        <attribute name="api-function">refine_zone</attribute>
       </item>
       <item>
         <attribute name="label" translatable="yes">RSR Fragment</attribute>
         <attribute name="action">app.refine_fragment</attribute>
+        <attribute name="api-function">rsr_refine_fragment_active_residue</attribute>
       </item>
     </section>
     <section>
       <item>
         <attribute name="label" translatable="yes">Regularize Sphere</attribute>
         <attribute name="action">app.refine_regularize_sphere</attribute>
+        <attribute name="api-function">regularize_sphere</attribute>
       </item>
       <item>
         <attribute name="label" translatable="yes">Regularize Tandem ± 3</attribute>
         <attribute name="action">app.refine_regularize_tandem_3</attribute>
+        <attribute name="api-function">regularize_tandem_3</attribute>
       </item>
       <item>
         <attribute name="label" translatable="yes">Regularize Single Residue</attribute>
         <attribute name="action">app.refine_regularize_single_residue</attribute>
+        <attribute name="api-function">regularize_residue</attribute>
       </item>
       <item>
         <attribute name="label" translatable="yes">Regularize Range</attribute>
         <attribute name="action">app.refine_regularize_range</attribute>
+        <attribute name="api-function">regularize_zone</attribute>
       </item>
       <item>
         <attribute name="label" translatable="yes">Regularize Fragment</attribute>
         <attribute name="action">app.refine_regularize_fragment</attribute>
+        <attribute name="api-function">regularize_fragment_active_atom</attribute>
       </item>
       <item>
         <attribute name="label" translatable="yes">Regularize Chain</attribute>
         <attribute name="action">app.refine_regularize_chain</attribute>
+        <attribute name="api-function">regularize_chain</attribute>
       </item>
     </section>
   </menu>
@@ -1109,22 +1280,27 @@
       <item>
         <attribute name="label" translatable="yes">Residue</attribute>
         <attribute name="action">app.rigid_body_fit_residue_action</attribute>
+        <attribute name="api-function">rigid_body_refine_by_atom_selection</attribute>
       </item>
       <item>
         <attribute name="label" translatable="yes">Residue Range</attribute>
         <attribute name="action">app.rigid_body_fit_residue_range_action</attribute>
+        <attribute name="api-function">rigid_body_refine_by_atom_selection</attribute>
       </item>
       <item>
         <attribute name="label" translatable="yes">Fragment</attribute>
         <attribute name="action">app.rigid_body_fit_fragment_action</attribute>
+        <attribute name="api-function">rigid_body_refine_by_atom_selection</attribute>
       </item>
       <item>
         <attribute name="label" translatable="yes">Chain</attribute>
         <attribute name="action">app.rigid_body_fit_chain_action</attribute>
+        <attribute name="api-function">rigid_body_refine_by_atom_selection</attribute>
       </item>
       <item>
         <attribute name="label" translatable="yes">Molecule</attribute>
         <attribute name="action">app.rigid_body_fit_molecule_action</attribute>
+        <attribute name="api-function">rigid_body_refine_by_atom_selection</attribute>
       </item>
     </section>
   </menu>
@@ -1134,14 +1310,17 @@
       <item>
         <attribute name="label" translatable="yes">Fix Atom</attribute>
         <attribute name="action">app.fix_atom</attribute>
+        <attribute name="api-function">mark_atom_as_fixed_py</attribute>
       </item>
       <item>
         <attribute name="label" translatable="yes">Unfix Atom</attribute>
         <attribute name="action">app.unfix_atom</attribute>
+        <attribute name="api-function">mark_atom_as_fixed_py</attribute>
       </item>
       <item>
         <attribute name="label" translatable="yes">Unfix All Atoms</attribute>
         <attribute name="action">app.unfix_all_atoms</attribute>
+        <attribute name="api-function">clear_all_fixed_atoms</attribute>
       </item>
     </section>
   </menu>
@@ -1197,46 +1376,57 @@
       <item>
         <attribute name="label" translatable="yes">Atom</attribute>
         <attribute name="action">app.delete_item_atom</attribute>
+        <attribute name="api-function">delete_atom</attribute>
       </item>
       <item>
         <attribute name="label" translatable="yes">Water</attribute>
         <attribute name="action">app.delete_item_water</attribute>
+        <attribute name="api-function">delete_residue</attribute>
       </item>
       <item>
         <attribute name="label" translatable="yes">Side-chain</attribute>
         <attribute name="action">app.delete_item_side_chain</attribute>
+        <attribute name="api-function">delete_residue_sidechain</attribute>
       </item>
       <item>
         <attribute name="label" translatable="yes">Side-chains in Residue Range</attribute>
         <attribute name="action">app.delete_item_side_chain_residue_range</attribute>
+        <attribute name="api-function">mutate.delete_sidechain_range</attribute>
       </item>
       <item>
         <attribute name="label" translatable="yes">Side-chains in Chain</attribute>
         <attribute name="action">app.delete_item_side_chains_in_chain</attribute>
+        <attribute name="api-function">delete_sidechains_for_chain</attribute>
       </item>
       <item>
         <attribute name="label" translatable="yes">Hydrogen Atoms in Residue</attribute>
         <attribute name="action">app.delete_item_hydrogen_atoms_in_residue</attribute>
+        <attribute name="api-function">delete_residue_hydrogens</attribute>
       </item>
       <item>
         <attribute name="label" translatable="yes">Residue</attribute>
         <attribute name="action">app.delete_item_residue</attribute>
+        <attribute name="api-function">delete_residue</attribute>
       </item>
       <item>
         <attribute name="label" translatable="yes">Residue Atoms with Alt-conf</attribute>
         <attribute name="action">app.delete_item_residue_atoms_with_alt_conf</attribute>
+        <attribute name="api-function">delete_residue_with_full_spec</attribute>
       </item>
       <item>
         <attribute name="label" translatable="yes">Residue Range</attribute>
         <attribute name="action">app.delete_item_residue_range</attribute>
+        <attribute name="api-function">delete_residue_range</attribute>
       </item>
       <item>
         <attribute name="label" translatable="yes">Chain</attribute>
         <attribute name="action">app.delete_item_chain</attribute>
+        <attribute name="api-function">delete_chain</attribute>
       </item>
       <item>
         <attribute name="label" translatable="yes">All Waters</attribute>
         <attribute name="action">app.delete_item_all_waters</attribute>
+        <attribute name="api-function">delete_waters</attribute>
       </item>
       <item>
         <attribute name="label" translatable="yes">All Carbohydrate</attribute>
@@ -1245,6 +1435,7 @@
       <item>
         <attribute name="label" translatable="yes">Hydrogen Atoms in Molecule</attribute>
         <attribute name="action">app.delete_item_hydrogen_atoms_in_molecule</attribute>
+        <attribute name="api-function">delete_hydrogens</attribute>
       </item>
       <item>
         <attribute name="label" translatable="yes">Multi-Pick Delete Atoms</attribute>
@@ -1262,22 +1453,27 @@
       <item>
         <attribute name="label" translatable="no">Adenine (A)</attribute>
         <attribute name="action">app.mutate_base_to_type_A</attribute>
+        <attribute name="api-function">mutate_base</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">Guanine (G)</attribute>
         <attribute name="action">app.mutate_base_to_type_G</attribute>
+        <attribute name="api-function">mutate_base</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">Cytosine (C)</attribute>
         <attribute name="action">app.mutate_base_to_type_C</attribute>
+        <attribute name="api-function">mutate_base</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">Thymine (T)</attribute>
         <attribute name="action">app.mutate_base_to_type_T</attribute>
+        <attribute name="api-function">mutate_base</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">Uracil (U)</attribute>
         <attribute name="action">app.mutate_base_to_type_U</attribute>
+        <attribute name="api-function">mutate_base</attribute>
       </item>
     </section>
   </menu>
@@ -1287,10 +1483,12 @@
       <item>
         <attribute name="label" translatable="no">Acedrg Link</attribute>
         <attribute name="action">app.acedrg_link_interface_action</attribute>
+        <attribute name="api-function">run_acedrg_link_generation</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">Acedrg via CCD</attribute>
         <attribute name="action">app.run_acedrg_via_CCD_dictionary_download_action</attribute>
+        <attribute name="api-function">make_acedrg_dictionary_via_CCD_dictionary</attribute>
       </item>
     </section>
   </menu>
@@ -1300,14 +1498,17 @@
       <item>
         <attribute name="label" translatable="no">Solidify Maps</attribute>
         <attribute name="action">app.cryo_em_solidify_maps_action</attribute>
+        <attribute name="api-function">set_draw_solid_density_surface</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">UnSolidify Maps</attribute>
         <attribute name="action">app.cryo_em_unsolidify_maps_action</attribute>
+        <attribute name="api-function">set_draw_solid_density_surface</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">Add Molecular Symmetry MTRIX</attribute>
         <attribute name="action">app.cryo_em_add_molecular_symmetry_mtrix_action</attribute>
+        <attribute name="api-function">add_molecular_symmetry_from_mtrix_from_self_file</attribute>
       </item>
       <item>
           <attribute name="label">EM Placement</attribute>
@@ -1316,34 +1517,42 @@
       <item>
         <attribute name="label" translatable="no">Go to Box Middle</attribute>
         <attribute name="action">app.cryo_em_go_to_box_middle_action</attribute>
+        <attribute name="api-function">set_rotation_centre</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">Go to Middle of Map</attribute>
         <attribute name="action">app.cryo_em_go_to_middle_of_map_action</attribute>
+        <attribute name="api-function">go_to_map_molecule_centre</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">Flip Hand of Map...</attribute>
         <attribute name="action">app.cryo_em_flip_hand_action</attribute>
+        <attribute name="api-function">flip_hand</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">Make Masked Maps</attribute>
         <attribute name="action">app.cryo_em_make_masked_maps_action</attribute>
+        <attribute name="api-function">make_masked_maps_split_by_chain</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">Make Partitioned Maps</attribute>
         <attribute name="action">app.cryo_em_make_partitioned_maps_action</attribute>
+        <attribute name="api-function">map_partition_by_chain</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">Vertex Gradients for Map Normals</attribute>
         <attribute name="action">app.vertex_gradients_for_map_normals_action</attribute>
+        <attribute name="api-function">set_use_vertex_gradients_for_map_normals</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">Assign Sequence to Fragment</attribute>
         <attribute name="action">app.cryo_em_assign_sequence_to_active_fragment_action</attribute>
+        <attribute name="api-function">assign_sequence</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">Hiranuma Inversion</attribute>
         <attribute name="action">app.cryo_em_hiranuma_inversion_action</attribute>
+        <attribute name="api-function">hiranuma_inversion</attribute>
       </item>
       <section>
         <submenu>
@@ -1351,32 +1560,39 @@
           <item>
             <attribute name="label">Jiggle-Fit Chain Simple</attribute>
             <attribute name="action">app.jiggle_fit_chain_simple_action</attribute>
+            <attribute name="api-function">fit_chain_to_map_by_random_jiggle</attribute>
           </item>
           <item>
             <attribute name="label">Jiggle-Fit Molecule Simple</attribute>
             <attribute name="action">app.jiggle_fit_molecule_simple_action</attribute>
+            <attribute name="api-function">fit_molecule_to_map_by_random_jiggle</attribute>
           </item>
           <item>
             <attribute name="label">Jiggle-Fit Chain with Fourier Filtering</attribute>
             <attribute name="action">app.jiggle_fit_chain_with_fourier_filtering_action</attribute>
+            <attribute name="api-function">fit_chain_to_map_by_random_jiggle_and_blur</attribute>
           </item>
           <item>
             <attribute name="label">Jiggle-Fit Molecule with Fourier Filtering</attribute>
             <attribute name="action">app.jiggle_fit_molecule_with_fourier_filtering_action</attribute>
+            <attribute name="api-function">fit_molecule_to_map_by_random_jiggle_and_blur</attribute>
           </item>
           <item>
             <attribute name="label">Patmos Jiggle Chain</attribute>
             <attribute name="action">app.patmos_jiggle_fit_chain_with_fourier_filtering_action</attribute>
+            <attribute name="api-function">molecular_replacement_fit_about_screen_centre</attribute>
           </item>
           <item>
             <attribute name="label">Patmos Jiggle Molecule</attribute>
             <attribute name="action">app.patmos_jiggle_fit_molecule_with_fourier_filtering_action</attribute>
+            <attribute name="api-function">molecular_replacement_fit_about_screen_centre</attribute>
           </item>
         </submenu>
       </section>
       <item>
         <attribute name="label" translatable="no">Sharpen/Blur/Resample Map...</attribute>
         <attribute name="action">app.cryo_em_sharpen_blur_map_action</attribute>
+        <attribute name="api-function">sharpen_blur_map_with_resampling</attribute>
       </item>
     </section>
   </menu>
@@ -1386,42 +1602,52 @@
       <item>
         <attribute name="label" translatable="no">2D Ligand Environment View</attribute>
         <attribute name="action">app.flev_action</attribute>
+        <attribute name="api-function">fle_view</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">Contact Dots for Ligand</attribute>
         <attribute name="action">app.coot_contact_dots_for_ligand_action</attribute>
+        <attribute name="api-function">coot_contact_dots_for_ligand_py</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">Geometric Distortions</attribute>
         <attribute name="action">app.geometric_distortions_for_ligand_action</attribute>
+        <attribute name="api-function">display_residue_distortions</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">Superpose Ligands</attribute>
         <attribute name="action">app.superpose_picked_ligands_action</attribute>
+        <attribute name="api-function">overlap_ligands_py</attribute>
       </item>
       <item>
           <attribute name="label">Superpose Ligand GUI...</attribute>
           <attribute name="action">app.superpose_ligands_action</attribute>
+          <attribute name="api-function">coot_utils.overlay_my_ligands</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">Jiggle Fit Residue</attribute>
         <attribute name="action">app.jiggle_fit_active_residue_action</attribute>
+        <attribute name="api-function">fit_to_map_by_random_jiggle</attribute>
       </item>
       <item>
         <attribute name="label">Ligand Builder...</attribute>
         <attribute name="action">app.ligand_builder_action</attribute>
+        <attribute name="api-function">start_ligand_builder_gui</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">Make LINK...</attribute>
         <attribute name="action">app.make_link_action</attribute>
+        <attribute name="api-function">make_link</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">Show Chemical Features</attribute>
         <attribute name="action">app.show_chemical_features_action</attribute>
+        <attribute name="api-function">show_feats</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">SMILES to 3D</attribute>
         <attribute name="action">app.SMILES_to_3D_action</attribute>
+        <attribute name="api-function">do_smiles_to_simple_3d_overlay_frame</attribute>
       </item>
       <!-- 20250115-PE this needs coot_ligand_check.py converted to C++ - big job. Another time -->
       <!-- <item> -->
@@ -1436,38 +1662,47 @@
       <item>
         <attribute name="label" translatable="no">Generate Self Restraints for Chain 3.7</attribute>
         <attribute name="action">app.generate_self_restraints_chain_3_7_action</attribute>
+        <attribute name="api-function">generate_local_self_restraints</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">Generate Self Restraints for Chain 4.3 </attribute>
         <attribute name="action">app.generate_self_restraints_chain_4_3_action</attribute>
+        <attribute name="api-function">generate_local_self_restraints</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">Generate Self Restraints for Chain 5.0 </attribute>
         <attribute name="action">app.generate_self_restraints_chain_5_0_action</attribute>
+        <attribute name="api-function">generate_local_self_restraints</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">Generate Self Restraints for Chain 6.0 </attribute>
         <attribute name="action">app.generate_self_restraints_chain_6_0_action</attribute>
+        <attribute name="api-function">generate_local_self_restraints</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">Generate All-molecule Self Restraints 4.3</attribute>
         <attribute name="action">app.generate_all_molecule_self_restraints_4_3_action</attribute>
+        <attribute name="api-function">generate_self_restraints</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">Generate All-molecule Self Restraints 5.0</attribute>
         <attribute name="action">app.generate_all_molecule_self_restraints_5_0_action</attribute>
+        <attribute name="api-function">generate_self_restraints</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">Generate All-molecule Self Restraints 6.0</attribute>
         <attribute name="action">app.generate_all_molecule_self_restraints_6_0_action</attribute>
+        <attribute name="api-function">generate_self_restraints</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">Import Restraints...</attribute>
         <attribute name="action">app.import_restraints_action</attribute>
+        <attribute name="api-function">add_refmac_extra_restraints</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">Delete All Extra Restraints</attribute>
         <attribute name="action">app.delete_all_extra_restraints_action</attribute>
+        <attribute name="api-function">delete_all_extra_restraints</attribute>
       </item>
     </section>
   </menu>
@@ -1477,86 +1712,107 @@
       <item>
         <attribute name="label" translatable="no">ALA (A)</attribute>
         <attribute name="action">app.mutate_to_type_ALA</attribute>
+        <attribute name="api-function">mutate</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">ARG (R)</attribute>
         <attribute name="action">app.mutate_to_type_ARG</attribute>
+        <attribute name="api-function">mutate</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">ASN (N)</attribute>
         <attribute name="action">app.mutate_to_type_ASN</attribute>
+        <attribute name="api-function">mutate</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">ASP (D)</attribute>
         <attribute name="action">app.mutate_to_type_ASP</attribute>
+        <attribute name="api-function">mutate</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">CYS (C)</attribute>
         <attribute name="action">app.mutate_to_type_CYS</attribute>
+        <attribute name="api-function">mutate</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">GLN (Q)</attribute>
         <attribute name="action">app.mutate_to_type_GLN</attribute>
+        <attribute name="api-function">mutate</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">GLU (E)</attribute>
         <attribute name="action">app.mutate_to_type_GLU</attribute>
+        <attribute name="api-function">mutate</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">GLY (G)</attribute>
         <attribute name="action">app.mutate_to_type_GLY</attribute>
+        <attribute name="api-function">mutate</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">HIS (H)</attribute>
         <attribute name="action">app.mutate_to_type_HIS</attribute>
+        <attribute name="api-function">mutate</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">ILE (I)</attribute>
         <attribute name="action">app.mutate_to_type_ILE</attribute>
+        <attribute name="api-function">mutate</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">LEU (L)</attribute>
         <attribute name="action">app.mutate_to_type_LEU</attribute>
+        <attribute name="api-function">mutate</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">LYS (K)</attribute>
         <attribute name="action">app.mutate_to_type_LYS</attribute>
+        <attribute name="api-function">mutate</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">MET (M)</attribute>
         <attribute name="action">app.mutate_to_type_MET</attribute>
+        <attribute name="api-function">mutate</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">MSE</attribute>
         <attribute name="action">app.mutate_to_type_MSE</attribute>
+        <attribute name="api-function">mutate</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">PHE (F)</attribute>
         <attribute name="action">app.mutate_to_type_PHE</attribute>
+        <attribute name="api-function">mutate</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">PRO (P)</attribute>
         <attribute name="action">app.mutate_to_type_PRO</attribute>
+        <attribute name="api-function">mutate</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">SER (S)</attribute>
         <attribute name="action">app.mutate_to_type_SER</attribute>
+        <attribute name="api-function">mutate</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">THR (T)</attribute>
         <attribute name="action">app.mutate_to_type_THR</attribute>
+        <attribute name="api-function">mutate</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">TRP (W)</attribute>
         <attribute name="action">app.mutate_to_type_TRP</attribute>
+        <attribute name="api-function">mutate</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">TYR (Y)</attribute>
         <attribute name="action">app.mutate_to_type_TYR</attribute>
+        <attribute name="api-function">mutate</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">VAL (V)</attribute>
         <attribute name="action">app.mutate_to_type_VAL</attribute>
+        <attribute name="api-function">mutate</attribute>
       </item>
     </section>
   </menu>
@@ -9966,6 +10222,48 @@ Do you want to continue?
                             <property name="can-focus">1</property>
                             <property name="receives-default">1</property>
                             <signal name="clicked" handler="on_accession_code_get_it_button_clicked" swapped="no"/>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+
+            <child type="overlay">
+              <object class="GtkFrame" id="command_palette_frame">
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="visible">False</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">40</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">5</property>
+                    <property name="margin-bottom">6</property>
+                    <property name="margin-end">6</property>
+                    <property name="margin-start">6</property>
+                    <property name="margin-top">6</property>
+                    <child>
+                      <object class="GtkSearchEntry" id="command_palette_search_entry">
+                        <property name="width-request">460</property>
+                        <property name="placeholder-text" translatable="yes">Search menus and key bindings...</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkScrolledWindow" id="command_palette_scrolled_window">
+                        <property name="visible">False</property>
+                        <property name="hscrollbar-policy">never</property>
+                        <property name="propagate-natural-height">True</property>
+                        <property name="max-content-height">400</property>
+                        <child>
+                          <object class="GtkListBox" id="command_palette_listbox">
+                            <property name="selection-mode">single</property>
+                            <property name="activate-on-single-click">True</property>
                           </object>
                         </child>
                       </object>
@@ -20037,6 +20335,12 @@ Move a copy?</property>
               <object class="GtkShortcutsShortcut">
                 <property name="accelerator">F8</property>
                 <property name="title" translatable="yes">Display Manager</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">slash</property>
+                <property name="title" translatable="yes">Command Palette</property>
               </object>
             </child>
           </object>

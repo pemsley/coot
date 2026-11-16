@@ -1175,6 +1175,8 @@ void add_toolbar_subprocess_button(const std::string &button_label,
 //! \name Add an Atom
 //! \{
 //! \brief add an atom at the rotation centre to the active molecule
+
+//! Add an atom at the rotation centre to the active molecule
 //!
 //! The atom is added to the molecule of the current active atom (as for
 //! "Place Atom at Pointer"), at the current rotation centre. The target
@@ -1194,6 +1196,7 @@ void add_an_atom(const std::string &element);
 /*  ------------------------------------------------------------------------ */
 //! \name Nudge the B-factors
 //! \{
+
 //! \brief change the B-factors of the atoms of the specified residue by a (small) amount
 //!
 //! \c amount is added to the B-factor of every atom in the residue (it can
@@ -1236,6 +1239,7 @@ void hiranuma_inversion(int imol);
 /*  ------------------------------------------------------------------------ */
 //! \name Merge Fragments
 //! \{
+
 //! \brief merge fragments
 //!
 //! Each fragment is presumed to be in its own chain. The atom selections
@@ -1282,6 +1286,7 @@ void delete_sidechains_for_chain(int imol, const std::string &chain_id);
 /*  ------------------------------------------------------------------------ */
 //! \name Execute Refmac
 //! \{
+
 //! \brief execute refmac
 //!
 //! This builds and runs (via the Python layer) a call to
@@ -2481,6 +2486,7 @@ int get_continue_updating_refinement_atoms_state();
 
 //! \name Status bar string functions
 //! \{
+
 //! \brief return a description of the given atom for the status bar (internal)
 //!
 //! @param atom_index the index of the atom in the atom selection of imol
@@ -2504,17 +2510,28 @@ std::string atom_info_as_text_for_statusbar(int atom_index, int imol,
 //! \name Refinement with specs
 //! \{
 
+#ifdef USE_GUILE
 //! \brief return the specs of all the residues, each spec prefixed by the serial number
 //!
 //! The serial number is the (0-based) index of the residue in its chain.
 //!
-//! Python returns a list of [serial_number, chain_id, res_no, ins_code];
+//! @param imol the model molecule index
+//!
+//! @return
 //! scheme returns a list of (serial-number \#t chain-id res-no ins-code).
 //! False (\#f) is returned if imol is not a valid model molecule.
-#ifdef USE_GUILE
 SCM all_residues_with_serial_numbers_scm(int imol);
 #endif
 #ifdef USE_PYTHON
+//! \brief return the specs of all the residues, each spec prefixed by the serial number
+//!
+//! The serial number is the (0-based) index of the residue in its chain.
+//!
+//! @param imol the model molecule index
+//!
+//! @return
+//! Python returns a list of [serial_number, chain_id, res_no, ins_code];
+//! False (\#f) is returned if imol is not a valid model molecule.
 PyObject *all_residues_with_serial_numbers_py(int imol);
 #endif
 
@@ -2987,6 +3004,7 @@ add_named_glyco_tree(int imol, int imol_map, const std::string &glycosylation_na
 /*  ----------------------------------------------------------------------- */
 //! \name Variance Map
 //! \{
+
 //! \brief Make a variance map, based on the grid of the first map.
 //!
 //! A new map molecule called "variance-map" is created. Invalid map
@@ -3389,6 +3407,7 @@ int cootaneer_py(int imol_map, int imol_model, PyObject *atom_in_fragment_atom_s
 
 //! \name Sequence from Map
 //! \{
+
 //! \brief guess the sequence of a fragment from the side-chain density
 //!
 //! Use the map to estimate the sequence - you will need a decent map
