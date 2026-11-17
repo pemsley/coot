@@ -1,4 +1,136 @@
 
+  Release Notes for 1.3.5
+
+ o FEATURE: Command palette: press "/" (or use About -> Search
+            Menus...) to search the menus, the toolbar and module
+            menus, the key bindings and the scripting function names
+            and documentation. Up/Down and Enter run the selected
+            item [idea from Oliver Clarke's coot1_trimmings]
+
+ o FEATURE: Map transparency: "Angle-Dependent Transparency" in the
+            Map Properties dialog, and nearest-layer transparency
+            with set_nearest_layer_transparency()
+
+ o FEATURE: Validate -> Atom Overlaps Table and Validate ->
+            Residues With Missing Atoms...
+
+ o FEATURE: "Patmos Jiggle Chain" and "Patmos Jiggle Molecule"
+            replace "Patmos Jiggle"
+
+ o FEATURE: On adding hydrogen atoms: hydroxyl (and thiol) hydrogen
+            atom positions are now chosen by a spin search
+
+ o FEATURE: pyrogen: "chemistry-rich" dictionaries - stereo
+            configuration, SMILES/InChI descriptors, identifiers,
+            2D depictions, and (from CCD input) the synonyms, audit
+            records, DrugBank and other PDBe annotations are written
+            to the output
+
+ o FEATURE: The modules can be removed from the toolbar using
+            Calculate -> Modules (the items are now check items)
+
+ o FEATURE: The validation tables can be undocked into their own
+            dialog: set_validation_boxes_is_docked(0)
+
+ o FEATURE: set_tube_helix_radius() for the Bendix and Tubes
+            representations. Worms have end-caps
+
+ o FEATURE: Quick-save-as now writes masked maps
+
+ o FEATURE: "Esc" now dismisses the keyboard-mutate frame
+
+ o FEATURE: API additions: get_mmrrcc_py(),
+            atoms_with_partial_occupancy_py(),
+            set_hud_rama_plot_scale(),
+            set_intermediate_atoms_bond_width_scale_factor().
+            model_composition_statistics_py(), glyco_tree_py() and
+            alignment_mismatches_py() now return data
+
+ o FEATURE: Chapi additions: mutate_base(),
+            make_textured_mesh_from_gltf_file(), and the
+            "tubesStyleHelixRadius" parameter for the Tubes style
+
+ o CHANGE:  The model made by "Place Helix Here" now starts at
+            residue number 1
+
+ o CHANGE:  "Add Other Solvent Molecules" no longer places a
+            molecule on top of existing atoms
+
+ o CHANGE:  The default size of the HUD Ramachandran plot is
+            smaller (0.7, was 0.8)
+
+ o CHANGE:  Screendumps are at device-pixel resolution (e.g. on
+            Retina displays)
+
+ o CHANGE:  Scripting: make_updating_map() returns the map molecule
+            number. save_coordinates(), write_pdb_file(),
+            write_cif_file() and write_chain_to_pdb_file() return
+            non-zero for an invalid molecule.
+            remove_omega_torsion_restriants() is renamed
+            remove_omega_torsion_restraints(). get_backup_info()
+            takes the checkpoint index.
+            generate_local_self_restraints() no longer clears the
+            extra bond restraints
+
+ o CHANGE:  "Add Terminal Residue" now gives a message when the
+            refinement map has not been set
+
+ o BUG-FIX: Fix a crash with Updating Maps (an out-of-bounds read in
+            the bulk-solvent structure factor calculation)
+
+ o BUG-FIX: Dialogs closed from the window manager (e.g. Search
+            Monomer Library, Environment Distances, Pointer
+            Distances) can now be reopened
+
+ o BUG-FIX: Transparent maps are now drawn back-to-front and after
+            the other objects, fixing the banding and missing layers
+
+ o BUG-FIX: Fix "Place Helix Here" in masked maps - the helix was
+            placed across the density using the masked map from  the
+            Cryo-EM tutorial
+
+ o BUG-FIX: pyrogen: the AceDRG tables are used again
+
+o BUG-FIX: pyrogen -w works again
+
+ o BUG-FIX: Fix the backup checkpoint indexing - backup files could
+            be overwritten after an undo
+
+ o BUG-FIX: Fix the selection of items in File -> Open Recent
+
+ o BUG-FIX: Difference map peaks: the "around the model only"
+            option now works, and fix a crash when the peaks were
+            updated but the map had not been set
+
+ o BUG-FIX: Fix the Secondary Structure Restraints buttons
+
+ o BUG-FIX: Bonds to deuterium atoms are now drawn in
+            Colour-by-Chain mode
+
+ o BUG-FIX: Contact dots: atoms after the first hydrogen atom were
+            given the (smaller) hydrogen dot set
+
+ o BUG-FIX: Tubes and Bendix: no longer draw coil across chain
+            breaks, and fix the mis-drawn short straight coil
+            sections
+
+ o BUG-FIX: The map is now updated on a new rotation centre when
+            "Dragged Map" is off
+
+ o BUG-FIX: Fix the scaling of the HUD button backgrounds when the
+            window is resized
+
+ o BUG-FIX: The Go To Atom dialog and Restraints Editor now behave
+            when the main window is full-screen
+
+ o BUG-FIX: The state file is read from the XDG state directory,
+            where it is written
+
+ o BUG-FIX: Chapi: the helix template for the Tubes style is found
+            in the installed data directory
+
+-----
+
   Release Notes for 1.3.4
 
  o FEATURE: Protein-ligand interactions: detection and reporting of
