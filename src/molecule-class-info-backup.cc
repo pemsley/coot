@@ -14,8 +14,14 @@ extern logging logger;
  */
 int molecule_class_info_t::make_backup_checkpoint(const std::string &description) {
 
+   // make_backup() appends to history_filename_vec and sets history_index to
+   // the size of that vector, so the returned index is the (1-based) position
+   // of this checkpoint in the history: history_filename_vec[backup_index - 1].
+   // If the backup was not made (e.g. backups are turned off for this molecule)
+   // then there is no checkpoint to return.
+   std::size_t n_before = history_filename_vec.size();
    make_backup(description);
-   std::cout << "DEBUG:: mci make_backup_checkpoint() returns " << history_index << std::endl;
+   if (history_filename_vec.size() == n_before) return -1;
    return history_index;
 }
 
@@ -70,7 +76,7 @@ std::pair<bool, std::vector<coot::residue_spec_t> > molecule_class_info_t::compa
             std::string chain_id_1 = chain_1_p->GetChainID();
             int n_chains_2 = model_2_p->GetNumberOfChains();
             for (int jchain=0; jchain<n_chains_2; jchain++) {
-               mmdb::Chain *chain_2_p = model_2_p->GetChain(ichain);
+               mmdb::Chain *chain_2_p = model_2_p->GetChain(jchain);
                std::string chain_id_2 = chain_2_p->GetChainID();
                if (chain_id_1 == chain_id_2) {
                   int n_res_1 = chain_1_p->GetNumberOfResidues();
@@ -145,14 +151,18 @@ std::pair<bool, std::vector<coot::residue_spec_t> > molecule_class_info_t::compa
       return res_specs;
    };
 
+   // backup_index is the value returned by make_backup_checkpoint(), so, as in
+   // restore_to_backup_checkpoint(), the file is at history_filename_vec[backup_index - 1].
+   int vec_index = backup_index - 1;
+
    if (atom_sel.mol) {
-      if (int(history_filename_vec.size()) > backup_index) {
+      if (vec_index < int(history_filename_vec.size()) && vec_index >= 0) {
          // there should be a log function for unsigned int, int.
          logger.log(log_t::INFO, logging::function_name_t(__FUNCTION__),
                     std::vector<logging::ltw>{logging::ltw(history_filename_vec.size()), logging::ltw(backup_index)});
 
-         if (backup_index < int(history_filename_vec.size()) && backup_index >= 0) {
-            std::string filename = history_filename_vec[backup_index].backup_file_name;
+         {
+            std::string filename = history_filename_vec[vec_index].backup_file_name;
 
             bool use_gemmi = false; // for now
             atom_selection_container_t asc = get_atom_selection(filename, use_gemmi);

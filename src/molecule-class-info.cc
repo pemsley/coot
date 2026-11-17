@@ -8403,7 +8403,11 @@ molecule_class_info_t::get_save_molecule_filename(const std::string &dir) {
    std::string time_string = save_time_string;
    std::string t_name_6 = t_name_5 + "_" + time_string;
 
-   std::string index_string = coot::util::int_to_string(history_index);
+   // The backup file is going to be stored at the end of history_filename_vec, so
+   // number it by that position. Don't use history_index: that goes backwards on
+   // undo and on restore_to_backup_checkpoint(), which re-used (and so overwrote)
+   // the files of earlier entries in the history.
+   std::string index_string = coot::util::int_to_string(history_filename_vec.size());
    std::string t_name_7 = t_name_6 + "_modification_" + index_string;
 
    std::string extension = ".pdb";
@@ -8531,9 +8535,12 @@ molecule_class_info_t::make_backup(const std::string &descr) { // changes histor
             }
 
             save_history_file_name(backup_file_name, descr);
-            if (history_index == max_history_index)
-               max_history_index++;
-            history_index++;
+            // history_filename_vec is append-only, so after a backup we are at the
+            // end of the history - even if we had gone back in the history (by
+            // undo or restore_to_backup_checkpoint()) before this modification.
+            // history_filename_vec[history_index - 1] is the backup just made.
+            history_index = history_filename_vec.size();
+            max_history_index = history_index;
          }
       } else {
          std::cout << "WARNING:: BACKUP:: Ooops - no atoms to backup for this empty molecule"
