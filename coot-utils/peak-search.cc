@@ -42,6 +42,8 @@ coot::peak_search::peak_search(const clipper::Xmap<float> &xmap) {
    float sumsq = 0.0;
    float n = 0;
    float v;
+   map_rms = 0.0;
+   if (xmap.is_null()) return; // nothing to iterate over (and xmap[ix] would be out of range)
    clipper::Xmap_base::Map_reference_index ix;
    for (ix = xmap.first(); !ix.last(); ix.next() )  { // iterator index.
       v = xmap[ix];
