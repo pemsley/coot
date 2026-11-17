@@ -9,6 +9,9 @@ description: "How to handle Unmodelled Density Blobs"
 When `find_blobs_py()` identifies unmodeled density, investigate what's actually there before acting:
 
 ```python
+# NOTE: the cutoff is not on the same scale as map_sigma_py. A 6.3 sigma peak
+# (density_at_point / map_sigma_py) was not found at 3.0, only at 2.0. If nothing is
+# found at 3.0, probe 2.0, 1.5 and 1.0 before concluding the map is clean.
 # Find blobs in difference map (molecule 2) at 3 sigma
 blobs = coot.find_blobs_py(0, 2, 3.0)
 # Returns: [[[x, y, z], score], ...]
@@ -171,6 +174,44 @@ coot.accept_moving_atoms_py()
 **The key distinction:**
 - Blob near terminus → extend chain with `add_terminal_residue()`
 - No blob, chain fully built → cap with `add_OXT_to_residue()`
+
+### Shaping a Blob
+
+Sample the difference map on a ~0.3 A grid around the blob and flood-fill from the peak above 2, 3, 4 and 5 sigma (sigma = `coot.map_sigma_py(imap)`). Collect volume, principal extents and peak height.
+
+- A single, near-spherical peak ~3 A across at 2 sigma that shrinks evenly towards the peak is one atom or ion (water, sulfate, metal), not an extended ligand.
+- Check the 2Fo-Fc density at the peak and the nearest atoms. A nearest atom 3.5 A away is too far for a hydrogen-bonded water, so consider an ion such as the sulfate from the crystallisation precipitant.
+- Ask what the crystallisation conditions were.
+
+### Finding and Fitting a Ligand from the Difference Map
+
+If the user names a ligand known to be in the structure but missing from the model, search for it in the difference map:
+
+```python
+m = coot.get_monomer("3GP")
+coot.add_ligand_clear_ligands()
+coot.set_ligand_search_protein_molecule(imol_model)
+coot.set_ligand_search_map_molecule(imol_diff)
+coot.add_ligand_search_ligand_molecule(m)
+coot.set_ligand_cluster_sigma_level(1.5)
+coot.set_find_ligand_n_top_ligands(3)
+new_mols = coot.execute_ligand_search_py()   # new molecule numbers
+coot.make_backup_checkpoint(imol_model, "before merging ligand")
+coot.merge_molecules_py([new_mols[0]], imol_model)
+```
+
+- Judge the fit by the 2Fo-Fc density at the heavy atoms, not by `map_to_model_correlation_py`, since hydrogens depress the correlation.
+- Check the refinement map is the 2Fo-Fc map before refining the ligand. Refine only if heavy-atom density improves; otherwise keep the search placement.
+- Check overlaps (`molecule_atom_overlaps_py`) and that the blob is gone from `find_blobs_py` at 1.5 and 1.0.
+- Use the same method for ions such as SO4.
+
+### Adding Waters
+
+1. Put candidates in a new molecule: `coot.find_waters(imol_2fofc, imol_model, 1, 1.7, 0)`.
+2. Prune with `coot.delete_residue(imol_w, chain, resno, "")`. Drop waters nearest to chains you were told not to work on. Keep waters with 2Fo-Fc >= 1.5 sigma, nearest atom 2.5-3.4 A, and at least one N or O partner at 2.3-3.4 A.
+3. Checkpoint, then `coot.merge_molecules_py([imol_w], imol_model)`.
+4. Delete any water overlapping a side-chain atom (for example 2.4 A from a CYS SG).
+5. Check that the updating difference map is near zero at the waters. New waters come in with B of about 10-30. If the map is negative (about -1 sigma) at them, raise their B with `coot.set_b_factor_residue_range(imol, chain, resno, resno, old_b + 10)` and verify.
 
 ### Summary: Blob Investigation Checklist
 

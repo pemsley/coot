@@ -30,6 +30,24 @@ coot.set_imol_refinement_map(imol_map)
 
 **When to use:** Any time you're scripting refinement operations (refine_residues_py, refine_zone, etc.)
 
+## Updating Maps
+
+Rule: if a map has attached data (Fobs, sigFobs, rfree from an MTZ file) and the model is unambiguous, use updating maps. The difference map must be assigned too.
+
+- Test for attached data: `coot.refmac_parameters_py(imol_map)` returns `[mtz, F, phi, weight, use_weights, is_diff, have_params, fobs, sigfobs, rfree, sensible]`, or `[]` if nothing is attached.
+- Make maps that carry the data: `coot.make_and_draw_map_with_refmac_params(mtz, F, phi, weight, use_weights, is_diff, 1, fobs, sigfobs, rfree, 1)`. Do this for FWT/PHWT (2Fo-Fc) and for DELFWT/PHDELWT (difference).
+- Bind them: `coot.set_auto_updating_sfcalc_genmaps(imol_model, imol_map_with_data, imol_2fofc, imol_diff)`.
+- Never pass a target map without refmac params to `sfcalc_genmap` (it crashed Coot).
+- Updating maps follow edits and checkpoint restores. To confirm an edit reached the maps, sample `density_at_point` in the difference map before and after, at the changed atoms. Do not rely on `map_sigma_py` changing.
+
+### CRITICAL: check the refinement map after creating maps
+
+After maps were created, `coot.imol_refinement_map()` silently became the DIFFERENCE map. Refining against it degrades the fit, and every rotamer or peptide-flip trial run in that state is invalid.
+
+- Call `coot.set_imol_refinement_map(imol_2fofc)` after any map creation, and print `coot.imol_refinement_map()` before refining.
+- Sanity check: refining a well-fitted ligand against the right map moves its atoms only ~0.02 A. If a refinement lowers the density fit of something that fitted well, check the refinement map first.
+- Make a checkpoint before each trial and restore if the metric worsens.
+
 ## Safe Refinement Workflow
 
 ```python
