@@ -2216,10 +2216,18 @@ class TestPdbMtzFunctions(unittest.TestCase):
         coot.turn_off_backup(imol)
         coot.set_pointer_atom_molecule(imol)
 
+        # With graphics, set_rotation_centre() starts a smooth-scroll animation
+        # rather than jumping, so the centre has not moved when the next water
+        # is placed. Turn smooth scrolling off while the waters are added.
+        smooth_scroll_state = coot.get_smooth_scroll()
+        coot.set_smooth_scroll_flag(0)
+
         # first create a few chains of waters
         create_water_chain(imol, "C", "D", 5, 10,  0)
         create_water_chain(imol, "D", "E", 5,  5, 10)
         create_water_chain(imol, "D", "F", 5,  2, 15)
+
+        coot.set_smooth_scroll_flag(smooth_scroll_state)
 
         # OK, we have set up a molecule, now let's test it:
         #

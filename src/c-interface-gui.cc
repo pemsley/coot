@@ -3422,7 +3422,8 @@ void close_molecule(int imol) {
 
    if (is_valid_model_molecule(imol) || is_valid_map_molecule(imol)) {
       g.delete_pointers_to_map_in_other_molecules(imol);
-      graphics_info_t::rama_plot_boxes_handle_close_molecule(imol);
+      if (g.use_graphics_interface_flag)
+         g.rama_plot_boxes_handle_close_molecule(imol);
       g.molecules[imol].close_yourself();
       // and close the graphics ligand view if it was a residue of this molecule
       g.close_graphics_ligand_view_for_mol(imol);
