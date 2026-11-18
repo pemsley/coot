@@ -922,6 +922,11 @@ graphics_info_t::draw_model_molecules(stereo_eye_t eye) {
       molecule_class_info_t &m = molecules[ii];
       // std::cout << "draw_model_mqolecules() A " << ii << " m.draw_it " << m.draw_it << std::endl;
 
+      // glycoblocks are drawn whether or not the bonds are
+      if (m.draw_glycoblocks_flag)
+         m.glycoblocks_meshes.draw(&shader_for_meshes, &shader_for_instanced_objects, eye, mvp, model_rotation, lights,
+                                   eye_position, 1.0f, bgc, false, shader_do_depth_fog_flag, false);
+
       if (! m.draw_it) continue;
 
       // 20230827-PE this is for the new/consolidated api-based instanced meshes.
@@ -1947,6 +1952,16 @@ graphics_info_t::draw_molecules_with_shadows(stereo_eye_t eye) {
    for (int i=0; i<n_mols; i++) {
       if (is_valid_model_molecule(i)) {
          molecule_class_info_t &m = molecules[i];
+
+         // glycoblocks are drawn whether or not the bonds are
+         if (m.draw_glycoblocks_flag) {
+            shader_for_instanced_meshes_with_shadows.Use();
+            m.glycoblocks_meshes.draw_molecule_with_shadows(&shader_for_instanced_meshes_with_shadows, mvp, model_rotation_matrix, lights,
+                                                            eye_position, get_rotation_centre(), 1.0f, bg_col_v4, shader_do_depth_fog_flag,
+                                                            light_view_mvp, shadow_depthMap_texture, shadow_strength, shadow_softness,
+                                                            show_just_shadows);
+         }
+
          if (m.draw_it) {
 
             if (m.draw_model_molecule_as_lines) {
@@ -2535,11 +2550,15 @@ graphics_info_t::draw_molecules_other_meshes(stereo_eye_t eye, unsigned int pass
                      }
 #endif
 
+                     // a semi-transparent (blended) ribbon: draw only the front faces, otherwise the
+                     // unsorted back faces blend in patchily (stripes) and the internal caps show
+                     if (m.meshes[jj].use_blending) { glEnable(GL_CULL_FACE); glCullFace(GL_BACK); }
                      // if (m.meshes[jj].mesh_is_semi_transparent) glEnable(GL_BLEND);
                      m.meshes[jj].draw(&shader_for_moleculestotriangles, eye, mvp,
                                        model_rotation, lights, eye_position, rc, opacity, bg_col,
                                        wireframe_mode, do_depth_fog, show_just_shadows);
                      if (m.meshes[jj].mesh_is_semi_transparent) glDisable(GL_BLEND);
+                     if (m.meshes[jj].use_blending) glDisable(GL_CULL_FACE);
 
                   }
                   if (pass_type == PASS_TYPE_WITH_SHADOWS) {
@@ -2551,11 +2570,14 @@ graphics_info_t::draw_molecules_other_meshes(stereo_eye_t eye, unsigned int pass
                      glm::mat4 light_view_mvp = get_light_space_mvp(light_index);
                      show_just_shadows = false;
 
+                     // see above: front faces only for a semi-transparent ribbon
+                     if (m.meshes[jj].use_blending) { glEnable(GL_CULL_FACE); glCullFace(GL_BACK); }
                      m.meshes[jj].draw_with_shadows(&shader_for_moleculestotriangles_with_shadows, mvp,
                                                     model_rotation, lights, eye_position, rc, opacity, bg_col,
                                                     do_depth_fog, light_view_mvp,
                                                     shadow_depthMap_texture, shadow_strength,
                                                     shadow_softness, show_just_shadows);
+                     if (m.meshes[jj].use_blending) glDisable(GL_CULL_FACE);
 
                   }
                   if (pass_type == PASS_TYPE_SSAO) {
@@ -2776,6 +2798,9 @@ graphics_info_t::draw_origin_cube(stereo_eye_t eye, GtkGLArea *glarea) {
 
 void
 graphics_info_t::draw_rotation_centre_crosshairs(stereo_eye_t eye, GtkGLArea *glarea, unsigned int pass_type) {
+
+   // a size scale factor of 0 (or less) hides the crosshairs, e.g. for screendumps
+   if (user_defined_rotation_centre_crosshairs_size_scale_factor <= 0.0f) return;
 
    // gtk_gl_area_make_current(glarea); // needed?, no it isn't.
    GLenum err = glGetError();

@@ -67,6 +67,10 @@ graphics_info_t::draw_molecules_for_ssao(stereo_eye_t eye) {
    glDisable(GL_BLEND);
    for (int i=0; i<n_molecules(); i++) {
       if (is_valid_model_molecule(i)) {
+         if (molecules[i].draw_glycoblocks_flag)
+            molecules[i].glycoblocks_meshes.draw_for_ssao(&shader_for_meshes_for_ssao,
+                                                          &shader_for_instanced_meshes_for_ssao,
+                                                          model_mat, view_mat, projection_mat);
          if (molecules[i].draw_it)
             if (! molecules[i].draw_model_molecule_as_lines) {
                // molecules[i].molecule_as_mesh.draw_for_ssao(&shader_for_meshes_for_ssao, model_mat, view_mat, projection_mat);
@@ -342,6 +346,13 @@ graphics_info_t::draw_molecules_for_shadow_map(unsigned int light_index) {
                                             &shader_for_instanced_meshes_shadow_map,
                                             eye, mvp_orthogonal, model_rotation, lights, dummy_eye_position,
                                             opacity, bg_col_v4, gl_lines_mode, do_depth_fog, show_just_shadows);
+            }
+            if (m.draw_glycoblocks_flag) {
+               glm::vec3 dummy_eye_position;
+               m.glycoblocks_meshes.draw(&shader_for_meshes_shadow_map,
+                                         &shader_for_instanced_meshes_shadow_map,
+                                         eye, mvp_orthogonal, model_rotation, lights, dummy_eye_position,
+                                         1.0f, bg_col_v4, false, false, false);
             }
          }
       }

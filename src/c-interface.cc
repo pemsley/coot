@@ -3780,6 +3780,78 @@ void set_show_molecular_representation(int imol, int mesh_index, short int state
    }
 }
 
+void set_molecular_representation_opacity(int imol, int mesh_index, float opacity) {
+
+   if (is_valid_model_molecule(imol)) {
+      if (mesh_index >= 0)
+         if (mesh_index < static_cast<int>(graphics_info_t::molecules[imol].meshes.size())) {
+            // the (moleculestotriangles) mesh shaders take their alpha from the vertex colour
+            Mesh &mesh = graphics_info_t::molecules[imol].meshes[mesh_index];
+            for (auto &vertex : mesh.vertices)
+               vertex.color.a = opacity;
+            graphics_info_t::attach_buffers();
+            mesh.update_vertices();
+            mesh.use_blending = (opacity < 1.0f);
+         }
+      graphics_draw();
+   }
+}
+
+void set_show_glycoblocks(int imol, short int state) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].set_show_glycoblocks(state);
+      graphics_draw();
+   }
+}
+
+void set_glycoblocks_3d(int imol, short int state) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].set_glycoblocks_3d(state);
+      graphics_draw();
+   }
+}
+
+void set_glycoblocks_colour(int imol, float r, float g, float b) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].set_glycoblocks_colour(glm::vec4(r, g, b, 1.0f));
+      graphics_draw();
+   }
+}
+
+void set_map_is_em_map(int imol, short int state) {
+
+   if (is_valid_map_molecule(imol)) {
+      molecule_class_info_t &m = graphics_info_t::molecules[imol];
+      m.is_em_map_cached_flag = state ? 1 : 0;
+      float radius = state ? graphics_info_t::box_radius_em : graphics_info_t::box_radius_xray;
+      coot::Cartesian centre(graphics_info_t::RotationCentre_x(),
+                             graphics_info_t::RotationCentre_y(),
+                             graphics_info_t::RotationCentre_z());
+      m.update_map_triangles(radius, centre);
+      graphics_draw();
+   }
+}
+
+void set_glycoblocks_scale_factor(int imol, float scale_factor) {
+
+   if (is_valid_model_molecule(imol)) {
+      if (scale_factor > 0.0f) {
+         graphics_info_t::molecules[imol].set_glycoblocks_scale_factor(scale_factor);
+         graphics_draw();
+      }
+   }
+}
+
+int show_glycoblocks_state(int imol) {
+
+   if (is_valid_model_molecule(imol))
+      return graphics_info_t::molecules[imol].draw_glycoblocks_flag ? 1 : 0;
+   return -1;
+}
+
 
 /* clear the given additional representation  */
 void
@@ -10233,6 +10305,15 @@ float get_solid_density_surface_opacity(int imol) {
       opacity = graphics_info_t::molecules[imol].density_surface_opacity;
    }
    return opacity;
+}
+
+void
+set_map_use_view_dependent_transparency(int imol, short int state) {
+
+   if (is_valid_map_molecule(imol)) {
+      graphics_info_t::molecules[imol].do_map_view_dependent_map_transparancy = state;
+      graphics_draw();
+   }
 }
 
 
