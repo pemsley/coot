@@ -2024,6 +2024,8 @@ graphics_info_t::draw_molecules_with_shadows(stereo_eye_t eye) {
                                      shader_for_meshes_with_shadows.set_float_for_uniform("fresnel_scale", m.fresnel_settings.scale);
                                      shader_for_meshes_with_shadows.set_float_for_uniform("fresnel_power", m.fresnel_settings.power);
                                      shader_for_meshes_with_shadows.set_vec4_for_uniform("fresnel_colour", m.fresnel_settings.colour);
+                                     shader_for_meshes_with_shadows.set_bool_for_uniform("do_view_dependent_transparancy",
+                                                                                         m.do_map_view_dependent_map_transparancy);
 
                                      float opacity = m.density_surface_opacity;
 
@@ -2045,6 +2047,9 @@ graphics_info_t::draw_molecules_with_shadows(stereo_eye_t eye) {
                                                                         eye_position, get_rotation_centre(), opacity, bg_col_v4, shader_do_depth_fog_flag, light_view_mvp,
                                                                         shadow_depthMap_texture, shadow_strength, shadow_softness, show_just_shadows);
                                      }
+                                     // this shader is shared with non-map meshes, so don't leave the flag set
+                                     shader_for_meshes_with_shadows.Use();
+                                     shader_for_meshes_with_shadows.set_bool_for_uniform("do_view_dependent_transparancy", false);
                                   }
                                };
 
