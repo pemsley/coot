@@ -1,5 +1,14 @@
 --- Items---
 
+o can a molecular Jiggle (of some sort) be used to improve
+  Rama plot?
+
+o bind printscr to screenshot
+
+o look at the axis for virtual trackbal spherical mode
+
+o make bubbling maps using rapid sampled data
+
 o Look at the molecular symmetry problem from Lucrezia
 
 o use the raytracer to make images - check the debug output
@@ -18,10 +27,26 @@ o when adding a ligand, stop adding another ligand on top
 o allow me to change the cylinder thickness for Tube representation.
 * Done
 
+o links display for CHO from mmcif? Via Gemmi presumably.
+
 o Make bendy helices - 2nd order or third order?
+
+o save state should save unwritten masked maps
+* Done.
+
+o Allow me to change the cylinder thickness for Tube representation.
+* Done.
 
 o check these dictionaries for Oliver:
   VIA 468 NAD and SD1
+* Done.
+
+o think about the oli function search
+* Done.
+
+o Add terminal residue doesn't tell the user that the
+  refinement map is not set?
+* Done.
 
 o what kind of density sampling does fit-helix do?
 * Linear now.
@@ -29,8 +54,6 @@ o what kind of density sampling does fit-helix do?
 o make baton-building work again.
 
 o Simple/RDKit-based restraints API in chapi
-
-o links display for cho in mmcif?
 
 o get glycoblocks from Stuart?
 
@@ -62,8 +85,7 @@ o add helix here for the tutorial. Fails when map is masked.
 * Done.
 
 o 4n6f and bendix helices - look at the loops
-
-o save state should save unwritten masked maps
+* Done.
 
 o check coenzyme A cation-pi stacking
 
