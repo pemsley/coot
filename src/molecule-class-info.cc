@@ -22,6 +22,7 @@
  */
 
 #include "molecule-class-info.h"
+#include "glycoblocks.hh"
 #include "stereo-eye.hh"
 #include <filesystem>
 #ifdef USE_PYTHON
@@ -299,6 +300,11 @@ molecule_class_info_t::setup_internal() { // init
 
    map_as_mesh.set_name("empty map molecule mesh");
    model_molecule_meshes.set_name("empty model molecule mesh");
+   glycoblocks_meshes.set_name("glycoblocks");
+   draw_glycoblocks_flag = false;
+   glycoblocks_3d_flag = false;
+   glycoblocks_scale_factor = 1.0f;
+   glycoblocks_colour = glm::vec4(-1.0f);
 
    // molecule_as_mesh_atoms_1   = Mesh("molecule_as_mesh_atoms_1");
    // molecule_as_mesh_atoms_2   = Mesh("molecule_as_mesh_atoms_2");
@@ -4452,6 +4458,10 @@ molecule_class_info_t::make_meshes_from_bonds_box_instanced_version() {
       // Restore the user's material settings after recreating the bonds mesh
       model_molecule_meshes.set_material(material_for_models);
 
+      // keep the glycoblocks in step with the model
+      if (draw_glycoblocks_flag)
+         make_glycoblocks();
+
       // 2025-07-28 10:14 I don't want to set this here, surely.
       // There should be some other control.
       // I want to be able to update the mesh without seeing the bonds (Ctrl F)
@@ -4634,6 +4644,52 @@ molecule_class_info_t::draw_molecule_as_meshes(Shader *shader_p,
 
 }
 
+
+// (re)make the glycoblocks for all the sugars in the molecule
+void
+molecule_class_info_t::make_glycoblocks() {
+
+   if (! atom_sel.mol) return;
+   if (! graphics_info_t::use_graphics_interface_flag) return;
+
+   coot::instanced_mesh_t im = coot::glycoblocks::DrawSugarBlocks(atom_sel.mol, "/*/*/*", glycoblocks_3d_flag,
+                                                                    glycoblocks_scale_factor, glycoblocks_colour);
+   graphics_info_t::attach_buffers();
+   glycoblocks_meshes.import(im);
+   glycoblocks_meshes.set_material(material_for_models);
+}
+
+void
+molecule_class_info_t::set_show_glycoblocks(bool state) {
+
+   draw_glycoblocks_flag = state;
+   if (state)
+      make_glycoblocks();
+}
+
+void
+molecule_class_info_t::set_glycoblocks_3d(bool state) {
+
+   glycoblocks_3d_flag = state;
+   if (draw_glycoblocks_flag)
+      make_glycoblocks();
+}
+
+void
+molecule_class_info_t::set_glycoblocks_scale_factor(float sf) {
+
+   glycoblocks_scale_factor = sf;
+   if (draw_glycoblocks_flag)
+      make_glycoblocks();
+}
+
+void
+molecule_class_info_t::set_glycoblocks_colour(const glm::vec4 &col) {
+
+   glycoblocks_colour = col;
+   if (draw_glycoblocks_flag)
+      make_glycoblocks();
+}
 
 // draw molecule as instanced meshes.
 void

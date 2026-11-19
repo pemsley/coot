@@ -737,6 +737,8 @@ libcootsumo_la_SOURCES = \
 	model-composition-statistics.hh  \
 	model-molecule-meshes.hh         \
 	model-molecule-meshes.cc         \
+	glycoblocks.hh                   \
+	glycoblocks.cc                   \
 	molecular-triangles-mesh.hh      \
 	molecule-class-info.cc		 \
 	molecule-class-info-alignment.cc \

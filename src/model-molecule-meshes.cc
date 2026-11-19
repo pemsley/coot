@@ -86,6 +86,16 @@ model_molecule_meshes_t::draw_for_ssao(Shader *shader_for_meshes_p,
 }
 
 
+// replace the meshes with those of the given (api-style) instanced mesh, e.g. glycoblocks
+void
+model_molecule_meshes_t::import(const coot::instanced_mesh_t &api_mol_mesh) {
+
+   instanced_meshes.clear();
+   simple_mesh.clear();
+   im = api_mol_mesh;
+   convert_and_fill_meshes(im);
+}
+
 void
 model_molecule_meshes_t::convert_and_fill_meshes(const coot::instanced_mesh_t &im) {
 
@@ -112,10 +122,11 @@ model_molecule_meshes_t::convert_and_fill_meshes(const coot::instanced_mesh_t &i
             const coot::instancing_data_type_A_t &Atd = ig.instancing_data_A[i_A];
             // 20230828-PE Atom sizes (sphere radius) can vary. Waters and metals are bigger.
             // size for a sphere should be a vector of size 3 of the same number.
-	    float sphere_radius = Atd.size[0];
+            // translate * scale: the same as scale * translate(position/size) for the atom
+            // spheres (all three sizes the same), and also right when they are not, e.g. the
+            // flattened linkage spheres of the glycoblocks.
             colours[i_A] = Atd.colour;
-	    glm::mat4 mm = glm::scale(unit_matrix, Atd.size);
-            matrices[i_A] = glm::translate(mm, Atd.position/sphere_radius);
+            matrices[i_A] = glm::translate(unit_matrix, Atd.position) * glm::scale(unit_matrix, Atd.size);
          }
          Material material;
          m.setup_instancing_buffer_data(material, matrices, colours);
