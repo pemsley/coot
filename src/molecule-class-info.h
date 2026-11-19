@@ -3890,6 +3890,18 @@ public:        //                      public
    void set_material_in_molecules_as_mesh(const Material &material) {
       model_molecule_meshes.set_material(material);
    }
+   // glycoblocks: 3D-SNFG shapes for the carbohydrates (ported from Moorhen). They are drawn
+   // independently of the bonds (draw_it), and remade with the bonds when the model changes.
+   model_molecule_meshes_t glycoblocks_meshes;
+   bool draw_glycoblocks_flag;
+   bool glycoblocks_3d_flag; // 3D-SNFG style: cubes and spheres rather than flat blocks
+   float glycoblocks_scale_factor; // block size, relative to Moorhen's
+   glm::vec4 glycoblocks_colour; // r < 0: SNFG colours
+   void make_glycoblocks();
+   void set_show_glycoblocks(bool state);
+   void set_glycoblocks_3d(bool state);
+   void set_glycoblocks_scale_factor(float sf);
+   void set_glycoblocks_colour(const glm::vec4 &col);
    Mesh molecule_as_mesh_rama_balls;
    Mesh molecule_as_mesh_rota_dodecs;
    // pass this function to the Mesh so that we can determine the atom and bond colours
