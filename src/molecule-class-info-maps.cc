@@ -905,6 +905,7 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
       } else {
          // std::cout << "INFO:: no make_current context error!" << std::endl;
          setup_glsl_map_rendering(centre_c, radius); // turn tri_con into buffers.
+         map_contours_outdated = false;
       }
 
 
