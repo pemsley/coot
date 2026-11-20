@@ -2452,6 +2452,14 @@ coot::assign_chirals_rdkit_tags(const RDKit::ROMol &mol,
 	       // std::reverse(neighb_names_and_ranks.begin(),
                // neighb_names_and_ranks.end());
 
+	       // The chiral restraint should be specified with the non-hydrogen
+	       // neighbours, so put any hydrogen atoms at the end. (The volume sign
+	       // is calculated from the positions of the atoms that are used.)
+	       std::stable_partition(neighb_names_and_ranks.begin(), neighb_names_and_ranks.end(),
+				     [&mol] (const indexed_name_and_rank_t &nr) {
+					return mol[nr.atom_index]->getAtomicNum() != 1;
+				     });
+
 	       std::string chiral_id = "chiral_" + util::int_to_string(n_chirals+1);
 	       std::string n1 = neighb_names_and_ranks[0].atom_name;
 	       std::string n2 = neighb_names_and_ranks[1].atom_name;
