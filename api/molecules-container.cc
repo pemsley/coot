@@ -47,6 +47,7 @@
 #include "coords/mmdb-extras.hh"
 
 #include "mmdb2/mmdb_atom.h"
+#include "utils/coot-utils.hh" // for get_max_number_of_threads()
 #include "utils/logging.hh"
 extern logging logger;
 
@@ -64,11 +65,22 @@ molecules_container_t::~molecules_container_t() {
    standard_residues_asc.clear_up();
 }
 
+// The number of threads for the thread pool of a new container: at most 8 and
+// not more than the limit that the user has (or the system has) set.
+static unsigned int
+initial_thread_pool_size() {
+
+   unsigned int n = coot::get_max_number_of_threads();
+   if (n > 8) n = 8;
+   if (n < 1) n = 1;
+   return n;
+}
+
 //! the one and only constructor
 // verbose is an optional arg, default true
 molecules_container_t::molecules_container_t(bool verbose) :
    ramachandrans_container(ramachandrans_container_t()),
-   thread_pool(8) {
+   thread_pool(initial_thread_pool_size()) {
    if (! verbose) geom.set_verbose(false);
    init();
 }

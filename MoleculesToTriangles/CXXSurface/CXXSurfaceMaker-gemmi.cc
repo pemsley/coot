@@ -163,11 +163,6 @@ int CXXSurfaceMaker::calculateFromAtoms(gemmi::Structure *structure, gemmi::Mode
    childSurfaces.resize(oldSize + nSelAtoms);
    CXXSurface *elementSurfacesArray = &(childSurfaces[oldSize]);
 
-#if !defined __APPLE__ && !defined _OPENMP
-   unsigned int n_threads = 2;
-   ctpl::thread_pool the_thread_pool(n_threads);
-#endif
-
 #if __APPLE__ && !defined _OPENMP
    dispatch_apply(nSelAtoms, dispatch_get_global_queue(0, 0), ^(size_t atomNr) {
       handleCentralAtom(atomNr, this, &vdwBallPntrs, elementSurfacesArray, radiusMultiplier,
@@ -191,9 +186,6 @@ int CXXSurfaceMaker::calculateFromAtoms(gemmi::Structure *structure, gemmi::Mode
    });
 #else
    }
-#if !defined __APPLE__ && !defined _OPENMP
-   the_thread_pool.stop(true);
-#endif
 #endif
 
    vector<const CXXBall *> reentrantProbes;

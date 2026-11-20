@@ -2683,7 +2683,7 @@ coot::molecule_t::get_fixed_atoms() const {
 
 int
 coot::molecule_t::refine_direct(std::vector<mmdb::Residue *> rv, const std::string &alt_loc, const clipper::Xmap<float> &xmap,
-                                unsigned int max_number_of_threads,
+                                ctpl::thread_pool *thread_pool_p,
                                 float map_weight, int n_cycles, const coot::protein_geometry &geom,
                                 bool do_rama_plot_restraints, float rama_plot_weight,
                                 bool do_torsion_restraints, float torsion_weight,
@@ -2731,9 +2731,11 @@ coot::molecule_t::refine_direct(std::vector<mmdb::Residue *> rv, const std::stri
    if (do_torsion_restraints) flags = TYPICAL_RESTRAINTS_WITH_TORSIONS;
    pseudo_restraint_bond_type pseudos = NO_PSEUDO_BONDS;
 
-   int n_threads = max_number_of_threads;
-   ctpl::thread_pool thread_pool(n_threads);
-   restraints.thread_pool(&thread_pool, n_threads);
+   // Use the thread pool that we were given - making a new thread pool here
+   // means that every refinement starts (and stops) another set of threads
+   // while those of the molecules container's thread pool are doing nothing.
+   int n_threads = thread_pool_p->size();
+   restraints.thread_pool(thread_pool_p, n_threads);
 
    int imol = imol_no;
    bool do_auto_helix_restraints = true;
@@ -4693,7 +4695,7 @@ coot::molecule_t::init_all_molecule_refinement(int imol_ref_mol, coot::protein_g
    flags = coot::TYPICAL_RESTRAINTS;
    coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
 
-   unsigned int n_threads = 8;
+   unsigned int n_threads = coot::get_max_number_of_threads();
    last_restraints->thread_pool(thread_pool, n_threads);
 
    // user-defined LIG diction ahve been assigned to imol_ref_mol, not this one (this one

@@ -365,6 +365,7 @@ coot::molecule_t::minimize(const std::string &atom_selection_cid,
                            bool do_rama_plot_restraints, float rama_plot_weight,
                            bool do_torsion_restraints, float torsion_weight, bool refinement_is_quiet,
                            coot::protein_geometry *geom_p,
+                           ctpl::thread_pool *thread_pool_p,
                            bool do_numerical_gradients) {
 
    // c.f. refine_direct()
@@ -410,9 +411,12 @@ coot::molecule_t::minimize(const std::string &atom_selection_cid,
       if (do_torsion_restraints) flags = TYPICAL_RESTRAINTS_WITH_TORSIONS;
       pseudo_restraint_bond_type pseudos = NO_PSEUDO_BONDS;
 
-      int n_threads = 4; // coot::get_max_number_of_threads();
-      ctpl::thread_pool thread_pool(n_threads);
-      restraints.thread_pool(&thread_pool, n_threads);
+      // Use the thread pool that we were given (c.f. refine_direct()), and
+      // not more of it than there is.
+      int n_threads = 4;
+      if (n_threads > thread_pool_p->size())
+         n_threads = thread_pool_p->size();
+      restraints.thread_pool(thread_pool_p, n_threads);
 
       int imol = imol_no;
       bool do_auto_helix_restraints = true;
