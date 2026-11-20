@@ -1461,7 +1461,8 @@ make_fragments(std::vector<std::pair<unsigned int, coot::scored_node_t> > &score
 
                            std::size_t loop_begin_tree_size = trees.size();
                            std::size_t scored_pairs_front_offset = 0;
-                           unsigned int n_threads = 16;
+                           unsigned int n_threads = coot::get_max_number_of_threads();
+                           if (n_threads < 1) n_threads = 1;
 
                            do {
 
@@ -3386,7 +3387,11 @@ void res_tracer_proc(const clipper::Xmap<float> &xmap, float xmap_rmsd, const co
                                             if (model_p) {
                                                unsigned int n_chains = model_p->GetNumberOfChains();
                                                std::vector<std::vector<unsigned int> > chain_indices;
-                                               coot::split_indices(&chain_indices, n_chains, 40);
+                                               // one thread for each set of chains
+                                               unsigned int n_chain_sets = coot::get_max_number_of_threads();
+                                               if (n_chain_sets > 40) n_chain_sets = 40;
+                                               if (n_chain_sets < 1) n_chain_sets = 1;
+                                               coot::split_indices(&chain_indices, n_chains, n_chain_sets);
 
                                                std::vector<std::thread> threads;
                                                for (unsigned int i=0; i<chain_indices.size(); i++) {

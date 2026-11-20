@@ -688,15 +688,24 @@ coot::util::make_nxmap_from_xmap(const clipper::Xmap<float> &xmap, mmdb::Manager
    clipper::Xmap<float>::Map_reference_coord ix(xmap);
    clipper::Coord_grid offset =
       xmap.coord_map(nxmap.coord_orth(clipper::Coord_map(0.0,0.0,0.0))).coord_grid();
-   int n_threads = 4; // the number of layers
-   std::vector<std::pair<NRI, NRI> > map_ref_start_stops(n_threads);
    int nu = nxmap.grid().nu();
    int nv = nxmap.grid().nv();
    int nw = nxmap.grid().nw();
+   // The map is copied in layers (of u), one thread for each layer.
+   int n_threads = coot::get_max_number_of_threads();
+   if (n_threads < 1) n_threads = 1;
+   if (n_threads > nu) n_threads = nu;
+   if (n_threads < 1) n_threads = 1; // nu was 0
    int nu_step = nu/n_threads;
    // round that up if not exact
    if ((nu_step * n_threads) < nu)
       nu_step++;
+   // Now that the step has been rounded up we may need fewer layers. A layer must not
+   // start beyond the end of the grid.
+   if (nu_step > 0)
+      n_threads = (nu + nu_step - 1)/nu_step;
+   if (n_threads < 1) n_threads = 1;
+   std::vector<std::pair<NRI, NRI> > map_ref_start_stops(n_threads);
    if (debug) {
       std::cout << "nxmap size() " << nxmap.grid().size() << std::endl;
       std::cout << "nxmap grid() " << nxmap.grid().format() << std::endl;

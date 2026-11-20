@@ -4184,7 +4184,8 @@ coot::util::soi_variance::make_variance_map() const {
       for (ix = xmap.first(); !ix.last(); ix.next())
          ++n_grids;
 
-      unsigned int n_threads = 4;
+      unsigned int n_threads = coot::get_max_number_of_threads();
+      if (n_threads < 1) n_threads = 1;
       std::vector<std::vector<clipper::Xmap_base::Map_reference_index> > grid_indices(n_threads);
       int r_reserve_size = std::lround(static_cast<float>(n_grids)/static_cast<float>(n_threads)) + 2;
       for (std::size_t n=0; n<n_threads; n++)
@@ -4569,10 +4570,15 @@ coot::util::compare_structure_factors(const clipper::Xmap<float> &xmap_1, const 
                       };
 
    std::cout << "# starting FFTs" << std::endl;
-   std::thread thread_1(fft_to_fphi, std::cref(xmap_1), std::ref(fphis_1));
-   std::thread thread_2(fft_to_fphi, std::cref(xmap_2), std::ref(fphis_2));
-   thread_1.join();
-   thread_2.join();
+   if (coot::get_max_number_of_threads() >= 2) {
+      std::thread thread_1(fft_to_fphi, std::cref(xmap_1), std::ref(fphis_1));
+      std::thread thread_2(fft_to_fphi, std::cref(xmap_2), std::ref(fphis_2));
+      thread_1.join();
+      thread_2.join();
+   } else {
+      fft_to_fphi(xmap_1, fphis_1);
+      fft_to_fphi(xmap_2, fphis_2);
+   }
 
    std::cout << "# FFTs done" << std::endl;
 
@@ -4782,7 +4788,8 @@ coot::util::zero_dose_extrapolation(const std::vector<std::pair<clipper::Xmap<fl
 #endif
 
 #if 1 // multi-threaded
-   unsigned int n_threads = 8;
+   unsigned int n_threads = coot::get_max_number_of_threads();
+   if (n_threads < 1) n_threads = 1;
    std::vector<std::thread> threads;
    std::vector<std::pair<unsigned int, unsigned int> > ranges = atom_index_ranges(n_maps, n_threads);
    for (unsigned int irange=0; irange<ranges.size(); irange++)
