@@ -24,6 +24,7 @@
 #include <stdexcept>
 #include <iostream>
 #include <algorithm>
+#include <atomic>
 #include "coot-utils.hh"
 
 #ifdef  _WIN32
@@ -46,7 +47,9 @@ SYSTEM_INFO sysinfo;
 
 }
 
-// unsigned int coot::coot_n_threads = 0; // static
+// The maximum number of threads: 0 means that it has not been set yet.
+// This is used from several threads (e.g. the threads of a thread pool ask for it).
+static std::atomic<unsigned int> coot_n_threads(0);
 
 unsigned int coot::get_max_number_of_threads() {
 
