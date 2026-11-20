@@ -503,7 +503,8 @@ coot::multi_build_terminal_residue_addition::store_manager(stored_fragment_conta
    bool all_done = false;
 
    unsigned int unlocked = 0;
-   std::vector<std::thread> threads;
+   unsigned int n_threads_max = coot::get_max_number_of_threads();
+   if (n_threads_max < 1) n_threads_max = 1;
 
    while (! all_done) {
 
@@ -533,7 +534,11 @@ coot::multi_build_terminal_residue_addition::store_manager(stored_fragment_conta
 	 if (n_done == fragment_store.stored_fragments.size())
 	    all_done = true;
 
+      // Start a thread for each fragment that needs its side chains to be tried - but
+      // no more threads than we are allowed.
+      std::vector<std::thread> threads;
       for (std::size_t i=0; i<fragment_store.stored_fragments.size(); i++) {
+	 if (threads.size() == n_threads_max) break;
 	 if (fragment_store.stored_fragments[i].sidechains_tried == false) {
 	    if (fragment_store.stored_fragments[i].with_sidechains == false) {
 
@@ -548,11 +553,17 @@ coot::multi_build_terminal_residue_addition::store_manager(stored_fragment_conta
       }
 
       locked = 0;
-      std::this_thread::sleep_for(std::chrono::milliseconds(800)); // wait before checking the store again
+
+      if (threads.empty()) {
+	 std::this_thread::sleep_for(std::chrono::milliseconds(800)); // wait before checking the store again
+      } else {
+	 // Wait for these threads before looking at the store again. A fragment is marked
+	 // as tried only when its thread has finished, so, without this, the next pass
+	 // would start another thread for a fragment that is still being worked on.
+	 for (std::size_t i_thread=0; i_thread<threads.size(); i_thread++)
+	    threads[i_thread].join();
+      }
    }
-   unsigned int n_threads = threads.size();
-   for (unsigned int i_thread=0; i_thread<n_threads; i_thread++)
-      threads.at(i_thread).join();
 
 #endif // HAVE_CXX_THREAD
 

@@ -1359,8 +1359,10 @@ namespace coot {
       std::vector<mmdb::Residue *> select_residues(const std::string &multi_cid, const std::string &mode) const;
 
       //! real space refinement
+      //!
+      //! `thread_pool_p` is the thread pool to use (the thread pool of the molecules container)
       int refine_direct(std::vector<mmdb::Residue *> rv, const std::string &alt_loc, const clipper::Xmap<float> &xmap,
-                        unsigned int max_number_of_threads,
+                        ctpl::thread_pool *thread_pool_p,
                         float map_weight, int n_cycles, const coot::protein_geometry &geom,
                         bool do_rama_plot_restraints, float rama_plot_weight,
                         bool do_torsion_restraints, float torsion_weight,
@@ -1371,6 +1373,7 @@ namespace coot {
                    bool do_rama_plot_restraints, float rama_plot_weight,
                    bool do_torsion_restraints, float torsion_weight, bool refinement_is_quiet,
                    coot::protein_geometry *geom_p,
+                   ctpl::thread_pool *thread_pool_p,
                    bool do_numerical_gradients=false);
 
       bool shiftfield_b_factor_refinement(const clipper::HKL_data<clipper::data32::F_sigF> &F_sigF,

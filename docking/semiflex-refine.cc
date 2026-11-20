@@ -33,6 +33,7 @@
 #include "semiflex-refine.hh"
 #include "coot-utils/coot-coord-utils.hh"
 #include "utils/split-indices.hh"
+#include "utils/coot-utils.hh"
 
 using namespace coot::haddock;
 
@@ -984,7 +985,8 @@ semiflex_refiner_t::refine(const std::vector<docking_result_t> &rigid_results) {
 
    unsigned int n_threads = sf_params_.n_threads;
    if (n_threads == 0) {
-      n_threads = std::thread::hardware_concurrency();
+      // auto-detect, within the limit that the user may have set
+      n_threads = coot::get_max_number_of_threads();
       if (n_threads == 0) n_threads = 4;
    }
    unsigned int n_input = static_cast<unsigned int>(rigid_results.size());

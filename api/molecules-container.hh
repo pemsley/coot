@@ -4243,7 +4243,9 @@ public:
    //!
    //! set the maximum number of threads for both the thread pool and the vector of threads
    //!
-   //! @param n_threads is the number of threads
+   //! @param n_threads is the number of threads. 0 means "use the default": the number
+   //!        of threads is then taken from the `COOT_N_THREADS` environment variable or,
+   //!        if that is not set, from the system.
    void set_max_number_of_threads(unsigned int n_threads);
 
    //! Testing function

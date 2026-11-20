@@ -47,6 +47,7 @@
 #include "coords/mmdb-extras.hh"
 
 #include "mmdb2/mmdb_atom.h"
+#include "utils/coot-utils.hh" // for get_max_number_of_threads()
 #include "utils/logging.hh"
 extern logging logger;
 
@@ -64,11 +65,22 @@ molecules_container_t::~molecules_container_t() {
    standard_residues_asc.clear_up();
 }
 
+// The number of threads for the thread pool of a new container: at most 8 and
+// not more than the limit that the user has (or the system has) set.
+static unsigned int
+initial_thread_pool_size() {
+
+   unsigned int n = coot::get_max_number_of_threads();
+   if (n > 8) n = 8;
+   if (n < 1) n = 1;
+   return n;
+}
+
 //! the one and only constructor
 // verbose is an optional arg, default true
 molecules_container_t::molecules_container_t(bool verbose) :
    ramachandrans_container(ramachandrans_container_t()),
-   thread_pool(8) {
+   thread_pool(initial_thread_pool_size()) {
    if (! verbose) geom.set_verbose(false);
    init();
 }
@@ -3891,6 +3903,11 @@ molecules_container_t::molecule_to_mmCIF_string(int imol) const {
 void
 molecules_container_t::set_max_number_of_threads(unsigned int n_threads) {
    coot::set_max_number_of_threads(n_threads);
+   // n_threads = 0 means "use the default". The thread pool must never have 0 threads:
+   // nothing that is pushed to such a pool is run, so a function that waits for the
+   // results would never return.
+   if (n_threads == 0)
+      n_threads = initial_thread_pool_size();
    thread_pool.resize(n_threads);
 }
 
@@ -3916,12 +3933,15 @@ molecules_container_t::test_the_threading(int n_threads) {
    };
 
    int imol_map = read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+   // this is a timing test, so put the limit back afterwards
+   unsigned int n_threads_previous = coot::get_max_number_of_threads();
    coot::set_max_number_of_threads(n_threads);
    float radius = 50;
    auto tp_0 = std::chrono::high_resolution_clock::now();
    coot::simple_mesh_t map_mesh = get_map_contours_mesh(imol_map, 55,10,10, radius, 0.12);
    auto tp_1 = std::chrono::high_resolution_clock::now();
    auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+   coot::set_max_number_of_threads(n_threads_previous);
    close_molecule(imol_map);
    return d10;
 }

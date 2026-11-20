@@ -182,9 +182,6 @@ coot::calc_atom_map_edcalc(mmdb::Manager *mol,
 
    // Threading setup
    unsigned int n_threads = coot::get_max_number_of_threads();
-#ifdef __EMSCRIPTEN__
-   n_threads = 3;
-#endif
 
    if (n_threads == 0) n_threads = 4;
 

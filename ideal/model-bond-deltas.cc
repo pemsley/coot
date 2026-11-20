@@ -98,7 +98,9 @@ coot::model_bond_deltas::resolve() {
 
 	 restraints_container_t restraints(residues, *geom_p, mol, &dummy_xmap);
 
-	 int n_threads = 2;
+	 // make_restraints() starts up to (the maximum number of threads - 1) threads of
+	 // its own, so this pool can have only one thread if we are to stay within the limit.
+	 int n_threads = 1;
 	 ctpl::thread_pool thread_pool(n_threads);
 	 restraints.thread_pool(&thread_pool, n_threads);
 

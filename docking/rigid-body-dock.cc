@@ -30,6 +30,7 @@
 
 #include "rigid-body-dock.hh"
 #include "utils/split-indices.hh"
+#include "utils/coot-utils.hh"
 
 using namespace coot::haddock;
 
@@ -612,7 +613,8 @@ rigid_body_docker_t::dock() {
 
    unsigned int n_threads = params_.n_threads;
    if (n_threads == 0) {
-      n_threads = std::thread::hardware_concurrency();
+      // auto-detect, within the limit that the user may have set
+      n_threads = coot::get_max_number_of_threads();
       if (n_threads == 0) n_threads = 4;
    }
    if (n_threads > static_cast<unsigned int>(params_.n_trials))
