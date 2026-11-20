@@ -5161,12 +5161,13 @@ coot::util::partition_map_by_chain(const clipper::Xmap<float> &xmap, mmdb::Manag
          distance_map[ix] = starting_distance_map;
    }
 
+   // This is run in a thread for each chain. So that the threads don't write to the
+   // same data, each of them only changes the distance for its own chain_id and
+   // none of them write to the state string.
    auto manhattan_check = +[] (const std::string &chain_id,
                                const std::vector<clipper::Coord_grid> &reference_points,
-                               clipper::Xmap<std::map<std::string, int> > *distance_map_p,
-                               std::string *info_string_p) {
+                               clipper::Xmap<std::map<std::string, int> > *distance_map_p) {
 
-      if (info_string_p) *info_string_p = "Distance check for " + chain_id;
       clipper::Xmap_base::Map_reference_index ix;
       for (ix = distance_map_p->first(); !ix.last(); ix.next()) {
          std::map<std::string, int>::const_iterator it;
@@ -5188,20 +5189,25 @@ coot::util::partition_map_by_chain(const clipper::Xmap<float> &xmap, mmdb::Manag
       logger.log(log_t::INFO, "manhattan map check done", chain_id);
    };
 
-   std::vector<std::thread> threads;
-   for (const auto &chain_id : chain_ids) {
-      // this block can be multi-threaded, I think
-      const std::vector<clipper::Coord_grid> &reference_points = rp[chain_id];
-      // modify distance map
-      // manhattan_check(chain_id, reference_points, &distance_map);
-      threads.push_back(std::thread(manhattan_check, chain_id, reference_points, &distance_map,
-                                    state_string_p));
+   // One thread for each chain, but not more than the maximum number of threads at
+   // any one time (there can be many chains).
+   unsigned int n_threads_max = coot::get_max_number_of_threads();
+   if (n_threads_max < 1) n_threads_max = 1;
+   for (std::size_t i_start=0; i_start<chain_ids.size(); i_start+=n_threads_max) {
+      std::size_t i_end = i_start + n_threads_max;
+      if (i_end > chain_ids.size()) i_end = chain_ids.size();
+      std::vector<std::thread> threads;
+      for (std::size_t i=i_start; i<i_end; i++) {
+         const std::string &chain_id = chain_ids[i];
+         if (state_string_p) *state_string_p = "Distance check for " + chain_id;
+         // modify distance map
+         threads.push_back(std::thread(manhattan_check, chain_id, std::cref(rp[chain_id]), &distance_map));
+      }
+      if (state_string_p) *state_string_p = "Joining threads...";
+      // std::cout << "INFO:: joining threads" << std::endl;
+      logger.log(log_t::INFO, "joining threads");
+      for (auto &thread : threads) thread.join();
    }
-
-   if (state_string_p) *state_string_p = "Joining threads...";
-   // std::cout << "INFO:: joining threads" << std::endl;
-   logger.log(log_t::INFO, "joining threads");
-   for (auto &thread : threads) thread.join();
 
    // now extract each of the maps for each chain
    // std::cout << "INFO:: now constructing the map for each chain" << std::endl;
