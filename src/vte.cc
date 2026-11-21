@@ -297,8 +297,10 @@ static void spawn_vte_helper() {
       nullptr           // user_data
    );
 
-   // Close our copy of the child's socket end
-   close(child_socket_fd);
+   // Do not close child_socket_fd here: vte_terminal_spawn_with_fds_async() takes
+   // ownership of the fds it is given and closes them itself. Closing it here too
+   // is a double close - it races with the spawn (which runs in a thread) and the
+   // fd number can be reused (e.g. by the child-watch pidfd) before VTE closes it.
 }
 
 void setup_python_vte_terminal() {
