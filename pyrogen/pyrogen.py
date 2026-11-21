@@ -396,7 +396,7 @@ def make_picture_to_file(mol, conf_id, output_file_name):
         # What about pillow? Hmm. Not sure of the details.
         # import Image
         from PIL import Image as Image
-        state = Draw.MolToFile(mol, size=(300,300), fileName=output_file_name, confId=conf_id)
+        state = Draw.MolToFile(mol, size=(300,300), filename=output_file_name, confId=conf_id)
         # print 'INFO:: wrote PNG   "' + output_file_name + '"'
 
         # img = Draw.MolToImage(mol, fitImage=True, size=(900,900))
@@ -1281,7 +1281,7 @@ if __name__ == "__main__":
                         #
                         mol_for_drawing = Chem.RemoveHs(mol, implicitOnly=False)
                         conf2D_id = AllChem.Compute2DCoords(mol_for_drawing)
-                        conf = mol.GetConformer(conf2D_id)
+                        conf = mol_for_drawing.GetConformer(conf2D_id)
                         Chem.WedgeMolBonds(mol_for_drawing, conf)
                         make_picture(mol_for_drawing, conf2D_id, comp_id, options.output_postfix)
 

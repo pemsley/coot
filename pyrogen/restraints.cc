@@ -951,6 +951,79 @@ coot::fill_with_energy_lib_torsions(const RDKit::ROMol &mol,
 }
 
 
+// A torsion with period n has n equivalent target values (angle + k*360/n). The target
+// value that comes from the atom types is one of them - but it need not be the one that
+// this molecule has (e.g. 180 for the exocyclic C-N-C=O of a lactam, where the atoms are
+// cis). Return the equivalent value that is closest to the torsion in the conformer.
+//
+static double
+torsion_target_nearest_to_measured(double angle, int period, double measured) {
+
+   if (period < 1) return angle;
+   auto wrap = [] (double a) { // to (-180, 180]
+      while (a >   180.0) a -= 360.0;
+      while (a <= -180.0) a += 360.0;
+      return a;
+   };
+   double best = wrap(angle);
+   double best_diff = std::abs(wrap(best - measured));
+   for (int k=1; k<period; k++) {
+      double candidate = wrap(angle + k * 360.0/static_cast<double>(period));
+      double diff = std::abs(wrap(candidate - measured));
+      if (diff < best_diff) {
+         best_diff = diff;
+         best = candidate;
+      }
+   }
+   return best;
+}
+
+static double
+torsion_target_nearest_to_conformer(const RDKit::ROMol &mol,
+                                    const RDKit::Atom *at_1, const RDKit::Atom *at_2,
+                                    const RDKit::Atom *at_3, const RDKit::Atom *at_4,
+                                    double angle, int period) {
+
+   int n_conf = mol.getNumConformers();
+   if (n_conf == 0) return angle;
+   const RDKit::Conformer &conf = mol.getConformer(n_conf - 1);
+   if (! conf.is3D()) return angle;
+
+   auto pt = [&conf] (const RDKit::Atom *at) {
+      const RDGeom::Point3D &p = conf.getAtomPos(at->getIdx());
+      return clipper::Coord_orth(p.x, p.y, p.z);
+   };
+   double measured = clipper::Util::rad2d(clipper::Coord_orth::torsion(pt(at_1), pt(at_2), pt(at_3), pt(at_4)));
+   return torsion_target_nearest_to_measured(angle, period, measured);
+}
+
+// Likewise, using the coordinates of the atoms of the dictionary - for use after the
+// coordinates have been regularized (atoms move, e.g. methyl groups rotate).
+//
+static void
+set_torsion_targets_nearest_to_coordinates(coot::dictionary_residue_restraints_t *restraints) {
+
+   std::map<std::string, clipper::Coord_orth> pos;
+   for (const auto &atom : restraints->atom_info)
+      if (atom.model_Cartn.first)
+         pos[coot::util::remove_whitespace(atom.atom_id)] = atom.model_Cartn.second;
+
+   for (auto &tr : restraints->torsion_restraint) {
+      auto it_1 = pos.find(coot::util::remove_whitespace(tr.atom_id_1()));
+      auto it_2 = pos.find(coot::util::remove_whitespace(tr.atom_id_2()));
+      auto it_3 = pos.find(coot::util::remove_whitespace(tr.atom_id_3()));
+      auto it_4 = pos.find(coot::util::remove_whitespace(tr.atom_id_4()));
+      if (it_1 == pos.end() || it_2 == pos.end() || it_3 == pos.end() || it_4 == pos.end()) continue;
+      double measured = clipper::Util::rad2d(clipper::Coord_orth::torsion(it_1->second, it_2->second,
+                                                                          it_3->second, it_4->second));
+      double angle = torsion_target_nearest_to_measured(tr.angle(), tr.periodicity(), measured);
+      if (angle != tr.angle())
+         tr = coot::dict_torsion_restraint_t(tr.id(), tr.atom_id_1(), tr.atom_id_2(),
+                                             tr.atom_id_3(), tr.atom_id_4(),
+                                             angle, tr.esd(), tr.periodicity());
+   }
+}
+
 bool
 coot::add_torsion_to_restraints(coot::dictionary_residue_restraints_t *restraints,
 				const RDKit::ROMol &mol,
@@ -1031,7 +1104,9 @@ coot::add_torsion_to_restraints(coot::dictionary_residue_restraints_t *restraint
 	    dict_torsion_restraint_t torsionr(tors_id,
 					      atom_name_1, atom_name_2,
 					      atom_name_3, atom_name_4,
-					      tors.angle, esd, tors.period);
+					      torsion_target_nearest_to_conformer(mol, at_1, at_2, at_3, at_4,
+										  tors.angle, tors.period),
+					      esd, tors.period);
 	    restraints->torsion_restraint.push_back(torsionr);
 	    added_state = true;
 	 }
@@ -1109,7 +1184,9 @@ coot::add_torsion_to_restraints(coot::dictionary_residue_restraints_t *restraint
 	 dict_torsion_restraint_t torsionr(tors_id,
 					   atom_name_1, atom_name_2,
 					   atom_name_3, atom_name_4,
-					   angle, esd, period);
+					   torsion_target_nearest_to_conformer(mol, at_1, at_2, at_3, at_4,
+									       angle, period),
+					   esd, period);
 	 if (debug)
 	    std::cout << "fallback pushback::" << torsionr << std::endl;
 	 restraints->torsion_restraint.push_back(torsionr);
@@ -2092,7 +2169,8 @@ coot::add_chem_comp_deloc_planes(const RDKit::ROMol &mol, coot::dictionary_resid
    std::vector<d_pat> patterns;
    patterns.push_back(d_pat("*C(=O)[O;H]",                 0.02));  // ASP carboxylate, valence model (H)
    patterns.push_back(d_pat("*[C;X3;^2](~O)~[O;X1]",       0.02));  // ASP carboxylate, no H
-   patterns.push_back(d_pat("AC(=O)[N^2;H2,H1]([H])[A,H]", 0.02));  // ASN
+   // ASN. The first atom can be aromatic (e.g. the carboxamide of the nicotinamide of NAD)
+   patterns.push_back(d_pat("*C(=O)[N^2;H2,H1]([H])[A,H]", 0.02));
    patterns.push_back(d_pat("*C(=N)[N^2;H2]([H])[A,H]",    0.02));  // amidine
    patterns.push_back(d_pat("CNC(=[NH])N([H])[H]",         0.02));  // guanidinium with H - testing
    patterns.push_back(d_pat("CNC(=[NH])N",                 0.02));  // guanidinium sans Hs
@@ -2176,7 +2254,9 @@ coot::add_chem_comp_sp2_C_planes(const RDKit::ROMol &mol, coot::dictionary_resid
    typedef std::pair<std::string, double> d_pat;
    std::vector<d_pat> patterns;
 
-   patterns.push_back(d_pat("AC(=O)C",                 0.02));  // ketone, A is usually C, maybe S.
+   // ketone, the first atom is usually C, maybe S. The neighbours of the carbonyl C can
+   // be aromatic (e.g. an aryl ketone or the carbonyl of an aryl tertiary amide).
+   patterns.push_back(d_pat("*C(=O)[#6]",              0.02));
 
    int n_planes = 1; // counter for output text
    for (unsigned int ipat=0; ipat<patterns.size(); ipat++) {
@@ -2191,8 +2271,8 @@ coot::add_chem_comp_sp2_C_planes(const RDKit::ROMol &mol, coot::dictionary_resid
 	 std::cout << "Matched " << matched << " sp2 N planes" << std::endl;
       for (unsigned int imatch=0; imatch<matches.size(); imatch++) {
 	 if (matches[imatch].size() > 0) {
-	    std::cout << "DEBUG:: add_chem_comp_sp2_C_planes(): matched sp2 N plane pattern: " << patterns[ipat].first << std::endl;
-	    std::string plane_id = "plane-sp2-N-";
+	    std::cout << "DEBUG:: add_chem_comp_sp2_C_planes(): matched sp2 C plane pattern: " << patterns[ipat].first << std::endl;
+	    std::string plane_id = "plane-sp2-C-";
 	    char s[100];
 	    snprintf(s,99,"%d", n_planes);
 	    plane_id += std::string(s);
@@ -2230,6 +2310,10 @@ coot::add_chem_comp_sp2_N_planes(const RDKit::ROMol &mol, coot::dictionary_resid
    std::vector<d_pat> patterns;
    patterns.push_back(d_pat("[c,C][N^2;H2]([H])[H]", 0.02));  // N6 on Adenosine.
                                                               // Should the Hs be replaced by *s?
+   // The N of a tertiary amide (e.g. a lactam N) and its 3 neighbours. The amide patterns
+   // in add_chem_comp_deloc_planes() need a H on the N. The carbonyl C has its own plane
+   // (see add_chem_comp_sp2_C_planes()), the twist of the amide is left to the torsion.
+   patterns.push_back(d_pat("[N;X3;^2;H0;$(NC=O)](*)(*)*", 0.02));
    int n_planes = 1; // counter for output text
    for (unsigned int ipat=0; ipat<patterns.size(); ipat++) {
       std::unique_ptr<RDKit::ROMol> query(RDKit::SmartsToMol(patterns[ipat].first));
@@ -2596,6 +2680,7 @@ coot::regularize_and_update_mol_and_restraints(RDKit::RWMol *mol,
       simple_refine(first_residue_p, mmdb_mol, *restraints_p);
       update_coords(mol, i_conf, first_residue_p);
       update_chem_comp_atoms_from_residue(first_residue_p, restraints_p);
+      set_torsion_targets_nearest_to_coordinates(restraints_p);
       delete mmdb_mol;
       delete residue_p;
    } else {
