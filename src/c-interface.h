@@ -1243,6 +1243,17 @@ void set_solid_density_surface_opacity(int imol, float opacity);
 @return the opacity, or -1 if imol is not a valid map molecule */
 float get_solid_density_surface_opacity(int imol);
 
+/*! \brief set the flag to use view-dependent transparency for the
+  density surface representation of the given map.
+
+The surface is more transparent where it faces the viewer and more opaque
+where it is seen edge-on. This only has an effect when the opacity
+(see \c set_solid_density_surface_opacity()) is less than 1.0.
+
+@param imol the map molecule index
+@param state 1 for on, 0 for off (the default) */
+void set_map_use_view_dependent_transparency(int imol, short int state);
+
 /*! \brief set the flag to do flat shading rather than smooth shading
   for solid density surface.
 
@@ -7812,6 +7823,54 @@ void set_model_molecule_representation_style(int imol, unsigned int mode);
   @param mesh_index the index of the molecular representation mesh of that molecule
   @param state 1 to show, 0 to hide */
 void set_show_molecular_representation(int imol, int mesh_index, short int state);
+
+/*! \brief set the opacity of a ribbon/mesh for a given molecule
+
+  Below 1.0 the mesh is drawn blended, so that what is behind it shows through.
+  The mesh triangles are not depth-sorted, so a mesh that folds over itself may
+  show some ordering artifacts.
+
+  @param imol the model molecule index
+  @param mesh_index the index of the molecular representation mesh of that molecule
+  @param opacity 0.0 (invisible) to 1.0 (opaque, the default) */
+void set_molecular_representation_opacity(int imol, int mesh_index, float opacity);
+
+/*! \brief show or hide the glycoblocks for a given molecule
+
+  Glycoblocks are 3D-SNFG shapes for the carbohydrates (e.g. a blue cube for GlcNAc,
+  a green sphere for mannose), with sticks for the glycosidic linkages. They are drawn
+  whether or not the bonds are, and remade when the model changes.
+
+  @param imol the model molecule index
+  @param state 1 to show, 0 to hide */
+void set_show_glycoblocks(int imol, short int state);
+
+/*! \brief return 1 if the glycoblocks are shown for the given molecule, 0 if not, -1 for a bad imol
+
+  @param imol the model molecule index */
+int show_glycoblocks_state(int imol);
+
+/*! \brief draw the glycoblocks for a given molecule in the 3D-SNFG style
+
+  Cubes and spheres (and thick prisms for the other shapes) rather than the default
+  flat blocks.
+
+  @param imol the model molecule index
+  @param state 1 for 3D shapes, 0 for flat blocks (the default) */
+void set_glycoblocks_3d(int imol, short int state);
+
+/*! \brief set the size of the glycoblocks for a given molecule
+
+   The default is 1.0. The linkages between the blocks keep their size. */
+void set_glycoblocks_scale_factor(int imol, float scale_factor);
+
+/*! \brief draw all the glycoblocks for a given molecule in one colour, rather than
+   the SNFG colours (e.g. for a reference model). A negative r restores the SNFG colours. */
+void set_glycoblocks_colour(int imol, float r, float g, float b);
+
+/*! \brief override whether a map is treated as an EM map (contoured only within its box) or
+   as a crystallographic (periodic) map. Useful for a map fragment that is away from the origin. */
+void set_map_is_em_map(int imol, short int state);
 
 /* removed from API brief display/undisplay the given additional representation  */
 void set_show_additional_representation(int imol, int representation_number, int on_off_flag);

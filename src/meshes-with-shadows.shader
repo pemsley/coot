@@ -112,6 +112,7 @@ uniform vec4 background_colour;
 uniform bool is_perspective_projection;
 uniform bool do_depth_fog;
 uniform float opacity; // was map_opacity
+uniform bool do_view_dependent_transparancy;
 uniform bool do_specular;
 uniform bool do_fresnel;
 uniform float shadow_strength;
@@ -333,6 +334,18 @@ void main() {
 
       if (fog_amount > 1.0) sum_col = vec4(1,0,1,1);
       if (fog_amount < 0.0) sum_col = vec4(0,1,0,1);
+
+      // the alpha has been accumulated over the lights (and fresnel and fog) above,
+      // so reset it here - as is done in meshes.shader
+      sum_col.a = opacity;
+
+      if (do_view_dependent_transparancy) {
+         if (opacity < 1.0f) {
+            float dp_this = dot(normalize(normal_transfer), normalize(eye_position_in_molecule_coordinates_space - frag_pos_transfer));
+            float a = 1.0 - pow(max(1.0 - opacity, 0.0), 1.0 / max(abs(dp_this), 0.01));
+            sum_col.a = a * a * a * a * a;
+         }
+      }
 
    }
 

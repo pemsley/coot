@@ -263,6 +263,10 @@ Mesh::import(const std::pair<std::vector<s_generic_vertex>, std::vector<g_triang
 
    import(indexed_vertices, fill_lines_vertex_indices);
    map_triangle_centres = map_triangle_centres_in;
+   // the new triangles are unsorted: make the next sort_map_triangles() happen even if the
+   // eye has not moved (otherwise a re-contoured transparent map is drawn unsorted - bright
+   // facets - until the view is moved)
+   previous_eye_position = glm::vec3(1e30f, 1e30f, 1e30f);
 }
 
 
