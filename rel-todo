@@ -1,16 +1,20 @@
 --- Items---
 
+o drag residue selection box over PAE plot
+
 o Look at the molecular symmetry problem from Lucrezia
 
 o use the raytracer to make images - check the debug output
 
-o fix the agentic coot checkpoint error. Needs to be tracked down.
-
 o Clement: libcootapi: sanity check of molecule at save time?
 
-o see bug.txt from Jordan
-
 o look at chi-5 in tutorial model and data in molprobity next
+
+o fix the agentic coot checkpoint error. Needs to be tracked down.
+* Done.
+
+o see bug.txt from Jordan
+* Done.
 
 o when adding a ligand, stop adding another ligand on top
 * Done.
