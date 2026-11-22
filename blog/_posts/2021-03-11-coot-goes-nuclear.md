@@ -15,7 +15,7 @@ The appropriate mmCIF tags to use are:
 
 You can see here that the nuclear bond lengths are longer by 0.08 &#x212B; or so.
 
-Additionally "Add Hydrogen Atoms" will add Hydrogen atoms using these bond lengths.
+Additionally, "Add Hydrogen Atoms" will add Hydrogen atoms using these bond lengths.
 
 The longer Hydrogen atom bond lengths means different non-bonded
 contacts interactions during real space refinement. But there were
