@@ -20,7 +20,7 @@
  o FEATURE: On adding hydrogen atoms: hydroxyl (and thiol) hydrogen
             atom positions are now chosen by a spin search
 
- o FEATURE: pyrogen: "chemistry-rich" dictionaries - stereo
+ o FEATURE: pyrogen: improved metadata for dictionaries - stereo
             configuration, SMILES/InChI descriptors, identifiers,
             2D depictions, and (from CCD input) the synonyms, audit
             records, DrugBank and other PDBe annotations are written
@@ -50,6 +50,32 @@
             make_textured_mesh_from_gltf_file(), and the
             "tubesStyleHelixRadius" parameter for the Tubes style
 
+ o FEATURE: Glycoblocks: 3D-SNFG shapes for carbohydrates (from
+            Moorhen): set_show_glycoblocks(), set_glycoblocks_3d(),
+            set_glycoblocks_scale_factor() and
+            set_glycoblocks_colour() [Jordan Dialpuri]
+
+ o FEATURE: Fancy mode: semi-transparent ribbons with
+            set_molecular_representation_opacity(), and
+            view-dependent map transparency now works with shadows
+            too (set_map_use_view_dependent_transparency())
+            [Jordan Dialpuri]
+
+ o FEATURE: set_map_is_em_map() overrides the EM/crystallographic
+            treatment of a map; a crosshairs size scale factor of 0
+            (set_user_defined_rotation_centre_crosshairs_size_scale_factor())
+            hides the crosshairs [Jordan Dialpuri]
+
+ o FEATURE: A Terminal menu button: the Python Scripting, AI and
+            Command terminals are tabs in a panel, which has a close
+            button
+
+ o FEATURE: pyrogen: the AceDRG atom types are written
+            (_chem_comp_acedrg) when the AceDRG tables are used, and
+            Coot keeps them when it writes a dictionary; -p and --svg
+            now write just a diagram (PNG or SVG) of the input
+            molecule
+
  o CHANGE:  The model made by "Place Helix Here" now starts at
             residue number 1
 
@@ -74,6 +100,14 @@
 
  o CHANGE:  "Add Terminal Residue" now gives a message when the
             refinement map has not been set
+
+ o CHANGE:  pyrogen restraints are more like AceDRG's: one torsion
+            per bond, with the atoms chosen as AceDRG does; planes for
+            a tertiary amide N (e.g. a lactam), a non-aromatic C=C, a
+            diarylamine N and aryl carbonyls; NH2 planes only for
+            amidine-like NH2 groups. Torsion targets are now the
+            equivalent value nearest to the coordinates, and chiral
+            restraints use the non-hydrogen neighbours first
 
  o BUG-FIX: Fix a crash with Updating Maps (an out-of-bounds read in
             the bulk-solvent structure factor calculation)
@@ -128,6 +162,23 @@ o BUG-FIX: pyrogen -w works again
 
  o BUG-FIX: Chapi: the helix template for the Tubes style is found
             in the installed data directory
+
+ o BUG-FIX: Shift-field refinement: Fc is put on the scale of Fo
+            first, so that the shifts do not depend on the scale of
+            Fo [Paul Bond]
+
+ o BUG-FIX: A hidden map is no longer recontoured every time it is
+            displayed
+
+ o BUG-FIX: Transparent maps are re-sorted after re-contouring
+            (they were drawn unsorted until the view moved)
+            [Jordan Dialpuri]
+
+ o BUG-FIX: pyrogen: -t (tautomers) and -p work again
+
+ o BUG-FIX: Fix the linking of the utility programs (e.g.
+            coot-density-score-by-residue-bin) in builds with the
+            terminal (VTE)
 
 -----
 
