@@ -356,7 +356,6 @@ WinCoot_SOURCES = main.cc glade-callbacks.cc glade-callbacks-main-window.cc \
         startup.cc \
         setup-gui-components.cc \
         setup-gui-components.hh \
-	vte.cc vte.hh \
 	create-menu-item-actions.cc \
 	create-menu-item-actions.hh
 else
@@ -366,7 +365,6 @@ MacCoot_SOURCES = main.cc glade-callbacks.cc glade-callbacks-main-window.cc \
         startup.cc \
         setup-gui-components.cc \
         setup-gui-components.hh \
-	vte.cc vte.hh \
 	create-menu-item-actions.cc \
 	create-menu-item-actions.hh
 
@@ -376,7 +374,6 @@ coot_1_SOURCES = main.cc glade-callbacks.cc glade-callbacks-main-window.cc \
         startup.cc \
         setup-gui-components.cc \
         setup-gui-components.hh \
-	vte.cc vte.hh \
 	create-menu-item-actions.cc \
 	create-menu-item-actions.hh
 endif
@@ -434,6 +431,7 @@ endif
 lib_LTLIBRARIES=libcootsumo.la
 
 libcootsumo_la_SOURCES = \
+	vte.cc vte.hh            \
 	atom-pull.hh		 \
 	atom-label-info.hh       \
 	array-2d.hh		 \
@@ -950,6 +948,7 @@ libcootsumo_la_LIBADD = $(OPENMP_CFLAGS) \
                 $(COOT_EXTRA_LIBS)      \
 		$(VORBISFILE_LIBS)      \
 		$(GTK_LIBS)             \
+		$(VTE_LIBS)             \
 		$(CLIPPER_LIBS) 	\
 		$(LIBSSM_LIBS)		\
 		$(CCP4SRS_LIBS) 	\
