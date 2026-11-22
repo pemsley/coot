@@ -212,7 +212,7 @@ def enumerate_tautomers(mol, max_tautomers=1000):
                         Chem.AssignStereochemistry(tautomer, force=True, cleanIt=True)
                         log.debug('Removed stereochemistry from unfixed double bond')
                         break
-    return tautomers.values()
+    return list(tautomers.values())
 
 
 def _pairwise(iterable):

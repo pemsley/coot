@@ -2704,8 +2704,14 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
       mmCIFLoop->PutInteger(nat, "number_atoms_all", i);
       nat = number_of_non_hydrogen_atoms();
       mmCIFLoop->PutInteger(nat, "number_atoms_nh", i);
-      s = residue_info.description_level.c_str();
-      mmCIFLoop->PutString(s, "desc_level", i);
+      // "." (full description) is CIF's "not given", not the string ".", so it must not
+      // be written quoted (PutString() quotes it). The reader turns the null back into ".".
+      if (residue_info.description_level.empty() || residue_info.description_level == ".")
+         mmCIFLoop->PutNoData(mmdb::mmcif::CIF_NODATA_DOT, "desc_level", i);
+      else if (residue_info.description_level == "?")
+         mmCIFLoop->PutNoData(mmdb::mmcif::CIF_NODATA_QUESTION, "desc_level", i);
+      else
+         mmCIFLoop->PutString(residue_info.description_level.c_str(), "desc_level", i);
       // the pdbx extras, when we have them
       if (! residue_info.type.empty())
          mmCIFLoop->PutString(residue_info.type.c_str(), "type", i);
@@ -2799,6 +2805,26 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
                      mmCIFLoop->PutReal(z, "z", i, 6);
                   }
                }
+            }
+         }
+      }
+
+      // the AceDRG atom types, as AceDRG writes them - when we have them (from an AceDRG
+      // dictionary, or from pyrogen when it used the AceDRG tables)
+      bool have_acedrg_atom_types = false;
+      for (const auto &ai : atom_info)
+         if (! ai.acedrg_atom_type.empty()) { have_acedrg_atom_types = true; break; }
+      if (have_acedrg_atom_types) {
+         rc = mmCIFData->AddLoop("_chem_comp_acedrg", mmCIFLoop);
+         if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
+            int row = 0;
+            for (const auto &ai : atom_info) {
+               if (ai.acedrg_atom_type.empty()) continue;
+               std::string atom_id = util::remove_whitespace(ai.atom_id);
+               mmCIFLoop->PutString(residue_info.comp_id.c_str(), "comp_id", row);
+               mmCIFLoop->PutString(atom_id.c_str(), "atom_id", row);
+               mmCIFLoop->PutString(ai.acedrg_atom_type.c_str(), "atom_type", row);
+               row++;
             }
          }
       }

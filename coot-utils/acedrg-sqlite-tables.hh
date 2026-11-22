@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "geometry/protein-geometry.hh"
 
@@ -40,13 +41,19 @@ namespace coot {
 
       //! prefetch this molecule's rows from SQLite, then run gemmi's
       //! fill_restraints() on cc. Returns false if not usable.
-      bool fill_chemcomp(gemmi::ChemComp &cc);
+      //!
+      //! @param acedrg_atom_types if not null, set to the AceDRG atom type (the
+      //!        COD class, e.g. "C[5](N[5]C[5]C[6])(C[5]C[5]HH)(O){1|C<3>,2|C<4>,4|H<1>}")
+      //!        of each atom of cc, in the order of cc.atoms
+      bool fill_chemcomp(gemmi::ChemComp &cc, std::vector<std::string> *acedrg_atom_types = nullptr);
 
       //! Return (status, restraints) where the restraints contain only the
       //! AceDRG-derived bond and angle restraints for the molecule described
       //! by restraints_in (atoms, bond connectivity and bond-type strings
       //! are read from restraints_in; values are ignored). Suitable for
       //! dictionary_residue_restraints_t::conservatively_replace_with().
+      //! The atom_info of the restraints is a copy of that of restraints_in,
+      //! with the AceDRG atom types (acedrg_atom_type) set.
       std::pair<bool, dictionary_residue_restraints_t>
       make_bond_and_angle_restraints(const dictionary_residue_restraints_t &restraints_in);
 

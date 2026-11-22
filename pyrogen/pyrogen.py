@@ -386,34 +386,50 @@ def make_picture(mol, conf_id, comp_id, output_postfix):
     output_file_name = comp_id + "-" + output_postfix + '.png'
     make_picture_to_file(mol, conf_id, output_file_name)
 
-def make_picture_to_file(mol, conf_id, output_file_name):
+def make_picture_to_file(mol, conf_id, output_file_name, n_pixels=300):
 
-    # need to install Pillow (I did it with pip)
+    # PNG or SVG, from the extension of output_file_name
 
     try:
-        from rdkit.Chem import Draw
-        # The import of Image may change depending on how it was provided.
-        # What about pillow? Hmm. Not sure of the details.
-        # import Image
-        from PIL import Image as Image
-        state = Draw.MolToFile(mol, size=(300,300), filename=output_file_name, confId=conf_id)
-        # print 'INFO:: wrote PNG   "' + output_file_name + '"'
-
-        # img = Draw.MolToImage(mol, fitImage=True, size=(900,900))
-        # img2 = img.resize((300, 300), Image.ANTIALIAS)
-        # img2.save(output_file_name + "resampled.png")
-
-        # testing MolDraw2D code (squiggly mess)
-        if True:
-            conf_id = AllChem.Compute2DCoords(mol)
-            drawer = Draw.MolDraw2DCairo(300,300)
-            drawer.DrawMolecule(mol, confId=conf_id)
-            drawer.FinishDrawing()
-            # c = drawer.GetDrawingText()
+        from rdkit.Chem.Draw import rdMolDraw2D
+        is_svg = output_file_name.lower().endswith('.svg')
+        if is_svg:
+            drawer = rdMolDraw2D.MolDraw2DSVG(n_pixels, n_pixels)
+        else:
+            drawer = rdMolDraw2D.MolDraw2DCairo(n_pixels, n_pixels)
+        rdMolDraw2D.PrepareAndDrawMolecule(drawer, mol, confId=conf_id)
+        drawer.FinishDrawing()
+        with open(output_file_name, 'w' if is_svg else 'wb') as f:
+            f.write(drawer.GetDrawingText())
+        print('INFO:: wrote', output_file_name)
     except ImportError as e:
         print('ImportError:', e)
-    except ValueError as e:
-        print('ValueError in make_picture():', e)
+    except (ValueError, RuntimeError) as e:
+        print('ERROR:: in make_picture_to_file():', e)
+
+def mol_for_diagram(mol):
+    """a copy of mol for a 2D diagram: without the hydrogen atoms (if that can be
+    done) and with new 2D coordinates. Return (mol, conformer id)"""
+    try:
+        m = Chem.RemoveHs(mol, implicitOnly=False)
+    except (ValueError, RuntimeError) as e:
+        m = Chem.Mol(mol)
+    # the mmCIF reader gives every sp3 atom a chiral tag (from the coordinates) - even a
+    # CH2 or a methyl - and the drawing would wedge all of them: keep only the tags of
+    # real stereocentres.
+    Chem.AssignStereochemistry(m, cleanIt=True, force=True)
+    from rdkit.Chem import rdDepictor
+    rdDepictor.SetPreferCoordGen(True)
+    conf_id = rdDepictor.Compute2DCoords(m)
+    return m, conf_id
+
+def write_diagrams(mol, file_name_stub, png, svg):
+    """write the chemical diagram of mol to file_name_stub.png and/or .svg"""
+    m, conf_id = mol_for_diagram(mol)
+    if png:
+        make_picture_to_file(m, conf_id, file_name_stub + '.png')
+    if svg:
+        make_picture_to_file(m, conf_id, file_name_stub + '.svg')
 
 def make_restraints_from_smiles(smiles_string, comp_id, compound_name, mogul_dir, name_stub, pdb_out_file_name, mmcif_dict_name, quartet_planes, quartet_hydrogen_planes, use_mmff, match_atom_names_to_dict_flag, comp_id_list_for_names_match, dict_file_for_names_match):
 
@@ -1120,7 +1136,10 @@ if __name__ == "__main__":
                       dest='output_postfix',
                       help='string to add to output file names, default is "pyrogen"')
     parser.add_option('-p', '--picture', dest='drawing',
-                      help='Additionally output a chemical diagram PNG',
+                      help='Write a chemical diagram (PNG) of the input molecule - and no dictionary',
+                      action='store_true', default=False)
+    parser.add_option('--svg', dest='drawing_svg',
+                      help='Write a chemical diagram (SVG) of the input molecule - and no dictionary',
                       action='store_true', default=False)
     parser.add_option('-P', '--preserve-input-coordinates', dest='preserve_input_coordinates',
                       help="Preserve the inputput coordinates (if possible)",
@@ -1224,6 +1243,47 @@ if __name__ == "__main__":
                 s = Chem.MolToSmiles(mol);
                 print(s)
 
+    elif options.drawing or options.drawing_svg:
+
+        # ------------------------ diagram-mode: the picture(s) only, no dictionary ------------------
+
+        mols = [] # (mol, comp_id)
+        mmcif_file_name = options.mmcif_file_name
+        if options.wwPDB:
+            mmcif_file_name = get_pdbe_cif_for_comp_id(comp_id)
+            if not (mmcif_file_name and os.path.isfile(mmcif_file_name)):
+                print("Missing downloaded file for comp-id:", comp_id)
+                exit(2)
+        if mmcif_file_name:
+            if not os.path.isfile(mmcif_file_name):
+                print("File not found:", mmcif_file_name)
+                exit(1)
+            comp_ids = [comp_id]
+            if comp_id == 'TRY_ALL_COMP_IDS':
+                comp_ids = pysw.types_from_mmcif_dictionary(mmcif_file_name)
+            for cid in comp_ids:
+                mols.append((pyrogen_boost.rdkit_mol_chem_comp_pdbx(mmcif_file_name, cid), cid))
+        elif options.sdf_file != None:
+            mols.append((Chem.MolFromMolFile(options.sdf_file, removeHs=False), comp_id))
+        elif len(args) > 0:
+            smiles, compound_name = smiles_and_name_from(args[0])
+            mols.append((Chem.MolFromSmiles(smiles), comp_id))
+        else:
+            print("Usage: pyrogen -p [-c file.cif | -m file.mol | SMILES]")
+            exit(1)
+
+        status = 0
+        for mol, cid in mols:
+            if mol is None or mol.GetNumAtoms() == 0:
+                print('ERROR:: no molecule for', cid)
+                status = 1
+                continue
+            stub = cid + '-' + options.output_postfix
+            if options.output_dir != ".":
+                stub = os.path.join(options.output_dir, stub)
+            write_diagrams(mol, stub, options.drawing, options.drawing_svg)
+        exit(status)
+
     else:
 
         # ------------------------ dict-build-mode ---------------------------------------------------
@@ -1273,17 +1333,6 @@ if __name__ == "__main__":
                 (mol, comp_id) = mol_info
                 if not mol:
                     print('No molecule')
-                else:
-                    # Happy path
-                    if options.drawing:
-                        # make_picture() by default draws the first conformer in the given molecule.
-                        # For mol, that is a 3D conformer.  We want to draw a nice 2D diagram
-                        #
-                        mol_for_drawing = Chem.RemoveHs(mol, implicitOnly=False)
-                        conf2D_id = AllChem.Compute2DCoords(mol_for_drawing)
-                        conf = mol_for_drawing.GetConformer(conf2D_id)
-                        Chem.WedgeMolBonds(mol_for_drawing, conf)
-                        make_picture(mol_for_drawing, conf2D_id, comp_id, options.output_postfix)
 
         else:
 
@@ -1298,8 +1347,6 @@ if __name__ == "__main__":
                                                           match_names_flag,
                                                           options.comp_id_list_for_names_match,
                                                           options.dict_files_for_names_match)
-                if options.drawing:
-                    make_picture(mol, -1, comp_id, options.output_postfix)
 
             else:
 
@@ -1322,6 +1369,3 @@ if __name__ == "__main__":
                                                          match_names_flag,
                                                          options.comp_id_list_for_names_match,
                                                          options.dict_files_for_names_match)
-                    if options.drawing:
-                        mol = Chem.MolFromSmiles(smiles)
-                        make_picture(mol, -1, comp_id, options.output_postfix)
