@@ -52,6 +52,28 @@ public:
       colour_table.clear();
    }
 
+   //! @param f the fraction (typically 0 to 1) along the colour ramp
+   //! @return the colour linearly interpolated between the stops that bracket f.
+   //!         Fractions before the first stop or after the last stop take the
+   //!         colour of that end stop. If the table is not set, return dark grey.
+   glm::vec4 fraction_to_colour(float f) const {
+      if (! is_set()) return glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
+      const colour_pair_t &first = colour_table.front();
+      const colour_pair_t &last  = colour_table.back();
+      if (f <= first.colour_frac) return glm::vec4(first.colour, 1.0f);
+      if (f >= last.colour_frac)  return glm::vec4(last.colour,  1.0f);
+      for (unsigned int i=0; i<(colour_table.size()-1); i++) {
+         const colour_pair_t &lower_point = colour_table[i];
+         const colour_pair_t &upper_point = colour_table[i+1];
+         if (f <= upper_point.colour_frac) {
+            float range = upper_point.colour_frac - lower_point.colour_frac;
+            float fraction = (range > 0.0f) ? (f - lower_point.colour_frac) / range : 0.0f;
+            return glm::vec4(glm::mix(lower_point.colour, upper_point.colour, fraction), 1.0f);
+         }
+      }
+      return glm::vec4(last.colour, 1.0f); // not reached
+   }
+
 };
 
 

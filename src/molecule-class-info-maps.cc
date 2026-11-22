@@ -1520,7 +1520,15 @@ molecule_class_info_t::position_to_colour_using_other_map(const clipper::Coord_o
             }
          }
 
-         c = fraction_to_colour(f);
+         if (other_map_for_colouring_colour_table.is_set()) {
+            glm::vec4 col = other_map_for_colouring_colour_table.fraction_to_colour(f);
+            c.red   = col.r;
+            c.green = col.g;
+            c.blue  = col.b;
+            c.alpha = col.a;
+         } else {
+            c = fraction_to_colour(f);
+         }
          // std::cout << "fraction " << f << " col " << c.red << " " << c.green << " " << c.blue << std::endl;
       }
    } else {
@@ -5030,30 +5038,31 @@ molecule_class_info_t::colour_map_using_map(const clipper::Xmap<float> &xmap) {
 
   colour_map_using_other_map_flag = true;
   other_map_for_colouring_p = &xmap;
+  other_map_for_colouring_colour_table.clear(); // use the default (hue rotation) colouring
   update_map(true);
 
 }
 
 
 void
-molecule_class_info_t::colour_map_using_map(const clipper::Xmap<float> &xmap, float table_bin_start, float table_bin_size,
-                                            const std::vector<coot::colour_t> &colours) {
+molecule_class_info_t::colour_map_using_map(const clipper::Xmap<float> &xmap, float min_value, float max_value,
+                                            const user_defined_colour_table_t &colour_table) {
 
-   if (colours.empty()) {
-      std::cout << "WARNING:: no colours - no map colouring" << std::endl;
+   if (! colour_table.is_set()) {
+      std::cout << "WARNING:: colour table needs at least 2 colour stops - no map colouring" << std::endl;
    } else {
-      // we need to tell the glsl colour setup to use value_to_colour() (which uses our table)
-      // (not done yet).
-      colour_map_using_other_map_flag = true; // tell the triangle generator to use a function to get the colour
-                                              // (position_to_colour_using_other_map(co))
-      other_map_for_colouring_p = &xmap;
-
-      std::cout << "debug:: in colour_map_using_map() other_map_for_colouring_p is set to "
-		<< other_map_for_colouring_p << std::endl;
-      other_map_for_colouring_min_value = table_bin_start;
-      other_map_for_colouring_max_value = table_bin_start + colours.size() * table_bin_size;
-      other_map_for_colouring_colour_table = colours;
-      update_map(true);
+      if (max_value <= min_value) {
+         std::cout << "WARNING:: colour_map_using_map(): max_value " << max_value
+                   << " is not greater than min_value " << min_value << " - no map colouring" << std::endl;
+      } else {
+         colour_map_using_other_map_flag = true; // tell the triangle generator to use a function to get the colour
+                                                 // (position_to_colour_using_other_map(co))
+         other_map_for_colouring_p = &xmap;
+         other_map_for_colouring_min_value = min_value;
+         other_map_for_colouring_max_value = max_value;
+         other_map_for_colouring_colour_table = colour_table;
+         update_map(true);
+      }
    }
 }
 

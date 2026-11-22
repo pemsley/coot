@@ -90,6 +90,7 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 #include "utils/coot-utils.hh"
 #include "utils/pir-alignment.hh"
 #include "api/ghost-molecule-display.hh"
+#include "api/user-defined-colour-table.hh"
 #include "drawn-ghost-molecule-display.hh"
 
 #include "protein_db/protein_db_utils.h"
@@ -1402,11 +1403,12 @@ public:        //                      public
    GdkRGBA radius_to_colour(float radius, float min_radius, float max_radius);
    GdkRGBA fraction_to_colour(float fraction);
 
+   // other-map density values are mapped to a fraction (0 to 1) between these limits
    float other_map_for_colouring_min_value;
    float other_map_for_colouring_max_value;
-   std::vector<coot::colour_t> other_map_for_colouring_colour_table;
-   // use the above values to generate a colour given a value (typically, a correlation)
-   GdkRGBA value_to_colour_using_colour_table(float value);
+   // if set, the fraction is converted to a colour using this table (as in chapi),
+   // otherwise fraction_to_colour() (a hue rotation) is used.
+   user_defined_colour_table_t other_map_for_colouring_colour_table;
 
    std::vector<coot::display_list_object_info> display_list_tags;
    void update_map_internal();
@@ -2131,8 +2133,8 @@ public:        //                      public
 
    std::vector<std::string> set_map_colour_strings() const;
    void colour_map_using_map(const clipper::Xmap<float> &xmap);
-   void colour_map_using_map(const clipper::Xmap<float> &xmap, float table_bin_start, float table_bin_size,
-                             const std::vector<coot::colour_t> &colours);
+   void colour_map_using_map(const clipper::Xmap<float> &xmap, float min_value, float max_value,
+                             const user_defined_colour_table_t &colour_table);
    const clipper::Xmap<float> *other_map_for_colouring_p;
    void turn_off_other_map_for_colouring() {
       other_map_for_colouring_p = NULL;
