@@ -42,6 +42,17 @@ namespace coot {
       float mask_threshold;
       //! the number of threads to use, 0 means one for each core
       int n_threads;
+      //! \brief Find the resolution of a window from its FSC as RELION does
+      //!
+      //! If this is false, the resolution of a window is where its FSC crosses the threshold,
+      //! interpolated between shells. If it is true, it is the resolution of the last whole
+      //! shell before that, where shell i is at (the length of the longest side of the map) / i,
+      //! as in RELION. That is a larger number, by half a shell on average.
+      //!
+      //! The map then agrees with RELION's where the density is good. In weak density and
+      //! solvent it is still more optimistic than RELION's, because RELION corrects the FSC
+      //! for the effect of the window and this library does not (see the top of this file).
+      bool match_relion;
       //! \brief A function that runs the tasks, to use in place of the threads of this library
       //!
       //! If this is set, it must call task(i) once for each i from 0 to n - 1, in any order
@@ -51,7 +62,7 @@ namespace coot {
 
       locres_params_t() :
          sampling_A(25.0f), mask_radius_A(12.5f), edge_width_A(25.0f), fsc_threshold(0.143f),
-         low_resolution_limit_A(50.0f), mask_threshold(0.5f), n_threads(0) {}
+         low_resolution_limit_A(50.0f), mask_threshold(0.5f), n_threads(0), match_relion(false) {}
    };
 
    //! \brief Estimate the local resolution of a reconstruction from its two half-maps

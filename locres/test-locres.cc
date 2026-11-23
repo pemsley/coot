@@ -223,6 +223,73 @@ int test_threads() {
    return status;
 }
 
+// the mean of each grid point and its 26 neighbours: a map with less in it the higher the resolution
+clipper::Xmap<float> smoothed(const clipper::Xmap<float> &xmap) {
+   clipper::Xmap<float> xmap_smooth = xmap;
+   clipper::Xmap_base::Map_reference_index ix;
+   for (ix = xmap.first(); !ix.last(); ix.next()) {
+      clipper::Coord_grid c = ix.coord();
+      float sum = 0.0f;
+      for (int i=-1; i<=1; i++)
+         for (int j=-1; j<=1; j++)
+            for (int k=-1; k<=1; k++)
+               sum += xmap.get_data(c + clipper::Coord_grid(i, j, k));
+      xmap_smooth[ix] = sum / 27.0f;
+   }
+   return xmap_smooth;
+}
+
+// with match_relion, the resolution of a window is that of the last whole shell before its
+// FSC falls below the threshold, where shell i is at (the length of the map) / i
+int test_match_relion() {
+   int status = 1;
+   // a smooth signal under noise: the FSC is high at low resolution, falls with resolution and
+   // crosses the threshold between the Nyquist limit and the low resolution limit
+   clipper::Xmap<float> xmap_a = smoothed(xmap_signal);
+   clipper::Xmap_base::Map_reference_index ix;
+   for (ix = xmap_a.first(); !ix.last(); ix.next())
+      xmap_a[ix] *= 3.0f;
+   clipper::Xmap<float> xmap_b = xmap_a;
+   clipper::Xmap<float> xmap_noise_a = make_noise_map(64, 64, 64, 8);
+   clipper::Xmap<float> xmap_noise_b = make_noise_map(64, 64, 64, 9);
+   for (ix = xmap_a.first(); !ix.last(); ix.next()) {
+      xmap_a[ix] += xmap_noise_a[ix];
+      xmap_b[ix] += xmap_noise_b[ix];
+   }
+   coot::locres_params_t params = test_params();
+   clipper::Xmap<float> xmap_interpolated = coot::local_resolution(xmap_a, xmap_b, nullptr, params);
+   params.match_relion = true;
+   clipper::Xmap<float> xmap_whole_shells = coot::local_resolution(xmap_a, xmap_b, nullptr, params);
+
+   // only one window reaches each of these places, so the value there is the resolution of that window
+   float map_length = 64.0f * grid_spacing;
+   clipper::Coord_grid places[3] = { clipper::Coord_grid(2, 32, 32), clipper::Coord_grid(62, 32, 32),
+                                     clipper::Coord_grid(32, 2, 32) };
+   for (int i=0; i<3; i++) {
+      float r_interpolated = xmap_interpolated.get_data(places[i]);
+      float r_whole_shells = xmap_whole_shells.get_data(places[i]);
+      float r_expected = map_length / floorf(map_length / r_interpolated + 1.0e-6f);
+      bool between_the_limits = (r_interpolated > 1.2f * nyquist && r_interpolated < 30.0f);
+      if (! between_the_limits || fabsf(r_whole_shells - r_expected) > 1.0e-3f) {
+         std::cout << "   at " << places[i].format() << " interpolated " << r_interpolated << " whole shells "
+                   << r_whole_shells << " expected " << r_expected << std::endl;
+         status = 0;
+      }
+   }
+   // a whole shell is never at a better resolution than the crossing
+   unsigned int n_better = 0;
+   unsigned int n_worse = 0;
+   for (ix = xmap_interpolated.first(); !ix.last(); ix.next()) {
+      if (xmap_whole_shells[ix] < xmap_interpolated[ix] - 1.0e-4f) n_better++;
+      if (xmap_whole_shells[ix] > xmap_interpolated[ix] + 1.0e-4f) n_worse++;
+   }
+   if (n_better > 0 || n_worse == 0) {
+      std::cout << "   whole shells better at " << n_better << " grid points, worse at " << n_worse << std::endl;
+      status = 0;
+   }
+   return status;
+}
+
 int test_maps_that_cannot_be_used() {
    int status = 1;
    // half-maps on different grids
@@ -273,6 +340,7 @@ int main() {
    status += run_test(test_resolution_follows_the_noise,                    "resolution follows the noise");
    status += run_test(test_mask,                                            "mask");
    status += run_test(test_threads,                                         "threads");
+   status += run_test(test_match_relion,                                    "match RELION");
    status += run_test(test_maps_that_cannot_be_used,                        "maps that cannot be used");
    if (status == n_tests) all_tests_status = 0;
 

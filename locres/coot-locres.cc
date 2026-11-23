@@ -24,6 +24,7 @@ namespace {
       int n_sub;           // the side of the cube of grid points that holds a window
       int n_fft;           // the side of the cube that is Fourier transformed: that cube, padded with zeros
       double grid_spacing; // in Angstroms
+      double map_length;   // the longest side of the map, in Angstroms
    };
 
    // the index of a grid point in a map that has been copied to a vector by dense_map()
@@ -98,6 +99,7 @@ namespace {
       const clipper::Grid_sampling &grid = xmap.grid_sampling();
       window_geometry_t geom;
       geom.grid_spacing = xmap.cell().a() / static_cast<double>(grid.nu());
+      geom.map_length = geom.grid_spacing * static_cast<double>(std::max(grid.nu(), std::max(grid.nv(), grid.nw())));
       // RELION rounds each of these to a whole number of grid points too
       geom.step        = static_cast<int>(std::lround(params.sampling_A    / geom.grid_spacing));
       geom.mask_radius = static_cast<int>(std::lround(params.mask_radius_A / geom.grid_spacing));
@@ -281,6 +283,17 @@ namespace {
       return box_length_A / static_cast<double>(n_shells - 1);
    }
 
+   // The resolution that RELION gives to a window whose FSC crosses the threshold at this
+   // resolution: that of the last whole shell before the crossing. RELION transforms the
+   // whole map, so its shell i is at a resolution of map_length_A / i.
+   double whole_shell_resolution(double resolution, double map_length_A, double limit) {
+
+      double shell = std::floor(map_length_A / resolution + 1.0e-6); // a crossing on a shell is in that shell
+      if (shell < 1.0)
+         return limit;
+      return std::min(map_length_A / shell, limit);
+   }
+
    // The resolution of the window centred here: multiply both maps by the window, Fourier
    // transform them, and find where their FSC falls below the threshold.
    double window_resolution(const std::vector<float> &map_1, const std::vector<float> &map_2,
@@ -320,7 +333,10 @@ namespace {
             }
          }
       }
-      return resolution_from_fsc(shells, n_l, n * geom.grid_spacing, params);
+      double resolution = resolution_from_fsc(shells, n_l, n * geom.grid_spacing, params);
+      if (params.match_relion)
+         resolution = whole_shell_resolution(resolution, geom.map_length, params.low_resolution_limit_A);
+      return resolution;
    }
 
    // Call task(i) for each i from 0 to n_tasks - 1, on n_threads threads (0 means one for each core)

@@ -30,8 +30,15 @@ void print_usage() {
              << "  --mask file-name      a mask on the grid of the half-maps. The result is 0 where the\n"
              << "                        mask is 0.5 or less, and a window that reaches nowhere else is\n"
              << "                        not calculated. The mask does not change the other values\n"
+             << "  --match-relion        for a map to compare with RELION's. The resolution of a window\n"
+             << "                        is then that of the last whole shell before its FSC falls\n"
+             << "                        below the threshold, not interpolated between shells, and the\n"
+             << "                        mask is used only for the statistics that are printed, so the\n"
+             << "                        map has values outside the mask too. In weak density the map\n"
+             << "                        is still more optimistic than RELION's (see below)\n"
              << "  --sampling d          the distance between the centres of neighbouring windows, in\n"
-             << "                        Angstroms (default: 25)\n"
+             << "                        Angstroms (default: 25). The size of the windows follows it,\n"
+             << "                        unless --mask-radius and --edge-width are given\n"
              << "  --mask-radius r       the radius within which a window has its full weight, in\n"
              << "                        Angstroms (default: half of the sampling)\n"
              << "  --edge-width w        the width of the soft edge of a window, outside that radius,\n"
@@ -89,29 +96,28 @@ void write_map(const clipper::Xmap<float> &xmap, const std::string &file_name) {
    }
 }
 
-// the statistics that RELION prints for its histogram of local resolutions
-void print_statistics(const clipper::Xmap<float> &xmap) {
+// The statistics that RELION prints for its histogram of local resolutions, over the grid
+// points that have an estimate and, if there is a mask (on the grid of xmap), are inside it
+void print_statistics(const clipper::Xmap<float> &xmap, const clipper::Xmap<float> *xmap_mask_p, float mask_threshold) {
    std::size_t n_grid_points = 0;
-   std::size_t n = 0;
-   clipper::Xmap_base::Map_reference_index ix;
-   for (ix = xmap.first(); !ix.last(); ix.next()) {
-      n_grid_points++;
-      if (xmap[ix] > 0.0f) n++;
-   }
-   if (n == 0) {
-      std::cout << "None of the " << n_grid_points << " grid points has an estimate" << std::endl;
-      return;
-   }
    std::vector<float> v;
-   v.reserve(n);
    double sum = 0.0;
    double sum_sq = 0.0;
+   clipper::Xmap_base::Map_reference_index ix;
    for (ix = xmap.first(); !ix.last(); ix.next()) {
+      if (xmap_mask_p && !((*xmap_mask_p)[ix] > mask_threshold)) continue;
+      n_grid_points++;
       if (xmap[ix] > 0.0f) {
          v.push_back(xmap[ix]);
          sum += xmap[ix];
          sum_sq += static_cast<double>(xmap[ix]) * xmap[ix];
       }
+   }
+   std::size_t n = v.size();
+   std::string where = xmap_mask_p ? " grid points inside the mask" : " grid points";
+   if (n == 0) {
+      std::cout << "None of the " << n_grid_points << where << " has an estimate" << std::endl;
+      return;
    }
    // the value that this fraction of the others are below
    auto quantile = [&v, n] (double fraction) {
@@ -121,8 +127,8 @@ void print_statistics(const clipper::Xmap<float> &xmap) {
    };
    double mean = sum / static_cast<double>(n);
    double variance = std::max(0.0, sum_sq / static_cast<double>(n) - mean * mean);
-   std::cout << "Local resolution in Angstroms, at the " << n << " of " << n_grid_points
-             << " grid points that have an estimate:" << std::endl;
+   std::cout << "Local resolution in Angstroms, at the " << n << " of " << n_grid_points << where
+             << " that have an estimate:" << std::endl;
    std::cout << "   Min: " << quantile(0.0) << " Q1: " << quantile(0.25) << " Median: " << quantile(0.5)
              << " Q3: " << quantile(0.75) << " Max: " << quantile(1.0) << std::endl;
    std::cout << "   Mean: " << mean << " Std: " << std::sqrt(variance) << std::endl;
@@ -138,11 +144,16 @@ int main(int argc, char **argv) {
          {"--mask", ""}, {"--sampling", ""}, {"--mask-radius", ""}, {"--edge-width", ""},
          {"--fsc-threshold", ""}, {"--threads", ""}, {"--output", ""}};
       std::vector<std::string> file_names;
+      coot::locres_params_t params;
       for (int i=1; i<argc; i++) {
          std::string arg = argv[i];
          if (arg == "--help" || arg == "-h") {
             print_usage();
             return 0;
+         }
+         if (arg == "--match-relion") {
+            params.match_relion = true;
+            continue;
          }
          if (arg.empty() || arg[0] != '-') {
             file_names.push_back(arg);
@@ -164,7 +175,6 @@ int main(int argc, char **argv) {
          throw std::runtime_error("two half-maps are needed (--help says how to use this)");
 
       // as in RELION, the size of a window follows the sampling unless it is given
-      coot::locres_params_t params;
       set_from_option(options, "--sampling", &params.sampling_A);
       params.mask_radius_A = 0.5f * params.sampling_A;
       params.edge_width_A = params.sampling_A;
@@ -187,17 +197,38 @@ int main(int argc, char **argv) {
       clipper::Xmap<float> half_2 = read_map(file_names[1]);
       clipper::Xmap<float> xmap_mask;
       bool have_mask = ! options["--mask"].empty();
-      if (have_mask)
+      if (have_mask) {
          xmap_mask = read_map(options["--mask"]);
+         // coot::local_resolution() checks the mask that it is given, and with --match-relion it is given none
+         clipper::Grid_sampling mask_grid = xmap_mask.grid_sampling();
+         clipper::Grid_sampling map_grid = half_1.grid_sampling();
+         if (mask_grid.nu() != map_grid.nu() || mask_grid.nv() != map_grid.nv() || mask_grid.nw() != map_grid.nw())
+            throw std::runtime_error("the mask is not on the grid of the half-maps");
+      }
+      bool mask_limits_the_map = have_mask && !params.match_relion;
 
       clipper::Grid_sampling grid = half_1.grid_sampling();
       std::cout << "Half-maps: " << grid.nu() << " x " << grid.nv() << " x " << grid.nw() << " grid points, "
                 << half_1.cell().a() / static_cast<double>(grid.nu()) << " A apart" << std::endl;
       std::cout << "Windows: " << params.sampling_A << " A apart, full weight within " << params.mask_radius_A
                 << " A, soft edge " << params.edge_width_A << " A wide" << std::endl;
+      // On EMD-32143 and EMD-80028 the resolutions inside the mask move by 2% or more when the
+      // windows are less than this across (the default windows are 75 A across)
+      const float small_window_A = 50.0f;
+      float window_width_A = 2.0f * (params.mask_radius_A + params.edge_width_A);
+      if (window_width_A < small_window_A) {
+         std::cerr << "coot-locres: warning: the windows are only " << window_width_A << " A across. A small window"
+                   << " raises the FSC, so the resolutions will be too good (--help has more)." << std::endl;
+         if (options["--mask-radius"].empty() && options["--edge-width"].empty())
+            std::cerr << "coot-locres: the size of the windows follows --sampling. For windows of the usual size on"
+                      << " this sampling, add --mask-radius 12.5 --edge-width 25" << std::endl;
+      }
+      if (params.match_relion)
+         std::cout << "Matching RELION: whole shells" << (have_mask ? ", and the mask is for these statistics only" : "")
+                   << std::endl;
 
-      clipper::Xmap<float> xmap = coot::local_resolution(half_1, half_2, have_mask ? &xmap_mask : nullptr, params);
-      print_statistics(xmap);
+      clipper::Xmap<float> xmap = coot::local_resolution(half_1, half_2, mask_limits_the_map ? &xmap_mask : nullptr, params);
+      print_statistics(xmap, have_mask ? &xmap_mask : nullptr, params.mask_threshold);
       write_map(xmap, output_file_name);
       std::cout << "Wrote " << output_file_name << std::endl;
    }
