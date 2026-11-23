@@ -1105,6 +1105,10 @@ NB_MODULE(coot_headless_api, m) {
          nb::arg("imol_coords"), nb::arg("imol_map"), nb::arg("cid"),
          nb::arg("atom_radius"), nb::arg("invert_flag"),
          get_docstring_from_xml("mask_map_by_atom_selection").c_str())
+    .def("mask_map_by_map",
+         &molecules_container_t::mask_map_by_map,
+         nb::arg("imol_map"), nb::arg("imol_mask"), nb::arg("threshold"),
+         get_docstring_from_xml("mask_map_by_map").c_str())
     .def("make_power_scaled_map",
          &molecules_container_t::make_power_scaled_map,
          nb::arg("imol_ref"), nb::arg("imol_map_for_scaling"),

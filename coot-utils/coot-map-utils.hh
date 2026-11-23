@@ -619,6 +619,17 @@ namespace coot {
       fsc(const clipper::Xmap<float> &xmap_1, const clipper::Xmap<float> &xmap_2,
           const clipper::Xmap<float> &xmap_mask);
 
+      //! \brief Mask a map by another map
+      //!
+      //! \param xmap the map to be masked
+      //! \param xmap_mask the mask. If it is not on the grid of the map, its value at each
+      //!        grid point of the map is found by linear interpolation.
+      //! \param threshold a grid point of the map is kept if the mask is greater than this there
+      //! \return a copy of the map, set to 0 where the mask is not greater than the threshold
+      clipper::Xmap<float> mask_map_by_map(const clipper::Xmap<float> &xmap,
+                                           const clipper::Xmap<float> &xmap_mask,
+                                           float threshold);
+
      // scale map_for_scaling using relion-like resolution binning
      clipper::Xmap<float>
      power_scale(const clipper::Xmap<float> &xmap_ref, const clipper::Xmap<float> &xmap_for_scaling);

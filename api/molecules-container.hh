@@ -2111,6 +2111,19 @@ public:
    //! @return the index of the new map or -1 on failure
    int mask_map_by_atom_selection(int imol_coords, int imol_map, const std::string &cid, float atom_radius, bool invert_flag);
 
+   //! Mask map by another map
+   //!
+   //! Make a new map that is a copy of the input map, set to 0 at the grid points where the
+   //! mask is not greater than the threshold. If the mask is not on the grid of the map, its
+   //! value at each grid point of the map is found by linear interpolation.
+   //!
+   //! @param imol_map is the map molecule index
+   //! @param imol_mask is the map molecule index of the mask
+   //! @param threshold is the value that the mask must exceed for a grid point to be kept, e.g. 0.5
+   //!
+   //! @return the index of the new map or -1 on failure
+   int mask_map_by_map(int imol_map, int imol_mask, float threshold);
+
    //! Partition the input map
    //!
    //! Each voxel in the map is assigned to the chain

@@ -6647,6 +6647,61 @@ int test_mask_atom_selection(molecules_container_t &mc) {
    return status;
 }
 
+int test_mask_map_by_map(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+   if (mc.is_valid_map_molecule(imol_map)) {
+      // use the map as its own mask: the new map keeps the density that is above the threshold
+      float threshold = mc.get_map_rmsd_approx(imol_map);
+      int imol_masked = mc.mask_map_by_map(imol_map, imol_map, threshold);
+      // the same, with a mask that is on a finer grid than the map
+      int imol_fine = mc.sharpen_blur_map_with_resample(imol_map, 0.0, 1.5, false);
+      int imol_masked_by_fine = mc.mask_map_by_map(imol_map, imol_fine, threshold);
+      if (mc.is_valid_map_molecule(imol_masked) && mc.is_valid_map_molecule(imol_masked_by_fine)) {
+         // copies, because making a molecule can move the others
+         clipper::Xmap<float> xmap = mc[imol_map].xmap;
+         clipper::Xmap<float> xmap_masked = mc[imol_masked].xmap;
+         clipper::Xmap<float> xmap_masked_by_fine = mc[imol_masked_by_fine].xmap;
+         unsigned int n_kept = 0;
+         unsigned int n_zeroed = 0;
+         unsigned int n_wrong = 0;
+         unsigned int n_different_by_fine = 0;
+         clipper::Xmap_base::Map_reference_index ix;
+         for (ix = xmap.first(); !ix.last(); ix.next()) {
+            if (xmap[ix] > threshold) {
+               n_kept++;
+               if (xmap_masked[ix] != xmap[ix]) n_wrong++;
+            } else {
+               n_zeroed++;
+               if (xmap_masked[ix] != 0.0f) n_wrong++;
+            }
+            // with the interpolated mask a grid point is kept or not, never anything else
+            if (xmap_masked_by_fine[ix] != 0.0f && xmap_masked_by_fine[ix] != xmap[ix]) n_wrong++;
+            if ((xmap_masked_by_fine[ix] != 0.0f) != (xmap_masked[ix] != 0.0f)) n_different_by_fine++;
+         }
+         std::cout << "test_mask_map_by_map(): kept " << n_kept << " zeroed " << n_zeroed << " wrong " << n_wrong
+                   << " different with the mask on a finer grid " << n_different_by_fine << std::endl;
+         bool grids_differ = (mc[imol_fine].xmap.grid_sampling().nu() != xmap.grid_sampling().nu());
+         // the map on the finer grid is the same density, so the two masks differ only where the density
+         // is close to the threshold
+         if (n_wrong == 0 && n_kept > 0 && n_zeroed > 0 && grids_differ)
+            if (n_different_by_fine < (n_kept + n_zeroed) / 20)
+               status = 1;
+      }
+      // not maps
+      if (mc.mask_map_by_map(imol_map, -1, threshold) != -1) status = 0;
+      if (mc.mask_map_by_map(999, imol_map, threshold) != -1) status = 0;
+      mc.close_molecule(imol_masked_by_fine);
+      mc.close_molecule(imol_fine);
+      mc.close_molecule(imol_masked);
+   }
+   mc.close_molecule(imol_map);
+   return status;
+}
+
 int test_molecule_diameter(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -8776,6 +8831,7 @@ int main(int argc, char **argv) {
          status += run_test(test_replace_map, "replace map from mtz", mc);
          status += run_test(test_residue_name_group, "residue name group", mc);
          status += run_test(test_mask_atom_selection, "mask atom selection", mc);
+         status += run_test(test_mask_map_by_map,     "mask map by map",     mc);
          status += run_test(test_write_map_is_sane, "write map is sane",    mc);
          status += run_test(test_replace_large_fragment,      "refine and replace large fragment",         mc);
          status += run_test(test_molecule_diameter, "molecule diameter",    mc);

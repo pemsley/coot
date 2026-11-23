@@ -4542,19 +4542,21 @@ coot::util::fsc(const clipper::Xmap<float> &xmap_1, const clipper::Xmap<float> &
    return v;
 }
 
+// do these maps have the same cell, spacegroup and grid?
+static bool same_grid(const clipper::Xmap<float> &xmap_a, const clipper::Xmap<float> &xmap_b) {
+
+   const clipper::Grid_sampling &gs_a = xmap_a.grid_sampling();
+   const clipper::Grid_sampling &gs_b = xmap_b.grid_sampling();
+   return (gs_a.nu() == gs_b.nu() && gs_a.nv() == gs_b.nv() && gs_a.nw() == gs_b.nw() &&
+           xmap_a.spacegroup().hash() == xmap_b.spacegroup().hash() &&
+           xmap_a.cell().equals(xmap_b.cell()));
+}
+
 std::vector<std::pair<clipper::Resolution, double> >
 coot::util::fsc(const clipper::Xmap<float> &xmap_1, const clipper::Xmap<float> &xmap_2,
                 const clipper::Xmap<float> &xmap_mask) {
 
    std::vector<std::pair<clipper::Resolution, double> > v;
-
-   auto same_grid = [] (const clipper::Xmap<float> &xmap_a, const clipper::Xmap<float> &xmap_b) {
-      const clipper::Grid_sampling &gs_a = xmap_a.grid_sampling();
-      const clipper::Grid_sampling &gs_b = xmap_b.grid_sampling();
-      return (gs_a.nu() == gs_b.nu() && gs_a.nv() == gs_b.nv() && gs_a.nw() == gs_b.nw() &&
-              xmap_a.spacegroup().hash() == xmap_b.spacegroup().hash() &&
-              xmap_a.cell().equals(xmap_b.cell()));
-   };
 
    if (same_grid(xmap_1, xmap_2) && same_grid(xmap_1, xmap_mask)) {
       clipper::Xmap<float> xmap_masked_1 = xmap_1;
@@ -4571,6 +4573,24 @@ coot::util::fsc(const clipper::Xmap<float> &xmap_1, const clipper::Xmap<float> &
                  "the maps and the mask are not on the same grid");
    }
    return v;
+}
+
+clipper::Xmap<float>
+coot::util::mask_map_by_map(const clipper::Xmap<float> &xmap, const clipper::Xmap<float> &xmap_mask, float threshold) {
+
+   clipper::Xmap<float> xmap_masked = xmap;
+   bool mask_is_on_the_grid_of_the_map = same_grid(xmap, xmap_mask);
+   clipper::Xmap_base::Map_reference_index ix;
+   for (ix = xmap_masked.first(); !ix.last(); ix.next()) {
+      float m = 0.0f;
+      if (mask_is_on_the_grid_of_the_map)
+         m = xmap_mask[ix];
+      else
+         m = xmap_mask.interp<clipper::Interp_linear>(ix.coord_orth().coord_frac(xmap_mask.cell()));
+      if (! (m > threshold))
+         xmap_masked[ix] = 0.0f;
+   }
+   return xmap_masked;
 }
 
 void

@@ -3219,6 +3219,33 @@ int flip_hand(int imol) {
 
 }
 
+/*! \brief mask map by another map: make a new map that is a copy of imol_map, set to 0
+  where the map imol_mask is not greater than threshold */
+int mask_map_by_map(int imol_map, int imol_mask, float threshold) {
+
+   int imol_new = -1;
+   if (is_valid_map_molecule(imol_map)) {
+      if (is_valid_map_molecule(imol_mask)) {
+         clipper::Xmap<float> xmap = coot::util::mask_map_by_map(graphics_info_t::molecules[imol_map].xmap,
+                                                                 graphics_info_t::molecules[imol_mask].xmap,
+                                                                 threshold);
+         imol_new = graphics_info_t::create_molecule();
+         std::string name = "Map ";
+         name += coot::util::int_to_string(imol_map);
+         name += " masked by map ";
+         name += coot::util::int_to_string(imol_mask);
+         float contour_level = graphics_info_t::molecules[imol_map].get_contour_level();
+         bool is_em_flag = graphics_info_t::molecules[imol_map].is_EM_map();
+         graphics_info_t::molecules[imol_new].install_new_map(xmap, name, is_em_flag);
+         if (graphics_info_t::molecules[imol_map].is_difference_map_p())
+            graphics_info_t::molecules[imol_new].set_map_is_difference_map(true);
+         graphics_info_t::molecules[imol_new].set_contour_level(contour_level);
+         graphics_draw();
+      }
+   }
+   return imol_new;
+}
+
 void
 add_density_map_cap() {
 

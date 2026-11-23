@@ -715,6 +715,26 @@ molecules_container_t::make_mask(int imol_map_ref, int imol_model, const std::st
 
 }
 
+//! mask map by another map
+//!
+//! @return the index of the new map or -1 on failure
+int
+molecules_container_t::mask_map_by_map(int imol_map, int imol_mask, float threshold) {
+
+   int imol_map_new = -1;
+   if (is_valid_map_molecule(imol_map)) {
+      if (is_valid_map_molecule(imol_mask)) {
+         clipper::Xmap<float> xmap_new = coot::util::mask_map_by_map(molecules[imol_map].xmap, molecules[imol_mask].xmap,
+                                                                     threshold);
+         imol_map_new = molecules.size();
+         std::string label = "Map " + std::to_string(imol_map) + " masked by map " + std::to_string(imol_mask);
+         bool is_em_map = molecules[imol_map].is_EM_map();
+         molecules.push_back(coot::molecule_t(label, imol_map_new, xmap_new, is_em_map));
+      }
+   }
+   return imol_map_new;
+}
+
 //! transform a map and create a new map
 //! @return the molecule index of the new map, -1 for failure
 int

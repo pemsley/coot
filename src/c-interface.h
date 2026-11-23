@@ -9610,6 +9610,21 @@ int mask_map_by_molecule(int map_mol_no, int coord_mol_no, short int invert_flag
   @return the index of the new map molecule, or -1 on failure */
 int mask_map_by_atom_selection(int map_mol_no, int coords_mol_no, const char *mmdb_atom_selection, short int invert_flag);
 
+/*! \brief mask map by another map
+
+  Create a new map from imol_map, set to 0 at the grid points where the
+  map imol_mask is not greater than threshold. If the mask is not on
+  the grid of the map, its value at each grid point of the map is found
+  by linear interpolation. The new map has the contour level of the
+  input map.
+
+  @param imol_map the map molecule index
+  @param imol_mask the map molecule index of the mask
+  @param threshold the value that the mask must exceed for a grid point
+         to be kept, e.g. 0.5
+  @return the index of the new map molecule, or -1 on failure */
+int mask_map_by_map(int imol_map, int imol_mask, float threshold);
+
 /*! \brief make chain masked maps
 
    Create one new map per chain in (the first model of) imol, each
