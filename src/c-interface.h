@@ -3543,8 +3543,6 @@ void graphics_draw(); 	/* and wrapper interface to gtk_widget_draw(glarea)  */
 /*! \brief try to turn on Zalman stereo mode  */
 void zalman_stereo_mode();
 
-void hardware_stereo_mode();
-
 /*! \brief try to turn on stereo mode  */
 void hardware_stereo_mode();
 
