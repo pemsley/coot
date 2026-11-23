@@ -156,10 +156,13 @@ molecules_container_t::ray_trace_init(int n_threads) {
          std::cout << "ERROR:: ray_trace_init(): ospInit() failed with error " << err << std::endl;
       } else {
          ospray_is_initialized = true;
-         if (n_threads > 0)
-            std::cout << "INFO:: OSPRay initialized (limited to " << n_threads << " thread(s))" << std::endl;
-         else
-            std::cout << "INFO:: OSPRay initialized" << std::endl;
+         if (false) {
+            if (n_threads > 0)
+               std::cout << "INFO:: OSPRay initialized (limited to " << n_threads << " thread(s))"
+                         << std::endl;
+            else
+               std::cout << "INFO:: OSPRay initialized" << std::endl;
+         }
       }
    }
 #else
@@ -175,7 +178,8 @@ molecules_container_t::ray_trace_shutdown() {
    if (ospray_is_initialized) {
       ospShutdown();
       ospray_is_initialized = false;
-      std::cout << "INFO:: OSPRay shut down" << std::endl;
+      if (false)
+         std::cout << "INFO:: OSPRay shut down" << std::endl;
    }
 #else
    std::cout << "WARNING:: ray_trace_shutdown(): Coot was built without OSPRay support" << std::endl;
@@ -353,10 +357,11 @@ molecules_container_t::ray_trace_image(const std::string &json_str) {
             position, map_radius, contour_level,
             map_is_contoured_using_thread_pool_flag, &thread_pool);
 
-         std::cout << "INFO:: ray_trace_image(): map " << imol << " contoured at " << contour_level
-                   << ", radius " << map_radius << ": "
-                   << map_mesh.vertices.size() << " vertices, "
-                   << map_mesh.triangles.size() << " triangles" << std::endl;
+         if (false)
+            std::cout << "INFO:: ray_trace_image(): map " << imol << " contoured at " << contour_level
+                      << ", radius " << map_radius << ": "
+                      << map_mesh.vertices.size() << " vertices, "
+                      << map_mesh.triangles.size() << " triangles" << std::endl;
 
          if (!map_mesh.vertices.empty()) {
             // Update bounding box from map mesh
@@ -368,8 +373,9 @@ molecules_container_t::ray_trace_image(const std::string &json_str) {
             if (style == "lines") {
                extract_wireframe_from_mesh(map_mesh, line_width, map_colour,
                                            &curve_vertices, &curve_indices, &curve_colors);
-               std::cout << "INFO:: ray_trace_image(): map " << imol << " wireframe: "
-                         << curve_indices.size() << " line segments" << std::endl;
+               if (false)
+                  std::cout << "INFO:: ray_trace_image(): map " << imol << " wireframe: "
+                            << curve_indices.size() << " line segments" << std::endl;
             } else {
                // Solid surface - add to model mesh
                combined_model_mesh.add_submesh(map_mesh);

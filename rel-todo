@@ -2,26 +2,31 @@
 
 o how to get servalcat to write hydrogen atoms with nuclear distances
 
-o can a molecular Jiggle (of some sort) be used to improve
+o drag residue selection box over PAE plot
+
+o can a molecular Jiggle (of some sort) be used to improve the
   Rama plot?
 
 o bind printscr to screenshot
 
 o look at the axis for virtual trackbal spherical mode
 
-o make bubbling maps using rapid sampled data
-
 o Look at the molecular symmetry problem from Lucrezia
 
 o use the raytracer to make images - check the debug output
 
-o fix the agentic coot checkpoint error. Needs to be tracked down.
-
 o Clement: libcootapi: sanity check of molecule at save time?
 
-o see bug.txt from Jordan
-
 o look at chi-5 in tutorial model and data in molprobity next
+
+o make bubbling maps using rapid sampled data
+* Done.
+
+o fix the agentic coot checkpoint error. Needs to be tracked down.
+* Done.
+
+o see bug.txt from Jordan
+* Done.
 
 o when adding a ligand, stop adding another ligand on top
 * Done.

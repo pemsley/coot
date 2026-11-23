@@ -668,3 +668,21 @@ The script found no show call for these, so they need checking by hand:
   call is for that dialog or that it comes before the show.
 - Windows made in code (`gtk_dialog_new()`, `gtk_window_new()`) and dialogs
   made from Python.
+
+## pyrogen tautomer output (important, after the 1.3.5 release)
+
+Review the tautomer code in pyrogen (`pyrogen/tautomer.py`). The output for
+the tautomers should be images and RDKit pickles - or possibly minimal cifs.
+Minimal cifs can be made from RDKit molecules, as was done for the recent
+update for Lidia (the from-scratch CCD-style writer).
+
+## pyrogen amide torsion: esd and period (small)
+
+For the torsion about an amide C-N bond pyrogen writes esd 20, period 2;
+AceDRG writes esd 5, period 1. E.g. for 468 (lactam):
+
+    pyrogen  O15 C7 N11 C3  0  20  2
+    AceDRG   O15 C7 N11 C3  0   5  1
+
+Period 1 says that cis and trans are not equivalent. A small issue - it will
+make very little difference to a refinement.

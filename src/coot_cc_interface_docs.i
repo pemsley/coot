@@ -4258,9 +4258,10 @@ imol_map_used_for_colouring : int
 %feature("docstring") colour_map_by_other_map_py "
 colour a map by another map, using a colour table
 
-The colour_table should be a list of colours, each a list [r, g, b] (0 to 1). So, if the colour table has 4 entries covering the range from 0 to 1, then table_bin_start would be 0, the table_bin_size would be 0.25 and the colour_table list would have 4 entries covering the range 0->0.25, 0.25->0.5, 0.5->0.75, 0.75->1.0 Values in imol_map_used_for_colouring outside the table range take the colour at the ends of the range.
+The contours of imol_map are coloured according to the density of imol_map_used_for_colouring at each vertex. That density is converted to a fraction between min_value (fraction 0) and max_value (fraction 1), and the colour is linearly interpolated between the colour stops that bracket that fraction. Density values outside the range take the colour of the end stops.
+The colour table is a list of colour stops, each [stop, [r, g, b]] where stop is a fraction (0 to 1) and r, g, b are 0 to 1 - the same format as set_colour_map_for_map_coloured_by_other_map() in the headless API, e.g. [[0.0, [1, 0, 0]], [0.5, [1, 1, 1]], [1.0, [0, 0, 1]]] for a red-white-blue ramp. At least 2 stops are needed.
 
-  imol_map  the map molecule index   imol_map_used_for_colouring  the index of the map whose values determine the colours   table_bin_start  the map value at the start of the colour table   table_bin_size  the range of map values covered by each colour table entry   colour_table_list  a list of [r, g, b] colours
+  imol_map  the map molecule index   imol_map_used_for_colouring  the index of the map whose values determine the colours   min_value  the map value that corresponds to fraction 0   max_value  the map value that corresponds to fraction 1   colour_table_list  a list of [stop, [r, g, b]] colour stops
 
 Parameters
 ----------
@@ -4268,12 +4269,12 @@ imol_map : int
     the map molecule index
 imol_map_used_for_colouring : int
     the index of the map whose values determine the colours
-table_bin_start : float
-    the map value at the start of the colour table
-table_bin_size : float
-    the range of map values covered by each colour table entry
+min_value : float
+    the map value that corresponds to fraction 0
+max_value : float
+    the map value that corresponds to fraction 1
 colour_table_list : object
-    a list of [r, g, b] colours
+    a list of [stop, [r, g, b]] colour stops
 ";
 
 %feature("docstring") export_molecule_as_x3d "

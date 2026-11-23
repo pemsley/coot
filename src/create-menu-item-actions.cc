@@ -5481,6 +5481,28 @@ void residues_with_missing_atoms_action(G_GNUC_UNUSED GSimpleAction *simple_acti
    }
 }
 
+void command_terminal_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                             G_GNUC_UNUSED GVariant *parameter,
+                             G_GNUC_UNUSED gpointer user_data) {
+
+   toggle_command_terminal();
+}
+
+void AI_terminal_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                        G_GNUC_UNUSED GVariant *parameter,
+                        G_GNUC_UNUSED gpointer user_data) {
+
+   toggle_claude_ai_terminal();
+}
+
+void python_scripting_terminal_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                      G_GNUC_UNUSED GVariant *parameter,
+                                      G_GNUC_UNUSED gpointer user_data) {
+
+   toggle_reveal_python_scripting_entry();
+}
+
+
 #include "rsr-functions.hh"
 
 void
@@ -7270,5 +7292,10 @@ create_actions(GtkApplication *application) {
    add_action("delete_all_extra_restraints_action",        delete_all_extra_restraints_action);
    add_action("import_restraints_action",                  import_restraints_action);
    add_action("edit_sort_chains_action",                  edit_sort_chains_action);
+
+   // Terminal actions menu
+   add_action("command_terminal_action", command_terminal_action);
+   add_action("AI_terminal_action", AI_terminal_action);
+   add_action("python_scripting_terminal_action", python_scripting_terminal_action);
 
 }

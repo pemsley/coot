@@ -3298,7 +3298,7 @@ extern "C" G_MODULE_EXPORT
 void
 on_map_properties_dialog_fresnel_scale_entry_activate(GtkEntry* self, gpointer user_data) {
 
-   std::cout << "scale entry key press activate" << std::endl;
+   // std::cout << "scale entry key press activate" << std::endl;
    GtkWidget *checkbutton = GTK_WIDGET(g_object_get_data(G_OBJECT(self), "fresnel_checkbutton"));
    int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(self), "imol"));
    handle_map_properties_fresnel_change(imol, checkbutton);
@@ -3308,7 +3308,7 @@ extern "C" G_MODULE_EXPORT
 void
 on_map_properties_dialog_fresnel_power_entry_activate(GtkEntry* self, gpointer user_data) {
 
-   std::cout << "popwer entry key press activate" << std::endl;
+   // std::cout << "power entry key press activate" << std::endl;
    GtkWidget *checkbutton = GTK_WIDGET(g_object_get_data(G_OBJECT(self), "fresnel_checkbutton"));
    int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(self), "imol"));
    handle_map_properties_fresnel_change(imol, checkbutton);

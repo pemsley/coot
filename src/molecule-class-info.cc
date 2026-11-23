@@ -351,6 +351,8 @@ molecule_class_info_t::setup_internal() { // init
    // other map
    colour_map_using_other_map_flag = false;
    other_map_for_colouring_p = 0;
+   other_map_for_colouring_min_value = 0.0; // as in chapi
+   other_map_for_colouring_max_value = 1.0;
 
    // animated ligand interaction representation
    draw_animated_ligand_interactions_flag = 0;

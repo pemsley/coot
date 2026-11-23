@@ -536,6 +536,16 @@ coot::overlay_acedrg_table_restraints(dictionary_residue_restraints_t *restraint
                    << " bond and " << p.second.angle_restraint.size()
                    << " angle restraint values from AceDRG tables" << std::endl;
          restraints->conservatively_replace_with(p.second);
+         // and the AceDRG atom types (written as _chem_comp_acedrg)
+         std::map<std::string, std::string> acedrg_type_for_atom;
+         for (const auto &a : p.second.atom_info)
+            if (! a.acedrg_atom_type.empty())
+               acedrg_type_for_atom[a.atom_id] = a.acedrg_atom_type;
+         for (auto &a : restraints->atom_info) {
+            auto it = acedrg_type_for_atom.find(a.atom_id);
+            if (it != acedrg_type_for_atom.end())
+               a.acedrg_atom_type = it->second;
+         }
       }
    } else {
       // say so (once), otherwise the fall-back to energy-lib values is silent
@@ -838,118 +848,137 @@ coot::fill_with_energy_lib_torsions(const RDKit::ROMol &mol,
 				    const coot::energy_lib_t &energy_lib,
 				    coot::dictionary_residue_restraints_t *restraints) {
 
+   // One torsion for each bond, the way AceDRG chooses it (selectOneTorFromOneBond()):
+   // the outer atoms are, in order of preference, a non-hydrogen atom that is not in a
+   // ring, then a ring atom, then a hydrogen atom. So when a ring atom has a substituent,
+   // the torsion goes to the substituent, not round the ring - e.g. for 468 the torsion
+   // about C9-C10 is C12-C9-C10-N11, not the endocyclic C8-C9-C10-N11 (the torsions in
+   // a 5-membered ring are not described by a period-3 torsion).
+
    bool status = true;
-   unsigned int n_atoms = mol.getNumAtoms();
    unsigned int tors_no = 1; // incremented on addition
    unsigned int const_no = 1; // incremented on addition.  When const_no is incremented, tors_no is not.
-   std::map<std::string, bool> done_torsion;
-   bool debug = false;
-   
-   for (unsigned int iat_1=0; iat_1<n_atoms; iat_1++) { 
-      const RDKit::Atom *at_1 = mol[iat_1];
 
-      RDKit::ROMol::ADJ_ITER nbr_idx_1, end_nbrs_1;
-      boost::tie(nbr_idx_1, end_nbrs_1) = mol.getAtomNeighbors(at_1);
-      while(nbr_idx_1 != end_nbrs_1){
-	 const RDKit::Atom *at_2 = mol[*nbr_idx_1];
+   const RDKit::RingInfo *ring_info = mol.getRingInfo();
+   std::unique_ptr<RDKit::RWMol> mol_with_rings;
+   if (! ring_info->isInitialized()) {
+      mol_with_rings = std::make_unique<RDKit::RWMol>(mol);
+      RDKit::MolOps::fastFindRings(*mol_with_rings);
+      ring_info = mol_with_rings->getRingInfo();
+   }
 
-	 RDKit::ROMol::ADJ_ITER nbr_idx_2, end_nbrs_2;
-	 boost::tie(nbr_idx_2, end_nbrs_2) = mol.getAtomNeighbors(at_2);
-	 while(nbr_idx_2 != end_nbrs_2){
-	    const RDKit::Atom *at_3 = mol[*nbr_idx_2];
-	    if (at_3 != at_1) {
-	       
-	       RDKit::ROMol::ADJ_ITER nbr_idx_3, end_nbrs_3;
-	       boost::tie(nbr_idx_3, end_nbrs_3) = mol.getAtomNeighbors(at_3);
+   // the preferred neighbour of at_centre that is neither at_other nor at_exclude.
+   // Ties go to the lowest atom index. nullptr if there is none.
+   auto outer_atom = [&mol, ring_info] (const RDKit::Atom *at_centre,
+                                        const RDKit::Atom *at_other,
+                                        const RDKit::Atom *at_exclude) {
+      const RDKit::Atom *best = nullptr;
+      int best_rank = 99;
+      for (const auto &nb : mol.atomNeighbors(at_centre)) {
+         if (nb == at_other || nb == at_exclude) continue;
+         int rank = 2; // hydrogen
+         if (nb->getAtomicNum() != 1)
+            rank = ring_info->numAtomRings(nb->getIdx()) > 0 ? 1 : 0;
+         if (rank < best_rank || (rank == best_rank && nb->getIdx() < best->getIdx())) {
+            best = nb;
+            best_rank = rank;
+         }
+      }
+      return best;
+   };
 
-	       // Is there another neighbour of 3 that is not a
-	       // hydrogen?  If so, we prefer that.  If not, we go
-	       // with the hydrogen atom.
-
-	       bool at_4_set = false;
-	       const RDKit::Atom *at_4 = mol[*nbr_idx_3]; // best so far, (maybe its at_2 though)
-	       if (at_4 != at_2 && at_4 != at_1)
-		  at_4_set = true; // OK, it wasn't.
-	       
-	       while (nbr_idx_3 != end_nbrs_3) {
-
-		  const RDKit::Atom *at_4_trial = mol[*nbr_idx_3];
-		  if (at_4_trial != at_2 && at_4_trial != at_1) {
-		     if (at_4_trial->getAtomicNum() != 1) {
-			// anything not hydrogen is good enough.
-			at_4 = at_4_trial;
-			at_4_set = true;
-			break;
-		     }
-		  }
-		  ++nbr_idx_3++;
-	       }
-
-	       if (at_4_set) {
-		  
-		  try { 
-
-		     std::string atom_name_2;
-		     std::string atom_name_3;
-		     at_2->getProp("name", atom_name_2);
-		     at_3->getProp("name", atom_name_3);
-
-		     // if we have not done this atom-2 <-> atom-3 torsion before...
-		     //
-		     std::string torsion_key_name_23;
-		     std::string torsion_key_name_32;
-		     torsion_key_name_23  = atom_name_2;
-		     torsion_key_name_23 += "-";
-		     torsion_key_name_23 += atom_name_3;
-			
-		     torsion_key_name_32  = atom_name_3;
-		     torsion_key_name_32 += "-";
-		     torsion_key_name_32 += atom_name_2;
-
-		     bool done_this_already = true;
-		     if (done_torsion.find(torsion_key_name_23) == done_torsion.end() &&
-			 done_torsion.find(torsion_key_name_32) == done_torsion.end())
-			done_this_already = false;
-
-		     if (debug) { 
-			std::cout << "considering torsion keys \"" << torsion_key_name_23
-				  << "\" and \"" << torsion_key_name_32 << "\"";
-			if (done_this_already)
-			   std::cout << " done already" << std::endl;
-			else
-			   std::cout << std::endl;
-		     }
-
-		     if (! done_this_already) {
-
-			const RDKit::Bond *bond = mol.getBondBetweenAtoms(*nbr_idx_1, *nbr_idx_2);
-			bool success = add_torsion_to_restraints(restraints, mol,
-								 at_1, at_2, at_3, at_4,
-								 bond,
-								 &tors_no, &const_no,
-								 energy_lib);
-			   
-			if (success) {
-			   done_torsion[torsion_key_name_23] = true;
-			   done_torsion[torsion_key_name_32] = true;
-			}
-		     }
-		  }
-		  catch (const KeyErrorException &kee) {
-		     std::cout << "WARNING:: caught KeyErrorException in fill_with_energy_lib_torsions() "
-			       << std::endl;
-		  }
-	       }
-	       
-	    }
-	    ++nbr_idx_2;
-	 }
-	 ++nbr_idx_1;
+   for (const auto &bond : mol.bonds()) {
+      const RDKit::Atom *at_2 = bond->getBeginAtom();
+      const RDKit::Atom *at_3 = bond->getEndAtom();
+      const RDKit::Atom *at_1 = outer_atom(at_2, at_3, nullptr);
+      if (! at_1) continue;
+      const RDKit::Atom *at_4 = outer_atom(at_3, at_2, at_1); // not at_1 (3-membered ring)
+      if (! at_4) continue;
+      try {
+         add_torsion_to_restraints(restraints, mol, at_1, at_2, at_3, at_4, bond,
+                                   &tors_no, &const_no, energy_lib);
+      }
+      catch (const KeyErrorException &kee) {
+         std::cout << "WARNING:: caught KeyErrorException in fill_with_energy_lib_torsions() "
+                   << std::endl;
       }
    }
    return status;
 }
 
+
+// A torsion with period n has n equivalent target values (angle + k*360/n). The target
+// value that comes from the atom types is one of them - but it need not be the one that
+// this molecule has (e.g. 180 for the exocyclic C-N-C=O of a lactam, where the atoms are
+// cis). Return the equivalent value that is closest to the torsion in the conformer.
+//
+static double
+torsion_target_nearest_to_measured(double angle, int period, double measured) {
+
+   if (period < 1) return angle;
+   auto wrap = [] (double a) { // to (-180, 180]
+      while (a >   180.0) a -= 360.0;
+      while (a <= -180.0) a += 360.0;
+      return a;
+   };
+   double best = wrap(angle);
+   double best_diff = std::abs(wrap(best - measured));
+   for (int k=1; k<period; k++) {
+      double candidate = wrap(angle + k * 360.0/static_cast<double>(period));
+      double diff = std::abs(wrap(candidate - measured));
+      if (diff < best_diff) {
+         best_diff = diff;
+         best = candidate;
+      }
+   }
+   return best;
+}
+
+static double
+torsion_target_nearest_to_conformer(const RDKit::ROMol &mol,
+                                    const RDKit::Atom *at_1, const RDKit::Atom *at_2,
+                                    const RDKit::Atom *at_3, const RDKit::Atom *at_4,
+                                    double angle, int period) {
+
+   int n_conf = mol.getNumConformers();
+   if (n_conf == 0) return angle;
+   const RDKit::Conformer &conf = mol.getConformer(n_conf - 1);
+   if (! conf.is3D()) return angle;
+
+   auto pt = [&conf] (const RDKit::Atom *at) {
+      const RDGeom::Point3D &p = conf.getAtomPos(at->getIdx());
+      return clipper::Coord_orth(p.x, p.y, p.z);
+   };
+   double measured = clipper::Util::rad2d(clipper::Coord_orth::torsion(pt(at_1), pt(at_2), pt(at_3), pt(at_4)));
+   return torsion_target_nearest_to_measured(angle, period, measured);
+}
+
+// Likewise, using the coordinates of the atoms of the dictionary - for use after the
+// coordinates have been regularized (atoms move, e.g. methyl groups rotate).
+//
+static void
+set_torsion_targets_nearest_to_coordinates(coot::dictionary_residue_restraints_t *restraints) {
+
+   std::map<std::string, clipper::Coord_orth> pos;
+   for (const auto &atom : restraints->atom_info)
+      if (atom.model_Cartn.first)
+         pos[coot::util::remove_whitespace(atom.atom_id)] = atom.model_Cartn.second;
+
+   for (auto &tr : restraints->torsion_restraint) {
+      auto it_1 = pos.find(coot::util::remove_whitespace(tr.atom_id_1()));
+      auto it_2 = pos.find(coot::util::remove_whitespace(tr.atom_id_2()));
+      auto it_3 = pos.find(coot::util::remove_whitespace(tr.atom_id_3()));
+      auto it_4 = pos.find(coot::util::remove_whitespace(tr.atom_id_4()));
+      if (it_1 == pos.end() || it_2 == pos.end() || it_3 == pos.end() || it_4 == pos.end()) continue;
+      double measured = clipper::Util::rad2d(clipper::Coord_orth::torsion(it_1->second, it_2->second,
+                                                                          it_3->second, it_4->second));
+      double angle = torsion_target_nearest_to_measured(tr.angle(), tr.periodicity(), measured);
+      if (angle != tr.angle())
+         tr = coot::dict_torsion_restraint_t(tr.id(), tr.atom_id_1(), tr.atom_id_2(),
+                                             tr.atom_id_3(), tr.atom_id_4(),
+                                             angle, tr.esd(), tr.periodicity());
+   }
+}
 
 bool
 coot::add_torsion_to_restraints(coot::dictionary_residue_restraints_t *restraints,
@@ -1031,7 +1060,9 @@ coot::add_torsion_to_restraints(coot::dictionary_residue_restraints_t *restraint
 	    dict_torsion_restraint_t torsionr(tors_id,
 					      atom_name_1, atom_name_2,
 					      atom_name_3, atom_name_4,
-					      tors.angle, esd, tors.period);
+					      torsion_target_nearest_to_conformer(mol, at_1, at_2, at_3, at_4,
+										  tors.angle, tors.period),
+					      esd, tors.period);
 	    restraints->torsion_restraint.push_back(torsionr);
 	    added_state = true;
 	 }
@@ -1109,7 +1140,9 @@ coot::add_torsion_to_restraints(coot::dictionary_residue_restraints_t *restraint
 	 dict_torsion_restraint_t torsionr(tors_id,
 					   atom_name_1, atom_name_2,
 					   atom_name_3, atom_name_4,
-					   angle, esd, period);
+					   torsion_target_nearest_to_conformer(mol, at_1, at_2, at_3, at_4,
+									       angle, period),
+					   esd, period);
 	 if (debug)
 	    std::cout << "fallback pushback::" << torsionr << std::endl;
 	 restraints->torsion_restraint.push_back(torsionr);
@@ -2092,7 +2125,8 @@ coot::add_chem_comp_deloc_planes(const RDKit::ROMol &mol, coot::dictionary_resid
    std::vector<d_pat> patterns;
    patterns.push_back(d_pat("*C(=O)[O;H]",                 0.02));  // ASP carboxylate, valence model (H)
    patterns.push_back(d_pat("*[C;X3;^2](~O)~[O;X1]",       0.02));  // ASP carboxylate, no H
-   patterns.push_back(d_pat("AC(=O)[N^2;H2,H1]([H])[A,H]", 0.02));  // ASN
+   // ASN. The first atom can be aromatic (e.g. the carboxamide of the nicotinamide of NAD)
+   patterns.push_back(d_pat("*C(=O)[N^2;H2,H1]([H])[A,H]", 0.02));
    patterns.push_back(d_pat("*C(=N)[N^2;H2]([H])[A,H]",    0.02));  // amidine
    patterns.push_back(d_pat("CNC(=[NH])N([H])[H]",         0.02));  // guanidinium with H - testing
    patterns.push_back(d_pat("CNC(=[NH])N",                 0.02));  // guanidinium sans Hs
@@ -2176,7 +2210,14 @@ coot::add_chem_comp_sp2_C_planes(const RDKit::ROMol &mol, coot::dictionary_resid
    typedef std::pair<std::string, double> d_pat;
    std::vector<d_pat> patterns;
 
-   patterns.push_back(d_pat("AC(=O)C",                 0.02));  // ketone, A is usually C, maybe S.
+   // ketone, the first atom is usually C, maybe S. The neighbours of the carbonyl C can
+   // be aromatic (e.g. an aryl ketone or the carbonyl of an aryl tertiary amide).
+   patterns.push_back(d_pat("*C(=O)[#6]",              0.02));
+
+   // a (non-aromatic) C=C double bond: the 2 carbon atoms and their 4 neighbours (H
+   // too). Before, the only non-aromatic double-bond pattern was the conjugated one in
+   // add_chem_comp_deloc_planes(), so e.g. a C=C between 2 rings had no plane.
+   patterns.push_back(d_pat("*[C;X3](*)=[C;X3](*)*",   0.02));
 
    int n_planes = 1; // counter for output text
    for (unsigned int ipat=0; ipat<patterns.size(); ipat++) {
@@ -2191,8 +2232,8 @@ coot::add_chem_comp_sp2_C_planes(const RDKit::ROMol &mol, coot::dictionary_resid
 	 std::cout << "Matched " << matched << " sp2 N planes" << std::endl;
       for (unsigned int imatch=0; imatch<matches.size(); imatch++) {
 	 if (matches[imatch].size() > 0) {
-	    std::cout << "DEBUG:: add_chem_comp_sp2_C_planes(): matched sp2 N plane pattern: " << patterns[ipat].first << std::endl;
-	    std::string plane_id = "plane-sp2-N-";
+	    std::cout << "DEBUG:: add_chem_comp_sp2_C_planes(): matched sp2 C plane pattern: " << patterns[ipat].first << std::endl;
+	    std::string plane_id = "plane-sp2-C-";
 	    char s[100];
 	    snprintf(s,99,"%d", n_planes);
 	    plane_id += std::string(s);
@@ -2228,8 +2269,19 @@ coot::add_chem_comp_sp2_N_planes(const RDKit::ROMol &mol, coot::dictionary_resid
 
    typedef std::pair<std::string, double> d_pat;
    std::vector<d_pat> patterns;
-   patterns.push_back(d_pat("[c,C][N^2;H2]([H])[H]", 0.02));  // N6 on Adenosine.
-                                                              // Should the Hs be replaced by *s?
+   // An amidine-like NH2: on a C that is double (or aromatic) bonded to a N, e.g. N6 of
+   // adenine, N4 of cytosine, N2 of guanine. Not the NH2 of an aniline, which is often
+   // pyramidal (see the diarylamine pattern below).
+   patterns.push_back(d_pat("[#6;$([#6]=,:[#7])][N^2;H2]([H])[H]", 0.02));
+   // The N of a tertiary amide (e.g. a lactam N) and its 3 neighbours. The amide patterns
+   // in add_chem_comp_deloc_planes() need a H on the N. The carbonyl C has its own plane
+   // (see add_chem_comp_sp2_C_planes()), the twist of the amide is left to the torsion.
+   patterns.push_back(d_pat("[N;X3;^2;H0;$(NC=O)](*)(*)*", 0.02));
+   // A N on 2 aromatic rings (a diarylamine) and its 3 neighbours. A N on just one aromatic
+   // ring (an aniline-type N, e.g. N10 of A1C3J) is often pyramidal or only partly flat,
+   // so it gets no plane - its geometry is left to the angles. (An N-aryl amide N is
+   // in a plane from the amide patterns.)
+   patterns.push_back(d_pat("[N;X3;!a;$(N(a)a)](*)(*)*", 0.02));
    int n_planes = 1; // counter for output text
    for (unsigned int ipat=0; ipat<patterns.size(); ipat++) {
       std::unique_ptr<RDKit::ROMol> query(RDKit::SmartsToMol(patterns[ipat].first));
@@ -2452,6 +2504,14 @@ coot::assign_chirals_rdkit_tags(const RDKit::ROMol &mol,
 	       // std::reverse(neighb_names_and_ranks.begin(),
                // neighb_names_and_ranks.end());
 
+	       // The chiral restraint should be specified with the non-hydrogen
+	       // neighbours, so put any hydrogen atoms at the end. (The volume sign
+	       // is calculated from the positions of the atoms that are used.)
+	       std::stable_partition(neighb_names_and_ranks.begin(), neighb_names_and_ranks.end(),
+				     [&mol] (const indexed_name_and_rank_t &nr) {
+					return mol[nr.atom_index]->getAtomicNum() != 1;
+				     });
+
 	       std::string chiral_id = "chiral_" + util::int_to_string(n_chirals+1);
 	       std::string n1 = neighb_names_and_ranks[0].atom_name;
 	       std::string n2 = neighb_names_and_ranks[1].atom_name;
@@ -2588,6 +2648,7 @@ coot::regularize_and_update_mol_and_restraints(RDKit::RWMol *mol,
       simple_refine(first_residue_p, mmdb_mol, *restraints_p);
       update_coords(mol, i_conf, first_residue_p);
       update_chem_comp_atoms_from_residue(first_residue_p, restraints_p);
+      set_torsion_targets_nearest_to_coordinates(restraints_p);
       delete mmdb_mol;
       delete residue_p;
    } else {

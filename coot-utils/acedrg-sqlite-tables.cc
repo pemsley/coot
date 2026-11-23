@@ -339,8 +339,9 @@ coot::acedrg_sqlite_tables::impl::prefetch_for_molecule(const std::vector<std::t
    }
 }
 
+// acedrg_atom_types is modified by this function, to store the acedrg atom types.
 bool
-coot::acedrg_sqlite_tables::fill_chemcomp(gemmi::ChemComp &cc) {
+coot::acedrg_sqlite_tables::fill_chemcomp(gemmi::ChemComp &cc, std::vector<std::string> *acedrg_atom_types) {
 
    if (! is_usable()) return false;
    gemmi::AcedrgTables &tables = pimpl->tables;
@@ -348,6 +349,12 @@ coot::acedrg_sqlite_tables::fill_chemcomp(gemmi::ChemComp &cc) {
    try {
       std::vector<gemmi::CodAtomInfo> atom_info = tables.classify_atoms(cc);
       std::map<std::string, size_t> atom_idx = cc.make_atom_index();
+      if (acedrg_atom_types) {
+         acedrg_atom_types->assign(cc.atoms.size(), std::string());
+         for (const auto &ai : atom_info)
+            if (ai.index >= 0 && static_cast<std::size_t>(ai.index) < cc.atoms.size())
+               (*acedrg_atom_types)[ai.index] = ai.cod_class;
+      }
 
       std::vector<std::tuple<int, int, std::string> > bond_keys;
       bond_keys.reserve(cc.rt.bonds.size());
@@ -493,8 +500,14 @@ coot::acedrg_sqlite_tables::make_bond_and_angle_restraints(const dictionary_resi
    // the whole conversion the same way fill_chemcomp() guards its own body.
    try {
       gemmi::ChemComp cc = chemcomp_from_dictionary(restraints_in);
-      if (! fill_chemcomp(cc))
+      std::vector<std::string> acedrg_atom_types;
+      if (! fill_chemcomp(cc, &acedrg_atom_types))
          return std::make_pair(false, r);
+
+      // cc.atoms is in the order of restraints_in.atom_info
+      r.atom_info = restraints_in.atom_info;
+      for (std::size_t i = 0; i < r.atom_info.size() && i < acedrg_atom_types.size(); i++)
+         r.atom_info[i].acedrg_atom_type = acedrg_atom_types[i];
 
       // conservatively_replace_with() swaps in whole restraint objects, so
       // carry the input's bond-type strings across
@@ -554,7 +567,7 @@ coot::acedrg_sqlite_tables::is_usable() const {
 }
 
 bool
-coot::acedrg_sqlite_tables::fill_chemcomp(gemmi::ChemComp &cc) {
+coot::acedrg_sqlite_tables::fill_chemcomp(gemmi::ChemComp &cc, std::vector<std::string> *acedrg_atom_types) {
 
    return false;
 }

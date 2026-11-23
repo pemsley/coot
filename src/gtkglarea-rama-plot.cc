@@ -374,6 +374,8 @@ graphics_info_t::remove_plot_from_rama_plots(GtkWidget *plot_box) {
 void
 graphics_info_t::rama_plot_boxes_handle_close_molecule(int imol) {
 
+   // 20261117-PE Note: check g.use_graphics_interface_flag before calling this function
+
    GtkWidget *box_for_all_plots = widget_from_builder("ramachandran_plots_vbox");
    bool removed_any = false;
    auto it = rama_plot_boxes.begin();

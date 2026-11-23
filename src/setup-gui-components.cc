@@ -83,6 +83,10 @@ void setup_menubuttons() {
    GMenuModel *modules_menu = menu_model_from_builder("modules-menu");
    gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(add_module_menubutton), modules_menu);
 
+   GtkWidget *terminal_scripting_menubutton = widget_from_builder("terminal_scripting_menubutton");
+   GMenuModel *terminal_options_menu = menu_model_from_builder("terminal-options-menu");
+   gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(terminal_scripting_menubutton), terminal_options_menu);
+
    // toolbar button - connect the refine menu to the GtkMenuButton
    GtkWidget *refine_menubutton = widget_from_builder("refine_menubutton");
    GMenuModel *refine_menu = menu_model_from_builder("refine-menu");
@@ -723,6 +727,7 @@ void setup_gui_components() {
    setup_ramachandran_plot_chooser_dialog();
    setup_get_monomer();
    setup_accession_code_frame();
+
 #ifdef HAVE_VTE
    // setup_python_vte_terminal() is now called earlier, in startup_application_activate()
    // just before gtk_window_present(), so that reparenting the graphics overlay into the
@@ -735,6 +740,7 @@ void setup_gui_components() {
 #else
    setup_python_scripting_entry();
 #endif
+
    setup_keyboard_mutate_entry();
    setup_curlew_banner();
    setup_tomo_widgets();

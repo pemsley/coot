@@ -598,25 +598,7 @@ coot::molecule_t::get_map_contours_mesh_using_other_map_for_colours(const clippe
    auto clipper_to_cartesian = [] (const clipper::Coord_orth &c) {
       return Cartesian(c.x(), c.y(), c.z()); };
 
-   auto frac_to_col = [] (float f, const user_defined_colour_table_t &udct) {
-      glm::vec4 col(0.1f, 0.1f, 0.1f, 1.0f);
-      for (unsigned int i=0; i<(udct.colour_table.size() -1); i++) {
-	 if (udct.colour_table[i].colour_frac <= f) {
-	    if (f <= udct.colour_table[i+1].colour_frac) {
-	       user_defined_colour_table_t::colour_pair_t lower_point = udct.colour_table[i];
-	       user_defined_colour_table_t::colour_pair_t upper_point = udct.colour_table[i+1];
-	       float fraction = (f - lower_point.colour_frac) / (upper_point.colour_frac - lower_point.colour_frac);
-	       float r = lower_point.colour.r + (upper_point.colour.r - lower_point.colour.r) * fraction;
-	       float g = lower_point.colour.g + (upper_point.colour.g - lower_point.colour.g) * fraction;
-	       float b = lower_point.colour.b + (upper_point.colour.b - lower_point.colour.b) * fraction;
-	       col = glm::vec4(r,g,b,1.0f);
-	    }
-	 }
-      }
-      return col;
-   };
-
-   auto position_to_colour = [frac_to_col] (const clipper::Coord_orth &c,
+   auto position_to_colour = [] (const clipper::Coord_orth &c,
 					    const clipper::Xmap<float> &other_map,
 					    const user_defined_colour_table_t &udct,
 					    float min_value, float max_value) {
@@ -634,7 +616,7 @@ coot::molecule_t::get_map_contours_mesh_using_other_map_for_colours(const clippe
 	    f = m/range;
 	 }
       }
-      return frac_to_col(f, udct);
+      return udct.fraction_to_colour(f);
    };
 
    auto cpos = clipper_to_cartesian(position);

@@ -1062,6 +1062,30 @@ int test_cross_rotation_function(molecules_container_t &mc) {
    return status;
 }
 
+// Rotate a P1 map about the origin, using the periodicity of the map. Each grid point is
+// taken as its lattice image nearest the origin, so a map fragment that is centred on the
+// origin (map_fragment_info_t with centre_at_origin) is rotated as a whole.
+// (coot::rotate_p1_map() rotates about the cell centre, and so chops up such a fragment.)
+clipper::Xmap<float>
+rotate_p1_map_about_origin(const clipper::Xmap<float> &xmap, const clipper::Mat33<> &rotation_matrix) {
+
+   clipper::Xmap<float> rotated(xmap.spacegroup(), xmap.cell(), xmap.grid_sampling());
+   clipper::Mat33<> rot_inv = rotation_matrix.inverse();
+   clipper::Xmap_base::Map_reference_index ix;
+   for (ix = rotated.first(); !ix.last(); ix.next()) {
+      clipper::Coord_frac f = ix.coord().coord_frac(rotated.grid_sampling());
+      clipper::Coord_frac f_near_origin(f.u() - std::round(f.u()),
+                                        f.v() - std::round(f.v()),
+                                        f.w() - std::round(f.w()));
+      clipper::Coord_orth pos = f_near_origin.coord_orth(xmap.cell());
+      clipper::Coord_orth source_pos(rot_inv * pos);
+      float val;
+      clipper::Interp_linear::interp(xmap, xmap.coord_map(source_pos), val);
+      rotated[ix] = val;
+   }
+   return rotated;
+}
+
 int test_crowther_rotation_function(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -1095,7 +1119,14 @@ int test_crowther_rotation_function(molecules_container_t &mc) {
                                 rot_mat[0][1], rot_mat[1][1], rot_mat[2][1],
                                 rot_mat[0][2], rot_mat[1][2], rot_mat[2][2]);
 
-   clipper::Xmap<float> rotated_map = coot::rotate_p1_map(mf.xmap, clipper_rot);
+   // The fragment is centred on the origin, so rotate it about the origin (not the
+   // cell centre, as coot::rotate_p1_map() does).
+   clipper::Xmap<float> rotated_map = rotate_p1_map_about_origin(mf.xmap, clipper_rot);
+
+   // The search map is the target rotated by known_rotation, so the rotation that
+   // superposes the search onto the target - which is what the rotation function
+   // finds - is the inverse of known_rotation.
+   glm::quat expected_rotation = glm::inverse(known_rotation);
 
    // Crowther fast rotation function
    int ell_max = 15;
@@ -1110,7 +1141,8 @@ int test_crowther_rotation_function(molecules_container_t &mc) {
    std::vector<coot::rotation_function_result_t> results = crowther.compute(n_beta);
 
    std::cout << "INFO:: test_crowther_rotation_function() " << results.size() << " results" << std::endl;
-   std::cout << "INFO:: known rotation: " << glm::to_string(known_rotation) << std::endl;
+   std::cout << "INFO:: known rotation: " << glm::to_string(known_rotation)
+             << " expected result (its inverse): " << glm::to_string(expected_rotation) << std::endl;
 
    unsigned int n_print = std::min(static_cast<unsigned int>(results.size()), 30u);
    for (unsigned int i=0; i<n_print; i++) {
@@ -1124,13 +1156,13 @@ int test_crowther_rotation_function(molecules_container_t &mc) {
                 << std::endl;
    }
 
-   // Check if the known rotation is among the top results
+   // Check if the expected rotation is among the top results
    if (!results.empty()) {
       float best_dot = 0.0f;
       int best_idx = -1;
       unsigned int n_check = std::min(static_cast<unsigned int>(results.size()), 50u);
       for (unsigned int i=0; i<n_check; i++) {
-         float d = std::abs(glm::dot(results[i].rotation, known_rotation));
+         float d = std::abs(glm::dot(results[i].rotation, expected_rotation));
          if (d > best_dot) {
             best_dot = d;
             best_idx = static_cast<int>(i);

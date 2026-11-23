@@ -305,7 +305,13 @@ molecule_class_info_t::make_map_cap(const clipper::Coord_orth &base_point,
    if (colour_map_using_other_map_flag)
       om = other_map_for_colouring_p;
 
-   auto map_col_func_1 = [sat, minv, maxv] (const float &dv) {
+   // when colouring by the other map, use the user-defined colour table (if it has been set)
+   const user_defined_colour_table_t *colour_table_p = nullptr;
+   if (om)
+      if (other_map_for_colouring_colour_table.is_set())
+         colour_table_p = &other_map_for_colouring_colour_table;
+
+   auto map_col_func_1 = [sat, minv, maxv, colour_table_p] (const float &dv) {
                             coot::colour_t cc(0.6+0.4*sat, 0.6-0.6*sat, 0.6-0.6*sat);
                             float fraction = 0.0;
                             if (dv > minv) {
@@ -318,6 +324,8 @@ molecule_class_info_t::make_map_cap(const clipper::Coord_orth &base_point,
                                }
                                cc.rotate(0.66 * fraction);
                             }
+                            if (colour_table_p)
+                               return colour_table_p->fraction_to_colour(fraction);
                             return glm::vec4(cc.col[0], cc.col[1], cc.col[2], 1.0f);
                          };
 

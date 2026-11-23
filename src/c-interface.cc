@@ -2900,46 +2900,72 @@ colour_map_by_other_map(int imol_map, int imol_map_used_for_colouring) {
 }
 
 #ifdef USE_PYTHON
-//! So, if the map has 4 entries covering the range from  0 to 1, then the table_bin_size would be 0.25
-//! and the colour_table list would have 4 entries covering the range 0->0.25, 0.25->0.5, 0.5->0.75, 0.75->1.0
+//! The colour table is a list of colour stops, each [stop, [r, g, b]], where stop is the
+//! fraction (0 to 1) of the way from min_value to max_value (the same format as
+//! set_colour_map_for_map_coloured_by_other_map() in the chapi).
 void
-colour_map_by_other_map_py(int imol_map, int imol_map_used_for_colouring, float table_bin_start, float table_bin_size,
+colour_map_by_other_map_py(int imol_map, int imol_map_used_for_colouring, float min_value, float max_value,
                            PyObject *colour_table_py) {
+
+   // return true on success
+   auto py_to_float = [] (PyObject *o, float &f) {
+      if (PyFloat_Check(o) || PyLong_Check(o)) {
+         f = PyFloat_AsDouble(o);
+         return true;
+      }
+      return false;
+   };
 
    if (is_valid_map_molecule(imol_map)) {
       if (is_valid_map_molecule(imol_map_used_for_colouring)) {
          if (PyList_Check(colour_table_py)) {
             graphics_info_t g;
             clipper::Xmap<float> &xmap_for_colouring = g.molecules[imol_map_used_for_colouring].xmap;
-            std::vector<coot::colour_t> colour_list;
-            unsigned int n = PyObject_Length(colour_table_py);
-            for (unsigned int i=0; i<n; i++) {
-               PyObject *i_py = PyList_GetItem(colour_table_py, i);
-               if (PyList_Check(i_py)) {
-                  unsigned int i_l = PyObject_Length(i_py);
-                  if (i_l == 3) {
-                     double r = PyFloat_AsDouble(PyList_GetItem(i_py, 0));
-                     double g = PyFloat_AsDouble(PyList_GetItem(i_py, 1));
-                     double b = PyFloat_AsDouble(PyList_GetItem(i_py, 2));
-                     coot::colour_t col(r,g,b);
-                     colour_list.push_back(col);
+            user_defined_colour_table_t colour_table;
+            bool table_ok = true;
+            Py_ssize_t n = PyList_Size(colour_table_py);
+            for (Py_ssize_t i=0; i<n; i++) {
+               bool stop_ok = false;
+               PyObject *stop_py = PyList_GetItem(colour_table_py, i);
+               if (PyList_Check(stop_py) || PyTuple_Check(stop_py)) {
+                  if (PySequence_Size(stop_py) == 2) {
+                     PyObject *frac_py = PySequence_GetItem(stop_py, 0); // new reference
+                     PyObject *col_py  = PySequence_GetItem(stop_py, 1); // new reference
+                     float frac = 0.0;
+                     if (py_to_float(frac_py, frac)) {
+                        if (PyList_Check(col_py) || PyTuple_Check(col_py)) {
+                           if (PySequence_Size(col_py) == 3) {
+                              float rgb[3];
+                              bool rgb_ok = true;
+                              for (unsigned int j=0; j<3; j++) {
+                                 PyObject *c_py = PySequence_GetItem(col_py, j); // new reference
+                                 if (! py_to_float(c_py, rgb[j])) rgb_ok = false;
+                                 Py_XDECREF(c_py);
+                              }
+                              if (rgb_ok) {
+                                 colour_table.add_stop(frac, glm::vec3(rgb[0], rgb[1], rgb[2]));
+                                 stop_ok = true;
+                              }
+                           }
+                        }
+                     }
+                     Py_XDECREF(frac_py);
+                     Py_XDECREF(col_py);
                   }
-               } else {
-                  std::cout << "Not a list " << std::endl;
+               }
+               if (! stop_ok) {
+                  std::cout << "WARNING:: colour_map_by_other_map_py(): colour table item " << i
+                            << " is not of the form [stop, [r, g, b]]" << std::endl;
+                  table_ok = false;
                   break;
                }
             }
 
-            std::cout << "debug:: in colour_map_by_other_map_py() colour_list size " << colour_list.size() << std::endl;
+            if (table_ok)
+               g.molecules[imol_map].colour_map_using_map(xmap_for_colouring, min_value, max_value, colour_table);
 
-            if (colour_list.size() == n) {
-               // we read the table OK.
-               g.molecules[imol_map].colour_map_using_map(xmap_for_colouring,
-                                                          table_bin_start, table_bin_size,
-                                                          colour_list);
-            }
          } else {
-            std::cout << "colour table was not a list " << std::endl;
+            std::cout << "WARNING:: colour_map_by_other_map_py(): colour table was not a list " << std::endl;
          }
       }
    }
