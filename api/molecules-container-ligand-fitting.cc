@@ -181,13 +181,9 @@ molecules_container_t::fit_ligand_right_here(int imol_protein, int imol_map, int
             try {
                coot::minimol::molecule mmol(molecules[imol_ligand].atom_sel.mol);
                std::string res_name = get_first_residue_name(molecules[imol_ligand].atom_sel.mol);
-#ifdef __EMSCRIPTEN__
-               int n_threads = 3;
-#else
                int n_threads = coot::get_max_number_of_threads();
                n_threads = n_threads - 2;
                if (n_threads < 1) n_threads = 1;
-#endif
                // use the shared class thread pool (not a new local one)
                if (n_threads > static_cast<int>(thread_pool.size()))
                   n_threads = thread_pool.size();
@@ -337,13 +333,9 @@ molecules_container_t::fit_ligand(int imol_protein, int imol_map, int imol_ligan
 
                coot::minimol::molecule mmol(molecules[imol_ligand].atom_sel.mol);
                std::string res_name = get_first_residue_name(molecules[imol_ligand].atom_sel.mol);
-#ifdef __EMSCRIPTEN__
-               int n_threads = 3;
-#else
                int n_threads = coot::get_max_number_of_threads();
                n_threads = n_threads - 2;
                if (n_threads < 1) n_threads = 1;
-#endif
                // use the shared class thread pool (not a new local one)
                if (n_threads > static_cast<int>(thread_pool.size()))
                   n_threads = thread_pool.size();

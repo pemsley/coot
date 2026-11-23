@@ -268,17 +268,28 @@ coot::contacts_by_bricks::find_the_contacts_between_bricks_multi_thread(std::vec
    int brick_index_max = range[0] * range[1] * range[2];
    float dist_max_sqrd = dist_nbc_max * dist_nbc_max;
 
-   std::vector<std::thread> threads;
+   if (thread_index_sets.size() == 1) {
 
-   for (std::size_t ii=0; ii<thread_index_sets.size(); ii++) {
-      const std::vector<unsigned int> &index_set = thread_index_sets[ii];
-      threads.push_back(std::thread(find_the_contacts_between_bricks_multi_thread_workpackage,
-                                          vec_p, std::cref(index_set), std::cref(atoms_in_bricks),
-                                    std::cref(fixed_flags), range, atoms, brick_index_max, dist_nbc_max,
-                                    only_between_different_residues_flag));
+      // There is no point in starting one thread to do all of the work while this
+      // thread waits for it - and that would be one thread more than a limit of 1 allows.
+      find_the_contacts_between_bricks_multi_thread_workpackage(vec_p, thread_index_sets[0], atoms_in_bricks,
+                                                                fixed_flags, range, atoms, brick_index_max,
+                                                                dist_nbc_max, only_between_different_residues_flag);
+
+   } else {
+
+      std::vector<std::thread> threads;
+
+      for (std::size_t ii=0; ii<thread_index_sets.size(); ii++) {
+         const std::vector<unsigned int> &index_set = thread_index_sets[ii];
+         threads.push_back(std::thread(find_the_contacts_between_bricks_multi_thread_workpackage,
+                                       vec_p, std::cref(index_set), std::cref(atoms_in_bricks),
+                                       std::cref(fixed_flags), range, atoms, brick_index_max, dist_nbc_max,
+                                       only_between_different_residues_flag));
+      }
+      for (std::size_t ii=0; ii<thread_index_sets.size(); ii++)
+         threads[ii].join();
    }
-   for (std::size_t ii=0; ii<thread_index_sets.size(); ii++)
-      threads[ii].join();
 
    if (false) {
       auto tp_1 = std::chrono::high_resolution_clock::now();

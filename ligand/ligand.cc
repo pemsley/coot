@@ -2048,13 +2048,20 @@ coot::ligand::fit_ligands_to_cluster(int iclust) {
 
    std::vector<std::pair<minimol::molecule, ligand_score_card> > big_vector_of_results;
 
-   // we split them into batches of 4 - that's fast enough for a nice speed up, but won't
+   // we split them into batches - that's fast enough for a nice speed up, but won't
    // create a massive (20Gb) memory load. I don't know how to find out where the memory
    // is allocated.
    //
+   // Each ligand of a batch is fitted in its own thread, so a batch must not
+   // be bigger than the number of threads that we are allowed to use.
+   //
    std::vector<std::vector<unsigned int> > indices;
    unsigned int n_per_batch = 10;
-   unsigned int n_batches = n_ligands / n_per_batch + 1;
+   unsigned int n_threads_max = coot::get_max_number_of_threads();
+   if (n_threads_max < 1) n_threads_max = 1;
+   if (n_per_batch > n_threads_max) n_per_batch = n_threads_max;
+   unsigned int n_batches = (n_ligands + n_per_batch - 1) / n_per_batch; // round up
+   if (n_batches < 1) n_batches = 1;
    coot::split_indices(&indices, n_ligands, n_batches);
 
    for (unsigned int ii=0; ii<indices.size(); ii++) {

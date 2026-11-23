@@ -416,10 +416,11 @@ int CXXSurfaceMaker::calculateFromAtoms(mmdb::Manager *allAtomsManager_in, const
     CXXSurface *elementSurfacesArray = &(childSurfaces[oldSize]);
 
 #if !defined __APPLE__ && !defined _OPENMP
-    // vector container stores threads
-    unsigned int n_threads = 2; // get_number_of_threads_by_system_call();
+    // The thread pool is not used at the moment (see the loop below) so don't start
+    // any threads for it. If it is used again, the number of threads should come from
+    // the caller, so that the caller's limit on the number of threads is respected.
+    unsigned int n_threads = 0;
     ctpl::thread_pool the_thread_pool(n_threads);
-    std::cout << "n_threads" << n_threads << "\n";
 #endif
 
 #if __APPLE__ && !defined _OPENMP

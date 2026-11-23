@@ -28,7 +28,13 @@
 
 #include <iostream>
 #include <filesystem>
+#include <mutex>
 #include "logging.hh"
+
+// Log messages can come from several threads at the same time, so writing to
+// (and reading from) the history needs a lock. It is recursive because the
+// update notifier function is called with the lock held and may read the history.
+static std::recursive_mutex history_mutex;
 
 #if defined(_MSC_VER)
 #define EPOCHFILETIME (116444736000000000i64)
@@ -141,6 +147,7 @@ logging::log(const std::string &s) {
    if (success == 0) // was successful
       l.t = current_time.tv_sec;
 
+   std::lock_guard<std::recursive_mutex> history_lock(history_mutex);
    history.push_back(l);
    notify();
 
@@ -156,6 +163,7 @@ logging::log(log_t type, const std::string &s) {
    int success = gettimeofday(&current_time, NULL);
    if (success == 0) // was successful
       l.t = current_time.tv_sec;
+   std::lock_guard<std::recursive_mutex> history_lock(history_mutex);
    history.push_back(l);
    output_to_terminal_maybe();
    notify();
@@ -174,6 +182,7 @@ logging::log(log_t type, const std::string &s1, const std::string &s2) {
    l.add_to_message(s1);
    l.add_to_message(" ");
    l.add_to_message(s2);
+   std::lock_guard<std::recursive_mutex> history_lock(history_mutex);
    history.push_back(l);
    output_to_terminal_maybe();
    notify();
@@ -187,6 +196,7 @@ logging::log(log_t type_in, const function_name_t &fn, const std::string &s1) {
    int success = gettimeofday(&current_time, NULL);
    if (success == 0) // was successful
       l.t = current_time.tv_sec;
+   std::lock_guard<std::recursive_mutex> history_lock(history_mutex);
    history.push_back(l);
    output_to_terminal_maybe();
    notify();
@@ -203,6 +213,7 @@ logging::log(log_t type_in, const function_name_t &fn, const std::string &s1, co
    l.add_to_message(s1);
    l.add_to_message(" ");
    l.add_to_message(s2);
+   std::lock_guard<std::recursive_mutex> history_lock(history_mutex);
    history.push_back(l);
    output_to_terminal_maybe();
    notify();
@@ -222,6 +233,7 @@ logging::log(log_t type_in, const function_name_t &fn,
    l.add_to_message(s2);
    l.add_to_message(" ");
    l.add_to_message(s3);
+   std::lock_guard<std::recursive_mutex> history_lock(history_mutex);
    history.push_back(l);
    output_to_terminal_maybe();
    notify();
@@ -238,6 +250,7 @@ logging::log(log_t type_in, const function_name_t &fn, const std::string &s1, in
    l.add_to_message(s1);
    l.add_to_message(" ");
    l.add_to_message(std::to_string(i));
+   std::lock_guard<std::recursive_mutex> history_lock(history_mutex);
    history.push_back(l);
    output_to_terminal_maybe();
    notify();
@@ -255,6 +268,7 @@ logging::log(log_t type_in, const function_name_t &fn, const std::string &s1, in
    l.add_to_message(" ");
    l.add_to_message(std::to_string(i));
    l.add_to_message(std::to_string(j));
+   std::lock_guard<std::recursive_mutex> history_lock(history_mutex);
    history.push_back(l);
    output_to_terminal_maybe();
    notify();
@@ -274,6 +288,7 @@ logging::log(log_t type_in, const function_name_t &fn, const std::string &s1, in
    l.add_to_message(std::to_string(i));
    l.add_to_message(" ");
    l.add_to_message(s2);
+   std::lock_guard<std::recursive_mutex> history_lock(history_mutex);
    history.push_back(l);
    output_to_terminal_maybe();
    notify();
@@ -292,6 +307,7 @@ logging::log(log_t type_in, const function_name_t &fn, const std::vector<ltw> &v
       l.add_to_message(item.to_string());
       l.add_to_message(" ");
    }
+   std::lock_guard<std::recursive_mutex> history_lock(history_mutex);
    history.push_back(l);
    output_to_terminal_maybe();
    notify();
@@ -313,6 +329,7 @@ logging::log(log_t type_in, const std::string &s1, bool v1, const std::string &s
    l.message += b;
    l.message += " ";
    l.message += s2;
+   std::lock_guard<std::recursive_mutex> history_lock(history_mutex);
    history.push_back(l);
    output_to_terminal_maybe();
    notify();
@@ -332,6 +349,7 @@ logging::log(log_t type_in, const std::string &s1, std::size_t s, const std::str
    l.message += std::to_string(s);
    l.message += " ";
    l.message += s2;
+   std::lock_guard<std::recursive_mutex> history_lock(history_mutex);
    history.push_back(l);
    output_to_terminal_maybe();
    notify();
@@ -351,6 +369,7 @@ logging::log(log_t type_in, const std::string &s1, int i, const std::string &s2)
    l.message += std::to_string(i);
    l.message += " ";
    l.message += s2;
+   std::lock_guard<std::recursive_mutex> history_lock(history_mutex);
    history.push_back(l);
    output_to_terminal_maybe();
    notify();
@@ -370,6 +389,7 @@ logging::log(log_t type_in, const std::string &s1, unsigned int i, const std::st
    l.message += std::to_string(i);
    l.message += " ";
    l.message += s2;
+   std::lock_guard<std::recursive_mutex> history_lock(history_mutex);
    history.push_back(l);
    output_to_terminal_maybe();
    notify();
@@ -389,6 +409,7 @@ logging::log(log_t type_in, const std::string &s1, double d, const std::string &
    l.message += std::to_string(d);
    l.message += " ";
    l.message += s2;
+   std::lock_guard<std::recursive_mutex> history_lock(history_mutex);
    history.push_back(l);
    output_to_terminal_maybe();
    notify();
@@ -412,6 +433,7 @@ void logging::log(log_t type_in, const std::string &s1, const std::string &s2, c
    l.message += s4;
    l.message += " ";
    l.message += std::to_string(f2);
+   std::lock_guard<std::recursive_mutex> history_lock(history_mutex);
    history.push_back(l);
    output_to_terminal_maybe();
    notify();
@@ -435,6 +457,7 @@ void logging::log(log_t type_in, const std::string &s1, const float &f1, const s
    l.message += s4;
    l.message += " ";
    l.message += std::to_string(f2);
+   std::lock_guard<std::recursive_mutex> history_lock(history_mutex);
    history.push_back(l);
    output_to_terminal_maybe();
 }
@@ -450,6 +473,7 @@ logging::log(log_t type_in, const std::string &s1, const int &i) {
    l.message = s1;
    l.message += " ";
    l.message += std::to_string(i);
+   std::lock_guard<std::recursive_mutex> history_lock(history_mutex);
    history.push_back(l);
    output_to_terminal_maybe();
    notify();
@@ -473,6 +497,7 @@ logging::log(log_t type_in, const std::string &s1, bool v1, const std::string &s
    l.message += s2;
    l.message += " ";
    l.message += s3;
+   std::lock_guard<std::recursive_mutex> history_lock(history_mutex);
    history.push_back(l);
    output_to_terminal_maybe();
    notify();
@@ -490,6 +515,7 @@ logging::log(log_t type_in, const std::string &s1, const double &d1) {
    l.add_to_message(s1);
    l.add_to_message(" ");
    l.add_to_message(std::to_string(d1));
+   std::lock_guard<std::recursive_mutex> history_lock(history_mutex);
    history.push_back(l);
    output_to_terminal_maybe();
    notify();
@@ -506,6 +532,7 @@ logging::log(log_t type_in, const std::string &s1, const float &f1) {
    l.add_to_message(s1);
    l.add_to_message(" ");
    l.add_to_message(std::to_string(f1));
+   std::lock_guard<std::recursive_mutex> history_lock(history_mutex);
    history.push_back(l);
    output_to_terminal_maybe();
    notify();
@@ -523,6 +550,7 @@ void logging::log(log_t type_in, const std::string &s1, const float &f1, const f
    l.add_to_message(std::to_string(f1));
    l.add_to_message(" ");
    l.add_to_message(std::to_string(f2));
+   std::lock_guard<std::recursive_mutex> history_lock(history_mutex);
    history.push_back(l);
    output_to_terminal_maybe();
    notify();
@@ -539,6 +567,7 @@ void logging::log(log_t type_in, ltw l1, ltw l2) {
    l.message += l1.to_string();
    l.message += " ";
    l.message += l2.to_string();
+   std::lock_guard<std::recursive_mutex> history_lock(history_mutex);
    history.push_back(l);
    output_to_terminal_maybe();
    notify();
@@ -558,6 +587,7 @@ logging::log(log_t type_in, ltw l1, ltw l2, ltw l3) {
    l.message += l2.to_string();
    l.message += " ";
    l.message += l3.to_string();
+   std::lock_guard<std::recursive_mutex> history_lock(history_mutex);
    history.push_back(l);
    output_to_terminal_maybe();
    notify();
@@ -579,6 +609,7 @@ logging::log(log_t type_in, const ltw &l1, const ltw &l2, const ltw &l3, const l
    l.message += l3.to_string();
    l.message += " ";
    l.message += l4.to_string();
+   std::lock_guard<std::recursive_mutex> history_lock(history_mutex);
    history.push_back(l);
    output_to_terminal_maybe();
    notify();
@@ -603,6 +634,7 @@ logging::log(log_t type_in, ltw l1, ltw l2, ltw l3, ltw l4, ltw l5) {
    l.message += l4.to_string();
    l.message += " ";
    l.message += l5.to_string();
+   std::lock_guard<std::recursive_mutex> history_lock(history_mutex);
    history.push_back(l);
    output_to_terminal_maybe();
    notify();
@@ -628,6 +660,7 @@ logging::log(log_t type_in, ltw l1, ltw l2, ltw l3, ltw l4, ltw l5, ltw l6) {
    l.message += l5.to_string();
    l.message += " ";
    l.message += l6.to_string();
+   std::lock_guard<std::recursive_mutex> history_lock(history_mutex);
    history.push_back(l);
    output_to_terminal_maybe();
    notify();
@@ -666,6 +699,7 @@ logging::log(log_t type_in,
    l.message += l9.to_string();
    l.message += " ";
    l.message += l10.to_string();
+   std::lock_guard<std::recursive_mutex> history_lock(history_mutex);
    history.push_back(l);
    output_to_terminal_maybe();
    notify();
@@ -688,6 +722,7 @@ logging::log(log_t type_in, const std::string &s1, const double &d1, const std::
    l.add_to_message(" ");
    l.add_to_message(std::to_string(d2));
    l.add_to_message(" ");
+   std::lock_guard<std::recursive_mutex> history_lock(history_mutex);
    history.push_back(l);
    output_to_terminal_maybe();
    notify();
@@ -710,6 +745,7 @@ logging::log(log_t type_in, const function_name_t &fn, const std::string &s1, bo
    l.add_to_message(" ");
    l.add_to_message(std::to_string(f));
    l.add_to_message(" ");
+   std::lock_guard<std::recursive_mutex> history_lock(history_mutex);
    history.push_back(l);
    output_to_terminal_maybe();
    notify();
@@ -730,6 +766,7 @@ logging::log(log_t type_in, const std::vector<ltw> &ls) {
       l.message += item.to_string();
       l.message += " ";
    }
+   std::lock_guard<std::recursive_mutex> history_lock(history_mutex);
    history.push_back(l);
    output_to_terminal_maybe();
    notify();
@@ -743,6 +780,7 @@ logging::output_to_terminal_maybe() {
 void
 logging::show() const {
 
+   std::lock_guard<std::recursive_mutex> history_lock(history_mutex);
    for (std::size_t i=0; i<history.size(); i++) {
       const log_item &h = history[i];
       // maybe use localtime()
@@ -805,6 +843,7 @@ logging::log_item::get_date_string() const {
 void
 logging::show_last() const {
 
+   std::lock_guard<std::recursive_mutex> history_lock(history_mutex);
    if (! history.empty()) {
       const log_item &h = history.back();
 
@@ -825,6 +864,7 @@ std::vector<logging::log_item>
 logging::get_log_history_from(unsigned int idx_start) const {
 
    std::vector<log_item> v;
+   std::lock_guard<std::recursive_mutex> history_lock(history_mutex);
    if (idx_start < history.size()) {
       for (unsigned int i=idx_start; i<history.size(); i++) {
 	 v.push_back(history[i]);
