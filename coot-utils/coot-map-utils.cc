@@ -45,6 +45,7 @@
 #include "edcalc.hh"
 #include "geometry/main-chain.hh"
 #include "exp-fit.hh"
+#include "locres/fsc-core.hh"
 
 #include "utils/logging.hh"
 extern logging logger;
@@ -4473,28 +4474,29 @@ coot::util::power_scale(const clipper::Xmap<float> &xmap_1, const clipper::Xmap<
 std::vector<std::pair<clipper::Resolution, double> >
 coot::util::fsc(const clipper::Xmap<float> &xmap_1, const clipper::Xmap<float> &xmap_2) {
 
+   bool debug = false;
    std::vector<std::pair<clipper::Resolution, double> > v;
-   std::cout << "# starting FSC" << std::endl;
+   if (debug)
+      std::cout << "# starting FSC" << std::endl;
 
-   int n_bins = 100; //  pass this?
+   unsigned int n_bins = 100; //  pass this?
    float mg = coot::util::max_gridding(xmap_1); // A/grid
    clipper::Resolution reso(2.0 * mg); // Angstroms
-   std::cout << "# making data info 1" << std::endl;
-   clipper::HKL_info hkl_info_1(xmap_1.spacegroup(), xmap_1.cell(), reso, true);
-   std::cout << "# making data info 2" << std::endl;
-   clipper::HKL_info hkl_info_2(xmap_2.spacegroup(), xmap_2.cell(), reso, true);
-   clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis_1(hkl_info_1);
-   clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis_2(hkl_info_2);
-   std::cout << "# starting Fouriers" << std::endl;
+   if (debug)
+      std::cout << "# making data info" << std::endl;
+   // both sets of structure factors use the same list of reflections
+   clipper::HKL_info hkl_info(xmap_1.spacegroup(), xmap_1.cell(), reso, true);
+   clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis_1(hkl_info);
+   clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis_2(hkl_info);
+   if (debug)
+      std::cout << "# starting Fouriers" << std::endl;
    xmap_1.fft_to(fphis_1);
-   std::cout << "# done map-1" << std::endl;
+   if (debug)
+      std::cout << "# done map-1" << std::endl;
    xmap_2.fft_to(fphis_2);
-   std::cout << "# done map-2" << std::endl;
+   if (debug)
+      std::cout << "# done map-2" << std::endl;
    clipper::HKL_info::HKL_reference_index hri;
-   std::vector<double> ff_sum(n_bins, 0.0);
-   std::vector<double> f1_sqrd_sum(n_bins, 0.0);
-   std::vector<double> f2_sqrd_sum(n_bins, 0.0);
-   std::vector<unsigned int> counts(n_bins, 0);
    double max_reso = 0.0;
    for (hri = fphis_1.first(); !hri.last(); hri.next()) {
       float f = fphis_1[hri].f();
@@ -4505,49 +4507,69 @@ coot::util::fsc(const clipper::Xmap<float> &xmap_1, const clipper::Xmap<float> &
             max_reso = ir;
       }
    }
+   coot::fsc_shells_t shells(n_bins);
    for (hri = fphis_1.first(); !hri.last(); hri.next()) {
-      float f_1 = 1000.0 * fphis_1[hri].f();
-      try {
-         if (! clipper::Util::is_nan(f_1)) {
-            float f_2 = 1000.0 * fphis_2[hri].f();
-            float irs = hri.invresolsq();
-            float ir = sqrtf(irs);
-            int bin_no = static_cast<int> (static_cast<double>(n_bins) * ir/max_reso);
-            if (bin_no == n_bins) bin_no = n_bins - 1; // catch the reflection at the edge
-
-            float A_f_1 = f_1 * cosf(fphis_1[hri].phi());
-            float B_f_1 = f_1 * sinf(fphis_1[hri].phi());
-            float A_f_2 = f_2 * cosf(fphis_2[hri].phi());
-            float B_f_2 = f_2 * sinf(fphis_2[hri].phi());
-
-            double prod = A_f_1 * A_f_2 + B_f_1 * B_f_2;
-            ff_sum[bin_no] += prod;
-            if (false)
-               std::cout << hri.hkl().format() << " "
-                         << f_1 << " " << fphis_1[hri].phi() << " "
-                         << f_2 << " " << fphis_2[hri].phi() << " prod " << prod << std::endl;
-            f1_sqrd_sum[bin_no] += f_1 * f_1;
-            f2_sqrd_sum[bin_no] += f_2 * f_2;
-            counts[bin_no]++;
-         }
-      }
-      catch (const std::runtime_error &rte) {
-         std::cout << rte.what() << std::endl;
+      const clipper::datatypes::F_phi<float> &fphi_1 = fphis_1[hri];
+      const clipper::datatypes::F_phi<float> &fphi_2 = fphis_2[hri];
+      if (! fphi_1.missing() && ! fphi_2.missing()) {
+         float irs = hri.invresolsq();
+         float ir = sqrtf(irs);
+         unsigned int bin_no = static_cast<unsigned int> (static_cast<double>(n_bins) * ir/max_reso);
+         if (bin_no >= n_bins) bin_no = n_bins - 1; // catch the reflection at the edge
+         if (false)
+            std::cout << hri.hkl().format() << " "
+                      << fphi_1.f() << " " << fphi_1.phi() << " "
+                      << fphi_2.f() << " " << fphi_2.phi() << std::endl;
+         shells.add(bin_no, std::complex<float>(fphi_1), std::complex<float>(fphi_2));
       }
    }
 
-   for(int i=0; i<n_bins; i++) {
-      double fsc = ff_sum[i]/sqrt(f1_sqrd_sum[i] * f2_sqrd_sum[i]);
+   for (unsigned int i=0; i<n_bins; i++) {
+      double fsc = shells.fsc(i);
       double ir = (static_cast<double>(i) + 0.5) * max_reso/static_cast<double>(n_bins);
-      std::cout << i << " " << ir << " "
-                << counts[i] << " " << ff_sum[i]/static_cast<double>(counts[i]) << " "
-                << f1_sqrd_sum[i]/static_cast<double>(counts[i]) << " "
-                << f2_sqrd_sum[i]/static_cast<double>(counts[i]) << "    "
-                << fsc << std::endl;
+      if (debug) {
+         double count = static_cast<double>(shells.count(i));
+         std::cout << i << " " << ir << " "
+                   << shells.count(i) << " " << shells.sum_f1_f2(i)/count << " "
+                   << shells.sum_f1_sq(i)/count << " "
+                   << shells.sum_f2_sq(i)/count << "    "
+                   << fsc << std::endl;
+      }
       std::pair<clipper::Resolution, double> p(clipper::Resolution(1.0/ir), fsc);
       v.push_back(p);
    }
 
+   return v;
+}
+
+std::vector<std::pair<clipper::Resolution, double> >
+coot::util::fsc(const clipper::Xmap<float> &xmap_1, const clipper::Xmap<float> &xmap_2,
+                const clipper::Xmap<float> &xmap_mask) {
+
+   std::vector<std::pair<clipper::Resolution, double> > v;
+
+   auto same_grid = [] (const clipper::Xmap<float> &xmap_a, const clipper::Xmap<float> &xmap_b) {
+      const clipper::Grid_sampling &gs_a = xmap_a.grid_sampling();
+      const clipper::Grid_sampling &gs_b = xmap_b.grid_sampling();
+      return (gs_a.nu() == gs_b.nu() && gs_a.nv() == gs_b.nv() && gs_a.nw() == gs_b.nw() &&
+              xmap_a.spacegroup().hash() == xmap_b.spacegroup().hash() &&
+              xmap_a.cell().equals(xmap_b.cell()));
+   };
+
+   if (same_grid(xmap_1, xmap_2) && same_grid(xmap_1, xmap_mask)) {
+      clipper::Xmap<float> xmap_masked_1 = xmap_1;
+      clipper::Xmap<float> xmap_masked_2 = xmap_2;
+      clipper::Xmap_base::Map_reference_index ix;
+      for (ix = xmap_mask.first(); !ix.last(); ix.next()) {
+         const float &m = xmap_mask[ix];
+         xmap_masked_1[ix] *= m;
+         xmap_masked_2[ix] *= m;
+      }
+      v = fsc(xmap_masked_1, xmap_masked_2);
+   } else {
+      logger.log(log_t::WARNING, logging::function_name_t(__FUNCTION__),
+                 "the maps and the mask are not on the same grid");
+   }
    return v;
 }
 

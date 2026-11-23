@@ -589,8 +589,35 @@ namespace coot {
                                                    const std::vector<phitheta> &phi_thetas,
                                                    clipper::Xmap<float> &xmap);
 
+      //! \brief Fourier Shell Correlation between two maps
+      //!
+      //! \param xmap_1 the first map
+      //! \param xmap_2 the second map, on the same grid as the first
+      //! \return the resolution (at the middle of the shell) and the correlation for each
+      //!         of 100 shells, evenly spaced in 1/d. A shell with no reflections in it, or
+      //!         no signal, has a correlation of 0.
       std::vector<std::pair<clipper::Resolution, double> >
       fsc(const clipper::Xmap<float> &xmap_1, const clipper::Xmap<float> &xmap_2);
+
+      //! \brief Fourier Shell Correlation between two maps, inside a mask
+      //!
+      //! Both maps are multiplied by the mask before the correlation is calculated.
+      //!
+      //! Beware: this makes the correlation too high at high resolution, so the resolution
+      //! read from the curve is optimistic. Multiplying both maps by the same mask gives
+      //! them something in common - the edge of the mask - and that is not corrected for
+      //! here (phase randomisation is the usual correction). The sharper the edge of the
+      //! mask and the smaller the mask, the worse this is.
+      //!
+      //! \param xmap_1 the first map
+      //! \param xmap_2 the second map
+      //! \param xmap_mask the mask, typically with values between 0 and 1. Both maps and the
+      //!        mask must have the same cell, spacegroup and grid.
+      //! \return as for the unmasked function, or an empty vector if the maps and the mask
+      //!         are not on the same grid
+      std::vector<std::pair<clipper::Resolution, double> >
+      fsc(const clipper::Xmap<float> &xmap_1, const clipper::Xmap<float> &xmap_2,
+          const clipper::Xmap<float> &xmap_mask);
 
      // scale map_for_scaling using relion-like resolution binning
      clipper::Xmap<float>
