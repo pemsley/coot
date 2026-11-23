@@ -191,7 +191,7 @@ check_PROGRAMS = test-h-bonds testshelxreader test-hole test-elastic \
 		 test-coot-utils test-pae servalcat-tracker test-zd test-grid-balls \
 		 test-dirichlet-process test-born test-gmm test-nef-utils test-zernike \
 		 test-zernike-params test-zernike-nxmap test-zernike-search \
-		 test-coord-utils test-coord-utils-gemmi test-servalcat-refine-progress
+		 test-coord-utils test-coord-utils-gemmi test-servalcat-refine-progress test-fsc
 if MAKE_ACEDRG_SQLITE
 check_PROGRAMS += test-acedrg-sqlite-tables
 endif
@@ -418,6 +418,10 @@ test_chem_feat_LDADD = \
 test_zd_SOURCES = test-zd.cc
 
 test_zd_LDADD = libcoot-map-utils.la $(CLIPPER_LIBS)
+
+test_fsc_SOURCES = test-fsc.cc
+
+test_fsc_LDADD = libcoot-map-utils.la $(top_builddir)/utils/libcoot-utils.la $(CLIPPER_LIBS)
 
 test_zernike_SOURCES = test-zernike.cc
 

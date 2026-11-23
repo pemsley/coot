@@ -757,6 +757,7 @@ man/Makefile
 reference-structures/Makefile
 api/Makefile
 pli/Makefile
+locres/Makefile
 fonts/Makefile
 pyrogen/Makefile
 pyrogen/pyrogen
