@@ -656,7 +656,8 @@ void write_header_secondary_structure_info(int imol, const char *file_name);
 
 /*! \brief copy molecule imol
 
-Both model and map molecules can be copied.
+Both model and map molecules can be copied. The copy of a map has
+the contour level of the map that it was copied from.
 
 @return the new molecule number.
 Return -1 on failure to copy molecule (out of range, or molecule is

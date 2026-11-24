@@ -145,9 +145,13 @@ int copy_molecule(int imol) {
       std::string label = "Copy_of_";
       label += graphics_info_t::molecules[imol].name_; // use get_name()
       bool is_em_flag = graphics_info_t::molecules[imol].is_EM_map();
-      graphics_info_t::molecules[new_mol_number].install_new_map(graphics_info_t::molecules[imol].xmap, label, is_em_flag);
+      float contour_level = graphics_info_t::molecules[imol].get_contour_level();
+      graphics_info_t::molecules[new_mol_number].install_new_map_with_contour_level(graphics_info_t::molecules[imol].xmap,
+                                                                                    label, contour_level, is_em_flag);
       if (graphics_info_t::molecules[imol].is_difference_map_p()) {
+         // this sets the contour level to that of a new difference map
          graphics_info_t::molecules[new_mol_number].set_map_is_difference_map(true);
+         graphics_info_t::molecules[new_mol_number].set_contour_level(contour_level);
       }
       iret = new_mol_number;
    }
