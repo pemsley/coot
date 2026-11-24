@@ -64,6 +64,7 @@ graphics_info_t::clear_pending_picks() {
    in_auto_fit_define = 0;
    in_db_main_define           = 0;
    in_edit_phi_psi_define      = 0;
+   in_backbone_torsion_define  = 0;
    in_add_alt_conf_define      = 0;
    in_save_symmetry_define     = 0;
    in_cis_trans_convert_define = 0;
