@@ -166,7 +166,7 @@ int test_resolution_follows_the_noise() {
    return status;
 }
 
-// a mask sets the outside to 0 and leaves the inside as it is without a mask
+// a mask sets the outside to 99.9 and leaves the inside as it is without a mask
 int test_mask() {
    int status = 1;
    clipper::Xmap<float> xmap_mask = xmap_signal;
@@ -189,7 +189,7 @@ int test_mask() {
          if (xmap_with[ix] == 0.0f || fabsf(xmap_with[ix] - xmap_without[ix]) > 1.0e-5f)
             n_wrong++;
       } else {
-         if (xmap_with[ix] != 0.0f)
+         if (xmap_with[ix] != 99.9f)
             n_wrong++;
       }
    }
@@ -290,6 +290,63 @@ int test_match_relion() {
    return status;
 }
 
+// The phase randomization takes out of the FSC of a window what the window spreads from low
+// resolution to higher resolution
+int test_phase_randomization() {
+   int status = 1;
+   // Half-maps that have a few strong waves in common, all of them longer than 25 A, and
+   // nothing else: the rest is noise. A window is not much bigger than one of the waves, so
+   // it spreads them over many shells.
+   const int n = 64;
+   const int n_waves = 6;
+   const int waves[n_waves][3] = { {4, 0, 0}, {0, 4, 0}, {0, 0, 4}, {3, 2, 1}, {1, 3, 2}, {2, 1, 3} };
+   clipper::Xmap<float> xmap_a = make_noise_map(n, n, n, 10);
+   clipper::Xmap<float> xmap_b = make_noise_map(n, n, n, 11);
+   clipper::Xmap_base::Map_reference_index ix;
+   for (ix = xmap_a.first(); !ix.last(); ix.next()) {
+      clipper::Coord_grid c = ix.coord();
+      float sum = 0.0f;
+      for (int i=0; i<n_waves; i++) {
+         int phase = waves[i][0] * c.u() + waves[i][1] * c.v() + waves[i][2] * c.w();
+         sum += cosf(6.2831853f * static_cast<float>(phase) / static_cast<float>(n) + static_cast<float>(i));
+      }
+      xmap_a[ix] += 10.0f * sum;
+      xmap_b[ix] += 10.0f * sum;
+   }
+   coot::locres_params_t params = test_params();
+   clipper::Xmap<float> xmap_plain = coot::local_resolution(xmap_a, xmap_b, nullptr, params);
+   params.phase_randomization = true;
+   clipper::Xmap<float> xmap_corrected = coot::local_resolution(xmap_a, xmap_b, nullptr, params);
+   std::vector<float> v_plain = estimates(xmap_plain);
+   std::vector<float> v_corrected = estimates(xmap_corrected);
+   if (v_plain.empty() || v_corrected.empty()) return 0;
+   float median_plain = v_plain[v_plain.size()/2];
+   float median_corrected = v_corrected[v_corrected.size()/2];
+   // Without the correction the waves look like signal to the Nyquist limit or near it. With it,
+   // there is none beyond the first shell that is corrected, which is at 16 A in these windows.
+   if (median_plain > 2.0f * nyquist || median_corrected < 3.5f * nyquist || median_corrected > 25.0f) {
+      std::cout << "   median without the correction " << median_plain << ", with it " << median_corrected << std::endl;
+      status = 0;
+   }
+
+   // the random numbers are the same every time, on any number of threads
+   clipper::Xmap<float> xmap_again = coot::local_resolution(xmap_a, xmap_b, nullptr, params);
+   params.n_threads = 1;
+   clipper::Xmap<float> xmap_1_thread = coot::local_resolution(xmap_a, xmap_b, nullptr, params);
+   if (! same_values(xmap_corrected, xmap_again)) status = 0;
+   if (! same_values(xmap_corrected, xmap_1_thread)) status = 0;
+
+   // identical half-maps are still correlated to the Nyquist limit
+   params.n_threads = 0;
+   clipper::Xmap<float> xmap_identical = coot::local_resolution(xmap_signal, xmap_signal, nullptr, params);
+   std::vector<float> v_identical = estimates(xmap_identical);
+   if (v_identical.empty() || fabsf(v_identical.front() - nyquist) > 1.0e-4f || fabsf(v_identical.back() - nyquist) > 1.0e-4f) {
+      std::cout << "   identical half-maps: " << v_identical.size() << " estimates" << std::endl;
+      status = 0;
+   }
+   return status;
+}
+
 int test_maps_that_cannot_be_used() {
    int status = 1;
    // half-maps on different grids
@@ -341,6 +398,7 @@ int main() {
    status += run_test(test_mask,                                            "mask");
    status += run_test(test_threads,                                         "threads");
    status += run_test(test_match_relion,                                    "match RELION");
+   status += run_test(test_phase_randomization,                             "phase randomization");
    status += run_test(test_maps_that_cannot_be_used,                        "maps that cannot be used");
    if (status == n_tests) all_tests_status = 0;
 

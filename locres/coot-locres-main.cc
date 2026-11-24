@@ -27,15 +27,20 @@ void print_usage() {
              << "window is where its FSC first falls below the threshold.\n"
              << "\n"
              << "Options:\n"
-             << "  --mask file-name      a mask on the grid of the half-maps. The result is 0 where the\n"
-             << "                        mask is 0.5 or less, and a window that reaches nowhere else is\n"
-             << "                        not calculated. The mask does not change the other values\n"
+             << "  --mask file-name      a mask on the grid of the half-maps. The result is 99.9 where\n"
+             << "                        the mask is 0.5 or less, and a window that reaches nowhere\n"
+             << "                        else is not calculated. The mask does not change the other\n"
+             << "                        values\n"
              << "  --match-relion        for a map to compare with RELION's. The resolution of a window\n"
              << "                        is then that of the last whole shell before its FSC falls\n"
              << "                        below the threshold, not interpolated between shells, and the\n"
              << "                        mask is used only for the statistics that are printed, so the\n"
              << "                        map has values outside the mask too. In weak density the map\n"
-             << "                        is still more optimistic than RELION's (see below)\n"
+             << "                        is more optimistic than RELION's; --phase-randomization brings\n"
+             << "                        it closer\n"
+             << "  --phase-randomization correct the FSC of each window for what the window spreads from\n"
+             << "                        low resolution, as RELION does (see below). It takes about\n"
+             << "                        twice the time\n"
              << "  --sampling d          the distance between the centres of neighbouring windows, in\n"
              << "                        Angstroms (default: 25). The size of the windows follows it,\n"
              << "                        unless --mask-radius and --edge-width are given\n"
@@ -51,10 +56,16 @@ void print_usage() {
              << "The half-maps must be in P1, with an orthogonal cell and the same grid spacing along\n"
              << "each axis, as cryo-EM maps are. The grid spacing is taken from the header of the maps.\n"
              << "\n"
-             << "Beware: these resolutions are optimistic. Each window multiplies both half-maps by the\n"
-             << "same sphere, which raises their FSC, and that is not corrected (RELION corrects it by\n"
-             << "randomising phases). It matters little where the density is good and most in weak\n"
-             << "density and solvent. A smaller window, or one with a sharper edge, makes it worse.\n";
+             << "Beware of two things. Each window multiplies both half-maps by the same sphere, which\n"
+             << "spreads what they have in common at low resolution to higher resolution and raises\n"
+             << "their FSC there. In weak density and solvent that makes the resolution look better\n"
+             << "than it is. --phase-randomization corrects it, as RELION does: the phases of both\n"
+             << "half-maps are replaced by random numbers beyond 25 Angstroms, and the FSC of those two\n"
+             << "maps in a window, which is what the window alone gives, is taken out of its FSC.\n"
+             << "\n"
+             << "And the result depends on the size of the windows: the smaller they are, the better\n"
+             << "the resolution comes out, with or without that correction. In windows less than about\n"
+             << "20 Angstroms across it is not to be trusted.\n";
 }
 
 // if this option was given, set *value_p to the number that it was given
@@ -155,6 +166,10 @@ int main(int argc, char **argv) {
             params.match_relion = true;
             continue;
          }
+         if (arg == "--phase-randomization") {
+            params.phase_randomization = true;
+            continue;
+         }
          if (arg.empty() || arg[0] != '-') {
             file_names.push_back(arg);
             continue;
@@ -217,8 +232,8 @@ int main(int argc, char **argv) {
       const float small_window_A = 50.0f;
       float window_width_A = 2.0f * (params.mask_radius_A + params.edge_width_A);
       if (window_width_A < small_window_A) {
-         std::cerr << "coot-locres: warning: the windows are only " << window_width_A << " A across. A small window"
-                   << " raises the FSC, so the resolutions will be too good (--help has more)." << std::endl;
+         std::cerr << "coot-locres: warning: the windows are only " << window_width_A << " A across. The smaller the"
+                   << " window, the better the resolution comes out (--help has more)." << std::endl;
          if (options["--mask-radius"].empty() && options["--edge-width"].empty())
             std::cerr << "coot-locres: the size of the windows follows --sampling. For windows of the usual size on"
                       << " this sampling, add --mask-radius 12.5 --edge-width 25" << std::endl;
@@ -226,6 +241,9 @@ int main(int argc, char **argv) {
       if (params.match_relion)
          std::cout << "Matching RELION: whole shells" << (have_mask ? ", and the mask is for these statistics only" : "")
                    << std::endl;
+      if (params.phase_randomization)
+         std::cout << "Phase randomization: the FSC of each window is corrected for what the window spreads from low"
+                   << " resolution" << std::endl;
 
       clipper::Xmap<float> xmap = coot::local_resolution(half_1, half_2, mask_limits_the_map ? &xmap_mask : nullptr, params);
       print_statistics(xmap, have_mask ? &xmap_mask : nullptr, params.mask_threshold);

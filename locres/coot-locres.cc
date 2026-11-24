@@ -3,6 +3,7 @@
 #include <vector>
 #include <complex>
 #include <string>
+#include <random>
 #include <thread>
 #include <atomic>
 #include <algorithm>
@@ -25,6 +26,9 @@ namespace {
       int n_fft;           // the side of the cube that is Fourier transformed: that cube, padded with zeros
       double grid_spacing; // in Angstroms
       double map_length;   // the longest side of the map, in Angstroms
+      // for the phase randomization: shell i of the transform of the map is at a resolution of map_length / i
+      int randomize_shell;       // phases are random from this shell of the transform of the map
+      int first_corrected_shell; // the FSC of a window is corrected from this shell of the transform of its cube
    };
 
    // the index of a grid point in a map that has been copied to a vector by dense_map()
@@ -72,7 +76,8 @@ namespace {
          throw std::runtime_error(fn + "the grid spacing of the half-maps is not the same along each axis");
    }
 
-   // the smallest size that is not less than n and that has no prime factor greater than 7
+   // The smallest size that is not less than n and that has no prime factor greater than 7.
+   // Nothing here is Fourier transformed on a grid of any other size.
    int fft_size(int n) {
       while (true) {
          int m = n;
@@ -107,6 +112,12 @@ namespace {
       geom.reach = geom.mask_radius + edge_width;
       geom.n_sub = 2 * geom.reach;
       geom.n_fft = fft_size(2 * geom.n_sub);
+      // RELION randomizes phases beyond 25 A (--locres_randomize_at), from a whole shell, and
+      // corrects the FSC from two shells after that. first_corrected_shell is at that resolution.
+      geom.randomize_shell = std::max(1, static_cast<int>(geom.map_length / 25.0));
+      double cube_length = geom.n_fft * geom.grid_spacing;
+      double first_corrected = (geom.randomize_shell + 2) * cube_length / geom.map_length;
+      geom.first_corrected_shell = static_cast<int>(std::ceil(first_corrected - 1.0e-9));
       if (geom.step < 1)
          throw std::runtime_error(fn + "the sampling is less than half of the grid spacing");
       if (geom.reach < 1)
@@ -134,6 +145,60 @@ namespace {
          }
       }
       return dense;
+   }
+
+   // A copy of this map (a vector made by dense_map()) in which the phase of each Fourier
+   // coefficient from the shell randomize_shell on is a random number. The amplitudes are
+   // kept. Like RELION, this gives every stored coefficient a phase of its own, also in the
+   // planes of the half transform that hold a coefficient and its Friedel mate.
+   //
+   // Unlike RELION, this does not transform the map on its own grid if a side of that has a
+   // prime factor greater than 7 (314 is 2 x 157, and slow). The map is then transformed in
+   // the smallest box that has none, the rest of which is 0, and cut out of it afterwards.
+   std::vector<float> phase_randomized(const std::vector<float> &map, const clipper::Grid_sampling &grid,
+                                       const window_geometry_t &geom, std::mt19937 *generator_p) {
+
+      clipper::Grid_sampling fft_grid(fft_size(grid.nu()), fft_size(grid.nv()), fft_size(grid.nw()));
+      clipper::FFTmap_p1 fft(fft_grid);
+      std::size_t idx = 0;
+      for (int u=0; u<grid.nu(); u++)
+         for (int v=0; v<grid.nv(); v++)
+            for (int w=0; w<grid.nw(); w++)
+               fft.real_data(clipper::Coord_grid(u, v, w)) = map[idx++];
+      fft.fft_x_to_h(1.0);
+
+      // The indices of a coefficient, in units of 1 / map_length. Those are its own indices if
+      // the map is a cube and is transformed on its own grid, and then this is what RELION does.
+      double scale_h = geom.map_length / (fft_grid.nu() * geom.grid_spacing);
+      double scale_k = geom.map_length / (fft_grid.nv() * geom.grid_spacing);
+      double scale_l = geom.map_length / (fft_grid.nw() * geom.grid_spacing);
+      double limit_sq = static_cast<double>(geom.randomize_shell) * geom.randomize_shell;
+      const double two_pi = 6.283185307179586;
+      for (int h=0; h<fft_grid.nu(); h++) {
+         double hs = scale_h * ((2 * h <= fft_grid.nu()) ? h : h - fft_grid.nu());
+         for (int k=0; k<fft_grid.nv(); k++) {
+            double ks = scale_k * ((2 * k <= fft_grid.nv()) ? k : k - fft_grid.nv());
+            for (int l=0; l<=fft_grid.nw()/2; l++) {
+               double ls = scale_l * l;
+               if (hs * hs + ks * ks + ls * ls >= limit_sq) {
+                  clipper::Coord_grid c(h, k, l);
+                  float amplitude = std::abs(fft.cplx_data(c));
+                  // the 32 bits of the generator, so that the phases are the same on every platform
+                  float phase = static_cast<float>(two_pi * ((*generator_p)() / 4294967296.0));
+                  fft.cplx_data(c) = std::polar(amplitude, phase);
+               }
+            }
+         }
+      }
+      fft.fft_h_to_x(1.0);
+
+      std::vector<float> randomized(map.size());
+      idx = 0;
+      for (int u=0; u<grid.nu(); u++)
+         for (int v=0; v<grid.nv(); v++)
+            for (int w=0; w<grid.nw(); w++)
+               randomized[idx++] = fft.real_data(clipper::Coord_grid(u, v, w));
+      return randomized;
    }
 
    // The weight of a window at each grid point of the cube that holds it. The centre of the
@@ -262,25 +327,22 @@ namespace {
    }
 
    // Where the FSC first falls below the threshold, between the shells on either side of
-   // that. Shell i is at a resolution of box_length_A / i.
-   double resolution_from_fsc(const coot::fsc_shells_t &shells, unsigned int n_shells, double box_length_A,
-                              const coot::locres_params_t &params) {
+   // that. fsc[i] is the FSC of shell i, which is at a resolution of box_length_A / i.
+   double resolution_from_fsc(const std::vector<double> &fsc, double box_length_A, const coot::locres_params_t &params) {
 
       double threshold = params.fsc_threshold;
       double limit = params.low_resolution_limit_A;
-      for (unsigned int i=1; i<n_shells; i++) {
-         double fsc = shells.fsc(i);
-         if (fsc < threshold) {
+      for (std::size_t i=1; i<fsc.size(); i++) {
+         if (fsc[i] < threshold) {
             if (i == 1)
                return limit; // no signal
-            double fsc_prev = shells.fsc(i-1);
-            double fraction = (fsc_prev - threshold) / (fsc_prev - fsc);
+            double fraction = (fsc[i-1] - threshold) / (fsc[i-1] - fsc[i]);
             double resolution = box_length_A / (static_cast<double>(i-1) + fraction);
             return std::min(resolution, limit);
          }
       }
       // the FSC is above the threshold all the way to the last shell
-      return box_length_A / static_cast<double>(n_shells - 1);
+      return box_length_A / static_cast<double>(fsc.size() - 1);
    }
 
    // The resolution that RELION gives to a window whose FSC crosses the threshold at this
@@ -294,12 +356,12 @@ namespace {
       return std::min(map_length_A / shell, limit);
    }
 
-   // The resolution of the window centred here: multiply both maps by the window, Fourier
-   // transform them, and find where their FSC falls below the threshold.
-   double window_resolution(const std::vector<float> &map_1, const std::vector<float> &map_2,
-                            const clipper::Grid_sampling &grid, const clipper::Coord_grid &centre,
-                            const std::vector<float> &weights, const std::vector<unsigned short> &shell_table,
-                            const window_geometry_t &geom, const coot::locres_params_t &params) {
+   // The FSC of two maps in the window centred here, for each shell of the transform of the
+   // cube that holds the window: multiply both maps by the window and Fourier transform them.
+   std::vector<double> window_fsc(const std::vector<float> &map_1, const std::vector<float> &map_2,
+                                  const clipper::Grid_sampling &grid, const clipper::Coord_grid &centre,
+                                  const std::vector<float> &weights, const std::vector<unsigned short> &shell_table,
+                                  const window_geometry_t &geom) {
 
       int n = geom.n_fft;
       clipper::Grid_sampling fft_grid(n, n, n);
@@ -333,7 +395,30 @@ namespace {
             }
          }
       }
-      double resolution = resolution_from_fsc(shells, n_l, n * geom.grid_spacing, params);
+      std::vector<double> fsc(n_l);
+      for (int i=0; i<n_l; i++)
+         fsc[i] = shells.fsc(i);
+      return fsc;
+   }
+
+   // The resolution of the window centred here: where the FSC of the half-maps in the window
+   // falls below the threshold. If there are phase-randomized half-maps, the FSC is first
+   // corrected for what the window alone gives, which is the FSC of those maps in the window.
+   double window_resolution(const std::vector<float> &map_1, const std::vector<float> &map_2,
+                            const std::vector<float> *random_1_p, const std::vector<float> *random_2_p,
+                            const clipper::Grid_sampling &grid, const clipper::Coord_grid &centre,
+                            const std::vector<float> &weights, const std::vector<unsigned short> &shell_table,
+                            const window_geometry_t &geom, const coot::locres_params_t &params) {
+
+      std::vector<double> fsc = window_fsc(map_1, map_2, grid, centre, weights, shell_table, geom);
+      if (random_1_p && random_2_p) {
+         std::vector<double> fsc_random = window_fsc(*random_1_p, *random_2_p, grid, centre, weights, shell_table, geom);
+         for (std::size_t i=geom.first_corrected_shell; i<fsc.size(); i++) {
+            double d = 1.0 - fsc_random[i];
+            fsc[i] = (d > 0.0) ? (fsc[i] - fsc_random[i]) / d : 0.0;
+         }
+      }
+      double resolution = resolution_from_fsc(fsc, geom.n_fft * geom.grid_spacing, params);
       if (params.match_relion)
          resolution = whole_shell_resolution(resolution, geom.map_length, params.low_resolution_limit_A);
       return resolution;
@@ -380,9 +465,19 @@ coot::local_resolution(const clipper::Xmap<float> &half_1, const clipper::Xmap<f
    {
       std::vector<float> map_1 = dense_map(half_1);
       std::vector<float> map_2 = dense_map(half_2);
+      std::vector<float> random_1;
+      std::vector<float> random_2;
+      if (params.phase_randomization) {
+         std::mt19937 generator(1); // the same random numbers every time, so that a run can be repeated
+         random_1 = phase_randomized(map_1, grid, geom, &generator);
+         random_2 = phase_randomized(map_2, grid, geom, &generator);
+      }
+      const std::vector<float> *random_1_p = params.phase_randomization ? &random_1 : nullptr;
+      const std::vector<float> *random_2_p = params.phase_randomization ? &random_2 : nullptr;
       std::vector<unsigned short> shell_table = make_shell_table(geom.n_fft);
       auto task = [&] (std::size_t i) {
-         resolutions[i] = window_resolution(map_1, map_2, grid, centres[i], weights, shell_table, geom, params);
+         resolutions[i] = window_resolution(map_1, map_2, random_1_p, random_2_p, grid, centres[i], weights, shell_table,
+                                            geom, params);
       };
       if (params.parallel_for)
          params.parallel_for(centres.size(), task);
@@ -404,14 +499,19 @@ coot::local_resolution(const clipper::Xmap<float> &half_1, const clipper::Xmap<f
       for_each_window_point(grid, centres[iw], weights, geom, add);
    }
 
+   // What a grid point outside the mask is given. It is not a resolution that a grid point
+   // inside the mask can have, and it is on the poor side of them all, not the good side.
+   const float outside_the_mask = 99.9f;
    clipper::Xmap<float> xmap_resolution(half_1.spacegroup(), half_1.cell(), grid);
    clipper::Xmap_base::Map_reference_index ix;
    for (ix = xmap_resolution.first(); !ix.last(); ix.next()) {
       clipper::Coord_grid c = ix.coord();
       std::size_t map_idx = dense_index(grid, c.u(), c.v(), c.w());
-      float resolution = 0.0f;
+      float resolution = 0.0f; // no window reaches this grid point
       bool inside_mask = mask.empty() || mask[map_idx] > params.mask_threshold;
-      if (inside_mask && sum_weights_over_resolution[map_idx] > 0.0f)
+      if (! inside_mask)
+         resolution = outside_the_mask;
+      else if (sum_weights_over_resolution[map_idx] > 0.0f)
          resolution = sum_weights[map_idx] / sum_weights_over_resolution[map_idx];
       xmap_resolution[ix] = resolution;
    }
