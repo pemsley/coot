@@ -375,6 +375,32 @@ int test_maps_that_cannot_be_used() {
    return status;
 }
 
+// the function that a program finds by name when it has loaded this library
+int test_c_linkage_function() {
+   int status = 1;
+   coot::locres_params_t params = test_params();
+   clipper::Xmap<float> xmap_expected = coot::local_resolution(xmap_half_1, xmap_half_2, nullptr, params);
+   clipper::Xmap<float> xmap_result;
+   std::string message;
+   if (coot_local_resolution(&xmap_half_1, &xmap_half_2, nullptr, &params, &xmap_result, &message) != 1) status = 0;
+   if (! message.empty()) status = 0;
+   if (xmap_result.is_null()) {
+      status = 0;
+   } else {
+      clipper::Xmap_base::Map_reference_index ix;
+      for (ix = xmap_expected.first(); !ix.last(); ix.next())
+         if (xmap_result[ix] != xmap_expected[ix])
+            status = 0;
+   }
+   // half-maps on different grids: it fails, says why, and leaves the result alone
+   clipper::Xmap<float> xmap_small = make_noise_map(48, 48, 48, 6);
+   clipper::Xmap<float> xmap_untouched;
+   if (coot_local_resolution(&xmap_signal, &xmap_small, nullptr, &params, &xmap_untouched, &message) != 0) status = 0;
+   if (message.empty()) status = 0;
+   if (! xmap_untouched.is_null()) status = 0;
+   return status;
+}
+
 int run_test(int (*test_func)(), const std::string &test_name) {
    n_tests++;
    int status = test_func();
@@ -400,6 +426,7 @@ int main() {
    status += run_test(test_match_relion,                                    "match RELION");
    status += run_test(test_phase_randomization,                             "phase randomization");
    status += run_test(test_maps_that_cannot_be_used,                        "maps that cannot be used");
+   status += run_test(test_c_linkage_function,                              "the function with C linkage");
    if (status == n_tests) all_tests_status = 0;
 
    return all_tests_status;

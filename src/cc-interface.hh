@@ -909,6 +909,36 @@ void regen_map_internal(int imol_map, const std::vector<std::pair<int, float> > 
 int make_weighted_map_simple_internal(const std::vector<std::pair<int, float> > &weighted_map_indices);
 #endif
 
+//! \brief load the local resolution library, libcoot-locres
+//!
+//! Coot is not linked with that library, so it has to be loaded before it can
+//! be used. Loading it once is enough: if it is loaded already, this does nothing.
+//! If it cannot be loaded, the reason is written to the log.
+//!
+//! @param file_name the file name of the library. If it is empty, the library
+//!        is looked for in the lib directory of this installation of Coot
+//! @return 1 if the library is loaded, now or before, and 0 if it is not
+int load_local_resolution_library(const std::string &file_name);
+
+//! \brief make a local resolution map from the two half-maps of a cryo-EM reconstruction
+//!
+//! The value of the new map at a grid point is the resolution there, in Angstroms,
+//! or 0 where there is no estimate. The FSC of the half-maps is calculated in
+//! spherical windows with soft edges, across the map, as coot-locres does when it
+//! is given no options (the windows are 25 A apart and 75 A across).
+//!
+//! The local resolution library must be loaded first, with load_local_resolution_library().
+//! This blocks until the calculation is complete. If it fails, the reason is
+//! written to the log.
+//!
+//! @param imol_half_map_1 the molecule index of the first half-map
+//! @param imol_half_map_2 the molecule index of the second half-map
+//! @param imol_mask the molecule index of a mask on the grid of the half-maps, or -1
+//!        for no mask. The new map is 99.9 where the mask is 0.5 or less
+//! @return the molecule index of the new map, or -1 on failure: the library is not
+//!         loaded, one of the molecules is not a map, or the maps cannot be used
+int local_resolution_map(int imol_half_map_1, int imol_half_map_2, int imol_mask);
+
 //! \brief colour map by other map
 //!
 //! maybe we need to specify other things like the colour table.

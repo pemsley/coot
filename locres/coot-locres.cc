@@ -517,3 +517,25 @@ coot::local_resolution(const clipper::Xmap<float> &half_1, const clipper::Xmap<f
    }
    return xmap_resolution;
 }
+
+int coot_local_resolution(const clipper::Xmap<float> *half_1_p,
+                          const clipper::Xmap<float> *half_2_p,
+                          const clipper::Xmap<float> *xmap_mask_p,
+                          const coot::locres_params_t *params_p,
+                          clipper::Xmap<float> *xmap_result_p,
+                          std::string *message_p) {
+
+   int status = 0;
+   try {
+      *xmap_result_p = coot::local_resolution(*half_1_p, *half_2_p, xmap_mask_p, *params_p);
+      status = 1;
+   }
+   catch (const std::exception &e) {
+      *message_p = e.what();
+   }
+   catch (...) {
+      // what clipper throws is not a std::exception
+      *message_p = "coot::local_resolution() failed";
+   }
+   return status;
+}

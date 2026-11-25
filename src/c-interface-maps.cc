@@ -3246,6 +3246,94 @@ int mask_map_by_map(int imol_map, int imol_mask, float threshold) {
    return imol_new;
 }
 
+#ifndef _WIN32
+#include <dlfcn.h>
+#endif
+#include "locres/coot-locres.hh"
+
+// Coot is not linked with libcoot-locres. This is the function of that library, once
+// load_local_resolution_library() has loaded it, and null until then.
+static decltype(coot_local_resolution) *local_resolution_function_p = nullptr;
+
+int load_local_resolution_library(const std::string &file_name) {
+
+   int status = 0;
+   logging::function_name_t function_name("load_local_resolution_library");
+#ifdef _WIN32
+   logger.log(log_t::WARNING, function_name, "loading a library while Coot is running is not available on Windows");
+#else
+   if (local_resolution_function_p) {
+      status = 1; // it is loaded already
+   } else {
+      std::string fn = file_name;
+      if (fn.empty()) {
+#ifdef __APPLE__
+         std::string library_name = "libcoot-locres.dylib";
+#else
+         std::string library_name = "libcoot-locres.so";
+#endif
+         std::string lib_dir = coot::util::append_dir_dir(coot::prefix_dir(), "lib");
+         fn = coot::util::append_dir_file(lib_dir, library_name);
+      }
+      // RTLD_NOW: if the library needs something that is missing, it fails here and not when it is used
+      void *handle = dlopen(fn.c_str(), RTLD_NOW | RTLD_LOCAL);
+      if (handle) {
+         void *function_p = dlsym(handle, "coot_local_resolution");
+         if (function_p) {
+            local_resolution_function_p = reinterpret_cast<decltype(coot_local_resolution) *>(function_p);
+            status = 1;
+            logger.log(log_t::INFO, function_name, "loaded the local resolution library", fn);
+         } else {
+            logger.log(log_t::WARNING, function_name, fn,
+                       "is not the local resolution library: it has no function coot_local_resolution");
+            dlclose(handle);
+         }
+      } else {
+         const char *error_message = dlerror(); // this has the file name in it
+         logger.log(log_t::WARNING, function_name, "failed to load the local resolution library:",
+                    error_message ? error_message : fn);
+      }
+   }
+#endif
+   return status;
+}
+
+int local_resolution_map(int imol_half_map_1, int imol_half_map_2, int imol_mask) {
+
+   int imol_new = -1;
+   logging::function_name_t function_name("local_resolution_map");
+   bool have_mask = (imol_mask != -1);
+   if (! local_resolution_function_p) {
+      logger.log(log_t::WARNING, function_name,
+                 "the local resolution library is not loaded: use load_local_resolution_library() first");
+   } else {
+      if (is_valid_map_molecule(imol_half_map_1) && is_valid_map_molecule(imol_half_map_2) &&
+          (! have_mask || is_valid_map_molecule(imol_mask))) {
+         coot::locres_params_t params;
+         params.n_threads = coot::get_max_number_of_threads(); // the library runs its own threads
+         const clipper::Xmap<float> *xmap_mask_p = have_mask ? &graphics_info_t::molecules[imol_mask].xmap : nullptr;
+         clipper::Xmap<float> xmap;
+         std::string message;
+         int status = local_resolution_function_p(&graphics_info_t::molecules[imol_half_map_1].xmap,
+                                                  &graphics_info_t::molecules[imol_half_map_2].xmap,
+                                                  xmap_mask_p, &params, &xmap, &message);
+         if (status == 1) {
+            bool is_em_flag = graphics_info_t::molecules[imol_half_map_1].is_EM_map();
+            imol_new = graphics_info_t::create_molecule();
+            std::string name = "Local resolution from maps ";
+            name += coot::util::int_to_string(imol_half_map_1);
+            name += " and ";
+            name += coot::util::int_to_string(imol_half_map_2);
+            graphics_info_t::molecules[imol_new].install_new_map(xmap, name, is_em_flag);
+            graphics_draw();
+         } else {
+            logger.log(log_t::WARNING, function_name, message);
+         }
+      }
+   }
+   return imol_new;
+}
+
 void
 add_density_map_cap() {
 

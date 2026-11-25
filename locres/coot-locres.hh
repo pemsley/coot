@@ -22,6 +22,7 @@
 // This library uses clipper and the standard library only.
 
 #include <cstddef>
+#include <string>
 #include <functional>
 
 #include <clipper/core/xmap.h>
@@ -125,6 +126,33 @@ namespace coot {
                                          const clipper::Xmap<float> &half_2,
                                          const clipper::Xmap<float> *xmap_mask_p = nullptr,
                                          const locres_params_t &params = locres_params_t());
+}
+
+extern "C" {
+
+   //! \brief coot::local_resolution(), for a program that loads this library while it is running
+   //!
+   //! A program that is not linked with this library can load it with dlopen() and find
+   //! this function with dlsym(), by the name "coot_local_resolution". That is why it has
+   //! C linkage. No exception leaves it.
+   //!
+   //! The program and this library must be built with the same compiler and the same
+   //! clipper, because C++ objects are passed between them.
+   //!
+   //! \param half_1_p the first half-map
+   //! \param half_2_p the second half-map
+   //! \param xmap_mask_p a mask, or nullptr for no mask
+   //! \param params_p the size and spacing of the windows, the thresholds and the threads
+   //! \param xmap_result_p where to put what coot::local_resolution() returns. If this
+   //!        function fails, it is left as it was
+   //! \param message_p where to put what went wrong, if this function fails
+   //! \return 1 on success, 0 on failure
+   int coot_local_resolution(const clipper::Xmap<float> *half_1_p,
+                             const clipper::Xmap<float> *half_2_p,
+                             const clipper::Xmap<float> *xmap_mask_p,
+                             const coot::locres_params_t *params_p,
+                             clipper::Xmap<float> *xmap_result_p,
+                             std::string *message_p);
 }
 
 #endif // COOT_LOCRES_HH
