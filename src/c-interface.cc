@@ -3092,10 +3092,12 @@ void set_show_symmetry_master(short int state) {
 //    }
 
    g.show_symmetry = state;
-   for (int ii=0; ii<g.n_molecules(); ii++)
-      if (is_valid_model_molecule(ii))
-	 graphics_info_t::molecules[ii].update_symmetry();
-   graphics_draw();
+   if (g.use_graphics_interface_flag) {
+      for (int ii=0; ii<g.n_molecules(); ii++)
+         if (is_valid_model_molecule(ii))
+            graphics_info_t::molecules[ii].update_symmetry();
+      graphics_draw();
+   }
 
    if (state) {
       // Now count the number of model molecules that have symmetry
