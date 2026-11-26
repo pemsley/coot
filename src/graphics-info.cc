@@ -984,7 +984,9 @@ graphics_info_t::smooth_sinusoidal_scroll_animation_func(GtkWidget *widget,
    // smooth_scroll_n_steps = 20; // make this user-defined, or use frame_clock
 
    smooth_scroll_current_step++;
-   if (smooth_scroll_current_step <= smooth_scroll_n_steps) {
+   // 2026-11-26-PE fix the shortfall in the position. Now the sum integrates to 1.0
+   // rather than some step-size-dependent fraction of 1.0.
+   if (smooth_scroll_current_step < smooth_scroll_n_steps) {
       double frac_now  = static_cast<double>(smooth_scroll_current_step  )/static_cast<double>(smooth_scroll_n_steps);
       double frac_next = static_cast<double>(smooth_scroll_current_step+1)/static_cast<double>(smooth_scroll_n_steps);
       double theta_now  = M_PI * frac_now;
