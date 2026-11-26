@@ -356,13 +356,11 @@ graphics_info_t::intelligent_previous_atom_centring() {
 int
 graphics_info_t::intelligent_near_atom_centring(const std::string &direction) {
 
-   auto label_unlabel_centre_atom = [] (mmdb::Atom *at_next, mmdb::Manager *mol, int imol) {
-      coot::residue_spec_t residue_next(at_next->GetResidue());
-      mmdb::Residue *residue_this = coot::util::get_previous_residue(residue_next, mol);
-      if (residue_this) {
-         molecules[imol].add_atom_label(residue_next.chain_id.c_str(), residue_next.res_no, " CA ");
-         molecules[imol].remove_atom_label(residue_this->GetChainID(), residue_this->GetSeqNum(), " CA ");
-      }
+   // remove before add: add_atom_label() toggles, and the previous residue can be the same as the next one
+   auto label_unlabel_centre_atom = [] (mmdb::Atom *at_next, const std::string &chain_id_prev,
+                                        int res_no_prev, int imol) {
+      molecules[imol].remove_atom_label(chain_id_prev.c_str(), res_no_prev, " CA ");
+      molecules[imol].add_atom_label(at_next->GetChainID(), at_next->GetSeqNum(), " CA ");
    };
 
    std::string chain =     go_to_atom_chain_;
@@ -417,7 +415,6 @@ graphics_info_t::intelligent_near_atom_centring(const std::string &direction) {
             return 0; // failure
          }
          mmdb::Atom *next_atom = molecules[imol].atom_sel.atom_selection[atom_index];
-         mmdb::Manager *mol    = molecules[imol].atom_sel.mol;
 
          if (next_atom) {
 
@@ -430,7 +427,7 @@ graphics_info_t::intelligent_near_atom_centring(const std::string &direction) {
             // now update the widget with the new values of the above (like
             // c-interface:goto_near_atom_maybe())
 
-            label_unlabel_centre_atom(next_atom, mol, imol);
+            label_unlabel_centre_atom(next_atom, chain, resno, imol);
 
             GtkWidget *go_to_atom_window = widget_from_builder("goto_atom_window");
             if (go_to_atom_window) {
