@@ -715,22 +715,25 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
         sane_H_mol.SetProp('name', compound_name)
 
         sd_local = mogul_file_name_stub + ".sdf"
-        sdf_file_name       = os.path.join(mogul_dir, mogul_file_name_stub + '-mogul.sdf')
-        mogul_ins_file_name = os.path.join(mogul_dir, mogul_file_name_stub + '-mogul.ins')
-        mogul_out_file_name = os.path.join(mogul_dir, mogul_file_name_stub + '-mogul.out')
+
         Chem.AllChem.ComputeGasteigerCharges(sane_H_mol)
 
-        moguled_mol = pyrogen_boost.mogulify(sane_H_mol) # Nitro bond orders (and other things?)
-        if not os.path.isdir(mogul_dir):
-            checked_mkdir(mogul_dir)
-            if os.path.isdir(mogul_dir):
+        if run_mogul:
+            sdf_file_name       = os.path.join(mogul_dir, mogul_file_name_stub + '-mogul.sdf')
+            mogul_ins_file_name = os.path.join(mogul_dir, mogul_file_name_stub + '-mogul.ins')
+            mogul_out_file_name = os.path.join(mogul_dir, mogul_file_name_stub + '-mogul.out')
+
+            moguled_mol = pyrogen_boost.mogulify(sane_H_mol) # Nitro bond orders (and other things?)
+            if not os.path.isdir(mogul_dir):
+                checked_mkdir(mogul_dir)
+                if os.path.isdir(mogul_dir):
+                    mb = Chem.MolToMolBlock(moguled_mol)
+                    # print >> file(sdf_file_name,'w'), mb
+                    print(mb, file=open(sdf_file_name,'w'))
+            else:
                 mb = Chem.MolToMolBlock(moguled_mol)
                 # print >> file(sdf_file_name,'w'), mb
-                print(m, file=open(sdf_file_name,'w'))
-        else:
-            mb = Chem.MolToMolBlock(moguled_mol)
-            # print >> file(sdf_file_name,'w'), mb
-            print(mb, file=open(sdf_file_name,'w'))
+                print(mb, file=open(sdf_file_name,'w'))
 
 
         bor = make_restraints_for_bond_orders(sane_H_mol)
@@ -763,7 +766,9 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
 
         # execute_mogul() tests if mogul is executable
         #
-        mogul_state = execute_mogul(sdf_file_name, mogul_ins_file_name, mogul_out_file_name)
+        mogul_state = False
+        if run_mogul:
+            mogul_state = execute_mogul(sdf_file_name, mogul_ins_file_name, mogul_out_file_name)
         if mogul_state:
 
             # Here we need to think about matching to reference
