@@ -1,6 +1,22 @@
 --- Items---
 
-o how to get servalcat to write hydrogen atoms with nuclear distances
+o When merging molecules, Try to keep the same chain id for the
+  incoming chain.
+
+o Simple mutate of nucleotides leaves hydrogen atoms behind
+
+o when using Shift Q to show/hide maps, then Display Manager doesn't follow
+
+o Test: have an indicator for the refinement map in the Display Manager
+
+o go to middle of map molecule and go to middle of map box seem
+  not to work if I have copied the map (refinement map not set?)
+
+o how to get servalcat to write hydrogen atoms with nuclear distances?
+
+o "Intelligent" (multi-file) Open dialog
+
+o outline mode only.
 
 o drag residue selection box over PAE plot
 
@@ -10,6 +26,7 @@ o can a molecular Jiggle (of some sort) be used to improve the
 o bind printscr to screenshot
 
 o look at the axis for virtual trackbal spherical mode
+* Is fine.
 
 o Look at the molecular symmetry problem from Lucrezia
 
