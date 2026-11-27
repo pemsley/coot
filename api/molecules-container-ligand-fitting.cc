@@ -257,7 +257,10 @@ molecules_container_t::fit_ligand_right_here(int imol_protein, int imol_map, int
                         float rmsd = molecules[imol_map].get_map_rmsd_approx();
                         int   jiggle_n_trials = 5000;
                         float jiggle_tf = 2.0;
-                        molecules[imol_in_hope].fit_to_map_by_random_jiggle_using_atom_selection(lig_cid, xmap, rmsd,
+                        // Don't use xmap here: molecules.push_back() above can move the molecules,
+                        // and then xmap refers to a map that is no longer there.
+                        const clipper::Xmap<float> &xmap_now = molecules[imol_map].xmap;
+                        molecules[imol_in_hope].fit_to_map_by_random_jiggle_using_atom_selection(lig_cid, xmap_now, rmsd,
                                                                                                  jiggle_n_trials, jiggle_tf);
                      }
                   }
@@ -267,7 +270,7 @@ molecules_container_t::fit_ligand_right_here(int imol_protein, int imol_map, int
                      clipper::Xmap<float> masked_map = wlig.masked_map();
                      clipper::CCP4MAPfile mapout;
                      mapout.open_write(file_name);
-                     mapout.export_xmap(xmap);
+                     mapout.export_xmap(molecules[imol_map].xmap);
                      mapout.close_write();
                   }
 
