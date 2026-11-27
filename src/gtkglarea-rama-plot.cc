@@ -80,6 +80,7 @@ gtkgl_rama_realize(GtkWidget *gtk_gl_area) {
             auto mess = gtk_gl_area_get_error(GTK_GL_AREA(gtk_gl_area))->message;
             std::cout << "ERROR:: gtkgl_rama_realize(): error making current GL context: " << mess << std::endl;
          } else {
+            done = true;
             rama_box.rama.setup_buffers(0.9);
             int imol = g.rama_plot_boxes[i].imol;
             const std::string residue_selection = rama_box.residue_selection;
@@ -314,8 +315,10 @@ void show_opengl_ramachandran_plot(int imol, const std::string &residue_selectio
          graphics_info_t g;
          g.remove_plot_from_rama_plots(box_for_this_plot);
          gtk_box_remove(GTK_BOX(box_for_all_plots), box_for_this_plot);
-         GtkWidget *scrolled = widget_from_builder("ramachandran_plots_scrolled_window");
-         gtk_widget_set_visible(scrolled, FALSE);
+         if (g.rama_plot_boxes.empty()) { // the scrolled window contains all of the plots
+            GtkWidget *scrolled = widget_from_builder("ramachandran_plots_scrolled_window");
+            gtk_widget_set_visible(scrolled, FALSE);
+         }
          graphics_info_t::hide_vertical_validation_frame_if_appropriate();
       };
 
@@ -419,15 +422,15 @@ graphics_info_t::rama_plot_boxes_handle_molecule_update(int imol) {
 void
 graphics_info_t::rama_plot_boxes_handle_molecule_update(GtkWidget *rama_box, const std::string &residue_selection) {
 
-   std::cout << "Here in rama_plot_boxes_handle_molecule_update() " << rama_box << " " << residue_selection << std::endl;
+   // std::cout << "Here in rama_plot_boxes_handle_molecule_update() " << rama_box << " " << residue_selection << std::endl;
    std::vector<widgeted_rama_plot_t>::iterator it;
    for (it=rama_plot_boxes.begin(); it!=rama_plot_boxes.end(); ++it) {
       auto &rama_plot_box = *it;
-      rama_plot_box.residue_selection = residue_selection;
-      std::cout << "in rama_plot_boxes_handle_molecule_update() alpha-1 " << std::endl;
+      // std::cout << "in rama_plot_boxes_handle_molecule_update() alpha-1 " << std::endl;
       if (rama_plot_box.box == rama_box) {
-         std::cout << "in rama_plot_boxes_handle_molecule_update() beta-1 calling setu_from() "
-                   << rama_plot_box.imol << " " << rama_plot_box.residue_selection << std::endl;
+         rama_plot_box.residue_selection = residue_selection; // for this plot only
+         // std::cout << "in rama_plot_boxes_handle_molecule_update() beta-1 calling setu_from() "
+         //           << rama_plot_box.imol << " " << rama_plot_box.residue_selection << std::endl;
          auto &m = graphics_info_t::molecules[rama_plot_box.imol];
          gl_rama_plot_t::draw_mode_t draw_mode = gl_rama_plot_t::draw_mode_t::DRAW_MODE;
          rama_plot_box.rama.setup_from(rama_plot_box.imol, m.atom_sel.mol, rama_plot_box.residue_selection, draw_mode);
@@ -444,10 +447,10 @@ graphics_info_t::rama_plot_boxes_handle_molecule_update(GtkWidget *rama_box) {
    std::vector<widgeted_rama_plot_t>::iterator it;
    for (it=rama_plot_boxes.begin(); it!=rama_plot_boxes.end(); ++it) {
       auto &rama_plot_box = *it;
-      std::cout << "in rama_plot_boxes_handle_molecule_update() alpha-2 " << std::endl;
+      // std::cout << "in rama_plot_boxes_handle_molecule_update() alpha-2 " << std::endl;
       if (rama_plot_box.box == rama_box) {
-         std::cout << "in rama_plot_boxes_handle_molecule_update() beta-2 " << rama_plot_box.imol << " " << rama_plot_box.residue_selection
-                   << std::endl;
+         // std::cout << "in rama_plot_boxes_handle_molecule_update() beta-2 " << rama_plot_box.imol << " " << rama_plot_box.residue_selection
+         //           << std::endl;
          auto &m = graphics_info_t::molecules[rama_plot_box.imol];
          gl_rama_plot_t::draw_mode_t draw_mode = gl_rama_plot_t::draw_mode_t::DRAW_MODE;
          rama_plot_box.rama.setup_from(rama_plot_box.imol, m.atom_sel.mol, rama_plot_box.residue_selection, draw_mode);
