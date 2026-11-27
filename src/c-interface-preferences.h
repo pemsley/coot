@@ -65,6 +65,11 @@ void hide_main_toolbar_icon(int pos);
 void set_vertical_toolbar_style(int style);
 /*! \brief the current vertical toolbar style */
 int vertical_toolbar_style_state();
+#ifndef SWIG
+/* Show/hide the icons and labels of the vertical toolbar buttons to match
+   graphics_info_t::vertical_toolbar_style. */
+void apply_vertical_toolbar_style();
+#endif
 
 int preferences_internal_font_own_colour_flag();
 

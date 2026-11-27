@@ -758,14 +758,28 @@ handle_start_scripts() {
 #endif
 
    std::filesystem::path xdg_ch = xdg.get_config_home();
-   std::vector<std::filesystem::path>   py_config_scripts = xdg.get_python_config_scripts();
+   std::vector<std::filesystem::path>        user_scripts = xdg.get_python_config_scripts();
    std::vector<std::filesystem::path>      curlew_scripts = get_scripts(xdg_ch, "Curlew",      ".py");
    std::vector<std::filesystem::path> preferences_scripts = get_scripts(xdg_ch, "Preferences", ".py");
    std::vector<std::filesystem::path>      xenops_scripts = get_scripts(xdg_ch, "Xenops",      ".py");
 
+   // The scripts that the user wrote are run last, so that they override the preferences
+   // (which are written by Coot).
+   //
+   // Coot 1.1.x wrote coot_preferences.py into the config home itself, not into Preferences.
+   // That is not a script that the user wrote, so it is run first - then the current
+   // preferences override it (as they did before).
+   const std::string old_preferences_file_name = "coot_preferences.py";
+   std::vector<std::filesystem::path> py_config_scripts;
+   for (const auto &script : user_scripts)
+      if (script.filename() == old_preferences_file_name)
+         py_config_scripts.push_back(script);
    py_config_scripts.insert(py_config_scripts.end(),      curlew_scripts.begin(),      curlew_scripts.end());
    py_config_scripts.insert(py_config_scripts.end(), preferences_scripts.begin(), preferences_scripts.end());
    py_config_scripts.insert(py_config_scripts.end(),      xenops_scripts.begin(),      xenops_scripts.end());
+   for (const auto &script : user_scripts)
+      if (script.filename() != old_preferences_file_name)
+         py_config_scripts.push_back(script);
 
    if (false) {
       for (const auto &script : py_config_scripts) {

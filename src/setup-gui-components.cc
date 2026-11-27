@@ -26,6 +26,7 @@
 #include <gtk/gtk.h>
 #include "graphics-info.h"
 #include "c-interface-gtk-widgets.h"
+#include "c-interface-preferences.h" // for apply_vertical_toolbar_style()
 #include "setup-gui-components.hh"
 #include "gtk/gtkshortcut.h"
 #include "utils/coot-utils.hh"
@@ -510,95 +511,6 @@ void set_vertical_toolbar_internal_alignment() {
          }
          g_info("set_vertical_toolbar_internal_alignment: Aligning toolbar item %p of type %s.",child,G_OBJECT_TYPE_NAME(child));
          gtk_widget_set_halign(parent_widget, GTK_ALIGN_START);
-   }
-}
-
-// Return the GtkBox that holds the GtkImage and the GtkLabel of an item of the vertical
-// toolbar - or null if this item does not have one (or if we are using a version of Gtk
-// that is too old to let us look inside a GtkMenuButton).
-//
-static GtkWidget *vertical_toolbar_item_content_box(GtkWidget *item) {
-
-   GtkWidget *child = nullptr;
-   if (GTK_IS_MENU_BUTTON(item)) {
-#if GTK_MAJOR_VERSION == 4 && GTK_MINOR_VERSION >= 6
-      child = gtk_menu_button_get_child(GTK_MENU_BUTTON(item));
-#endif
-   } else {
-      if (GTK_IS_BUTTON(item)) // a GtkToggleButton is a GtkButton
-         child = gtk_button_get_child(GTK_BUTTON(item));
-   }
-   if (child)
-      if (GTK_IS_BOX(child))
-         return child;
-   return nullptr;
-}
-
-// Show or hide the icons and the labels of the buttons of the vertical toolbar according
-// to graphics_info_t::vertical_toolbar_style:
-//
-//    0: icons and labels
-//    1: labels only  (c.f. Gnome)
-//    2: icons only   (c.f. Inkscape)
-//
-// A button without a usable icon (one with no icon-name, or with an icon-name that the
-// icon theme cannot find) shows its label in "icons only" mode - it is still usable then.
-// The buttons that do show an icon (and no label) are given a tooltip made from the text
-// of the label that they are hiding (these buttons have no tooltips of their own).
-//
-void apply_vertical_toolbar_style() {
-
-   int style = graphics_info_t::vertical_toolbar_style;
-
-   GtkWidget *toolbar = widget_from_builder("main_window_vbox_inner");
-   if (! toolbar) return;
-
-   for (GtkWidget *item = gtk_widget_get_first_child(toolbar);
-        item != nullptr;
-        item = gtk_widget_get_next_sibling(item)) {
-
-      GtkWidget *box = vertical_toolbar_item_content_box(item);
-      if (! box) continue;
-
-      GtkWidget *image = nullptr;
-      GtkWidget *label = nullptr;
-      for (GtkWidget *w = gtk_widget_get_first_child(box);
-           w != nullptr;
-           w = gtk_widget_get_next_sibling(w)) {
-         if (GTK_IS_IMAGE(w) && ! image) image = w;
-         if (GTK_IS_LABEL(w) && ! label) label = w;
-      }
-      if (! label) continue;
-
-      bool has_icon = false;
-      if (image) {
-         if (gtk_image_get_storage_type(GTK_IMAGE(image)) != GTK_IMAGE_EMPTY) {
-            has_icon = true;
-            // an icon-name that the icon theme cannot find is drawn as "image-missing" -
-            // show the label instead of that. (This is what happens when coot is run
-            // without having been installed - the icons live in the data dir.)
-            const char *icon_name = gtk_image_get_icon_name(GTK_IMAGE(image));
-            if (icon_name) {
-               GtkIconTheme *icon_theme = gtk_icon_theme_get_for_display(gtk_widget_get_display(item));
-               if (icon_theme)
-                  if (! gtk_icon_theme_has_icon(icon_theme, icon_name))
-                     has_icon = false;
-            }
-         }
-      }
-
-      // in "icons and labels" mode the (empty) image of an icon-less button stays visible -
-      // that way this mode looks exactly as it did before there were styles to choose from.
-      bool show_icon  = (style == 0) || (has_icon && (style == 2));
-      bool show_label = (style != 2) || (! has_icon);
-
-      if (image) gtk_widget_set_visible(image, show_icon);
-      gtk_widget_set_visible(label, show_label);
-
-      if (show_label)
-         gtk_widget_set_tooltip_text(item, nullptr);
-      else
-         gtk_widget_set_tooltip_text(item, gtk_label_get_text(GTK_LABEL(label)));
    }
 }
 

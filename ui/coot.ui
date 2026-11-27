@@ -5168,7 +5168,7 @@ that you wish to delete.               </property>
                   <object class="GtkBox" id="hbox236">
                     <child>
                       <object class="GtkLabel" id="label258">
-                        <property name="label" translatable="yes">   Molecules     </property>
+                        <property name="label" translatable="yes"> Model Molecules   </property>
                         <property name="justify">center</property>
                       </object>
                     </child>
