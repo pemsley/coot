@@ -875,6 +875,16 @@ gl_rama_plot_t::get_mouse_over_hit(double x_widget, double y_widget, int widget_
 
       // std::cout << "debug:: phi_psi_mouse: in " << x_widget << " " << y_widget
       // << " out: " << phi_psi_mouse.phi << " " << phi_psi_mouse.psi << std::endl;
+
+      // the same test that update_hud_tmeshes() uses to choose the outlier markers
+      auto is_outlier = [this] (const rama_plot::phi_psi_t &phi_psi) {
+         double phi_r = clipper::Util::d2rad(phi_psi.phi);
+         double psi_r = clipper::Util::d2rad(phi_psi.psi);
+         if (phi_psi.residue_name == "PRO") return (rama_pro.probability(phi_r, psi_r) < rama_threshold_allowed);
+         if (phi_psi.residue_name == "GLY") return (rama_gly.probability(phi_r, psi_r) < rama_threshold_allowed);
+         return (rama_non_gly_pro.probability(phi_r, psi_r) < rama_threshold_allowed);
+      };
+
       std::map<coot::residue_spec_t, rama_plot::phi_psi_t>::const_iterator it;
       float delta_r_sqrd_best = 99999999.9;
       bool best_has_been_found = false;
@@ -885,8 +895,11 @@ gl_rama_plot_t::get_mouse_over_hit(double x_widget, double y_widget, int widget_
          double delta_psi = fabs(phi_psi.psi - phi_psi_mouse.psi);
          if (delta_phi < 10.0) {
             if (delta_psi < 10.0) {
+               // when only the outliers are drawn, only the outliers can be picked
+               if (draw_outliers_only_flag && ! is_outlier(phi_psi)) continue;
                double delta_r_sqrd = delta_phi * delta_phi + delta_psi * delta_psi;
                if (delta_r_sqrd < delta_r_sqrd_best) {
+                  delta_r_sqrd_best = delta_r_sqrd;
                   phi_psi_best = phi_psi;
                   best_has_been_found = true;
                }

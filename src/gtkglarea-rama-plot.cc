@@ -301,7 +301,6 @@ void show_opengl_ramachandran_plot(int imol, const std::string &residue_selectio
 
       auto selection_entry_activate_callback = +[] (GtkWidget *entry, gpointer user_data) {
          std::string entry_string = gtk_editable_get_text(GTK_EDITABLE(entry));
-         std::cout << "Now do something with " << entry_string << std::endl;
          GtkWidget *box_for_this_rama_plot = GTK_WIDGET(user_data);
          graphics_info_t::rama_plot_boxes_handle_molecule_update(box_for_this_rama_plot, entry_string);
          graphics_info_t::draw_rama_plots();
