@@ -2704,6 +2704,18 @@ int test_mutate_base(molecules_container_t &mc) {
          return ok;
       };
 
+      // 124D has hydrogen atoms: those of the old base should be deleted, those of the sugar should be kept
+      auto n_atoms_found = [&mc, imol] (const std::string &chain_id, int res_no, const std::vector<std::string> &atom_names) {
+         unsigned int n = 0;
+         for (const auto &atom_name : atom_names)
+            if (mc.get_atom(imol, coot::atom_spec_t(chain_id, res_no, "", atom_name, ""))) n++;
+         return n;
+      };
+      const std::vector<std::string> da_base_hydrogens = {" H8 ", " H2 ", " H61", " H62"};
+      const std::vector<std::string>  u_base_hydrogens = {" H3 ", " H5 ", " H6 "};
+      const std::vector<std::string>   sugar_hydrogens = {" H1'", " H2'", " H3'", " H4'", " H5'", "H5''"};
+      bool test_0 = (n_atoms_found("A", 4, da_base_hydrogens) == 4 && n_atoms_found("B", 11, u_base_hydrogens) == 3);
+
       // DNA: DA -> "C" should give DC (not RNA C) and no O2'
       int status_1 = mc.mutate_base(imol, "//A/4", "C");
       std::string rn_1 = mc.get_residue_name(imol, "A", 4, "");
@@ -2717,6 +2729,10 @@ int test_mutate_base(molecules_container_t &mc) {
       mmdb::Atom *o2_star_2 = mc.get_atom(imol, coot::atom_spec_t("B", 11, "", " O2'", ""));
       bool test_2 = (status_2 == 1 && rn_2 == "G" && o2_star_2 && glycosidic_bond_ok("B", 11, " N9 "));
 
+      // no hydrogen atoms of the old bases left behind
+      bool test_5 = (n_atoms_found("A",  4, da_base_hydrogens) == 0 && n_atoms_found("A",  4, sugar_hydrogens) == 6 &&
+                     n_atoms_found("B", 11,  u_base_hydrogens) == 0 && n_atoms_found("B", 11, sugar_hydrogens) == 6);
+
       // failures: a bad base type and a missing residue
       int status_3 = mc.mutate_base(imol, "//B/12", "X9");
       int status_4 = mc.mutate_base(imol, "//B/99", "A");
@@ -2728,8 +2744,8 @@ int test_mutate_base(molecules_container_t &mc) {
 
       std::cout << "debug:: test_mutate_base(): " << status_1 << " " << rn_1 << " " << status_2 << " " << rn_2
                 << " " << status_3 << " " << status_4 << " " << status_5 << " "
-                << test_1 << " " << test_2 << " " << test_3 << " " << test_4 << std::endl;
-      if (test_1 && test_2 && test_3 && test_4) status = 1;
+                << test_0 << " " << test_1 << " " << test_2 << " " << test_3 << " " << test_4 << " " << test_5 << std::endl;
+      if (test_0 && test_1 && test_2 && test_3 && test_4 && test_5) status = 1;
       mc.close_molecule(imol);
    }
    return status;

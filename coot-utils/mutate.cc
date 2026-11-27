@@ -25,6 +25,7 @@
  */
 
 #include <string.h> // bleugh
+#include <algorithm>
 #include "compat/coot-sysdep.h"
 #include "geometry/main-chain.hh"
 #include "coot-coord-utils.hh"
@@ -511,6 +512,37 @@ coot::util::mutate_base(mmdb::Residue *residue, mmdb::Residue *std_base,
                   
                   bool have_deleted = 0;
                   bool need_a_ter = 0;
+
+                  // Delete the hydrogen atoms of the old base, i.e. those bonded to the
+                  // base atoms that are about to be deleted. Use distance, not names, so
+                  // that it works for any hydrogen atom naming scheme (and for deuteriums).
+                  // H1' is about 2.1A from the glycosidic N, so it is not caught by this.
+                  const double max_base_atom_to_hydrogen_dist = 1.5;
+                  for (int i=0; i<n_mol_base_atoms; i++) {
+                     mmdb::Atom *h_at = mol_base_atoms[i];
+                     if (! h_at) continue;
+                     if (! coot::is_hydrogen_atom(h_at)) continue;
+                     for (int j=0; j<n_mol_base_atoms; j++) {
+                        mmdb::Atom *base_at = mol_base_atoms[j];
+                        if (! base_at) continue;
+                        if (std::find(mol_base_atom_names.begin(), mol_base_atom_names.end(),
+                                      std::string(base_at->name)) == mol_base_atom_names.end()) continue;
+                        double dd =
+                           (h_at->x - base_at->x) * (h_at->x - base_at->x) +
+                           (h_at->y - base_at->y) * (h_at->y - base_at->y) +
+                           (h_at->z - base_at->z) * (h_at->z - base_at->z);
+                        if (dd < max_base_atom_to_hydrogen_dist * max_base_atom_to_hydrogen_dist) {
+                           if (debug)
+                              std::cout << ".... Deleting Hydrogen Atom " << h_at->name
+                                        << " i = " << i << std::endl;
+                           residue->DeleteAtom(i);
+                           mol_base_atoms[i] = NULL;
+                           have_deleted = 1;
+                           break;
+                        }
+                     }
+                  }
+
                   for (unsigned int iat=0; iat<mol_base_atom_names.size(); iat++) {
                      for (int i=0; i<n_mol_base_atoms; i++) {
                         if (mol_base_atoms[i]) { 
