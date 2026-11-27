@@ -552,6 +552,33 @@ void setup_vertical_toolbar_context_menu() {
    gtk_widget_add_controller(toolbar, GTK_EVENT_CONTROLLER(click));
 }
 
+// Don't let the side panel (the Ramachandran plots and the validation boxes) be dragged
+// completely shut - when the divider is at the edge of the window it can't be grabbed, so
+// the panel can't be opened again.
+//
+// This is not done with shrink-start-child in coot.ui: GtkBuilder resets that when the
+// children of a GtkPaned are added with <child>, and it would stop the divider at the
+// minimum width of the contents of the panel - which can be hundreds of pixels.
+//
+void setup_side_panel_minimum_width() {
+
+   GtkWidget *pane = widget_from_builder("main_window_graphics_rama_vs_graphics_pane");
+   if (! pane) return;
+
+   auto on_position_changed = +[] (GObject *paned, G_GNUC_UNUSED GParamSpec *pspec, G_GNUC_UNUSED gpointer user_data) {
+      const int min_position = 10;
+      int max_position = 0;
+      g_object_get(paned, "max-position", &max_position, nullptr);
+      // if the pane is too small for min_position, then setting it would be undone at the
+      // next allocation - which would bring us back here.
+      if (max_position >= min_position)
+         if (gtk_paned_get_position(GTK_PANED(paned)) < min_position)
+            gtk_paned_set_position(GTK_PANED(paned), min_position);
+   };
+   g_signal_connect(pane, "notify::position", G_CALLBACK(on_position_changed), nullptr);
+   on_position_changed(G_OBJECT(pane), nullptr, nullptr); // the position in coot.ui is 1
+}
+
 void setup_curlew_banner() {
     GtkWidget* curlew_banner = widget_from_builder("curlew_banner");
     std::string dir = coot::package_data_dir();
@@ -661,6 +688,7 @@ void setup_gui_components() {
    set_vertical_toolbar_internal_alignment();
    apply_vertical_toolbar_style();
    setup_vertical_toolbar_context_menu();
+   setup_side_panel_minimum_width();
    setup_aniso_hscale();
    g_info("Done initializing UI components.");
 }
