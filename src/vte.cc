@@ -328,7 +328,7 @@ void setup_python_vte_terminal() {
 
    g_signal_connect(terminal, "child-exited", G_CALLBACK(on_vte_child_exited), nullptr);
 
-   // Add Cmd/Ctrl keyboard shortcuts: V=paste, +/-/0=font size
+   // Add Cmd/Ctrl keyboard shortcuts: V=paste, +/-/0=font size. Cmd-C or Ctrl-Shift-C=copy.
    GtkEventController *key_controller = gtk_event_controller_key_new();
    g_signal_connect(key_controller, "key-pressed",
                     G_CALLBACK(+[](GtkEventControllerKey *controller,
@@ -338,6 +338,14 @@ void setup_python_vte_terminal() {
                        bool cmd_or_ctrl = (state & GDK_META_MASK) || (state & GDK_CONTROL_MASK);
                        if (!cmd_or_ctrl) return FALSE;
                        VteTerminal *t = VTE_TERMINAL(user_data);
+                       // Cmd-C and Ctrl-Shift-C copy. Ctrl-C is not used for that - it is the terminal's interrupt.
+                       bool cmd_c        = (keyval == GDK_KEY_c) && (state & GDK_META_MASK);
+                       bool ctrl_shift_c = (keyval == GDK_KEY_C) && (state & GDK_CONTROL_MASK) && (state & GDK_SHIFT_MASK);
+                       if (cmd_c || ctrl_shift_c) {
+                          if (vte_terminal_get_has_selection(t))
+                             vte_terminal_copy_clipboard_format(t, VTE_FORMAT_TEXT);
+                          return TRUE;
+                       }
                        if (keyval == GDK_KEY_v) {
                           vte_terminal_paste_clipboard(t);
                           return TRUE;
@@ -593,7 +601,7 @@ create_vte_terminal_with_style() {
    vte_terminal_set_color_foreground(vte, &fg);
    vte_terminal_set_color_background(vte, &bg);
 
-   // Cmd/Ctrl keyboard shortcuts: V=paste, +/-/0=font size
+   // Cmd/Ctrl keyboard shortcuts: V=paste, +/-/0=font size. Cmd-C or Ctrl-Shift-C=copy.
    GtkEventController *key_controller = gtk_event_controller_key_new();
    g_signal_connect(key_controller, "key-pressed",
                     G_CALLBACK(+[](GtkEventControllerKey *controller,
@@ -603,6 +611,14 @@ create_vte_terminal_with_style() {
                        bool cmd_or_ctrl = (state & GDK_META_MASK) || (state & GDK_CONTROL_MASK);
                        if (!cmd_or_ctrl) return FALSE;
                        VteTerminal *t = VTE_TERMINAL(user_data);
+                       // Cmd-C and Ctrl-Shift-C copy. Ctrl-C is not used for that - it is the terminal's interrupt.
+                       bool cmd_c        = (keyval == GDK_KEY_c) && (state & GDK_META_MASK);
+                       bool ctrl_shift_c = (keyval == GDK_KEY_C) && (state & GDK_CONTROL_MASK) && (state & GDK_SHIFT_MASK);
+                       if (cmd_c || ctrl_shift_c) {
+                          if (vte_terminal_get_has_selection(t))
+                             vte_terminal_copy_clipboard_format(t, VTE_FORMAT_TEXT);
+                          return TRUE;
+                       }
                        if (keyval == GDK_KEY_v) {
                           vte_terminal_paste_clipboard(t);
                           return TRUE;
