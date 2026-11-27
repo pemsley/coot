@@ -4157,6 +4157,16 @@ std::string graphics_info_t::fill_option_menu_with_chain_options(GtkWidget *opti
 #endif
 
 
+// The next four functions are dead code - nothing calls them:
+//    fill_renumber_residue_range_dialog()
+//    fill_renumber_residue_range_internal()
+//    renumber_residue_range_molecule_combobox_changed()
+//    renumber_residue_range_chain_combobox_changed()
+// The Renumber Residue Range dialog is filled by wrapped_create_renumber_residue_range_dialog() and
+// read by renumber_residues_from_widget() (both in c-interface-build-gui.cc).
+// The static variables renumber_residue_range_molecule and renumber_residue_range_chain are used
+// only by these functions, so they are dead too.
+
 // static
 void
 graphics_info_t::fill_renumber_residue_range_dialog(GtkWidget *window) {

@@ -378,7 +378,6 @@ GtkWidget *wrapped_create_renumber_residue_range_dialog() {
 
    graphics_info_t g;
 
-   graphics_info_t::renumber_residue_range_molecule = imol;
    if (is_valid_model_molecule(imol)) {
       GCallback func = G_CALLBACK(change_the_contents_of_the_chain_id_combobox);
       g.new_fill_combobox_with_coordinates_options(mol_combobox, func, imol);
@@ -424,7 +423,10 @@ bool renumber_residues_from_widget(GtkWidget *window) {
 
    bool status = true; // OK
 
-   int imol = graphics_info_t::renumber_residue_range_molecule;
+   // use the molecule that is selected in the dialog now - it need not be the molecule
+   // that was selected when the dialog was filled.
+   GtkWidget *mol_combobox = widget_from_builder("renumber_residue_range_molecule_combobox");
+   int imol = my_combobox_get_imol(GTK_COMBO_BOX(mol_combobox));
 
    if (is_valid_model_molecule(imol)) {
 

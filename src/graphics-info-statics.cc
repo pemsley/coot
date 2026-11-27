@@ -1282,6 +1282,7 @@ int graphics_info_t::change_chain_id_molecule = -1;
 std::string graphics_info_t::change_chain_id_from_chain = "";
 
 // renumber residues
+// (these two are dead - they are used only by dead functions in graphics-info-gui.cc)
 int         graphics_info_t::renumber_residue_range_molecule = -1;
 std::string graphics_info_t::renumber_residue_range_chain;
 
