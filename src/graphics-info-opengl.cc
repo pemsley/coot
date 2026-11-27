@@ -359,7 +359,22 @@ graphics_info_t::blob_under_pointer_to_screen_centre() {
    graphics_info_t g; // needed?
    int r = 0;
    if (use_graphics_interface_flag) {
-      int imol_map = Imol_Refinement_Map();
+      // If only one map is displayed, use that (it need not be the refinement map).
+      // Difference maps are not counted - unless a difference map is the only map displayed.
+      // Otherwise use the refinement map.
+      int imol_map = -1;
+      std::vector<int> dm = displayed_map_imols();
+      std::vector<int> dm_not_diff;
+      for (int imol : dm)
+         if (! molecules[imol].is_difference_map_p())
+            dm_not_diff.push_back(imol);
+      if (dm_not_diff.size() == 1) {
+         imol_map = dm_not_diff[0];
+      } else if (dm.size() == 1) {
+         imol_map = dm[0]; // a difference map
+      } else {
+         imol_map = Imol_Refinement_Map();
+      }
       if (imol_map != -1) {
          if (molecules[imol_map].is_displayed_p()) {
             // OK we have a map to search.
@@ -404,7 +419,7 @@ graphics_info_t::blob_under_pointer_to_screen_centre() {
 
             try {
                clipper::Coord_orth blob =
-                  molecules[imol_refinement_map].find_peak_along_line_favour_front(p1, p2);
+                  molecules[imol_map].find_peak_along_line_favour_front(p1, p2);
                coot::Cartesian cc(blob.x(), blob.y(), blob.z());
                // coot::Cartesian cc = front.mid_point(back);
                coot::Cartesian delta = rc - cc;

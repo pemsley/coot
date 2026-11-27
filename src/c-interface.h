@@ -1483,8 +1483,10 @@ int control_key_for_rotate_state();
 /*! \brief Put the blob under the cursor to the screen centre.  Check only
 positive blobs.  Useful function if bound to a key.
 
-The refinement map must be set (and displayed).  (We can't check all maps because they
-are not (or may not be) on the same scale).
+If only one map is displayed, that map is used (difference maps are not counted, unless
+a difference map is the only map displayed).  Otherwise the refinement map must be set
+(and displayed).  (We can't check all maps because they are not (or may not be) on the
+same scale).
 
 Not useful for MCP. For interactive use only.
 
