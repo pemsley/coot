@@ -5961,58 +5961,38 @@ graphics_info_t::clear_diff_map_peaks() {
 void
 graphics_info_t::rotamer_dialog_neighbour_rotamer(int istep) {
 
-   graphics_info_t g;
-
    GtkWidget *rotamer_dialog = widget_from_builder("rotamer_selection_dialog");
-   if (rotamer_dialog) {
-      // void *t  = (void *) (gtk_object_get_user_data(GTK_OBJECT(g.rotamer_dialog)));
-      // std::cout << "user data: " << t << std::endl;
-      int n_rotamers = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(rotamer_dialog), "n_rotamers"));
-      // std::cout << "We find " << n_rotamers << " rotamers in the widget\n";
-      GtkWidget *button;
-      short int ifound_active_button = 0;
-      int active_button_number = 0;
-      int new_active_button_number;
-      for (int i=0; i<n_rotamers; i++) {
-         std::string button_name = "rotamer_selection_button_rot_";
-         button_name += int_to_string(i);
-         // button = lookup_widget(g.rotamer_dialog, button_name.c_str());
-         button = widget_from_builder(button_name.c_str());
-         if (button) {
-            if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button))) {
-               ifound_active_button = 1;
-               active_button_number = i;
-               break;
-            }
-         } else {
-            std::cout << "ERROR:: rotamer button not found " << button_name << std::endl;
-         }
-      }
-      if (ifound_active_button) {
-         if (istep == 1) {
-            new_active_button_number = active_button_number + 1;
-            if (new_active_button_number == n_rotamers) {
-               new_active_button_number = 0;
-            }
-         } else {
-            new_active_button_number = active_button_number - 1;
-            if (new_active_button_number < 0) {
-               new_active_button_number = n_rotamers -1;
-            }
-         }
-         std::string button_name = "rotamer_selection_button_rot_";
-         button_name += int_to_string(new_active_button_number);
-         // GtkWidget *new_button = lookup_widget(g.rotamer_dialog, button_name.c_str());
-         GtkWidget *new_button = widget_from_builder(button_name.c_str());
+   if (! rotamer_dialog) return;
+   if (! gtk_widget_get_visible(rotamer_dialog)) return;
 
-         std::cout << "GTK-FIXME rotamer_dialog_neighbour_rotamer() gtk_signal_emit_by_name()" << std::endl;
-         //gtk_signal_emit_by_name(GTK_OBJECT(new_button), "clicked");
+   // the buttons and the number of them were attached to the dialog by fill_rotamer_selection_buttons()
+   int n_rotamers = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(rotamer_dialog), "probabilities_size"));
+   if (n_rotamers < 1) return;
 
-      } else {
-         std::cout << "ERROR:: not active rotamer button found " << std::endl;
+   auto get_button = [rotamer_dialog] (int i) {
+      std::string button_name = "rotamer_selection_button_rot_" + std::to_string(i);
+      return static_cast<GtkWidget *>(g_object_get_data(G_OBJECT(rotamer_dialog), button_name.c_str()));
+   };
+
+   // When the dialog is first shown, the first rotamer is displayed but no button is active.
+   int active_button_number = 0;
+   for (int i=0; i<n_rotamers; i++) {
+      GtkWidget *button = get_button(i);
+      if (button) {
+         if (gtk_check_button_get_active(GTK_CHECK_BUTTON(button))) {
+            active_button_number = i;
+            break;
+         }
       }
    }
 
+   int new_active_button_number = active_button_number + istep;
+   if (new_active_button_number >= n_rotamers) new_active_button_number = 0;
+   if (new_active_button_number < 0) new_active_button_number = n_rotamers - 1;
+
+   GtkWidget *new_button = get_button(new_active_button_number);
+   if (new_button) // the "toggled" callback of the button changes the rotamer
+      gtk_check_button_set_active(GTK_CHECK_BUTTON(new_button), TRUE);
 }
 
 void

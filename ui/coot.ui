@@ -20308,6 +20308,18 @@ Move a copy?</property>
             </child>
             <child>
               <object class="GtkShortcutsShortcut">
+                <property name="accelerator">period</property>
+                <property name="title" translatable="yes">Next Rotamer</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">comma</property>
+                <property name="title" translatable="yes">Previous Rotamer</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
                 <property name="accelerator">asciitilde</property>
                 <property name="title" translatable="yes">Rotamer Name to Status Bar</property>
               </object>
