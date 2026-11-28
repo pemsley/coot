@@ -7114,17 +7114,19 @@ graphics_info_t::display_next_map() { // one at a time, all, none.
       for (int imol=0; imol<n_mol; imol++) {
          if (std::find(maps_to_be_displayed.begin(), maps_to_be_displayed.end(), imol) == maps_to_be_displayed.end()) {
             molecules[imol].set_map_is_displayed(0);
+            if (is_valid_map_molecule(imol)) // this loop is over the models too
+               set_display_control_button_state(imol, "Displayed", 0);
          } else {
             molecules[imol].set_map_is_displayed(1);
+            set_display_control_button_state(imol, "Displayed", 1);
          }
       }
    } else {
       // toggle the display of the one displayed map
       int imol_map = mm[0];
-      if (dm.empty())
-         molecules[imol_map].set_map_is_displayed(1);
-      else
-         molecules[imol_map].set_map_is_displayed(0);
+      int state = dm.empty() ? 1 : 0;
+      molecules[imol_map].set_map_is_displayed(state);
+      set_display_control_button_state(imol_map, "Displayed", state);
    }
 }
 
