@@ -905,6 +905,22 @@ void render_as_occupancy_representation_button_select(int imol) {
 
 
 
+// The "refinement map" toggle button should not be much wider than the circle that is its label
+// (a button with a text label has wide padding on the left and right).
+static void
+setup_refinement_map_toggle_button_css() {
+
+   static bool done = false;
+   if (done) return;
+   done = true;
+
+   GtkCssProvider *provider = gtk_css_provider_new();
+   gtk_css_provider_load_from_string(provider, ".refinement-map-toggle-button { padding-left: 6px; padding-right: 6px; }");
+   gtk_style_context_add_provider_for_display(gdk_display_get_default(), GTK_STYLE_PROVIDER(provider),
+                                              GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+   g_object_unref(provider);
+}
+
 /* n is the nth element in the molecule display VBox */
 void
 display_control_map_combo_box(const std::string &name, int imol) {
@@ -923,6 +939,7 @@ display_control_map_combo_box(const std::string &name, int imol) {
 
    // We need to add thesee items:
    // 1: molecule number label
+   // 1b: "refinement map" togglebutton
    // 2: entry with molecule name
    // 3: "Display" checkbutton
    // 4: "Scroll" radiobutton
@@ -935,6 +952,15 @@ display_control_map_combo_box(const std::string &name, int imol) {
    gtk_widget_set_visible(molecule_number_label, TRUE);
    gtk_widget_set_size_request(molecule_number_label, 20, -1); // not using margins (testing)
    gtk_box_append(GTK_BOX(hbox), molecule_number_label);
+
+   // 1b: "refinement map" togglebutton. The label (a circle) and the state are set by
+   // update_refinement_map_toggle_buttons_in_display_manager() (below).
+   GtkWidget *refinement_map_toggle_button = gtk_toggle_button_new_with_label("");
+   gtk_widget_set_tooltip_text(refinement_map_toggle_button, "Refinement Map");
+   setup_refinement_map_toggle_button_css();
+   gtk_widget_add_css_class(refinement_map_toggle_button, "refinement-map-toggle-button");
+   gtk_box_append(GTK_BOX(hbox), refinement_map_toggle_button);
+   g_object_set_data(G_OBJECT(hbox), "refinement_map_toggle_button", refinement_map_toggle_button);
 
    // 2: entry with molecule name
    GtkWidget *entry = gtk_entry_new();
@@ -962,6 +988,8 @@ display_control_map_combo_box(const std::string &name, int imol) {
    if (scroll_group)
       gtk_check_button_set_group(GTK_CHECK_BUTTON(scroll_button), GTK_CHECK_BUTTON(scroll_group));
    g_object_set_data(G_OBJECT(scroll_button), "imol", GINT_TO_POINTER(imol));
+   // for get_radio_button_in_scroll_group() - so this must be set after that has been called (above)
+   g_object_set_data(G_OBJECT(hbox), "scroll_check_button", scroll_button);
 
    // std::cout << ":::::::::::::::: scroll wheel map " << graphics_info_t::scroll_wheel_map << std::endl;
    // maybe scroll_wheel_map was not set yet? So set it now, for this map
@@ -993,6 +1021,10 @@ display_control_map_combo_box(const std::string &name, int imol) {
    g_signal_connect(G_OBJECT(properties_button), "clicked",
 		     G_CALLBACK (on_display_control_map_properties_button_clicked),
 		     GINT_TO_POINTER(imol));
+   g_signal_connect(G_OBJECT(refinement_map_toggle_button), "toggled",
+                    G_CALLBACK(graphics_info_t::refinement_map_toggle_button_toggled),
+                    GINT_TO_POINTER(imol));
+   graphics_info_t::update_refinement_map_toggle_buttons_in_display_manager();
 
 }
 
@@ -1037,21 +1069,8 @@ GtkWidget *get_radio_button_in_scroll_group(int imol_this) {
 
    // The children of the display_map_vbox are hboxes
    GtkWidget *hbox_child = gtk_widget_get_first_child(display_map_vbox);
-   if (hbox_child) {
-      GtkWidget *item_widget = gtk_widget_get_first_child(hbox_child);
-      if (item_widget) {
-         unsigned int inner_child_count = 1;
-         while (item_widget && !w) {
-            item_widget = gtk_widget_get_next_sibling(item_widget);
-            inner_child_count++;
-            if (inner_child_count == 4) {
-               if (GTK_IS_CHECK_BUTTON(item_widget)) {
-                  w = item_widget;
-               }
-            }
-         }
-      }
-   }
+   if (hbox_child)
+      w = GTK_WIDGET(g_object_get_data(G_OBJECT(hbox_child), "scroll_check_button"));
 
    return w;
 }

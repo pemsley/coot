@@ -6543,11 +6543,7 @@ set_display_control_button_state(int imol, const std::string &button_type, int s
       if (GTK_IS_BOX(display_control_vbox)) {
          GtkWidget *item_widget = gtk_widget_get_first_child(display_control_vbox);
          while (item_widget) {
-            GtkWidget *child_0 = gtk_widget_get_first_child(item_widget);
-            GtkWidget *child_1 = gtk_widget_get_next_sibling(child_0);
-            GtkWidget *child_2 = gtk_widget_get_next_sibling(child_1);
-            GtkWidget *display_check_button = child_2;
-            // std::cout << "child_2 " << child_2 << std::endl;
+            GtkWidget *display_check_button = GTK_WIDGET(g_object_get_data(G_OBJECT(item_widget), "display_check_button"));
             int imol_widget = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item_widget), "imol"));
             if (imol_widget == imol) {
                if (button_type == "Displayed") {

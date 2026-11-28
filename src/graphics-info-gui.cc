@@ -549,6 +549,59 @@ graphics_info_t::activate_scroll_radio_button_in_display_manager(int imol) {
    }
 }
 
+// Make the "refinement map" toggle buttons of the maps in the Display Manager match
+// imol_refinement_map. At most one of them is active - none of them are if the
+// refinement map has not been set.
+//
+// imol_refinement_map must be set correctly before coming here.
+//
+// static
+void
+graphics_info_t::update_refinement_map_toggle_buttons_in_display_manager() {
+
+   if (! use_graphics_interface_flag) return;
+
+   GtkWidget *display_map_vbox = widget_from_builder("display_map_vbox");
+   if (display_map_vbox) {
+      // the children are hboxes, one for each map
+      GtkWidget *hbox = gtk_widget_get_first_child(display_map_vbox);
+      while (hbox) {
+         GtkWidget *toggle_button = GTK_WIDGET(g_object_get_data(G_OBJECT(hbox), "refinement_map_toggle_button"));
+         if (toggle_button) {
+            int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(hbox), "imol"));
+            bool is_refinement_map = (imol == imol_refinement_map);
+            // the button text is a circle (U+25CB), grey unless this is the refinement map
+            std::string colour = is_refinement_map ? "#40d070" : "grey";
+            std::string markup = "<span foreground=\"" + colour + "\">○</span>";
+            GtkWidget *label = gtk_button_get_child(GTK_BUTTON(toggle_button));
+            gtk_label_set_markup(GTK_LABEL(label), markup.c_str());
+            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), is_refinement_map);
+         }
+         hbox = gtk_widget_get_next_sibling(hbox);
+      }
+   }
+}
+
+// static
+void
+graphics_info_t::refinement_map_toggle_button_toggled(GtkToggleButton *toggle_button, gpointer data) {
+
+   // We get here when the user clicks on the button, and also when
+   // update_refinement_map_toggle_buttons_in_display_manager() changes the state of the
+   // button. In the second case the button already agrees with imol_refinement_map, so
+   // there is nothing to do.
+
+   int imol = GPOINTER_TO_INT(data);
+   graphics_info_t g;
+   if (gtk_toggle_button_get_active(toggle_button)) {
+      if (imol != imol_refinement_map)
+         g.set_imol_refinement_map(imol); // turns off the button of the previous refinement map
+   } else {
+      if (imol == imol_refinement_map)
+         g.set_refinement_map(-1); // the user turned off the refinement map
+   }
+}
+
 float
 graphics_info_t::get_estimated_map_weight(int imol_map) {
 
@@ -611,6 +664,7 @@ graphics_info_t::show_select_map_frame_gtkbuilder() {
          for (int imol=0; imol<n_molecules(); imol++) {
             if (molecules[imol].has_xmap()) {
                imol_refinement_map = imol;
+               update_refinement_map_toggle_buttons_in_display_manager();
                break;
             }
          }

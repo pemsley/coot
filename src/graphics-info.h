@@ -1564,6 +1564,9 @@ public:
    GtkWidget *display_control_window();
 
    static void activate_scroll_radio_button_in_display_manager(int imol);
+   // make the "refinement map" toggle buttons of the maps match imol_refinement_map
+   static void update_refinement_map_toggle_buttons_in_display_manager();
+   static void refinement_map_toggle_button_toggled(GtkToggleButton *toggle_button, gpointer data);
    static float find_waters_sigma_cut_off;
 
 

@@ -1588,6 +1588,7 @@ graphics_info_t::clear_moving_atoms_object() {
 void
 graphics_info_t::set_refinement_map(int i) {
    imol_refinement_map = i;
+   update_refinement_map_toggle_buttons_in_display_manager();
 }
 
 
@@ -3661,11 +3662,23 @@ graphics_info_t::Imol_Refinement_Map() const {
       }
    }
 
+   int imol_refinement_map_previous = imol_refinement_map;
+
    if (direct_maps.size() == 1) {
       // let's set it then
       imol_refinement_map = direct_maps[0];
    } else {
       imol_refinement_map = -1;
+   }
+
+   // Update the Display Manager - but not directly, we might not be in the main thread.
+   if (imol_refinement_map != imol_refinement_map_previous) {
+      if (use_graphics_interface_flag) {
+         g_idle_add(+[] (gpointer data) -> gboolean {
+            update_refinement_map_toggle_buttons_in_display_manager();
+            return G_SOURCE_REMOVE;
+         }, nullptr);
+      }
    }
 
    return imol_refinement_map;
@@ -3679,6 +3692,9 @@ graphics_info_t::set_imol_refinement_map(int imol) {
       imol_refinement_map = imol;
       r = imol;
    }
+   // do this even if the refinement map was not changed, so that a toggle button
+   // for a map that cannot be the refinement map does not stay active.
+   update_refinement_map_toggle_buttons_in_display_manager();
    return r;
 }
 
