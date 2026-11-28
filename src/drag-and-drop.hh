@@ -50,7 +50,8 @@ on_drag_data_received (GtkWidget *widget,
 
 #endif
 
-int handle_drag_and_drop_single_item(const std::string &file_name);
+std::pair<int, std::string> handle_drag_and_drop_string_internal(const std::string &file_name);
+std::pair<int, std::string> handle_drag_and_drop_single_item(const std::string &file_name);
 
 
 #endif // DRAG_AND_DROP_HH

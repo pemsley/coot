@@ -20,15 +20,14 @@
  * Fifth Floor, Boston, MA, 02110-1301, USA.
  */
 
-#if defined (USE_PYTHON)
-#include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
-#endif
+#include <utility>
+// #include "glibconfig.h"
 
 #include <iostream>
 #include <gtk/gtk.h>
 #include "drag-and-drop.hh"
 
-#ifdef USE_GUILE   
+#ifdef USE_GUILE
 #include <cstdio> // for std::FILE in gmp.h for libguile.h
 #include <libguile.h>		/* for SCM type (returned by safe_scheme_command) */
 #endif
@@ -42,19 +41,25 @@
 // why doesn't this live in a header?
 void network_get_accession_code_entity(const std::string &text, int mode);
 
+int handle_drag_and_drop_string(const std::string &uri_in) {
+
+   return handle_drag_and_drop_string_internal(uri_in).first;
+
+}
 //! \brief handle the string that get when an URL (or text from an url) is dropped.
 //
 // uri string can be a concatenation of string with \ns between them
 // (and a \n to end)
-// 
-int handle_drag_and_drop_string(const std::string &uri_in) {
+//
+std::pair<int, std::string> handle_drag_and_drop_string_internal(const std::string &uri_in) {
 
    int handled = FALSE;
+   std::string status_string;
    bool tried_already = false;
    std::string uri = uri_in;
    std::string url = uri_in;
 
-   if (true)
+   if (false)
       std::cout << "::::::::::::::::::::::::::: handle_drag_and_drop_string: " << uri_in << " " << std::endl;
 
    if (! tried_already) {
@@ -114,7 +119,9 @@ int handle_drag_and_drop_string(const std::string &uri_in) {
                   std::string file_name = coot::util::append_dir_file("coot-download", url_file_name_file);
                   // return 0 on success
                   int status = coot_get_url(url.c_str(), file_name.c_str());
-                  handled = handle_drag_and_drop_single_item(file_name);
+                  std::pair<int, std::string> handled_info = handle_drag_and_drop_single_item(file_name);
+                  handled = handled_info.first;
+                  status_string = handled_info.second;
                }
             }
          }
@@ -133,8 +140,10 @@ int handle_drag_and_drop_string(const std::string &uri_in) {
 
    if (! tried_already) {
       if (coot::file_exists(url)) {
-	 handled = handle_drag_and_drop_single_item(url);
+         std::pair<int, std::string> handled_info = handle_drag_and_drop_single_item(url);
+         handled = handled_info.first;
          tried_already = true;
+         status_string = handled_info.second;
       }
    }
 
@@ -149,13 +158,15 @@ int handle_drag_and_drop_string(const std::string &uri_in) {
          }
       }
    }
-   return handled;
+   return std::make_pair(handled, status_string);
 }
 
-int handle_drag_and_drop_single_item(const std::string &file_name) {
+// make this return a value that is useful to display in the gui
+std::pair<int, std::string> handle_drag_and_drop_single_item(const std::string &file_name) {
 
+   std::string status_string;
    int handled = FALSE;
-   std::cout << "Here in handle_drag_and_drop_single_item() with file_name "
+   std::cout << "DEBUG:: Here in handle_drag_and_drop_single_item() with file_name "
              << file_name << std::endl;
 
    std::string ext = coot::util::file_name_extension(file_name);
@@ -167,7 +178,7 @@ int handle_drag_and_drop_single_item(const std::string &file_name) {
       }
    }
 
-   if (handled == FALSE) { 
+   if (handled == FALSE) {
       std::string ext_tmp = coot::util::file_name_extension(file_name);
       if (file_type_coords(file_name.c_str())) {
 	 int imol = read_pdb(file_name);
@@ -175,13 +186,17 @@ int handle_drag_and_drop_single_item(const std::string &file_name) {
 	    handled = TRUE;
 	 else
 	    std::cout << "INFO:: " << file_name << " was not a coordinates file" << std::endl;
-      } else { 
+      } else {
 	 if (ext == ".mtz") {
 	    std::vector<int> imol_map = auto_read_make_and_draw_maps(file_name.c_str());
-	    if (is_valid_map_molecule(imol_map.front()))
-	       handled = TRUE;
+            if (! imol_map.empty()) {
+	       if (is_valid_map_molecule(imol_map.front()))
+	          handled = TRUE;
+            }
 	 }
       }
    }
-   return handled;
+   if (handled == FALSE)
+      status_string = "Failed to handle " + file_name;
+   return std::make_pair(handled, status_string);
 }

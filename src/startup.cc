@@ -33,6 +33,7 @@
 #include <clipper/core/test_core.h>
 #include <clipper/contrib/test_contrib.h>
 
+#include "cc-interface.hh"
 #include "glib-object.h"
 #include "glib.h"
 #include "glibconfig.h"
@@ -1045,7 +1046,7 @@ add_key_bindings_for_application_window(GtkWidget *app_window) {
 }
 
 // drag and drop code needs to be reworked. Add this here for now.
-int handle_drag_and_drop_string(const std::string &file_name);
+std::pair<int, std::string> handle_drag_and_drop_string_internal(const std::string &file_name);
 
 void
 startup_application_activate(GtkApplication *application,
@@ -1298,9 +1299,11 @@ startup_application_activate(GtkApplication *application,
                gchar *filename = g_file_get_path(file);
                if (filename) {
                   std::cout << "DEBUG:: got filename: " << filename << std::endl;
-                  handle_drag_and_drop_string(filename);
-                  status = TRUE;
+                  std::pair<int, std::string> drag_and_drop_status = handle_drag_and_drop_string_internal(filename);
+                  status = static_cast<gboolean>(drag_and_drop_status.first);
                   g_free(filename);
+                  if (status == FALSE)
+                     add_status_bar_text(drag_and_drop_status.second);
                } else {
                   // macOS GTK4 sometimes gives a GFile built from an already-URI
                   // string, so the colon gets re-encoded (file%3A///...). Unescape
@@ -1315,8 +1318,10 @@ startup_application_activate(GtkApplication *application,
                         if (g_str_has_prefix(path, "file://"))
                            path += strlen("file://");
                         std::cout << "DEBUG:: recovered path: " << path << std::endl;
-                        handle_drag_and_drop_string(path);
-                        status = TRUE;
+                        std::pair<int, std::string> drag_and_drop_status = handle_drag_and_drop_string_internal(path);
+                        status = static_cast<gboolean>(drag_and_drop_status.first);
+                        if (status == FALSE)
+                           add_status_bar_text(drag_and_drop_status.second);
                         g_free(unescaped);
                      }
                      g_free(uri);
@@ -1370,8 +1375,8 @@ startup_application_activate(GtkApplication *application,
                unsigned long ll = strlen(text);
                std::cout << "DEBUG:: text has length " << ll << std::endl;
                if (ll > 0) {
-                  handle_drag_and_drop_string(text);
-                  status = TRUE;
+                  std::pair<int, std::string> drag_and_drop_status = handle_drag_and_drop_string_internal(text);
+                  status = drag_and_drop_status.first;
                }
             } else {
                std::cout << "DEBUG:: on_drop_performed(): text: was null" << std::endl;
