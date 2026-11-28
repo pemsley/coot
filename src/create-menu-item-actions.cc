@@ -2247,16 +2247,33 @@ void cryo_em_hiranuma_inversion_action(G_GNUC_UNUSED GSimpleAction *simple_actio
    }
 }
 
+// Return the refinement map - or, if that is not set, the displayed map if only one map is displayed.
+// Return -1 if there is neither.
+static int
+refinement_map_or_only_displayed_map() {
+
+   int imol = imol_refinement_map();
+   if (! is_valid_map_molecule(imol)) {
+      graphics_info_t g;
+      std::vector<int> dm = g.displayed_map_imols();
+      if (dm.size() == 1)
+         imol = dm[0];
+   }
+   return imol;
+}
+
 void cryo_em_go_to_box_middle_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                      G_GNUC_UNUSED GVariant *parameter,
                                      G_GNUC_UNUSED gpointer user_data) {
-   int imol = imol_refinement_map();
+   int imol = refinement_map_or_only_displayed_map();
    if (is_valid_map_molecule(imol)) {
       clipper::Cell cell = graphics_info_t::molecules[imol].xmap.cell();
       double a = cell.a();
       double b = cell.b();
       double c = cell.c();
       set_rotation_centre(0.5 * a, 0.5 * b, 0.5 *c);
+   } else {
+      ephemeral_overlay_label("Refinement map not set");
    }
    graphics_info_t::graphics_grab_focus();
 }
@@ -2264,9 +2281,11 @@ void cryo_em_go_to_box_middle_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 void cryo_em_go_to_middle_of_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                         G_GNUC_UNUSED GVariant *parameter,
                                         G_GNUC_UNUSED gpointer user_data) {
-   int imol = imol_refinement_map();
+   int imol = refinement_map_or_only_displayed_map();
    if (is_valid_map_molecule(imol)) {
       go_to_map_molecule_centre(imol);
+   } else {
+      ephemeral_overlay_label("Refinement map not set");
    }
    graphics_info_t::graphics_grab_focus();
 }
